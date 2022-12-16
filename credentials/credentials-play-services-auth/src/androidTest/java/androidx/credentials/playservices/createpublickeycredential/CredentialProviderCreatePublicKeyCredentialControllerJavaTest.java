@@ -18,8 +18,12 @@ package androidx.credentials.playservices.createpublickeycredential;
 
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.CREATE_REQUEST_INPUT_REQUIRED_AND_OPTIONAL;
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.CREATE_REQUEST_INPUT_REQUIRED_ONLY;
+import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.CREATE_REQUEST_MISSING_REQUIRED_NONEXISTENT;
+import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.CREATE_REQUEST_REQUIRED_EMPTY;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertThrows;
 
 import androidx.credentials.CreatePublicKeyCredentialRequest;
 import androidx.credentials.playservices.TestCredentialsActivity;
@@ -39,7 +43,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
-
     @Test
     public void
             convertRequestToPlayServices_correctRequiredOnlyRequest_success() {
@@ -91,6 +94,37 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
+        });
+    }
+    @Test
+    public void convertRequestToPlayServices_missingRequired_throws() {
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+
+            assertThrows("Expected bad required json to throw",
+                    JSONException.class,
+                    () -> CredentialProviderCreatePublicKeyCredentialController
+                            .getInstance(activity)
+                            .convertRequestToPlayServices(
+                                    new CreatePublicKeyCredentialRequest(
+                                            CREATE_REQUEST_MISSING_REQUIRED_NONEXISTENT)));
+        });
+    }
+
+    @Test
+    public void convertRequestToPlayServices_emptyRequired_throws() {
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+
+            assertThrows("Expected bad required json to throw",
+                    JSONException.class,
+                    () -> CredentialProviderCreatePublicKeyCredentialController
+                            .getInstance(activity)
+                            .convertRequestToPlayServices(
+                                    new CreatePublicKeyCredentialRequest(
+                                            CREATE_REQUEST_REQUIRED_EMPTY)));
         });
     }
 }

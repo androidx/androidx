@@ -98,6 +98,9 @@ class PublicKeyCredentialControllerUtility {
             return builder.build()
         }
 
+        /**
+         * Converts the response from fido back to json so it can be passed into CredentialManager.
+         */
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
             val authenticatorResponse = cred.response
@@ -114,8 +117,8 @@ class PublicKeyCredentialControllerUtility {
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
             } else {
-                Log.e(TAG, "Expected registration response but got: " +
-                        authenticatorResponse.javaClass.name)
+                Log.e(TAG, "CreatePasskeyResponseJson expected registration response but " +
+                    "got: ${authenticatorResponse.javaClass.name}")
             }
 
             addOptionalAuthenticatorAttachmentAndExtensions(cred, json)
@@ -183,8 +186,8 @@ class PublicKeyCredentialControllerUtility {
             } else {
                 Log.e(
                     TAG,
-                    "Expected assertion response but got: " + authenticatorResponse
-                        .javaClass.name)
+                    "AssertPasskeyResponse in Get Flow expected assertion response but " +
+                        "got: ${authenticatorResponse.javaClass.name}")
             }
             json.put("id", publicKeyCred.id)
             json.put("rawId", b64Encode(publicKeyCred.rawId))
@@ -192,29 +195,38 @@ class PublicKeyCredentialControllerUtility {
             return json.toString()
         }
 
-        @Suppress("DocumentExceptions")
+        /**
+         * Converts from the Credential Manager public key credential option to the Play Auth
+         * Module passkey option.
+         *
+         * @throws JSONException If rpId or challenge either do not
+         * exist or are empty in the initial request json
+         */
         fun convertToPlayAuthPasskeyRequest(request: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeysRequestOptions {
             // TODO : Make sure this is in compliance with w3
+            // TODO : Improve codebase readability as done here (readable error capture + docs/etc)
             Log.i(TAG, "Parsing to play auth (get request side)")
             val json = JSONObject(request.requestJson)
-            if (json.has("rpId")) {
-                val rpId = json.getString("rpId")
-                if (json.has("challenge")) {
-                    val challenge =
-                        Base64.decode(json.getString("challenge"), FLAGS)
-                    return BeginSignInRequest.PasskeysRequestOptions.Builder()
-                        .setSupported(true)
-                        .setRpId(rpId)
-                        .setChallenge(challenge)
-                        .build()
-                } else {
-                    Log.i(TAG, "Challenge not found in request for : $rpId")
-                }
-            } else {
-                Log.i(TAG, "Rp Id not found in request")
+            val rpId = json.optString("rpId", "")
+            if (rpId.isEmpty()) {
+                throw JSONException("GetPublicKeyCredentialOption - rpId not specified in the " +
+                    "request or was unexpectedly empty")
             }
-            throw UnsupportedOperationException("rpId not specified in the request")
+            val challenge = getChallenge(json)
+            return BeginSignInRequest.PasskeysRequestOptions.Builder()
+                .setSupported(true)
+                .setRpId(rpId)
+                .setChallenge(challenge)
+                .build()
+        }
+
+        private fun getChallenge(json: JSONObject): ByteArray {
+            val challengeB64 = json.optString("challenge", "")
+            if (challengeB64.isEmpty()) {
+                throw JSONException("Challenge not found in request or was unexpectedly empty")
+            }
+            return b64Decode(challengeB64)
         }
 
         /**
@@ -232,8 +244,8 @@ class PublicKeyCredentialControllerUtility {
                 val code = authenticatorResponse.errorCode
                 var exception = orderedErrorCodeToExceptions[code]
                 if (exception == null) {
-                    exception = CreatePublicKeyCredentialUnknownException("unknown fido gms " +
-                        "exception")
+                    exception = CreatePublicKeyCredentialUnknownException("AuthenticatorResponse " +
+                        "was an unknown fido gms exception")
                 }
                 return exception
             }
@@ -324,6 +336,11 @@ class PublicKeyCredentialControllerUtility {
                 for (i in 0 until pubKeyDescriptorJSONs.length()) {
                     val descriptorJSON = pubKeyDescriptorJSONs.getJSONObject(i)
                     val descriptorId = b64Decode(descriptorJSON.getString("id"))
+                    val descriptorType = descriptorJSON.getString("type")
+                    if (descriptorId.isEmpty() || descriptorType.isEmpty()) {
+                        throw JSONException("PublicKeyCredentialDescriptor id or type value not " +
+                            "found or unexpectedly empty")
+                    }
                     var transports: MutableList<Transport>? = null
                     if (descriptorJSON.has("transports")) {
                         transports = ArrayList()
@@ -336,7 +353,7 @@ class PublicKeyCredentialControllerUtility {
                     }
                     excludeCredentialsList.add(
                         PublicKeyCredentialDescriptor(
-                            descriptorJSON.getString("type"),
+                            descriptorType,
                             descriptorId, transports
                         )
                     ) // TODO("Confirm allowed mismatch with the spec such as the int algorithm")
@@ -344,9 +361,9 @@ class PublicKeyCredentialControllerUtility {
             }
             builder.setExcludeList(excludeCredentialsList)
 
-            var attestationString = "none"
-            if (json.has("attestation")) {
-                attestationString = json.getString("attestation")
+            var attestationString = json.optString("attestation", "none")
+            if (attestationString.isEmpty()) {
+                attestationString = "none"
             }
             builder.setAttestationConveyancePreference(
                 AttestationConveyancePreference.fromString(attestationString)
@@ -366,6 +383,10 @@ class PublicKeyCredentialControllerUtility {
             if (rpIcon!!.isEmpty()) {
                 rpIcon = null
             }
+            if (rpName.isEmpty() || rpId.isEmpty()) {
+                throw JSONException("PublicKeyCredentialCreationOptions rp ID or rp name are " +
+                    "missing or unexpectedly empty")
+            }
             builder.setRp(
                 PublicKeyCredentialRpEntity(
                     rpId,
@@ -379,9 +400,14 @@ class PublicKeyCredentialControllerUtility {
             for (i in 0 until pubKeyCredParams.length()) {
                 val param = pubKeyCredParams.getJSONObject(i)
                 val paramAlg = param.getLong("alg").toInt()
+                val typeParam = param.optString("type", "")
+                if (typeParam.isEmpty()) {
+                    throw JSONException("PublicKeyCredentialCreationOptions " +
+                        "PublicKeyCredentialParameter type missing or unexpectedly empty")
+                }
                 if (checkAlgSupported(paramAlg)) {
                     paramsList.add(
-                        PublicKeyCredentialParameters(param.getString("type"), paramAlg))
+                        PublicKeyCredentialParameters(typeParam, paramAlg))
                 }
             }
             builder.setParameters(paramsList)
@@ -391,7 +417,7 @@ class PublicKeyCredentialControllerUtility {
             json: JSONObject,
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
-            val challenge = b64Decode(json.getString("challenge"))
+            val challenge = getChallenge(json)
             builder.setChallenge(challenge)
 
             val user = json.getJSONObject("user")
@@ -399,6 +425,10 @@ class PublicKeyCredentialControllerUtility {
             val userName = user.getString("name")
             val displayName = user.getString("displayName")
             val userIcon = user.optString("icon", "")
+            if (displayName.isEmpty() || userId.isEmpty() || userName.isEmpty()) {
+                throw JSONException("PublicKeyCredentialCreationOptions UserEntity missing one " +
+                    "or more of displayName, userId or userName, or they are unexpectedly empty")
+            }
             builder.setUser(
                 PublicKeyCredentialUserEntity(
                     userId,

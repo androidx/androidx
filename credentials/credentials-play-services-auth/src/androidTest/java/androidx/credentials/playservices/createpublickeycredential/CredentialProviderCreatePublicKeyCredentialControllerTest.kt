@@ -23,19 +23,22 @@ import androidx.credentials.playservices.TestUtils.Companion.isSubsetJson
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController.Companion.getInstance
 import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.Companion.CREATE_REQUEST_INPUT_REQUIRED_AND_OPTIONAL
 import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.Companion.CREATE_REQUEST_INPUT_REQUIRED_ONLY
+import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.Companion.CREATE_REQUEST_MISSING_REQUIRED_NONEXISTENT
+import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerUtils.Companion.CREATE_REQUEST_REQUIRED_EMPTY
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.json.JSONException
 import org.json.JSONObject
+import org.junit.Assert
 import org.junit.Test
+import org.junit.function.ThrowingRunnable
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class CredentialProviderCreatePublicKeyCredentialControllerTest {
-
     @Test
     fun convertRequestToPlayServices_correctRequiredOnlyRequest_success() {
         val activityScenario = ActivityScenario.launch(
@@ -96,6 +99,50 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
             } catch (e: JSONException) {
                 throw java.lang.RuntimeException(e)
             }
+        }
+    }
+
+    @Test
+    fun convertRequestToPlayServices_missingRequired_throws() {
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+
+            Assert.assertThrows("Expected bad required json to throw",
+                JSONException::class.java,
+                ThrowingRunnable {
+                    getInstance(
+                        activity!!
+                    )
+                        .convertRequestToPlayServices(
+                            CreatePublicKeyCredentialRequest(
+                                CREATE_REQUEST_MISSING_REQUIRED_NONEXISTENT
+                            )
+                        )
+                })
+        }
+    }
+
+    @Test
+    fun convertRequestToPlayServices_emptyRequired_throws() {
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+
+            Assert.assertThrows("Expected bad required json to throw",
+                JSONException::class.java,
+                ThrowingRunnable {
+                    getInstance(
+                        activity!!
+                    )
+                        .convertRequestToPlayServices(
+                            CreatePublicKeyCredentialRequest(
+                                CREATE_REQUEST_REQUIRED_EMPTY
+                            )
+                        )
+                })
         }
     }
 }
