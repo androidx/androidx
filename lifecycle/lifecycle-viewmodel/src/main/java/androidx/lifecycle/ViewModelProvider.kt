@@ -171,7 +171,7 @@ constructor(
     public open operator fun <T : ViewModel> get(key: String, modelClass: Class<T>): T {
         val viewModel = store[key]
         if (modelClass.isInstance(viewModel)) {
-            (factory as? OnRequeryFactory)?.onRequery(viewModel)
+            (factory as? OnRequeryFactory)?.onRequery(viewModel!!)
             return viewModel as T
         } else {
             @Suppress("ControlFlowWithEmptyBody")
