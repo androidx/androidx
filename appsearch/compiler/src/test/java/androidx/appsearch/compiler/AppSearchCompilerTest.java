@@ -314,6 +314,79 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testSuperClass_changeSchemaName() throws Exception {
+        Compilation compilation = compile(
+                "@Document(name=\"MyParent\")\n"
+                        + "class Parent {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "  Parent(String id, String namespace, String note) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.note = note;\n"
+                        + "  }\n"
+                        + "  public String getNote() { return note; }\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document(name=\"MyGift\")\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  Gift(String id, String namespace, String sender) {\n"
+                        + "    super(id, namespace, \"note\");\n"
+                        + "    this.sender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return sender; }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(
+                /*className=*/"Gift.java",
+                /*content=*/"public static final String SCHEMA_NAME = \"MyGift\";");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testSuperClass_multipleChangedSchemaNames() throws Exception {
+        Compilation compilation = compile(
+                "@Document(name=\"MyParent\")\n"
+                        + "class Parent {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "  Parent(String id, String namespace, String note) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.note = note;\n"
+                        + "  }\n"
+                        + "  public String getNote() { return note; }\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document(name=\"MyGift\")\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  Gift(String id, String namespace, String sender) {\n"
+                        + "    super(id, namespace, \"note\");\n"
+                        + "    this.sender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return sender; }\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document\n"
+                        + "class FooGift extends Gift {\n"
+                        + "  @Document.BooleanProperty boolean foo;\n"
+                        + "  FooGift(String id, String namespace, String note, boolean foo) {\n"
+                        + "    super(id, namespace, note);\n"
+                        + "    this.foo = foo;\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(
+                /*className=*/"FooGift.java",
+                /*content=*/"public static final String SCHEMA_NAME = \"MyGift\";");
+        checkEqualsGolden("FooGift.java");
+    }
+
+    @Test
     public void testSuperClassPojoAncestor() throws Exception {
         // Try multiple levels of inheritance, nested, with properties, overriding properties
         Compilation compilation = compile(
