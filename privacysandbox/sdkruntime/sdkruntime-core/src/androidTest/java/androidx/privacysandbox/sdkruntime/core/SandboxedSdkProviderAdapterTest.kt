@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
 import androidx.annotation.RequiresExtension
-import androidx.core.os.BuildCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -260,5 +259,5 @@ class SandboxedSdkProviderAdapterTest {
     }
 
     private fun isSandboxApiAvailable() =
-        BuildCompat.AD_SERVICES_EXTENSION_INT >= 4
+        AdServicesInfo.version() >= 4
 }

@@ -24,11 +24,11 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
-import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdk
 import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
+import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_ALREADY_LOADED
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
@@ -201,7 +201,7 @@ class SdkSandboxManagerCompat private constructor(
                     val configHolder = LocalSdkConfigsHolder.load(context)
                     val sdkLoader = SdkLoader.create(context)
                     val platformApi =
-                        if (BuildCompat.AD_SERVICES_EXTENSION_INT >= 4) {
+                        if (AdServicesInfo.version() >= 4) {
                             ApiAdServicesV4Impl(context)
                         } else {
                             FailImpl()

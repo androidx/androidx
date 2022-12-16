@@ -26,7 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(projectOrArtifact(":annotation:annotation"))
 
-    implementation(projectOrArtifact(":core:core"))
+    implementation("androidx.core:core:1.8.0")
 
     // TODO(b/249982004): cleanup dependencies
     androidTestImplementation(libs.testCore)
@@ -46,6 +46,8 @@ android {
         disable("BanKeepAnnotation")
     }
 
+    compileSdk = 33
+    compileSdkExtension = 4
     namespace "androidx.privacysandbox.sdkruntime.core"
 }
 

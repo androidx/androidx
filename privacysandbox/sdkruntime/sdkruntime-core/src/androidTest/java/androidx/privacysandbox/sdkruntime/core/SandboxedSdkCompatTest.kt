@@ -21,7 +21,6 @@ import android.os.Binder
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -80,5 +79,5 @@ class SandboxedSdkCompatTest {
     }
 
     private fun isSandboxApiAvailable() =
-        BuildCompat.AD_SERVICES_EXTENSION_INT >= 4
+        AdServicesInfo.version() >= 4
 }

@@ -19,7 +19,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.os.Bundle
-import androidx.core.os.BuildCompat
+import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
@@ -150,5 +150,5 @@ class SdkSandboxManagerCompatTest {
     }
 
     private fun isSandboxApiNotAvailable() =
-        BuildCompat.AD_SERVICES_EXTENSION_INT < 4
+        AdServicesInfo.version() < 4
 }

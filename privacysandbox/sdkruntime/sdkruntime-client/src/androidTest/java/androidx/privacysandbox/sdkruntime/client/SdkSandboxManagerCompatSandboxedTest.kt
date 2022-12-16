@@ -27,7 +27,7 @@ import android.os.Bundle
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresExtension
-import androidx.core.os.BuildCompat
+import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -129,7 +129,7 @@ class SdkSandboxManagerCompatSandboxedTest {
     companion object SandboxApi {
 
         private fun isSandboxApiAvailable() =
-            BuildCompat.AD_SERVICES_EXTENSION_INT >= 4
+            AdServicesInfo.version() >= 4
 
         private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
             val sdkSandboxManager = Mockito.mock(SdkSandboxManager::class.java)

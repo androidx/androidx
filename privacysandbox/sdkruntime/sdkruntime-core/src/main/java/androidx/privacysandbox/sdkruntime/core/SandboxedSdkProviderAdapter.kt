@@ -31,7 +31,7 @@ import androidx.annotation.RequiresExtension
  *
  */
 // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-@SuppressLint("NewApi", "ClassVerificationFailure")
+@SuppressLint("NewApi", "ClassVerificationFailure", "Override")
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
