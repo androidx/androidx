@@ -13,54 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import androidx.annotation.RestrictTo
 
 /**
- * Class to store {@code ViewModels}.
- * <p>
- * An instance of {@code ViewModelStore} must be retained through configuration changes:
- * if an owner of this {@code ViewModelStore} is destroyed and recreated due to configuration
+ * Class to store `ViewModel`s.
+ *
+ * An instance of `ViewModelStore` must be retained through configuration changes:
+ * if an owner of this `ViewModelStore` is destroyed and recreated due to configuration
  * changes, new instance of an owner should still have the same old instance of
- * {@code ViewModelStore}.
- * <p>
- * If an owner of this {@code ViewModelStore} is destroyed and is not going to be recreated,
- * then it should call {@link #clear()} on this {@code ViewModelStore}, so {@code ViewModels} would
+ * `ViewModelStore`.
+ *
+ * If an owner of this `ViewModelStore` is destroyed and is not going to be recreated,
+ * then it should call [clear] on this `ViewModelStore`, so `ViewModel`s would
  * be notified that they are no longer used.
- * <p>
- * Use {@link ViewModelStoreOwner#getViewModelStore()} to retrieve a {@code ViewModelStore} for
+ *
+ * Use [ViewModelStoreOwner.getViewModelStore] to retrieve a `ViewModelStore` for
  * activities and fragments.
  */
-public class ViewModelStore {
+open class ViewModelStore {
 
-    private final HashMap<String, ViewModel> mMap = new HashMap<>();
+    private val map = mutableMapOf<String, ViewModel>()
 
-    final void put(String key, ViewModel viewModel) {
-        ViewModel oldViewModel = mMap.put(key, viewModel);
-        if (oldViewModel != null) {
-            oldViewModel.onCleared();
-        }
-    }
-
-    final ViewModel get(String key) {
-        return mMap.get(key);
-    }
-
-    Set<String> keys() {
-        return new HashSet<>(mMap.keySet());
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun put(key: String, viewModel: ViewModel) {
+        val oldViewModel = map.put(key, viewModel)
+        oldViewModel?.onCleared()
     }
 
     /**
-     *  Clears internal storage and notifies ViewModels that they are no longer used.
+     * Returns the `ViewModel` mapped to the given `key` or null if none exists.
      */
-    public final void clear() {
-        for (ViewModel vm : mMap.values()) {
-            vm.clear();
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    operator fun get(key: String): ViewModel? {
+        return map[key]
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun keys(): Set<String> {
+        return HashSet(map.keys)
+    }
+
+    /**
+     * Clears internal storage and notifies `ViewModel`s that they are no longer used.
+     */
+    fun clear() {
+        for (vm in map.values) {
+            vm.clear()
         }
-        mMap.clear();
+        map.clear()
     }
 }
