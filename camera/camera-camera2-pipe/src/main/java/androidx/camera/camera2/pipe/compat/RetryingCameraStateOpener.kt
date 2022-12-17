@@ -258,7 +258,24 @@ internal class RetryingCameraStateOpener @Inject constructor(
                 return false
             }
             return when (errorCode) {
-                CameraError.ERROR_CAMERA_IN_USE -> attempts <= 1
+                CameraError.ERROR_CAMERA_IN_USE ->
+                    // The error indicates that camera is in use, possibly by an app with higher
+                    // priority [1].
+                    //
+                    // Historically, we retry once to avoid polling for camera opens. Starting with
+                    // the introduction of multi-resume on Android 10 (Q) however [2], it becomes
+                    // easier to switch between apps, causing the issue to show up more prominently
+                    // [3]. We therefore should retry continuously on Android OS versions >= Q.
+                    //
+                    // [1] b/38330838 - Cannot launch camera app during video call.
+                    // [2] https://source.android.com/docs/core/display/multi_display/multi-resume
+                    // [3] b/181777896 - Fatal error while switching between apps using camera.
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                        attempts <= 1
+                    } else {
+                        true
+                    }
+
                 CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> true
                 CameraError.ERROR_CAMERA_DISABLED -> attempts <= 1
                 CameraError.ERROR_CAMERA_DEVICE -> true

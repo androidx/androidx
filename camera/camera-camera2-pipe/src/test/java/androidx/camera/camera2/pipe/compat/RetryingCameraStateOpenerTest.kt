@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
+import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -34,6 +35,7 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -76,7 +78,11 @@ class RetryingCameraStateOpenerTest {
         override suspend fun awaitAvailableCamera(
             cameraId: CameraId,
             timeoutMillis: Long
-        ): Boolean = true
+        ): Boolean {
+            delay(timeoutMillis)
+            fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
+            return true
+        }
     }
 
     private val retryingCameraStateOpener =
@@ -157,15 +163,18 @@ class RetryingCameraStateOpenerTest {
             )
         ).isTrue()
 
-        // Second attempt should fail.
-        assertThat(
-            RetryingCameraStateOpener.shouldRetry(
-                CameraError.ERROR_CAMERA_IN_USE,
-                2,
-                firstAttemptTimestamp,
-                fakeTimeSource
-            )
-        ).isFalse()
+        // The second retry attempt should fail if SDK version < S, and succeed otherwise.
+        val secondRetry = RetryingCameraStateOpener.shouldRetry(
+            CameraError.ERROR_CAMERA_IN_USE,
+            2,
+            firstAttemptTimestamp,
+            fakeTimeSource
+        )
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            assertThat(secondRetry).isFalse()
+        } else {
+            assertThat(secondRetry).isTrue()
+        }
     }
 
     @Test
@@ -349,22 +358,24 @@ class RetryingCameraStateOpenerTest {
     }
 
     @Test
-    fun retryingCameraStateOpenerRetriesCorrectly() = runTest {
+    fun retryingCameraStateOpenerRetriesCorrectlyOnCameraInUse() = runTest {
         cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
         val result = async {
             retryingCameraStateOpener.openCameraWithRetry(cameraId0, fakeGraphListener)
         }
-        // Advance the time to allow for retries.
-        advanceTimeBy(200)
+
+        // Advance virtual clock to move past the retry timeout.
+        advanceTimeBy(30_000)
         advanceUntilIdle()
 
-        // Now make the retry time limit expire to conclude openCameraWithRetry().
-        fakeTimeSource.currentTimestamp = TimestampNs(30_000_000_000)
-
         assertThat(result.await()).isNull()
-        assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
-        // We retry camera open twice, but the first retry should be hidden. Therefore,
-        // GraphListener.onGraphError() should only be called once.
-        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(1)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
+        } else {
+            assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
+        }
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly the number of camera opens minus 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(cameraOpener.numberOfOpens - 1)
     }
 }
