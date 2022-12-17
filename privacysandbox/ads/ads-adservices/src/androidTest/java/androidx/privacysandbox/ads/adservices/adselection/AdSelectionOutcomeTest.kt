@@ -18,7 +18,6 @@ package androidx.privacysandbox.ads.adservices.adselection
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -30,7 +29,6 @@ class AdSelectionOutcomeTest {
     private val adSelectionId = 1234L
     private val renderUri = Uri.parse("abc.com")
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"
         val request = AdSelectionOutcome(adSelectionId, renderUri)
@@ -38,7 +36,6 @@ class AdSelectionOutcomeTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val adSelectionOutcome = AdSelectionOutcome(adSelectionId, renderUri)
         var adSelectionOutcome2 = AdSelectionOutcome(adSelectionId, Uri.parse("abc.com"))

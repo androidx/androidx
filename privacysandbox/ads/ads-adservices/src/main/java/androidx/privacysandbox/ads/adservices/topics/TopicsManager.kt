@@ -19,13 +19,13 @@ package androidx.privacysandbox.ads.adservices.topics
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.LimitExceededException
+import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
 import androidx.core.os.asOutcomeReceiver
-import androidx.core.os.BuildCompat
+import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -45,8 +45,8 @@ abstract class TopicsManager internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract suspend fun getTopics(request: GetTopicsRequest): GetTopicsResponse
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     private class Api33Ext4Impl(
         private val mTopicsManager: android.adservices.topics.TopicsManager
         ) : TopicsManager() {
@@ -104,11 +104,9 @@ abstract class TopicsManager internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): TopicsManager? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
+            return if (AdServicesInfo.version() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 null

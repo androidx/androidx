@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = android.os.Build.VERSION_CODES.TIRAMISU)
+@SdkSuppress(minSdkVersion = 26)
 class JoinCustomAudienceRequestTest {
     private val uri: Uri = Uri.parse("abc.com")
     private val buyer: AdTechIdentifier = AdTechIdentifier("1234")
@@ -41,8 +41,8 @@ class JoinCustomAudienceRequestTest {
     private val keys: List<String> = listOf("key1", "key2")
     private val trustedBiddingSignals: TrustedBiddingData = TrustedBiddingData(uri, keys)
     private val ads: List<AdData> = listOf(AdData(uri, "metadata"))
+
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val customAudience = CustomAudience(
             buyer,

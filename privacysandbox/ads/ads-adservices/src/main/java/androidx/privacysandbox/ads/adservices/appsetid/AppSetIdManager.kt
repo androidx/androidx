@@ -19,9 +19,11 @@ package androidx.privacysandbox.ads.adservices.appsetid
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
+import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresExtension
 import androidx.core.os.asOutcomeReceiver
-import androidx.core.os.BuildCompat
+import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -38,6 +40,7 @@ abstract class AppSetIdManager internal constructor() {
     abstract suspend fun getAppSetId(): AppSetId
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     private class Api33Ext4Impl(
         private val mAppSetIdManager: android.adservices.appsetid.AppSetIdManager
     ) : AppSetIdManager() {
@@ -77,11 +80,9 @@ abstract class AppSetIdManager internal constructor() {
          *  @return AppSetIdManager object.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): AppSetIdManager? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
+            return if (AdServicesInfo.version() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 // TODO(b/261770989): Extend this to older versions.

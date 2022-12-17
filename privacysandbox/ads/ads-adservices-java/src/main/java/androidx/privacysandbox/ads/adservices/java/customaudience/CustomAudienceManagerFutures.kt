@@ -21,14 +21,10 @@ import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager.Companion.obtain
 import android.adservices.common.AdServicesPermissions
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest
 import androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest
 import com.google.common.util.concurrent.ListenableFuture
@@ -105,8 +101,6 @@ abstract class CustomAudienceManagerFutures internal constructor() {
         request: LeaveCustomAudienceRequest
     ): ListenableFuture<Unit>
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
         private val mCustomAudienceManager: CustomAudienceManager?
     ) : CustomAudienceManagerFutures() {
@@ -139,10 +133,7 @@ abstract class CustomAudienceManagerFutures internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): CustomAudienceManagerFutures? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
             return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

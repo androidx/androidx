@@ -17,7 +17,6 @@
 package androidx.privacysandbox.ads.adservices.adid
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -27,7 +26,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AdIdTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AdId: adId=1234, isLimitAdTrackingEnabled=false"
         val adId = AdId("1234", false)
@@ -35,7 +33,6 @@ class AdIdTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val adId1 = AdId("1234", false)
         val adId2 = AdId("1234", false)

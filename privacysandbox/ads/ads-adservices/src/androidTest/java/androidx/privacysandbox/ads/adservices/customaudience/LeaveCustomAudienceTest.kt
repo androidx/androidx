@@ -18,7 +18,6 @@ package androidx.privacysandbox.ads.adservices.customaudience
 
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -30,7 +29,6 @@ class LeaveCustomAudienceTest {
     private val adTechIdentifier: AdTechIdentifier = AdTechIdentifier("1234")
     private val name = "abc"
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "LeaveCustomAudience: buyer=AdTechIdentifier: 1234, name=abc"
         val leaveCustomAudienceRequest = LeaveCustomAudienceRequest(adTechIdentifier, name)

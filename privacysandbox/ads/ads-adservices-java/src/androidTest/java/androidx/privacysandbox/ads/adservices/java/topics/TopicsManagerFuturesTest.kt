@@ -20,7 +20,8 @@ import android.adservices.topics.Topic
 import android.adservices.topics.TopicsManager
 import android.content.Context
 import android.os.OutcomeReceiver
-import androidx.annotation.RequiresApi
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse
 import androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures.Companion.from
@@ -30,8 +31,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.truth.Truth.assertThat
-import java.lang.SuppressWarnings
 import org.junit.Assert
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,10 +47,8 @@ import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 34) // b/259092025
+@SdkSuppress(minSdkVersion = 30)
 class TopicsManagerFuturesTest {
-    private lateinit var mContext: Context
-    private val mSdkName: String = "sdk1"
 
     @Before
     fun setUp() {
@@ -57,15 +56,17 @@ class TopicsManagerFuturesTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testTopicsOlderVersions() {
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(from(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
     @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testTopicsAsync() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val topicsManager = mockTopicsManager(mContext)
         setupTopicsResponse(topicsManager)
         val managerCompat = from(mContext)
@@ -90,55 +91,66 @@ class TopicsManagerFuturesTest {
         verifyRequest(captor.value)
     }
 
-    @RequiresApi(34)
-    private fun mockTopicsManager(spyContext: Context): TopicsManager {
-        val topicsManager = mock(TopicsManager::class.java)
-        `when`(spyContext.getSystemService(TopicsManager::class.java))
-            .thenReturn(topicsManager)
-        return topicsManager
-    }
+    companion object {
+        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-    @RequiresApi(34)
-    private fun setupTopicsResponse(topicsManager: TopicsManager) {
-        // Set up the response that TopicsManager will return when the compat code calls it.
-        val topic1 = Topic(1, 1, 1)
-        val topic2 = Topic(2, 2, 2)
-        val topics = listOf(topic1, topic2)
-        val response = android.adservices.topics.GetTopicsResponse.Builder(topics).build()
-        val answer = { args: InvocationOnMock ->
-            val receiver = args.getArgument<
-                OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>>(2)
-            receiver.onResult(response)
-            null
+        private lateinit var mContext: Context
+        private val mSdkName: String = "sdk1"
+
+        @SuppressWarnings("NewApi")
+        @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+        private fun mockTopicsManager(spyContext: Context): TopicsManager {
+            val topicsManager = mock(TopicsManager::class.java)
+            `when`(spyContext.getSystemService(TopicsManager::class.java))
+                .thenReturn(topicsManager)
+            return topicsManager
         }
-        doAnswer(answer)
-            .`when`(topicsManager).getTopics(
-                any(),
-                any(),
-                any()
-            )
-    }
 
-    @RequiresApi(34)
-    private fun verifyRequest(topicsRequest: android.adservices.topics.GetTopicsRequest) {
-        // Set up the request that we expect the compat code to invoke.
-        val expectedRequest = android.adservices.topics.GetTopicsRequest.Builder()
-            .setAdsSdkName(mSdkName)
-            .build()
+        @SuppressWarnings("NewApi")
+        @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+        private fun setupTopicsResponse(topicsManager: TopicsManager) {
+            // Set up the response that TopicsManager will return when the compat code calls it.
+            val topic1 = Topic(1, 1, 1)
+            val topic2 = Topic(2, 2, 2)
+            val topics = listOf(topic1, topic2)
+            val response = android.adservices.topics.GetTopicsResponse.Builder(topics).build()
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<
+                    OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>>(2)
+                receiver.onResult(response)
+                null
+            }
+            doAnswer(answer)
+                .`when`(topicsManager).getTopics(
+                    any(),
+                    any(),
+                    any()
+                )
+        }
 
-        Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
-    }
+        @SuppressWarnings("NewApi")
+        @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+        private fun verifyRequest(topicsRequest: android.adservices.topics.GetTopicsRequest) {
+            // Set up the request that we expect the compat code to invoke.
+            val expectedRequest = android.adservices.topics.GetTopicsRequest.Builder()
+                .setAdsSdkName(mSdkName)
+                .build()
 
-    @RequiresApi(34)
-    private fun verifyResponse(getTopicsResponse: GetTopicsResponse) {
-        Assert.assertEquals(2, getTopicsResponse.topics.size)
-        val topic1 = getTopicsResponse.topics[0]
-        val topic2 = getTopicsResponse.topics[1]
-        Assert.assertEquals(1, topic1.topicId)
-        Assert.assertEquals(1, topic1.modelVersion)
-        Assert.assertEquals(1, topic1.taxonomyVersion)
-        Assert.assertEquals(2, topic2.topicId)
-        Assert.assertEquals(2, topic2.modelVersion)
-        Assert.assertEquals(2, topic2.taxonomyVersion)
+            Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
+        }
+
+        @SuppressWarnings("NewApi")
+        @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+        private fun verifyResponse(getTopicsResponse: GetTopicsResponse) {
+            Assert.assertEquals(2, getTopicsResponse.topics.size)
+            val topic1 = getTopicsResponse.topics[0]
+            val topic2 = getTopicsResponse.topics[1]
+            Assert.assertEquals(1, topic1.topicId)
+            Assert.assertEquals(1, topic1.modelVersion)
+            Assert.assertEquals(1, topic1.taxonomyVersion)
+            Assert.assertEquals(2, topic2.topicId)
+            Assert.assertEquals(2, topic2.modelVersion)
+            Assert.assertEquals(2, topic2.taxonomyVersion)
+        }
     }
 }

@@ -19,15 +19,15 @@ package androidx.privacysandbox.ads.adservices.adselection
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.LimitExceededException
 import android.os.TransactionTooLargeException
+import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
+import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -75,26 +75,23 @@ abstract class AdSelectionManager internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest)
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     private class Api33Ext4Impl(
         private val mAdSelectionManager: android.adservices.adselection.AdSelectionManager
     ) : AdSelectionManager() {
-        @RequiresApi(34)
         constructor(context: Context) : this(
             context.getSystemService<android.adservices.adselection.AdSelectionManager>(
                 android.adservices.adselection.AdSelectionManager::class.java
             )
         )
 
-        @RequiresApi(34)
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
         override suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome {
             return convertResponse(selectAdsInternal(convertAdSelectionConfig(adSelectionConfig)))
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
         private suspend fun selectAdsInternal(
             adSelectionConfig: android.adservices.adselection.AdSelectionConfig
@@ -107,8 +104,6 @@ abstract class AdSelectionManager internal constructor() {
             )
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         private fun convertAdSelectionConfig(
             request: AdSelectionConfig
         ): android.adservices.adselection.AdSelectionConfig {
@@ -124,16 +119,12 @@ abstract class AdSelectionManager internal constructor() {
                 .build()
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         private fun convertAdSelectionSignals(
             request: AdSelectionSignals
         ): android.adservices.common.AdSelectionSignals {
             return android.adservices.common.AdSelectionSignals.fromString(request.signals)
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         private fun convertBuyers(
             buyers: List<AdTechIdentifier>
         ): MutableList<android.adservices.common.AdTechIdentifier> {
@@ -144,8 +135,6 @@ abstract class AdSelectionManager internal constructor() {
             return ids
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         private fun convertPerBuyerSignals(
             request: Map<AdTechIdentifier, AdSelectionSignals>
         ): Map<android.adservices.common.AdTechIdentifier,
@@ -161,16 +150,12 @@ abstract class AdSelectionManager internal constructor() {
             return map
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         private fun convertResponse(
             response: android.adservices.adselection.AdSelectionOutcome
         ): AdSelectionOutcome {
             return AdSelectionOutcome(response.adSelectionId, response.renderUri)
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
         override suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest) {
@@ -183,8 +168,6 @@ abstract class AdSelectionManager internal constructor() {
             }
         }
 
-        @SuppressLint("ClassVerificationFailure")
-        @RequiresApi(34)
         private fun convertReportImpressionRequest(
             request: ReportImpressionRequest
         ): android.adservices.adselection.ReportImpressionRequest {
@@ -203,11 +186,9 @@ abstract class AdSelectionManager internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): AdSelectionManager? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
+            return if (AdServicesInfo.version() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 null

@@ -17,7 +17,6 @@
 package androidx.privacysandbox.ads.adservices.topics
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -27,7 +26,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class GetTopicsRequestTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "GetTopicsRequest: sdkName=sdk1, shouldRecordObservation=false"
         val request = GetTopicsRequest("sdk1", false)

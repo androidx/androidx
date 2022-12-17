@@ -20,15 +20,11 @@ import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import android.adservices.common.AdServicesPermissions
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.LimitExceededException
 import android.os.TransactionTooLargeException
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
 import androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest
@@ -86,8 +82,6 @@ abstract class AdSelectionManagerFutures internal constructor() {
         reportImpressionRequest: ReportImpressionRequest
     ): ListenableFuture<Unit>
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
         private val mAdSelectionManager: AdSelectionManager?
     ) : AdSelectionManagerFutures() {
@@ -120,10 +114,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): AdSelectionManagerFutures? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
             return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

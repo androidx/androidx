@@ -20,7 +20,6 @@ import android.net.Uri
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -48,7 +47,6 @@ class ReportImpressionRequestTest {
         trustedScoringSignalsUri)
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "ReportImpressionRequest: adSelectionId=$adSelectionId, " +
             "adSelectionConfig=$adSelectionConfig"
@@ -57,7 +55,6 @@ class ReportImpressionRequestTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val reportImpressionRequest = ReportImpressionRequest(adSelectionId, adSelectionConfig)
         var adSelectionConfig2 = AdSelectionConfig(

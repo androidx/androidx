@@ -17,7 +17,6 @@
 package androidx.privacysandbox.ads.adservices.topics
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -27,7 +26,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TopicTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "Topic { TaxonomyVersion=1, ModelVersion=10, TopicCode=100 }"
         val topic = Topic(/* taxonomyVersion= */ 1, /* modelVersion= */ 10, /* topicId= */ 100)
@@ -35,7 +33,6 @@ class TopicTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val topic1 = Topic(/* taxonomyVersion= */ 1, /* modelVersion= */ 10, /* topicId= */ 100)
         val topic2 = Topic(/* taxonomyVersion= */ 1, /* modelVersion= */ 10, /* topicId= */ 100)

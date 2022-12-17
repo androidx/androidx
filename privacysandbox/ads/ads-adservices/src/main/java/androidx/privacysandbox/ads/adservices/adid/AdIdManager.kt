@@ -19,11 +19,13 @@ package androidx.privacysandbox.ads.adservices.adid
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.ext.SdkExtensions
 import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -44,6 +46,7 @@ abstract class AdIdManager internal constructor() {
     abstract suspend fun getAdId(): AdId
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     private class Api33Ext4Impl(
         private val mAdIdManager: android.adservices.adid.AdIdManager
     ) : AdIdManager() {
@@ -81,11 +84,9 @@ abstract class AdIdManager internal constructor() {
          *  @return AdIdManager object.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): AdIdManager? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
+            return if (AdServicesInfo.version() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 // TODO(b/261770989): Extend this to older versions.

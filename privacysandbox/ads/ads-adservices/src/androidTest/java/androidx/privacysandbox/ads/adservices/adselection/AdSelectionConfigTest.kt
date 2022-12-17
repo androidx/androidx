@@ -20,7 +20,6 @@ import android.net.Uri
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -38,7 +37,6 @@ class AdSelectionConfigTest {
         mutableMapOf(Pair(seller, sellerSignals))
     private val trustedScoringSignalsUri: Uri = Uri.parse("www.xyz.com")
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AdSelectionConfig: seller=$seller, decisionLogicUri='$decisionLogicUri', " +
             "customAudienceBuyers=$customAudienceBuyers, adSelectionSignals=$adSelectionSignals, " +
@@ -56,7 +54,6 @@ class AdSelectionConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val adSelectionConfig = AdSelectionConfig(
             seller,

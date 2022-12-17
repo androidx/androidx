@@ -18,14 +18,10 @@ package androidx.privacysandbox.ads.adservices.java.adid
 
 import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import android.adservices.common.AdServicesPermissions
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.privacysandbox.ads.adservices.adid.AdId
 import androidx.privacysandbox.ads.adservices.adid.AdIdManager
 import com.google.common.util.concurrent.ListenableFuture
@@ -50,8 +46,6 @@ abstract class AdIdManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
     abstract fun getAdIdAsync(): ListenableFuture<AdId>
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(private val mAdIdManager: AdIdManager) : AdIdManagerFutures() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
@@ -70,10 +64,7 @@ abstract class AdIdManagerFutures internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): AdIdManagerFutures? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
             return AdIdManager.obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

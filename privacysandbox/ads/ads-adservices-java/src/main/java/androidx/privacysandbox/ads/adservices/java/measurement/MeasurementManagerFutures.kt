@@ -17,15 +17,11 @@
 package androidx.privacysandbox.ads.adservices.java.measurement
 
 import android.adservices.common.AdServicesPermissions
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager
@@ -114,8 +110,6 @@ abstract class MeasurementManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun getMeasurementApiStatusAsync(): ListenableFuture<Int>
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
         private val mMeasurementManager: MeasurementManager
     ) : MeasurementManagerFutures() {
@@ -185,10 +179,7 @@ abstract class MeasurementManagerFutures internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): MeasurementManagerFutures? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
             return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

@@ -17,7 +17,6 @@
 package androidx.privacysandbox.ads.adservices.common
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -29,7 +28,6 @@ class AdTechIdentifierTest {
     private val identifier = "ad-tech-identifier"
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AdTechIdentifier: $identifier"
         val request = AdTechIdentifier(identifier)
@@ -37,7 +35,6 @@ class AdTechIdentifierTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val id1 = AdTechIdentifier(identifier)
         var id2 = AdTechIdentifier("ad-tech-identifier")

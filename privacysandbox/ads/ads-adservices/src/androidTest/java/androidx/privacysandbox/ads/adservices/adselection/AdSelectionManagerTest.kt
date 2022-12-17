@@ -20,7 +20,8 @@ import android.adservices.adselection.AdSelectionOutcome
 import android.content.Context
 import android.net.Uri
 import android.os.OutcomeReceiver
-import androidx.annotation.RequiresApi
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.test.core.app.ApplicationProvider
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
@@ -31,6 +32,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,47 +47,25 @@ import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 34) // b/259092025
+@SdkSuppress(minSdkVersion = 30)
 class AdSelectionManagerTest {
-    private lateinit var mContext: Context
-    private val adSelectionId = 1234L
-    private val adId = "1234"
-    private val seller: AdTechIdentifier = AdTechIdentifier(adId)
-    private val decisionLogicUri: Uri = Uri.parse("www.abc.com")
-    private val customAudienceBuyers: List<AdTechIdentifier> = listOf(seller)
-    private val adSelectionSignalsStr = "adSelSignals"
-    private val adSelectionSignals: AdSelectionSignals = AdSelectionSignals(adSelectionSignalsStr)
-    private val sellerSignalsStr = "sellerSignals"
-    private val sellerSignals: AdSelectionSignals = AdSelectionSignals(sellerSignalsStr)
-    private val perBuyerSignals: Map<AdTechIdentifier, AdSelectionSignals> =
-        mutableMapOf(Pair(seller, sellerSignals))
-    private val trustedScoringSignalsUri: Uri = Uri.parse("www.xyz.com")
-    private val adSelectionConfig = AdSelectionConfig(
-        seller,
-        decisionLogicUri,
-        customAudienceBuyers,
-        adSelectionSignals,
-        sellerSignals,
-        perBuyerSignals,
-        trustedScoringSignalsUri)
-
-    // Response.
-    private val renderUri = Uri.parse("render-uri.com")
-
     @Before
     fun setUp() {
         mContext = spy(ApplicationProvider.getApplicationContext<Context>())
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdSelectionOlderVersions() {
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(obtain(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testSelectAds() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adSelectionManager = mockAdSelectionManager(mContext)
         setupAdSelectionResponse(adSelectionManager)
         val managerCompat = obtain(mContext)
@@ -108,8 +88,10 @@ class AdSelectionManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testReportImpression() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adSelectionManager = mockAdSelectionManager(mContext)
         setupAdSelectionResponse(adSelectionManager)
         val managerCompat = obtain(mContext)
@@ -129,90 +111,120 @@ class AdSelectionManagerTest {
         verifyReportImpressionRequest(captor.value)
     }
 
-    @RequiresApi(34)
-    private fun mockAdSelectionManager(
-        spyContext: Context
-    ): android.adservices.adselection.AdSelectionManager {
-        val adSelectionManager = mock(android.adservices.adselection.AdSelectionManager::class.java)
-        `when`(spyContext.getSystemService(
-            android.adservices.adselection.AdSelectionManager::class.java))
-            .thenReturn(adSelectionManager)
-        return adSelectionManager
-    }
+    @SuppressWarnings("NewApi")
+    @SdkSuppress(minSdkVersion = 30)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    companion object {
+        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        private lateinit var mContext: Context
+        private const val adSelectionId = 1234L
+        private const val adId = "1234"
+        private val seller: AdTechIdentifier = AdTechIdentifier(adId)
+        private val decisionLogicUri: Uri = Uri.parse("www.abc.com")
+        private val customAudienceBuyers: List<AdTechIdentifier> = listOf(seller)
+        private const val adSelectionSignalsStr = "adSelSignals"
+        private val adSelectionSignals: AdSelectionSignals =
+            AdSelectionSignals(adSelectionSignalsStr)
+        private const val sellerSignalsStr = "sellerSignals"
+        private val sellerSignals: AdSelectionSignals = AdSelectionSignals(sellerSignalsStr)
+        private val perBuyerSignals: Map<AdTechIdentifier, AdSelectionSignals> =
+            mutableMapOf(Pair(seller, sellerSignals))
+        private val trustedScoringSignalsUri: Uri = Uri.parse("www.xyz.com")
+        private val adSelectionConfig = AdSelectionConfig(
+            seller,
+            decisionLogicUri,
+            customAudienceBuyers,
+            adSelectionSignals,
+            sellerSignals,
+            perBuyerSignals,
+            trustedScoringSignalsUri)
 
-    @RequiresApi(34)
-    private fun setupAdSelectionResponse(
-        adSelectionManager: android.adservices.adselection.AdSelectionManager
-    ) {
-        // Set up the response that AdSelectionManager will return when the compat code calls it.
-        val response = AdSelectionOutcome.Builder()
-            .setAdSelectionId(adSelectionId)
-            .setRenderUri(renderUri)
-            .build()
-        val answer = { args: InvocationOnMock ->
-            val receiver = args.getArgument<
-                OutcomeReceiver<android.adservices.adselection.AdSelectionOutcome, Exception>>(2)
-            receiver.onResult(response)
-            null
+        // Response.
+        private val renderUri = Uri.parse("render-uri.com")
+
+        private fun mockAdSelectionManager(
+            spyContext: Context
+        ): android.adservices.adselection.AdSelectionManager {
+            val adSelectionManager =
+                mock(android.adservices.adselection.AdSelectionManager::class.java)
+            `when`(spyContext.getSystemService(
+                android.adservices.adselection.AdSelectionManager::class.java))
+                .thenReturn(adSelectionManager)
+            return adSelectionManager
         }
-        doAnswer(answer)
-            .`when`(adSelectionManager).selectAds(
-                any(),
-                any(),
-                any()
-            )
 
-        val answer2 = { args: InvocationOnMock ->
-            val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
-            null
+        private fun setupAdSelectionResponse(
+            adSelectionManager: android.adservices.adselection.AdSelectionManager
+        ) {
+            // Set up the response that AdSelectionManager will return when the compat code calls
+            // it.
+            val response = AdSelectionOutcome.Builder()
+                .setAdSelectionId(adSelectionId)
+                .setRenderUri(renderUri)
+                .build()
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<OutcomeReceiver<AdSelectionOutcome, Exception>>(2)
+                receiver.onResult(response)
+                null
+            }
+            doAnswer(answer)
+                .`when`(adSelectionManager).selectAds(
+                    any(),
+                    any(),
+                    any()
+                )
+
+            val answer2 = { args: InvocationOnMock ->
+                val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
+                receiver.onResult(Object())
+                null
+            }
+            doAnswer(answer2).`when`(adSelectionManager).reportImpression(any(), any(), any())
         }
-        doAnswer(answer2).`when`(adSelectionManager).reportImpression(any(), any(), any())
-    }
 
-    @RequiresApi(34)
-    private fun verifyRequest(request: android.adservices.adselection.AdSelectionConfig) {
-        // Set up the request that we expect the compat code to invoke.
-        val expectedRequest = getPlatformAdSelectionConfig()
+        private fun verifyRequest(request: android.adservices.adselection.AdSelectionConfig) {
+            // Set up the request that we expect the compat code to invoke.
+            val expectedRequest = getPlatformAdSelectionConfig()
 
-        Assert.assertEquals(expectedRequest, request)
-    }
+            Assert.assertEquals(expectedRequest, request)
+        }
 
-    @RequiresApi(34)
-    private fun verifyResponse(
-        adSelectionOutcome: androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
-    ) {
-        val expectedOutcome = androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome(
-            adSelectionId,
-            renderUri
-        )
-        Assert.assertEquals(expectedOutcome, adSelectionOutcome)
-    }
+        private fun verifyResponse(
+            outcome: androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
+        ) {
+            val expectedOutcome =
+                androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome(
+                    adSelectionId,
+                    renderUri)
+            Assert.assertEquals(expectedOutcome, outcome)
+        }
 
-    private fun getPlatformAdSelectionConfig(): android.adservices.adselection.AdSelectionConfig {
-        val adTechIdentifier = android.adservices.common.AdTechIdentifier.fromString(adId)
-        return android.adservices.adselection.AdSelectionConfig.Builder()
-            .setAdSelectionSignals(
-                android.adservices.common.AdSelectionSignals.fromString(adSelectionSignalsStr))
-            .setCustomAudienceBuyers(listOf(adTechIdentifier))
-            .setDecisionLogicUri(decisionLogicUri)
-            .setPerBuyerSignals(mutableMapOf(Pair(
-                adTechIdentifier,
-                android.adservices.common.AdSelectionSignals.fromString(sellerSignalsStr))))
-            .setSeller(adTechIdentifier)
-            .setSellerSignals(
-                android.adservices.common.AdSelectionSignals.fromString(sellerSignalsStr))
-            .setTrustedScoringSignalsUri(trustedScoringSignalsUri)
-            .build()
-    }
+        private fun getPlatformAdSelectionConfig():
+            android.adservices.adselection.AdSelectionConfig {
+            val adTechIdentifier = android.adservices.common.AdTechIdentifier.fromString(adId)
+            return android.adservices.adselection.AdSelectionConfig.Builder()
+                .setAdSelectionSignals(
+                    android.adservices.common.AdSelectionSignals.fromString(adSelectionSignalsStr))
+                .setCustomAudienceBuyers(listOf(adTechIdentifier))
+                .setDecisionLogicUri(decisionLogicUri)
+                .setPerBuyerSignals(mutableMapOf(Pair(
+                    adTechIdentifier,
+                    android.adservices.common.AdSelectionSignals.fromString(sellerSignalsStr))))
+                .setSeller(adTechIdentifier)
+                .setSellerSignals(
+                    android.adservices.common.AdSelectionSignals.fromString(sellerSignalsStr))
+                .setTrustedScoringSignalsUri(trustedScoringSignalsUri)
+                .build()
+        }
 
-    private fun verifyReportImpressionRequest(
-        request: android.adservices.adselection.ReportImpressionRequest
-    ) {
-        val expectedRequest = android.adservices.adselection.ReportImpressionRequest(
-            adSelectionId,
-            getPlatformAdSelectionConfig())
-        Assert.assertEquals(expectedRequest.adSelectionId, request.adSelectionId)
-        Assert.assertEquals(expectedRequest.adSelectionConfig, request.adSelectionConfig)
+        private fun verifyReportImpressionRequest(
+            request: android.adservices.adselection.ReportImpressionRequest
+        ) {
+            val expectedRequest = android.adservices.adselection.ReportImpressionRequest(
+                adSelectionId,
+                getPlatformAdSelectionConfig())
+            Assert.assertEquals(expectedRequest.adSelectionId, request.adSelectionId)
+            Assert.assertEquals(expectedRequest.adSelectionConfig, request.adSelectionConfig)
+        }
     }
 }
