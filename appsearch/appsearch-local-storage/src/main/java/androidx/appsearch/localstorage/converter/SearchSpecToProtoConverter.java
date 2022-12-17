@@ -187,18 +187,29 @@ public final class SearchSpecToProtoConverter {
 
         // Rewrites the typePropertyMasks that exist in {@code prefixes}.
         int groupingType = mSearchSpec.getResultGroupingTypeFlags();
-        if ((groupingType & SearchSpec.GROUPING_TYPE_PER_PACKAGE) != 0
-                && (groupingType & SearchSpec.GROUPING_TYPE_PER_NAMESPACE) != 0) {
-            addPerPackagePerNamespaceResultGroupings(mPrefixes,
-                    mSearchSpec.getResultGroupingLimit(),
-                    namespaceMap, resultSpecBuilder);
-        } else if ((groupingType & SearchSpec.GROUPING_TYPE_PER_PACKAGE) != 0) {
-            addPerPackageResultGroupings(mPrefixes, mSearchSpec.getResultGroupingLimit(),
-                    namespaceMap, resultSpecBuilder);
-        } else if ((groupingType & SearchSpec.GROUPING_TYPE_PER_NAMESPACE) != 0) {
-            addPerNamespaceResultGroupings(mPrefixes, mSearchSpec.getResultGroupingLimit(),
-                    namespaceMap, resultSpecBuilder);
+        ResultSpecProto.ResultGroupingType resultGroupingType =
+                ResultSpecProto.ResultGroupingType.NONE;
+        switch (groupingType) {
+            case SearchSpec.GROUPING_TYPE_PER_PACKAGE :
+                addPerPackageResultGroupings(mPrefixes, mSearchSpec.getResultGroupingLimit(),
+                        namespaceMap, resultSpecBuilder);
+                resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE;
+                break;
+            case SearchSpec.GROUPING_TYPE_PER_NAMESPACE:
+                addPerNamespaceResultGroupings(mPrefixes, mSearchSpec.getResultGroupingLimit(),
+                        namespaceMap, resultSpecBuilder);
+                resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE;
+                break;
+            case SearchSpec.GROUPING_TYPE_PER_PACKAGE | SearchSpec.GROUPING_TYPE_PER_NAMESPACE:
+                addPerPackagePerNamespaceResultGroupings(mPrefixes,
+                        mSearchSpec.getResultGroupingLimit(),
+                        namespaceMap, resultSpecBuilder);
+                resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE;
+                break;
+            default:
+                break;
         }
+        resultSpecBuilder.setResultGroupType(resultGroupingType);
 
         List<TypePropertyMask.Builder> typePropertyMaskBuilders =
                 TypePropertyPathToProtoConverter
@@ -312,10 +323,17 @@ public final class SearchSpecToProtoConverter {
             }
         }
 
-        for (List<String> namespaces : packageAndNamespaceToNamespaces.values()) {
+        for (List<String> prefixedNamespaces : packageAndNamespaceToNamespaces.values()) {
+            List<ResultSpecProto.ResultGrouping.Entry> entries =
+                    new ArrayList<>(prefixedNamespaces.size());
+            for (String namespace : prefixedNamespaces) {
+                entries.add(
+                        ResultSpecProto.ResultGrouping.Entry.newBuilder()
+                                .setNamespace(namespace).build());
+            }
             resultSpecBuilder.addResultGroupings(
                     ResultSpecProto.ResultGrouping.newBuilder()
-                            .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
+                            .addAllEntryGroupings(entries).setMaxResults(maxNumResults));
         }
     }
 
@@ -349,9 +367,16 @@ public final class SearchSpecToProtoConverter {
         }
 
         for (List<String> prefixedNamespaces : packageToNamespacesMap.values()) {
+            List<ResultSpecProto.ResultGrouping.Entry> entries =
+                    new ArrayList<>(prefixedNamespaces.size());
+            for (String namespace : prefixedNamespaces) {
+                entries.add(
+                        ResultSpecProto.ResultGrouping.Entry.newBuilder()
+                                .setNamespace(namespace).build());
+            }
             resultSpecBuilder.addResultGroupings(
                     ResultSpecProto.ResultGrouping.newBuilder()
-                            .addAllNamespaces(prefixedNamespaces).setMaxResults(maxNumResults));
+                            .addAllEntryGroupings(entries).setMaxResults(maxNumResults));
         }
     }
 
@@ -397,10 +422,17 @@ public final class SearchSpecToProtoConverter {
             }
         }
 
-        for (List<String> namespaces : namespaceToPrefixedNamespaces.values()) {
+        for (List<String> prefixedNamespaces : namespaceToPrefixedNamespaces.values()) {
+            List<ResultSpecProto.ResultGrouping.Entry> entries =
+                    new ArrayList<>(prefixedNamespaces.size());
+            for (String namespace : prefixedNamespaces) {
+                entries.add(
+                        ResultSpecProto.ResultGrouping.Entry.newBuilder()
+                                .setNamespace(namespace).build());
+            }
             resultSpecBuilder.addResultGroupings(
                     ResultSpecProto.ResultGrouping.newBuilder()
-                            .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
+                            .addAllEntryGroupings(entries).setMaxResults(maxNumResults));
         }
     }
 }
