@@ -44,6 +44,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Types;
 
@@ -130,22 +132,40 @@ class DocumentModel {
             mIsAutoValueDocument = false;
             // Scan methods and constructors. We will need this info when processing fields to
             // make sure the fields can be get and set.
-            Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
-            for (Element child : mClass.getEnclosedElements()) {
-                if (child.getKind() == ElementKind.CONSTRUCTOR) {
-                    creationMethods.add((ExecutableElement) child);
-                } else if (child.getKind() == ElementKind.METHOD) {
-                    ExecutableElement method = (ExecutableElement) child;
-                    mAllMethods.add(method);
-                    if (isFactoryMethod(method)) {
-                        creationMethods.add(method);
-                    }
-                }
-            }
+            Set<ExecutableElement> creationMethods = extractCreationMethods(mClass);
+            addAllMethods(mClass, mAllMethods);
 
             mQualifiedDocumentClassName = clazz.getQualifiedName().toString();
             scanFields(mClass);
             scanCreationMethods(creationMethods);
+        }
+    }
+
+    private Set<ExecutableElement> extractCreationMethods(TypeElement typeElement) {
+        Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
+        for (Element child : typeElement.getEnclosedElements()) {
+            if (child.getKind() == ElementKind.CONSTRUCTOR) {
+                creationMethods.add((ExecutableElement) child);
+            } else if (child.getKind() == ElementKind.METHOD) {
+                ExecutableElement method = (ExecutableElement) child;
+                if (isFactoryMethod(method)) {
+                    creationMethods.add(method);
+                }
+            }
+        }
+        return creationMethods;
+    }
+
+    private void addAllMethods(TypeElement typeElement, Set<ExecutableElement> allMethods) {
+        for (Element child : typeElement.getEnclosedElements()) {
+            if (child.getKind() == ElementKind.METHOD) {
+                allMethods.add((ExecutableElement) child);
+            }
+        }
+
+        TypeMirror superClass = typeElement.getSuperclass();
+        if (superClass.getKind().equals(TypeKind.DECLARED)) {
+            addAllMethods((TypeElement) mTypeUtil.asElement(superClass), allMethods);
         }
     }
 
@@ -180,6 +200,7 @@ class DocumentModel {
 
     /**
      * The name of the original class annotated with @Document
+     *
      * @return the class name
      */
     @NonNull
@@ -386,6 +407,7 @@ class DocumentModel {
     /**
      * Scans all the fields of the class, as well as superclasses annotated with @Document,
      * to get AppSearch fields such as id
+     *
      * @param element the class to scan
      */
     private void scanFields(@NonNull TypeElement element) throws ProcessingException {
