@@ -86,11 +86,9 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").assertIsDisplayed()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
         rule.onNodeWithText("Text 2").assertIsDisplayed()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
         rule.onNodeWithText("Text 3").assertIsDisplayed()
     }
 
@@ -110,7 +108,6 @@ class CarouselTest {
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").onParent().assertIsFocused()
@@ -130,7 +127,6 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").assertIsDisplayed()
@@ -155,7 +151,6 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         // pause handle has not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -163,7 +158,6 @@ class CarouselTest {
 
         rule.runOnIdle { pauseHandle?.resumeAutoScroll() }
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         // pause handle has been resumed, so Text 2 should be on the screen after
         // delayBetweenSlides + animationTime
@@ -195,7 +189,6 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         // pause handles have not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -203,7 +196,6 @@ class CarouselTest {
 
         rule.runOnIdle { pauseHandle1?.resumeAutoScroll() }
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         // Second pause handle has not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -211,7 +203,6 @@ class CarouselTest {
 
         rule.runOnIdle { pauseHandle2?.resumeAutoScroll() }
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
         // All pause handles have been resumed, so Text 2 should be on the screen after
         // delayBetweenSlides + animationTime
         rule.onNodeWithText("Text 1").assertDoesNotExist()
@@ -242,7 +233,6 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         // pause handles have not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -252,7 +242,6 @@ class CarouselTest {
         // subsequent call to resume should be ignored
         rule.runOnIdle { pauseHandle1?.resumeAutoScroll() }
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
 
         // Second pause handle has not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -278,7 +267,6 @@ class CarouselTest {
         rule.onNodeWithText("Card").assertIsFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenSlides)
-        rule.mainClock.advanceTimeBy(animationTime)
         rule.onNodeWithText("Text 1").assertDoesNotExist()
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
@@ -428,7 +416,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_zeroSlideCount_doesntCrash() {
+    fun carousel_zeroSlideCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
         rule.setContent {
             Carousel(slideCount = 0, modifier = Modifier.testTag(testTag)) {}
@@ -609,12 +597,12 @@ private fun SampleCarousel(
         slideCount = slideCount,
         timeToDisplaySlideMillis = timeToDisplaySlideMillis,
         carouselIndicator = {
-            CarouselDefaults.Indicator(
+            CarouselDefaults.IndicatorRow(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
                     .testTag("indicator"),
-                carouselState = carouselState,
+                activeSlideIndex = carouselState.activeSlideIndex,
                 slideCount = slideCount
             )
         },

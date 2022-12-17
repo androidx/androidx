@@ -22,7 +22,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -58,7 +57,7 @@ import kotlinx.coroutines.flow.first
  * @param overlay composable defining the content overlaid on the background.
  */
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterialApi
 @Composable
 fun CarouselItem(
@@ -128,7 +127,7 @@ object CarouselItemDefaults {
     /**
      * Default delay between the background being rendered and the overlay being rendered.
      */
-    val OverlayEnterTransitionStartDelayMillis: Long = 1500
+    const val OverlayEnterTransitionStartDelayMillis: Long = 200
 
     /**
      * Default transition to bring the overlay into view.
