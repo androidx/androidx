@@ -74,6 +74,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                 .build()
             val tag = params.splitRuleTag
             val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
+            val backgroundColor = params.defaultSplitAttributes.animationBackgroundColor
             when (tag?.substringBefore(SUFFIX_REVERSED)) {
                 TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
                     return if (params.isDefaultMinSizeSatisfied) {
@@ -97,7 +98,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 } else {
                                     TOP_TO_BOTTOM
                                 }
-                            ).build()
+                            )
+                            .setAnimationBackgroundColor(backgroundColor)
+                            .build()
                     } else if (isPortrait) {
                         return expandContainersAttrs
                     }
@@ -112,7 +115,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 } else {
                                     TOP_TO_BOTTOM
                                 }
-                            ).build()
+                            )
+                            .setAnimationBackgroundColor(backgroundColor)
+                            .build()
                     }
                 }
                 TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE -> {
@@ -124,7 +129,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                             } else {
                                 if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
                             }
-                        ).build()
+                        )
+                        .setAnimationBackgroundColor(backgroundColor)
+                        .build()
                 }
                 TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE + SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE -> {
                     return if (isBookMode) {
@@ -138,7 +145,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 } else {
                                     TOP_TO_BOTTOM
                                 }
-                            ).build()
+                            )
+                            .setAnimationBackgroundColor(backgroundColor)
+                            .build()
                     } else {
                         SplitAttributes.Builder()
                             .setSplitType(SplitAttributes.SplitType.splitEqually())
@@ -148,7 +157,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 } else {
                                     LEFT_TO_RIGHT
                                 }
-                            ).build()
+                            )
+                            .setAnimationBackgroundColor(backgroundColor)
+                            .build()
                     }
                 }
                 TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING -> {
@@ -170,7 +181,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 } else {
                                     if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
                                 }
-                            ).build()
+                            )
+                            .setAnimationBackgroundColor(backgroundColor)
+                            .build()
                     }
                 }
             }

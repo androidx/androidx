@@ -20,6 +20,7 @@ import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
+import android.graphics.Color
 import androidx.window.WindowTestUtils
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.SplitType
@@ -56,6 +57,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitEqually())
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .setAnimationBackgroundColor(0)
                 .build()
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
@@ -120,6 +122,7 @@ class EmbeddingAdapterTest {
                         OEMSplitAttributes.SplitType.RatioSplitType(0.3f)
                     )
                 ).setLayoutDirection(OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
+                .setAnimationBackgroundColor(Color.YELLOW)
                 .build(),
         )
         val expectedSplitInfo = SplitInfo(
@@ -128,6 +131,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitByHinge(SplitType.ratio(0.3f)))
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
+                .setAnimationBackgroundColor(Color.YELLOW)
                 .build()
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))

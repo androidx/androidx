@@ -248,7 +248,7 @@ internal class EmbeddingAdapter(
         require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
-        return androidx.window.extensions.embedding.SplitAttributes.Builder()
+        val builder = androidx.window.extensions.embedding.SplitAttributes.Builder()
             .setSplitType(translateSplitType(splitAttributes.splitType))
             .setLayoutDirection(
                 when (splitAttributes.layoutDirection) {
@@ -261,7 +261,13 @@ internal class EmbeddingAdapter(
                         "$splitAttributes.layoutDirection"
                     )
                 }
-            ).build()
+            )
+        if (splitAttributes.animationBackgroundColor != 0) {
+            // Workaround until the platform side update to prevent breakage. Can be removed after
+            // vendor API is re-incremented.
+            builder.setAnimationBackgroundColor(splitAttributes.animationBackgroundColor)
+        }
+        return builder.build()
     }
 
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
