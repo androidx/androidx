@@ -35,12 +35,14 @@ import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.PropertyWeight;
 import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.ScoringSpecProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.android.icing.proto.TypePropertyMask;
+import com.google.android.icing.proto.TypePropertyWeights;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -236,6 +238,8 @@ public final class SearchSpecToProtoConverter {
         protoBuilder.setOrderBy(orderCodeProto).setRankBy(
                 toProtoRankingStrategy(mSearchSpec.getRankingStrategy()));
 
+        addTypePropertyWeights(mSearchSpec.getPropertyWeights(), protoBuilder);
+
         return protoBuilder.build();
     }
 
@@ -263,7 +267,6 @@ public final class SearchSpecToProtoConverter {
                         + rankingStrategyCode);
         }
     }
-
 
     /**
      * Adds result groupings for each namespace in each package being queried for.
@@ -401,6 +404,44 @@ public final class SearchSpecToProtoConverter {
             resultSpecBuilder.addResultGroupings(
                     ResultSpecProto.ResultGrouping.newBuilder()
                             .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
+        }
+    }
+
+    /**
+     * Adds {@link TypePropertyWeights} to {@link ScoringSpecProto}.
+     *
+     * <p>{@link TypePropertyWeights} are added to the {@link ScoringSpecProto} with database and
+     * package prefixing added to the schema type.
+     *
+     * @param typePropertyWeightsMap a map from unprefixed schema type to an inner-map of property
+     *                               paths to weight.
+     * @param scoringSpecBuilder     scoring spec to add weights to.
+     */
+    private void addTypePropertyWeights(
+            @NonNull Map<String, Map<String, Double>> typePropertyWeightsMap,
+            @NonNull ScoringSpecProto.Builder scoringSpecBuilder) {
+        Preconditions.checkNotNull(scoringSpecBuilder);
+        Preconditions.checkNotNull(typePropertyWeightsMap);
+
+        for (Map.Entry<String, Map<String, Double>> typePropertyWeight :
+                typePropertyWeightsMap.entrySet()) {
+            for (String prefix : mPrefixes) {
+                String prefixedSchemaType = prefix + typePropertyWeight.getKey();
+                if (mTargetPrefixedSchemaFilters.contains(prefixedSchemaType)) {
+                    TypePropertyWeights.Builder typePropertyWeightsBuilder =
+                            TypePropertyWeights.newBuilder().setSchemaType(prefixedSchemaType);
+
+                    for (Map.Entry<String, Double> propertyWeight :
+                            typePropertyWeight.getValue().entrySet()) {
+                        typePropertyWeightsBuilder.addPropertyWeights(
+                                PropertyWeight.newBuilder().setPath(
+                                        propertyWeight.getKey()).setWeight(
+                                        propertyWeight.getValue()));
+                    }
+
+                    scoringSpecBuilder.addTypePropertyWeights(typePropertyWeightsBuilder);
+                }
+            }
         }
     }
 }

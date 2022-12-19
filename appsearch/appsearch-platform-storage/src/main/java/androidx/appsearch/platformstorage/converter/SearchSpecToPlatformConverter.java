@@ -47,8 +47,10 @@ public final class SearchSpecToPlatformConverter {
     public static android.app.appsearch.SearchSpec toPlatformSearchSpec(
             @NonNull SearchSpec jetpackSearchSpec) {
         Preconditions.checkNotNull(jetpackSearchSpec);
+
         android.app.appsearch.SearchSpec.Builder platformBuilder =
                 new android.app.appsearch.SearchSpec.Builder();
+
         platformBuilder
                 .setTermMatch(jetpackSearchSpec.getTermMatch())
                 .addFilterSchemas(jetpackSearchSpec.getFilterSchemas())
@@ -68,6 +70,14 @@ public final class SearchSpecToPlatformConverter {
         for (Map.Entry<String, List<String>> projection :
                 jetpackSearchSpec.getProjections().entrySet()) {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());
+        }
+
+        // TODO(b/203700301) : Update to reflect support in Android U+ once this
+        // feature is synced over into service-appsearch.
+        if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {
+            throw new UnsupportedOperationException(
+                    "Property weights are not supported with this backend/Android API level "
+                            + "combination.");
         }
         return platformBuilder.build();
     }

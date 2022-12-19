@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -64,6 +65,7 @@ public final class SearchSpec {
     static final String PROJECTION_TYPE_PROPERTY_PATHS_FIELD = "projectionTypeFieldMasks";
     static final String RESULT_GROUPING_TYPE_FLAGS = "resultGroupingTypeFlags";
     static final String RESULT_GROUPING_LIMIT = "resultGroupingLimit";
+    static final String TYPE_PROPERTY_WEIGHTS_FIELD = "typePropertyWeightsField";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -336,6 +338,61 @@ public final class SearchSpec {
     }
 
     /**
+     * Returns properties weights to be used for scoring.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the {@link Map} returned
+     * by this function, rather than calling it multiple times.
+     *
+     * @return a {@link Map} of schema type to an inner-map of property paths of the schema type to
+     * the weight to set for that property.
+     */
+    @NonNull
+    public Map<String, Map<String, Double>> getPropertyWeights() {
+        Bundle typePropertyWeightsBundle = mBundle.getBundle(TYPE_PROPERTY_WEIGHTS_FIELD);
+        Set<String> schemaTypes = typePropertyWeightsBundle.keySet();
+        Map<String, Map<String, Double>> typePropertyWeightsMap = new ArrayMap<>(
+                schemaTypes.size());
+        for (String schemaType : schemaTypes) {
+            Bundle propertyPathBundle = typePropertyWeightsBundle.getBundle(schemaType);
+            Set<String> propertyPaths = propertyPathBundle.keySet();
+            Map<String, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                propertyPathWeights.put(propertyPath, propertyPathBundle.getDouble(propertyPath));
+            }
+            typePropertyWeightsMap.put(schemaType, propertyPathWeights);
+        }
+        return typePropertyWeightsMap;
+    }
+
+    /**
+     * Returns properties weights to be used for scoring.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the {@link Map} returned
+     * by this function, rather than calling it multiple times.
+     *
+     * @return a {@link Map} of schema type to an inner-map of property paths of the schema type to
+     * the weight to set for that property.
+     */
+    @NonNull
+    public Map<String, Map<PropertyPath, Double>> getPropertyWeightPaths() {
+        Bundle typePropertyWeightsBundle = mBundle.getBundle(TYPE_PROPERTY_WEIGHTS_FIELD);
+        Set<String> schemaTypes = typePropertyWeightsBundle.keySet();
+        Map<String, Map<PropertyPath, Double>> typePropertyWeightsMap = new ArrayMap<>(
+                schemaTypes.size());
+        for (String schemaType : schemaTypes) {
+            Bundle propertyPathBundle = typePropertyWeightsBundle.getBundle(schemaType);
+            Set<String> propertyPaths = propertyPathBundle.keySet();
+            Map<PropertyPath, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                propertyPathWeights.put(new PropertyPath(propertyPath),
+                        propertyPathBundle.getDouble(propertyPath));
+            }
+            typePropertyWeightsMap.put(schemaType, propertyPathWeights);
+        }
+        return typePropertyWeightsMap;
+    }
+
+    /**
      * Get the type of grouping limit to apply, or 0 if {@link Builder#setResultGrouping} was not
      * called.
      */
@@ -359,6 +416,7 @@ public final class SearchSpec {
         private ArrayList<String> mNamespaces = new ArrayList<>();
         private ArrayList<String> mPackageNames = new ArrayList<>();
         private Bundle mProjectionTypePropertyMasks = new Bundle();
+        private Bundle mTypePropertyWeights = new Bundle();
 
         private int mResultCountPerPage = DEFAULT_NUM_PER_PAGE;
         private @TermMatch int mTermMatchType = TERM_MATCH_PREFIX;
@@ -799,7 +857,212 @@ public final class SearchSpec {
             return this;
         }
 
-        /** Constructs a new {@link SearchSpec} from the contents of this builder. */
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param schemaType          the schema type to set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        @NonNull
+        public SearchSpec.Builder setPropertyWeights(@NonNull String schemaType,
+                @NonNull Map<String, Double> propertyPathWeights) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(propertyPathWeights);
+
+            Bundle propertyPathBundle = new Bundle();
+            for (Map.Entry<String, Double> propertyPathWeightEntry :
+                    propertyPathWeights.entrySet()) {
+                String propertyPath = Preconditions.checkNotNull(propertyPathWeightEntry.getKey());
+                Double weight = Preconditions.checkNotNull(propertyPathWeightEntry.getValue());
+                if (weight <= 0.0) {
+                    throw new IllegalArgumentException("Cannot set non-positive property weight "
+                            + "value " + weight + " for property path: " + propertyPath);
+                }
+                propertyPathBundle.putDouble(propertyPath, weight);
+            }
+            mTypePropertyWeights.putBundle(schemaType, propertyPathBundle);
+            return this;
+        }
+
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param schemaType          the schema type to set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        @NonNull
+        public SearchSpec.Builder setPropertyWeightPaths(@NonNull String schemaType,
+                @NonNull Map<PropertyPath, Double> propertyPathWeights) {
+            Preconditions.checkNotNull(propertyPathWeights);
+
+            Map<String, Double> propertyWeights = new ArrayMap<>(propertyPathWeights.size());
+            for (Map.Entry<PropertyPath, Double> propertyPathWeightEntry :
+                    propertyPathWeights.entrySet()) {
+                PropertyPath propertyPath =
+                        Preconditions.checkNotNull(propertyPathWeightEntry.getKey());
+                propertyWeights.put(propertyPath.toString(), propertyPathWeightEntry.getValue());
+            }
+            return setPropertyWeights(schemaType, propertyWeights);
+        }
+
+// @exportToFramework:startStrip()
+
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws AppSearchException if no factory for this document class could be found on the
+         *                            classpath
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        @NonNull
+        public SearchSpec.Builder setPropertyWeightsForDocumentClass(
+                @NonNull Class<?> documentClass,
+                @NonNull Map<String, Double> propertyPathWeights) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setPropertyWeights(factory.getSchemaName(), propertyPathWeights);
+        }
+
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws AppSearchException if no factory for this document class could be found on the
+         *                            classpath
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        @NonNull
+        public SearchSpec.Builder setPropertyWeightPathsForDocumentClass(
+                @NonNull Class<?> documentClass,
+                @NonNull Map<PropertyPath, Double> propertyPathWeights) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setPropertyWeightPaths(factory.getSchemaName(), propertyPathWeights);
+        }
+// @exportToFramework:endStrip()
+
+        /**
+         * Constructs a new {@link SearchSpec} from the contents of this builder.
+         *
+         * @throws IllegalArgumentException if property weights are provided with a
+         *                                  ranking strategy that isn't
+         *                                  RANKING_STRATEGY_RELEVANCE_SCORE.
+         */
         @NonNull
         public SearchSpec build() {
             Bundle bundle = new Bundle();
@@ -816,6 +1079,12 @@ public final class SearchSpec {
             bundle.putInt(ORDER_FIELD, mOrder);
             bundle.putInt(RESULT_GROUPING_TYPE_FLAGS, mGroupingTypeFlags);
             bundle.putInt(RESULT_GROUPING_LIMIT, mGroupingLimit);
+            if (!mTypePropertyWeights.isEmpty()
+                    && RANKING_STRATEGY_RELEVANCE_SCORE != mRankingStrategy) {
+                throw new IllegalArgumentException("Property weights are only compatible with the "
+                        + "RANKING_STRATEGY_RELEVANCE_SCORE ranking strategy.");
+            }
+            bundle.putBundle(TYPE_PROPERTY_WEIGHTS_FIELD, mTypePropertyWeights);
             mBuilt = true;
             return new SearchSpec(bundle);
         }
@@ -826,6 +1095,7 @@ public final class SearchSpec {
                 mNamespaces = new ArrayList<>(mNamespaces);
                 mPackageNames = new ArrayList<>(mPackageNames);
                 mProjectionTypePropertyMasks = BundleUtil.deepCopy(mProjectionTypePropertyMasks);
+                mTypePropertyWeights = BundleUtil.deepCopy(mTypePropertyWeights);
                 mBuilt = false;
             }
         }
