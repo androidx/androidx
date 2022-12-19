@@ -114,7 +114,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         request.getCredentialOptions.forEach {
             builder.addGetCredentialOption(
                 android.credentials.GetCredentialOption(
-                    it.type, it.candidateQueryData, it.requestData, it.requireSystemProvider
+                    it.type, it.requestData, it.candidateQueryData, it.requireSystemProvider
                 ))
         }
         return builder.build()
