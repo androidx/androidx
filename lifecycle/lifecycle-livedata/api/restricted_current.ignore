@@ -1,11 +1,3 @@
 // Baseline format: 1.0
 ChangedType: androidx.lifecycle.ComputableLiveData#getLiveData():
     Method androidx.lifecycle.ComputableLiveData.getLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
-ChangedType: androidx.lifecycle.Transformations#distinctUntilChanged(androidx.lifecycle.LiveData<X>):
-    Method androidx.lifecycle.Transformations.distinctUntilChanged has changed return type from androidx.lifecycle.LiveData<X!> to androidx.lifecycle.LiveData<X>
-
-
-RemovedMethod: androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y>):
-    Removed method androidx.lifecycle.Transformations.map(androidx.lifecycle.LiveData<X>,androidx.arch.core.util.Function<X,Y>)
-RemovedMethod: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>>):
-    Removed method androidx.lifecycle.Transformations.switchMap(androidx.lifecycle.LiveData<X>,androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>>)
