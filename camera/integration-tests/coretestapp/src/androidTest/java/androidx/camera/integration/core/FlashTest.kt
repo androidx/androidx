@@ -105,11 +105,14 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
 
+    @Volatile private var isReadyToCaptureImage = false
+
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(BACK_LENS_FACING))
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        isReadyToCaptureImage = false
     }
 
     @After
@@ -220,6 +223,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
                 request: CaptureRequest,
                 result: TotalCaptureResult
             ) {
+                if (!isReadyToCaptureImage) return
+
                 if (request[FLASH_MODE] != null && request[FLASH_MODE] != FLASH_MODE_OFF) {
                     isFlashModeSet = true
                 }
@@ -291,6 +296,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         delay(2_000)
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
+
+        isReadyToCaptureImage = true
         imageCapture.takePicture(Dispatchers.Main.asExecutor(), callback)
 
         // Wait for the signal that the image has been captured.
