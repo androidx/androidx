@@ -78,8 +78,13 @@ internal class MultiProcessDataStore<T>(
          * Final. ReadException can transition to another ReadException, Data or Final.
          * Data can transition to another Data or Final. Final will not change.
          */
-        // TODO(b/241290444): avoid coroutine switching by loading native lib during initialization
-        val latestVersionAtRead = withContext(scope.coroutineContext) { sharedCounter.getValue() }
+        // Only switch coroutine if sharedCounter is not initialized because initialization incurs
+        // disk IO
+        val latestVersionAtRead =
+            if (lazySharedCounter.isInitialized()) sharedCounter.getValue() else
+                withContext(scope.coroutineContext) {
+                    sharedCounter.getValue()
+                }
         val currentDownStreamFlowState = downstreamFlow.value
 
         if ((currentDownStreamFlowState !is Data) ||
@@ -138,7 +143,8 @@ internal class MultiProcessDataStore<T>(
     private val INVALID_VERSION = -1
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
-    private val sharedCounter: SharedCounter by lazy {
+
+    private val lazySharedCounter = lazy {
         SharedCounter.loadLib()
         SharedCounter.create {
             val versionFile = fileWithSuffix(VERSION_SUFFIX)
@@ -146,6 +152,8 @@ internal class MultiProcessDataStore<T>(
             versionFile
         }
     }
+    private val sharedCounter by lazySharedCounter
+
     private val threadLock = Mutex()
     private val storageConnection: StorageConnection<T> by lazy {
         storage.createConnection()
@@ -502,7 +510,8 @@ internal class MultiProcessDataStore<T>(
                         lock = lockFileStream.getChannel().tryLock(
                             /* position= */ 0L,
                             /* size= */ Long.MAX_VALUE,
-                            /* shared= */ true)
+                            /* shared= */ true
+                        )
                     } catch (ex: IOException) {
                         // TODO(b/255419657): Update the shared lock IOException handling logic for
                         // KMM.
