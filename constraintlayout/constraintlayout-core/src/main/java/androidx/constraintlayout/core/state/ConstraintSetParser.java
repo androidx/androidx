@@ -37,6 +37,7 @@ import androidx.constraintlayout.core.parser.CLString;
 import androidx.constraintlayout.core.state.helpers.BarrierReference;
 import androidx.constraintlayout.core.state.helpers.ChainReference;
 import androidx.constraintlayout.core.state.helpers.FlowReference;
+import androidx.constraintlayout.core.state.helpers.GridReference;
 import androidx.constraintlayout.core.state.helpers.GuidelineReference;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
 import androidx.constraintlayout.core.widgets.Flow;
@@ -468,7 +469,7 @@ public class ConstraintSetParser {
      * @param layoutVariables the variables to override
      */
     public static void parseJSON(String content, State state,
-            LayoutVariables layoutVariables) throws CLParsingException {
+                                 LayoutVariables layoutVariables) throws CLParsingException {
         try {
             CLObject json = CLParser.parse(content);
             populateState(json, state, layoutVariables);
@@ -556,6 +557,17 @@ public class ConstraintSetParser {
                                 case "vFlow":
                                 case "hFlow":
                                     parseFlowType(
+                                            type,
+                                            state,
+                                            elementName,
+                                            layoutVariables,
+                                            (CLObject) element
+                                    );
+                                    break;
+                                case "grid":
+                                case "row":
+                                case "column":
+                                    parseGridType(
                                             type,
                                             state,
                                             elementName,
@@ -888,6 +900,106 @@ public class ConstraintSetParser {
                     }
 
                     break;
+            }
+        }
+    }
+
+    /**
+     * Support parsing Grid in the following manner
+     * chainId : {
+     *      height: "parent",
+     *      width: "parent",
+     *      type: "Grid",
+     *      vGap: 10,
+     *      hGap: 10,
+     *      orientation: 0,
+     *      rows: 0,
+     *      columns: 1,
+     *      columnWeights: "",
+     *      rowWeights: "",
+     *      contains: ["btn1", "btn2", "btn3", "btn4"],
+     *      top: ["parent", "top", 10],
+     *      bottom: ["parent", "bottom", 20],
+     *      right: ["parent", "right", 30],
+     *      left: ["parent", "left", 40],
+     * }
+     *
+     * @param gridType type of the Grid helper could be "Grid"|"Row"|"Column"
+     * @param state ConstraintLayout State
+     * @param name the name of the Grid Helper
+     * @param layoutVariables layout margins
+     * @param element the element to be parsed
+     * @throws CLParsingException
+     */
+    private static void parseGridType(String gridType,
+                                      State state,
+                                      String name,
+                                      LayoutVariables layoutVariables,
+                                      CLObject element) throws CLParsingException {
+
+        GridReference grid = state.getGrid(name, gridType);
+
+        for (String param : element.names()) {
+            switch (param) {
+                case "contains":
+                    CLArray list = element.getArrayOrNull(param);
+                    if (list != null) {
+                        for (int j = 0; j < list.size(); j++) {
+
+                            String elementNameReference = list.get(j).content();
+                            ConstraintReference elementReference =
+                                    state.constraints(elementNameReference);
+                            grid.add(elementReference);
+                        }
+                    }
+                    break;
+                case "orientation":
+                    int orientation = element.get(param).getInt();
+                    grid.setOrientation(orientation);
+                    break;
+                case "rows":
+                    int rows = element.get(param).getInt();
+                    grid.setRowsSet(rows);
+                    break;
+                case "columns":
+                    int columns = element.get(param).getInt();
+                    grid.setColumnsSet(columns);
+                    break;
+                case "hGap":
+                    float hGap = element.get(param).getFloat();
+                    grid.setHorizontalGaps(toPix(state, hGap));
+                    break;
+                case "vGap":
+                    float vGap = element.get(param).getFloat();
+                    grid.setVerticalGaps(toPix(state, vGap));
+                    break;
+                case "spans":
+                    String spans = element.get(param).content();
+                    if (spans != null && spans.contains("x") && spans.contains(":")) {
+                        grid.setSpans(spans);
+                    }
+                    break;
+                case "skips":
+                    String skips = element.get(param).content();
+                    if (skips != null && skips.contains("x") && skips.contains(":")) {
+                        grid.setSkips(skips);
+                    }
+                    break;
+                case "rowWeights":
+                    String rowWeights = element.get(param).content();
+                    if (rowWeights != null && rowWeights.contains(",")) {
+                        grid.setRowWeights(rowWeights);
+                    }
+                    break;
+                case "columnWeights":
+                    String columnWeights = element.get(param).content();
+                    if (columnWeights != null && columnWeights.contains(",")) {
+                        grid.setColumnWeights(columnWeights);
+                    }
+                    break;
+                default:
+                    ConstraintReference reference = state.constraints(name);
+                    applyAttribute(state, layoutVariables, reference, element, param);
             }
         }
     }
