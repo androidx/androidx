@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.data;
 
 import android.app.PendingIntent;
 import android.net.Uri;

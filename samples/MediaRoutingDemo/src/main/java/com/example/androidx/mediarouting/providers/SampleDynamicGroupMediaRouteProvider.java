@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.providers;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -26,12 +26,17 @@ import android.media.MediaRouter;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+
+import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.activities.RouteSettingsActivity;
+import com.example.androidx.mediarouting.services.SampleDynamicGroupMediaRouteProviderService;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -43,9 +48,9 @@ import java.util.UUID;
 /**
  * Demonstrates how to create a custom media route provider.
  *
- * @see SampleDynamicGroupMrpService
+ * @see SampleDynamicGroupMediaRouteProviderService
  */
-final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
+public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRouteProvider {
     private static final String TAG = "SampleDynamicGroupMrp";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -56,10 +61,11 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     private SampleDynamicGroupRouteController mDynamicRouteController;
 
-    SampleDynamicGroupMrp(Context context) {
+    public SampleDynamicGroupMediaRouteProvider(@NonNull Context context) {
         super(context);
     }
 
+    @Nullable
     @Override
     public RouteController onCreateRouteController(@NonNull String routeId) {
         if (!checkDrawOverlay()) return null;
@@ -73,6 +79,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         return new SampleRouteController(routeId);
     }
 
+    @Nullable
     @Override
     public RouteController onCreateRouteController(@NonNull String routeId,
             @NonNull String groupId) {
@@ -103,6 +110,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         return routeId;
     }
 
+    @Nullable
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
             @NonNull String initialMemberRouteId) {
@@ -132,7 +140,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
     protected void initializeRoutes() {
         Resources r = getContext().getResources();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
-        settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)
+        settingsIntent.setClass(getContext(), RouteSettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE).getIntentSender();

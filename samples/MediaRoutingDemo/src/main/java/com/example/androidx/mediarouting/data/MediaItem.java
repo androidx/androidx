@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.data;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.net.Uri;
+
+import androidx.annotation.NonNull;
 
 /**
- * This activity is a no-op settings activity for the
- * {@link SampleMediaRouteProvider}.
+ * MediaItem helps keep track of the media items before adding to playlist.
  */
-public class SampleMediaRouteSettingsActivity extends AppCompatActivity {
+public final class MediaItem {
+    public final String mName;
+    public final Uri mUri;
+    public final String mMime;
 
+    public MediaItem(@NonNull String name, @NonNull Uri uri, @NonNull String mime) {
+        mName = name;
+        mUri = uri;
+        mMime = mime;
+    }
 }
