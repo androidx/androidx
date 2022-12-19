@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("Transformations")
 
 package androidx.lifecycle
 
 import androidx.annotation.CheckResult
-import androidx.annotation.MainThread
 
 /**
  * Returns a [LiveData] mapped from `this` LiveData by applying [transform] to each value set on
@@ -35,22 +33,10 @@ import androidx.annotation.MainThread
  * val userLD : LiveData<User> = ...;
  * val userFullNameLD: LiveData<String> = userLD.map { user -> user.firstName + user.lastName }
  * ```
- *
- * @param transform a function to apply to each value set on `source` in order to set
- *                    it on the output `LiveData`
- * @return a LiveData mapped from `source` to type `<Y>` by applying
- * `mapFunction` to each value set.
  */
-@JvmName("map")
-@MainThread
 @CheckResult
-fun <X, Y> LiveData<X>.map(
-    transform: (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards Y)
-): LiveData<Y> {
-    val result = MediatorLiveData<Y>()
-    result.addSource(this) { x -> result.value = transform(x) }
-    return result
-}
+public inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveData<Y> =
+    Transformations.map(this) { transform(it) }
 
 /**
  * Returns a [LiveData] mapped from the input `this` `LiveData` by applying
@@ -90,63 +76,17 @@ fun <X, Y> LiveData<X>.map(
  *     }
  * }
  * ```
- *
- * @param transform a function to apply to each value set on `source` to create a
- *                          new delegate `LiveData` for the returned one
- * @return a LiveData mapped from `source` to type `<Y>` by delegating to the LiveData
- * returned by applying `switchMapFunction` to each value set
  */
-@JvmName("switchMap")
-@MainThread
 @CheckResult
-fun <X, Y> LiveData<X>.switchMap(
-    transform: (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards LiveData<Y>)?
-): LiveData<Y> {
-    val result = MediatorLiveData<Y>()
-    result.addSource(this, object : Observer<X> {
-        var liveData: LiveData<Y>? = null
-
-        override fun onChanged(x: X) {
-            val newLiveData = transform(x)
-            if (liveData === newLiveData) {
-                return
-            }
-            if (liveData != null) {
-                result.removeSource(liveData!!)
-            }
-            liveData = newLiveData
-            if (liveData != null) {
-                result.addSource(liveData!!) { y -> result.setValue(y) }
-            }
-        }
-    })
-    return result
-}
+public inline fun <X, Y> LiveData<X>.switchMap(
+    crossinline transform: (X) -> LiveData<Y>?
+): LiveData<Y> = Transformations.switchMap(this) { transform(it) }
 
 /**
  * Creates a new [LiveData] object does not emit a value until the source `this` LiveData value
- * has been changed. The value is considered changed if `equals()` yields `false`.
- *
- * @return a new [LiveData] of type `X`
+ * has been changed.  The value is considered changed if `equals()` yields `false`.
  */
-@JvmName("distinctUntilChanged")
-@MainThread
 @CheckResult
-fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> {
-    val outputLiveData = MediatorLiveData<X>()
-    outputLiveData.addSource(this, object : Observer<X> {
-        var firstTime = true
-
-        override fun onChanged(currentValue: X) {
-            val previousValue = outputLiveData.value
-            if (firstTime ||
-                previousValue == null && currentValue != null ||
-                previousValue != null && previousValue != currentValue
-            ) {
-                firstTime = false
-                outputLiveData.value = currentValue
-            }
-        }
-    })
-    return outputLiveData
-}
+@Suppress("NOTHING_TO_INLINE")
+public inline fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> =
+    Transformations.distinctUntilChanged(this)
