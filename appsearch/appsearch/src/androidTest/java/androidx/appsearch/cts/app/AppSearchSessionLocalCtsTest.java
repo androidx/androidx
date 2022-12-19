@@ -87,6 +87,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)).isTrue();
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)).isTrue();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_PROPERTY_WEIGHTS)).isTrue();
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is

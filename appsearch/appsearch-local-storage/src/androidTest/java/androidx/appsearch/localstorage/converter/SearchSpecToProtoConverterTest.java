@@ -18,7 +18,7 @@ package androidx.appsearch.localstorage.converter;
 
 import static androidx.appsearch.app.SearchSpec.GROUPING_TYPE_PER_PACKAGE;
 import static androidx.appsearch.app.SearchSpec.ORDER_ASCENDING;
-import static androidx.appsearch.app.SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP;
+import static androidx.appsearch.app.SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -32,10 +32,12 @@ import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.testutil.AppSearchTestUtils;
 
+import com.google.android.icing.proto.PropertyWeight;
 import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.ScoringSpecProto;
 import com.google.android.icing.proto.SearchSpecProto;
+import com.google.android.icing.proto.TypePropertyWeights;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -43,6 +45,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,26 +94,39 @@ public class SearchSpecToProtoConverterTest {
     }
 
     @Test
-    public void testToScoringSpecProto()  {
+    public void testToScoringSpecProto() {
+        String prefix = PrefixUtil.createPrefix("package", "database1");
+        String schemaType = "schemaType";
+        String namespace = "namespace";
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setOrder(ORDER_ASCENDING)
-                .setRankingStrategy(RANKING_STRATEGY_CREATION_TIMESTAMP).build();
+                .setRankingStrategy(RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setPropertyWeights(schemaType, ImmutableMap.of("property1", 2.0)).build();
 
         ScoringSpecProto scoringSpecProto = new SearchSpecToProtoConverter(
-                /*queryExpression=*/"query",
-                searchSpec,
-                /*prefixes=*/ImmutableSet.of(),
-                /*namespaceMap=*/ImmutableMap.of(),
-                /*schemaMap=*/ImmutableMap.of()).toScoringSpecProto();
+                /*queryExpression=*/"",
+                searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
+                /*namespaceMap=*/ImmutableMap.of(prefix, ImmutableSet.of(prefix + namespace)),
+                /*schemaMap=*/ImmutableMap.of(prefix, ImmutableMap.of(prefix + schemaType,
+                SchemaTypeConfigProto.getDefaultInstance()))).toScoringSpecProto();
+        TypePropertyWeights typePropertyWeights = TypePropertyWeights.newBuilder()
+                .setSchemaType(prefix + schemaType)
+                .addPropertyWeights(PropertyWeight.newBuilder()
+                        .setPath("property1")
+                        .setWeight(2.0)
+                        .build())
+                .build();
 
         assertThat(scoringSpecProto.getOrderBy().getNumber())
                 .isEqualTo(ScoringSpecProto.Order.Code.ASC_VALUE);
         assertThat(scoringSpecProto.getRankBy().getNumber())
-                .isEqualTo(ScoringSpecProto.RankingStrategy.Code.CREATION_TIMESTAMP_VALUE);
+                .isEqualTo(ScoringSpecProto.RankingStrategy.Code.RELEVANCE_SCORE.getNumber());
+        assertThat(scoringSpecProto.getTypePropertyWeightsList()).containsExactly(
+                typePropertyWeights);
     }
 
     @Test
-    public void testToResultSpecProto()  {
+    public void testToResultSpecProto() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultCountPerPage(123)
                 .setSnippetCount(234)
@@ -134,7 +150,7 @@ public class SearchSpecToProtoConverterTest {
     }
 
     @Test
-    public void testToResultSpecProto_groupByPackage()  {
+    public void testToResultSpecProto_groupByPackage() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 5)
                 .build();
@@ -223,7 +239,7 @@ public class SearchSpecToProtoConverterTest {
     public void testToResultSpecProto_groupByNamespaceAndPackage() throws Exception {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultGrouping(GROUPING_TYPE_PER_PACKAGE
-                        | SearchSpec.GROUPING_TYPE_PER_NAMESPACE , 5)
+                        | SearchSpec.GROUPING_TYPE_PER_NAMESPACE, 5)
                 .build();
 
         String prefix1 = PrefixUtil.createPrefix("package1", "database");
@@ -288,9 +304,9 @@ public class SearchSpecToProtoConverterTest {
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1",
-                            "package$database1/namespace2"),
+                                "package$database1/namespace2"),
                         prefix2, ImmutableSet.of("package$database2/namespace3",
-                            "package$database2/namespace4")),
+                                "package$database2/namespace4")),
                 /*schemaMap=*/ImmutableMap.of());
 
         SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
@@ -443,7 +459,6 @@ public class SearchSpecToProtoConverterTest {
                                 "package$database1/typeA", schemaTypeConfigProto,
                                 "package$database1/typeB", schemaTypeConfigProto)));
         SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
-
         // If there is no intersection of the schema filters that user want to search over and
         // those filters which are stored in AppSearch, return empty.
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).isEmpty();
@@ -533,5 +548,93 @@ public class SearchSpecToProtoConverterTest {
                 /*visibilityStore=*/null,
                 /*visibilityChecker=*/null);
         assertThat(nonEmptyConverter.hasNothingToSearch()).isTrue();
+    }
+
+    @Test
+    public void testConvertPropertyWeights() {
+        String prefix1 = PrefixUtil.createPrefix("package", "database1");
+        String prefix2 = PrefixUtil.createPrefix("package", "database2");
+        String schemaTypeA = "typeA";
+        String schemaTypeB = "typeB";
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setPropertyWeights(schemaTypeA, ImmutableMap.of("property1", 1.0, "property2",
+                        2.0))
+                .setPropertyWeights(schemaTypeB, ImmutableMap.of("nested.property", 0.5))
+                .build();
+
+        Map<String, Set<String>> namespaceMap = ImmutableMap.of(
+                prefix1, ImmutableSet.of(prefix1 + "namespace1"),
+                prefix2, ImmutableSet.of(prefix2 + "namespace1")
+        );
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaTypeMap = ImmutableMap.of(
+                prefix1,
+                ImmutableMap.of(prefix1 + schemaTypeA, SchemaTypeConfigProto.getDefaultInstance(),
+                        prefix1 + schemaTypeB, SchemaTypeConfigProto.getDefaultInstance()),
+                prefix2,
+                ImmutableMap.of(prefix2 + schemaTypeA, SchemaTypeConfigProto.getDefaultInstance())
+        );
+
+        SearchSpecToProtoConverter converter =
+                new SearchSpecToProtoConverter(
+                        /*queryExpression=*/"",
+                        searchSpec, /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
+                        namespaceMap,
+                        schemaTypeMap);
+
+        TypePropertyWeights expectedTypePropertyWeight1 =
+                TypePropertyWeights.newBuilder().setSchemaType(prefix1 + schemaTypeA)
+                        .addPropertyWeights(PropertyWeight.newBuilder()
+                                .setPath("property1")
+                                .setWeight(1.0))
+                        .addPropertyWeights(PropertyWeight.newBuilder()
+                                .setPath("property2")
+                                .setWeight(2.0))
+                        .build();
+        TypePropertyWeights expectedTypePropertyWeight2 =
+                TypePropertyWeights.newBuilder().setSchemaType(prefix2 + schemaTypeA)
+                        .addPropertyWeights(PropertyWeight.newBuilder()
+                                .setPath("property1")
+                                .setWeight(1.0))
+                        .addPropertyWeights(PropertyWeight.newBuilder()
+                                .setPath("property2")
+                                .setWeight(2.0))
+                        .build();
+        TypePropertyWeights expectedTypePropertyWeight3 =
+                TypePropertyWeights.newBuilder().setSchemaType(prefix1 + schemaTypeB)
+                        .addPropertyWeights(PropertyWeight.newBuilder()
+                                .setPath("nested.property")
+                                .setWeight(0.5))
+                        .build();
+
+        List<TypePropertyWeights> convertedTypePropertyWeights =
+                converter.toScoringSpecProto().getTypePropertyWeightsList();
+
+        assertThat(convertedTypePropertyWeights).containsExactly(expectedTypePropertyWeight1,
+                expectedTypePropertyWeight2, expectedTypePropertyWeight3);
+    }
+
+    @Test
+    public void testConvertPropertyWeights_whenNoWeightsSet() {
+        SearchSpec searchSpec = new SearchSpec.Builder().build();
+        String prefix1 = PrefixUtil.createPrefix("package", "database1");
+        SchemaTypeConfigProto schemaTypeConfigProto =
+                SchemaTypeConfigProto.newBuilder().getDefaultInstanceForType();
+
+        SearchSpecToProtoConverter converter =
+                new SearchSpecToProtoConverter(
+                        /*queryExpression=*/"",
+                        searchSpec, /*prefixes=*/ImmutableSet.of(prefix1),
+                        /*namespaceMap=*/ImmutableMap.of(
+                            prefix1,
+                            ImmutableSet.of(prefix1 + "namespace1")),
+                        /*schemaMap=*/ImmutableMap.of(
+                            prefix1,
+                            ImmutableMap.of(prefix1 + "typeA", schemaTypeConfigProto)));
+
+        ScoringSpecProto convertedScoringSpecProto = converter.toScoringSpecProto();
+
+        assertThat(convertedScoringSpecProto.getTypePropertyWeightsList()).isEmpty();
     }
 }

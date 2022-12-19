@@ -31,27 +31,25 @@ public class AlwaysSupportedFeatures implements Features {
 
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
-        if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
-            return true;
+        switch (feature) {
+            case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
+                // fall through
+            case Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA:
+                // fall through
+            case Features.GLOBAL_SEARCH_SESSION_GET_BY_ID:
+                // fall through
+            case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
+                // fall through
+            case Features.NUMERIC_SEARCH:
+                // fall through
+            case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
+                // fall through
+            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
+                // fall through
+            case Features.TOKENIZER_TYPE_RFC822:
+                return true;
+            default:
+                return false;
         }
-        if (Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK.equals(feature)) {
-            return true;
-        }
-        if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
-            return true;
-        }
-        if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
-            return true;
-        }
-        if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
-            return true;
-        }
-        if (Features.TOKENIZER_TYPE_RFC822.equals(feature)) {
-            return true;
-        }
-        if (Features.NUMERIC_SEARCH.equals(feature)) {
-            return true;
-        }
-        return false;
     }
 }
