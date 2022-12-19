@@ -45,9 +45,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.constraintlayout.core.state.CorePixelDp
 import androidx.constraintlayout.core.state.Transition.WidgetState
 import androidx.constraintlayout.core.widgets.ConstraintWidget
 import kotlin.math.abs
@@ -169,7 +167,7 @@ class MotionScope(
         ignoreAxisChanges: Boolean = false,
         motionDescription: MotionModifierScope.() -> Unit = {},
     ): Modifier = composed {
-        val dpToPixel = with(LocalDensity.current) { 1.dp.toPx() }
+        val dpToPxFactor = with(LocalDensity.current) { density }
         val layoutId = remember { nextId++ }
         val transitionScope = remember { MotionModifierScope(layoutId) }
         val snapshotObserver = remember {
@@ -204,17 +202,14 @@ class MotionScope(
             transitionScope.motionDescription()
         }
 
-        @Suppress("RedundantSamConstructor") // Clearer this way
         val transitionImpl = remember {
-            TransitionImpl(
-                transitionScope.getObject(),
-                CorePixelDp { dpValue -> dpValue * dpToPixel }
-            )
+            TransitionImpl(transitionScope.getObject())
         }
         val transitionState = remember {
-            androidx.constraintlayout.core.state.Transition().apply {
-                transitionImpl.applyAllTo(this)
-            }
+            androidx.constraintlayout.core.state.Transition { dpValue -> dpValue * dpToPxFactor }
+                .apply {
+                    transitionImpl.applyAllTo(this)
+                }
         }
         val startWidget =
             remember { ConstraintWidget().apply { stringId = layoutId.toString() } }

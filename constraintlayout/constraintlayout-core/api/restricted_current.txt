@@ -1872,6 +1872,7 @@ package androidx.constraintlayout.core.parser {
     method public void add(androidx.constraintlayout.core.parser.CLElement!);
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
     method public void clear();
+    method public androidx.constraintlayout.core.parser.CLContainer! clone();
     method public androidx.constraintlayout.core.parser.CLElement! get(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLElement! get(int) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLArray! getArray(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
@@ -1903,9 +1904,10 @@ package androidx.constraintlayout.core.parser {
     method public int size();
   }
 
-  public class CLElement {
+  public class CLElement implements java.lang.Cloneable {
     ctor public CLElement(char[]!);
     method protected void addIndent(StringBuilder!, int);
+    method public androidx.constraintlayout.core.parser.CLElement! clone();
     method public String! content();
     method public androidx.constraintlayout.core.parser.CLElement! getContainer();
     method protected String! getDebugName();
@@ -1915,6 +1917,7 @@ package androidx.constraintlayout.core.parser {
     method public int getLine();
     method public long getStart();
     method protected String! getStrClass();
+    method public boolean hasContent();
     method public boolean isDone();
     method public boolean isStarted();
     method public boolean notStarted();
@@ -1951,6 +1954,7 @@ package androidx.constraintlayout.core.parser {
   public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey> {
     ctor public CLObject(char[]!);
     method public static androidx.constraintlayout.core.parser.CLObject! allocate(char[]!);
+    method public androidx.constraintlayout.core.parser.CLObject! clone();
     method public java.util.Iterator<androidx.constraintlayout.core.parser.CLKey!>! iterator();
     method public String! toFormattedJSON();
     method public String! toFormattedJSON(int, int);
@@ -1971,6 +1975,7 @@ package androidx.constraintlayout.core.parser {
   public class CLString extends androidx.constraintlayout.core.parser.CLElement {
     ctor public CLString(char[]!);
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
+    method public static androidx.constraintlayout.core.parser.CLString from(String);
   }
 
   public class CLToken extends androidx.constraintlayout.core.parser.CLElement {
@@ -2259,12 +2264,14 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.helpers.HorizontalChainReference! horizontalChain(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.helpers.GuidelineReference! horizontalGuideline(Object!);
     method public boolean isBaselineNeeded(androidx.constraintlayout.core.widgets.ConstraintWidget!);
+    method public boolean isLtr();
     method public void map(Object!, Object!);
     method public void reset();
     method public boolean sameFixedHeight(int);
     method public boolean sameFixedWidth(int);
     method public void setDpToPixel(androidx.constraintlayout.core.state.CorePixelDp!);
     method public androidx.constraintlayout.core.state.State! setHeight(androidx.constraintlayout.core.state.Dimension!);
+    method public void setLtr(boolean);
     method public void setTag(String!, String!);
     method public androidx.constraintlayout.core.state.State! setWidth(androidx.constraintlayout.core.state.Dimension!);
     method public androidx.constraintlayout.core.state.helpers.VerticalChainReference! verticalChain();
@@ -2340,7 +2347,7 @@ package androidx.constraintlayout.core.state {
   }
 
   public class Transition implements androidx.constraintlayout.core.motion.utils.TypedValues {
-    ctor public Transition();
+    ctor public Transition(androidx.constraintlayout.core.state.CorePixelDp);
     method public void addCustomColor(int, String!, String!, int);
     method public void addCustomFloat(int, String!, String!, float);
     method public void addKeyAttribute(String!, androidx.constraintlayout.core.motion.utils.TypedBundle!);
@@ -2404,7 +2411,8 @@ package androidx.constraintlayout.core.state {
 
   public class TransitionParser {
     ctor public TransitionParser();
-    method public static void parse(androidx.constraintlayout.core.parser.CLObject!, androidx.constraintlayout.core.state.Transition!, androidx.constraintlayout.core.state.CorePixelDp!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method @Deprecated public static void parse(androidx.constraintlayout.core.parser.CLObject!, androidx.constraintlayout.core.state.Transition!, androidx.constraintlayout.core.state.CorePixelDp!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void parse(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public static void parseKeyFrames(androidx.constraintlayout.core.parser.CLObject!, androidx.constraintlayout.core.state.Transition!) throws androidx.constraintlayout.core.parser.CLParsingException;
   }
 

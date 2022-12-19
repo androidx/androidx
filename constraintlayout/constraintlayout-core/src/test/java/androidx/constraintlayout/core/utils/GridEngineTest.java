@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.constraintlayout.core;
+package androidx.constraintlayout.core.utils;
 
 import static org.junit.Assert.assertEquals;
-
-import androidx.constraintlayout.core.utils.GridEngine;
 
 import org.junit.Test;
 

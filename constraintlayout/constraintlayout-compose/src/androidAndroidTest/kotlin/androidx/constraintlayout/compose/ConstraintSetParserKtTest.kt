@@ -25,7 +25,7 @@ internal class ConstraintSetParserKtTest {
 
     @Test
     fun parseCustomColor() {
-        val coreTransition = Transition()
+        val coreTransition = Transition { dp -> dp }
 
         @Language("JSON5")
         val content = """

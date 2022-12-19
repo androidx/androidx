@@ -229,8 +229,8 @@ public class WidgetsPositioningTest {
     public void testAddingWidgets() {
         final ConstraintWidgetContainer root = new ConstraintWidgetContainer(0, 0, 1000, 1000);
         root.setOptimizationLevel(Optimizer.OPTIMIZATION_NONE);
-        ArrayList<ConstraintWidget> widgetsA = new ArrayList();
-        ArrayList<ConstraintWidget> widgetsB = new ArrayList();
+        ArrayList<ConstraintWidget> widgetsA = new ArrayList<>();
+        ArrayList<ConstraintWidget> widgetsB = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
             final ConstraintWidget a = new ConstraintWidget(0, 0, 200, 20);
             final ConstraintWidget b = new ConstraintWidget(0, 0, 200, 20);
@@ -264,7 +264,7 @@ public class WidgetsPositioningTest {
 
         for (int j = 0; j < numLoops; j++) {
             mLS.reset();
-            ArrayList<ConstraintWidget> widgets = new ArrayList();
+            ArrayList<ConstraintWidget> widgets = new ArrayList<>();
             int w = 100 + j;
             int h = 20 + j;
             ConstraintWidget first = new ConstraintWidget(w, h);

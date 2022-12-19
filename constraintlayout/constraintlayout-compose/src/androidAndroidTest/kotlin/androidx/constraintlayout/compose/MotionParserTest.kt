@@ -66,7 +66,7 @@ internal class MotionParserTest {
     @Test
     fun testTransitionParseFailsSilently() {
         // We don't want applications to hard-crash when the parser sees an error
-        var coreTransition = androidx.constraintlayout.core.state.Transition()
+        var coreTransition = androidx.constraintlayout.core.state.Transition { dp -> dp }
         val transitionContent = """
             {
               from: "start",
@@ -82,9 +82,9 @@ internal class MotionParserTest {
         """.trimIndent()
         // Parsing transition throws an exception but the Composable should not crash the app
         assertFailsWith<CLParsingException> {
-            TransitionParser.parse(CLParser.parse(transitionContent), coreTransition) { dp -> dp }
+            TransitionParser.parse(CLParser.parse(transitionContent), coreTransition)
         }
-        coreTransition = androidx.constraintlayout.core.state.Transition()
+        coreTransition = androidx.constraintlayout.core.state.Transition { dp -> dp }
         rule.setContent {
             val transition = Transition(content = transitionContent)
             MotionLayout(

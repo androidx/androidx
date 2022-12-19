@@ -192,8 +192,7 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
             parsedTransition = TransitionScope(
                 from = from.name,
                 to = to.name
-            ).apply(transitionContent).getObject(),
-            pixelDp = dpToPixel
+            ).apply(transitionContent).getObject()
         )
     }
 

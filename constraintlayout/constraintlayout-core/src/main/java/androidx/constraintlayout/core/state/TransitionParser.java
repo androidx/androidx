@@ -18,10 +18,11 @@ package androidx.constraintlayout.core.state;
 
 import static androidx.constraintlayout.core.state.ConstraintSetParser.parseColorString;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.utils.TypedBundle;
 import androidx.constraintlayout.core.motion.utils.TypedValues;
-import androidx.constraintlayout.core.motion.utils.Utils;
 import androidx.constraintlayout.core.parser.CLArray;
 import androidx.constraintlayout.core.parser.CLContainer;
 import androidx.constraintlayout.core.parser.CLElement;
@@ -30,8 +31,6 @@ import androidx.constraintlayout.core.parser.CLNumber;
 import androidx.constraintlayout.core.parser.CLObject;
 import androidx.constraintlayout.core.parser.CLParsingException;
 
-import java.util.ArrayList;
-
 /**
  * Contains code for Parsing Transitions
  */
@@ -39,14 +38,28 @@ public class TransitionParser {
     /**
      * Parse a JSON string of a Transition and insert it into the Transition object
      *
+     * @deprecated dpToPixel is unused now
      * @param json       Transition Object to parse.
      * @param transition Transition Object to write transition to
      */
+    @Deprecated
     public static void parse(CLObject json, Transition transition, CorePixelDp dpToPixel)
+            throws CLParsingException {
+        parse(json, transition);
+    }
+
+    /**
+     * Parse a JSON string of a Transition and insert it into the Transition object
+     *
+     * @param json       Transition Object to parse.
+     * @param transition Transition Object to write transition to
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void parse(@NonNull CLObject json, @NonNull Transition transition)
             throws CLParsingException {
         String pathMotionArc = json.getStringOrNull("pathMotionArc");
         TypedBundle bundle = new TypedBundle();
-        transition.mToPixel = dpToPixel;
         boolean setBundle = false;
         if (pathMotionArc != null) {
             setBundle = true;

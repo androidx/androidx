@@ -27,15 +27,9 @@ import org.junit.Test;
 
 public class DslTest {
     //  test structures
-    static CorePixelDp dipToDip = new CorePixelDp() {
-
-        @Override
-        public float toPixels(float dp) {
-            return dp;
-        }
-    };
-    static androidx.constraintlayout.core.state.Transition transitionState =
-            new androidx.constraintlayout.core.state.Transition();
+    static CorePixelDp sDpToPx = dp -> dp;
+    static androidx.constraintlayout.core.state.Transition sTransitionState =
+            new androidx.constraintlayout.core.state.Transition(sDpToPx);
 
 
     @Test
@@ -90,7 +84,7 @@ public class DslTest {
                 + "}\n";
         assertEquals(exp, motionScene.toString());
 
-        TransitionParser.parse(CLParser.parse(transition.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(transition.toString()), sTransitionState);
     }
 
     @Test
@@ -117,7 +111,7 @@ public class DslTest {
 
         assertEquals(exp, motionScene.toString());
 
-        TransitionParser.parse(CLParser.parse(transition.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(transition.toString()), sTransitionState);
     }
 
     @Test
@@ -175,7 +169,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(transition.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(transition.toString()), sTransitionState);
     }
 
     @Test
@@ -183,7 +177,7 @@ public class DslTest {
         MotionScene motionScene = new MotionScene();
         Transition transition = new Transition("expand", "start", "end");
         transition.setOnSwipe(new OnSwipe("button", OnSwipe.Side.RIGHT, OnSwipe.Drag.RIGHT));
-        KeyPositions kp = new KeyPositions(2,"button1","button2");
+        KeyPositions kp = new KeyPositions(2, "button1", "button2");
 
         transition.setKeyFrames(kp);
         motionScene.addTransition(transition);
@@ -225,7 +219,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(transition.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(transition.toString()), sTransitionState);
     }
 
     @Test
@@ -260,7 +254,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -295,7 +289,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -308,7 +302,7 @@ public class DslTest {
         Constraint constraint4 = new Constraint("d");
         constraintSet.add(constraint);
         constraint.linkToLeft(constraint2.getRight(), 5, 10);
-        constraint.linkToTop(constraint3.getBottom(),0, 15);
+        constraint.linkToTop(constraint3.getBottom(), 0, 15);
         constraint.linkToBaseline(constraint4.getBaseline());
         motionScene.addConstraintSet(constraintSet);
         System.out.println(motionScene);
@@ -340,7 +334,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -378,7 +372,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -433,7 +427,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -446,7 +440,7 @@ public class DslTest {
         constraint.setWidthMax(30);
         constraint.setCircleConstraint("parent");
         constraint.setCircleAngle(10);
-        constraint.setReferenceIds(new String[] {"a", "b", "c"});
+        constraint.setReferenceIds(new String[]{"a", "b", "c"});
         Constraint constraint2 = new Constraint("b");
         constraint2.setHorizontalChainStyle(Constraint.ChainMode.SPREAD_INSIDE);
         constraint2.setVerticalChainStyle(Constraint.ChainMode.PACKED);
@@ -498,7 +492,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -546,7 +540,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -640,7 +634,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -677,7 +671,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -730,7 +724,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -777,7 +771,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -828,7 +822,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -875,7 +869,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -926,7 +920,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -974,7 +968,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1037,7 +1031,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1103,7 +1097,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1151,7 +1145,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1229,7 +1223,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1280,7 +1274,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1322,7 +1316,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1385,7 +1379,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1467,7 +1461,7 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 
     @Test
@@ -1598,6 +1592,6 @@ public class DslTest {
 
         assertEquals(formatExp, formattedJson);
 
-        TransitionParser.parse(CLParser.parse(motionScene.toString()), transitionState, dipToDip);
+        TransitionParser.parse(CLParser.parse(motionScene.toString()), sTransitionState);
     }
 }

@@ -745,14 +745,13 @@ package androidx.constraintlayout.compose {
   public final class State extends androidx.constraintlayout.core.state.State {
     ctor public State(androidx.compose.ui.unit.Density density);
     method public androidx.compose.ui.unit.Density getDensity();
-    method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @Deprecated public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getRootIncomingConstraints();
-    method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
+    method @Deprecated public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setRootIncomingConstraints(long);
     property public final androidx.compose.ui.unit.Density density;
-    property public final androidx.compose.ui.unit.LayoutDirection layoutDirection;
+    property @Deprecated public final androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public final long rootIncomingConstraints;
-    field public androidx.compose.ui.unit.LayoutDirection layoutDirection;
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public final class SwipeDirection {
