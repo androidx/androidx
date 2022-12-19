@@ -661,7 +661,7 @@ class ConstraintLayoutTest {
     }
 
     @Test
-    fun testConstraintLayout_helpers_ltr() = with(rule.density) {
+    fun testConstraintLayout_guidelines_ltr() = with(rule.density) {
         val size = 200.toDp()
         val offset = 50.toDp()
 
@@ -695,20 +695,38 @@ class ConstraintLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(50f, position[0])
-            assertEquals(50f, position[1])
-            assertEquals(150f, position[2])
-            assertEquals(150f, position[3])
-            assertEquals(50f, position[4])
-            assertEquals(50f, position[5])
-            assertEquals(150f, position[6])
-            assertEquals(150f, position[7])
-        }
+        assertGuidelinesLtrPositions(position)
     }
 
     @Test
-    fun testConstraintLayout_helpers_rtl() = with(rule.density) {
+    fun testConstraintLayout_json_guidelines_ltr() = with(rule.density) {
+        val size = 200.toDp()
+        val offset = 50.toDp()
+
+        val position = Array(8) { 0f }
+        rule.setContent {
+            ConstraintLayout(
+                constraintSet = ConstraintSet(getJsonGuidelinesContent(offset.value)),
+                Modifier.size(size)
+            ) {
+                position.forEachIndexed { index, _ ->
+                    Box(
+                        Modifier
+                            .size(1.dp)
+                            .layoutId("box$index")
+                            .onGloballyPositioned {
+                                position[index] = it.positionInParent().x
+                            }
+                    )
+                }
+            }
+        }
+
+        assertGuidelinesLtrPositions(position)
+    }
+
+    @Test
+    fun testConstraintLayout_guidelines_rtl() = with(rule.density) {
         val size = 200.toDp()
         val offset = 50.toDp()
 
@@ -744,16 +762,36 @@ class ConstraintLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(150f, position[0])
-            assertEquals(50f, position[1])
-            assertEquals(50f, position[2])
-            assertEquals(150f, position[3])
-            assertEquals(150f, position[4])
-            assertEquals(50f, position[5])
-            assertEquals(50f, position[6])
-            assertEquals(150f, position[7])
+        assertGuidelinesRtlPositions(position)
+    }
+
+    @Test
+    fun testConstraintLayout_json_guidelines_rtl() = with(rule.density) {
+        val size = 200.toDp()
+        val offset = 50.toDp()
+
+        val position = Array(8) { 0f }
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                ConstraintLayout(
+                    constraintSet = ConstraintSet(getJsonGuidelinesContent(offset.value)),
+                    Modifier.size(size)
+                ) {
+                    position.forEachIndexed { index, _ ->
+                        Box(
+                            Modifier
+                                .size(1.dp)
+                                .layoutId("box$index")
+                                .onGloballyPositioned {
+                                    position[index] = it.positionInParent().x
+                                }
+                        )
+                    }
+                }
+            }
         }
+
+        assertGuidelinesRtlPositions(position)
     }
 
     @Test
@@ -805,12 +843,44 @@ class ConstraintLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(50f, position[0])
-            assertEquals(50f, position[1])
-            assertEquals(151f, position[2])
-            assertEquals(151f, position[3])
+        assertBarriersLtrPositions(position)
+    }
+
+    @Test
+    fun testConstraintLayout_json_barriers_ltr() = with(rule.density) {
+        val size = 200.toDp()
+        val offset = 50.toDp()
+
+        val position = Array(4) { 0f }
+        rule.setContent {
+            ConstraintLayout(
+                constraintSet = ConstraintSet(getJsonBarriersContent(offset.value)),
+                Modifier.size(size)
+            ) {
+                Box(
+                    Modifier
+                        .size(1.toDp())
+                        .layoutId("boxA")
+                )
+                Box(
+                    Modifier
+                        .size(1.toDp())
+                        .layoutId("boxB")
+                )
+                position.forEachIndexed { index, _ ->
+                    Box(
+                        Modifier
+                            .size(1.dp)
+                            .layoutId("box$index")
+                            .onGloballyPositioned {
+                                position[index] = it.positionInParent().x
+                            }
+                    )
+                }
+            }
         }
+
+        assertBarriersLtrPositions(position)
     }
 
     @Test
@@ -864,34 +934,46 @@ class ConstraintLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(151f, position[0])
-            assertEquals(50f, position[1])
-            assertEquals(50f, position[2])
-            assertEquals(151f, position[3])
-        }
+        assertBarriersRtlPositions(position)
     }
 
-    fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {
-        // TODO(172055763) directly construct an immutable list when Lint supports it
-        val anchors = mutableListOf<ConstrainScope.() -> Unit>()
-        anchors.add({ start.linkTo(box.start) })
-        anchors.add({ absoluteLeft.linkTo(box.start) })
-        anchors.add({ start.linkTo(box.absoluteLeft) })
-        anchors.add({ absoluteLeft.linkTo(box.absoluteLeft) })
-        anchors.add({ end.linkTo(box.start) })
-        anchors.add({ absoluteRight.linkTo(box.start) })
-        anchors.add({ end.linkTo(box.absoluteLeft) })
-        anchors.add({ absoluteRight.linkTo(box.absoluteLeft) })
-        anchors.add({ start.linkTo(box.end) })
-        anchors.add({ absoluteLeft.linkTo(box.end) })
-        anchors.add({ start.linkTo(box.absoluteRight) })
-        anchors.add({ absoluteLeft.linkTo(box.absoluteRight) })
-        anchors.add({ end.linkTo(box.end) })
-        anchors.add({ absoluteRight.linkTo(box.end) })
-        anchors.add({ end.linkTo(box.absoluteRight) })
-        anchors.add({ absoluteRight.linkTo(box.absoluteRight) })
-        return anchors
+    @Test
+    fun testConstraintLayout_json_barriers_rtl() = with(rule.density) {
+        val size = 200.toDp()
+        val offset = 50.toDp()
+
+        val position = Array(4) { 0f }
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                ConstraintLayout(
+                    constraintSet = ConstraintSet(getJsonBarriersContent(offset.value)),
+                    Modifier.size(size)
+                ) {
+                    Box(
+                        Modifier
+                            .size(1.toDp())
+                            .layoutId("boxA")
+                    )
+                    Box(
+                        Modifier
+                            .size(1.toDp())
+                            .layoutId("boxB")
+                    )
+                    position.forEachIndexed { index, _ ->
+                        Box(
+                            Modifier
+                                .size(1.dp)
+                                .layoutId("box$index")
+                                .onGloballyPositioned {
+                                    position[index] = it.positionInParent().x
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        assertBarriersRtlPositions(position)
     }
 
     @Test
@@ -930,24 +1012,39 @@ class ConstraintLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(50f, position[0])
-            assertEquals(50f, position[1])
-            assertEquals(50f, position[2])
-            assertEquals(50f, position[3])
-            assertEquals(49f, position[4])
-            assertEquals(49f, position[5])
-            assertEquals(49f, position[6])
-            assertEquals(49f, position[7])
-            assertEquals(51f, position[8])
-            assertEquals(51f, position[9])
-            assertEquals(51f, position[10])
-            assertEquals(51f, position[11])
-            assertEquals(50f, position[12])
-            assertEquals(50f, position[13])
-            assertEquals(50f, position[14])
-            assertEquals(50f, position[15])
+        assertAnchorsLtrPositions(position)
+    }
+
+    @Test
+    fun testConstraintLayout_json_anchors_ltr() = with(rule.density) {
+        val size = 200.toDp()
+        val offset = 50.toDp()
+
+        val position = Array(16) { 0f }
+        rule.setContent {
+            ConstraintLayout(
+                constraintSet = ConstraintSet(getJsonAnchorsContent(offset.value)),
+                Modifier.size(size)
+            ) {
+                Box(
+                    Modifier
+                        .size(1.toDp())
+                        .layoutId("box")
+                )
+                position.forEachIndexed { index, _ ->
+                    Box(
+                        Modifier
+                            .size(1.toDp())
+                            .layoutId("box$index")
+                            .onGloballyPositioned {
+                                position[index] = it.positionInParent().x
+                            }
+                    )
+                }
+            }
         }
+
+        assertAnchorsLtrPositions(position)
     }
 
     @Test
@@ -988,24 +1085,41 @@ class ConstraintLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(50f, position[0])
-            assertEquals(51f, position[1])
-            assertEquals(49f, position[2])
-            assertEquals(50f, position[3])
-            assertEquals(51f, position[4])
-            assertEquals(50f, position[5])
-            assertEquals(50f, position[6])
-            assertEquals(49f, position[7])
-            assertEquals(49f, position[8])
-            assertEquals(50f, position[9])
-            assertEquals(50f, position[10])
-            assertEquals(51f, position[11])
-            assertEquals(50f, position[12])
-            assertEquals(49f, position[13])
-            assertEquals(51f, position[14])
-            assertEquals(50f, position[15])
+        assertAnchorsRtlPositions(position)
+    }
+
+    @Test
+    fun testConstraintLayout_json_anchors_rtl() = with(rule.density) {
+        val size = 200.toDp()
+        val offset = 50.toDp()
+
+        val position = Array(16) { 0f }
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                ConstraintLayout(
+                    constraintSet = ConstraintSet(getJsonAnchorsContent(offset.value)),
+                    Modifier.size(size)
+                ) {
+                    Box(
+                        Modifier
+                            .size(1.toDp())
+                            .layoutId("box")
+                    )
+                    position.forEachIndexed { index, _ ->
+                        Box(
+                            Modifier
+                                .size(1.toDp())
+                                .layoutId("box$index")
+                                .onGloballyPositioned {
+                                    position[index] = it.positionInParent().x
+                                }
+                        )
+                    }
+                }
+            }
         }
+
+        assertAnchorsRtlPositions(position)
     }
 
     @Test
@@ -1535,16 +1649,16 @@ class ConstraintLayoutTest {
     fun testConstraintLayout_updates_whenConstraintSetChangesConstraints() = with(rule.density) {
         val box1Size = 20
         var first by mutableStateOf(true)
-        val constraintSet = ConstraintSet {
-            val box1 = createRefFor("box1")
-            val box2 = createRefFor("box2")
-            constrain(box2) {
-                if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
-            }
-        }
 
         var box2Position = IntOffset.Zero
         rule.setContent {
+            val constraintSet = ConstraintSet {
+                val box1 = createRefFor("box1")
+                val box2 = createRefFor("box2")
+                constrain(box2) {
+                    if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
+                }
+            }
             ConstraintLayout(constraintSet) {
                 Box(
                     Modifier
@@ -1570,6 +1684,55 @@ class ConstraintLayoutTest {
 
         rule.runOnIdle {
             assertEquals(IntOffset(0, box1Size), box2Position)
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_doesNotUpdate_withRememberConstraintSet() = with(rule.density) {
+        val box1Size = 20
+        var first by mutableStateOf(true)
+        var compCount = 0
+
+        var box2Position = IntOffset.Zero
+        rule.setContent {
+            // ConstraintSet should be immutable and shouldn't recompose if "remembered"
+            val constraintSet = remember {
+                ConstraintSet {
+                    val box1 = createRefFor("box1")
+                    val box2 = createRefFor("box2")
+                    constrain(box2) {
+                        if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
+                    }
+                }
+            }
+            compCount++
+            ConstraintLayout(constraintSet) {
+                Box(
+                    Modifier
+                        .size(box1Size.toDp())
+                        .layoutId("box1")
+                )
+                Box(
+                    Modifier
+                        .layoutId("box2")
+                        .onGloballyPositioned {
+                            box2Position = it
+                                .positionInRoot()
+                                .round()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(IntOffset(box1Size, 0), box2Position)
+            assertEquals(1, compCount)
+            first = false
+        }
+
+        rule.runOnIdle {
+            assertEquals(IntOffset(box1Size, 0), box2Position)
+            assertEquals(2, compCount)
         }
     }
 
@@ -1762,5 +1925,189 @@ class ConstraintLayoutTest {
             (rootSize - boxSize) * 0.2f,
             (rootSize - boxSize) * 0.8f
         )
+    }
+
+    private fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {
+        // TODO(172055763) directly construct an immutable list when Lint supports it
+        val anchors = mutableListOf<ConstrainScope.() -> Unit>()
+        anchors.add({ start.linkTo(box.start) })
+        anchors.add({ absoluteLeft.linkTo(box.start) })
+        anchors.add({ start.linkTo(box.absoluteLeft) })
+        anchors.add({ absoluteLeft.linkTo(box.absoluteLeft) })
+        anchors.add({ end.linkTo(box.start) })
+        anchors.add({ absoluteRight.linkTo(box.start) })
+        anchors.add({ end.linkTo(box.absoluteLeft) })
+        anchors.add({ absoluteRight.linkTo(box.absoluteLeft) })
+        anchors.add({ start.linkTo(box.end) })
+        anchors.add({ absoluteLeft.linkTo(box.end) })
+        anchors.add({ start.linkTo(box.absoluteRight) })
+        anchors.add({ absoluteLeft.linkTo(box.absoluteRight) })
+        anchors.add({ end.linkTo(box.end) })
+        anchors.add({ absoluteRight.linkTo(box.end) })
+        anchors.add({ end.linkTo(box.absoluteRight) })
+        anchors.add({ absoluteRight.linkTo(box.absoluteRight) })
+        return anchors
+    }
+
+    private fun getJsonAnchorsContent(guidelineOffset: Float): String =
+        //language=json5
+        """
+            {
+              g1: { type: 'vGuideline', left: $guidelineOffset },
+              box: { left: ['g1', 'left', 0] },
+              box0: { start: ['box','start',0] },
+              box1: { left: ['box','start',0] },
+              box2: { start: ['box','left',0] },
+              box3: { left: ['box','left',0] },
+              box4: { end: ['box','start',0] },
+              box5: { right: ['box','start',0] },
+              box6: { end: ['box','left',0] },
+              box7: { right: ['box','left',0] },
+              box8: { start: ['box','end',0] },
+              box9: { left: ['box','end',0] },
+              box10: { start: ['box','right',0] },
+              box11: { left: ['box','right',0] },
+              box12: { end: ['box','end',0] },
+              box13: { right: ['box','end',0] },
+              box14: { end: ['box','right',0] },
+              box15: { right: ['box','right',0] }
+            }
+        """.trimIndent()
+
+    private fun assertAnchorsLtrPositions(position: Array<Float>) {
+        rule.runOnIdle {
+            assertEquals(16, position.size)
+            assertEquals(50f, position[0])
+            assertEquals(50f, position[1])
+            assertEquals(50f, position[2])
+            assertEquals(50f, position[3])
+            assertEquals(49f, position[4])
+            assertEquals(49f, position[5])
+            assertEquals(49f, position[6])
+            assertEquals(49f, position[7])
+            assertEquals(51f, position[8])
+            assertEquals(51f, position[9])
+            assertEquals(51f, position[10])
+            assertEquals(51f, position[11])
+            assertEquals(50f, position[12])
+            assertEquals(50f, position[13])
+            assertEquals(50f, position[14])
+            assertEquals(50f, position[15])
+        }
+    }
+
+    private fun assertAnchorsRtlPositions(position: Array<Float>) {
+        rule.runOnIdle {
+            assertEquals(16, position.size)
+            assertEquals(50f, position[0])
+            assertEquals(51f, position[1])
+            assertEquals(49f, position[2])
+            assertEquals(50f, position[3])
+            assertEquals(51f, position[4])
+            assertEquals(50f, position[5])
+            assertEquals(50f, position[6])
+            assertEquals(49f, position[7])
+            assertEquals(49f, position[8])
+            assertEquals(50f, position[9])
+            assertEquals(50f, position[10])
+            assertEquals(51f, position[11])
+            assertEquals(50f, position[12])
+            assertEquals(49f, position[13])
+            assertEquals(51f, position[14])
+            assertEquals(50f, position[15])
+        }
+    }
+
+    private fun getJsonGuidelinesContent(guidelineOffset: Float): String =
+        //language=json5
+        """
+            {
+              g0: { type: 'vGuideline', start: $guidelineOffset },
+              g1: { type: 'vGuideline', left: $guidelineOffset },
+              g2: { type: 'vGuideline', end: $guidelineOffset },
+              g3: { type: 'vGuideline', right: $guidelineOffset },
+              g4: { type: 'vGuideline', percent: ["start", 0.25] },
+              g5: { type: 'vGuideline', percent: ["left", 0.25] },
+              g6: { type: 'vGuideline', percent: ["end", 0.25] },
+              g7: { type: 'vGuideline', percent: ["right", 0.25] },
+              box0: { left: ['g0', 'start', 0] },
+              box1: { left: ['g1', 'start', 0] },
+              box2: { left: ['g2', 'start', 0] },
+              box3: { left: ['g3', 'start', 0] },
+              box4: { left: ['g4', 'start', 0] },
+              box5: { left: ['g5', 'start', 0] },
+              box6: { left: ['g6', 'start', 0] },
+              box7: { left: ['g7', 'start', 0] }
+            }
+        """.trimIndent()
+
+    private fun assertGuidelinesLtrPositions(position: Array<Float>) {
+        rule.runOnIdle {
+            assertEquals(8, position.size)
+            assertEquals(50f, position[0])
+            assertEquals(50f, position[1])
+            assertEquals(150f, position[2])
+            assertEquals(150f, position[3])
+            assertEquals(50f, position[4])
+            assertEquals(50f, position[5])
+            assertEquals(150f, position[6])
+            assertEquals(150f, position[7])
+        }
+    }
+
+    private fun assertGuidelinesRtlPositions(position: Array<Float>) {
+        rule.runOnIdle {
+            assertEquals(8, position.size)
+            assertEquals(150f, position[0])
+            assertEquals(50f, position[1])
+            assertEquals(50f, position[2])
+            assertEquals(150f, position[3])
+            assertEquals(150f, position[4])
+            assertEquals(50f, position[5])
+            assertEquals(50f, position[6])
+            assertEquals(150f, position[7])
+        }
+    }
+
+    private fun getJsonBarriersContent(guidelineOffset: Float): String =
+        //language=json5
+        """
+            {
+              g0: { type: 'vGuideline', left: $guidelineOffset },
+              g1: { type: 'vGuideline', right: $guidelineOffset },
+
+              boxA: { left: ['g0', 'start', 0] },
+              boxB: { left: ['g1', 'start', 0] },
+
+              b0: { type: 'barrier', direction: 'start', contains: ['boxA','boxB'] },
+              b1: { type: 'barrier', direction: 'left', contains: ['boxA','boxB'] },
+              b2: { type: 'barrier', direction: 'end', contains: ['boxA','boxB'] },
+              b3: { type: 'barrier', direction: 'right', contains: ['boxA','boxB'] },
+
+              box0: { left: ['b0', 'start', 0] },
+              box1: { left: ['b1', 'start', 0] },
+              box2: { left: ['b2', 'start', 0] },
+              box3: { left: ['b3', 'start', 0] },
+            }
+        """.trimIndent()
+
+    private fun assertBarriersLtrPositions(position: Array<Float>) {
+        rule.runOnIdle {
+            assertEquals(4, position.size)
+            assertEquals(50f, position[0])
+            assertEquals(50f, position[1])
+            assertEquals(151f, position[2])
+            assertEquals(151f, position[3])
+        }
+    }
+
+    private fun assertBarriersRtlPositions(position: Array<Float>) {
+        rule.runOnIdle {
+            assertEquals(4, position.size)
+            assertEquals(151f, position[0])
+            assertEquals(50f, position[1])
+            assertEquals(50f, position[2])
+            assertEquals(151f, position[3])
+        }
     }
 }

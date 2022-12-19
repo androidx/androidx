@@ -18,76 +18,70 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Stable
-import androidx.constraintlayout.core.state.ConstraintReference
+import androidx.constraintlayout.core.parser.CLObject
 
 @LayoutScopeMarker
 @Stable
-class HorizontalChainScope internal constructor(internal val id: Any) {
-    internal val tasks = mutableListOf<(State) -> Unit>()
-
+class HorizontalChainScope internal constructor(
+    internal val id: Any,
+    containerObject: CLObject
+) {
     /**
      * Reference to the [ConstraintLayout] itself, which can be used to specify constraints
      * between itself and its children.
      */
-    val parent = ConstrainedLayoutReference(SolverState.PARENT)
+    val parent = ConstrainedLayoutReference("parent")
 
     /**
      * The start anchor of the chain - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val start: VerticalAnchorable = ChainVerticalAnchorable(tasks, id, -2)
+    val start: VerticalAnchorable = ChainVerticalAnchorable(containerObject, -2)
 
     /**
      * The left anchor of the chain - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val absoluteLeft: VerticalAnchorable = ChainVerticalAnchorable(tasks, id, 0)
+    val absoluteLeft: VerticalAnchorable = ChainVerticalAnchorable(containerObject, 0)
 
     /**
      * The end anchor of the chain - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val end: VerticalAnchorable = ChainVerticalAnchorable(tasks, id, -1)
+    val end: VerticalAnchorable = ChainVerticalAnchorable(containerObject, -1)
 
     /**
      * The right anchor of the chain - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val absoluteRight: VerticalAnchorable = ChainVerticalAnchorable(tasks, id, 1)
+    val absoluteRight: VerticalAnchorable = ChainVerticalAnchorable(containerObject, 1)
 }
 
 @LayoutScopeMarker
 @Stable
-class VerticalChainScope internal constructor(internal val id: Any) {
-    internal val tasks = mutableListOf<(State) -> Unit>()
-
+class VerticalChainScope internal constructor(
+    internal val id: Any,
+    containerObject: CLObject
+) {
     /**
      * Reference to the [ConstraintLayout] itself, which can be used to specify constraints
      * between itself and its children.
      */
-    val parent = ConstrainedLayoutReference(SolverState.PARENT)
+    val parent = ConstrainedLayoutReference("parent")
 
     /**
      * The top anchor of the chain - can be constrained using [HorizontalAnchorable.linkTo].
      */
-    val top: HorizontalAnchorable = ChainHorizontalAnchorable(tasks, id, 0)
+    val top: HorizontalAnchorable = ChainHorizontalAnchorable(containerObject, 0)
 
     /**
      * The bottom anchor of the chain - can be constrained using [HorizontalAnchorable.linkTo].
      */
-    val bottom: HorizontalAnchorable = ChainHorizontalAnchorable(tasks, id, 1)
+    val bottom: HorizontalAnchorable = ChainHorizontalAnchorable(containerObject, 1)
 }
 
 private class ChainVerticalAnchorable constructor(
-    tasks: MutableList<(State) -> Unit>,
-    private val id: Any,
+    containerObject: CLObject,
     index: Int
-) : BaseVerticalAnchorable(tasks, index) {
-    override fun getConstraintReference(state: State): ConstraintReference =
-        state.helper(id, androidx.constraintlayout.core.state.State.Helper.HORIZONTAL_CHAIN)
-}
+) : BaseVerticalAnchorable(containerObject, index)
 
 private class ChainHorizontalAnchorable constructor(
-    tasks: MutableList<(State) -> Unit>,
-    private val id: Any,
+    containerObject: CLObject,
     index: Int
-) : BaseHorizontalAnchorable(tasks, index) {
-    override fun getConstraintReference(state: State): ConstraintReference =
-        state.helper(id, androidx.constraintlayout.core.state.State.Helper.VERTICAL_CHAIN)
-}
+) : BaseHorizontalAnchorable(containerObject, index)

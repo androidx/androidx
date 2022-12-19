@@ -52,7 +52,7 @@ internal interface DerivedConstraintSet : ConstraintSet {
 
     override fun applyTo(state: State, measurables: List<Measurable>) {
         buildMapping(state, measurables)
-        (extendFrom as? DerivedConstraintSet)?.applyTo(state, measurables)
+        extendFrom?.applyTo(state, measurables)
         applyToState(state)
     }
 
