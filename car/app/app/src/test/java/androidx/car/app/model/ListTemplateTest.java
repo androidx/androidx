@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.TestUtils;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -243,6 +244,98 @@ public class ListTemplateTest {
     }
 
     @Test
+    public void createInstance_addAction() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, CarColor.BLUE);
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(customAction)
+                        .build();
+        assertThat(template.getActions()).containsExactly(customAction);
+    }
+
+    @Test
+    public void createInstance_addAction_appIconInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList()).addAction(Action.APP_ICON).build());
+    }
+
+    @Test
+    public void createInstance_addAction_backInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList()).addAction(Action.BACK).build());
+    }
+
+    @Test
+    public void createInstance_addAction_panInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList()).addAction(Action.PAN).build());
+    }
+
+    @Test
+    public void createInstance_addAction_manyActions_throws() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, CarColor.BLUE);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(customAction)
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_addAction_invalidActionNullBackgroundColor_throws() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, null);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_addAction_invalidActionDefaultBackgroundColor_throws() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction(icon, CarColor.DEFAULT);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void createInstance_addAction_invalidActionNullIcon_throws() {
+        Action customAction = TestUtils.createAction("title", null);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
     public void equals() {
         assertThat(createFullyPopulatedListTemplate())
                 .isEqualTo(createFullyPopulatedListTemplate());
@@ -319,6 +412,23 @@ public class ListTemplateTest {
     }
 
     @Test
+    public void notEquals_differentAction() {
+        ItemList itemList = new ItemList.Builder().build();
+        CarIcon icon1 = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        CarIcon icon2 = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_2");
+
+        ListTemplate template =
+                new ListTemplate.Builder().setSingleList(itemList).addAction(
+                        TestUtils.createAction(icon1, CarColor.BLUE)).build();
+
+        assertThat(template)
+                .isNotEqualTo(new ListTemplate.Builder().setSingleList(itemList).addAction(
+                        TestUtils.createAction(icon2, CarColor.RED)).build());
+    }
+
+    @Test
     public void toBuilder_createsEquivalentInstance() {
         ListTemplate listTemplate = createFullyPopulatedListTemplate();
 
@@ -351,13 +461,16 @@ public class ListTemplateTest {
         ItemList itemList = new ItemList.Builder().build();
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
 
         return new ListTemplate.Builder()
-            .setSingleList(itemList)
-            .setActionStrip(actionStrip)
-            .setHeaderAction(Action.BACK)
-            .setTitle(title)
-            .build();
+                .setSingleList(itemList)
+                .setActionStrip(actionStrip)
+                .setHeaderAction(Action.BACK)
+                .setTitle(title)
+                .addAction(TestUtils.createAction(icon, CarColor.BLUE))
+                .build();
     }
 
     private static ItemList getList() {
