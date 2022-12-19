@@ -177,20 +177,20 @@ public class SearchSpecToProtoConverterTest {
         // First grouping should have same package name.
         ResultSpecProto.ResultGrouping grouping1 = resultSpecProto.getResultGroupings(0);
         assertThat(grouping1.getMaxResults()).isEqualTo(5);
-        assertThat(grouping1.getNamespacesCount()).isEqualTo(2);
+        assertThat(grouping1.getEntryGroupingsList()).hasSize(2);
         assertThat(
-                PrefixUtil.getPackageName(grouping1.getNamespaces(0)))
+                PrefixUtil.getPackageName(grouping1.getEntryGroupings(0).getNamespace()))
                 .isEqualTo(
-                        PrefixUtil.getPackageName(grouping1.getNamespaces(1)));
+                        PrefixUtil.getPackageName(grouping1.getEntryGroupings(1).getNamespace()));
 
         // Second grouping should have same package name.
         ResultSpecProto.ResultGrouping grouping2 = resultSpecProto.getResultGroupings(1);
         assertThat(grouping2.getMaxResults()).isEqualTo(5);
-        assertThat(grouping2.getNamespacesCount()).isEqualTo(2);
+        assertThat(grouping2.getEntryGroupingsList()).hasSize(2);
         assertThat(
-                PrefixUtil.getPackageName(grouping2.getNamespaces(0)))
+                PrefixUtil.getPackageName(grouping2.getEntryGroupings(0).getNamespace()))
                 .isEqualTo(
-                        PrefixUtil.getPackageName(grouping2.getNamespaces(1)));
+                        PrefixUtil.getPackageName(grouping2.getEntryGroupings(1).getNamespace()));
     }
 
     @Test
@@ -220,19 +220,19 @@ public class SearchSpecToProtoConverterTest {
         assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(2);
         // First grouping should have same namespace.
         ResultSpecProto.ResultGrouping grouping1 = resultSpecProto.getResultGroupings(0);
-        assertThat(grouping1.getNamespacesCount()).isEqualTo(2);
+        assertThat(grouping1.getEntryGroupingsList()).hasSize(2);
         assertThat(
-                PrefixUtil.removePrefix(grouping1.getNamespaces(0)))
+                PrefixUtil.removePrefix(grouping1.getEntryGroupings(0).getNamespace()))
                 .isEqualTo(
-                        PrefixUtil.removePrefix(grouping1.getNamespaces(1)));
+                        PrefixUtil.removePrefix(grouping1.getEntryGroupings(1).getNamespace()));
 
         // Second grouping should have same namespace.
         ResultSpecProto.ResultGrouping grouping2 = resultSpecProto.getResultGroupings(1);
-        assertThat(grouping2.getNamespacesCount()).isEqualTo(2);
+        assertThat(grouping2.getEntryGroupingsList()).hasSize(2);
         assertThat(
-                PrefixUtil.removePrefix(grouping1.getNamespaces(0)))
+                PrefixUtil.removePrefix(grouping2.getEntryGroupings(0).getNamespace()))
                 .isEqualTo(
-                        PrefixUtil.removePrefix(grouping1.getNamespaces(1)));
+                        PrefixUtil.removePrefix(grouping2.getEntryGroupings(1).getNamespace()));
     }
 
     @Test
@@ -261,10 +261,10 @@ public class SearchSpecToProtoConverterTest {
 
         // All namespace should be separated.
         assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(4);
-        assertThat(resultSpecProto.getResultGroupings(0).getNamespacesCount()).isEqualTo(1);
-        assertThat(resultSpecProto.getResultGroupings(1).getNamespacesCount()).isEqualTo(1);
-        assertThat(resultSpecProto.getResultGroupings(2).getNamespacesCount()).isEqualTo(1);
-        assertThat(resultSpecProto.getResultGroupings(3).getNamespacesCount()).isEqualTo(1);
+        assertThat(resultSpecProto.getResultGroupings(0).getEntryGroupingsList()).hasSize(1);
+        assertThat(resultSpecProto.getResultGroupings(1).getEntryGroupingsList()).hasSize(1);
+        assertThat(resultSpecProto.getResultGroupings(2).getEntryGroupingsList()).hasSize(1);
+        assertThat(resultSpecProto.getResultGroupings(3).getEntryGroupingsList()).hasSize(1);
     }
 
     @Test
