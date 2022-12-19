@@ -16,7 +16,9 @@
 
 package androidx.test.uiautomator;
 
+import android.app.Service;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
@@ -59,6 +61,8 @@ class GestureController {
 
     private final UiDevice mDevice;
 
+    private final DisplayManager mDisplayManager;
+
     /** Comparator for sorting PointerGestures by start times. */
     private static final Comparator<PointerGesture> START_TIME_COMPARATOR =
             (o1, o2) -> Long.compare(o1.delay(), o2.delay());
@@ -71,6 +75,8 @@ class GestureController {
     // Private constructor.
     private GestureController(UiDevice device) {
         mDevice = device;
+        mDisplayManager = (DisplayManager) mDevice.getInstrumentation().getContext()
+                .getSystemService(Service.DISPLAY_SERVICE);
     }
 
     /** Returns the {@link GestureController} instance for the given {@link UiDevice}. */
@@ -126,6 +132,17 @@ class GestureController {
 
         // Record the start time
         final long startTime = SystemClock.uptimeMillis();
+
+        // Update motion event delay to twice of the display refresh rate
+        long injectionDelay = MOTION_EVENT_INJECTION_DELAY_MILLIS;
+        try {
+            int displayId = pending.peek().displayId();
+            Display display = mDisplayManager.getDisplay(displayId);
+            float displayRefreshRate = display.getRefreshRate();
+            injectionDelay = (long) (500 / displayRefreshRate);
+        } catch (Exception e) {
+            Log.e(TAG, "Fail to update motion event delay", e);
+        }
 
         // Loop
         MotionEvent event;
@@ -196,7 +213,7 @@ class GestureController {
                 active.add(gesture);
             }
 
-            SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+            SystemClock.sleep(injectionDelay);
         }
     }
 
