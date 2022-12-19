@@ -27,12 +27,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.constraintlayout.core.motion.Motion
@@ -43,10 +43,10 @@ import androidx.constraintlayout.core.widgets.Optimizer
 
 @ExperimentalMotionApi
 @PublishedApi
-internal class MotionMeasurer : Measurer() {
+internal class MotionMeasurer(density: Density) : Measurer(density) {
     private val DEBUG = false
     private var lastProgressInInterpolation = 0f
-    val transition = Transition()
+    val transition = Transition { with(density) { it.dp.toPx() } }
 
     // TODO: Explicitly declare `getDesignInfo` so that studio tooling can identify the method, also
     //  make sure that the constraints/dimensions returned are for the start/current ConstraintSet
@@ -87,12 +87,8 @@ internal class MotionMeasurer : Measurer() {
         measurables: List<Measurable>,
         optimizationLevel: Int,
         progress: Float,
-        motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
-        measureScope: MeasureScope
+        motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>()
     ): IntSize {
-        this.density = measureScope
-        this.measureScope = measureScope
-
         var needsRemeasure = false
         var flag = motionLayoutFlags.firstOrNull()
         if (flag == MotionLayoutFlag.Default || flag == null) {
@@ -196,7 +192,7 @@ internal class MotionMeasurer : Measurer() {
             )
             // Build constraint set and apply it to the state.
             state.rootIncomingConstraints = constraints
-            state.layoutDirection = layoutDirection
+            state.isLtr = layoutDirection == LayoutDirection.Ltr
 
             measureConstraintSet(
                 optimizationLevel, constraintSetStart, measurables, constraints
@@ -525,7 +521,9 @@ internal class MotionMeasurer : Measurer() {
         clearConstraintSets()
 
         // FIXME: tempState is a hack to populate initial custom properties with DSL
-        val tempState = State(density).apply { this.layoutDirection = layoutDirection }
+        val tempState = State(density).apply {
+            this.isLtr = layoutDirection == LayoutDirection.Ltr
+        }
         start.applyTo(tempState, emptyList())
         start.applyTo(this.transition, Transition.START)
         tempState.apply(root)

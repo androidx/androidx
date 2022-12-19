@@ -23,14 +23,11 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLArray
 import androidx.constraintlayout.core.parser.CLContainer
 import androidx.constraintlayout.core.parser.CLNumber
 import androidx.constraintlayout.core.parser.CLObject
 import androidx.constraintlayout.core.parser.CLString
-import androidx.constraintlayout.core.state.CorePixelDp
 import kotlin.properties.ObservableProperty
 import kotlin.reflect.KProperty
 
@@ -41,7 +38,6 @@ fun Transition(
     to: String = "end",
     transitionContent: TransitionScope.() -> Unit
 ): Transition {
-    val dpToPixel = with(LocalDensity.current) { 1.dp.toPx() }
     val transitionScope = remember(from, to) { TransitionScope(from, to) }
     val snapshotObserver = remember {
         // We use a Snapshot observer to know when state within the DSL has changed and recompose
@@ -74,12 +70,7 @@ fun Transition(
         // Transition
         transitionScope.transitionContent()
     }
-    return remember {
-        TransitionImpl(
-            transitionScope.getObject(),
-            CorePixelDp { dpValue -> dpValue * dpToPixel }
-        )
-    }
+    return remember { TransitionImpl(transitionScope.getObject()) }
 }
 
 @ExperimentalMotionApi

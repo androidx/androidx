@@ -363,7 +363,8 @@ internal inline fun MotionLayoutCore(
     if (forcedDebug != null && forcedDebug != MotionLayoutDebugFlags.UNKNOWN) {
         usedDebugMode = forcedDebug
     }
-    val measurer = remember { MotionMeasurer() }
+    val density = LocalDensity.current
+    val measurer = remember { MotionMeasurer(density) }
     val scope = remember { MotionLayoutScope(measurer, motionProgress) }
     val debug = EnumSet.of(usedDebugMode)
     val measurePolicy =
@@ -596,8 +597,7 @@ internal fun rememberMotionLayoutMeasurePolicy(
                 measurables,
                 optimizationLevel,
                 motionProgress.currentProgress,
-                motionLayoutFlags,
-                this
+                motionLayoutFlags
             )
             layout(layoutSize.width, layoutSize.height) {
                 with(measurer) {

@@ -398,6 +398,7 @@ package androidx.constraintlayout.compose {
   }
 
   @kotlin.PublishedApi internal class Measurer implements androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer androidx.constraintlayout.compose.DesignInfoProvider {
+    ctor public Measurer(androidx.compose.ui.unit.Density density);
     method public final void addLayoutInformationReceiver(androidx.constraintlayout.compose.LayoutInformationReceiver? layoutReceiver);
     method protected final void applyRootSize(long constraints);
     method public void computeLayoutResult();
@@ -405,37 +406,29 @@ package androidx.constraintlayout.compose {
     method public void didMeasures();
     method @androidx.compose.runtime.Composable public final void drawDebugBounds(androidx.compose.foundation.layout.BoxScope, float forcedScaleFactor);
     method public final void drawDebugBounds(androidx.compose.ui.graphics.drawscope.DrawScope, float forcedScaleFactor);
-    method protected final androidx.compose.ui.unit.Density getDensity();
     method public String getDesignInfo(int startX, int startY, String args);
     method public final float getForcedScaleFactor();
     method protected final java.util.Map<androidx.compose.ui.layout.Measurable,androidx.constraintlayout.core.state.WidgetFrame> getFrameCache();
     method public final int getLayoutCurrentHeight();
     method public final int getLayoutCurrentWidth();
     method protected final androidx.constraintlayout.compose.LayoutInformationReceiver? getLayoutInformationReceiver();
-    method protected final androidx.compose.ui.layout.MeasureScope getMeasureScope();
     method protected final java.util.Map<androidx.compose.ui.layout.Measurable,androidx.compose.ui.layout.Placeable> getPlaceables();
     method protected final androidx.constraintlayout.core.widgets.ConstraintWidgetContainer getRoot();
     method protected final androidx.constraintlayout.compose.State getState();
     method public void measure(androidx.constraintlayout.core.widgets.ConstraintWidget constraintWidget, androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measure measure);
     method public final void parseDesignElements(androidx.constraintlayout.compose.ConstraintSet constraintSet);
     method public final void performLayout(androidx.compose.ui.layout.Placeable.PlacementScope, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables);
-    method public final long performMeasure(long constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.ConstraintSet constraintSet, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables, int optimizationLevel, androidx.compose.ui.layout.MeasureScope measureScope);
-    method protected final void setDensity(androidx.compose.ui.unit.Density);
+    method public final long performMeasure(long constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.ConstraintSet constraintSet, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables, int optimizationLevel);
     method public final void setForcedScaleFactor(float);
     method protected final void setLayoutInformationReceiver(androidx.constraintlayout.compose.LayoutInformationReceiver?);
-    method protected final void setMeasureScope(androidx.compose.ui.layout.MeasureScope);
-    property protected final androidx.compose.ui.unit.Density density;
     property public final float forcedScaleFactor;
     property protected final java.util.Map<androidx.compose.ui.layout.Measurable,androidx.constraintlayout.core.state.WidgetFrame> frameCache;
     property public final int layoutCurrentHeight;
     property public final int layoutCurrentWidth;
     property protected final androidx.constraintlayout.compose.LayoutInformationReceiver? layoutInformationReceiver;
-    property protected final androidx.compose.ui.layout.MeasureScope measureScope;
     property protected final java.util.Map<androidx.compose.ui.layout.Measurable,androidx.compose.ui.layout.Placeable> placeables;
     property protected final androidx.constraintlayout.core.widgets.ConstraintWidgetContainer root;
     property protected final androidx.constraintlayout.compose.State state;
-    field protected androidx.compose.ui.unit.Density density;
-    field protected androidx.compose.ui.layout.MeasureScope measureScope;
   }
 
   @kotlin.PublishedApi internal interface MotionAnimationCommand {
@@ -548,6 +541,7 @@ package androidx.constraintlayout.compose {
   }
 
   @kotlin.PublishedApi internal final class MotionMeasurer extends androidx.constraintlayout.compose.Measurer {
+    ctor public MotionMeasurer(androidx.compose.ui.unit.Density density);
     method public void clearConstraintSets();
     method public void drawDebug(androidx.compose.ui.graphics.drawscope.DrawScope);
     method public void encodeRoot(StringBuilder json);
@@ -555,7 +549,7 @@ package androidx.constraintlayout.compose {
     method public float getCustomFloat(String id, String name, float progress);
     method public androidx.constraintlayout.core.state.Transition getTransition();
     method public void initWith(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.TransitionImpl? transition, float progress);
-    method public long performInterpolationMeasure(long constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.ConstraintSet constraintSetStart, androidx.constraintlayout.compose.ConstraintSet constraintSetEnd, androidx.constraintlayout.compose.TransitionImpl? transition, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables, int optimizationLevel, float progress, optional java.util.Set<? extends androidx.constraintlayout.compose.MotionLayoutFlag> motionLayoutFlags, androidx.compose.ui.layout.MeasureScope measureScope);
+    method public long performInterpolationMeasure(long constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.ConstraintSet constraintSetStart, androidx.constraintlayout.compose.ConstraintSet constraintSetEnd, androidx.constraintlayout.compose.TransitionImpl? transition, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables, int optimizationLevel, float progress, optional java.util.Set<? extends androidx.constraintlayout.compose.MotionLayoutFlag> motionLayoutFlags);
     property public final androidx.constraintlayout.core.state.Transition transition;
   }
 
@@ -580,14 +574,13 @@ package androidx.constraintlayout.compose {
   public final class State extends androidx.constraintlayout.core.state.State {
     ctor public State(androidx.compose.ui.unit.Density density);
     method public androidx.compose.ui.unit.Density getDensity();
-    method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @Deprecated public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getRootIncomingConstraints();
-    method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
+    method @Deprecated public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setRootIncomingConstraints(long);
     property public final androidx.compose.ui.unit.Density density;
-    property public final androidx.compose.ui.unit.LayoutDirection layoutDirection;
+    property @Deprecated public final androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public final long rootIncomingConstraints;
-    field public androidx.compose.ui.unit.LayoutDirection layoutDirection;
   }
 
   public final class ToolingUtilsKt {

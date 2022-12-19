@@ -40,6 +40,7 @@ import java.util.Map;
  */
 public class State {
     private CorePixelDp mDpToPixel;
+    private boolean mIsLtr = true;
     protected HashMap<Object, Reference> mReferences = new HashMap<>();
     protected HashMap<Object, HelperReference> mHelperReferences = new HashMap<>();
     HashMap<String, ArrayList<String>> mTags = new HashMap<>();
@@ -192,6 +193,20 @@ public class State {
      */
     public void setDpToPixel(CorePixelDp dpToPixel) {
         this.mDpToPixel = dpToPixel;
+    }
+
+    /**
+     * Set whether the layout direction is left to right (Ltr).
+     */
+    public void setLtr(boolean isLtr) {
+        mIsLtr = isLtr;
+    }
+
+    /**
+     * Returns true if layout direction is left to right. False for right to left.
+     */
+    public boolean isLtr() {
+        return mIsLtr;
     }
 
     /**
@@ -485,10 +500,9 @@ public class State {
 
     // @TODO: add description
     public void map(Object key, Object view) {
-        Reference ref = constraints(key);
-        if (ref instanceof ConstraintReference) {
-            ConstraintReference reference = (ConstraintReference) ref;
-            reference.setView(view);
+        ConstraintReference ref = constraints(key);
+        if (ref != null) {
+            ref.setView(view);
         }
     }
 

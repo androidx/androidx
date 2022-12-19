@@ -57,12 +57,12 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LayoutIdParentData
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.MultiMeasureLayout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.InspectorValueInfo
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
@@ -114,7 +114,8 @@ inline fun ConstraintLayout(
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     crossinline content: @Composable ConstraintLayoutScope.() -> Unit
 ) {
-    val measurer = remember { Measurer() }
+    val density = LocalDensity.current
+    val measurer = remember { Measurer(density) }
     val scope = remember { ConstraintLayoutScope() }
     val remeasureRequesterState = remember { mutableStateOf(false) }
     val (measurePolicy, onHelpersChanged) = rememberConstraintLayoutMeasurePolicy(
@@ -158,8 +159,7 @@ internal fun rememberConstraintLayoutMeasurePolicy(
                 layoutDirection,
                 constraintSet,
                 measurables,
-                optimizationLevel,
-                this
+                optimizationLevel
             )
             // We read the remeasurement requester state, to request remeasure when the value
             // changes. This will happen when the scope helpers are changing at recomposition.
@@ -301,7 +301,8 @@ inline fun ConstraintLayout(
             mutableStateOf(0L)
         }
 
-        val measurer = remember { Measurer() }
+        val density = LocalDensity.current
+        val measurer = remember { Measurer(density) }
         val measurePolicy = rememberConstraintLayoutMeasurePolicy(
             optimizationLevel,
             needsUpdate,
@@ -359,8 +360,7 @@ internal fun rememberConstraintLayoutMeasurePolicy(
             layoutDirection,
             constraintSet,
             measurables,
-            optimizationLevel,
-            this
+            optimizationLevel
         )
         layout(layoutSize.width, layoutSize.height) {
             with(measurer) { performLayout(measurables) }
@@ -922,7 +922,8 @@ fun ConstraintSet(
  */
 class State(val density: Density) : SolverState() {
     var rootIncomingConstraints: Constraints = Constraints()
-    lateinit var layoutDirection: LayoutDirection
+    @Deprecated("Use #isLtr instead")
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     init {
         setDpToPixel { dp -> density.density * dp }
@@ -967,7 +968,9 @@ interface LayoutInformationReceiver {
 }
 
 @PublishedApi
-internal open class Measurer : BasicMeasure.Measurer, DesignInfoProvider {
+internal open class Measurer(
+    density: Density // TODO: Change to a variable since density may change
+) : BasicMeasure.Measurer, DesignInfoProvider {
     private var computedLayoutResult: String = ""
     protected var layoutInformationReceiver: LayoutInformationReceiver? = null
     protected val root = ConstraintWidgetContainer(0, 0).also { it.measurer = this }
@@ -975,9 +978,7 @@ internal open class Measurer : BasicMeasure.Measurer, DesignInfoProvider {
     private val lastMeasures = mutableMapOf<String, Array<Int>>()
     protected val frameCache = mutableMapOf<Measurable, WidgetFrame>()
 
-    protected lateinit var density: Density
-    protected lateinit var measureScope: MeasureScope
-    protected val state by lazy(LazyThreadSafetyMode.NONE) { State(density) }
+    protected val state = State(density)
 
     private val widthConstraintsHolder = IntArray(2)
     private val heightConstraintsHolder = IntArray(2)
@@ -1231,11 +1232,8 @@ internal open class Measurer : BasicMeasure.Measurer, DesignInfoProvider {
         layoutDirection: LayoutDirection,
         constraintSet: ConstraintSet,
         measurables: List<Measurable>,
-        optimizationLevel: Int,
-        measureScope: MeasureScope
+        optimizationLevel: Int
     ): IntSize {
-        this.density = measureScope
-        this.measureScope = measureScope
         // Define the size of the ConstraintLayout.
         state.width(
             if (constraints.hasFixedWidth) {
@@ -1253,7 +1251,7 @@ internal open class Measurer : BasicMeasure.Measurer, DesignInfoProvider {
         )
         // Build constraint set and apply it to the state.
         state.rootIncomingConstraints = constraints
-        state.layoutDirection = layoutDirection
+        state.isLtr = layoutDirection == LayoutDirection.Ltr
         resetMeasureState()
         if (constraintSet.isDirty(measurables)) {
             state.reset()
