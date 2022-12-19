@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.annotation.SuppressLint
+import android.app.admin.DevicePolicyManager
 import android.hardware.camera2.CameraDevice.StateCallback
 import android.hardware.camera2.CameraManager
 import android.os.Build
@@ -50,6 +51,10 @@ internal interface CameraOpener {
 
 internal interface CameraAvailabilityMonitor {
     suspend fun awaitAvailableCamera(cameraId: CameraId, timeoutMillis: Long): Boolean
+}
+
+internal interface DevicePolicyManagerWrapper {
+    val camerasDisabled: Boolean
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -129,6 +134,16 @@ internal class Camera2CameraAvailabilityMonitor @Inject constructor(
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+internal class AndroidDevicePolicyManagerWrapper @Inject constructor(
+    private val devicePolicyManager: DevicePolicyManager
+) : DevicePolicyManagerWrapper {
+    override val camerasDisabled: Boolean
+        get() = Debug.trace("DevicePolicyManager#getCameraDisabled") {
+            devicePolicyManager.getCameraDisabled(null)
+        }
+}
+
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class CameraStateOpener @Inject constructor(
     private val cameraOpener: CameraOpener,
     private val cameraMetadataProvider: CameraMetadataProvider,
@@ -191,7 +206,8 @@ internal class CameraStateOpener @Inject constructor(
 internal class RetryingCameraStateOpener @Inject constructor(
     private val cameraStateOpener: CameraStateOpener,
     private val cameraAvailabilityMonitor: CameraAvailabilityMonitor,
-    private val timeSource: TimeSource
+    private val timeSource: TimeSource,
+    private val devicePolicyManager: DevicePolicyManagerWrapper
 ) {
     internal suspend fun openCameraWithRetry(
         cameraId: CameraId,
@@ -221,7 +237,13 @@ internal class RetryingCameraStateOpener @Inject constructor(
                     return null
                 }
 
-                val willRetry = shouldRetry(errorCode, attempts, requestTimestamp, timeSource)
+                val willRetry = shouldRetry(
+                    errorCode,
+                    attempts,
+                    requestTimestamp,
+                    timeSource,
+                    devicePolicyManager.camerasDisabled
+                )
                 // Always notify if the decision is to not retry the camera open, otherwise allow
                 // 1 open call to happen silently without generating an error, and notify about each
                 // error after that point.
@@ -251,7 +273,8 @@ internal class RetryingCameraStateOpener @Inject constructor(
             errorCode: CameraError,
             attempts: Int,
             firstAttemptTimestampNs: TimestampNs,
-            timeSource: TimeSource = SystemTimeSource()
+            timeSource: TimeSource = SystemTimeSource(),
+            camerasDisabledByDevicePolicy: Boolean
         ): Boolean {
             val elapsed = Timestamps.now(timeSource) - firstAttemptTimestampNs
             if (elapsed > cameraRetryTimeout) {
@@ -277,7 +300,26 @@ internal class RetryingCameraStateOpener @Inject constructor(
                     }
 
                 CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> true
-                CameraError.ERROR_CAMERA_DISABLED -> attempts <= 1
+                CameraError.ERROR_CAMERA_DISABLED ->
+                    // The error indicates indicates that the current camera is currently disabled,
+                    // either by a device level policy [1] or because the app isn't considered
+                    // foreground (which can, under rare circumstances, happen when the app is
+                    // actually in the foreground due to racey foreground status propagation in the
+                    // Android Framework) [2]
+                    //
+                    // When cameras are disabled by policy, we retry just once in case we have a
+                    // transient error, and only retry repeatedly if cameras aren't disabled by
+                    // policy.
+                    //
+                    // [1] b/77827041 - Camera has been disabled because of security policies
+                    // [2] b/250234453 - Fatal error encountered while switching camera app between
+                    //                   foreground and background.
+                    if (camerasDisabledByDevicePolicy) {
+                        attempts <= 1
+                    } else {
+                        true
+                    }
+
                 CameraError.ERROR_CAMERA_DEVICE -> true
                 CameraError.ERROR_CAMERA_SERVICE -> true
                 CameraError.ERROR_CAMERA_DISCONNECTED -> true
