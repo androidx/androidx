@@ -105,6 +105,7 @@ import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk;
 import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
@@ -167,10 +168,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
         boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
                 hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
+        boolean hasExtraSupportedResolutionQuirk =
+                DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
         USE_TEMPLATE_PREVIEW_BY_QUIRK =
                 hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk;
-        ENABLE_SURFACE_PROCESSING_BY_QUIRK = hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
-                || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing;
+        ENABLE_SURFACE_PROCESSING_BY_QUIRK =
+                hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
+                        || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
+                        || hasExtraSupportedResolutionQuirk;
     }
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
