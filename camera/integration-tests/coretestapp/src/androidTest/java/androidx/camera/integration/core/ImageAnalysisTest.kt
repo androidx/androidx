@@ -16,6 +16,7 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
@@ -31,6 +32,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -410,6 +412,45 @@ internal class ImageAnalysisTest(
             )
         }
         assertThat(imageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun analyzerAnalyzesImages_withHighResolutionEnabled() = runBlocking {
+        // TODO(b/247492645) Remove camera-pipe-integration restriction after porting
+        //  ResolutionSelector logic
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+
+        val maxHighResolutionOutputSize = CameraUtil.getMaxHighResolutionOutputSizeWithLensFacing(
+            DEFAULT_CAMERA_SELECTOR.lensFacing!!,
+            ImageFormat.YUV_420_888
+        )
+        // Only runs the test when the device has high resolution output sizes
+        assumeTrue(maxHighResolutionOutputSize != null)
+
+        val resolutionSelector = ResolutionSelector.Builder()
+                .setPreferredResolution(maxHighResolutionOutputSize!!)
+                .setHighResolutionEnabled(true)
+                .build()
+
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setResolutionSelector(resolutionSelector)
+            .build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_CAMERA_SELECTOR,
+                imageAnalysis
+            )
+        }
+        assertThat(imageAnalysis.resolutionInfo!!.resolution).isEqualTo(maxHighResolutionOutputSize)
+        imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
+        analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        synchronized(analysisResultLock) {
+            assertThat(analysisResults).isNotEmpty()
+            assertThat(analysisResults.elementAt(0).resolution).isEqualTo(
+                maxHighResolutionOutputSize
+            )
+        }
     }
 
     private data class ImageProperties(
