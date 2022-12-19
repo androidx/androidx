@@ -91,6 +91,7 @@ public class WriterBase implements AutoCloseable {
     public @interface InputMode {}
 
     protected final @InputMode int mInputMode;
+    protected final boolean mHighBitDepthEnabled;
     protected final HandlerThread mHandlerThread;
     protected final Handler mHandler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -125,7 +126,8 @@ public class WriterBase implements AutoCloseable {
         int primaryIndex,
         boolean gridEnabled,
         int quality,
-        @Nullable Handler handler) throws IOException {
+        @Nullable Handler handler,
+        boolean highBitDepthEnabled) throws IOException {
         if (primaryIndex >= maxImages) {
             throw new IllegalArgumentException(
                 "Invalid maxImages (" + maxImages + ") or primaryIndex (" + primaryIndex + ")");
@@ -137,6 +139,7 @@ public class WriterBase implements AutoCloseable {
         mPrimaryIndex = primaryIndex;
         mGridEnabled = gridEnabled;
         mQuality = quality;
+        mHighBitDepthEnabled = highBitDepthEnabled;
 
         Looper looper = (handler != null) ? handler.getLooper() : null;
         if (looper == null) {
@@ -554,5 +557,12 @@ public class WriterBase implements AutoCloseable {
      */
     public @Nullable Handler getHandler() {
         return mHandler;
+    }
+
+    /*
+     * Returns true if high bit-depth is enabled.
+     */
+    public boolean isHighBitDepthEnabled() {
+        return mHighBitDepthEnabled;
     }
 }

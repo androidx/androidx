@@ -13,6 +13,7 @@ package androidx.heifwriter {
     method public int getQuality();
     method public int getRotation();
     method public boolean isGridEnabled();
+    method public boolean isHighBitDepthEnabled();
     method public void setInputEndOfStreamTimestamp(@IntRange(from=0) long);
     method public void start();
     method public void stop(@IntRange(from=0) long) throws java.lang.Exception;
@@ -24,13 +25,14 @@ package androidx.heifwriter {
   public static final class AvifWriter.Builder {
     ctor public AvifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     ctor public AvifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
-    method public androidx.heifwriter.AvifWriter! build() throws java.io.IOException;
-    method public androidx.heifwriter.AvifWriter.Builder! setGridEnabled(boolean);
-    method public androidx.heifwriter.AvifWriter.Builder! setHandler(android.os.Handler?);
-    method public androidx.heifwriter.AvifWriter.Builder! setMaxImages(@IntRange(from=1) int);
-    method public androidx.heifwriter.AvifWriter.Builder! setPrimaryIndex(@IntRange(from=0) int);
-    method public androidx.heifwriter.AvifWriter.Builder! setQuality(@IntRange(from=0, to=100) int);
-    method public androidx.heifwriter.AvifWriter.Builder! setRotation(@IntRange(from=0) int);
+    method public androidx.heifwriter.AvifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.AvifWriter.Builder setGridEnabled(boolean);
+    method public androidx.heifwriter.AvifWriter.Builder setHandler(android.os.Handler?);
+    method public androidx.heifwriter.AvifWriter.Builder setHighBitDepthEnabled(boolean);
+    method public androidx.heifwriter.AvifWriter.Builder setMaxImages(@IntRange(from=1) int);
+    method public androidx.heifwriter.AvifWriter.Builder setPrimaryIndex(@IntRange(from=0) int);
+    method public androidx.heifwriter.AvifWriter.Builder setQuality(@IntRange(from=0, to=100) int);
+    method public androidx.heifwriter.AvifWriter.Builder setRotation(@IntRange(from=0) int);
   }
 
   public final class HeifWriter implements java.lang.AutoCloseable {
@@ -45,6 +47,7 @@ package androidx.heifwriter {
     method public int getQuality();
     method public int getRotation();
     method public boolean isGridEnabled();
+    method public boolean isHighBitDepthEnabled();
     method public void setInputEndOfStreamTimestamp(@IntRange(from=0) long);
     method public void start();
     method public void stop(@IntRange(from=0) long) throws java.lang.Exception;
