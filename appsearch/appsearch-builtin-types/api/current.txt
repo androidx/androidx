@@ -79,6 +79,82 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.AlarmInstance.Builder setStatus(int);
   }
 
+  @androidx.appsearch.annotation.Document(name="builtin:ContactPoint") public class ContactPoint {
+    method public java.util.List<java.lang.String!> getAddresses();
+    method public long getCreationTimestampMillis();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method public java.util.List<java.lang.String!> getEmails();
+    method public String getId();
+    method public String getLabel();
+    method public String getNamespace();
+    method public java.util.List<java.lang.String!> getTelephones();
+  }
+
+  public static final class ContactPoint.Builder {
+    ctor public ContactPoint.Builder(String, String, String);
+    ctor public ContactPoint.Builder(androidx.appsearch.builtintypes.ContactPoint);
+    method public androidx.appsearch.builtintypes.ContactPoint build();
+    method public androidx.appsearch.builtintypes.ContactPoint.Builder setAddresses(java.util.List<java.lang.String!>);
+    method public androidx.appsearch.builtintypes.ContactPoint.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.ContactPoint.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.ContactPoint.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.ContactPoint.Builder setEmails(java.util.List<java.lang.String!>);
+    method public androidx.appsearch.builtintypes.ContactPoint.Builder setTelephones(java.util.List<java.lang.String!>);
+  }
+
+  @androidx.appsearch.annotation.Document(name="builtin:Person") public class Person {
+    method public java.util.List<java.lang.String!> getAdditionalNames();
+    method public java.util.List<java.lang.String!> getAffiliations();
+    method public java.util.List<androidx.appsearch.builtintypes.ContactPoint!> getContactPoints();
+    method public long getCreationTimestampMillis();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method public android.net.Uri? getExternalUri();
+    method public String? getFamilyName();
+    method public String? getGivenName();
+    method public String getId();
+    method public android.net.Uri? getImageUri();
+    method public String? getMiddleName();
+    method public String getName();
+    method public String getNamespace();
+    method public java.util.List<java.lang.String!> getNotes();
+    method public java.util.List<java.lang.String!> getRelations();
+    method public java.util.List<androidx.appsearch.builtintypes.Person.AdditionalName!> getTypedAdditionalNames();
+    method public boolean isBot();
+    method public boolean isImportant();
+  }
+
+  public static class Person.AdditionalName {
+    ctor public Person.AdditionalName(int, String);
+    method public int getType();
+    method public String getValue();
+    field public static final int TYPE_NICKNAME = 1; // 0x1
+    field public static final int TYPE_PHONETIC_NAME = 2; // 0x2
+    field public static final int TYPE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class Person.Builder {
+    ctor public Person.Builder(String, String, String);
+    ctor public Person.Builder(androidx.appsearch.builtintypes.Person);
+    method public androidx.appsearch.builtintypes.Person build();
+    method public androidx.appsearch.builtintypes.Person.Builder setAdditionalNames(java.util.List<androidx.appsearch.builtintypes.Person.AdditionalName!>);
+    method public androidx.appsearch.builtintypes.Person.Builder setAffiliations(java.util.List<java.lang.String!>);
+    method public androidx.appsearch.builtintypes.Person.Builder setBot(boolean);
+    method public androidx.appsearch.builtintypes.Person.Builder setContactPoints(java.util.List<androidx.appsearch.builtintypes.ContactPoint!>);
+    method public androidx.appsearch.builtintypes.Person.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.Person.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.Person.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.Person.Builder setExternalUri(android.net.Uri);
+    method public androidx.appsearch.builtintypes.Person.Builder setFamilyName(String);
+    method public androidx.appsearch.builtintypes.Person.Builder setGivenName(String);
+    method public androidx.appsearch.builtintypes.Person.Builder setImageUri(android.net.Uri);
+    method public androidx.appsearch.builtintypes.Person.Builder setImportant(boolean);
+    method public androidx.appsearch.builtintypes.Person.Builder setMiddleName(String);
+    method public androidx.appsearch.builtintypes.Person.Builder setNotes(java.util.List<java.lang.String!>);
+    method public androidx.appsearch.builtintypes.Person.Builder setRelations(java.util.List<java.lang.String!>);
+  }
+
   @androidx.appsearch.annotation.Document(name="builtin:Stopwatch") public final class Stopwatch {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateBaseTimeMillis(android.content.Context);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateCurrentAccumulatedDurationMillis(android.content.Context);
