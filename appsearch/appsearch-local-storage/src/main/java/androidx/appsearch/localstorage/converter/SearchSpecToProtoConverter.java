@@ -251,6 +251,8 @@ public final class SearchSpecToProtoConverter {
 
         addTypePropertyWeights(mSearchSpec.getPropertyWeights(), protoBuilder);
 
+        protoBuilder.setAdvancedScoringExpression(mSearchSpec.getAdvancedRankingExpression());
+
         return protoBuilder.build();
     }
 
@@ -273,6 +275,8 @@ public final class SearchSpecToProtoConverter {
                 return ScoringSpecProto.RankingStrategy.Code.USAGE_TYPE2_COUNT;
             case SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP:
                 return ScoringSpecProto.RankingStrategy.Code.USAGE_TYPE2_LAST_USED_TIMESTAMP;
+            case SearchSpec.RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION:
+                return ScoringSpecProto.RankingStrategy.Code.ADVANCED_SCORING_EXPRESSION;
             default:
                 throw new IllegalArgumentException("Invalid result ranking strategy: "
                         + rankingStrategyCode);

@@ -68,6 +68,7 @@ public final class SearchSpec {
     static final String RESULT_GROUPING_LIMIT = "resultGroupingLimit";
     static final String TYPE_PROPERTY_WEIGHTS_FIELD = "typePropertyWeightsField";
     static final String JOIN_SPEC = "joinSpec";
+    static final String ADVANCED_RANKING_EXPRESSION = "advancedRankingExpression";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -123,6 +124,7 @@ public final class SearchSpec {
             RANKING_STRATEGY_SYSTEM_USAGE_COUNT,
             RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP,
             RANKING_STRATEGY_JOIN_AGGREGATE_SCORE,
+            RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RankingStrategy {
@@ -154,6 +156,8 @@ public final class SearchSpec {
      * @see Builder#build
      */
     public static final int RANKING_STRATEGY_JOIN_AGGREGATE_SCORE = 8;
+    /** Ranked by the advanced ranking expression provided. */
+    public static final int RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION = 9;
 
     /**
      * Order for query result.
@@ -435,6 +439,15 @@ public final class SearchSpec {
         return new JoinSpec(joinSpec);
     }
 
+    /**
+     * Get the advanced ranking expression, or "" if {@link Builder#setRankingStrategy(String)}
+     * was not called.
+     */
+    @NonNull
+    public String getAdvancedRankingExpression() {
+        return mBundle.getString(ADVANCED_RANKING_EXPRESSION, "");
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mSchemas = new ArrayList<>();
@@ -453,6 +466,7 @@ public final class SearchSpec {
         private @GroupingType int mGroupingTypeFlags = 0;
         private int mGroupingLimit = 0;
         private JoinSpec mJoinSpec;
+        private String mAdvancedRankingExpression = "";
         private boolean mBuilt = false;
 
         /**
@@ -624,6 +638,118 @@ public final class SearchSpec {
                     RANKING_STRATEGY_JOIN_AGGREGATE_SCORE, "Result ranking strategy");
             resetIfBuilt();
             mRankingStrategy = rankingStrategy;
+            mAdvancedRankingExpression = "";
+            return this;
+        }
+
+        /**
+         * Enables advanced ranking to score based on {@code advancedRankingExpression}.
+         *
+         * <p>This method will set RankingStrategy to
+         * {@link #RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION}.
+         *
+         * <p>The ranking expression is a mathematical expression that will be evaluated to a
+         * floating-point number of double type representing the score of each document.
+         *
+         * <p>Numeric literals, arithmetic operators, mathematical functions, and document-based
+         * functions are supported to build expressions.
+         *
+         * <p>The following are examples of numeric literals:
+         * <ul>
+         *     <li>Integer
+         *     <p>Example: 0, 1, 2, 13
+         *     <li>Floating-point number
+         *     <p>Example: 0.333, 0.5, 123.456
+         *     <li>Negative number
+         *     <p>Example: -5, -10.5, -100.123
+         * </ul>
+         *
+         * <p>The following are supported arithmetic operators:
+         * <ul>
+         *     <li>Addition(+)
+         *     <p>Example: "1 + 1" will be evaluated to 2.
+         *     <li>Subtraction(-)
+         *     <p>Example: "2 - 1.5" will be evaluated to 0.5.
+         *     <li>Multiplication(*)
+         *     <p>Example: "2 * -2" will be evaluated to -4.
+         *     <li>Division(/)
+         *     <p>Example: "5 / 2" will be evaluated to 2.5.
+         * </ul>
+         *
+         * <p>Multiplication and division have higher precedences than addition and subtraction,
+         * but multiplication has the same precedence as division, and addition has the same
+         * precedence as subtraction. Parentheses are supported to change precedences.
+         *
+         * <p>For example:
+         * <ul>
+         *     <li>"2 + 3 - 4 * 5" will be evaluated to -15
+         *     <li>"(2 + 3) - (4 * 5)" will be evaluated to -15
+         *     <li>"2 + (3 - 4) * 5" will be evaluated to -3
+         * </ul>
+         *
+         * <p>The following are supported mathematical functions:
+         * <ul>
+         *     <li>log(x) - the natural log of x
+         *     <li>log(x, y) - the log of y with base x
+         *     <li>pow(x, y) - x to the power of y
+         *     <li>max(v1, v2, ..., vn) with n > 0 - the maximum value among v1, ..., vn
+         *     <li>min(v1, v2, ..., vn) with n > 0 - the minimum value among v1, ..., vn
+         *     <li>sqrt(x) - the square root of x
+         *     <li>abs(x) - the absolute value of x
+         *     <li>sin(x), cos(x), tan(x) - trigonometric functions of x
+         *     <li>Example: "max(abs(-100), 10) + pow(2, 10)" will be evaluated to 1124
+         * </ul>
+         *
+         * <p>Document-based functions must be called via "this", which represents the current
+         * document being scored. The following are supported document-based functions:
+         * <ul>
+         *     <li>this.documentScore()
+         *     <p>Get the app-provided document score of the current document. This is the same
+         *     score that is returned for {@link #RANKING_STRATEGY_DOCUMENT_SCORE}.
+         *     <li>this.creationTimestamp()
+         *     <p>Get the creation timestamp of the current document. This is the same score that
+         *     is returned for {@link #RANKING_STRATEGY_CREATION_TIMESTAMP}.
+         *     <li>this.relevanceScore()
+         *     <p>Get the BM25F relevance score of the current document in relation to the query
+         *     string. This is the same score that is returned for
+         *     {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *     <li>this.usageCount(type) and this.usageLastUsedTimestamp(type)
+         *     <p>Get the number of usages or the timestamp of last usage by type for the current
+         *     document, where type must be evaluated to an integer from 1 to 2. Type 1 refers to
+         *     usages reported by {@link AppSearchSession#reportUsageAsync}, and type 2 refers to
+         *     usages reported by {@link GlobalSearchSession#reportSystemUsageAsync}.
+         * </ul>
+         *
+         * <p>Some errors may occur when using advanced ranking.
+         * <ul>
+         *     <li>Syntax Error: the expression violates the syntax of the advanced ranking
+         *     language, such as unbalanced parenthesis.
+         *     <li>Type Error: the expression fails a static type check, such as getting the wrong
+         *     number of arguments for a function.
+         *     <li>Evaluation Error: an error occurred while evaluating the value of the
+         *     expression, such as getting a non-finite value in the middle of evaluation.
+         *     Expressions like "1 / 0" and "log(0) fall into this category.
+         * </ul>
+         *
+         * <p>Syntax errors and type errors will fail the entire search and will cause
+         * {@link SearchResults#getNextPageAsync()} to throw an {@link AppSearchException}.
+         * <p>Evaluation errors will result in the offending documents receiving the default score.
+         * For {@link #ORDER_DESCENDING}, the default score will be 0, for
+         * {@link #ORDER_ASCENDING} the default score will be infinity.
+         *
+         * @param advancedRankingExpression a non-empty string representing the ranking expression.
+         */
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION)
+        // @exportToFramework:endStrip()
+        public Builder setRankingStrategy(@NonNull String advancedRankingExpression) {
+            Preconditions.checkStringNotEmpty(advancedRankingExpression);
+            resetIfBuilt();
+            mRankingStrategy = RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION;
+            mAdvancedRankingExpression = advancedRankingExpression;
             return this;
         }
 
@@ -1136,6 +1262,7 @@ public final class SearchSpec {
                         + "RANKING_STRATEGY_RELEVANCE_SCORE ranking strategy.");
             }
             bundle.putBundle(TYPE_PROPERTY_WEIGHTS_FIELD, mTypePropertyWeights);
+            bundle.putString(ADVANCED_RANKING_EXPRESSION, mAdvancedRankingExpression);
             mBuilt = true;
             return new SearchSpec(bundle);
         }
