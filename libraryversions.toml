@@ -240,6 +240,7 @@ RESOURCEINSPECTION = { group = "androidx.resourceinspection", atomicGroupVersion
 ROOM = { group = "androidx.room", atomicGroupVersion = "versions.ROOM" }
 SAVEDSTATE = { group = "androidx.savedstate", atomicGroupVersion = "versions.SAVEDSTATE" }
 SECURITY = { group = "androidx.security" }
+SHAPES = { group = "androidx.graphics.shapes", atomicGroupVersion = "versions.GRAPHICS" }
 SHARETARGET = { group = "androidx.sharetarget", atomicGroupVersion = "versions.SHARETARGET" }
 SLICE = { group = "androidx.slice" }
 SLIDINGPANELAYOUT = { group = "androidx.slidingpanelayout", atomicGroupVersion = "versions.SLIDINGPANELAYOUT" }
