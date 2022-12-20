@@ -23,7 +23,8 @@
         window:splitMinWidthDp="0"
         window:splitMinHeightDp="600"
         window:splitMinSmallestWidthDp="0"
-        window:splitLayoutDirection="bottomToTop">
+        window:splitLayoutDirection="bottomToTop"
+        window:animationBackgroundColor="@color/testColor">
         <ActivityFilter
             window:activityName="androidx.window.sample.embedding.SplitActivityList"/>
     </SplitPlaceholderRule>

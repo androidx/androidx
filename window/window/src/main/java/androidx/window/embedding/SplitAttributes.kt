@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.annotation.SuppressLint
+import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
@@ -66,6 +67,14 @@ class SplitAttributes internal constructor(
      */
     val layoutDirection: LayoutDirection = LOCALE,
 
+    /**
+     * The `ColorInt` to use for the background during the animation with this `SplitAttributes` if
+     * the animation requires a background.
+     *
+     * The default is `0`, which is to use the theme window background.
+     */
+    @ColorInt
+    val animationBackgroundColor: Int = 0
 ) {
 
     /**
@@ -408,17 +417,6 @@ class SplitAttributes internal constructor(
      */
     companion object {
         private val TAG = SplitAttributes::class.java.simpleName
-
-        @JvmStatic
-        internal fun buildSplitAttributesFromValue(
-            @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-            splitTypeValue: Float,
-            @IntRange(from = 0, to = 4)
-            layoutDirectionValue: Int,
-        ): SplitAttributes = SplitAttributes(
-            SplitType.buildSplitTypeFromValue(splitTypeValue),
-            LayoutDirection.getLayoutDirectionFromValue(layoutDirectionValue),
-        )
     }
 
     /**
@@ -426,7 +424,12 @@ class SplitAttributes internal constructor(
      *
      * @return The hash code for this object.
      */
-    override fun hashCode(): Int = splitType.hashCode() * 31 + layoutDirection.hashCode()
+    override fun hashCode(): Int {
+        var result = splitType.hashCode()
+        result = result * 31 + layoutDirection.hashCode()
+        result = result * 31 + animationBackgroundColor.hashCode()
+        return result
+    }
 
     /**
      * Determines whether this object has the same split attributes as the
@@ -440,7 +443,8 @@ class SplitAttributes internal constructor(
         if (this === other) return true
         if (other !is SplitAttributes) return false
         return splitType == other.splitType &&
-            layoutDirection == other.layoutDirection
+            layoutDirection == other.layoutDirection &&
+            animationBackgroundColor == other.animationBackgroundColor
     }
 
     /**
@@ -450,7 +454,8 @@ class SplitAttributes internal constructor(
      */
     override fun toString(): String =
         "${SplitAttributes::class.java.simpleName}:" +
-            "{splitType=$splitType, layoutDir=$layoutDirection}"
+            "{splitType=$splitType, layoutDir=$layoutDirection," +
+            " animationBackgroundColor=${Integer.toHexString(animationBackgroundColor)}"
 
     /**
      * Builder for creating an instance of [SplitAttributes].
@@ -461,6 +466,8 @@ class SplitAttributes internal constructor(
     class Builder {
         private var splitType: SplitType = splitEqually()
         private var layoutDirection = LOCALE
+        @ColorInt
+        private var animationBackgroundColor = 0
 
         /**
          * Sets the split type attribute.
@@ -489,11 +496,25 @@ class SplitAttributes internal constructor(
             apply { this.layoutDirection = layoutDirection }
 
         /**
-         * Builds a [SplitAttributes] instance with the attributes specified by
-         * [setSplitType] and [setLayoutDirection].
+         * Sets the `ColorInt` to use for the background during the animation with this
+         * `SplitAttributes` if the animation requires a background.
+         *
+         * The default is `0`, which is to use the theme window background.
+         *
+         * @param color a packed color int, `AARRGGBB`, for the animation background color.
+         * @return This `Builder`.
+         *
+         * @see SplitAttributes.animationBackgroundColor
+         */
+        fun setAnimationBackgroundColor(@ColorInt color: Int): Builder =
+            apply { this.animationBackgroundColor = color }
+
+        /**
+         * Builds a [SplitAttributes] instance with the specified attributes.
          *
          * @return The new `SplitAttributes` instance.
          */
-        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection)
+        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection,
+            animationBackgroundColor)
     }
 }

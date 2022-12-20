@@ -65,6 +65,9 @@
     SplitAttributes for the right split rule in
     SplitAttributesCalculator#computeSplitAttributesForState.-->
     <attr name="tag" format="string" />
+    <!-- Background color of animation if the animation requires a background. Defaults to the
+     theme's windowBackground. -->
+    <attr name="animationBackgroundColor" format="color" />
 
     <!-- Split configuration rules for activity pairs. Must contain at least one SplitPairFilter.
     See androidx.window.embedding.SplitPairRule for complete documentation. -->
@@ -86,6 +89,7 @@
         <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
+        <attr name="animationBackgroundColor"/>
     </declare-styleable>
 
     <!-- Configuration rules for split placeholders. Must contain at least one ActivityFilter for
@@ -106,6 +110,7 @@
         <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
+        <attr name="animationBackgroundColor"/>
     </declare-styleable>
 
     <!-- Filter used to find if a pair of activities should be put in a split. -->

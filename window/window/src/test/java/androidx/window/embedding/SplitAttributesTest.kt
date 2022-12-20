@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import android.graphics.Color
 import androidx.window.core.WindowStrictModeException
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -35,18 +36,27 @@ class SplitAttributesTest {
         val attrs1 = SplitAttributes.Builder()
             .setSplitType(SplitType.splitEqually())
             .setLayoutDirection(LOCALE)
+            .setAnimationBackgroundColor(0)
             .build()
         val attrs2 = SplitAttributes.Builder()
             .setSplitType(SplitType.splitByHinge())
             .setLayoutDirection(LOCALE)
+            .setAnimationBackgroundColor(0)
             .build()
         val attrs3 = SplitAttributes.Builder()
             .setSplitType(SplitType.splitByHinge())
             .setLayoutDirection(TOP_TO_BOTTOM)
+            .setAnimationBackgroundColor(0)
             .build()
         val attrs4 = SplitAttributes.Builder()
             .setSplitType(SplitType.splitByHinge())
             .setLayoutDirection(TOP_TO_BOTTOM)
+            .setAnimationBackgroundColor(Color.GREEN)
+            .build()
+        val attrs5 = SplitAttributes.Builder()
+            .setSplitType(SplitType.splitByHinge())
+            .setLayoutDirection(TOP_TO_BOTTOM)
+            .setAnimationBackgroundColor(Color.GREEN)
             .build()
 
         assertNotEquals(attrs1, attrs2)
@@ -58,8 +68,11 @@ class SplitAttributesTest {
         assertNotEquals(attrs3, attrs1)
         assertNotEquals(attrs3.hashCode(), attrs1.hashCode())
 
-        assertEquals(attrs3, attrs4)
-        assertEquals(attrs3.hashCode(), attrs4.hashCode())
+        assertNotEquals(attrs3, attrs4)
+        assertNotEquals(attrs3.hashCode(), attrs4.hashCode())
+
+        assertEquals(attrs4, attrs5)
+        assertEquals(attrs4.hashCode(), attrs5.hashCode())
     }
 
     @Test
