@@ -46,9 +46,7 @@ import java.util.Set;
  * and settings of search a suggestions.
  *
  * @see AppSearchSession#searchSuggestionAsync(String, SearchSuggestionSpec)
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchSuggestionSpec {
     static final String NAMESPACE_FIELD = "namespace";
     static final String SCHEMA_FIELD = "schema";
@@ -174,8 +172,12 @@ public class SearchSuggestionSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
+     *
+     * @hide
      */
+    // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
     @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Map<String, List<String>> getFilterProperties() {
         Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
                 mBundle.getBundle(PROPERTY_FIELD));
@@ -373,8 +375,11 @@ public class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names indicating which property in the
          *                      document these snippets correspond to.
+         * @hide
          */
+        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder addFilterProperties(@NonNull String schema,
                 @NonNull Collection<String> propertyPaths) {
             Preconditions.checkNotNull(schema);
@@ -403,8 +408,12 @@ public class SearchSuggestionSpec {
          *
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
+         *
+         * @hide
          */
+        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder addFilterPropertyPaths(@NonNull String schema,
                 @NonNull Collection<PropertyPath> propertyPaths) {
             Preconditions.checkNotNull(schema);
@@ -434,8 +443,11 @@ public class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A
          * {@code dot-delimited sequence of property names indicating which property in the
          * document these snippets correspond to.
+         * @hide
          */
+        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder addFilterProperties(@NonNull Class<?> documentClass,
                 @NonNull Collection<String> propertyPaths) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
@@ -462,8 +474,11 @@ public class SearchSuggestionSpec {
          *
          * @param documentClass class annotated with {@link Document}.
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
+         * @hide
          */
+        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder addFilterPropertyPaths(@NonNull Class<?> documentClass,
                 @NonNull Collection<PropertyPath> propertyPaths) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
