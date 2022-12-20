@@ -23,7 +23,6 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
@@ -374,7 +373,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.toJavaPoet()}<Integer>>
+                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.canonicalName}<Integer>>
                 getFactorialLiveData();
                 """
         ) { parsedQuery, _ ->
@@ -409,7 +408,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.toJavaPoet()}<Integer>>
+                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.canonicalName}<Integer>>
                 getFactorialLiveData();
                 """
         ) { _, invocation ->

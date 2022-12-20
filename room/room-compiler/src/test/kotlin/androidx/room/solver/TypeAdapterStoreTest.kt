@@ -22,7 +22,6 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
@@ -1216,7 +1215,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1269,7 +1268,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1321,7 +1320,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1369,7 +1368,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1722,7 +1721,7 @@ class TypeAdapterStoreTest {
                 return XCodeBlock.of(
                     scope.language,
                     "%T.joinIntoString(%L)",
-                    STRING_UTIL.toJavaPoet(),
+                    STRING_UTIL,
                     inputVarName
                 )
             }
@@ -1735,7 +1734,7 @@ class TypeAdapterStoreTest {
                 return XCodeBlock.of(
                     scope.language,
                     "%T.splitToIntList(%L)",
-                    STRING_UTIL.toJavaPoet(),
+                    STRING_UTIL,
                     inputVarName
                 )
             }

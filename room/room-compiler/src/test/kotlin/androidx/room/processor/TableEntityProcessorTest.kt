@@ -19,7 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_LONG
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -123,9 +123,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             classpathFiles = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
-                    ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
-                        " - id in test.library.MissingGetterEntity"
+                hasErrorContaining(
+                    ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
                 )
             }
         }
@@ -2606,7 +2605,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             )
             val parsed = parser.process()
             val field = parsed.primaryKey.fields.first()
-            assertThat(field.typeName.toJavaPoet()).isEqualTo(TypeName.LONG)
+            assertThat(field.typeName).isEqualTo(PRIMITIVE_LONG)
         }
     }
 }

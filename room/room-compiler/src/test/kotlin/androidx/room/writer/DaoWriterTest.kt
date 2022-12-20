@@ -18,7 +18,6 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -176,7 +175,7 @@ class DaoWriterTest {
                         androidx.room.Database::class.qualifiedName!!
                     ).filterIsInstance<XTypeElement>().firstOrNull()
                     ?: invocation.context.processingEnv
-                        .requireTypeElement(ROOM_DB.toJavaPoet())
+                        .requireTypeElement(ROOM_DB)
                 val dbType = db.type
                 val dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                 invocation.context.attachDatabaseVerifier(dbVerifier)
