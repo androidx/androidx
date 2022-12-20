@@ -55,6 +55,10 @@ final class FeaturesImpl implements Features {
             case Features.NUMERIC_SEARCH:
                 // TODO(b/259744228) : Update to reflect support in Android U+ once this feature is
                 // synced over into service-appsearch.
+                // fall through
+            case SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
+                // TODO(b/261474063): Update to reflect support in Android U+ once advanced
+                //  ranking becomes available.
                 return false;
             default:
                 return false;

@@ -276,6 +276,49 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.getJoinSpec().getChildPropertyExpression()).isEqualTo("entityId");
     }
 
+    @Test
+    public void testAdvancedRanking() {
+        SearchSpec emptySearchSpec = new SearchSpec.Builder().build();
+        assertThat(emptySearchSpec.getAdvancedRankingExpression()).isEmpty();
+
+        SearchSpec searchSpec = new SearchSpec.Builder().setRankingStrategy(
+                "this.documentScore()").build();
+        assertThat(searchSpec.getRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION);
+        assertThat(searchSpec.getAdvancedRankingExpression()).isEqualTo("this.documentScore()");
+    }
+
+    @Test
+    public void testOverwriteRankingStrategy() {
+        SearchSpec emptySearchSpec = new SearchSpec.Builder().build();
+        assertThat(emptySearchSpec.getAdvancedRankingExpression()).isEmpty();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy("this.documentScore()")
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build();
+        assertThat(searchSpec.getRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE);
+        assertThat(searchSpec.getAdvancedRankingExpression()).isEmpty();
+
+        searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setRankingStrategy("this.documentScore()")
+                .build();
+        assertThat(searchSpec.getRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION);
+        assertThat(searchSpec.getAdvancedRankingExpression()).isEqualTo("this.documentScore()");
+    }
+
+    @Test
+    public void testInvalidAdvancedRanking() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new SearchSpec.Builder().setRankingStrategy(""));
+        assertThrows(IllegalArgumentException.class,
+                () -> new SearchSpec.Builder().setRankingStrategy(
+                        SearchSpec.RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION));
+    }
+
 // @exportToFramework:startStrip()
     @Document
     static class King extends Card {
