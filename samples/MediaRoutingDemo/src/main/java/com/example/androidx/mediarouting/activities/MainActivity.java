@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.activities;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +34,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -65,6 +64,16 @@ import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaRouterParams;
 
+import com.example.androidx.mediarouting.MyMediaRouteControllerDialog;
+import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.data.MediaItem;
+import com.example.androidx.mediarouting.data.PlaylistItem;
+import com.example.androidx.mediarouting.player.Player;
+import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
+import com.example.androidx.mediarouting.session.SessionManager;
+import com.example.androidx.mediarouting.ui.LibraryAdapter;
+import com.example.androidx.mediarouting.ui.PlaylistAdapter;
+
 import java.io.File;
 
 /**
@@ -76,8 +85,8 @@ import java.io.File;
  * targets.
  * </p>
  */
-public class SampleMediaRouterActivity extends AppCompatActivity {
-    private static final String TAG = "SampleMediaRouter";
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
     private static final boolean ENABLE_DEFAULT_CONTROL_CHECK_BOX = false;
 
@@ -128,7 +137,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
                     + ", route=" + selectedRoute + ", reason=" + reason);
 
-            mPlayer = Player.create(SampleMediaRouterActivity.this, selectedRoute, mMediaSession);
+            mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
             if (isPresentationApiSupported()) {
                 mPlayer.updatePresentation();
             }
@@ -250,7 +259,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
         String[] mediaUris = getResources().getStringArray(R.array.media_uris);
         String[] mediaMimes = getResources().getStringArray(R.array.media_mimes);
-        LibraryAdapter libraryItems = new LibraryAdapter();
+        LibraryAdapter libraryItems = new LibraryAdapter(/* mainActivity= */ this,
+                /* sessionManager= */  mSessionManager);
         for (int i = 0; i < mediaNames.length; i++) {
             libraryItems.add(new MediaItem(
                     "[streaming] " + mediaNames[i], Uri.parse(mediaUris[i]), mediaMimes[i]));
@@ -271,7 +281,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
         }
 
-        mPlayListItems = new PlaylistAdapter();
+        mPlayListItems = new PlaylistAdapter(/* mainActivity= */ this,
+                /* sessionManager= */  mSessionManager);
 
         // Initialize the layout.
         setContentView(R.layout.sample_media_router);
@@ -365,7 +376,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mMediaRouter.setMediaSessionCompat(mMediaSession);
 
         // Set up playback manager and player
-        mPlayer = Player.create(SampleMediaRouterActivity.this,
+        mPlayer = Player.create(MainActivity.this,
                 mMediaRouter.getSelectedRoute(), mMediaSession);
 
         mSessionManager.setPlayer(mPlayer);
@@ -408,7 +419,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
         });
 
-        SampleMediaButtonReceiver.setActivity(SampleMediaRouterActivity.this);
+        SampleMediaButtonReceiver.setActivity(MainActivity.this);
     }
 
     /**
@@ -496,7 +507,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 @NonNull
                 @Override
                 public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                    return new ControllerDialogFragment(SampleMediaRouterActivity.this,
+                    return new ControllerDialogFragment(MainActivity.this,
                             mUseDefaultControlCheckBox);
                 }
             });
@@ -629,138 +640,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
     }
 
-    private static final class MediaItem {
-        public final String mName;
-        public final Uri mUri;
-        public final String mMime;
-
-        MediaItem(String name, Uri uri, String mime) {
-            mName = name;
-            mUri = uri;
-            mMime = mime;
-        }
-
-        @NonNull
-        @Override
-        public String toString() {
-            return mName;
-        }
-    }
-
-    private final class LibraryAdapter extends ArrayAdapter<MediaItem> {
-        LibraryAdapter() {
-            super(SampleMediaRouterActivity.this, R.layout.media_item);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final View v;
-            if (convertView == null) {
-                v = getLayoutInflater().inflate(R.layout.media_item, null);
-            } else {
-                v = convertView;
-            }
-
-            final MediaItem item = getItem(position);
-
-            TextView tv = v.findViewById(R.id.item_text);
-            tv.setText(item.mName);
-
-            ImageButton b = v.findViewById(R.id.item_action);
-            b.setImageResource(R.drawable.ic_menu_add);
-            b.setTag(item);
-            b.setOnClickListener(v1 -> mSessionManager.add(item.mName, item.mUri, item.mMime));
-
-            return v;
-        }
-    }
-
-    private final class PlaylistAdapter extends ArrayAdapter<PlaylistItem> {
-        PlaylistAdapter() {
-            super(SampleMediaRouterActivity.this, R.layout.media_item);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final View v;
-            if (convertView == null) {
-                v = getLayoutInflater().inflate(R.layout.media_item, null);
-            } else {
-                v = convertView;
-            }
-
-            final PlaylistItem item = getItem(position);
-
-            TextView tv = v.findViewById(R.id.item_text);
-            tv.setText(item.toString());
-
-            ImageButton b = v.findViewById(R.id.item_action);
-            b.setImageResource(R.drawable.ic_menu_delete);
-            b.setTag(item);
-            b.setOnClickListener(v1 -> mSessionManager.remove(item.getItemId()));
-
-            return v;
-        }
-    }
-
-    /**
-     * Trivial subclass of this activity used to provide another copy of the
-     * same activity using a light theme instead of the dark theme.
-     */
-    public static class Light extends SampleMediaRouterActivity {
-    }
-
-    /**
-     * Trivial subclass of this activity used to provide another copy of the
-     * same activity using a light theme with dark action bar instead of the dark theme.
-     */
-    public static class LightWithDarkActionBar extends SampleMediaRouterActivity {
-    }
-
-    /**
-     * This will show dynamic group dialog when the user clicks the media route button.
-     */
-    public static class DynamicGroupActivity extends SampleMediaRouterActivity {
-        @NonNull
-        @Override
-        public MediaRouterParams getRouterParams() {
-            return new MediaRouterParams.Builder(super.getRouterParams())
-                    .setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP)
-                    .build();
-        }
-    }
-
-    /**
-     * This pops up the output switcher if run on Android R+
-     */
-    public static class OutputSwitcherActivity extends SampleMediaRouterActivity {
-        @NonNull
-        @Override
-        public MediaRouterParams getRouterParams() {
-            return new MediaRouterParams.Builder(super.getRouterParams())
-                    .setOutputSwitcherEnabled(true)
-                    .build();
-        }
-    }
-
-    /**
-     * It doesn't use MediaRouter2
-     */
-    public static class LegacyMediaRouterActivity extends SampleMediaRouterActivity {
-        @NonNull
-        @Override
-        public MediaRouterParams getRouterParams() {
-            return new MediaRouterParams.Builder(super.getRouterParams())
-                    .setMediaTransferReceiverEnabled(false)
-                    .build();
-        }
-    }
-
     /**
      * Controller Dialog Fragment for the media router dialog.
      */
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
-        private SampleMediaRouterActivity mSampleMediaRouterActivity;
+        private MainActivity mMainActivity;
         private MediaRouteControllerDialog mControllerDialog;
         private CheckBox mUseDefaultControlCheckBox;
 
@@ -768,9 +652,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             super();
         }
 
-        public ControllerDialogFragment(@NonNull SampleMediaRouterActivity activity,
+        public ControllerDialogFragment(@NonNull MainActivity activity,
                 @Nullable CheckBox customControlViewCheckBox) {
-            mSampleMediaRouterActivity = activity;
+            mMainActivity = activity;
             mUseDefaultControlCheckBox = customControlViewCheckBox;
         }
 
@@ -778,13 +662,35 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         @Override
         public MediaRouteControllerDialog onCreateControllerDialog(
                 @NonNull Context context, @Nullable Bundle savedInstanceState) {
-            mSampleMediaRouterActivity.updateStatusFromSessionManager();
+            mMainActivity.updateStatusFromSessionManager();
             mControllerDialog =
                     mUseDefaultControlCheckBox != null && mUseDefaultControlCheckBox.isChecked()
                             ? super.onCreateControllerDialog(context, savedInstanceState)
                             : new MyMediaRouteControllerDialog(context);
             mControllerDialog.setOnDismissListener(dialog -> mControllerDialog = null);
             return mControllerDialog;
+        }
+    }
+
+    /**
+     * Broadcast receiver for handling ACTION_MEDIA_BUTTON.
+     *
+     * This is needed to create the RemoteControlClient for controlling
+     * remote route volume in lock screen. It routes media key events back
+     * to main app activity.
+     */
+    public static class SampleMediaButtonReceiver extends BroadcastReceiver {
+        private static MainActivity sActivity;
+
+        public static void setActivity(@NonNull MainActivity activity) {
+            sActivity = activity;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (sActivity != null && Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+                sActivity.handleMediaKey(intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
+            }
         }
     }
 

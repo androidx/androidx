@@ -141,7 +141,6 @@ public abstract class OverlayDisplayWindow {
     /**
      * Implementation for older versions.
      */
-    @SuppressWarnings("deprecation") // Intentionally using deprecated APIs for pre JB MR1 devices.
     private static final class LegacyImpl extends OverlayDisplayWindow {
         private final WindowManager mWindowManager;
 
@@ -155,7 +154,7 @@ public abstract class OverlayDisplayWindow {
         }
 
         @Override
-        @SuppressWarnings("deprecation") /* getDefaultDisplay */ public void show() {
+        public void show() {
             if (!mWindowVisible) {
                 mSurfaceView = new SurfaceView(mContext);
 
@@ -223,8 +222,7 @@ public abstract class OverlayDisplayWindow {
      * Implementation for API version 17+.
      */
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @SuppressWarnings("deprecation")
-    /* getDefaultDisplay */ private static final class JellybeanMr1Impl extends
+    private static final class JellybeanMr1Impl extends
             OverlayDisplayWindow {
         // When true, disables support for moving and resizing the overlay.
         // The window is made non-touchable, which makes it possible to
@@ -254,7 +252,7 @@ public abstract class OverlayDisplayWindow {
         private float mLiveTranslationY;
         private float mLiveScale = 1.0f;
 
-        @SuppressWarnings("deprecation") /* defaultDisplay */ JellybeanMr1Impl(
+        JellybeanMr1Impl(
                 Context context, String name, int width, int height, int gravity) {
             super(context, name, width, height, gravity);
 

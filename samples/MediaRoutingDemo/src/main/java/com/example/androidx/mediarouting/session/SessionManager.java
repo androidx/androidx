@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.session;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -24,6 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaSessionStatus;
+
+import com.example.androidx.mediarouting.data.PlaylistItem;
+import com.example.androidx.mediarouting.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;

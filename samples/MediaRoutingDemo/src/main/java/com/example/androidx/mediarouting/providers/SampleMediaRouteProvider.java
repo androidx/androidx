@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.providers;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -33,6 +33,7 @@ import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaControlIntent;
@@ -43,6 +44,13 @@ import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaSessionStatus;
 
+import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.activities.RouteSettingsActivity;
+import com.example.androidx.mediarouting.data.PlaylistItem;
+import com.example.androidx.mediarouting.player.Player;
+import com.example.androidx.mediarouting.services.SampleMediaRouteProviderService;
+import com.example.androidx.mediarouting.session.SessionManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +60,7 @@ import java.util.Map;
  *
  * @see SampleMediaRouteProviderService
  */
-@SuppressWarnings("deprecation")
-class SampleMediaRouteProvider extends MediaRouteProvider {
+public class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String TAG = "SampleMrp";
 
     private static final String FIXED_VOLUME_ROUTE_ID = "fixed";
@@ -153,15 +160,18 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         }
     }
 
+    @NonNull
     protected Map<String, Integer> mVolumes = new ArrayMap<>();
+    @NonNull
     protected Map<String, MediaRouteDescriptor> mRouteDescriptors = new HashMap<>();
 
-    SampleMediaRouteProvider(Context context) {
+    public SampleMediaRouteProvider(@NonNull Context context) {
         super(context);
         initializeRoutes();
         publishRoutes();
     }
 
+    @Nullable
     @Override
     public RouteController onCreateRouteController(@NonNull String routeId) {
         if (!checkDrawOverlay()) return null;
@@ -171,7 +181,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
     protected void initializeRoutes() {
         Resources r = getContext().getResources();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
-        settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)
+        settingsIntent.setClass(getContext(), RouteSettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         int pendingIntentFlagMutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,

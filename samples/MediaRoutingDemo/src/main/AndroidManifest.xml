@@ -29,7 +29,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name=".SampleMediaRouterActivity"
+            android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:label="@string/sample_media_router_activity_dark"
@@ -42,69 +42,8 @@
             </intent-filter>
         </activity>
 
-        <!-- MediaRouter Support Samples -->
         <activity
-            android:name=".SampleMediaRouterActivity$Light"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_light"
-            android:theme="@style/Theme.SampleMediaRouter.Light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".SampleMediaRouterActivity$LightWithDarkActionBar"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
-            android:theme="@style/Theme.SampleMediaRouter.Light.DarkActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".SampleMediaRouterActivity$DynamicGroupActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_dynamic_group"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".SampleMediaRouterActivity$OutputSwitcherActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_output_switcher"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".SampleMediaRouterActivity$LegacyMediaRouterActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_legacy"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".SampleMediaRouteSettingsActivity"
+            android:name=".activities.RouteSettingsActivity"
             android:exported="true"
             android:label="@string/sample_media_route_settings_activity"
             android:theme="@style/Theme.AppCompat.Light">
@@ -117,7 +56,7 @@
             android:exported="true" />
 
         <service
-            android:name=".SampleMediaRouteProviderService"
+            android:name=".services.SampleMediaRouteProviderService"
             android:exported="true"
             android:label="@string/sample_media_route_provider_service"
             android:process=":mrp">
@@ -128,7 +67,7 @@
         </service>
 
         <service
-            android:name=".SampleDynamicGroupMrpService"
+            android:name=".services.SampleDynamicGroupMediaRouteProviderService"
             android:label="@string/sample_media_route_provider_service"
             android:exported="true"
             android:process=":dynamic_mrp">

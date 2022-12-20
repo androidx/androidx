@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.player;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +31,9 @@ import androidx.mediarouter.media.RemotePlaybackClient;
 import androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback;
 import androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback;
 import androidx.mediarouter.media.RemotePlaybackClient.StatusCallback;
+
+import com.example.androidx.mediarouting.data.PlaylistItem;
+import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -337,7 +340,6 @@ public class RemotePlayer extends Player {
         if (mRoute != null && mRoute.supportsControlRequest(intent)) {
             ControlRequestCallback callback = new ControlRequestCallback() {
                 @Override
-                @SuppressWarnings("deprecation")
                 public void onResult(Bundle data) {
                     if (DEBUG) {
                         Log.d(TAG, "takeSnapshot: succeeded: data=" + data);

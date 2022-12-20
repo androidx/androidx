@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.player;
 
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
@@ -47,6 +47,9 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.media.session.MediaButtonReceiver;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+
+import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.data.PlaylistItem;
 
 /**
  * Abstraction of common playback operations of media items, such as play,
