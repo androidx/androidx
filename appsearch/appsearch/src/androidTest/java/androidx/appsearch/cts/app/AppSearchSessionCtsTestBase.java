@@ -44,6 +44,7 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -3218,6 +3219,19 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testRemoveQueryWithJoinSpecThrowsException() {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> mDb2.removeAsync("",
+                new SearchSpec.Builder()
+                        .setJoinSpec(new JoinSpec.Builder("entityId").build())
+                        .build()));
+        assertThat(e.getMessage()).isEqualTo("JoinSpec not allowed in removeByQuery, "
+                + "but JoinSpec was provided.");
+    }
+
+    @Test
     public void testCloseAndReopen() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(
@@ -3481,20 +3495,20 @@ public abstract class AppSearchSessionCtsTestBase {
     public void testIndexNestedDocuments() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
-                .addSchemas(AppSearchEmail.SCHEMA)
-                .addSchemas(new AppSearchSchema.Builder("YesNestedIndex")
-                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                                "prop", AppSearchEmail.SCHEMA_TYPE)
-                                .setShouldIndexNestedProperties(true)
+                        .addSchemas(AppSearchEmail.SCHEMA)
+                        .addSchemas(new AppSearchSchema.Builder("YesNestedIndex")
+                                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                        "prop", AppSearchEmail.SCHEMA_TYPE)
+                                        .setShouldIndexNestedProperties(true)
+                                        .build())
+                                .build())
+                        .addSchemas(new AppSearchSchema.Builder("NoNestedIndex")
+                                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                        "prop", AppSearchEmail.SCHEMA_TYPE)
+                                        .setShouldIndexNestedProperties(false)
+                                        .build())
                                 .build())
                         .build())
-                .addSchemas(new AppSearchSchema.Builder("NoNestedIndex")
-                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                                "prop", AppSearchEmail.SCHEMA_TYPE)
-                                .setShouldIndexNestedProperties(false)
-                                .build())
-                        .build())
-                .build())
                 .get();
 
         // Index the documents.
