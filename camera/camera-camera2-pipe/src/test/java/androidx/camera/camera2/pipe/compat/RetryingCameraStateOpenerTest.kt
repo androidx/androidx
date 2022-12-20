@@ -442,6 +442,25 @@ class RetryingCameraStateOpenerTest {
     }
 
     @Test
+    fun retryingCameraStateOpenerRetriesCorrectlyOnCameraLimitExceeded() = runTest {
+        whenever(fakeDevicePolicyManager.camerasDisabled).thenReturn(false)
+        cameraOpener.toThrow = CameraAccessException(CameraAccessException.MAX_CAMERAS_IN_USE)
+        val result = async {
+            retryingCameraStateOpener.openCameraWithRetry(cameraId0, fakeGraphListener)
+        }
+
+        // Advance virtual clock to move past the retry timeout.
+        advanceTimeBy(30_000)
+        advanceUntilIdle()
+
+        assertThat(result.await()).isNull()
+        assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly the number of camera opens minus 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(cameraOpener.numberOfOpens - 1)
+    }
+
+    @Test
     fun retryingCameraStateOpenerRetriesCorrectlyOnCameraDisabledWhenDpcCameraDisabled() = runTest {
         whenever(fakeDevicePolicyManager.camerasDisabled).thenReturn(true)
         cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_DISABLED)
@@ -456,6 +475,9 @@ class RetryingCameraStateOpenerTest {
 
         assertThat(result.getCompleted()).isNull()
         assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(1)
     }
 
     @Test
@@ -472,5 +494,66 @@ class RetryingCameraStateOpenerTest {
 
         assertThat(result.await()).isNull()
         assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly the number of camera opens minus 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(cameraOpener.numberOfOpens - 1)
+    }
+
+    @Test
+    fun retryingCameraStateOpenerRetriesCorrectlyOnCameraDisconnected() = runTest {
+        whenever(fakeDevicePolicyManager.camerasDisabled).thenReturn(false)
+        cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED)
+        val result = async {
+            retryingCameraStateOpener.openCameraWithRetry(cameraId0, fakeGraphListener)
+        }
+
+        // Advance virtual clock to move past the retry timeout.
+        advanceTimeBy(30_000)
+        advanceUntilIdle()
+
+        assertThat(result.await()).isNull()
+        assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly the number of camera opens minus 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(cameraOpener.numberOfOpens - 1)
+    }
+
+    @Test
+    fun retryingCameraStateOpenerRetriesCorrectlyOnIllegalArgumentException() = runTest {
+        whenever(fakeDevicePolicyManager.camerasDisabled).thenReturn(false)
+        cameraOpener.toThrow = IllegalArgumentException()
+        val result = async {
+            retryingCameraStateOpener.openCameraWithRetry(cameraId0, fakeGraphListener)
+        }
+
+        // Advance virtual clock to move past the retry timeout.
+        advanceTimeBy(30_000)
+        advanceUntilIdle()
+
+        assertThat(result.await()).isNull()
+        assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly the number of camera opens minus 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(cameraOpener.numberOfOpens - 1)
+    }
+
+    @Test
+    fun retryingCameraStateOpenerRetriesCorrectlyOnSecurityException() = runTest {
+        whenever(fakeDevicePolicyManager.camerasDisabled).thenReturn(false)
+        cameraOpener.toThrow = SecurityException()
+        val result = async {
+            retryingCameraStateOpener.openCameraWithRetry(cameraId0, fakeGraphListener)
+        }
+
+        // Advance virtual clock with just enough time for 1 camera retry (we wait 500ms before the
+        // next retry).
+        advanceTimeBy(750)
+        advanceUntilIdle()
+
+        assertThat(result.getCompleted()).isNull()
+        assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
+        // The first retry should be hidden. Therefore the number of onGraphError() calls should be
+        // exactly 1.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(1)
     }
 }
