@@ -110,8 +110,13 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
-        warn { "TODO: cancelFocusAndMetering is not yet supported" }
-        return Futures.immediateFuture(null)
+        return Futures.nonCancellationPropagating(
+            FutureChain.from(
+                focusMeteringControl.cancelFocusAndMeteringAsync().asListenableFuture()
+            ).transform(
+                Function { return@Function null }, CameraXExecutors.directExecutor()
+            )
+        )
     }
 
     override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {

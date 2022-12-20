@@ -27,14 +27,19 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.CameraControl
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.impl.CameraControlInternal
 import com.google.common.util.concurrent.ListenableFuture
+import dagger.Binds
+import dagger.Module
+import dagger.multibindings.IntoSet
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.async
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.launch
 
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
@@ -43,39 +48,61 @@ import kotlinx.coroutines.async
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl @Inject constructor(
     val cameraProperties: CameraProperties,
-    val useCaseManager: UseCaseManager,
     val threads: UseCaseThreads,
-) {
+) : UseCaseCameraControl {
+    private var _useCaseCamera: UseCaseCamera? = null
+    override var useCaseCamera: UseCaseCamera?
+        get() = _useCaseCamera
+        set(value) {
+            _useCaseCamera = value
+        }
+
+    override fun reset() {
+        cancelFocusAndMeteringAsync()
+    }
+
     private val sensorRect =
         cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 
     fun startFocusAndMetering(
         action: FocusMeteringAction
     ): ListenableFuture<FocusMeteringResult> {
-        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
-        val defaultAspectRatio = Rational(sensorRect.width(), sensorRect.height())
+        val signal = CompletableDeferred<FocusMeteringResult>()
 
-        // TODO(sushilnath): Throw a proper exception when (a). camera is null, (b) all of ae, af
-        return threads.scope.async(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera!!.startFocusAndMeteringAsync(
-                aeRegions = meteringRegionsFromMeteringPoints(
-                    action.meteringPointsAe,
-                    sensorRect,
-                    defaultAspectRatio
-                ),
-                afRegions = meteringRegionsFromMeteringPoints(
-                    action.meteringPointsAf,
-                    sensorRect,
-                    defaultAspectRatio
-                ),
-                awbRegions = meteringRegionsFromMeteringPoints(
-                    action.meteringPointsAwb,
-                    sensorRect,
-                    defaultAspectRatio
-                ),
-                afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
-            ).await().toFocusMeteringResult(true)
-        }.asListenableFuture()
+        useCaseCamera?.let { useCaseCamera ->
+            // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect
+            //  ratio.
+            val defaultAspectRatio = Rational(sensorRect.width(), sensorRect.height())
+
+            threads.sequentialScope.launch {
+                signal.complete(
+                    useCaseCamera.requestControl.startFocusAndMeteringAsync(
+                        aeRegions = meteringRegionsFromMeteringPoints(
+                            action.meteringPointsAe,
+                            sensorRect,
+                            defaultAspectRatio
+                        ),
+                        afRegions = meteringRegionsFromMeteringPoints(
+                            action.meteringPointsAf,
+                            sensorRect,
+                            defaultAspectRatio
+                        ),
+                        awbRegions = meteringRegionsFromMeteringPoints(
+                            action.meteringPointsAwb,
+                            sensorRect,
+                            defaultAspectRatio
+                        ),
+                        afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
+                    ).await().toFocusMeteringResult(true)
+                )
+            }
+        } ?: run {
+            signal.completeExceptionally(
+                CameraControl.OperationCanceledException("Camera is not active.")
+            )
+        }
+
+        return signal.asListenableFuture()
     }
 
     // TODO(b/254790453): Add proper tests for the method, might be better to do it after adding the
@@ -120,6 +147,10 @@ class FocusMeteringControl @Inject constructor(
         return if (modes.contains(AeMode.ON)) {
             AeMode.ON
         } else AeMode.OFF
+    }
+
+    fun cancelFocusAndMeteringAsync(): Deferred<Unit> {
+        return CompletableDeferred(null)
     }
 
     /**
@@ -229,5 +260,14 @@ class FocusMeteringControl @Inject constructor(
         private fun isValid(pt: MeteringPoint): Boolean {
             return pt.x >= 0f && pt.x <= 1f && pt.y >= 0f && pt.y <= 1f
         }
+    }
+
+    @Module
+    abstract class Bindings {
+        @Binds
+        @IntoSet
+        abstract fun provideControls(
+            focusMeteringControl: FocusMeteringControl
+        ): UseCaseCameraControl
     }
 }

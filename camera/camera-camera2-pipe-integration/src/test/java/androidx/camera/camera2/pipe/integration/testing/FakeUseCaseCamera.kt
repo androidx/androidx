@@ -99,6 +99,10 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
+    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    }
+
     override suspend fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
@@ -128,15 +132,6 @@ class FakeUseCaseCamera(
         priority: Config.OptionPriority
     ): Deferred<Unit> {
         return CompletableDeferred(Unit)
-    }
-
-    override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode?
-    ): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
     override fun close(): Job {

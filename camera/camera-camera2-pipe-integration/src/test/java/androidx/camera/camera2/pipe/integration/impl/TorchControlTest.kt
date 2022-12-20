@@ -129,6 +129,10 @@ class TorchControlTest {
             return CompletableDeferred(Result3A(status = Result3A.Status.OK))
         }
 
+        override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+            return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+        }
+
         override suspend fun issueSingleCaptureAsync(
             captureSequence: List<CaptureConfig>,
             captureMode: Int,
