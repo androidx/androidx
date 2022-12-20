@@ -307,6 +307,29 @@ package androidx.appsearch.app {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK) public void unregisterObserverCallback(String, androidx.appsearch.observer.ObserverCallback) throws androidx.appsearch.exceptions.AppSearchException;
   }
 
+  public final class JoinSpec {
+    method public int getAggregationScoringStrategy();
+    method public String getChildPropertyExpression();
+    method public int getMaxJoinedResultCount();
+    method public String getNestedQuery();
+    method public androidx.appsearch.app.SearchSpec getNestedSearchSpec();
+    field public static final int AGGREGATION_SCORING_AVG_RANKING_SIGNAL = 3; // 0x3
+    field public static final int AGGREGATION_SCORING_MAX_RANKING_SIGNAL = 4; // 0x4
+    field public static final int AGGREGATION_SCORING_MIN_RANKING_SIGNAL = 2; // 0x2
+    field public static final int AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL = 0; // 0x0
+    field public static final int AGGREGATION_SCORING_RESULT_COUNT = 1; // 0x1
+    field public static final int AGGREGATION_SCORING_SUM_RANKING_SIGNAL = 5; // 0x5
+    field public static final String QUALIFIED_ID = "this.qualifiedId()";
+  }
+
+  public static final class JoinSpec.Builder {
+    ctor public JoinSpec.Builder(String);
+    method public androidx.appsearch.app.JoinSpec build();
+    method public androidx.appsearch.app.JoinSpec.Builder setAggregationScoringStrategy(int);
+    method public androidx.appsearch.app.JoinSpec.Builder setMaxJoinedResultCount(int);
+    method public androidx.appsearch.app.JoinSpec.Builder setNestedSearch(String, androidx.appsearch.app.SearchSpec);
+  }
+
   public abstract class Migrator {
     ctor public Migrator();
     method @WorkerThread public abstract androidx.appsearch.app.GenericDocument onDowngrade(int, int, androidx.appsearch.app.GenericDocument);
@@ -391,6 +414,7 @@ package androidx.appsearch.app {
     method public String getDatabaseName();
     method public <T> T getDocument(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.GenericDocument getGenericDocument();
+    method public java.util.List<androidx.appsearch.app.SearchResult!> getJoinedResults();
     method public java.util.List<androidx.appsearch.app.SearchResult.MatchInfo!> getMatchInfos();
     method public String getPackageName();
     method public double getRankingSignal();
@@ -398,6 +422,7 @@ package androidx.appsearch.app {
 
   public static final class SearchResult.Builder {
     ctor public SearchResult.Builder(String, String);
+    method public androidx.appsearch.app.SearchResult.Builder addJoinedResult(androidx.appsearch.app.SearchResult);
     method public androidx.appsearch.app.SearchResult.Builder addMatchInfo(androidx.appsearch.app.SearchResult.MatchInfo);
     method public androidx.appsearch.app.SearchResult build();
     method public androidx.appsearch.app.SearchResult.Builder setDocument(Object) throws androidx.appsearch.exceptions.AppSearchException;
@@ -440,6 +465,7 @@ package androidx.appsearch.app {
     method public java.util.List<java.lang.String!> getFilterNamespaces();
     method public java.util.List<java.lang.String!> getFilterPackageNames();
     method public java.util.List<java.lang.String!> getFilterSchemas();
+    method public androidx.appsearch.app.JoinSpec? getJoinSpec();
     method public int getMaxSnippetSize();
     method public int getOrder();
     method public java.util.Map<java.lang.String!,java.util.List<androidx.appsearch.app.PropertyPath!>!> getProjectionPaths();
@@ -460,6 +486,7 @@ package androidx.appsearch.app {
     field public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
     field public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2; // 0x2
     field public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1; // 0x1
+    field public static final int RANKING_STRATEGY_JOIN_AGGREGATE_SCORE = 8; // 0x8
     field public static final int RANKING_STRATEGY_NONE = 0; // 0x0
     field public static final int RANKING_STRATEGY_RELEVANCE_SCORE = 3; // 0x3
     field public static final int RANKING_STRATEGY_SYSTEM_USAGE_COUNT = 6; // 0x6
@@ -485,6 +512,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionPathsForDocumentClass(Class<?>, java.util.Collection<androidx.appsearch.app.PropertyPath!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionsForDocumentClass(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec build();
+    method public androidx.appsearch.app.SearchSpec.Builder setJoinSpec(androidx.appsearch.app.JoinSpec);
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightPaths(String, java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>);
