@@ -312,8 +312,6 @@ public fun TimePicker(
                         focusRequesterHours, focusRequesterMinutes, focusRequesterSeconds,
                         focusRequesterConfirmButton
                     )[focusedElement.index].requestFocus()
-                } else {
-                    focusRequesterHours.requestFocus()
                 }
             }
         }
@@ -566,8 +564,6 @@ public fun TimePickerWith12HourClock(
                             focusRequesterHours, focusRequesterMinutes, focusRequesterPeriod,
                             focusRequesterConfirmButton
                         )[focusedElement.index].requestFocus()
-                    } else {
-                        focusRequesterHours.requestFocus()
                     }
                 }
             }
@@ -840,8 +836,6 @@ public fun DatePicker(
                         focusRequesterDay, focusRequesterMonth, focusRequesterYear,
                         focusRequesterConfirmButton
                     )[focusedElement.index].requestFocus()
-                } else {
-                    focusRequesterDay.requestFocus()
                 }
             }
         }
@@ -935,11 +929,13 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
 ) {
     Picker(
         state = state,
-        modifier = modifier.rsbScroll(
-            scrollableState = state,
-            flingBehavior = flingBehavior,
-            focusRequester = focusRequester
-        ),
+        modifier = if (userScrollEnabled) {
+            modifier.rsbScroll(
+                scrollableState = state,
+                flingBehavior = flingBehavior,
+                focusRequester = focusRequester,
+            )
+        } else modifier,
         flingBehavior = flingBehavior,
         readOnly = readOnly,
         readOnlyLabel = readOnlyLabel,
