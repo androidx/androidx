@@ -29,13 +29,13 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
-import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
-import androidx.health.connect.client.impl.platform.time.TimeSource
 import androidx.health.connect.client.impl.platform.records.toPlatformReadRecordsRequestUsingFilters
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
 import androidx.health.connect.client.impl.platform.records.toSdkRecord
 import androidx.health.connect.client.impl.platform.response.toKtResponse
+import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
+import androidx.health.connect.client.impl.platform.time.TimeSource
 import androidx.health.connect.client.impl.platform.toKtException
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.Record
@@ -92,7 +92,16 @@ class HealthConnectClientUpsideDownImpl :
     }
 
     override suspend fun updateRecords(records: List<Record>) {
-        throw UnsupportedOperationException("Method not supported yet")
+        wrapPlatformException {
+            suspendCancellableCoroutine<Void> { continuation
+                ->
+                healthConnectManager.updateRecords(
+                    records.map { it.toPlatformRecord() },
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
     }
 
     override suspend fun deleteRecords(

@@ -22,6 +22,7 @@ import android.os.RemoteException
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
@@ -98,17 +99,40 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun updateRecords_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
-            healthConnectClient.updateRecords(listOf())
-        }
-    }
+    fun updateRecords() = runTest {
+        val id = healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = null
+                )
+            )
+        ).recordIdsList[0]
 
-    @Test
-    fun readRecord_noRecords_throwRemoteException() = runTest {
-        assertFailsWith<RemoteException> {
-            healthConnectClient.readRecord(StepsRecord::class, "1")
-        }
+        val insertedRecord = healthConnectClient.readRecord(StepsRecord::class, id).record
+
+        healthConnectClient.updateRecords(
+            listOf(
+                StepsRecord(
+                    count = 50,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = null,
+                    metadata = Metadata(
+                        id,
+                        insertedRecord.metadata.dataOrigin
+                    )
+                )
+            )
+        )
+
+        val updatedRecord = healthConnectClient.readRecord(StepsRecord::class, id).record
+
+        assertThat(updatedRecord.count).isEqualTo(50L)
     }
 
     @Test
@@ -166,6 +190,13 @@ class HealthConnectClientUpsideDownImplTest {
         )
 
         assertThat(readResponse.records[0].count).isEqualTo(50)
+    }
+
+    @Test
+    fun readRecord_noRecords_throwRemoteException() = runTest {
+        assertFailsWith<RemoteException> {
+            healthConnectClient.readRecord(StepsRecord::class, "1")
+        }
     }
 
     @Test
