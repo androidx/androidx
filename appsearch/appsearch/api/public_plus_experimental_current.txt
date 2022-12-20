@@ -697,3 +697,12 @@ package androidx.appsearch.observer {
 
 }
 
+package androidx.appsearch.util {
+
+  public class DocumentIdUtil {
+    method public static String createQualifiedId(String, String, androidx.appsearch.app.GenericDocument);
+    method public static String createQualifiedId(String, String, String, String);
+  }
+
+}
+
