@@ -112,12 +112,12 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
             return
         }
         if (maybeReportErrorResultCodeCreate(resultCode, TAG,
-                { e, s, f -> cancelAndCallbackException(e, s, f) }, { e -> this.executor.execute {
+                { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
         Log.i(TAG, "Saving password succeeded")
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)
-        cancelAndCallbackResult(response, cancellationSignal) { e -> this.executor.execute {
-            this.callback.onResult(e) } }
+        cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+            this.callback.onResult(response) } }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)

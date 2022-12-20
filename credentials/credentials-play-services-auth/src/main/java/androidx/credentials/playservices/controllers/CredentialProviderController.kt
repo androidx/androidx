@@ -47,62 +47,92 @@ import java.util.concurrent.Executor
 abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
     E1 : Any>(private val activity: Activity) : CredentialProviderBaseController(activity) {
 
-    protected fun cancelAndCallbackException(
-        exception: E1,
-        cancellationSignal: CancellationSignal?,
-        onError: (E1) -> Unit
-    ) {
-        if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
-            return
-        }
-        onError(exception)
-    }
+    companion object {
 
-    protected fun cancelAndCallbackResult(
-        result: R1,
-        cancellationSignal: CancellationSignal?,
-        onResult: (R1) -> Unit
-    ) {
-        if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
-            return
-        }
-        onResult(result)
-    }
-    /**
-     * This handles result code exception reporting across all create flows.
-     *
-     * @return a boolean indicating if the create flow contains a result code exception
-     */
-    protected fun maybeReportErrorResultCodeCreate(
-        resultCode: Int,
-        type: String,
-        cancelOnError: (
-            CreateCredentialException,
-            CancellationSignal?,
-            (CreateCredentialException) -> Unit
-        ) -> Unit,
-        onError: (CreateCredentialException) -> Unit,
-        cancellationSignal: CancellationSignal?
-    ): Boolean {
-        if (resultCode != Activity.RESULT_OK) {
-            var exception: CreateCredentialException = CreateCredentialUnknownException(
-                generateErrorStringUnknown(type, resultCode))
-            if (resultCode == Activity.RESULT_CANCELED) {
-                exception = CreateCredentialCancellationException(
-                    generateErrorStringCanceled(type))
+        /**
+         * This handles result code exception reporting across all create flows.
+         *
+         * @return a boolean indicating if the create flow contains a result code exception
+         */
+        @JvmStatic
+        protected fun maybeReportErrorResultCodeCreate(
+            resultCode: Int,
+            type: String,
+            cancelOnError: (
+                CancellationSignal?,
+                    () -> Unit
+            ) -> Unit,
+            onError: (CreateCredentialException) -> Unit,
+            cancellationSignal: CancellationSignal?
+        ): Boolean {
+            if (resultCode != Activity.RESULT_OK) {
+                var exception: CreateCredentialException = CreateCredentialUnknownException(
+                    generateErrorStringUnknown(type, resultCode)
+                )
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    exception = CreateCredentialCancellationException(
+                        generateErrorStringCanceled(type)
+                    )
+                }
+                cancelOnError(cancellationSignal) { onError(exception) }
+                return true
             }
-            cancelOnError(exception, cancellationSignal, onError)
-            return true
+            return false
         }
-        return false
-    }
 
-    private fun generateErrorStringUnknown(type: String, resultCode: Int): String {
-        return "$type activity with result code: $resultCode indicating not RESULT_OK"
-    }
+        internal fun generateErrorStringUnknown(type: String, resultCode: Int): String {
+            return "$type activity with result code: $resultCode indicating not RESULT_OK"
+        }
 
-    private fun generateErrorStringCanceled(type: String): String {
-        return "$type activity was cancelled by the user."
+        internal fun generateErrorStringCanceled(type: String): String {
+            return "$type activity was cancelled by the user."
+        }
+
+        /**
+         * This allows catching result code errors from the get flow if they exist.
+         *
+         * @return a boolean indicating if the get flow had an error
+         */
+        @JvmStatic
+        protected fun maybeReportErrorResultCodeGet(
+            resultCode: Int,
+            type: String,
+            cancelOnError: (
+                CancellationSignal?,
+                    () -> Unit
+            ) -> Unit,
+            onError: (GetCredentialException) -> Unit,
+            cancellationSignal: CancellationSignal?
+        ): Boolean {
+            if (resultCode != Activity.RESULT_OK) {
+                var exception: GetCredentialException = GetCredentialUnknownException(
+                    generateErrorStringUnknown(type, resultCode)
+                )
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    exception = GetCredentialCancellationException(
+                        generateErrorStringCanceled(type)
+                    )
+                }
+                cancelOnError(cancellationSignal) { onError(exception) }
+                return true
+            }
+            return false
+        }
+
+        /**
+         * This will check for cancellation, and will otherwise set a result to the callback, or an
+         * exception.
+         */
+        @JvmStatic
+        protected fun cancelOrCallbackExceptionOrResult(
+            cancellationSignal: CancellationSignal?,
+            onResultOrException: () -> Unit
+        ) {
+            if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
+                return
+            }
+            onResultOrException()
+        }
     }
 
     /**
@@ -119,43 +149,16 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         cancellationSignal: CancellationSignal?
     ): Boolean {
         val isError = resultData.getBoolean(FAILURE_RESPONSE_TAG)
-        if (!isError) { return false }
+        if (!isError) {
+            return false
+        }
         val errType = resultData.getString(EXCEPTION_TYPE_TAG)
         val errMsg = resultData.getString(EXCEPTION_MESSAGE_TAG)
         val exception = conversionFn(errType, errMsg)
-        cancelAndCallbackException(exception, cancellationSignal) { e ->
-            executor.execute { callback.onError(e) }
+        cancelOrCallbackExceptionOrResult(cancellationSignal) {
+            executor.execute { callback.onError(exception) }
         }
         return true
-    }
-
-    /**
-     * This allows catching result code errors from the get flow if they exist.
-     *
-     * @return a boolean indicating if the get flow had an error
-     */
-    protected fun maybeReportErrorResultCodeGet(
-        resultCode: Int,
-        type: String,
-        cancelOnError: (
-            GetCredentialException,
-            CancellationSignal?,
-            (GetCredentialException) -> Unit
-        ) -> Unit,
-        onError: (GetCredentialException) -> Unit,
-        cancellationSignal: CancellationSignal?
-    ): Boolean {
-        if (resultCode != Activity.RESULT_OK) {
-            var exception: GetCredentialException = GetCredentialUnknownException(
-                generateErrorStringUnknown(type, resultCode))
-            if (resultCode == Activity.RESULT_CANCELED) {
-                exception = GetCredentialCancellationException(
-                    generateErrorStringCanceled(type))
-            }
-            cancelOnError(exception, cancellationSignal, onError)
-            return true
-        }
-        return false
     }
 
     /**

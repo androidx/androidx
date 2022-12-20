@@ -118,18 +118,17 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
-            Log.i(TAG, "returned request code does not match what was given")
             return
         }
         if (maybeReportErrorResultCodeGet(resultCode, TAG,
-                { e, s, f -> cancelAndCallbackException(e, s, f) }, { e -> this.executor.execute {
+                { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
         try {
             val signInCredential = Identity.getSignInClient(activity)
                 .getSignInCredentialFromIntent(data)
             val response = convertResponseToCredentialManager(signInCredential)
-            cancelAndCallbackResult(response, cancellationSignal) { e -> this.executor.execute {
-                    this.callback.onResult(e) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                    this.callback.onResult(response) } }
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)
             if (e.statusCode == CommonStatusCodes.CANCELED) {
@@ -138,12 +137,12 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             } else if (e.statusCode in retryables) {
                 exception = GetCredentialInterruptedException(e.message)
             }
-            cancelAndCallbackException(exception, cancellationSignal) { ex ->
-                this.executor.execute { this.callback.onError(ex) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { executor.execute {
+                callback.onError(exception) } }
             return
         } catch (e: GetCredentialException) {
-            cancelAndCallbackException(e, cancellationSignal) { ex ->
-                this.executor.execute { this.callback.onError(ex) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { executor.execute {
+                callback.onError(e) } }
         }
     }
 
