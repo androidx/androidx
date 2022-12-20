@@ -18,8 +18,11 @@ package androidx.window.demo.embedding
 
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -36,7 +39,9 @@ import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
 import androidx.window.embedding.RuleController
 
 open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListener,
-        RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
+    RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener,
+    AdapterView.OnItemSelectedListener {
+
     private lateinit var splitController: SplitController
     private lateinit var ruleController: RuleController
 
@@ -51,6 +56,12 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     private lateinit var activityA: ComponentName
     private lateinit var activityB: ComponentName
 
+    /** Controller to manage the global configuration. */
+    private val demoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
+
+    /** The last selected split rule id. */
+    private var lastCheckedRuleId = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
@@ -63,17 +74,27 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         activityB = ComponentName(this, SplitDeviceStateActivityB::class.java.name)
 
         val radioGroup = viewBinding.splitAttributesOptionsRadioGroup
+        val animationBgColorDropdown = viewBinding.animationBackgroundColorDropdown
         if (componentName == activityA) {
             // Set to the first option
+            demoActivityEmbeddingController.animationBackgroundColor =
+                ANIMATION_BACKGROUND_COLORS_VALUE[0]
             radioGroup.check(R.id.use_default_split_attributes)
             onCheckedChanged(radioGroup, radioGroup.checkedRadioButtonId)
             radioGroup.setOnCheckedChangeListener(this)
+            animationBgColorDropdown.adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                ANIMATION_BACKGROUND_COLORS_TEXT
+            )
+            animationBgColorDropdown.onItemSelectedListener = this
         } else {
             // Only update split pair rule on the primary Activity. The secondary Activity can only
             // finish itself to prevent confusing users. We only apply the rule when the Activity is
             // launched from the primary.
             viewBinding.chooseLayoutTextView.visibility = View.GONE
             radioGroup.visibility = View.GONE
+            animationBgColorDropdown.visibility = View.GONE
             viewBinding.launchActivityToSide.text = "Finish this Activity"
         }
 
@@ -92,6 +113,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             hideAllSubCheckBoxes()
             // Add the error message to notify the SplitAttributesCalculator is not available.
             viewBinding.errorMessageTextView.text = "SplitAttributesCalculator is not supported!"
+            animationBgColorDropdown.isEnabled = false
         }
     }
 
@@ -147,6 +169,16 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     override fun onCheckedChanged(group: RadioGroup, id: Int) {
         updateCheckboxWithRadioButton(id)
         updateSplitPairRuleWithRadioButtonId(id)
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        demoActivityEmbeddingController.animationBackgroundColor =
+            ANIMATION_BACKGROUND_COLORS_VALUE[position]
+        updateSplitPairRuleWithRadioButtonId(lastCheckedRuleId)
+    }
+
+    override fun onNothingSelected(view: AdapterView<*>?) {
+        // Auto-generated method stub
     }
 
     private fun updateCheckboxWithRadioButton(id: Int) {
@@ -206,6 +238,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     }
 
     private fun updateSplitPairRuleWithRadioButtonId(id: Int) {
+        lastCheckedRuleId = id
         ruleController.clearRules()
 
         val splitPairFilters = HashSet<SplitPairFilter>()
@@ -218,6 +251,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.splitEqually())
             .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+            .setAnimationBackgroundColor(demoActivityEmbeddingController.animationBackgroundColor)
             .build()
         // Use the tag to control the rule how to change split attributes with the current state
         var tag = when (id) {
@@ -364,6 +398,13 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         const val SUFFIX_REVERSED = "_reversed"
         const val SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP = "_and_horizontal_layout_in_tabletop"
         const val SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE = "_and_fullscreen_in_book_mode"
+        val ANIMATION_BACKGROUND_COLORS_TEXT = arrayOf("BLACK", "BLUE", "GREEN", "YELLOW")
+        val ANIMATION_BACKGROUND_COLORS_VALUE = arrayOf(
+            Color.BLACK,
+            Color.BLUE,
+            Color.GREEN,
+            Color.YELLOW
+        )
 
         /**
          * The default minimum dimension for large screen devices.

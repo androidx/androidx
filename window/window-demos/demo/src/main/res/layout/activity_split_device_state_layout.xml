@@ -14,146 +14,179 @@
   limitations under the License.
   -->
 
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_split_activity_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="10dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/activity_pair_split_attributes_text_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/current_split_attributes"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="#AAAAAA" />
-
-    <TextView
-        android:id="@+id/choose_layout_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose the configuration to update the layout:" />
-
-    <RadioGroup
-        android:id="@+id/split_attributes_options_radio_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <RadioButton
-            android:id="@+id/use_default_split_attributes"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/activity_pair_split_attributes_text_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Use the default split attributes"
-            android:checked="true"/>
+            android:text="@string/current_split_attributes"/>
 
-        <!-- The fullscreen option group -->
         <View
-            android:id="@+id/show_fullscreen_in_portrait_divider_top"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:background="#AAAAAA"
-            android:visibility="gone"/>
-        <RadioButton
-            android:id="@+id/show_fullscreen_in_portrait_radio_button"
-            android:layout_width="wrap_content"
+            android:background="#AAAAAA" />
+
+        <TextView
+            android:id="@+id/choose_layout_text_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Show fullscreen in portrait"
-            android:checked="true"/>
-        <CheckBox
-            android:id="@+id/show_horizontal_layout_in_tabletop_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Also show horizontal layout in tabletop mode"
-            android:visibility="gone"/>
+            android:text="Choose the configuration to update the layout:" />
+
+        <RadioGroup
+            android:id="@+id/split_attributes_options_radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/use_default_split_attributes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Use the default split attributes"
+                android:checked="true"/>
+
+            <!-- The fullscreen option group -->
+            <View
+                android:id="@+id/show_fullscreen_in_portrait_divider_top"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="#AAAAAA"
+                android:visibility="gone"/>
+            <RadioButton
+                android:id="@+id/show_fullscreen_in_portrait_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Show fullscreen in portrait"
+                android:checked="true"/>
+            <CheckBox
+                android:id="@+id/show_horizontal_layout_in_tabletop_check_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Also show horizontal layout in tabletop mode"
+                android:visibility="gone"/>
+            <View
+                android:id="@+id/show_fullscreen_in_portrait_divider_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="#AAAAAA"
+                android:visibility="gone"/>
+            <!-- End of the fullscreen option group -->
+
+            <RadioButton
+                android:id="@+id/show_horizontal_layout_in_tabletop_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Show horizontal layout in tabletop mode"/>
+
+            <!-- The different layout option group -->
+            <View
+                android:id="@+id/show_different_layout_with_size_divider_top"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="#AAAAAA"
+                android:visibility="gone"/>
+            <RadioButton
+                android:id="@+id/show_different_layout_with_size_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Show different layout with size"/>
+            <CheckBox
+                android:id="@+id/show_fullscreen_in_book_mode_check_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Also show fullscreen in book mode"
+                android:visibility="gone"/>
+            <View
+                android:id="@+id/show_different_layout_with_size_divider_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="#AAAAAA"
+                android:visibility="gone"/>
+            <!-- End of the different layout option group -->
+
+            <RadioButton
+                android:id="@+id/split_by_hinge_when_separating_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Show layout that follows the hinge when it is separated by hinge"/>
+            <CheckBox
+                android:id="@+id/swap_primary_secondary_position_check_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Swap the position of primary and secondary container" />
+        </RadioGroup>
+
         <View
-            android:id="@+id/show_fullscreen_in_portrait_divider_bottom"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:background="#AAAAAA"
-            android:visibility="gone"/>
-        <!-- End of the fullscreen option group -->
+            android:background="#AAAAAA" />
 
-        <RadioButton
-            android:id="@+id/show_horizontal_layout_in_tabletop_radio_button"
+        <!-- Dropdown for animation background color -->
+
+        <TextView
+            android:id="@+id/animation_background_color_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_animation_background_color"/>
+
+        <Spinner
+            android:id="@+id/animation_background_color_dropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Show horizontal layout in tabletop mode"/>
+            android:spinnerMode="dropdown" />
 
-        <!-- The different layout option group -->
         <View
-            android:id="@+id/show_different_layout_with_size_divider_top"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:background="#AAAAAA"
-            android:visibility="gone"/>
-        <RadioButton
-            android:id="@+id/show_different_layout_with_size_radio_button"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/launch_activity_to_side"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Show different layout with size"/>
-        <CheckBox
-            android:id="@+id/show_fullscreen_in_book_mode_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Also show fullscreen in book mode"
-            android:visibility="gone"/>
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:text="Launch activity to side"/>
+
         <View
-            android:id="@+id/show_different_layout_with_size_divider_bottom"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:background="#AAAAAA"
-            android:visibility="gone"/>
-        <!-- End of the different layout option group -->
-
-        <RadioButton
-            android:id="@+id/split_by_hinge_when_separating_radio_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Show layout that follows the hinge when it is separated by hinge"/>
-        <CheckBox
-            android:id="@+id/swap_primary_secondary_position_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Swap the position of primary and secondary container" />
-    </RadioGroup>
-
-    <Button
-        android:id="@+id/launch_activity_to_side"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_centerHorizontal="true"
-        android:text="Launch activity to side"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="#AAAAAA" />
-    <TextView
-        android:id="@+id/error_message_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+            android:background="#AAAAAA" />
+        <TextView
+            android:id="@+id/error_message_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>

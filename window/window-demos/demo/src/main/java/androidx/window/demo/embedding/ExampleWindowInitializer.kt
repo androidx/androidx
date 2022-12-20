@@ -60,6 +60,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
      * [SplitAttributesCalculator.SplitAttributesCalculatorParams.splitRuleTag].
      */
     private class SampleSplitAttributesCalculator : SplitAttributesCalculator {
+
+        private val mDemoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
+
         override fun computeSplitAttributesForParams(
             params: SplitAttributesCalculator.SplitAttributesCalculatorParams
         ): SplitAttributes {
@@ -74,11 +77,18 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                 .build()
             val tag = params.splitRuleTag
             val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
-            val backgroundColor = params.defaultSplitAttributes.animationBackgroundColor
+            // Make a copy of the default splitAttributes, but replace the animation background
+            // color to what is configured in the Demo app.
+            val backgroundColor = mDemoActivityEmbeddingController.animationBackgroundColor
+            val defaultSplitAttributes = SplitAttributes.Builder()
+                .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
+                .setSplitType(params.defaultSplitAttributes.splitType)
+                .setAnimationBackgroundColor(backgroundColor)
+                .build()
             when (tag?.substringBefore(SUFFIX_REVERSED)) {
                 TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
                     return if (params.isDefaultMinSizeSatisfied) {
-                        params.defaultSplitAttributes
+                        defaultSplitAttributes
                     } else {
                         expandContainersAttrs
                     }
@@ -187,7 +197,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                     }
                 }
             }
-            return params.defaultSplitAttributes
+            return defaultSplitAttributes
         }
 
         private fun WindowMetrics.isPortrait(): Boolean =
