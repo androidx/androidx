@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.playground
+package androidx.build
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
