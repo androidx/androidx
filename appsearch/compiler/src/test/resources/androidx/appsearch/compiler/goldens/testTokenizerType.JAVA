@@ -30,6 +30,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .build())
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokVerbatimInvalid")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokRfc822Invalid")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
@@ -45,6 +50,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
             .build())
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokVerbatim")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+            .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokRfc822")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822)
@@ -58,6 +68,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokPlainPrefix")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+            .build())
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokVerbatimPrefix")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokRfc822Prefix")
@@ -80,6 +95,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (tokPlainInvalidCopy != null) {
       builder.setPropertyString("tokPlainInvalid", tokPlainInvalidCopy);
     }
+    String tokVerbatimInvalidCopy = document.tokVerbatimInvalid;
+    if (tokVerbatimInvalidCopy != null) {
+      builder.setPropertyString("tokVerbatimInvalid", tokVerbatimInvalidCopy);
+    }
     String tokRfc822InvalidCopy = document.tokRfc822Invalid;
     if (tokRfc822InvalidCopy != null) {
       builder.setPropertyString("tokRfc822Invalid", tokRfc822InvalidCopy);
@@ -92,6 +111,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (tokPlainCopy != null) {
       builder.setPropertyString("tokPlain", tokPlainCopy);
     }
+    String tokVerbatimCopy = document.tokVerbatim;
+    if (tokVerbatimCopy != null) {
+      builder.setPropertyString("tokVerbatim", tokVerbatimCopy);
+    }
     String tokRfc822Copy = document.tokRfc822;
     if (tokRfc822Copy != null) {
       builder.setPropertyString("tokRfc822", tokRfc822Copy);
@@ -103,6 +126,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     String tokPlainPrefixCopy = document.tokPlainPrefix;
     if (tokPlainPrefixCopy != null) {
       builder.setPropertyString("tokPlainPrefix", tokPlainPrefixCopy);
+    }
+    String tokVerbatimPrefixCopy = document.tokVerbatimPrefix;
+    if (tokVerbatimPrefixCopy != null) {
+      builder.setPropertyString("tokVerbatimPrefix", tokVerbatimPrefixCopy);
     }
     String tokRfc822PrefixCopy = document.tokRfc822Prefix;
     if (tokRfc822PrefixCopy != null) {
@@ -125,6 +152,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (tokPlainInvalidCopy != null && tokPlainInvalidCopy.length != 0) {
       tokPlainInvalidConv = tokPlainInvalidCopy[0];
     }
+    String[] tokVerbatimInvalidCopy = genericDoc.getPropertyStringArray("tokVerbatimInvalid");
+    String tokVerbatimInvalidConv = null;
+    if (tokVerbatimInvalidCopy != null && tokVerbatimInvalidCopy.length != 0) {
+      tokVerbatimInvalidConv = tokVerbatimInvalidCopy[0];
+    }
     String[] tokRfc822InvalidCopy = genericDoc.getPropertyStringArray("tokRfc822Invalid");
     String tokRfc822InvalidConv = null;
     if (tokRfc822InvalidCopy != null && tokRfc822InvalidCopy.length != 0) {
@@ -139,6 +171,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     String tokPlainConv = null;
     if (tokPlainCopy != null && tokPlainCopy.length != 0) {
       tokPlainConv = tokPlainCopy[0];
+    }
+    String[] tokVerbatimCopy = genericDoc.getPropertyStringArray("tokVerbatim");
+    String tokVerbatimConv = null;
+    if (tokVerbatimCopy != null && tokVerbatimCopy.length != 0) {
+      tokVerbatimConv = tokVerbatimCopy[0];
     }
     String[] tokRfc822Copy = genericDoc.getPropertyStringArray("tokRfc822");
     String tokRfc822Conv = null;
@@ -155,6 +192,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (tokPlainPrefixCopy != null && tokPlainPrefixCopy.length != 0) {
       tokPlainPrefixConv = tokPlainPrefixCopy[0];
     }
+    String[] tokVerbatimPrefixCopy = genericDoc.getPropertyStringArray("tokVerbatimPrefix");
+    String tokVerbatimPrefixConv = null;
+    if (tokVerbatimPrefixCopy != null && tokVerbatimPrefixCopy.length != 0) {
+      tokVerbatimPrefixConv = tokVerbatimPrefixCopy[0];
+    }
     String[] tokRfc822PrefixCopy = genericDoc.getPropertyStringArray("tokRfc822Prefix");
     String tokRfc822PrefixConv = null;
     if (tokRfc822PrefixCopy != null && tokRfc822PrefixCopy.length != 0) {
@@ -165,12 +207,15 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.id = idConv;
     document.tokNoneInvalid = tokNoneInvalidConv;
     document.tokPlainInvalid = tokPlainInvalidConv;
+    document.tokVerbatimInvalid = tokVerbatimInvalidConv;
     document.tokRfc822Invalid = tokRfc822InvalidConv;
     document.tokNone = tokNoneConv;
     document.tokPlain = tokPlainConv;
+    document.tokVerbatim = tokVerbatimConv;
     document.tokRfc822 = tokRfc822Conv;
     document.tokNonePrefix = tokNonePrefixConv;
     document.tokPlainPrefix = tokPlainPrefixConv;
+    document.tokVerbatimPrefix = tokVerbatimPrefixConv;
     document.tokRfc822Prefix = tokRfc822PrefixConv;
     return document;
   }
