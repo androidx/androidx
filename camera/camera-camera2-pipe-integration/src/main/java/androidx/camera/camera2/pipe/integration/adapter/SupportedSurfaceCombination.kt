@@ -681,6 +681,7 @@ class SupportedSurfaceCombination(
                 AspectRatio.RATIO_16_9 -> outputRatio =
                     if (isSensorLandscapeResolution) AspectRatioUtil.ASPECT_RATIO_16_9
                     else AspectRatioUtil.ASPECT_RATIO_9_16
+                AspectRatio.RATIO_DEFAULT -> Unit
                 else -> Logger.e(
                     TAG,
                     "Undefined target aspect ratio: $aspectRatio"

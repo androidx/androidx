@@ -733,6 +733,17 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
+    fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
+        val useCase = ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        val config = useCase.currentConfig as ImageOutputConfig
+        assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
+    }
+
+    @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         val useCase = ImageCapture.Builder()
             .setTargetResolution(DEFAULT_RESOLUTION)
