@@ -487,6 +487,7 @@ public final class AppSearchSchema {
         @IntDef(value = {
                 TOKENIZER_TYPE_NONE,
                 TOKENIZER_TYPE_PLAIN,
+                TOKENIZER_TYPE_VERBATIM,
                 TOKENIZER_TYPE_RFC822
         })
         @Retention(RetentionPolicy.SOURCE)
@@ -513,7 +514,24 @@ public final class AppSearchSchema {
          */
         public static final int TOKENIZER_TYPE_PLAIN = 1;
 
-        // TODO(b/204333391): In icing, the "2" tokenizer is the verbatim tokenizer.
+        /**
+         * This value indicates that no normalization or segmentation should be applied to string
+         * values that are tokenized using this type. Therefore, the output token is equivalent
+         * to the raw string value.
+         *
+         * <p>Ex. A property with "Hello, world!" will produce the token "Hello, world!",
+         * preserving punctuation and capitalization, and not creating separate tokens between the
+         * space.
+         *
+         * <p>It is only valid for tokenizer_type to be 'VERBATIM' if {@link #getIndexingType} is
+         * {@link #INDEXING_TYPE_EXACT_TERMS} or {@link #INDEXING_TYPE_PREFIXES}.
+         */
+// @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.VERBATIM_SEARCH)
+// @exportToFramework:endStrip()
+        public static final int TOKENIZER_TYPE_VERBATIM = 2;
 
         /**
          * Tokenization for emails. This value indicates that tokens should be extracted from
@@ -646,14 +664,8 @@ public final class AppSearchSchema {
              */
             @NonNull
             public StringPropertyConfig.Builder setTokenizerType(@TokenizerType int tokenizerType) {
-                // TODO(b/204333391): Change to checkArgumentInRange once verbatim is supported
-                if (tokenizerType != TOKENIZER_TYPE_NONE && tokenizerType != TOKENIZER_TYPE_PLAIN
-                        && tokenizerType != TOKENIZER_TYPE_RFC822) {
-                    throw new IllegalArgumentException("Tokenizer value "
-                            + tokenizerType
-                            + " is out of range. Valid values are TOKENIZER_TYPE_NONE, "
-                            + "TOKENIZER_TYPE_PLAIN, and TOKENIZER_TYPE_RFC822");
-                }
+                Preconditions.checkArgumentInRange(
+                        tokenizerType, TOKENIZER_TYPE_NONE, TOKENIZER_TYPE_RFC822, "tokenizerType");
                 mTokenizerType = tokenizerType;
                 return this;
             }
@@ -733,6 +745,12 @@ public final class AppSearchSchema {
                     break;
                 case AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN:
                     builder.append("tokenizerType: TOKENIZER_TYPE_PLAIN,\n");
+                    break;
+                case AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM:
+                    builder.append("tokenizerType: TOKENIZER_TYPE_VERBATIM,\n");
+                    break;
+                case AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822:
+                    builder.append("tokenizerType: TOKENIZER_TYPE_RFC822,\n");
                     break;
                 default:
                     builder.append("tokenizerType: TOKENIZER_TYPE_UNKNOWN,\n");

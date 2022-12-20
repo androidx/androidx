@@ -81,6 +81,16 @@ public interface Features {
      */
     String NUMERIC_SEARCH = "NUMERIC_SEARCH";
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_VERBATIM} and all other
+     * verbatim search features within the query language that allows clients to search using the
+     * verbatim string operator.
+     *
+     * <p>Ex. '"foo/bar" OR baz' will ensure that 'foo/bar' is treated as a single 'verbatim' token.
+     */
+    String VERBATIM_SEARCH = "VERBATIM_SEARCH";
+
     /** Feature for {@link #isFeatureSupported}. This feature covers
      * {@link SearchSpec.Builder#setPropertyWeights}.
      */

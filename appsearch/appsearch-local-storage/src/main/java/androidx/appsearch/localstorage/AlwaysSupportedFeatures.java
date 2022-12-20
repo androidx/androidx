@@ -43,6 +43,8 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
                 // fall through
             case Features.NUMERIC_SEARCH:
+                //fall through
+            case Features.VERBATIM_SEARCH:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
                 // fall through
