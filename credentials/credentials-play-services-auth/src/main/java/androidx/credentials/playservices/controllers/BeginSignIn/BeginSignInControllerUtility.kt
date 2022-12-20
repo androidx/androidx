@@ -32,7 +32,6 @@ package androidx.credentials.playservices.controllers.BeginSignIn
  * limitations under the License.
  */
 
-import android.util.Log
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.GetPublicKeyCredentialOption
@@ -61,7 +60,6 @@ class BeginSignInControllerUtility {
                             .build()
                     )
                 } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
-                    Log.i(TAG, "See request for GET passkey ${option.requestJson}")
                     requestBuilder.setPasskeysSignInRequestOptions(
                         convertToPlayAuthPasskeyRequest(option)
                     )

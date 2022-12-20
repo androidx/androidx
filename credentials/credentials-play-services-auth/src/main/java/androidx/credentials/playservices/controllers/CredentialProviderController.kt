@@ -85,7 +85,7 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         }
 
         internal fun generateErrorStringCanceled(type: String): String {
-            return "$type activity was cancelled by the user."
+            return "$type activity is cancelled by the user."
         }
 
         /**

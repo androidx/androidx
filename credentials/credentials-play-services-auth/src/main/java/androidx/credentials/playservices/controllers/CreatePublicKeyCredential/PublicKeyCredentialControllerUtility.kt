@@ -118,7 +118,7 @@ class PublicKeyCredentialControllerUtility {
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
             } else {
-                Log.e(TAG, "CreatePasskeyResponseJson expected registration response but " +
+                Log.e(TAG, "Authenticator response expected registration response but " +
                     "got: ${authenticatorResponse.javaClass.name}")
             }
 
@@ -193,7 +193,7 @@ class PublicKeyCredentialControllerUtility {
             } else {
                 Log.e(
                     TAG,
-                    "AssertPasskeyResponse in Get Flow expected assertion response but " +
+                    "AuthenticatorResponse expected assertion response but " +
                         "got: ${authenticatorResponse.javaClass.name}")
             }
             json.put("id", publicKeyCred.id)
@@ -217,7 +217,7 @@ class PublicKeyCredentialControllerUtility {
             val rpId = json.optString("rpId", "")
             if (rpId.isEmpty()) {
                 throw JSONException("GetPublicKeyCredentialOption - rpId not specified in the " +
-                    "request or was unexpectedly empty")
+                    "request or is unexpectedly empty")
             }
             val challenge = getChallenge(json)
             return BeginSignInRequest.PasskeysRequestOptions.Builder()
@@ -230,7 +230,7 @@ class PublicKeyCredentialControllerUtility {
         private fun getChallenge(json: JSONObject): ByteArray {
             val challengeB64 = json.optString("challenge", "")
             if (challengeB64.isEmpty()) {
-                throw JSONException("Challenge not found in request or was unexpectedly empty")
+                throw JSONException("Challenge not found in request or is unexpectedly empty")
             }
             return b64Decode(challengeB64)
         }

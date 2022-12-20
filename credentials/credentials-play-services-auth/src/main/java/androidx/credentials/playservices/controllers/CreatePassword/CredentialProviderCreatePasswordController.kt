@@ -109,12 +109,13 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
+            Log.w(TAG, "Returned request code " +
+                "$CONTROLLER_REQUEST_CODE which does not match what was given $uniqueRequestCode")
             return
         }
         if (maybeReportErrorResultCodeCreate(resultCode, TAG,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
-        Log.i(TAG, "Saving password succeeded")
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)
         cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
             this.callback.onResult(response) } }

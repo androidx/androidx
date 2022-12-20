@@ -95,7 +95,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             }
             else -> {
                 throw UnsupportedOperationException(
-                    "Unsupported request; not password or publickeycredential")
+                    "Create Credential request is unsupported, not password or " +
+                        "publickeycredential")
             }
         }
     }
@@ -127,7 +128,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                     isCanceled = cancellationSignal.isCanceled
                 }
                 if (!isCanceled) {
-                    Log.i(TAG, "Signed out successfully!")
+                    Log.i(TAG, "During clear credential, signed out successfully!")
                     executor.execute { callback.onResult(null) }
                 }
             }
@@ -138,9 +139,9 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                         isCanceled = cancellationSignal.isCanceled
                     }
                     if (!isCanceled) {
-                        Log.i(TAG, "Sign out failed with $e")
+                        Log.w(TAG, "During clear credential sign out failed with $e")
                         executor.execute {
-                            callback.onError(ClearCredentialUnknownException("$e"))
+                            callback.onError(ClearCredentialUnknownException(e.message))
                         }
                     }
                 }

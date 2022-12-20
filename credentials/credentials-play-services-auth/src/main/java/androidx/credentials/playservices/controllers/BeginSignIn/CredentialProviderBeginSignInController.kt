@@ -118,6 +118,8 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
+            Log.w(TAG, "Returned request code " +
+                "$CONTROLLER_REQUEST_CODE which does not match what was given $uniqueRequestCode")
             return
         }
         if (maybeReportErrorResultCodeGet(resultCode, TAG,
@@ -132,7 +134,6 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)
             if (e.statusCode == CommonStatusCodes.CANCELED) {
-                Log.i(TAG, "User cancelled the prompt!")
                 exception = GetCredentialCancellationException(e.message)
             } else if (e.statusCode in retryables) {
                 exception = GetCredentialInterruptedException(e.message)
@@ -169,10 +170,11 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
                 throw GetCredentialUnknownException(t.message)
             }
         } else {
-            Log.i(TAG, "Credential returned but no google Id or password or passkey found")
+            Log.w(TAG, "Credential returned but no google Id or password or passkey found")
         }
         if (cred == null) {
-            throw GetCredentialUnknownException("null credential found")
+            throw GetCredentialUnknownException("When attempting to convert get response, " +
+                "null credential found")
         }
         return GetCredentialResponse(cred)
     }
