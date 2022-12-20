@@ -245,7 +245,9 @@ class RecorderTest(
             instrumentation.runOnMainSync {
                 cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
             }
-            recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
+            if (this::recorder.isInitialized) {
+                recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
+            }
         }
 
         CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
