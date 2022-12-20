@@ -39,12 +39,12 @@ public class GetCredentialInterruptedExceptionJavaTest {
 
     @Test
     public void getter_success() {
-        String expectedType =
-                GetCredentialInterruptedException.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION;
+        Class<GetCredentialInterruptedException> expectedClass =
+                GetCredentialInterruptedException.class;
         String expectedMessage = "message";
         GetCredentialInterruptedException exception = new
                 GetCredentialInterruptedException(expectedMessage);
-        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getClass()).isEqualTo(expectedClass);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

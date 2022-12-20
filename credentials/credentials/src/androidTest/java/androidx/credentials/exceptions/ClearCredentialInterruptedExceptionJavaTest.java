@@ -42,10 +42,9 @@ public class ClearCredentialInterruptedExceptionJavaTest {
         String expectedMessage = "msg";
         ClearCredentialInterruptedException exception = new
                 ClearCredentialInterruptedException(expectedMessage);
-        String expectedType =
-                ClearCredentialInterruptedException
-                        .TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION;
-        assertThat(exception.getType()).isEqualTo(expectedType);
+        Class<ClearCredentialInterruptedException> expectedClass =
+                ClearCredentialInterruptedException.class;
+        assertThat(exception.getClass()).isEqualTo(expectedClass);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

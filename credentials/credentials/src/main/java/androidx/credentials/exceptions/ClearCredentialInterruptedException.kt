@@ -16,8 +16,6 @@
 
 package androidx.credentials.exceptions
 
-import androidx.annotation.VisibleForTesting
-
 /**
  * During the clear credential flow, this is thrown when some interruption occurs that may warrant
  * retrying or at least does not indicate a purposeful desire to close or tap away from credential
@@ -30,8 +28,7 @@ class ClearCredentialInterruptedException @JvmOverloads constructor(
 ) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
+        internal const val TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION =
             "androidx.credentials.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION"
     }
 }

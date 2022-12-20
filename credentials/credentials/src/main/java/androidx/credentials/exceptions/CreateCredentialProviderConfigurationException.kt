@@ -16,18 +16,23 @@
 
 package androidx.credentials.exceptions
 
+import androidx.annotation.VisibleForTesting
+
 /**
- * This is thrown when the get credential operation failed with no more detailed information.
+ * During the create credential flow, this is thrown when configurations are mismatched for the
+ * provider, typically indicating the provider dependency is missing in the manifest or some
+ * system service is not enabled.
  *
  * @see GetCredentialException
  */
-class GetCredentialUnknownException @JvmOverloads constructor(
+class CreateCredentialProviderConfigurationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
-
+) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION,
+    errorMessage) {
     /** @hide */
     companion object {
-        internal const val TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION =
-            "androidx.credentials.TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION"
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+        internal val TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
+            "androidx.credentials.TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION"
     }
 }

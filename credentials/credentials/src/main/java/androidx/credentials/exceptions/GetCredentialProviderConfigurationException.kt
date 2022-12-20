@@ -16,23 +16,19 @@
 
 package androidx.credentials.exceptions
 
-import androidx.credentials.CredentialManager
-
 /**
- * Represents a custom error thrown during a clear flow with Credential Manager. See
- * [CredentialManager] for more details on how Exceptions work for Credential Manager flows.
+ * During the get credential flow, this is thrown when configurations are mismatched for the
+ * provider, typically indicating the provider dependency is missing in the manifest or some
+ * system service is not enabled.
  *
- * @see CredentialManager
- *
- * @property type a string that indicates the type of the credential exception
- * @throws IllegalArgumentException If [type] is empty
- * @throws NullPointerException If [type] is null
+ * @see GetCredentialException
  */
-open class ClearCustomCredentialException @JvmOverloads constructor(
-    override val type: String,
+class GetCredentialProviderConfigurationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : ClearCredentialException(type, errorMessage) {
-    init {
-        require(type.isNotEmpty()) { "type must not be empty" }
+) : GetCredentialException(TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {
+    /** @hide */
+    companion object {
+        internal const val TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
+            "androidx.credentials.TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION"
     }
 }

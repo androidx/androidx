@@ -39,12 +39,12 @@ public class CreateCredentialUnknownExceptionJavaTest {
 
     @Test
     public void getter_success() {
-        String expectedType =
-                CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION;
+        Class<CreateCredentialUnknownException> expectedClass =
+                CreateCredentialUnknownException.class;
         String expectedMessage = "message";
         CreateCredentialUnknownException exception = new
                 CreateCredentialUnknownException(expectedMessage);
-        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getClass()).isEqualTo(expectedClass);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

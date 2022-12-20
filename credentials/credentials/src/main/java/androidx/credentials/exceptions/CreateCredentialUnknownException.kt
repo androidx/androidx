@@ -16,8 +16,6 @@
 
 package androidx.credentials.exceptions
 
-import androidx.annotation.VisibleForTesting
-
 /**
  * This is thrown when the create credential operation failed with no more detailed information.
  *
@@ -29,8 +27,7 @@ class CreateCredentialUnknownException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION: String =
+        internal const val TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION =
             "androidx.credentials.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION"
     }
 }

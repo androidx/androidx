@@ -19,7 +19,7 @@ package androidx.credentials.exceptions
 import androidx.credentials.CredentialManager
 
 /**
- * Represents a custom error encountered during a create flow with Credential Manager. See
+ * Represents a custom error thrown during a create flow with Credential Manager. See
  * [CredentialManager] for more details on how exceptions work for Credential Manager flows.
  *
  * @see CredentialManager
