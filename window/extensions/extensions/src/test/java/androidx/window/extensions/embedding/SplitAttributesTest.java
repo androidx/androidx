@@ -21,6 +21,8 @@ import static androidx.window.extensions.embedding.SplitAttributes.SplitType.Rat
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import android.graphics.Color;
+
 import androidx.test.filters.SmallTest;
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection;
 
@@ -34,18 +36,27 @@ public class SplitAttributesTest {
         final SplitAttributes layout1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
+                .setAnimationBackgroundColor(0)
                 .build();
         final SplitAttributes layout2 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.LOCALE)
+                .setAnimationBackgroundColor(0)
                 .build();
         final SplitAttributes layout3 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
+                .setAnimationBackgroundColor(0)
                 .build();
         final SplitAttributes layout4 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
+                .setAnimationBackgroundColor(Color.BLUE)
+                .build();
+        final SplitAttributes layout5 = new SplitAttributes.Builder()
+                .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
+                .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
+                .setAnimationBackgroundColor(Color.BLUE)
                 .build();
 
         assertNotEquals(layout1, layout2);
@@ -57,8 +68,11 @@ public class SplitAttributesTest {
         assertNotEquals(layout3, layout1);
         assertNotEquals(layout3.hashCode(), layout1.hashCode());
 
-        assertEquals(layout3, layout4);
-        assertEquals(layout3.hashCode(), layout4.hashCode());
+        assertNotEquals(layout4, layout3);
+        assertNotEquals(layout4.hashCode(), layout3.hashCode());
+
+        assertEquals(layout4, layout5);
+        assertEquals(layout4.hashCode(), layout5.hashCode());
     }
 
     @Test

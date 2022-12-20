@@ -65,6 +65,7 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitAttributes {
+    method @ColorInt public int getAnimationBackgroundColor();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
   }
@@ -72,6 +73,7 @@ package androidx.window.extensions.embedding {
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.extensions.embedding.SplitAttributes build();
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackgroundColor(@ColorInt int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
   }

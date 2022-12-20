@@ -24,6 +24,7 @@ import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirecti
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -282,9 +283,14 @@ public class SplitAttributes {
 
     private final SplitType mSplitType;
 
-    SplitAttributes(@NonNull SplitType splitType, @ExtLayoutDirection int layoutDirection) {
+    @ColorInt
+    private final int mAnimationBackgroundColor;
+
+    SplitAttributes(@NonNull SplitType splitType, @ExtLayoutDirection int layoutDirection,
+            @ColorInt int animationBackgroundColor) {
         mSplitType = splitType;
         mLayoutDirection = layoutDirection;
+        mAnimationBackgroundColor = animationBackgroundColor;
     }
 
     /** Returns {@link LayoutDirection} for the {@link SplitAttributes}. */
@@ -299,12 +305,24 @@ public class SplitAttributes {
         return mSplitType;
     }
 
+    /**
+     * Returns the {@link ColorInt} to use for the background during the animation with this
+     * {@link SplitAttributes} if the animation requires a background.
+     */
+    @ColorInt
+    public int getAnimationBackgroundColor() {
+        return mAnimationBackgroundColor;
+    }
+
     /** Builders for {@link SplitAttributes} */
     public static final class Builder {
         @NonNull
         private SplitType mSplitType =  new SplitType.RatioSplitType(0.5f);
         @ExtLayoutDirection
         private int mLayoutDirection = LOCALE;
+
+        @ColorInt
+        private int mAnimationBackgroundColor = 0;
 
         /**
          * Sets the {@link SplitType} of this {@link SplitAttributes}. The default value is
@@ -336,17 +354,32 @@ public class SplitAttributes {
             return this;
         }
 
+        /**
+         * Sets the {@link ColorInt} to use for the background during the animation with this
+         * {@link SplitAttributes} if the animation requires a background. The default value is
+         * {@code 0}, which is to use the theme window background.
+         *
+         * @param color a packed color int, {@code AARRGGBB}, for the animation background color.
+         * @return this {@link Builder}.
+         */
+        @NonNull
+        public Builder setAnimationBackgroundColor(@ColorInt int color) {
+            mAnimationBackgroundColor = color;
+            return this;
+        }
+
         /** Builds {@link SplitAttributes} instance. */
         @NonNull
         public SplitAttributes build() {
-            return new SplitAttributes(mSplitType, mLayoutDirection);
+            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackgroundColor);
         }
     }
 
     @Override
     public int hashCode() {
-        int result = 17 * mSplitType.hashCode();
-        result = result + 31 * mLayoutDirection;
+        int result = mSplitType.hashCode();
+        result = result * 31 + mLayoutDirection;
+        result = result * 31 + mAnimationBackgroundColor;
         return result;
     }
 
@@ -358,9 +391,10 @@ public class SplitAttributes {
         if (!(other instanceof SplitAttributes)) {
             return false;
         }
-        final SplitAttributes otherLayout = (SplitAttributes) other;
-        return mLayoutDirection == otherLayout.mLayoutDirection
-                && mSplitType.equals(otherLayout.mSplitType);
+        final SplitAttributes otherAttributes = (SplitAttributes) other;
+        return mLayoutDirection == otherAttributes.mLayoutDirection
+                && mSplitType.equals(otherAttributes.mSplitType)
+                && mAnimationBackgroundColor == otherAttributes.mAnimationBackgroundColor;
     }
 
     @NonNull
@@ -369,6 +403,7 @@ public class SplitAttributes {
         return SplitAttributes.class.getSimpleName() + "{"
                 + "layoutDir=" + layoutDirectionToString()
                 + ", ratio=" + mSplitType
+                + ", animationBgColor=" + Integer.toHexString(mAnimationBackgroundColor)
                 + "}";
     }
 
