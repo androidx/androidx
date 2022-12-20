@@ -107,13 +107,13 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             fidoRegistrationRequest = this.convertRequestToPlayServices(request)
         } catch (e: JSONException) {
             // TODO("Merge with updated error codes CL")
-            cancelAndCallbackException(CreatePublicKeyCredentialDomException(
-                EncodingError(), e.message),
-                cancellationSignal) { ex -> this.executor.execute { this.callback.onError(ex) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback
+                .onError(CreatePublicKeyCredentialDomException(EncodingError(), e.message)) } }
             return
         } catch (t: Throwable) {
-            cancelAndCallbackException(CreateCredentialUnknownException(t.message),
-                cancellationSignal) { e -> this.executor.execute { this.callback.onError(e) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(CreateCredentialUnknownException(t.message)) } }
             return
         }
 
@@ -132,7 +132,7 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             return
         }
         if (maybeReportErrorResultCodeCreate(resultCode, TAG,
-                { e, s, f -> cancelAndCallbackException(e, s, f) }, { e -> this.executor.execute {
+                { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
         val bytes: ByteArray? = data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
         if (bytes == null) {
@@ -150,22 +150,22 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         val exception =
             PublicKeyCredentialControllerUtility.publicKeyCredentialResponseContainsError(cred)
         if (exception != null) {
-            cancelAndCallbackException(exception, cancellationSignal) { e ->
-                this.executor.execute { this.callback.onError(e) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                executor.execute { callback.onError(exception) } }
             return
         }
         try {
             val response = this.convertResponseToCredentialManager(cred)
-            cancelAndCallbackResult(response, cancellationSignal) { e -> this.executor.execute {
-                this.callback.onResult(e) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onResult(response) } }
         } catch (e: JSONException) {
-            cancelAndCallbackException(CreatePublicKeyCredentialDomException(
-                EncodingError(), e.message),
-                cancellationSignal) { ex -> this.executor.execute { this.callback.onError(ex) } }
+            cancelOrCallbackExceptionOrResult(
+                cancellationSignal) { executor.execute { callback.onError(
+                CreatePublicKeyCredentialDomException(EncodingError(), e.message)) } }
         } catch (t: Throwable) {
-            cancelAndCallbackException(CreatePublicKeyCredentialDomException(
-                UnknownError(), t.message),
-                cancellationSignal) { e -> this.executor.execute { this.callback.onError(e) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { executor.execute {
+                callback.onError(CreatePublicKeyCredentialDomException(
+                    UnknownError(), t.message)) } }
         }
     }
 

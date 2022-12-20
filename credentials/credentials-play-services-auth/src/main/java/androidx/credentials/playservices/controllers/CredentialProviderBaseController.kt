@@ -100,7 +100,6 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
                 GetCredentialInterruptedException::class.java.name -> {
                     CreateCredentialInterruptedException(msg)
                 }
-
                 else -> {
                     CreateCredentialUnknownException(msg)
                 }
