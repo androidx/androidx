@@ -76,7 +76,8 @@ public final class HeifEncoder extends EncoderBase {
     public HeifEncoder(int width, int height, boolean useGrid,
             int quality, @InputMode int inputMode,
             @Nullable Handler handler, @NonNull Callback cb) throws IOException {
-        super("HEIC", width, height, useGrid, quality, inputMode, handler, cb);
+        super("HEIC", width, height, useGrid, quality, inputMode, handler, cb,
+            /* useBitDepth10 */ false);
         mEncoder.setCallback(new HevcEncoderCallback(), mHandler);
         finishSettingUpEncoder(/* useBitDepth10 */ false);
     }
