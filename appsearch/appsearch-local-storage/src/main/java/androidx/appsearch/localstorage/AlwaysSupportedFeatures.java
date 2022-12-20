@@ -40,6 +40,8 @@ public class AlwaysSupportedFeatures implements Features {
                 // fall through
             case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
                 // fall through
+            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
+                // fall through
             case Features.NUMERIC_SEARCH:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
