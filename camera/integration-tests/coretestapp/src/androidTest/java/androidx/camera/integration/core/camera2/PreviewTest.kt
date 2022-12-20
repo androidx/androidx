@@ -320,6 +320,14 @@ class PreviewTest(
     }
 
     @Test
+    fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() {
+        val useCase = Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
+        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, useCase)
+        val config = useCase.currentConfig as ImageOutputConfig
+        Truth.assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
+    }
+
+    @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         val useCase = Preview.Builder().setTargetResolution(DEFAULT_RESOLUTION).build()

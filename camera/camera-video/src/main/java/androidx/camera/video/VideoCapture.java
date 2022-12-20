@@ -22,7 +22,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUT
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
-import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -1274,29 +1273,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // Implementations of ImageOutputConfig.Builder default methods
 
         /**
-         * Sets the aspect ratio of the intended target for images from this configuration.
+         * setTargetAspectRatio is not supported on VideoCapture
          *
-         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.
+         * <p>To set aspect ratio, see {@link Recorder.Builder#setAspectRatio(int)}.
          *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
-         *
-         * <p>If not set, resolutions with aspect ratio 16:9 will be considered in higher
-         * priority.
-         *
-         * @param aspectRatio A {@link AspectRatio} representing the ratio of the target's width
-         *                    and height.
-         * @return The current Builder.
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder<T> setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
-            return this;
+            throw new UnsupportedOperationException("setTargetAspectRatio is not supported.");
         }
 
         /**
@@ -1322,6 +1309,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * setTargetResolution is not supported on VideoCapture
+         *
+         * <p>To set resolution, see {@link Recorder.Builder#setQualitySelector(QualitySelector)}.
          *
          * @hide
          */
