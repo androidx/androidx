@@ -19,7 +19,7 @@ package androidx.credentials.exceptions
 import androidx.annotation.VisibleForTesting
 
 /**
- * During the get credential flow, this is returned when a user intentionally cancels an operation.
+ * During the get credential flow, this is thrown when a user intentionally cancels an operation.
  * When this happens, the application should handle logic accordingly, typically under indication
  * the user does not want to see Credential Manager anymore.
  *

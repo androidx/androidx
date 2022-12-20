@@ -27,8 +27,6 @@ import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialInterruptedException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -103,16 +101,16 @@ open class HiddenActivity : Activity() {
                                 " : " + e.message
                         )
                         setupFailure(resultReceiver!!,
-                            CreatePublicKeyCredentialUnknownException::class.java.name,
+                            CreateCredentialUnknownException::class.java.name,
                             "IntentSender failure on public key creation - " + e.message)
                     }
                 }
                 .addOnFailureListener { e: Exception ->
                     Log.i(TAG, "Fido Registration failed with error: " + e.message)
-                    var errName: String = CreatePublicKeyCredentialUnknownException::class.java.name
+                    var errName: String = CreateCredentialUnknownException::class.java.name
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
-                        errName = CreatePublicKeyCredentialInterruptedException::class.java.name
+                        errName = CreateCredentialInterruptedException::class.java.name
                     }
                     setupFailure(resultReceiver!!, errName, e.message +
                         " - fido registration failure")
