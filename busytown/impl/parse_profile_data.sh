@@ -25,8 +25,38 @@ PROFILE_FILES="$OUT_DIR/androidx/build/reports/profile/*.html"
 if ls $PROFILE_FILES >/dev/null 2>&1 ; then
   # parse the profile file and generate a .json file summarizing it
   PROFILE_JSON=$INTERMEDIATES_DIR/build_androidx.json
+  # Because we run Gradle twice (see TaskUpToDateValidator.kt), we want the second-to-last profile
   ./parse_profile_html.py --input-profile "$(ls $PROFILE_FILES | sort | tail -n 2 | head -n 1)" --output-summary $PROFILE_JSON
   METRICS_FILES="$METRICS_FILES $PROFILE_JSON"
+fi
+
+# Identify which log file we want to parse
+# Because we run Gradle twice (see TaskUpToDateValidator.kt), we want the second-to-last log
+LOG_FILE="$DIST_DIR/logs/gradle.1.log"
+
+# extract cache status from log file
+if [ -e "$LOG_FILE" ]; then
+  summaryLine="$(grep ' actionable task' "$LOG_FILE")"
+  if [ "$summaryLine" != "" ]; then
+    # sample line to parse: 621 actionable tasks: 149 executed, 472 from cache
+    # we want to extract:   ^^^                   ^^^
+    numTasksExecuted="$(echo "$summaryLine" | sed 's/ executed.*//' | sed 's/.*, //' | sed 's/.*: //')"
+    if [ "$numTasksExecuted" == "" ]; then
+      numTasksExecuted="0"
+    fi
+    numTasksFromCache="$(echo "$summaryLine" | sed 's/ from cache//' | sed 's/.*, //' | sed 's/.*: //')"
+    if [ "$numTasksFromCache" == "" ]; then
+      numTasksFromCache="0"
+    fi
+    numTasksActionable="$(echo "$summaryLine" | sed 's/ actionable task.*//' | sed 's/.*, //' | sed 's/.*: //')"
+    if [ "$numTasksActionable" == "" ]; then
+      numTasksActionable="0"
+    fi
+
+    CACHE_STATS_FILE="$OUT_DIR/androidx/build/cache-stats.json"
+    echo -n "{ \"num_tasks_executed\": $numTasksExecuted, \"num_tasks_from_cache\": $numTasksFromCache , \"num_tasks_actionable\": $numTasksActionable }" > "$CACHE_STATS_FILE"
+    METRICS_FILES="$METRICS_FILES $CACHE_STATS_FILE"
+  fi
 fi
 
 if [ "$METRICS_FILES" != "" ]; then
