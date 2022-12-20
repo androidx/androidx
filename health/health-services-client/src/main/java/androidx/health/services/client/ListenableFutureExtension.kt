@@ -24,19 +24,19 @@ import kotlin.jvm.Throws
 /**
  * Extension function on ListenableFuture performs [ListenableFuture.await] operation and if
  * any exception thrown by the asynchronous API, converts [android.os.RemoteException] into
- * [RuntimeException]
+ * [HealthServicesException]
  *
- * @throws RuntimeException if remote operation fails
+ * @throws HealthServicesException if remote operation fails
  */
-@Throws(RuntimeException::class)
+@Throws(HealthServicesException::class)
 suspend fun <T> ListenableFuture<T>.awaitWithException(): T {
     val t: T = try {
         await()
     } catch (e: RemoteException) {
         if (e.message != null)
-            throw RuntimeException(e.message!!)
+            throw HealthServicesException(e.message!!)
         else
-            throw RuntimeException("An unknown error has occurred")
+            throw HealthServicesException("An unknown error has occurred")
     }
     return t
 }

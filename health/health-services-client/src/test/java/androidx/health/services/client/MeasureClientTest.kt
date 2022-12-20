@@ -178,7 +178,7 @@ class MeasureClientTest {
             service.setException()
             try {
                 client.getCapabilities()
-            } catch (e: RuntimeException) {
+            } catch (e: HealthServicesException) {
                 isHealthServiceException = true
             }
         }
