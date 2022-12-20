@@ -62,6 +62,8 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
                 // TODO(b/256022027) : Update to reflect support in Android U+ once this feature is
+            case Features.VERBATIM_SEARCH:
+                // TODO(b/204333391): Update to reflect support in Android U+ once this feature is
                 // synced over into service-appsearch.
                 return false;
             default:
