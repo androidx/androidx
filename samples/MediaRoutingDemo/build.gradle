@@ -19,5 +19,8 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
     namespace "com.example.androidx.mediarouting"
 }

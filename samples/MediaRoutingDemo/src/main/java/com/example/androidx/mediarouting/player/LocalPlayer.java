@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.player;
 
 import android.app.Activity;
 import android.app.Presentation;
@@ -43,6 +43,10 @@ import androidx.annotation.RequiresApi;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
+import com.example.androidx.mediarouting.OverlayDisplayWindow;
+import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.data.PlaylistItem;
+
 import java.io.IOException;
 
 /**
@@ -54,7 +58,6 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
     private static final String TAG = "LocalPlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Handler mUpdateSurfaceHandler = new Handler(mHandler.getLooper());
     private MediaPlayer mMediaPlayer;

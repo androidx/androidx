@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package com.example.androidx.mediarouting;
+package com.example.androidx.mediarouting.services;
 
 import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderService;
 
+import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
+
 /**
  * Demonstrates how to register a custom media route provider service
  * using the support library.
  *
- * @see SampleDynamicGroupMrp
+ * @see SampleMediaRouteProvider
  */
-public class SampleDynamicGroupMrpService extends MediaRouteProviderService {
+public class SampleMediaRouteProviderService extends MediaRouteProviderService {
     @NonNull
     @Override
     public MediaRouteProvider onCreateMediaRouteProvider() {
-        return new SampleDynamicGroupMrp(this);
+        return new SampleMediaRouteProvider(this);
     }
 }
