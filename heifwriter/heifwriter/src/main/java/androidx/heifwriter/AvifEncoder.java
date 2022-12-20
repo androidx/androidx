@@ -74,11 +74,12 @@ public final class AvifEncoder extends EncoderBase {
      * @param cb The callback to receive various messages from the avif encoder.
      */
     public AvifEncoder(int width, int height, boolean useGrid,
-        int quality, @InputMode int inputMode,
-        @Nullable Handler handler, @NonNull Callback cb) throws IOException {
+            int quality, @InputMode int inputMode,
+            @Nullable Handler handler, @NonNull Callback cb,
+            boolean useBitDepth10) throws IOException {
         super("AVIF", width, height, useGrid, quality, inputMode, handler, cb);
         mEncoder.setCallback(new Av1EncoderCallback(), mHandler);
-        finishSettingUpEncoder();
+        finishSettingUpEncoder(useBitDepth10);
     }
 
     protected static String findAv1Fallback() {

@@ -388,7 +388,7 @@ public class EncoderBase implements AutoCloseable,
      *
      * Note: this method must be called after the constructor.
      */
-    protected void finishSettingUpEncoder() {
+    protected void finishSettingUpEncoder(boolean useBitDepth10) {
         boolean useSurfaceInternally =
             (mInputMode == INPUT_MODE_SURFACE) || (mInputMode == INPUT_MODE_BITMAP);
 
@@ -400,7 +400,7 @@ public class EncoderBase implements AutoCloseable,
             mEOSTracker = new SurfaceEOSTracker(mCopyTiles);
 
             if (mCopyTiles) {
-                mEncoderEglSurface = new EglWindowSurface(mEncoderSurface);
+                mEncoderEglSurface = new EglWindowSurface(mEncoderSurface, useBitDepth10);
                 mEncoderEglSurface.makeCurrent();
 
                 mRectBlt = new EglRectBlt(
