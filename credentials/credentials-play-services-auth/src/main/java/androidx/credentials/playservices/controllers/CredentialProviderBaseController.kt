@@ -25,9 +25,6 @@ import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialInterruptedException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import com.google.android.gms.common.api.CommonStatusCodes
 
 /**
@@ -85,29 +82,12 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         const val RESULT_RECEIVER_TAG = "RESULT_RECEIVER"
 
         /** Shuttles back exceptions only related to the hidden activity that can't be parceled */
-        internal fun createPublicKeyCredentialExceptionTypeToException(
-            typeName: String?,
-            msg: String?
-        ):
-            CreatePublicKeyCredentialException {
-            return when (typeName) {
-                CreatePublicKeyCredentialInterruptedException::class.java.name -> {
-                    CreatePublicKeyCredentialInterruptedException(msg)
-                }
-
-                else -> {
-                    CreatePublicKeyCredentialUnknownException(msg)
-                }
-            }
-        }
-
         internal fun getCredentialExceptionTypeToException(typeName: String?, msg: String?):
             GetCredentialException {
             return when (typeName) {
                 GetCredentialUnknownException::class.java.name -> {
                     GetCredentialInterruptedException(msg)
                 }
-
                 else -> {
                     GetCredentialUnknownException(msg)
                 }

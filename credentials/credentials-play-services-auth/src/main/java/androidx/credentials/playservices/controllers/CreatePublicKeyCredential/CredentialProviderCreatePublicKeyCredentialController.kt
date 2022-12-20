@@ -30,8 +30,9 @@ import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialEncodingException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
+import androidx.credentials.exceptions.domerrors.EncodingError
+import androidx.credentials.exceptions.domerrors.UnknownError
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
@@ -85,7 +86,7 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         ) {
             if (maybeReportErrorFromResultReceiver(resultData,
                     CredentialProviderBaseController
-                        .Companion::createPublicKeyCredentialExceptionTypeToException,
+                        .Companion::createCredentialExceptionTypeToException,
                     executor = executor, callback = callback, cancellationSignal)) return
             handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
                 resultData.getParcelable(RESULT_DATA_TAG))
@@ -106,7 +107,8 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             fidoRegistrationRequest = this.convertRequestToPlayServices(request)
         } catch (e: JSONException) {
             // TODO("Merge with updated error codes CL")
-            cancelAndCallbackException(CreatePublicKeyCredentialEncodingException(e.message),
+            cancelAndCallbackException(CreatePublicKeyCredentialDomException(
+                EncodingError(), e.message),
                 cancellationSignal) { ex -> this.executor.execute { this.callback.onError(ex) } }
             return
         } catch (t: Throwable) {
@@ -138,7 +140,8 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
                 return
             }
             this.executor.execute { this.callback.onError(
-                CreatePublicKeyCredentialUnknownException(
+                CreatePublicKeyCredentialDomException(
+                    UnknownError(),
                 "Internal error fido module giving null bytes")
             ) }
             return
@@ -156,10 +159,12 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             cancelAndCallbackResult(response, cancellationSignal) { e -> this.executor.execute {
                 this.callback.onResult(e) } }
         } catch (e: JSONException) {
-            cancelAndCallbackException(CreatePublicKeyCredentialEncodingException(e.message),
+            cancelAndCallbackException(CreatePublicKeyCredentialDomException(
+                EncodingError(), e.message),
                 cancellationSignal) { ex -> this.executor.execute { this.callback.onError(ex) } }
         } catch (t: Throwable) {
-            cancelAndCallbackException(CreatePublicKeyCredentialUnknownException(t.message),
+            cancelAndCallbackException(CreatePublicKeyCredentialDomException(
+                UnknownError(), t.message),
                 cancellationSignal) { e -> this.executor.execute { this.callback.onError(e) } }
         }
     }

@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions
+package androidx.credentials.exceptions.domerrors
 
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 
 /**
- * This is thrown when the  clear credential operation failed with no more detailed information.
+ * During the create public key credential flow, this is thrown when an authenticator response
+ * exception contains a syntax_err from the fido spec, indicating the string did not match the
+ * expected pattern. The fido spec can be found
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  *
- * @see ClearCredentialException
+ * @see CreatePublicKeyCredentialDomException
  */
-class ClearCredentialUnknownException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
-
+@Suppress("ExtendsError")
+class SyntaxError :
+    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_SYNTAX_ERROR) {
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION: String =
-            "androidx.credentials.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION"
+        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_SYNTAX_ERROR: String =
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_SYNTAX_ERROR"
     }
 }

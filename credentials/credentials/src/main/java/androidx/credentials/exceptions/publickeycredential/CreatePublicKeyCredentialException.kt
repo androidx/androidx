@@ -16,69 +16,21 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
-import CreatePublicKeyCredentialDataCloneException
-import CreatePublicKeyCredentialHierarchyRequestException
-import CreatePublicKeyCredentialInUseAttributeException
-import CreatePublicKeyCredentialInvalidCharacterException
-import CreatePublicKeyCredentialInvalidModificationException
-import CreatePublicKeyCredentialInvalidNodeTypeException
-import CreatePublicKeyCredentialNamespaceException
-import CreatePublicKeyCredentialNoModificationAllowedException
-import CreatePublicKeyCredentialNotFoundException
-import CreatePublicKeyCredentialOperationException
-import CreatePublicKeyCredentialOptOutException
-import CreatePublicKeyCredentialQuotaExceededException
-import CreatePublicKeyCredentialReadOnlyException
-import CreatePublicKeyCredentialSyntaxException
-import CreatePublicKeyCredentialTransactionInactiveException
-import CreatePublicKeyCredentialVersionException
-import CreatePublicKeyCredentialWrongDocumentException
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.CreateCredentialException
 
 /**
- * A subclass of CreateCredentialException for unique errors specific only to PublicKeyCredentials.
- * See [CredentialManager] for more details on how Credentials work for Credential Manager flows.
- * See [GMS Error Codes](https://developers.google.com/android/reference/com/google/android/gms/fido/fido2/api/common/ErrorCode)
+ * A subclass of CreateCredentialException for unique exceptions thrown specific only to
+ * PublicKeyCredentials. See [CredentialManager] for more details on how Credentials work for
+ * Credential Manager flows. See [GMS Error Codes](https://developers.google.com/android/reference/com/google/android/gms/fido/fido2/api/common/ErrorCode)
  * for more details on some of the subclasses.
  *
  * @see CredentialManager
- * @see CreatePublicKeyCredentialInterruptedException
- * @see CreatePublicKeyCredentialUnknownException
- * @see CreatePublicKeyCredentialNotReadableException
- * @see CreatePublicKeyCredentialAbortException
- * @see CreatePublicKeyCredentialConstraintException
- * @see CreatePublicKeyCredentialDataException
- * @see CreatePublicKeyCredentialEncodingException
- * @see CreatePublicKeyCredentialInvalidStateException
- * @see CreatePublicKeyCredentialNetworkException
- * @see CreatePublicKeyCredentialNotAllowedException
- * @see CreatePublicKeyCredentialNotSupportedException
- * @see CreatePublicKeyCredentialSecurityException
- * @see CreatePublicKeyCredentialTimeoutException
- * @see CreatePublicKeyCredentialDataCloneException
- * @see CreatePublicKeyCredentialHierarchyRequestException
- * @see CreatePublicKeyCredentialInUseAttributeException
- * @see CreatePublicKeyCredentialInvalidCharacterException
- * @see CreatePublicKeyCredentialInvalidModificationException
- * @see CreatePublicKeyCredentialInvalidNodeTypeException
- * @see CreatePublicKeyCredentialNamespaceException
- * @see CreatePublicKeyCredentialNoModificationAllowedException
- * @see CreatePublicKeyCredentialNotFoundException
- * @see CreatePublicKeyCredentialOperationException
- * @see CreatePublicKeyCredentialOptOutException
- * @see CreatePublicKeyCredentialQuotaExceededException
- * @see CreatePublicKeyCredentialReadOnlyException
- * @see CreatePublicKeyCredentialSyntaxException
- * @see CreatePublicKeyCredentialTransactionInactiveException
- * @see CreatePublicKeyCredentialVersionException
- * @see CreatePublicKeyCredentialWrongDocumentException
+ * @see CreatePublicKeyCredentialDomException
  *
- * @property errorMessage a human-readable string that describes the error
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty
- * @hide
  */
 open class CreatePublicKeyCredentialException @JvmOverloads internal constructor(
     /** @hide */

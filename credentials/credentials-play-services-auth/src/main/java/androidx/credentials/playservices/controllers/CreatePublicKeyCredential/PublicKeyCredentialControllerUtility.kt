@@ -20,18 +20,19 @@ import android.util.Base64
 import android.util.Log
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialAbortException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialConstraintException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDataException
+import androidx.credentials.exceptions.domerrors.AbortError
+import androidx.credentials.exceptions.domerrors.ConstraintError
+import androidx.credentials.exceptions.domerrors.DataError
+import androidx.credentials.exceptions.domerrors.InvalidStateError
+import androidx.credentials.exceptions.domerrors.NetworkError
+import androidx.credentials.exceptions.domerrors.NotAllowedError
+import androidx.credentials.exceptions.domerrors.NotReadableError
+import androidx.credentials.exceptions.domerrors.NotSupportedError
+import androidx.credentials.exceptions.domerrors.SecurityError
+import androidx.credentials.exceptions.domerrors.TimeoutError
+import androidx.credentials.exceptions.domerrors.UnknownError
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialInvalidStateException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNetworkException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotAllowedException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotReadableException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotSupportedException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialSecurityException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialTimeoutException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.fido.common.Transport
@@ -247,11 +248,14 @@ class PublicKeyCredentialControllerUtility {
             val authenticatorResponse: AuthenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorErrorResponse) {
                 val code = authenticatorResponse.errorCode
-                var exception = orderedErrorCodeToExceptions[code]
-                if (exception == null) {
-                    exception = CreatePublicKeyCredentialUnknownException("AuthenticatorResponse " +
-                        "was an unknown fido gms exception")
-                }
+                var exceptionError = orderedErrorCodeToExceptions[code]
+                var msg = authenticatorResponse.errorMessage
+                val exception: CreatePublicKeyCredentialDomException
+                if (exceptionError == null) {
+                    exception = CreatePublicKeyCredentialDomException(
+                        UnknownError(), "unknown fido gms exception - $msg"
+                    )
+                } else { exception = CreatePublicKeyCredentialDomException(exceptionError, msg) }
                 return exception
             }
             return null
@@ -482,31 +486,17 @@ class PublicKeyCredentialControllerUtility {
         private const val FLAGS = Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING
         private val TAG = PublicKeyCredentialControllerUtility::class.java.name
         internal val orderedErrorCodeToExceptions = linkedMapOf(ErrorCode.UNKNOWN_ERR to
-        CreatePublicKeyCredentialUnknownException("returned unknown transient failure"),
-        ErrorCode.ABORT_ERR to CreatePublicKeyCredentialAbortException("indicates the " +
-            "operation was aborted"),
-        ErrorCode.CONSTRAINT_ERR to CreatePublicKeyCredentialConstraintException(
-            "indicates a constraint was not satisfied due to some mutation operation"),
-        ErrorCode.ATTESTATION_NOT_PRIVATE_ERR to
-            CreatePublicKeyCredentialNotReadableException("indicates the " +
-                "authenticator violates privacy requirements"),
-            ErrorCode.CONSTRAINT_ERR to CreatePublicKeyCredentialConstraintException(
-                "indicates a mutation operation failed due to unsatisfied constraint"),
-            ErrorCode.DATA_ERR to CreatePublicKeyCredentialDataException("indicates " +
-                "data is inadequate"),
-            ErrorCode.ENCODING_ERR to CreatePublicKeyCredentialInvalidStateException(
-                "indicates object is in an invalid state"),
-            ErrorCode.NETWORK_ERR to CreatePublicKeyCredentialNetworkException(
-                "indicates a network error occurred"),
-            ErrorCode.NOT_ALLOWED_ERR to CreatePublicKeyCredentialNotAllowedException(
-                "indicates the request is not allowed in the current context - usually user " +
-                "denied permission."),
-            ErrorCode.NOT_SUPPORTED_ERR to CreatePublicKeyCredentialNotSupportedException(
-                "indicates the operation is not supported"),
-            ErrorCode.SECURITY_ERR to CreatePublicKeyCredentialSecurityException(
-                "indicates the operation is insecure"),
-            ErrorCode.TIMEOUT_ERR to CreatePublicKeyCredentialTimeoutException(
-                "indicates the operation timed out")
+            UnknownError(),
+            ErrorCode.ABORT_ERR to AbortError(),
+            ErrorCode.ATTESTATION_NOT_PRIVATE_ERR to NotReadableError(),
+            ErrorCode.CONSTRAINT_ERR to ConstraintError(),
+            ErrorCode.DATA_ERR to DataError(),
+            ErrorCode.ENCODING_ERR to InvalidStateError(),
+            ErrorCode.NETWORK_ERR to NetworkError(),
+            ErrorCode.NOT_ALLOWED_ERR to NotAllowedError(),
+            ErrorCode.NOT_SUPPORTED_ERR to NotSupportedError(),
+            ErrorCode.SECURITY_ERR to SecurityError(),
+            ErrorCode.TIMEOUT_ERR to TimeoutError()
         )
     }
 }
