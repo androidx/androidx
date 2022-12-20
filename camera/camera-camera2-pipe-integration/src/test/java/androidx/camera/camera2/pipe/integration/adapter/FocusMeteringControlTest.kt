@@ -36,6 +36,7 @@ public class FocusMeteringControlTest {
         val meteringPoint = FakeMeteringPointFactory().createPoint(0.0f, 0.0f)
         val meteringRectangles = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint),
+            1,
             Rect(0, 0, 800, 600),
             Rational(4, 3)
         )
@@ -51,6 +52,7 @@ public class FocusMeteringControlTest {
         val meteringPoint1 = FakeMeteringPointFactory().createPoint(0.5f, 0.5f)
         val meteringRectangles1 = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint1),
+            1,
             Rect(0, 0, 800, 600),
             Rational(4, 3)
         )
@@ -65,6 +67,7 @@ public class FocusMeteringControlTest {
         val meteringPoint2 = FakeMeteringPointFactory().createPoint(1f, 1f)
         val meteringRectangles2 = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint2),
+            1,
             Rect(0, 0, 800, 600),
             Rational(4, 3)
         )
@@ -83,6 +86,7 @@ public class FocusMeteringControlTest {
         val meteringPoint = FakeMeteringPointFactory().createPoint(0.0f, 0.0f)
         val meteringRectangles = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint),
+            1,
             Rect(0, 0, 400, 400),
             Rational(4, 3)
         )
@@ -97,6 +101,7 @@ public class FocusMeteringControlTest {
         val meteringPoint1 = FakeMeteringPointFactory().createPoint(0.5f, 0.5f)
         val meteringRectangles1 = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint1),
+            1,
             Rect(0, 0, 400, 400),
             Rational(4, 3)
         )
@@ -109,6 +114,7 @@ public class FocusMeteringControlTest {
         val meteringPoint2 = FakeMeteringPointFactory().createPoint(1f, 1f)
         val meteringRectangles2 = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint2),
+            1,
             Rect(0, 0, 400, 400),
             Rational(4, 3)
         )
@@ -126,6 +132,7 @@ public class FocusMeteringControlTest {
         val meteringPoint = FakeMeteringPointFactory().createPoint(0.0f, 0.0f)
         val meteringRectangles = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint),
+            1,
             Rect(0, 0, 400, 400),
             Rational(3, 4)
         )
@@ -138,6 +145,7 @@ public class FocusMeteringControlTest {
         val meteringPoint1 = FakeMeteringPointFactory().createPoint(0.5f, 0.5f)
         val meteringRectangles1 = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint1),
+            1,
             Rect(0, 0, 400, 400),
             Rational(3, 4)
         )
@@ -150,6 +158,7 @@ public class FocusMeteringControlTest {
         val meteringPoint2 = FakeMeteringPointFactory().createPoint(1f, 1f)
         val meteringRectangles2 = FocusMeteringControl.meteringRegionsFromMeteringPoints(
             listOf(meteringPoint2),
+            1,
             Rect(0, 0, 400, 400),
             Rational(3, 4)
         )
