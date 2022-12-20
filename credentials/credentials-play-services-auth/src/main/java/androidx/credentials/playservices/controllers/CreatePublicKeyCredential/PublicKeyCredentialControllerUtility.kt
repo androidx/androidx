@@ -141,17 +141,24 @@ class PublicKeyCredentialControllerUtility {
             }
 
             if (clientExtensionResults != null) {
-                val uvmEntriesList = clientExtensionResults.uvmEntries.uvmEntryList
-                if (uvmEntriesList != null) {
-                    val uvmEntriesJSON = JSONArray()
-                    for (entry in uvmEntriesList) {
-                        val uvmEntryJSON = JSONObject()
-                        uvmEntryJSON.put("userVerificationMethod", entry.userVerificationMethod)
-                        uvmEntryJSON.put("keyProtectionType", entry.keyProtectionType)
-                        uvmEntryJSON.put("matcherProtectionType", entry.matcherProtectionType)
-                        uvmEntriesJSON.put(uvmEntryJSON)
+                try {
+                    val uvmEntries = clientExtensionResults.uvmEntries
+                    val uvmEntriesList = uvmEntries.uvmEntryList
+                    if (uvmEntriesList != null) {
+                        val uvmEntriesJSON = JSONArray()
+                        for (entry in uvmEntriesList) {
+                            val uvmEntryJSON = JSONObject()
+                            uvmEntryJSON.put("userVerificationMethod",
+                                entry.userVerificationMethod)
+                            uvmEntryJSON.put("keyProtectionType", entry.keyProtectionType)
+                            uvmEntryJSON.put("matcherProtectionType", entry.matcherProtectionType)
+                            uvmEntriesJSON.put(uvmEntryJSON)
+                        }
+                        json.put("uvm", uvmEntriesJSON)
                     }
-                    json.put("uvm", uvmEntriesJSON)
+                } catch (t: Throwable) {
+                    Log.e(TAG, "ClientExtensionResults faced possible implementation " +
+                        "inconsistency in uvmEntries - $t")
                 }
             }
         }
@@ -160,7 +167,6 @@ class PublicKeyCredentialControllerUtility {
             val json = JSONObject()
             val publicKeyCred = cred.publicKeyCredential
             val authenticatorResponse = publicKeyCred?.response!!
-            Log.i(TAG, authenticatorResponse.clientDataJSON.toString())
 
             if (authenticatorResponse is AuthenticatorAssertionResponse) {
                 val responseJson = JSONObject()
@@ -206,7 +212,6 @@ class PublicKeyCredentialControllerUtility {
             BeginSignInRequest.PasskeysRequestOptions {
             // TODO : Make sure this is in compliance with w3
             // TODO : Improve codebase readability as done here (readable error capture + docs/etc)
-            Log.i(TAG, "Parsing to play auth (get request side)")
             val json = JSONObject(request.requestJson)
             val rpId = json.optString("rpId", "")
             if (rpId.isEmpty()) {
