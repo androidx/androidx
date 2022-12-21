@@ -16,6 +16,7 @@
 
 package androidx.playground
 
+import androidx.build.SettingsParser
 import org.gradle.api.GradleException
 import org.gradle.api.initialization.Settings
 import java.io.File
