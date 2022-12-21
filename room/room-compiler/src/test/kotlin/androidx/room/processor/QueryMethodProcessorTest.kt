@@ -19,6 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
@@ -374,7 +375,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${LIST.toJavaPoet()}<Integer>>
+                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.toJavaPoet()}<Integer>>
                 getFactorialLiveData();
                 """
         ) { parsedQuery, _ ->
@@ -392,7 +393,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @Query("SELECT 1")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<Integer> getOne();
+                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Integer> getOne();
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
@@ -409,7 +410,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${LIST.toJavaPoet()}<Integer>>
+                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.toJavaPoet()}<Integer>>
                 getFactorialLiveData();
                 """
         ) { _, invocation ->
@@ -585,16 +586,13 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @Query("select name from user where uid = :id")
-                abstract ${LifecyclesTypeNames.LIVE_DATA}<String> nameLiveData(String id);
+                abstract ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<String> nameLiveData(String id);
                 """
         ) { parsedQuery, _ ->
             assertThat(
-                parsedQuery.returnType.typeName,
+                parsedQuery.returnType.asTypeName(),
                 `is`(
-                    ParameterizedTypeName.get(
-                        LifecyclesTypeNames.LIVE_DATA,
-                        String::class.typeName
-                    ) as TypeName
+                    LifecyclesTypeNames.LIVE_DATA.parametrizedBy(STRING)
                 )
             )
             assertThat(
@@ -609,7 +607,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<WriteQueryMethod>(
             """
                 @Query("delete from user where uid = :id")
-                abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> deleteLiveData(String id);
+                abstract ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Integer> deleteLiveData(String id);
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
@@ -628,7 +626,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<WriteQueryMethod>(
             """
                 @Query("update user set name = :name")
-                abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> updateNameLiveData(String name);
+                abstract ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Integer> updateNameLiveData(String name);
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
@@ -705,14 +703,14 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<QueryMethod>(
             """
                 @Query("select * from user")
-                abstract ${KotlinTypeNames.CHANNEL}<User> getUsersChannel();
+                abstract ${KotlinTypeNames.CHANNEL.canonicalName}<User> getUsersChannel();
                 """,
             additionalSources = listOf(COMMON.CHANNEL)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.invalidChannelType(
-                        KotlinTypeNames.CHANNEL.toString()
+                        KotlinTypeNames.CHANNEL.canonicalName
                     )
                 )
             }
@@ -724,14 +722,14 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<QueryMethod>(
             """
                 @Query("select * from user")
-                abstract ${KotlinTypeNames.SEND_CHANNEL}<User> getUsersChannel();
+                abstract ${KotlinTypeNames.SEND_CHANNEL.canonicalName}<User> getUsersChannel();
                 """,
             additionalSources = listOf(COMMON.SEND_CHANNEL)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.invalidChannelType(
-                        KotlinTypeNames.SEND_CHANNEL.toString()
+                        KotlinTypeNames.SEND_CHANNEL.canonicalName
                     )
                 )
             }
@@ -743,14 +741,14 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<QueryMethod>(
             """
                 @Query("select * from user")
-                abstract ${KotlinTypeNames.RECEIVE_CHANNEL}<User> getUsersChannel();
+                abstract ${KotlinTypeNames.RECEIVE_CHANNEL.canonicalName}<User> getUsersChannel();
                 """,
             additionalSources = listOf(COMMON.RECEIVE_CHANNEL)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.invalidChannelType(
-                        KotlinTypeNames.RECEIVE_CHANNEL.toString()
+                        KotlinTypeNames.RECEIVE_CHANNEL.toString(CodeLanguage.JAVA)
                     )
                 )
             }
@@ -1798,21 +1796,21 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE}",
-            "${RxJava3TypeNames.FLOWABLE}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE}<Int>",
-            "${RxJava3TypeNames.MAYBE}<Int>",
-            "${RxJava3TypeNames.SINGLE}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE}",
-            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
-            "${KotlinTypeNames.FLOW}<Int>"
+            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
         ).forEach { type ->
             singleQueryMethodKotlin<WriteQueryMethod>(
                 """

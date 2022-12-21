@@ -104,92 +104,97 @@ object COMMON {
     }
 
     val FLOW by lazy {
-        loadJavaCode("common/input/Flow.java", KotlinTypeNames.FLOW.toString())
+        loadJavaCode("common/input/Flow.java", KotlinTypeNames.FLOW.canonicalName)
     }
 
     val LIVE_DATA by lazy {
-        loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.toString())
+        loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.canonicalName)
     }
     val COMPUTABLE_LIVE_DATA by lazy {
         loadJavaCode(
             "common/input/ComputableLiveData.java",
-            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString()
+            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName
         )
     }
     val PUBLISHER by lazy {
         loadJavaCode(
             "common/input/reactivestreams/Publisher.java",
-            ReactiveStreamsTypeNames.PUBLISHER.toString()
+            ReactiveStreamsTypeNames.PUBLISHER.canonicalName
         )
     }
     val RX2_FLOWABLE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Flowable.java",
-            RxJava2TypeNames.FLOWABLE.toString()
+            RxJava2TypeNames.FLOWABLE.canonicalName
         )
     }
     val RX2_OBSERVABLE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Observable.java",
-            RxJava2TypeNames.OBSERVABLE.toString()
+            RxJava2TypeNames.OBSERVABLE.canonicalName
         )
     }
     val RX2_SINGLE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Single.java",
-            RxJava2TypeNames.SINGLE.toString()
+            RxJava2TypeNames.SINGLE.canonicalName
         )
     }
     val RX2_MAYBE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Maybe.java",
-            RxJava2TypeNames.MAYBE.toString()
+            RxJava2TypeNames.MAYBE.canonicalName
         )
     }
     val RX2_COMPLETABLE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Completable.java",
-            RxJava2TypeNames.COMPLETABLE.toString()
+            RxJava2TypeNames.COMPLETABLE.canonicalName
         )
     }
 
     val RX2_ROOM by lazy {
-        loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
+        loadJavaCode("common/input/Rx2Room.java",
+            RoomRxJava2TypeNames.RX_ROOM.canonicalName
+        )
     }
 
     val RX3_FLOWABLE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Flowable.java",
-            RxJava3TypeNames.FLOWABLE.toString()
+            RxJava3TypeNames.FLOWABLE.canonicalName
         )
     }
+
     val RX3_OBSERVABLE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Observable.java",
-            RxJava3TypeNames.OBSERVABLE.toString()
+            RxJava3TypeNames.OBSERVABLE.canonicalName
         )
     }
     val RX3_SINGLE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Single.java",
-            RxJava3TypeNames.SINGLE.toString()
+            RxJava3TypeNames.SINGLE.canonicalName
         )
     }
     val RX3_MAYBE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Maybe.java",
-            RxJava3TypeNames.MAYBE.toString()
+            RxJava3TypeNames.MAYBE.canonicalName
         )
     }
     val RX3_COMPLETABLE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Completable.java",
-            RxJava3TypeNames.COMPLETABLE.toString()
+            RxJava3TypeNames.COMPLETABLE.canonicalName
         )
     }
 
     val RX3_ROOM by lazy {
-        loadJavaCode("common/input/Rx3Room.java", RoomRxJava3TypeNames.RX_ROOM.toString())
+        loadJavaCode("common/input/Rx3Room.java",
+            RoomRxJava3TypeNames.RX_ROOM.canonicalName
+        )
     }
 
     val DATA_SOURCE_FACTORY by lazy {
@@ -217,14 +222,14 @@ object COMMON {
     val LISTENABLE_FUTURE by lazy {
         loadJavaCode(
             "common/input/guava/ListenableFuture.java",
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString()
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName
         )
     }
 
     val GUAVA_ROOM by lazy {
         loadJavaCode(
             "common/input/GuavaRoom.java",
-            RoomGuavaTypeNames.GUAVA_ROOM.toString()
+            RoomGuavaTypeNames.GUAVA_ROOM.canonicalName
         )
     }
 
@@ -243,6 +248,20 @@ object COMMON {
     val RX2_PAGING_SOURCE by lazy {
         loadKotlinCode(
             "common/input/Rx2PagingSource.kt"
+        )
+    }
+
+    val RX2_EMPTY_RESULT_SET_EXCEPTION by lazy {
+        loadJavaCode(
+            "common/input/rxjava2/EmptyResultSetException.java",
+            "androidx.room.EmptyResultSetException"
+        )
+    }
+
+    val RX3_EMPTY_RESULT_SET_EXCEPTION by lazy {
+        loadJavaCode(
+            "common/input/rxjava3/EmptyResultSetException.java",
+            "androidx.room.rxjava3.EmptyResultSetException"
         )
     }
 
@@ -269,23 +288,21 @@ object COMMON {
     }
 
     val CHANNEL by lazy {
-        loadJavaCode(
-            "common/input/coroutines/Channel.java",
-            KotlinTypeNames.CHANNEL.toString()
+        loadKotlinCode(
+            "common/input/coroutines/Channel.kt"
         )
     }
 
     val SEND_CHANNEL by lazy {
         loadJavaCode(
             "common/input/coroutines/SendChannel.java",
-            KotlinTypeNames.SEND_CHANNEL.toString()
+            KotlinTypeNames.SEND_CHANNEL.canonicalName
         )
     }
 
     val RECEIVE_CHANNEL by lazy {
-        loadJavaCode(
-            "common/input/coroutines/ReceiveChannel.java",
-            KotlinTypeNames.RECEIVE_CHANNEL.toString()
+        loadKotlinCode(
+            "common/input/coroutines/ReceiveChannel.kt"
         )
     }
 

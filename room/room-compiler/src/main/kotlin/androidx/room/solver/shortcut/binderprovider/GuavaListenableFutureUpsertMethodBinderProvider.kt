@@ -18,10 +18,7 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
-import androidx.room.ext.T
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion.createUpsertBinder
@@ -36,12 +33,12 @@ class GuavaListenableFutureUpsertMethodBinderProvider(
 ) : InsertOrUpsertMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
+        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.canonicalName) != null
     }
 
     override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
-            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.asTypeName() == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(
         declared: XType,
@@ -53,11 +50,11 @@ class GuavaListenableFutureUpsertMethodBinderProvider(
 
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findUpsertAdapter(typeArg, params)
-        return createUpsertBinder(typeArg, adapter) { callableImpl, dbField ->
+        return createUpsertBinder(typeArg, adapter) { callableImpl, dbProperty ->
             addStatement(
-                "return $T.createListenableFuture($N, $L, $L)",
+                "return %T.createListenableFuture(%N, %L, %L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
-                dbField,
+                dbProperty,
                 "true", // inTransaction
                 callableImpl
             )

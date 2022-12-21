@@ -44,9 +44,8 @@ class TransactionMethodProcessor(
         val rawReturnType = returnType.rawType
 
         DEFERRED_TYPES.firstOrNull { className ->
-            context.processingEnv.findType(className)?.let {
-                it.rawType.isAssignableFrom(rawReturnType)
-            } ?: false
+            context.processingEnv.findType(className.canonicalName)
+                ?.rawType?.isAssignableFrom(rawReturnType) ?: false
         }?.let { returnTypeName ->
             context.logger.e(
                 ProcessorErrors.transactionMethodAsync(returnTypeName.toString()),

@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package kotlinx.coroutines.channels
 
-package kotlinx.coroutines.channels;
-
-public interface ReceiveChannel<T> {
-
-}
+interface Channel<T> : SendChannel<T>, ReceiveChannel<T>

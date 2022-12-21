@@ -371,12 +371,12 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     fun invalidReturnType() {
         listOf(
             "int",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<String>",
-            "${RxJava2TypeNames.MAYBE}<String>",
-            "${RxJava2TypeNames.SINGLE}<User>",
-            "${RxJava2TypeNames.MAYBE}<User>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<String>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<String>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<User>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<User>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -400,8 +400,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             "long[]",
             "Long[]",
             "List<Long>",
-            "${RxJava2TypeNames.SINGLE}<List<Long>>",
-            "${RxJava2TypeNames.MAYBE}<List<Long>>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -424,8 +424,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         listOf(
             "long",
             "Long",
-            "${RxJava2TypeNames.SINGLE}<Long>",
-            "${RxJava2TypeNames.MAYBE}<Long>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -447,8 +447,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         listOf(
             "long",
             "Long",
-            "${RxJava2TypeNames.SINGLE}<Long>",
-            "${RxJava2TypeNames.MAYBE}<Long>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -474,43 +474,43 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY_BOX),
             Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnType.ID_LIST),
             Pair(
-                RxJava2TypeNames.COMPLETABLE,
+                RxJava2TypeNames.COMPLETABLE.canonicalName,
                 InsertOrUpsertMethodAdapter.ReturnType.VOID_OBJECT
             ),
             Pair(
-                "${RxJava2TypeNames.SINGLE}<Long>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
                 InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
             ),
             Pair(
-                "${RxJava2TypeNames.SINGLE}<List<Long>>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
                 InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
             ),
             Pair(
-                "${RxJava2TypeNames.MAYBE}<Long>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Long>",
                 InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
             ),
             Pair(
-                "${RxJava2TypeNames.MAYBE}<List<Long>>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>",
                 InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
             ),
             Pair(
-                RxJava3TypeNames.COMPLETABLE,
+                RxJava3TypeNames.COMPLETABLE.canonicalName,
                 InsertOrUpsertMethodAdapter.ReturnType.VOID_OBJECT
             ),
             Pair(
-                "${RxJava3TypeNames.SINGLE}<Long>",
+                "${RxJava3TypeNames.SINGLE.canonicalName}<Long>",
                 InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
             ),
             Pair(
-                "${RxJava3TypeNames.SINGLE}<List<Long>>",
+                "${RxJava3TypeNames.SINGLE.canonicalName}<List<Long>>",
                 InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
             ),
             Pair(
-                "${RxJava3TypeNames.MAYBE}<Long>",
+                "${RxJava3TypeNames.MAYBE.canonicalName}<Long>",
                 InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
             ),
             Pair(
-                "${RxJava3TypeNames.MAYBE}<List<Long>>",
+                "${RxJava3TypeNames.MAYBE.canonicalName}<List<Long>>",
                 InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
             )
         ).forEach { pair ->
@@ -926,21 +926,21 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE}",
-            "${RxJava3TypeNames.FLOWABLE}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE}<Int>",
-            "${RxJava3TypeNames.MAYBE}<Int>",
-            "${RxJava3TypeNames.SINGLE}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE}",
-            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
-            "${KotlinTypeNames.FLOW}<Int>"
+            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethodKotlin(
                 """

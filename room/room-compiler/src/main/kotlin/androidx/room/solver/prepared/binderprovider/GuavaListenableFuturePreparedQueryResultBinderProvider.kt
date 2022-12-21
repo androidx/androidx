@@ -18,10 +18,7 @@ package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
-import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -32,12 +29,12 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
     PreparedQueryResultBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
+        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.canonicalName) != null
     }
 
     override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
-            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.asTypeName() == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder {
         if (!hasGuavaRoom) {
@@ -49,7 +46,7 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
         ) { callableImpl, dbField ->
             addStatement(
-                "return $T.createListenableFuture($N, $L, $L)",
+                "return %T.createListenableFuture(%N, %L, %L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
                 dbField,
                 "true", // inTransaction

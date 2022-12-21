@@ -172,13 +172,13 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
         listOf(
             "int",
             "Integer",
-            "${RxJava2TypeNames.SINGLE}<Integer>",
-            "${RxJava2TypeNames.MAYBE}<Integer>",
-            RxJava2TypeNames.COMPLETABLE,
-            "${RxJava3TypeNames.SINGLE}<Integer>",
-            "${RxJava3TypeNames.MAYBE}<Integer>",
-            RxJava3TypeNames.COMPLETABLE,
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Integer>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Integer>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Integer>",
+            RxJava2TypeNames.COMPLETABLE.canonicalName,
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Integer>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Integer>",
+            RxJava3TypeNames.COMPLETABLE.canonicalName,
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Integer>"
         ).forEach { type ->
             singleShortcutMethod(
                 """
@@ -314,13 +314,13 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             "void",
             "int",
             "Integer",
-            "${RxJava2TypeNames.SINGLE}<Integer>",
-            "${RxJava2TypeNames.MAYBE}<Integer>",
-            RxJava2TypeNames.COMPLETABLE,
-            "${RxJava3TypeNames.SINGLE}<Integer>",
-            "${RxJava3TypeNames.MAYBE}<Integer>",
-            RxJava3TypeNames.COMPLETABLE,
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Integer>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Integer>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Integer>",
+            RxJava2TypeNames.COMPLETABLE.canonicalName,
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Integer>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Integer>",
+            RxJava3TypeNames.COMPLETABLE.canonicalName,
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Integer>"
         ).forEach { type ->
             singleShortcutMethod(
                 """
@@ -357,15 +357,15 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             "long",
             "String",
             "User",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<String>",
-            "${RxJava2TypeNames.MAYBE}<String>",
-            "${RxJava2TypeNames.SINGLE}<User>",
-            "${RxJava2TypeNames.MAYBE}<User>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<String>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<User>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<String>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<String>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<User>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<User>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<String>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<User>"
         ).forEach { type ->
             singleShortcutMethod(
                 """
@@ -383,21 +383,21 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE}",
-            "${RxJava3TypeNames.FLOWABLE}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE}<Int>",
-            "${RxJava3TypeNames.MAYBE}<Int>",
-            "${RxJava3TypeNames.SINGLE}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE}",
-            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
-            "${KotlinTypeNames.FLOW}<Int>"
+            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
         ).forEach { type ->
             singleShortcutMethodKotlin(
                 """

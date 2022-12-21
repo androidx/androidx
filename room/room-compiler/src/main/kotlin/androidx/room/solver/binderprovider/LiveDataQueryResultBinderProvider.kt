@@ -28,7 +28,7 @@ import androidx.room.solver.query.result.QueryResultBinder
 class LiveDataQueryResultBinderProvider(context: Context) :
     ObservableQueryResultBinderProvider(context) {
     private val liveDataType: XRawType? by lazy {
-        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)?.rawType
+        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA.canonicalName)?.rawType
     }
 
     override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()

@@ -16,8 +16,6 @@
 
 package androidx.room.solver.prepared.binderprovider
 
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
@@ -32,14 +30,14 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
 ) : PreparedQueryResultBinderProvider {
 
     private val hasRxJavaArtifact by lazy {
-        context.processingEnv.findTypeElement(rxType.version.rxRoomClassName) != null
+        context.processingEnv.findTypeElement(rxType.version.rxRoomClassName.canonicalName) != null
     }
 
     override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XType): Boolean {
-        return declared.rawType.typeName == rxType.className
+        return declared.rawType.asTypeName() == rxType.className
     }
 
     override fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder {
@@ -51,7 +49,7 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
             returnType = typeArg,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
         ) { callableImpl, _ ->
-            addStatement("return $T.fromCallable($L)", rxType.className, callableImpl)
+            addStatement("return %T.fromCallable(%L)", rxType.className, callableImpl)
         }
     }
 
@@ -75,7 +73,7 @@ private class RxCompletablePreparedQueryResultBinderProvider(
 ) : RxPreparedQueryResultBinderProvider(context, rxType) {
 
     private val completableType: XRawType? by lazy {
-        context.processingEnv.findType(rxType.className)?.rawType
+        context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
     override fun matches(declared: XType): Boolean {

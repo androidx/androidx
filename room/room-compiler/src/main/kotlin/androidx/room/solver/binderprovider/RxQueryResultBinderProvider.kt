@@ -30,7 +30,7 @@ class RxQueryResultBinderProvider private constructor(
     private val rxType: RxType
 ) : ObservableQueryResultBinderProvider(context) {
     private val rawRxType: XRawType? by lazy {
-        context.processingEnv.findType(rxType.className)?.rawType
+        context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
     override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
