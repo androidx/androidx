@@ -29,6 +29,12 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.complications.data.GoalProgressComplicationData.Companion.PLACEHOLDER
+import androidx.wear.watchface.complications.data.RangedValueComplicationData.Companion.PLACEHOLDER
+import androidx.wear.watchface.complications.data.RangedValueComplicationData.Companion.TYPE_RATING
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Companion.PLACEHOLDER
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Companion.getMaxElements
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element
 import java.time.Instant
 
 /** The wire format for [ComplicationData]. */
@@ -959,6 +965,10 @@ public class RangedValueComplicationData internal constructor(
         private var valueType: Int = TYPE_UNDEFINED
 
         init {
+            require(min <= max) { "min must be lower than or equal to max" }
+            require(value == PLACEHOLDER || value in min..max) {
+                "value must be between min and max"
+            }
             require(max != Float.MAX_VALUE) {
                 "Float.MAX_VALUE is reserved and can't be used for max"
             }
