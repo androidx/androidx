@@ -31,11 +31,14 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.time.Instant
+import kotlin.test.assertFailsWith
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2804,6 +2807,57 @@ public class RedactionTest {
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=10, mFields=REDACTED}"
         )
+    }
+}
+
+@RunWith(TestParameterInjector::class)
+class ValidationTest {
+    enum class RangedValueValidScenario(val build: () -> RangedValueComplicationData) {
+        MIN_LESS_THAN_MAX(rangedValueComplicationData(value = 10f, min = 10f, max = 20f)),
+        MIN_EQUALS_MAX(rangedValueComplicationData(value = 10f, min = 10f, max = 10f)),
+        VALUE_EQUALS_MIN(rangedValueComplicationData(value = 10f, min = 10f, max = 20f)),
+        VALUE_BETWEEN_MIN_MAX(rangedValueComplicationData(value = 15f, min = 10f, max = 20f)),
+        VALUE_EQUALS_MAX(rangedValueComplicationData(value = 20f, min = 10f, max = 20f)),
+        VALUE_EQUALS_PLACEHOLDER(
+            rangedValueComplicationData(
+                value = RangedValueComplicationData.PLACEHOLDER,
+                min = 10f,
+                max = 20f
+            )
+        ),
+    }
+
+    @Test
+    fun rangedValue_valid(@TestParameter scenario: RangedValueValidScenario) {
+        scenario.build()
+    }
+
+    enum class RangedValueInvalidScenario(val build: () -> RangedValueComplicationData) {
+        MIN_GREATER_THAN_MAX(rangedValueComplicationData(value = 10f, min = 20f, max = 10f)),
+        VALUE_LESS_THAN_MIN(rangedValueComplicationData(value = 5f, min = 10f, max = 20f)),
+        VALUE_GREATER_THAN_MAX(rangedValueComplicationData(value = 25f, min = 10f, max = 20f)),
+    }
+
+    @Test
+    fun rangedValue_invalid(@TestParameter scenario: RangedValueInvalidScenario) {
+        assertFailsWith<IllegalArgumentException> { scenario.build() }
+    }
+
+    companion object {
+        private fun rangedValueComplicationData(
+            value: Float,
+            min: Float,
+            max: Float
+        ): () -> RangedValueComplicationData = {
+            RangedValueComplicationData.Builder(
+                value = value,
+                min = min,
+                max = max,
+                contentDescription = "".complicationText,
+            )
+                .setText("".complicationText)
+                .build()
+        }
     }
 }
 
