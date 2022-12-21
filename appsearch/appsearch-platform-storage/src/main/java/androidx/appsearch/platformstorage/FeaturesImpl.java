@@ -57,13 +57,15 @@ final class FeaturesImpl implements Features {
                 // synced over into service-appsearch.
                 // fall through
             case SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
-                // TODO(b/261474063): Update to reflect support in Android U+ once advanced
+                // TODO(b/261474063) : Update to reflect support in Android U+ once advanced
                 //  ranking becomes available.
                 // fall through
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
                 // TODO(b/256022027) : Update to reflect support in Android U+ once this feature is
+                // synced over into service-appsearch.
+                // fall through
             case Features.VERBATIM_SEARCH:
-                // TODO(b/204333391): Update to reflect support in Android U+ once this feature is
+                // TODO(b/204333391) : Update to reflect support in Android U+ once this feature is
                 // synced over into service-appsearch.
                 return false;
             default:
