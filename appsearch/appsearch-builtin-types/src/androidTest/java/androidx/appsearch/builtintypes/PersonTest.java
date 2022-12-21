@@ -25,12 +25,12 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.builtintypes.testutil.FrameworkSchemaUtil;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -47,186 +47,40 @@ public class PersonTest {
     static final int TEST_SCORE = 123;
     static final String TEST_NAME = "Work";
     static final List<String> TEST_EMAILS = ImmutableList.of("email1", "email2");
+    static final String[] TEST_EMAILS_ARRAY = new String[]{"email1", "email2"};
     static final List<String> TEST_ADDRESSES = ImmutableList.of("addr1", "addr2", "addr3");
+    static final String[] TEST_ADDRESSES_ARRAY = new String[]{"addr1", "addr2", "addr3"};
     static final List<String> TEST_TELEPHONES = ImmutableList.of("phone1");
-
-    // TODO(b/261640992) Temporarily duplicate those two platform schema types for ContactsIndexer
-    //  from T. In U, we should consider moving those two in Jetpack, and sync them to Framework
-    //  for better and easier testability.
-    // Platform ContactPoint schema type
-    public static final String CONTACT_POINT_SCHEMA_TYPE = "builtin:ContactPoint";
-    public static final String CONTACT_POINT_PROPERTY_LABEL = "label";
-    public static final String CONTACT_POINT_PROPERTY_APP_ID = "appId";
-    public static final String CONTACT_POINT_PROPERTY_ADDRESS = "address";
-    public static final String CONTACT_POINT_PROPERTY_EMAIL = "email";
-    public static final String CONTACT_POINT_PROPERTY_TELEPHONE = "telephone";
-
-    // Schema
-    public static final AppSearchSchema CONTACT_POINT_SCHEMA = new AppSearchSchema.Builder(
-            CONTACT_POINT_SCHEMA_TYPE)
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                    CONTACT_POINT_PROPERTY_LABEL)
-                    .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                    .setIndexingType(
-                            AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                    .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                    .build())
-            // appIds
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                    CONTACT_POINT_PROPERTY_APP_ID)
-                    .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                    .build())
-            // address
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                    CONTACT_POINT_PROPERTY_ADDRESS)
-                    .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                    .setIndexingType(
-                            AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                    .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                    .build())
-            // email
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                    CONTACT_POINT_PROPERTY_EMAIL)
-                    .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                    .setIndexingType(
-                            AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                    .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                    .build())
-            // telephone
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                    CONTACT_POINT_PROPERTY_TELEPHONE)
-                    .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                    .setIndexingType(
-                            AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                    .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                    .build())
-            .build();
-    private static final String PERSON_SCHEMA_NAME = "builtin:Person";
-    private static final String PERSON_PROPERTY_NAME = "name";
-    private static final String PERSON_PROPERTY_GIVEN_NAME = "givenName";
-    private static final String PERSON_PROPERTY_MIDDLE_NAME = "middleName";
-    private static final String PERSON_PROPERTY_FAMILY_NAME = "familyName";
-    private static final String PERSON_PROPERTY_EXTERNAL_URI = "externalUri";
-    private static final String PERSON_PROPERTY_ADDITIONAL_NAME_TYPES = "additionalNameTypes";
-    private static final String PERSON_PROPERTY_ADDITIONAL_NAMES = "additionalNames";
-    private static final String PERSON_PROPERTY_IS_IMPORTANT = "isImportant";
-    private static final String PERSON_PROPERTY_IS_BOT = "isBot";
-    private static final String PERSON_PROPERTY_IMAGE_URI = "imageUri";
-    private static final String PERSON_PROPERTY_CONTACT_POINTS = "contactPoints";
-    private static final String PERSON_PROPERTY_AFFILIATIONS = "affiliations";
-    private static final String PERSON_PROPERTY_RELATIONS = "relations";
-    private static final String PERSON_PROPERTY_NOTES = "notes";
-    private static final String PERSON_PROPERTY_FINGERPRINT = "fingerprint";
-
-    // Platform Person schema type
-    private static final AppSearchSchema PERSON_SCHEMA =
-            new AppSearchSchema.Builder(PERSON_SCHEMA_NAME)
-                    // full display name
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_NAME)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .setIndexingType(
-                                    AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                            .setTokenizerType(
-                                    AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                            .build())
-                    // given name from CP2
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_GIVEN_NAME)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // middle name from CP2
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_MIDDLE_NAME)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // family name from CP2
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_FAMILY_NAME)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // lookup uri from CP2
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_EXTERNAL_URI)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // corresponding name types for the names stored in additional names below.
-                    .addProperty(new AppSearchSchema.LongPropertyConfig.Builder(
-                            PERSON_PROPERTY_ADDITIONAL_NAME_TYPES)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                            .build())
-                    // additional names e.g. nick names and phonetic names.
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_ADDITIONAL_NAMES)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                            .setIndexingType(
-                                    AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                            .setTokenizerType(
-                                    AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                            .build())
-                    // isImportant. It could be used to store isStarred from CP2.
-                    .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
-                            PERSON_PROPERTY_IS_IMPORTANT)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // isBot
-                    .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
-                            PERSON_PROPERTY_IS_BOT)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // imageUri
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_IMAGE_URI)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    // ContactPoint
-                    .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                            PERSON_PROPERTY_CONTACT_POINTS,
-                            CONTACT_POINT_SCHEMA_TYPE)
-                            .setShouldIndexNestedProperties(true)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                            .build())
-                    // Affiliations
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_AFFILIATIONS)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                            .setIndexingType(
-                                    AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                            .setTokenizerType(
-                                    AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                            .build())
-                    // Relations
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_RELATIONS)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                            .build())
-                    // Notes
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_NOTES)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                            .setIndexingType(
-                                    AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                            .setTokenizerType(
-                                    AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                            .build())
-                    //
-                    // Following fields are internal to ContactsIndexer.
-                    //
-                    // Fingerprint for detecting significant changes
-                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
-                            PERSON_PROPERTY_FINGERPRINT)
-                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .build())
-                    .build();
+    static final String[] TEST_TELEPHONES_ARRAY = new String[]{"phone1"};
 
     private static ContactPoint createContactPointForTest(
             @NonNull String namespace,
             @NonNull String id) {
         return new ContactPoint.Builder(namespace, id, TEST_NAME)
                 .setDocumentScore(TEST_SCORE)
+                .setDocumentTtlMillis(0)
+                .setCreationTimestampMillis(0)
                 .setEmails(TEST_EMAILS)
                 .setAddresses(TEST_ADDRESSES)
                 .setTelephones(TEST_TELEPHONES)
+                .build();
+    }
+
+    private static GenericDocument createGenericDocContactPointForTest(
+            @NonNull String namespace,
+            @NonNull String id) {
+        return new GenericDocument.Builder<>(namespace, id,
+                FrameworkSchemaUtil.CONTACT_POINT_SCHEMA_TYPE)
+                .setScore(TEST_SCORE)
+                .setTtlMillis(0)
+                .setCreationTimestampMillis(0)
+                .setPropertyString(FrameworkSchemaUtil.CONTACT_POINT_PROPERTY_LABEL, TEST_NAME)
+                .setPropertyString(FrameworkSchemaUtil.CONTACT_POINT_PROPERTY_ADDRESS,
+                        TEST_ADDRESSES_ARRAY)
+                .setPropertyString(FrameworkSchemaUtil.CONTACT_POINT_PROPERTY_EMAIL,
+                        TEST_EMAILS_ARRAY)
+                .setPropertyString(FrameworkSchemaUtil.CONTACT_POINT_PROPERTY_TELEPHONE,
+                        TEST_TELEPHONES_ARRAY)
                 .build();
     }
 
@@ -666,57 +520,114 @@ public class PersonTest {
         boolean isBot = true;
         long creationMillis = 300;
         long ttlMillis = 0;
-        List<String> notes = ImmutableList.of("note1", "note2");
-        List<String> additionalNameValues = new ArrayList<>();
+        String[] noteArray = new String[]{"note1", "note2"};
+        List<String> notes = Arrays.asList(noteArray);
+        long[] additionalNameTypeArray =
+                new long[]{Person.AdditionalName.TYPE_UNKNOWN,
+                        Person.AdditionalName.TYPE_NICKNAME,
+                        Person.AdditionalName.TYPE_PHONETIC_NAME};
+        String[] additionalNameArray = new String[]{"name_unknown", "name_nickname",
+                "name_phonetic_name"};
+        List<String> additionalNameValues = Arrays.asList(additionalNameArray);
+        String[] affiliationArray = new String[]{"org1", "org2"};
+        List<String> affiliations = Arrays.asList(affiliationArray);
+        String[] relationArray = new String[]{"father", "parents"};
+        List<String> relations = Arrays.asList(relationArray);
         List<Person.AdditionalName> additionalNames = new ArrayList<>();
         additionalNames.add(new Person.AdditionalName(Person.AdditionalName.TYPE_UNKNOWN,
                 "name_unknown"));
-        additionalNameValues.add("name_unknown");
         additionalNames.add(new Person.AdditionalName(Person.AdditionalName.TYPE_NICKNAME,
                 "name_nickname"));
-        additionalNameValues.add("name_nickname");
         additionalNames.add(new Person.AdditionalName(Person.AdditionalName.TYPE_PHONETIC_NAME,
                 "name_phonetic_name"));
-        additionalNameValues.add("name_phonetic_name");
-        List<String> affiliations = ImmutableList.of("org1", "org2");
-        List<String> relations = ImmutableList.of("father", "parents");
+        List<Long> additionalNameTypes = Arrays.asList((long) Person.AdditionalName.TYPE_UNKNOWN,
+                (long) Person.AdditionalName.TYPE_NICKNAME,
+                (long) Person.AdditionalName.TYPE_PHONETIC_NAME);
+        GenericDocument genericDocContactPoint1 = createGenericDocContactPointForTest("namespace1",
+                "id1");
+        GenericDocument genericDocContactPoint2 = createGenericDocContactPointForTest("namespace2",
+                "id2");
         ContactPoint contact1 = createContactPointForTest("namespace1", "id1");
         ContactPoint contact2 = createContactPointForTest("namespace2", "id2");
-        List<ContactPoint> contactPoints = ImmutableList.of(contact1, contact2);
-        Person person = new Person.Builder(namespace, id, name)
-                .setDocumentScore(score)
-                .setDocumentTtlMillis(ttlMillis)
+        List<ContactPoint> originalContactPoints = ImmutableList.of(contact1, contact2);
+
+        // Directly construct GenericDocument here like Framework does, instead of using the
+        // Person java, since it will be updated in the future.
+        GenericDocument genericDocPerson = new GenericDocument.Builder<>(namespace, id,
+                FrameworkSchemaUtil.PERSON_SCHEMA_NAME)
+                .setScore(score)
+                .setTtlMillis(ttlMillis)
                 .setCreationTimestampMillis(creationMillis)
-                .setGivenName(givenName)
-                .setMiddleName(middleName)
-                .setFamilyName(familyName)
-                .setExternalUri(Uri.parse(externalUri))
-                .setImageUri(Uri.parse(imageUri))
-                .setImportant(isImportant)
-                .setBot(isBot)
-                .setNotes(notes)
-                .setAdditionalNames(additionalNames)
-                .setAffiliations(affiliations)
-                .setRelations(relations)
-                .setContactPoints(contactPoints)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_NAME, name)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_GIVEN_NAME, givenName)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_MIDDLE_NAME, middleName)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_FAMILY_NAME, familyName)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_EXTERNAL_URI,
+                        Uri.parse(externalUri).toString())
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_IMAGE_URI,
+                        Uri.parse(imageUri).toString())
+                .setPropertyBoolean(FrameworkSchemaUtil.PERSON_PROPERTY_IS_IMPORTANT, isImportant)
+                .setPropertyBoolean(FrameworkSchemaUtil.PERSON_PROPERTY_IS_BOT, isBot)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_NOTES, noteArray)
+                .setPropertyLong(FrameworkSchemaUtil.PERSON_PROPERTY_ADDITIONAL_NAME_TYPES,
+                        additionalNameTypeArray)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_ADDITIONAL_NAMES,
+                        additionalNameArray)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_AFFILIATIONS,
+                        affiliationArray)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_RELATIONS, relationArray)
+                .setPropertyDocument(FrameworkSchemaUtil.PERSON_PROPERTY_CONTACT_POINTS,
+                        genericDocContactPoint1,
+                        genericDocContactPoint2)
+                .setPropertyString(FrameworkSchemaUtil.PERSON_PROPERTY_FINGERPRINT, "ABCDEF")
                 .build();
+
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession session = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, "forTest").build()).get();
-        session.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(PERSON_SCHEMA,
-                CONTACT_POINT_SCHEMA).setForceOverride(true).build()).get();
-        GenericDocument genericDocFromPerson = GenericDocument.fromDocumentClass(person);
+        session.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(
+                FrameworkSchemaUtil.PERSON_SCHEMA_FOR_T,
+                FrameworkSchemaUtil.CONTACT_POINT_SCHEMA_FOR_T).setForceOverride(
+                true).build()).get();
         checkIsBatchResultSuccess(
                 session.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(
-                        genericDocFromPerson).build()));
+                        genericDocPerson).build()));
 
         GetByDocumentIdRequest request = new GetByDocumentIdRequest.Builder(namespace)
                 .addIds(id)
                 .build();
         List<GenericDocument> outDocuments = doGet(session, request);
         assertThat(outDocuments).hasSize(1);
+        Person person = outDocuments.get(0).toDocumentClass(Person.class);
 
-        GenericDocument outDocument = outDocuments.get(0);
-        assertThat(outDocument).isEqualTo(genericDocFromPerson);
+        // Simple checks to make sure the fields are read correctly when Person class is being
+        // used for reading GenericDocument.
+        assertThat(person.getNamespace()).isEqualTo(namespace);
+        assertThat(person.getId()).isEqualTo(id);
+        assertThat(person.getDocumentScore()).isEqualTo(score);
+        assertThat(person.getCreationTimestampMillis()).isEqualTo(creationMillis);
+        assertThat(person.getDocumentTtlMillis()).isEqualTo(ttlMillis);
+        assertThat(person.getName()).isEqualTo(name);
+        assertThat(person.getGivenName()).isEqualTo(givenName);
+        assertThat(person.getMiddleName()).isEqualTo(middleName);
+        assertThat(person.getFamilyName()).isEqualTo(familyName);
+        assertThat(person.getExternalUri().toString()).isEqualTo(externalUri);
+        assertThat(person.getImageUri().toString()).isEqualTo(imageUri);
+        assertThat(person.isImportant()).isEqualTo(isImportant);
+        assertThat(person.isBot()).isEqualTo(isBot);
+        assertThat(person.getTypedAdditionalNames()).isEqualTo(additionalNames);
+        assertThat(person.getAdditionalNames()).isEqualTo(additionalNameValues);
+        assertThat(person.getAffiliations()).isEqualTo(affiliations);
+        assertThat(person.getRelations()).isEqualTo(relations);
+        assertThat(person.getNotes()).isEqualTo(notes);
+        List<ContactPoint> contactPoints = person.getContactPoints();
+        assertThat(contactPoints).hasSize(originalContactPoints.size());
+        // Just check the 1st doc
+        assertThat(contactPoints.get(0).getAddresses()).isEqualTo(
+                originalContactPoints.get(0).getAddresses());
+        assertThat(contactPoints.get(0).getEmails()).isEqualTo(
+                originalContactPoints.get(0).getEmails());
+        assertThat(contactPoints.get(0).getTelephones()).isEqualTo(
+                originalContactPoints.get(0).getTelephones());
     }
 }
