@@ -59,38 +59,6 @@ class DatabaseKotlinCodeGenTest {
     }
 
     @Test
-    fun database_propertyDao() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
-        val src = Source.kotlin(
-            "MyDatabase.kt",
-            """
-            import androidx.room.*
-
-            @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
-            abstract class MyDatabase : RoomDatabase() {
-              abstract val dao: MyDao
-            }
-
-            @Dao
-            interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              fun getEntity(): MyEntity
-            }
-
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
-        )
-    }
-
-    @Test
     fun database_withFtsAndView() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
@@ -109,7 +77,7 @@ class DatabaseKotlinCodeGenTest {
                 exportSchema = false
             )
             abstract class MyDatabase : RoomDatabase() {
-              abstract val dao: MyDao
+              abstract fun getDao(): MyDao
             }
 
             @Dao
