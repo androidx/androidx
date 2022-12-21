@@ -234,6 +234,7 @@ package androidx.compose.runtime {
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static androidx.compose.runtime.Composition Composition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
     method @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
+    method public static androidx.compose.runtime.ReusableComposition ReusableComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext getRecomposeCoroutineContext(androidx.compose.runtime.ControlledComposition);
   }
 
@@ -562,6 +563,10 @@ package androidx.compose.runtime {
     method public void onAbandoned();
     method public void onForgotten();
     method public void onRemembered();
+  }
+
+  public sealed interface ReusableComposition extends androidx.compose.runtime.Composition {
+    method public void setContent(boolean reusing, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @androidx.compose.runtime.ComposeCompilerApi public interface ScopeUpdateScope {

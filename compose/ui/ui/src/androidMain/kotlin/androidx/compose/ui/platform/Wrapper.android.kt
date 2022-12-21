@@ -30,6 +30,7 @@ import androidx.compose.runtime.CompositionServiceKey
 import androidx.compose.runtime.CompositionServices
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
@@ -51,7 +52,7 @@ private val TAG = "Wrapper"
 internal actual fun createSubcomposition(
     container: LayoutNode,
     parent: CompositionContext
-): Composition = Composition(
+): ReusableComposition = ReusableComposition(
     UiApplier(container),
     parent
 )

@@ -79,6 +79,30 @@ interface Composition {
 }
 
 /**
+ * A [ReusableComposition] is a [Composition] that can be reused for different composable content.
+ *
+ * This interface is used by components that have to synchronize lifecycle of parent and child
+ * compositions and efficiently reuse the nodes emitted by [ReusableComposeNode].
+ */
+sealed interface ReusableComposition : Composition {
+    /**
+     * Update the composition with the content described by the [content] composable.
+     * After this has been called the changes to produce the initial composition has been calculated
+     * and applied to the composition.
+     *
+     * Will throw an [IllegalStateException] if the composition has been disposed.
+     *
+     * @param content A composable function that describes the content of the composition.
+     * @param reusing Whether to force this composition into "reusing" state. In reusing state,
+     *     all remembered content is discarded, and nodes emitted by [ReusableComposeNode] are
+     *     re-used for the new content. The nodes are only reused if the group structure containing
+     *     the node matches new content.
+     * @exception IllegalStateException thrown in the composition has been [dispose]d.
+     */
+    fun setContent(reusing: Boolean, content: @Composable () -> Unit)
+}
+
+/**
  * A key to locate a service using the [CompositionServices] interface optionally implemented
  * by implementations of [Composition].
  */
@@ -276,12 +300,12 @@ val ControlledComposition.recomposeCoroutineContext: CoroutineContext
     get() = (this as? CompositionImpl)?.recomposeContext ?: EmptyCoroutineContext
 
 /**
- * This method is the way to initiate a composition. Optionally, a [parent]
- * [CompositionContext] can be provided to make the composition behave as a sub-composition of
- * the parent or a [Recomposer] can be provided.
+ * This method is the way to initiate a composition. [parent] [CompositionContext] can be
+ *  * provided to make the composition behave as a sub-composition of the parent. If composition does
+ *  * not have a parent, [Recomposer] instance should be provided.
  *
- * It is important to call [Composition.dispose] this composer is no longer needed in order to
- * release resources.
+ * It is important to call [Composition.dispose] when composition is no longer needed in order
+ * to release resources.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
@@ -300,6 +324,27 @@ fun Composition(
         parent,
         applier
     )
+
+/**
+ * This method is the way to initiate a reusable composition. [parent] [CompositionContext] can be
+ * provided to make the composition behave as a sub-composition of the parent. If composition does
+ * not have a parent, [Recomposer] instance should be provided.
+ *
+ * It is important to call [Composition.dispose] when composition is no longer needed in order
+ * to release resources.
+ *
+ * @param applier The [Applier] instance to be used in the composition.
+ * @param parent The parent [CompositionContext].
+ *
+ * @see Applier
+ * @see ReusableComposition
+ * @see rememberCompositionContext
+ */
+fun ReusableComposition(
+    applier: Applier<*>,
+    parent: CompositionContext
+): ReusableComposition =
+    CompositionImpl(parent, applier)
 
 /**
  * This method is a way to initiate a composition. Optionally, a [parent]
@@ -387,7 +432,7 @@ internal class CompositionImpl(
     private val applier: Applier<*>,
 
     recomposeContext: CoroutineContext? = null
-) : ControlledComposition, RecomposeScopeOwner, CompositionServices {
+) : ControlledComposition, ReusableComposition, RecomposeScopeOwner, CompositionServices {
     /**
      * `null` if a composition isn't pending to apply.
      * `Set<Any>` or `Array<Set<Any>>` if there are modifications to record
@@ -557,6 +602,22 @@ internal class CompositionImpl(
         get() = synchronized(lock) { composer.hasPendingChanges }
 
     override fun setContent(content: @Composable () -> Unit) {
+        composeInitial(content)
+    }
+
+    override fun setContent(reusing: Boolean, content: @Composable () -> Unit) {
+        if (reusing) {
+            composer.startReuseFromRoot()
+        }
+
+        composeInitial(content)
+
+        if (reusing) {
+            composer.endReuseFromRoot()
+        }
+    }
+
+    private fun composeInitial(content: @Composable () -> Unit) {
         check(!disposed) { "The composition is disposed" }
         this.composable = content
         parent.composeInitial(this, composable)

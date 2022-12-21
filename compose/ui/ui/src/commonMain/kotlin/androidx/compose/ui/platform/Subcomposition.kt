@@ -15,12 +15,12 @@
  */
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.ReusableComposition
 import androidx.compose.ui.node.LayoutNode
 
 /*@MainThread*/
 internal expect fun createSubcomposition(
     container: LayoutNode,
     parent: CompositionContext
-): Composition
+): ReusableComposition
