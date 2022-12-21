@@ -16,6 +16,7 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,19 +26,20 @@ import org.robolectric.RobolectricTestRunner
 class ExerciseTypeConfigTest {
     @Test
     fun protoRoundTrip() {
-        val proto = ExerciseTypeConfig.createGolfExerciseTypeConfig(
-            GolfShotTrackingPlaceInfo.FAIRWAY).toProto()
-        val config = ExerciseTypeConfig(proto)
+        val proto =
+            GolfExerciseTypeConfig(GolfExerciseTypeConfig
+                .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+            ).toProto()
+        val config = ExerciseTypeConfig.fromProto(proto)
 
-        assertThat(config.golfShotTrackingPlaceInfo).isEqualTo(GolfShotTrackingPlaceInfo.FAIRWAY)
+        assertThat(config.toProto()).isEqualTo(proto)
     }
 
     @Test
-    fun createGolfExerciseTypeConfigFromFactoryMethod() {
-        val golfExerciseStyleConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
-            GolfShotTrackingPlaceInfo.FAIRWAY)
+    fun protoNotContainsWantedField_producesEmptyInstance_protoRoundTrip() {
+        val proto = DataProto.ExerciseTypeConfig.getDefaultInstance()
+        val config = ExerciseTypeConfig.fromProto(proto)
 
-        assertThat(golfExerciseStyleConfig.golfShotTrackingPlaceInfo).isEqualTo(
-            GolfShotTrackingPlaceInfo.FAIRWAY)
+        assertThat(config.toProto()).isEqualTo(proto)
     }
 }
