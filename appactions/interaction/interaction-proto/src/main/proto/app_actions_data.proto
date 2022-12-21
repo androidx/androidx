@@ -1,0 +1,291 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package androidx.appactions.interaction.proto;
+
+import "google/protobuf/struct.proto";
+
+option java_package = "androidx.appactions.interaction.proto";
+option java_outer_classname = "AppActionsDataProto";
+option java_multiple_files = true;
+
+
+message ParamValue {
+  // If this parameter matched an Entity, `identifier` of that Entity.
+  optional string identifier = 1;
+
+  oneof value {
+    string string_value = 2;
+    bool bool_value = 3;
+    double number_value = 4;
+    google.protobuf.Struct struct_value = 5;
+  }
+}
+
+message Entity {
+  // A unique identifier of the entity.
+  optional string identifier = 1;
+
+  // Name of the entity
+  string name = 2;
+
+  // Alternate names for the entity.
+  repeated string alternate_names = 3;
+
+  // Structured entity value.
+  google.protobuf.Struct value = 4;
+}
+
+// Data for disambiguation of the parameter value.
+message DisambiguationData {
+  // Entities used to disambiguate the parameter value.
+  repeated Entity entities = 1;
+}
+
+// Current value from the app for the associated param.
+// Next ID: 4
+message CurrentValue {
+  // Current value of the associated parameter. Must have an entity identifier
+  // if the status == ACCEPTED.
+  ParamValue value = 1;
+
+  enum Status {
+    UNKNOWN = 0;
+    // The value has been set for the associated parameter, but the app hasn't
+    // validated it yet. This usually happens when the app is prompting other
+    // parameter and want to handle this one later.
+    PENDING = 1;
+    // This value needs to be disambiguated through assistant.
+    DISAMBIG = 4;
+    // This value is accepted for this parameter during this dialogue.
+    ACCEPTED = 2;
+    // This value is rejected by this dialogue.
+    REJECTED = 3;
+  }
+
+  // Data for disambiguate this value. Only be filled if status == DISAMBIG.
+  DisambiguationData disambiguation_data = 3;
+
+  // The state of the parameter value, which can be pending, accepted or
+  // rejected.
+  Status status = 2;
+}
+
+// Represents the data to describe app actions.
+// Next ID: 3
+message AppActionsContext {
+  repeated AppAction actions = 1;
+
+  message AppAction {
+    // Name of the intent. For example: actions.intent.UPDATE_FORM_FIELD
+    string name = 1;
+
+    // One intent can be registered multiple times. Use this field to identify
+    // the intents.
+    string identifier = 2;
+
+    repeated IntentParameter params = 4;
+
+    // The importance of this App Action, ranging from -10 to 10. The higher the
+    // number, the higher its priority. If there are multiple App Actions with
+    // the same name, and different identifier, then the action with the higher
+    // priority will be selected.
+    optional int32 priority = 5;
+
+    // Describes the dialog status for this action. If does not exist, app
+    // action must be fulfilled as one-shot action.
+    optional TaskInfo task_info = 6;
+
+    // Set to true if the capability requires confirmation OR if the capability
+    // has optional confirmation and the developer has provided a confirmation
+    // callback.
+    bool needs_confirmation = 7;
+  }
+
+  // Next ID: 9
+  message IntentParameter {
+    // The built-in-intent parameter name. For example: "textField.name".
+    string name = 1;
+
+    // Current values of the associated parameter.
+    repeated CurrentValue current_value = 7;
+
+    // List of possible values for this parameter.
+    repeated Entity possible_entities = 3;
+
+    // Whether this parameter is required for the intent.
+    //
+    // If true, Assistant won't send the fulfillment request to the app when
+    // the parameter is absent from the user query.
+    bool is_required = 4;
+
+    // Whether the entity matched is required for this intent.
+    //
+    // If true, Assistant will skip this parameter if the argument from the user
+    // query doesn't match any of the possible entities.
+    bool entity_match_required = 5;
+
+    // If true, Assistant will reject this capability if this param is set in
+    // argument.
+    //
+    // Note: when an intent parameter is prohibited, it cannot be required, nor
+    // can it require entity match; therefore, even if |is_required| or
+    // |entity_match_required| is set to true, they would be simply ignored.
+    bool is_prohibited = 6;
+
+    // Whether or not this parameter field is focused right now.
+    // If yes, it usually suggests that Assistant will prompt the value for this
+    // argument.
+    bool is_focused = 8;
+
+    reserved 2;
+  }
+
+  // This field contains the info for current focused text input.
+  TextInputState text_input_state = 2;
+}
+
+// Next ID: 3
+message TaskInfo {
+  reserved 2;
+
+  // Whether the app supports partial funfillment with multi-turn dialog.
+  bool supports_partial_fulfillment = 1;
+}
+
+// Represents the data used to perform an intent.
+// Next ID: 5
+message FulfillmentRequest {
+  message Fulfillment {
+    // Name of the intent. For example: actions.intent.UPDATE_FORM_FIELD
+    string name = 1;
+
+    // The identifier of the intent. This field is corresponding to the
+    // |identifier| field with in `AppActionsContext.AppAction`.
+    string identifier = 2;
+
+    message FulfillmentValue {
+      // The resolved value for the parameter.
+      ParamValue value = 1;
+
+      // Contains a list of disambig entities for the param.
+      // If not empty, this indicates to render the disambiguation options for
+      // this value.
+      DisambiguationData disambig_data = 2;
+    }
+
+    message FulfillmentParam {
+      // The alias for the built-in-intent parameter. For example:
+      // "textField.name".
+      string name = 1;
+
+      // The values and disambig data for this parameter.
+      repeated FulfillmentValue fulfillment_values = 2;
+    }
+
+    repeated FulfillmentParam params = 3;
+
+    enum Type {
+      UNKNOWN_TYPE = 0;
+      // Assistant is asking to sync the current state with the app.
+      SYNC = 1;
+      // Assistant confirms an ongoing task with the app.
+      CONFIRM = 2;
+      // Assistant cancels an ongoing task of the app.
+      CANCEL = 3;
+      // Assistant terminates an ongoing task of the app.
+      TERMINATE = 4;
+    }
+
+    // The current progress of handling the dialog.
+    optional Type type = 4;
+  }
+
+  // This field should be treated as an optional field. Only the first
+  // fulfilment will be respected if multiple fulfillment exists.
+  repeated Fulfillment fulfillments = 1;
+}
+
+message FulfillmentResponse {
+  SpeechResponse speech_response = 1;
+
+  // Whether Assistant should start dictation as a result of performing this
+  // direct action.
+  bool start_dictation = 2;
+
+  message StructuredOutput {
+    message OutputValue {
+      // The name of the output parameter.
+      string name = 1;
+
+      // The value of the output.
+      repeated ParamValue values = 2;
+    }
+
+    // The output values.
+    repeated OutputValue output_values = 1;
+  }
+
+  oneof output {
+    // The output of the execution returned to Assistant.
+    StructuredOutput execution_output = 3;
+    // The output for confirmation returned to Assistant.
+    StructuredOutput confirmation_data = 4;
+  }
+
+  message SpeechResponse {
+    oneof response {
+      // On receipt, assistant will see whether this is an SSML response
+      // or plain text for TTS generation.
+      string text_to_speech = 1;
+    }
+    // The language of the response in IETF BCP 47 format. e.g. "en-US".
+    // This will be used to generate TTS with the correct language.
+    string language = 2;
+  }
+}
+
+// Represents the data related to input field state. It includes the app action
+// info associated to focusable text inputs, and also focus and content state of
+// the text input field.
+message TextInputState {
+  // Contains the app action info used to look up the app action and entity name
+  // for the focusable input state.
+  repeated ActionBinding action_binding = 1;
+
+  message ActionBinding {
+    // The id of app action which the focusable property belong to.
+    string action_identifier = 1;
+
+    // The id of entity associated with the input field.
+    string focusable_property_identifier = 2;
+
+    // Whether the text input related to this action is focused.
+    bool is_focused = 3;
+
+    // Current state of input content.
+    ContentState content_state = 4;
+  }
+
+  enum ContentState {
+    UNKNOWN = 0;
+    // Current input has no content.
+    NO_CONTENT = 1;
+    // Current input has content
+    HAS_CONTENT = 2;
+  }
+}
