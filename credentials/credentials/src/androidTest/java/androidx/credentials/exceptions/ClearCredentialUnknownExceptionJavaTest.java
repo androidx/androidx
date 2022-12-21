@@ -39,13 +39,12 @@ public class ClearCredentialUnknownExceptionJavaTest {
 
     @Test
     public void getter_success() {
-        String expectedMessage = "msg";
+        Class<ClearCredentialUnknownException> expectedClass =
+                ClearCredentialUnknownException.class;
+        String expectedMessage = "message";
         ClearCredentialUnknownException exception = new
                 ClearCredentialUnknownException(expectedMessage);
-        String expectedType =
-                ClearCredentialUnknownException
-                        .TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION;
-        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getClass()).isEqualTo(expectedClass);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

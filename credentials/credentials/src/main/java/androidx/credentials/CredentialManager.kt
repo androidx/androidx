@@ -20,11 +20,11 @@ import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
 import androidx.credentials.exceptions.ClearCredentialException
-import androidx.credentials.exceptions.ClearCredentialUnknownException
+import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -239,7 +239,11 @@ class CredentialManager private constructor(private val context: Context) {
             .getBestAvailableProvider(context)
         if (provider == null) {
             // TODO (Update with the right error code when ready)
-            callback.onError(GetCredentialUnknownException("No providers found"))
+            callback.onError(
+                GetCredentialProviderConfigurationException(
+                    "executeGetCredentialAsync no provider dependencies found - please ensure " +
+                        "the desired provider dependencies are added")
+            )
             return
         }
         provider.onGetCredential(request, activity, cancellationSignal, executor, callback)
@@ -270,7 +274,9 @@ class CredentialManager private constructor(private val context: Context) {
             .getBestAvailableProvider(context)
         if (provider == null) {
             // TODO (Update with the right error code when ready)
-            callback.onError(CreateCredentialUnknownException("No providers found"))
+            callback.onError(CreateCredentialProviderConfigurationException(
+                "executeCreateCredentialAsync no provider dependencies found - please ensure the " +
+                    "desired provider dependencies are added"))
             return
         }
         provider.onCreateCredential(request, activity, cancellationSignal, executor, callback)
@@ -304,7 +310,9 @@ class CredentialManager private constructor(private val context: Context) {
             .getBestAvailableProvider(context)
         if (provider == null) {
             // TODO (Update with the right error code when ready)
-            callback.onError(ClearCredentialUnknownException("No providers found"))
+            callback.onError(ClearCredentialProviderConfigurationException(
+                "clearCredentialStateAsync no provider dependencies found - please ensure the " +
+                    "desired provider dependencies are added"))
             return
         }
         provider.onClearCredential(request, cancellationSignal, executor, callback)

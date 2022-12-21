@@ -16,8 +16,6 @@
 
 package androidx.credentials.exceptions
 
-import androidx.annotation.VisibleForTesting
-
 /**
  * During the get credential flow, this is thrown when a user intentionally cancels an operation.
  * When this happens, the application should handle logic accordingly, typically under indication
@@ -31,8 +29,7 @@ class GetCredentialCancellationException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION: String =
+        internal const val TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION =
             "androidx.credentials.TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION"
     }
 }

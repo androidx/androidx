@@ -16,8 +16,6 @@
 
 package androidx.credentials.exceptions
 
-import androidx.annotation.VisibleForTesting
-
 /**
  * During the create credential flow, this is thrown when some interruption occurs that may warrant
  * retrying or at least does not indicate a purposeful desire to close or tap away from credential
@@ -31,8 +29,7 @@ class CreateCredentialInterruptedException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
+        internal val TYPE_CREATE_CREDENTIAL_INTERRUPTED_EXCEPTION =
             "androidx.credentials.TYPE_CREATE_CREDENTIAL_INTERRUPTED_EXCEPTION"
     }
 }
