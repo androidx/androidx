@@ -26,6 +26,7 @@ import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
+import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.core.app.ApplicationProvider
@@ -244,5 +245,16 @@ class HealthConnectClientUpsideDownImplTest {
                 )
             )
         }
+    }
+
+    @Test
+    fun getChangesToken() = runTest {
+        val token = healthConnectClient.getChangesToken(
+            ChangesTokenRequest(
+                setOf(StepsRecord::class),
+                setOf()
+            )
+        )
+        assertThat(token).isNotEmpty()
     }
 }

@@ -22,8 +22,11 @@ import android.annotation.TargetApi
 import android.os.Build
 import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
 import androidx.health.connect.client.impl.platform.time.FakeTimeSource
+import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
+import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,6 +56,25 @@ class RequestConvertersTest {
         with(sdkRequest.toPlatformReadRecordsRequestUsingFilters(SystemDefaultTimeSource)) {
             assertThat(recordType).isAssignableTo(PlatformStepsRecord::class.java)
             assertThat(dataOrigins).containsExactly(
+                PlatformDataOrigin.Builder().setPackageName("package1").build(),
+                PlatformDataOrigin.Builder().setPackageName("package2").build()
+            )
+        }
+    }
+
+    @Test
+    fun changesTokenRequest_fromSdkToPlatform() {
+        val sdkRequest = ChangesTokenRequest(
+            setOf(StepsRecord::class, HeartRateRecord::class),
+            setOf(DataOrigin("package1"), DataOrigin("package2"))
+        )
+
+        with(sdkRequest.toPlatformChangeLogTokenRequest()) {
+            assertThat(recordTypes).containsExactly(
+                PlatformStepsRecord::class.java,
+                PlatformHeartRateRecord::class.java
+            )
+            assertThat(dataOriginFilters).containsExactly(
                 PlatformDataOrigin.Builder().setPackageName("package1").build(),
                 PlatformDataOrigin.Builder().setPackageName("package2").build()
             )

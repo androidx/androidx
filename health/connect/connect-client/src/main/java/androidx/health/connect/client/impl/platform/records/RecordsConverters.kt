@@ -24,9 +24,11 @@ import android.healthconnect.datatypes.Device as PlatformDevice
 import android.healthconnect.datatypes.Metadata as PlatformMetadata
 import android.healthconnect.datatypes.Record as PlatformRecord
 import android.healthconnect.datatypes.StepsRecord as PlatformStepsRecord
+import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
@@ -38,6 +40,7 @@ fun KClass<out Record>.toPlatformRecordClass():
     Class<out PlatformRecord> {
     return when (this) {
         StepsRecord::class -> PlatformStepsRecord::class.java
+        HeartRateRecord::class -> PlatformHeartRateRecord::class.java
         else -> throw IllegalArgumentException("Unsupported record type $this")
     }
 }
