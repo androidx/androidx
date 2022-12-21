@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.graph
 
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface GraphListener {
@@ -50,4 +51,9 @@ interface GraphListener {
      * a signal that previously queued requests may now succeed if they previously failed.
      */
     fun onGraphModified(requestProcessor: GraphRequestProcessor)
+
+    /**
+     * Used to indicate that the graph has encountered an error.
+     */
+    fun onGraphError(graphStateError: GraphStateError)
 }

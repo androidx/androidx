@@ -23,6 +23,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
@@ -32,6 +33,7 @@ import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.camera2.pipe.graph.GraphListener
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.coroutines.resume
@@ -192,7 +194,8 @@ internal class RetryingCameraStateOpener @Inject constructor(
     private val timeSource: TimeSource
 ) {
     internal suspend fun openCameraWithRetry(
-        cameraId: CameraId
+        cameraId: CameraId,
+        graphListener: GraphListener
     ): AndroidCameraState? {
         val requestTimestamp = Timestamps.now(timeSource)
         var attempts = 0
@@ -218,7 +221,14 @@ internal class RetryingCameraStateOpener @Inject constructor(
                     return null
                 }
 
-                if (!shouldRetry(errorCode, attempts, requestTimestamp, timeSource)) {
+                val willRetry = shouldRetry(errorCode, attempts, requestTimestamp, timeSource)
+                // Always notify if the decision is to not retry the camera open, otherwise allow
+                // 1 open call to happen silently without generating an error, and notify about each
+                // error after that point.
+                if (!willRetry || attempts > 1) {
+                    graphListener.onGraphError(GraphStateError(errorCode, willRetry))
+                }
+                if (!willRetry) {
                     Log.error {
                         "Failed to open camera $cameraId after $attempts attempts " +
                             "and ${(Timestamps.now(timeSource) - requestTimestamp).formatMs()}. " +
