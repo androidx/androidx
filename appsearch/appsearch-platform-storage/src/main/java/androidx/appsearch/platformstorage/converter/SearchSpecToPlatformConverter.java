@@ -70,6 +70,8 @@ public final class SearchSpecToPlatformConverter {
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
+        //TODO(b/262512396): add the enabledFeatures set from the SearchSpec once it is synced
+        // across to platform.
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
             platformBuilder.setResultGrouping(
                     jetpackSearchSpec.getResultGroupingTypeFlags(),

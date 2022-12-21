@@ -29,6 +29,7 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -69,6 +70,7 @@ public final class SearchSpec {
     static final String TYPE_PROPERTY_WEIGHTS_FIELD = "typePropertyWeightsField";
     static final String JOIN_SPEC = "joinSpec";
     static final String ADVANCED_RANKING_EXPRESSION = "advancedRankingExpression";
+    static final String ENABLED_FEATURES_FIELD = "enabledFeatures";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -448,11 +450,54 @@ public final class SearchSpec {
         return mBundle.getString(ADVANCED_RANKING_EXPRESSION, "");
     }
 
+    /**
+     * Returns whether the {@link Features#NUMERIC_SEARCH} feature is enabled.
+     *
+     * TODO(b/259744228): add more documentation about the numeric search feature and when it
+     * needs to be enabled.
+     */
+    public boolean isNumericSearchEnabled() {
+        return getEnabledFeatures().contains(Features.NUMERIC_SEARCH);
+    }
+
+    /**
+     * Returns whether the {@link Features#VERBATIM_SEARCH} feature is enabled.
+     *
+     * TODO(b/204333391): add more documentation about the verbatim search feature and when it
+     * needs to be enabled.
+     */
+    public boolean isVerbatimSearchEnabled() {
+        return getEnabledFeatures().contains(Features.VERBATIM_SEARCH);
+    }
+
+    /**
+     * Returns whether the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature is enabled.
+     *
+     * TODO(b/208654892): add more documentation about the list filter query language feature and
+     * when it needs to be enabled.
+     */
+    public boolean isListFilterQueryLanguageEnabled() {
+        return getEnabledFeatures().contains(Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    /**
+     * Get the list of enabled features that the caller is intending to use in this search call.
+     *
+     * @return the set of {@link Features} enabled in this {@link SearchSpec} Entry.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public List<String> getEnabledFeatures() {
+        return mBundle.getStringArrayList(ENABLED_FEATURES_FIELD);
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mSchemas = new ArrayList<>();
         private ArrayList<String> mNamespaces = new ArrayList<>();
         private ArrayList<String> mPackageNames = new ArrayList<>();
+        private ArraySet<String> mEnabledFeatures = new ArraySet<>();
         private Bundle mProjectionTypePropertyMasks = new Bundle();
         private Bundle mTypePropertyWeights = new Bundle();
 
@@ -1229,6 +1274,60 @@ public final class SearchSpec {
 // @exportToFramework:endStrip()
 
         /**
+         * Sets the {@link Features#NUMERIC_SEARCH} feature as enabled/disabled according to the
+         * enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it.
+         *
+         * TODO(b/259744228): add more documentation about the numeric search feature and when it
+         *               needs to be enabled.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.NUMERIC_SEARCH)
+        @NonNull
+        public Builder setNumericSearchEnabled(boolean enabled) {
+            modifyEnabledFeature(Features.NUMERIC_SEARCH, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Features#VERBATIM_SEARCH} feature as enabled/disabled according to the
+         * enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it
+         *
+         * TODO(b/204333391): add more documentation about the verbatim search feature and when
+         *                it needs to be enabled.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.VERBATIM_SEARCH)
+        @NonNull
+        public Builder setVerbatimSearchEnabled(boolean enabled) {
+            modifyEnabledFeature(Features.VERBATIM_SEARCH, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature as enabled/disabled
+         * according to the enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it.
+         *
+         * TODO(b/208654892): add more documentation about the list filter query language feature
+         *               and when it needs to be enabled.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.LIST_FILTER_QUERY_LANGUAGE)
+        @NonNull
+        public Builder setListFilterQueryLanguageEnabled(boolean enabled) {
+            modifyEnabledFeature(Features.LIST_FILTER_QUERY_LANGUAGE, enabled);
+            return this;
+        }
+
+        /**
          * Constructs a new {@link SearchSpec} from the contents of this builder.
          *
          * @throws IllegalArgumentException if property weights are provided with a
@@ -1261,6 +1360,7 @@ public final class SearchSpec {
             bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
             bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             bundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);
+            bundle.putStringArrayList(ENABLED_FEATURES_FIELD, new ArrayList<>(mEnabledFeatures));
             bundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, mProjectionTypePropertyMasks);
             bundle.putInt(NUM_PER_PAGE_FIELD, mResultCountPerPage);
             bundle.putInt(TERM_MATCH_TYPE_FIELD, mTermMatchType);
@@ -1290,6 +1390,15 @@ public final class SearchSpec {
                 mProjectionTypePropertyMasks = BundleUtil.deepCopy(mProjectionTypePropertyMasks);
                 mTypePropertyWeights = BundleUtil.deepCopy(mTypePropertyWeights);
                 mBuilt = false;
+            }
+        }
+
+        private void modifyEnabledFeature(@NonNull String feature, boolean enabled) {
+            resetIfBuilt();
+            if (enabled) {
+                mEnabledFeatures.add(feature);
+            } else {
+                mEnabledFeatures.remove(feature);
             }
         }
     }
