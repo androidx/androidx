@@ -43,7 +43,7 @@ public class SplitAttributesCalculatorParams {
     private final WindowLayoutInfo mParentWindowLayoutInfo;
     @NonNull
     private final SplitAttributes mDefaultSplitAttributes;
-    private final boolean mIsDefaultMinSizeSatisfied;
+    private final boolean mAreDefaultConstraintsSatisfied;
     @Nullable
     private final String mSplitRuleTag;
 
@@ -73,15 +73,17 @@ public class SplitAttributesCalculatorParams {
     }
 
     /**
-     * Returns whether the {@link #getParentWindowMetrics()} satisfies
-     * {@link SplitRule#checkParentMetrics(WindowMetrics)} with the minimal size requirement
-     * specified in the {@link SplitRule} Builder constructors.
-     *
-     * @see SplitPairRule.Builder
-     * @see SplitPlaceholderRule.Builder
+     * Returns whether the {@link #getParentWindowMetrics()} satisfies the dimensions and aspect
+     * ratios requirements specified in the {@link androidx.window.embedding.SplitRule}, which
+     * are:
+     *  - {@link androidx.window.embedding.SplitRule#minWidthDp}
+     *  - {@link androidx.window.embedding.SplitRule#minHeightDp}
+     *  - {@link androidx.window.embedding.SplitRule#minSmallestWidthDp}
+     *  - {@link androidx.window.embedding.SplitRule#maxAspectRatioInPortrait}
+     *  - {@link androidx.window.embedding.SplitRule#maxAspectRatioInLandscape}
      */
-    public boolean isDefaultMinSizeSatisfied() {
-        return mIsDefaultMinSizeSatisfied;
+    public boolean areDefaultConstraintsSatisfied() {
+        return mAreDefaultConstraintsSatisfied;
     }
 
     /** Returns the parent container's {@link WindowLayoutInfo} */
@@ -104,14 +106,14 @@ public class SplitAttributesCalculatorParams {
             @NonNull Configuration parentConfiguration,
             @NonNull WindowLayoutInfo parentWindowLayoutInfo,
             @NonNull SplitAttributes defaultSplitAttributes,
-            boolean isDefaultMinSizeSatisfied,
+            boolean areDefaultConstraintsSatisfied,
             @Nullable String splitRuleTag
     ) {
         mParentWindowMetrics = parentWindowMetrics;
         mParentConfiguration = parentConfiguration;
         mParentWindowLayoutInfo = parentWindowLayoutInfo;
         mDefaultSplitAttributes = defaultSplitAttributes;
-        mIsDefaultMinSizeSatisfied = isDefaultMinSizeSatisfied;
+        mAreDefaultConstraintsSatisfied = areDefaultConstraintsSatisfied;
         mSplitRuleTag = splitRuleTag;
     }
 
@@ -123,7 +125,7 @@ public class SplitAttributesCalculatorParams {
                 + ", configuration=" + mParentConfiguration
                 + ", windowLayoutInfo=" + mParentWindowLayoutInfo
                 + ", defaultSplitAttributes=" + mDefaultSplitAttributes
-                + ", isDefaultMinSizeSatisfied=" + mIsDefaultMinSizeSatisfied
+                + ", areDefaultConstraintsSatisfied=" + mAreDefaultConstraintsSatisfied
                 + ", tag=" + mSplitRuleTag + "}";
     }
 

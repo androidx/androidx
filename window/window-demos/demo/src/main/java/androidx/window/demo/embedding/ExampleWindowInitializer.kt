@@ -87,7 +87,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
             .build()
         when (tag?.substringBefore(SUFFIX_REVERSED)) {
             TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
-                return if (params.isDefaultMinSizeSatisfied) {
+                return if (params.areDefaultConstraintsSatisfied) {
                     defaultSplitAttributes
                 } else {
                     expandContainersAttrs

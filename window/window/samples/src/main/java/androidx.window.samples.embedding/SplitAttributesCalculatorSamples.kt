@@ -34,7 +34,7 @@ fun splitAttributesCalculatorSample() {
                 .filterIsInstance<FoldingFeature>()
             val foldingState = if (foldingFeatures.size == 1) foldingFeatures[0] else null
             // Tag can be used to filter the SplitRule to apply the SplitAttributes
-            if (TAG_SPLIT_RULE_MAIN != tag && params.isDefaultMinSizeSatisfied) {
+            if (TAG_SPLIT_RULE_MAIN != tag && params.areDefaultConstraintsSatisfied) {
                 return@setSplitAttributesCalculator params.defaultSplitAttributes
             }
 
@@ -115,17 +115,17 @@ fun expandContainersInPortrait() {
             val tag = params.splitRuleTag
             val bounds = params.parentWindowMetrics.bounds
             val defaultSplitAttributes = params.defaultSplitAttributes
-            val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
+            val areDefaultConstraintsSatisfied = params.areDefaultConstraintsSatisfied
 
             val expandContainersAttrs = SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.expandContainers())
                 .build()
-            if (!isDefaultMinSizeSatisfied) {
+            if (!areDefaultConstraintsSatisfied) {
                 return@setSplitAttributesCalculator expandContainersAttrs
             }
             // Always expand containers for the splitRule tagged as
             // TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT if the device is in portrait
-            // even if [isDefaultMinSizeSatisfied] reports true.
+            // even if [areDefaultConstraintsSatisfied] reports true.
             if (bounds.height() > bounds.width() && TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT.equals(tag)) {
                 return@setSplitAttributesCalculator expandContainersAttrs
             }
