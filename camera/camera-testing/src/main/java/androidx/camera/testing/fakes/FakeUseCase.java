@@ -92,8 +92,8 @@ public class FakeUseCase extends UseCase {
     }
 
     @Override
-    public void onDetached() {
-        super.onDetached();
+    public void onUnbind() {
+        super.onUnbind();
         mIsDetached = true;
     }
 
@@ -110,7 +110,7 @@ public class FakeUseCase extends UseCase {
     }
 
     /**
-     * Returns true if {@link #onDetached()} has been called previously.
+     * Returns true if {@link #onUnbind()} has been called previously.
      */
     public boolean isDetached() {
         return mIsDetached;

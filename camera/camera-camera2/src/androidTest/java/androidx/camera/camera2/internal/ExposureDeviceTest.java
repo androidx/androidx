@@ -190,7 +190,7 @@ public class ExposureDeviceTest {
         }
 
         for (FakeTestUseCase fakeUseCase : mFakeTestUseCases) {
-            fakeUseCase.onDetached();
+            fakeUseCase.onUnbind();
         }
     }
 
@@ -427,8 +427,8 @@ public class ExposureDeviceTest {
         }
 
         @Override
-        public void onDetached() {
-            super.onDetached();
+        public void onUnbind() {
+            super.onUnbind();
             if (mDeferrableSurface != null) {
                 mDeferrableSurface.close();
             }

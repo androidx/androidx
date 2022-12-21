@@ -78,7 +78,7 @@ class MeteringRepeating(
         return meteringSurfaceSize
     }
 
-    override fun onDetached() {
+    override fun onUnbind() {
         synchronized(deferrableSurfaceLock) {
             deferrableSurface?.close()
             deferrableSurface = null

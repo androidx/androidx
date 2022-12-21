@@ -67,7 +67,10 @@ private const val CAMERA_ID = "0"
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(
+    minSdk = Build.VERSION_CODES.LOLLIPOP,
+    instrumentedPackages = ["androidx.camera.core"]
+)
 class CameraUseCaseAdapterTest {
 
     private lateinit var surfaceProcessor: FakeSurfaceProcessor
@@ -226,7 +229,11 @@ class CameraUseCaseAdapterTest {
         )
         val fakeUseCase = spy(FakeUseCase())
         cameraUseCaseAdapter.addUseCases(listOf(fakeUseCase))
-        verify(fakeUseCase).onAttach(eq(fakeCamera), isNull(), any(FakeUseCaseConfig::class.java))
+        verify(fakeUseCase).bindToCamera(
+            eq(fakeCamera),
+            isNull(),
+            any(FakeUseCaseConfig::class.java)
+        )
     }
 
     @Test
@@ -239,7 +246,7 @@ class CameraUseCaseAdapterTest {
         val fakeUseCase = spy(FakeUseCase())
         cameraUseCaseAdapter.addUseCases(listOf(fakeUseCase))
         cameraUseCaseAdapter.removeUseCases(listOf(fakeUseCase))
-        verify(fakeUseCase).onDetach(fakeCamera)
+        verify(fakeUseCase).unbindFromCamera(fakeCamera)
     }
 
     @Test
@@ -252,7 +259,7 @@ class CameraUseCaseAdapterTest {
         val callback = mock(UseCase.EventCallback::class.java)
         val fakeUseCase = FakeUseCaseConfig.Builder().setUseCaseEventCallback(callback).build()
         cameraUseCaseAdapter.addUseCases(listOf(fakeUseCase))
-        verify(callback).onAttach(fakeCamera.cameraInfoInternal)
+        verify(callback).onBind(fakeCamera.cameraInfoInternal)
     }
 
     @Test
@@ -266,7 +273,7 @@ class CameraUseCaseAdapterTest {
         val fakeUseCase = FakeUseCaseConfig.Builder().setUseCaseEventCallback(callback).build()
         cameraUseCaseAdapter.addUseCases(listOf(fakeUseCase))
         cameraUseCaseAdapter.removeUseCases(listOf(fakeUseCase))
-        verify(callback).onDetach()
+        verify(callback).onUnbind()
     }
 
     @Test
