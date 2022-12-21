@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.tv.integration.demos
+package androidx.tv.samples
 
 import android.util.Log
+import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,20 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material.ExperimentalTvMaterialApi
 import androidx.tv.material.ImmersiveList
 
-@Composable
-fun ImmersiveListContent() {
-    TvLazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        items(3) { SampleLazyRow() }
-        item { SampleImmersiveList() }
-        items(3) { SampleLazyRow() }
-    }
-}
-
 @OptIn(ExperimentalTvMaterialApi::class)
+@Sampled
 @Composable
 private fun SampleImmersiveList() {
     val immersiveListHeight = 300.dp
