@@ -2889,8 +2889,23 @@ public class ConstraintLayout extends ViewGroup {
          *
          * @param params the Layout Params to be copied
          */
+        @SuppressLint("ClassVerificationFailure")
         public LayoutParams(ViewGroup.LayoutParams params) {
             super(params);
+
+            // if the params is an instance of ViewGroup.MarginLayoutParams,
+            // we should also copy margin relevant properties.
+            if (params instanceof ViewGroup.MarginLayoutParams) {
+                MarginLayoutParams marginSource = (MarginLayoutParams) params;
+                this.leftMargin = marginSource.leftMargin;
+                this.rightMargin = marginSource.rightMargin;
+                this.topMargin = marginSource.topMargin;
+                this.bottomMargin = marginSource.bottomMargin;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    this.setMarginStart(marginSource.getMarginStart());
+                    this.setMarginEnd(marginSource.getMarginEnd());
+                }
+            }
 
             if (!(params instanceof LayoutParams)) {
                 return;
