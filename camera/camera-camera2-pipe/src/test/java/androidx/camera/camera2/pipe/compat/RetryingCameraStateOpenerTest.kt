@@ -23,8 +23,11 @@ import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -78,6 +81,24 @@ class RetryingCameraStateOpenerTest {
 
     private val retryingCameraStateOpener =
         RetryingCameraStateOpener(cameraStateOpener, cameraAvailabilityMonitor, fakeTimeSource)
+
+    // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
+    private val fakeGraphListener = object : GraphListener {
+        var numberOfErrorCalls = 0
+
+        override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        }
+
+        override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        }
+
+        override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
+        }
+
+        override fun onGraphError(graphStateError: GraphStateError) {
+            numberOfErrorCalls++
+        }
+    }
 
     @Test
     fun testCameraRetryReturnsTrueWithinTimeout() {
@@ -331,7 +352,7 @@ class RetryingCameraStateOpenerTest {
     fun retryingCameraStateOpenerRetriesCorrectly() = runTest {
         cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
         val result = async {
-            retryingCameraStateOpener.openCameraWithRetry(cameraId0)
+            retryingCameraStateOpener.openCameraWithRetry(cameraId0, fakeGraphListener)
         }
         // Advance the time to allow for retries.
         advanceTimeBy(200)
@@ -342,5 +363,8 @@ class RetryingCameraStateOpenerTest {
 
         assertThat(result.await()).isNull()
         assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
+        // We retry camera open twice, but the first retry should be hidden. Therefore,
+        // GraphListener.onGraphError() should only be called once.
+        assertThat(fakeGraphListener.numberOfErrorCalls).isEqualTo(1)
     }
 }

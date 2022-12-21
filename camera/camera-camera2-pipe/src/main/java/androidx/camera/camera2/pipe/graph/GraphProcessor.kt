@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
@@ -40,6 +41,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -189,6 +191,16 @@ internal class GraphProcessorImpl @Inject constructor(
             }
         }
         resubmit()
+    }
+
+    override fun onGraphError(graphStateError: GraphStateError) {
+        _graphState.update { graphState ->
+            if (graphState is GraphStateStopping || graphState is GraphStateStopped) {
+                GraphStateStopped
+            } else {
+                graphStateError
+            }
+        }
     }
 
     override fun startRepeating(request: Request) {

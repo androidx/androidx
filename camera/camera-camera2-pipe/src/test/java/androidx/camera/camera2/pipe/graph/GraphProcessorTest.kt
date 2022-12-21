@@ -20,6 +20,9 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraError
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
@@ -382,5 +385,69 @@ internal class GraphProcessorTest {
         assertThat(abortEvent2.request).isSameInstanceAs(request2)
 
         assertThat(fakeProcessor1.nextEvent().close).isTrue()
+    }
+
+    @Test
+    fun graphProcessorChangesGraphStateOnError() = runTest {
+        val graphProcessor = GraphProcessorImpl(
+            FakeThreads.fromTestScope(this),
+            FakeGraphConfigs.graphConfig,
+            graphState3A,
+            this,
+            arrayListOf(globalListener)
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+
+        graphProcessor.onGraphStarted(graphRequestProcessor1)
+        graphProcessor.onGraphError(
+            GraphStateError(
+                CameraError.ERROR_CAMERA_DEVICE,
+                willAttemptRetry = true
+            )
+        )
+        assertThat(graphProcessor.graphState.value).isInstanceOf(GraphStateError::class.java)
+    }
+
+    @Test
+    fun graphProcessorDropsStaleErrors() = runTest {
+        val graphProcessor = GraphProcessorImpl(
+            FakeThreads.fromTestScope(this),
+            FakeGraphConfigs.graphConfig,
+            graphState3A,
+            this,
+            arrayListOf(globalListener)
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+
+        graphProcessor.onGraphError(
+            GraphStateError(
+                CameraError.ERROR_CAMERA_DEVICE,
+                willAttemptRetry = true
+            )
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+
+        graphProcessor.onGraphStarting()
+        graphProcessor.onGraphStarted(graphRequestProcessor1)
+
+        // GraphProcessor should drop errors while the camera graph is stopping.
+        graphProcessor.onGraphStopping()
+        graphProcessor.onGraphError(
+            GraphStateError(
+                CameraError.ERROR_CAMERA_DEVICE,
+                willAttemptRetry = true
+            )
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+
+        // GraphProcessor should also drop errors while the camera graph is stopped.
+        graphProcessor.onGraphStopped(graphRequestProcessor1)
+        graphProcessor.onGraphError(
+            GraphStateError(
+                CameraError.ERROR_CAMERA_DEVICE,
+                willAttemptRetry = true
+            )
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
     }
 }

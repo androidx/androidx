@@ -58,7 +58,8 @@ internal class Camera2CameraController @Inject constructor(
     override fun start() {
         val camera = virtualCameraManager.open(
             config.camera,
-            config.flags.allowMultipleActiveCameras
+            config.flags.allowMultipleActiveCameras,
+            graphListener
         )
         synchronized(this) {
             if (closed) {

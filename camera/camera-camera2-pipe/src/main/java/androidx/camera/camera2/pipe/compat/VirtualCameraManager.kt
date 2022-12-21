@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.WakeLock
+import androidx.camera.camera2.pipe.graph.GraphListener
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineName
@@ -37,7 +38,8 @@ import kotlinx.coroutines.launch
 internal sealed class CameraRequest
 internal data class RequestOpen(
     val virtualCamera: VirtualCameraState,
-    val share: Boolean = false
+    val share: Boolean = false,
+    val graphListener: GraphListener
 ) : CameraRequest()
 
 internal data class RequestClose(
@@ -64,9 +66,13 @@ internal class VirtualCameraManager @Inject constructor(
         threads.globalScope.launch(CoroutineName("CXCP-VirtualCameraManager")) { requestLoop() }
     }
 
-    internal fun open(cameraId: CameraId, share: Boolean = false): VirtualCamera {
+    internal fun open(
+        cameraId: CameraId,
+        share: Boolean = false,
+        graphListener: GraphListener
+    ): VirtualCamera {
         val result = VirtualCameraState(cameraId)
-        offerChecked(RequestOpen(result, share))
+        offerChecked(RequestOpen(result, share, graphListener))
         return result
     }
 
@@ -172,7 +178,8 @@ internal class VirtualCameraManager @Inject constructor(
             // Stage 3: Open or select an active camera device.
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
-                realCamera = openCameraWithRetry(cameraIdToOpen, scope = this)
+                realCamera =
+                    openCameraWithRetry(cameraIdToOpen, request.graphListener, scope = this)
                 if (realCamera != null) {
                     activeCameras.add(realCamera)
                 } else {
@@ -190,13 +197,14 @@ internal class VirtualCameraManager @Inject constructor(
 
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
+        graphListener: GraphListener,
         scope: CoroutineScope
     ): ActiveCamera? {
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
         //   causing the application process to restart.
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
-        val cameraState = retryingCameraStateOpener.openCameraWithRetry(cameraId)
+        val cameraState = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
         if (cameraState == null) {
             return null
         }
