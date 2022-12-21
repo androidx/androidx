@@ -21,12 +21,14 @@ package androidx.health.connect.client.impl.platform.records
 
 import android.healthconnect.TimeRangeFilter as PlatformTimeRangeFilter
 import android.healthconnect.datatypes.Record as PlatformRecord
+import android.healthconnect.ChangeLogTokenRequest
 import android.healthconnect.ReadRecordsRequestUsingFilters
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.platform.time.TimeSource
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Instant
@@ -35,14 +37,14 @@ fun ReadRecordsRequest<out Record>.toPlatformReadRecordsRequestUsingFilters(
     timeSource: TimeSource
 ):
     ReadRecordsRequestUsingFilters<out PlatformRecord> {
-    val builder = ReadRecordsRequestUsingFilters
+    return ReadRecordsRequestUsingFilters
         .Builder(recordType.toPlatformRecordClass())
         .setTimeRangeFilter(timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
-
-    // TODO(b/262691771): revisit data origin filter once privacy decision is finalized
-    dataOriginFilter.map { it.toPlatformDataOrigin() }.forEach { builder.addDataOrigins(it) }
-
-    return builder.build()
+        .apply {
+            // TODO(b/262691771): revisit data origin filter once privacy decision is finalized
+            dataOriginFilter.forEach { addDataOrigins(it.toPlatformDataOrigin()) }
+        }
+        .build()
 }
 
 fun TimeRangeFilter.toPlatformTimeRangeFilter(
@@ -51,5 +53,15 @@ fun TimeRangeFilter.toPlatformTimeRangeFilter(
     // TODO(b/262571990): pass nullable Instant start/end
     // TODO(b/262571990): pass nullable LocalDateTime start/end
     return PlatformTimeRangeFilter.Builder(startTime ?: Instant.EPOCH, endTime ?: timeSource.now)
+        .build()
+}
+
+fun ChangesTokenRequest.toPlatformChangeLogTokenRequest(): ChangeLogTokenRequest {
+    return ChangeLogTokenRequest.Builder()
+        .apply {
+            // TODO(b/262691771): revisit data origin filter once privacy decision is finalized
+            dataOriginFilters.forEach { addDataOriginFilter(it.toPlatformDataOrigin()) }
+            recordTypes.forEach { addRecordType(it.toPlatformRecordClass()) }
+        }
         .build()
 }

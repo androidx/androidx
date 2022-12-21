@@ -29,6 +29,7 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.impl.platform.records.toPlatformChangeLogTokenRequest
 import androidx.health.connect.client.impl.platform.records.toPlatformReadRecordsRequestUsingFilters
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
@@ -177,7 +178,15 @@ class HealthConnectClientUpsideDownImpl :
     }
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
-        throw UnsupportedOperationException("Method not supported yet")
+        return wrapPlatformException {
+            suspendCancellableCoroutine { continuation ->
+                healthConnectManager.getChangeLogToken(
+                    request.toPlatformChangeLogTokenRequest(),
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
     }
 
     override suspend fun registerForDataNotifications(
