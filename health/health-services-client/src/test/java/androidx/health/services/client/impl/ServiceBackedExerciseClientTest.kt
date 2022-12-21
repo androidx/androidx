@@ -31,8 +31,7 @@ import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.WarmUpConfig
-import androidx.health.services.client.data.ExerciseTypeConfig
-import androidx.health.services.client.data.GolfShotTrackingPlaceInfo
+import androidx.health.services.client.data.GolfExerciseTypeConfig
 import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent
 import androidx.health.services.client.impl.internal.IExerciseInfoCallback
 import androidx.health.services.client.impl.internal.IStatusCallback
@@ -180,9 +179,10 @@ class ServiceBackedExerciseClientTest {
             setOf(HEART_RATE_BPM, HEART_RATE_BPM_STATS),
             isAutoPauseAndResumeEnabled = false,
             isGpsEnabled = false,
-            exerciseTypeConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
-                GolfShotTrackingPlaceInfo.FAIRWAY
-            )
+            exerciseTypeConfig = GolfExerciseTypeConfig(
+                    GolfExerciseTypeConfig
+                        .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+                )
         )
         val availabilityEvent = ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
             // Currently the proto form of HEART_RATE_BPM and HEART_RATE_BPM_STATS is identical. The

@@ -19,6 +19,7 @@ package androidx.health.services.client.data
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN_OR_EQUAL
 import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
 import androidx.health.services.client.data.ExerciseGoal.Companion.createOneTimeGoal
+import androidx.health.services.client.data.ExerciseType.Companion.GOLF
 import androidx.health.services.client.data.ExerciseType.Companion.WALKING
 import androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint
 import com.google.common.truth.Truth.assertThat
@@ -57,13 +58,14 @@ internal class ExerciseUpdateTest {
             ),
             exerciseStateInfo = ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN),
             exerciseConfig = ExerciseConfig(
-                WALKING,
+                GOLF,
                 setOf(CALORIES_TOTAL),
                 isAutoPauseAndResumeEnabled = false,
                 isGpsEnabled = false,
                 exerciseGoals = listOf(goal),
-                exerciseTypeConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
-                    GolfShotTrackingPlaceInfo.FAIRWAY
+                exerciseTypeConfig = GolfExerciseTypeConfig(
+                    GolfExerciseTypeConfig
+                        .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
                 )
             ),
             activeDurationCheckpoint = ActiveDurationCheckpoint(42.instant(), 30.duration()),
@@ -83,10 +85,15 @@ internal class ExerciseUpdateTest {
         assertThat(update.latestAchievedGoals.first().dataTypeCondition.dataType)
             .isEqualTo(CALORIES_TOTAL)
         assertThat(markerSummary.achievedGoal.dataTypeCondition.dataType).isEqualTo(CALORIES_TOTAL)
-        assertThat(update.exerciseConfig!!.exerciseType).isEqualTo(WALKING)
+        assertThat(update.exerciseConfig!!.exerciseType).isEqualTo(GOLF)
         assertThat(
-            update.exerciseConfig!!.exerciseTypeConfig!!.golfShotTrackingPlaceInfo).isEqualTo(
-            GolfShotTrackingPlaceInfo.FAIRWAY)
+            update.exerciseConfig!!.exerciseTypeConfig!!
+        ).isInstanceOf(GolfExerciseTypeConfig::class.java)
+        assertThat(
+            (update.exerciseConfig!!.exerciseTypeConfig!! as GolfExerciseTypeConfig)
+                .golfShotTrackingPlaceInfo
+        ).isEqualTo(GolfExerciseTypeConfig
+            .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
         assertThat(update.activeDurationCheckpoint!!.activeDuration).isEqualTo(30.duration())
         assertThat(update.exerciseStateInfo.state).isEqualTo(ExerciseState.ACTIVE)
     }

@@ -42,7 +42,10 @@ class UpdateExerciseTypeConfigRequest(
         @JvmField
         val CREATOR: Parcelable.Creator<UpdateExerciseTypeConfigRequest> = newCreator { bytes ->
             val proto = RequestsProto.UpdateExerciseTypeConfigRequest.parseFrom(bytes)
-            UpdateExerciseTypeConfigRequest(proto.packageName, ExerciseTypeConfig(proto.config))
+            UpdateExerciseTypeConfigRequest(
+                proto.packageName,
+                ExerciseTypeConfig.fromProto(proto.config)
+            )
         }
     }
 }

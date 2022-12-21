@@ -16,50 +16,29 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.data.GolfShotTrackingPlaceInfo.Companion.toProto
 import androidx.health.services.client.proto.DataProto
 
 /**
  * Configuration attributes for a specific exercise type that may be modified after the exercise has
- * started.
- *
- * @property golfShotTrackingPlaceInfo location where user takes [DataType.GOLF_SHOT_COUNT] during
- * [ExerciseType.GOLF] activity
+ * started. This should not be instantiated outside the health.services.client.data library.
  */
-class ExerciseTypeConfig private constructor(
-  @GolfShotTrackingPlaceInfo
-  val golfShotTrackingPlaceInfo: Int = GolfShotTrackingPlaceInfo.UNSPECIFIED
-) {
-
-  internal constructor(
-    proto: DataProto.ExerciseTypeConfig
-  ) : this (
-    GolfShotTrackingPlaceInfo.fromProto(proto.golfShotTrackingPlaceInfo)
-  )
-
-  internal fun toProto(): DataProto.ExerciseTypeConfig {
-    return DataProto.ExerciseTypeConfig.newBuilder()
-      .setGolfShotTrackingPlaceInfo(golfShotTrackingPlaceInfo.toProto())
-      .build()
-  }
-
-  override fun toString(): String =
-    "ExerciseTypeConfig(golfShotTrackingPlaceInfo=$golfShotTrackingPlaceInfo)"
-
+abstract class ExerciseTypeConfig internal constructor() {
+  internal abstract fun toProto(): DataProto.ExerciseTypeConfig
   companion object {
-    /**
-     * Creates golf-specific exercise type configuration.
-     *
-     * @param golfShotTrackingPlaceInfo location where user takes [DataType.GOLF_SHOT_COUNT] during
-     * [ExerciseType.GOLF] activity
-     *
-     * @return an instance of [ExerciseTypeConfig] with specific [GolfShotTrackingPlaceInfo]
-     */
-    @JvmStatic
-    fun createGolfExerciseTypeConfig(
-      @GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo: Int
-    ): ExerciseTypeConfig {
-      return ExerciseTypeConfig(golfShotTrackingPlaceInfo)
+    internal fun fromProto(proto: DataProto.ExerciseTypeConfig): ExerciseTypeConfig {
+      if (proto.hasGolfShotTrackingPlaceInfo()) {
+        return GolfExerciseTypeConfig(
+          GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
+            .fromProto(proto.golfShotTrackingPlaceInfo)
+        )
+      } else {
+        val emptyExerciseTypeConfig = object : ExerciseTypeConfig() {
+          override fun toProto(): DataProto.ExerciseTypeConfig {
+            return DataProto.ExerciseTypeConfig.getDefaultInstance()
+          }
+        }
+        return emptyExerciseTypeConfig
+      }
     }
   }
 }
