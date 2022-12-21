@@ -52,6 +52,19 @@ package androidx.window.embedding {
     property public final boolean isEmpty;
   }
 
+  public final class EmbeddingAspectRatio {
+    method public static androidx.window.embedding.EmbeddingAspectRatio alwaysAllow();
+    method public static androidx.window.embedding.EmbeddingAspectRatio alwaysDisallow();
+    method public static androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
+    field public static final androidx.window.embedding.EmbeddingAspectRatio.Companion Companion;
+  }
+
+  public static final class EmbeddingAspectRatio.Companion {
+    method public androidx.window.embedding.EmbeddingAspectRatio alwaysAllow();
+    method public androidx.window.embedding.EmbeddingAspectRatio alwaysDisallow();
+    method public androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
+  }
+
   public abstract class EmbeddingRule {
     method public final String? getTag();
     property public final String? tag;
@@ -209,6 +222,8 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPairRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
     method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithSecondary);
     method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(androidx.window.embedding.SplitRule.FinishBehavior finishSecondaryWithPrimary);
+    method public androidx.window.embedding.SplitPairRule.Builder setMaxAspectRatioInLandscape(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPairRule.Builder setMaxAspectRatioInPortrait(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
     method public androidx.window.embedding.SplitPairRule.Builder setMinHeightDp(@IntRange(from=0L) int minHeightDp);
     method public androidx.window.embedding.SplitPairRule.Builder setMinSmallestWidthDp(@IntRange(from=0L) int minSmallestWidthDp);
     method public androidx.window.embedding.SplitPairRule.Builder setMinWidthDp(@IntRange(from=0L) int minWidthDp);
@@ -231,6 +246,8 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPlaceholderRule build();
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithPlaceholder);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMaxAspectRatioInLandscape(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMaxAspectRatioInPortrait(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setMinHeightDp(@IntRange(from=0L) int minHeightDp);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setMinSmallestWidthDp(@IntRange(from=0L) int minSmallestWidthDp);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setMinWidthDp(@IntRange(from=0L) int minWidthDp);
@@ -240,15 +257,22 @@ package androidx.window.embedding {
 
   public class SplitRule extends androidx.window.embedding.EmbeddingRule {
     method public final androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public final androidx.window.embedding.EmbeddingAspectRatio getMaxAspectRatioInLandscape();
+    method public final androidx.window.embedding.EmbeddingAspectRatio getMaxAspectRatioInPortrait();
     method public final int getMinHeightDp();
     method public final int getMinSmallestWidthDp();
     method public final int getMinWidthDp();
     property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
+    property public final androidx.window.embedding.EmbeddingAspectRatio maxAspectRatioInLandscape;
+    property public final androidx.window.embedding.EmbeddingAspectRatio maxAspectRatioInPortrait;
     property public final int minHeightDp;
     property public final int minSmallestWidthDp;
     property public final int minWidthDp;
     field public static final androidx.window.embedding.SplitRule.Companion Companion;
-    field public static final int DEFAULT_SPLIT_MIN_DIMENSION_DP = 600; // 0x258
+    field public static final androidx.window.embedding.EmbeddingAspectRatio SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT;
+    field public static final androidx.window.embedding.EmbeddingAspectRatio SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT;
+    field public static final int SPLIT_MIN_DIMENSION_ALWAYS_ALLOW = 0; // 0x0
+    field public static final int SPLIT_MIN_DIMENSION_DP_DEFAULT = 600; // 0x258
   }
 
   public static final class SplitRule.Companion {
