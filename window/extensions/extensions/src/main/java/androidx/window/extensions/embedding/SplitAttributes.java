@@ -35,36 +35,41 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Attributes to describe how the task bounds are split, which includes information on how the task
- * bounds are split between the activity containers:
+ * Attributes that describe how the parent window (typically the activity task
+ * window) is split between the primary and secondary activity containers,
+ * including:
  * <ul>
- *   <li>Layout directions</li>
- *   <li>Whether the task bounds are split vertically horizontally</li>
- *   <li>The position of the primary and the secondary activity containers</li>
- * </ul>
- * Attributes can be configured in the following ways:
- * <ul>
- *   <li> Set the default {@code SplitAttributes} via
- *     {@link SplitPairRule.Builder#setDefaultSplitAttributes(SplitAttributes)} and
- *     {@link SplitPlaceholderRule.Builder#setDefaultSplitAttributes(SplitAttributes)} </li>
- *   <li> Used in {@link SplitAttributesCalculator#computeSplitAttributesForParams(
- *     SplitAttributesCalculator.SplitAttributesCalculatorParams)} to customize the
- *     {@link SplitAttributes} for a given device and window state. </li>
+ *     <li>Split type -- Categorizes the split and specifies the sizes of the
+ *         primary and secondary activity containers relative to the parent
+ *         bounds</li>
+ *     <li>Layout direction -- Specifies whether the parent window is split
+ *         vertically or horizontally and in which direction the primary and
+ *         secondary containers are respectively positioned (left to right,
+ *         right to left, top to bottom, and so forth)</li>
+ *     <li>Animation background color -- The color of the background during
+ *         animation of the split involving this {@code SplitAttributes} object
+ *         if the animation requires a background</li>
  * </ul>
  *
- * @see SplitAttributes#getSplitType()
- * @see SplitType
- * @see LayoutDirection
+ * <p>Attributes can be configured by:
+ * <ul>
+ *     <li>Setting the default {@code SplitAttributes} using
+ *         {@link SplitPairRule.Builder#setDefaultSplitAttributes} or
+ *         {@link SplitPlaceholderRule.Builder#setDefaultSplitAttributes}.</li>
+ *     <li>Using
+ *         {@link SplitAttributesCalculator#computeSplitAttributesForParams}
+ *         to customize the {@code SplitAttributes} for a given device and
+ *         window state.</li>
+ * </ul>
  *
+ * @see SplitAttributes.SplitType
+ * @see SplitAttributes.LayoutDirection
  * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
 public class SplitAttributes {
     /**
-     * Defines how the Task should be split between the primary and the secondary containers.
-     *
-     * @see RatioSplitType
-     * @see ExpandContainersSplitType
-     * @see HingeSplitType
+     * The type of window split, which defines the proportion of the parent
+     * window occupied by the primary and secondary activity containers.
      */
     public static class SplitType {
         @NonNull
@@ -110,14 +115,35 @@ public class SplitAttributes {
         }
 
         /**
-         * Defines what activity container should be given to the primary part of the task
-         * bounds. Values in range (0.0, 1.0) define the size of the primary container of the
-         * split relative to the corresponding task dimension size.
+         * A window split that's based on the ratio of the size of the primary
+         * container to the size of the parent window.
+         *
+         * <p>Values in the non-inclusive range (0.0, 1.0) define the size of
+         * the primary container relative to the size of the parent window:
+         * <ul>
+         *     <li>0.5 -- Primary container occupies half of the parent
+         *         window; secondary container, the other half</li>
+         *     <li>Greater than 0.5 -- Primary container occupies a larger
+         *         proportion of the parent window than the secondary
+         *         container</li>
+         *     <li>Less than 0.5 -- Primary container occupies a smaller
+         *         proportion of the parent window than the secondary
+         *         container</li>
+         * </ul>
          */
         public static final class RatioSplitType extends SplitType {
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
             private final float mRatio;
 
+            /**
+             * Creates an instance of this {@code RatioSplitType}.
+             *
+             * @param ratio The proportion of the parent window occupied by the
+             *     primary container of the split. Can be a value in the
+             *     non-inclusive range (0.0, 1.0). Use
+             *     {@link SplitType.ExpandContainersSplitType} to create a split
+             *     type that occupies the entire parent window.
+             */
             public RatioSplitType(
                     @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
                     float ratio) {
@@ -130,8 +156,11 @@ public class SplitAttributes {
             }
 
             /**
-             * Returns the {@code float} value ratio of the primary container of the split
-             * relative to the corresponding task dimension size.
+             * Gets the proportion of the parent window occupied by the primary
+             * activity container of the split.
+             *
+             * @return The proportion of the split occupied by the primary
+             *     container.
              */
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
             public float getRatio() {
@@ -139,9 +168,15 @@ public class SplitAttributes {
             }
 
             /**
-             * Indicate that the primary and secondary container share an equal split. It is also
-             * the default {@link #getSplitType()} if
-             * {@link SplitAttributes.Builder#setSplitType(SplitType)} is not specified.
+             * Creates a split type in which the primary and secondary
+             * containers occupy equal portions of the parent window.
+             *
+             * Serves as the default {@link SplitType} if
+             * {@link SplitAttributes.Builder#setSplitType(SplitType)} is not
+             * specified.
+             *
+             * @return A {@code RatioSplitType} in which the activity containers
+             *     occupy equal portions of the parent window.
              */
             @NonNull
             public static RatioSplitType splitEqually() {
@@ -150,36 +185,51 @@ public class SplitAttributes {
         }
 
         /**
-         * A special value of {@link #getSplitType()}. Indicates that the split ratio follows hinge
-         * area position. This value will only be applied if:
-         * <ol>
-         *   <li> the host Task is not in multi-window mode(ex: split-screen, picture-in-picture).
-         *   </li>
-         *   <li> the device has hinge reported by {@link FoldingFeature#getBounds()}.</li>
-         *   <li> the hinge area orientation matches how the task bounds are split:
-         *     <ul>
-         *       <li> the hinge area orientation is vertical, and the task bounds are also split
-         *       vertically.
-         *       </li>
-         *       <li> the hinge area orientation is horizontal, and the tasks bounds are also split
-         *       horizontally. </li>
-         *     </ul>
-         *   </li>
-         * </ol>
-         * Otherwise, it fallbacks to use {@link #getFallbackSplitType()}
+         * A parent window split in which the split ratio conforms to the
+         * position of a hinge or separating fold in the device display.
+         *
+         * The split type is created only if:
+         * <ul>
+         *     <li>The host task is not in multi-window mode (e.g.,
+         *         split-screen mode or picture-in-picture mode)</li>
+         *     <li>The device has a hinge or separating fold reported by
+         *         [androidx.window.layout.FoldingFeature.isSeparating]</li>
+         *     <li>The hinge or separating fold orientation matches how the
+         *         parent bounds are split:
+         *         <ul>
+         *             <li>The hinge or fold orientation is vertical, and
+         *                 the task bounds are also split vertically
+         *                 (containers are side by side)</li>
+         *             <li>The hinge or fold orientation is horizontal, and
+         *                 the task bounds are also split horizontally
+         *                 (containers are top and bottom)</li>
+         *         </ul>
+         *     </li>
+         * </ul>
+         *
+         * Otherwise, the type falls back to the {@code SplitType} returned by
+         * {@link #getFallbackSplitType()}.
          */
         public static final class HingeSplitType extends SplitType {
             @NonNull
             private final SplitType mFallbackSplitType;
 
+            /**
+             * Creates an instance of this {@code HingeSplitType}.
+             *
+             * @param fallbackSplitType The split type to use if a split based
+             *     on the device hinge or separating fold cannot be determined.
+             *     Can be a {@link RatioSplitType} or
+             *     {@link ExpandContainersSplitType}.
+             */
             public HingeSplitType(@NonNull SplitType fallbackSplitType) {
                 super("hinge, fallbackType=" + fallbackSplitType);
                 mFallbackSplitType = fallbackSplitType;
             }
 
             /**
-             * Returns the fallback {@link SplitType} if the host task <b>cannot</b> be split
-             * by the hinge area position with the current window and device state.
+             * Returns the fallback {@link SplitType} if a split based on the
+             * device hinge or separating fold cannot be determined.
              */
             @NonNull
             public SplitType getFallbackSplitType() {
@@ -188,87 +238,122 @@ public class SplitAttributes {
         }
 
         /**
-         * Indicate that both primary and secondary activity containers are expanded to fill the
-         * task parent container, and the secondary container occludes the primary one. It is useful
-         * to make the apps occupy the full task bounds in some device states.
+         * A window split in which the primary and secondary activity containers
+         * each occupy the entire parent window.
+         *
+         * The secondary container overlays the primary container.
          */
         public static final class ExpandContainersSplitType extends SplitType {
+
+            /**
+             * Creates an instance of this {@code ExpandContainersSplitType}.
+             */
             public ExpandContainersSplitType() {
                 super("expandContainers");
             }
         }
     }
 
-    /** A class to define split layout directions. */
+    /**
+     * The layout direction of the primary and secondary activity containers.
+     */
     public static final class LayoutDirection {
-        // TODO(b/241043844): Add the illustration below in DAC.
-        // -------------------------
-        // |           |           |
-        // |  Primary  | Secondary |
-        // |           |           |
-        // -------------------------
+
         /**
-         * A value of {@link #getLayoutDirection()}:
-         * It splits the task bounds vertically, puts the primary container on the left portion,
-         * and the secondary container on the right portion.
+         * Specifies that the parent bounds are split vertically (side to side).
+         *
+         * Places the primary container in the left portion of the parent
+         * window, and the secondary container in the right portion.
+         *
+         * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-        // Must match {@link LayoutDirection#LTR} for backwards compatibility with prior versions
-        // of Extensions.
+         //
+         // -------------------------
+         // |           |           |
+         // |  Primary  | Secondary |
+         // |           |           |
+         // -------------------------
+         //
+         // Must match {@link LayoutDirection#LTR} for backwards compatibility
+         // with prior versions of Extensions.
         public static final int LEFT_TO_RIGHT = 0;
-        // TODO(b/241043844): Add the illustration below in DAC.
-        //            -------------------------
-        //            |           |           |
-        //            | Secondary |  Primary  |
-        //            |           |           |
-        //            -------------------------
+
         /**
-         * A value of {@link #getLayoutDirection()}:
-         * It splits the task bounds vertically, puts the primary container on the right portion,
-         * and the secondary container on the left portion.
+         * Specifies that the parent bounds are split vertically (side to
+         * side).
+         *
+         * Places the primary container in the right portion of the parent
+         * window, and the secondary container in the left portion.
+         *
+         * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-        // Must match {@link LayoutDirection#RTL} for backwards compatibility with prior versions
-        // of Extensions.
+         // -------------------------
+         // |           |           |
+         // | Secondary |  Primary  |
+         // |           |           |
+         // -------------------------
+         //
+         // Must match {@link LayoutDirection#RTL} for backwards compatibility
+         // with prior versions of Extensions.
         public static final int RIGHT_TO_LEFT = 1;
+
         /**
-         * A value of {@link #getLayoutDirection()}:
-         * It splits the task bounds vertically and the direction is deduced from the
-         * language script of locale. The direction can be either {@link #LEFT_TO_RIGHT}
-         * or {@link #RIGHT_TO_LEFT}.
+         * Specifies that the parent bounds are split vertically (side to side).
+         *
+         * The direction of the primary and secondary containers is deduced from
+         * the locale as either {@link #LEFT_TO_RIGHT} or
+         * {@link #RIGHT_TO_LEFT}.
+         *
+         * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-        // Must match {@link LayoutDirection#LOCALE} for backwards compatibility with prior
-        // versions of Extensions.
+         // Must match {@link LayoutDirection#LOCALE} for backwards
+         // compatibility with prior versions of Extensions.
         public static final int LOCALE = 3;
-        // TODO(b/241043844): Add the illustration below in DAC.
-        //            -------------
-        //            |           |
-        //            |  Primary  |
-        //            |           |
-        //            -------------
-        //            |           |
-        //            | Secondary |
-        //            |           |
-        //            -------------
+
         /**
-         * A value of {@link #getLayoutDirection()}:
-         * It splits the task bounds horizontally, puts the primary container on the top portion,
-         * and the secondary container on the bottom portion.
+         * Specifies that the parent bounds are split horizontally (top and
+         * bottom).
+         *
+         * Places the primary container in the top portion of the parent window,
+         * and the secondary container in the bottom portion.
+         *
+         * If the horizontal layout direction is not supported on the device,
+         * layout direction falls back to {@link #LOCALE}.
+         *
+         * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
+         // -------------
+         // |           |
+         // |  Primary  |
+         // |           |
+         // -------------
+         // |           |
+         // | Secondary |
+         // |           |
+         // -------------
         public static final int TOP_TO_BOTTOM = 4;
-        // TODO(b/241043844): Add the illustration below in DAC.
-        //            -------------
-        //            |           |
-        //            | Secondary |
-        //            |           |
-        //            -------------
-        //            |           |
-        //            |  Primary  |
-        //            |           |
-        //            -------------
+
         /**
-         * A value of {@link #getLayoutDirection()}:
-         * It splits the task bounds horizontally, puts the primary container on the bottom
-         * portion, and the secondary container on the top portion.
+         * Specifies that the parent bounds are split horizontally (top and
+         * bottom).
+         *
+         * Places the primary container in the bottom portion of the parent
+         * window, and the secondary container in the top portion.
+         *
+         * If the horizontal layout direction is not supported on the device,
+         * layout direction falls back to {@link #LOCALE}.
+         *
+         * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
+         // -------------
+         // |           |
+         // | Secondary |
+         // |           |
+         // -------------
+         // |           |
+         // |  Primary  |
+         // |           |
+         // -------------
         public static final int BOTTOM_TO_TOP = 5;
 
         private LayoutDirection() {}
@@ -286,6 +371,18 @@ public class SplitAttributes {
     @ColorInt
     private final int mAnimationBackgroundColor;
 
+    /**
+     * Creates an instance of this {@code SplitAttributes}.
+     *
+     * @param splitType The type of split. See
+     *     {@link SplitAttributes.SplitType}.
+     * @param layoutDirection The layout direction of the split, such as left to
+     *     right or top to bottom. See {@link SplitAttributes.LayoutDirection}.
+     * @param animationBackgroundColor The {@link ColorInt} to use for the
+     *     background color during animation of the split involving this
+     *     {@code SplitAttributes} object if the animation requires a
+     *     background.
+     */
     SplitAttributes(@NonNull SplitType splitType, @ExtLayoutDirection int layoutDirection,
             @ColorInt int animationBackgroundColor) {
         mSplitType = splitType;
@@ -293,28 +390,45 @@ public class SplitAttributes {
         mAnimationBackgroundColor = animationBackgroundColor;
     }
 
-    /** Returns {@link LayoutDirection} for the {@link SplitAttributes}. */
+    /**
+     * Gets the layout direction of the split.
+     *
+     * @return The layout direction of the split.
+     */
     @ExtLayoutDirection
     public int getLayoutDirection() {
         return mLayoutDirection;
     }
 
-    /** Returns {@link SplitType} for the {@link SplitAttributes}. */
+    /**
+     * Gets the split type.
+     *
+     * @return The split type.
+     */
     @NonNull
     public SplitType getSplitType() {
         return mSplitType;
     }
 
     /**
-     * Returns the {@link ColorInt} to use for the background during the animation with this
-     * {@link SplitAttributes} if the animation requires a background.
+     * Gets the {@link ColorInt} to use for the background color during the
+     * animation of the split involving this {@code SplitAttributes} object.
+     *
+     * @return The animation background {@code ColorInt}.
      */
     @ColorInt
     public int getAnimationBackgroundColor() {
         return mAnimationBackgroundColor;
     }
 
-    /** Builders for {@link SplitAttributes} */
+    /**
+     * Builder for creating an instance of {@link SplitAttributes}.
+     *
+     * The default split type is an equal split between primary and secondary
+     * containers. The default layout direction is based on locale. The default
+     * animation background color is 0, which specifies the theme window
+     * background color.
+     */
     public static final class Builder {
         @NonNull
         private SplitType mSplitType =  new SplitType.RatioSplitType(0.5f);
@@ -325,9 +439,13 @@ public class SplitAttributes {
         private int mAnimationBackgroundColor = 0;
 
         /**
-         * Sets the {@link SplitType} of this {@link SplitAttributes}. The default value is
-         * {@link SplitType.RatioSplitType#splitEqually()} if other value is not requested
-         * explicitly.
+         * Sets the split type attribute.
+         *
+         * The default is an equal split between primary and secondary
+         * containers (see {@link SplitType.RatioSplitType#splitEqually()}).
+         *
+         * @param splitType The split type attribute.
+         * @return This {@code Builder}.
          */
         @NonNull
         public Builder setSplitType(@NonNull SplitType splitType) {
@@ -336,18 +454,23 @@ public class SplitAttributes {
         }
 
         /**
-         * Sets the {@link LayoutDirection} of this {@link SplitAttributes}. The default value is
-         * {@link LayoutDirection#LOCALE} if other value is not requested explicitly.
+         * Sets the split layout direction attribute.
+         *
+         * The default is based on locale.
+         *
          * Must be one of:
          * <ul>
+         *     <li>{@link LayoutDirection#LOCALE}</li>
          *     <li>{@link LayoutDirection#LEFT_TO_RIGHT}</li>
          *     <li>{@link LayoutDirection#RIGHT_TO_LEFT}</li>
-         *     <li>{@link LayoutDirection#LOCALE}</li>
          *     <li>{@link LayoutDirection#TOP_TO_BOTTOM}</li>
          *     <li>{@link LayoutDirection#BOTTOM_TO_TOP}</li>
          * </ul>
+         *
+         * @param layoutDirection The layout direction attribute.
+         * @return This {@code Builder}.
          */
-        @SuppressLint("WrongConstant") // To compat with android.util.LayoutDirection APIs
+        @SuppressLint("WrongConstant") // To be compat with android.util.LayoutDirection APIs
         @NonNull
         public Builder setLayoutDirection(@ExtLayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
@@ -355,12 +478,16 @@ public class SplitAttributes {
         }
 
         /**
-         * Sets the {@link ColorInt} to use for the background during the animation with this
-         * {@link SplitAttributes} if the animation requires a background. The default value is
-         * {@code 0}, which is to use the theme window background.
+         * Sets the {@link ColorInt} to use for the background during the
+         * animation of the split involving this {@code SplitAttributes} object
+         * if the animation requires a background.
          *
-         * @param color a packed color int, {@code AARRGGBB}, for the animation background color.
-         * @return this {@link Builder}.
+         * The default value is 0, which specifies the theme window background
+         * color.
+         *
+         * @param color A packed color int of the form {@code AARRGGBB} for the
+         *     animation background color.
+         * @return This {@code Builder}.
          */
         @NonNull
         public Builder setAnimationBackgroundColor(@ColorInt int color) {
@@ -368,7 +495,13 @@ public class SplitAttributes {
             return this;
         }
 
-        /** Builds {@link SplitAttributes} instance. */
+        /**
+         * Builds a {@link SplitAttributes} instance with the attributes
+         * specified by {@link #setSplitType}, {@link #setLayoutDirection}, and
+         * {@link #setAnimationBackgroundColor}.
+         *
+         * @return The new {@code SplitAttributes} instance.
+         */
         @NonNull
         public SplitAttributes build() {
             return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackgroundColor);
