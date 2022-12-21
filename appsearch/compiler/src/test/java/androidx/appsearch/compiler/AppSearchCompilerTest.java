@@ -1148,6 +1148,48 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testLongPropertyIndexingType() throws Exception {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty Long defaultIndexNone;\n"
+                        + "  @Document.LongProperty(indexingType=0) Long indexNone;\n"
+                        + "  @Document.LongProperty(indexingType=1) Integer boxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) int unboxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) Long boxLong;\n"
+                        + "  @Document.LongProperty(indexingType=1) long unboxLong;\n"
+                        + "  @Document.LongProperty(indexingType=1) Integer[] arrBoxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) int[] arrUnboxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) Long[] arrBoxLong;\n"
+                        + "  @Document.LongProperty(indexingType=1) long[] arrUnboxLong;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testInvalidLongPropertyIndexingType() throws Exception {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty(indexingType=100) Long invalidProperty;\n"
+                        + "}\n");
+
+        assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
+    }
+
+    @Test
     public void testPropertyName() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"

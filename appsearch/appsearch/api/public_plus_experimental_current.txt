@@ -33,6 +33,7 @@ package androidx.appsearch.annotation {
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.LongProperty {
+    method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
   }
