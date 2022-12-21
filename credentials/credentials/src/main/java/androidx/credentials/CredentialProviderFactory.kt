@@ -42,10 +42,16 @@ class CredentialProviderFactory {
          * Post-U, providers will be registered with the framework, and enabled by the user.
          */
         fun getBestAvailableProvider(context: Context): CredentialProvider? {
-            if (Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) {
+            if ((Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
+                (Build.VERSION.PREVIEW_SDK_INT == 0)) {
                 return tryCreatePreUOemProvider(context)
-            } else {
+            } else if ((Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
+                (Build.VERSION.PREVIEW_SDK_INT > 0)) {
                 return CredentialProviderFrameworkImpl(context)
+            } else if (Build.VERSION.SDK_INT > MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) {
+                return CredentialProviderFrameworkImpl(context)
+            } else {
+                return null
             }
         }
 
@@ -83,8 +89,10 @@ class CredentialProviderFactory {
         @Suppress("deprecation")
         private fun getAllowedProvidersFromManifest(context: Context): List<String> {
             val packageInfo = context.packageManager
-                .getPackageInfo(context.packageName, PackageManager.GET_META_DATA or
-                        PackageManager.GET_SERVICES)
+                .getPackageInfo(
+                    context.packageName, PackageManager.GET_META_DATA or
+                        PackageManager.GET_SERVICES
+                )
 
             val classNames = mutableListOf<String>()
             if (packageInfo.services != null) {
