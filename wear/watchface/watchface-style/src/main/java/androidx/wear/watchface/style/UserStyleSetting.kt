@@ -1419,7 +1419,10 @@ public sealed class UserStyleSetting private constructor(
                 options.map {
                     (it as ComplicationSlotsOption).watchFaceEditorData?.toWireFormat() ?: Bundle()
                 },
-                options.map { (it as ComplicationSlotsOption).screenReaderName }
+                options.map {
+                    it as ComplicationSlotsOption
+                    it.screenReaderName ?: it.displayName
+                }
             )
 
         internal companion object {
@@ -2216,7 +2219,10 @@ public sealed class UserStyleSetting private constructor(
                 affectedWatchFaceLayers.map { it.ordinal },
                 watchFaceEditorData?.toWireFormat(),
                 options.map { (it as ListOption).watchFaceEditorData?.toWireFormat() ?: Bundle() },
-                options.map { (it as ListOption).screenReaderName }
+                options.map {
+                    it as ListOption
+                    it.screenReaderName ?: it.displayName
+                }
             )
 
         internal companion object {
