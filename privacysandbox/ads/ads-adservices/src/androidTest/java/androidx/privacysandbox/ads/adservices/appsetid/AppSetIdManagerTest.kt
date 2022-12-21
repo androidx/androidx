@@ -40,6 +40,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class AppSetIdManagerTest {
@@ -51,6 +52,8 @@ class AppSetIdManagerTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAppSetIdOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(AppSetIdManager.obtain(mContext)).isEqualTo(null)
     }
@@ -59,6 +62,8 @@ class AppSetIdManagerTest {
     @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testAppSetIdAsync() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val appSetIdManager = mockAppSetIdManager(mContext)
         setupResponse(appSetIdManager)
@@ -76,12 +81,10 @@ class AppSetIdManagerTest {
         verifyResponse(result)
     }
 
-    @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
         private lateinit var mContext: Context
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
         private fun mockAppSetIdManager(
             spyContext: Context

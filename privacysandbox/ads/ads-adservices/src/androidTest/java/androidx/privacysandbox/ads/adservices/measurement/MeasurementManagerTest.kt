@@ -45,6 +45,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class MeasurementManagerTest {
@@ -57,14 +58,17 @@ class MeasurementManagerTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testMeasurementOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(obtain(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testDeleteRegistrations() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -101,9 +105,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterSource() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val inputEvent = mock(InputEvent::class.java)
         val measurementManager = mockMeasurementManager(mContext)
@@ -135,9 +140,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterTrigger() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -165,9 +171,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterWebSource() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -205,9 +212,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterWebTrigger() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -243,9 +251,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testMeasurementApiStatus() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -270,9 +279,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testMeasurementApiStatusUnknown() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -296,11 +306,9 @@ class MeasurementManagerTest {
         assertThat(actualResult == 5)
     }
 
-    @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
         private val uri1: Uri = Uri.parse("www.abc.com")
         private val uri2: Uri = Uri.parse("http://www.xyz.com")

@@ -46,6 +46,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class TopicsManagerTest {
@@ -58,6 +59,8 @@ class TopicsManagerTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testTopicsOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(obtain(mContext)).isEqualTo(null)
     }
@@ -66,6 +69,8 @@ class TopicsManagerTest {
     @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testTopicsAsync() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val topicsManager = mockTopicsManager(mContext)
         setupTopicsResponse(topicsManager)
@@ -93,9 +98,10 @@ class TopicsManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testTopicsAsyncPreviewNotSupported() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val topicsManager = mockTopicsManager(mContext)
         setupTopicsResponse(topicsManager)
@@ -114,12 +120,9 @@ class TopicsManagerTest {
         }.hasMessageThat().contains("shouldRecordObservation not supported yet.")
     }
 
-    @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
-
         private lateinit var mContext: Context
         private val mSdkName: String = "sdk1"
 

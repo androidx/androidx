@@ -46,6 +46,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class TopicsManagerFuturesTest {
@@ -58,6 +59,8 @@ class TopicsManagerFuturesTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testTopicsOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(from(mContext)).isEqualTo(null)
     }
@@ -66,6 +69,8 @@ class TopicsManagerFuturesTest {
     @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testTopicsAsync() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val topicsManager = mockTopicsManager(mContext)
         setupTopicsResponse(topicsManager)
@@ -92,12 +97,9 @@ class TopicsManagerFuturesTest {
     }
 
     companion object {
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
-
         private lateinit var mContext: Context
         private val mSdkName: String = "sdk1"
 
-        @SuppressWarnings("NewApi")
         @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
         private fun mockTopicsManager(spyContext: Context): TopicsManager {
             val topicsManager = mock(TopicsManager::class.java)
@@ -106,7 +108,6 @@ class TopicsManagerFuturesTest {
             return topicsManager
         }
 
-        @SuppressWarnings("NewApi")
         @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
         private fun setupTopicsResponse(topicsManager: TopicsManager) {
             // Set up the response that TopicsManager will return when the compat code calls it.
@@ -128,7 +129,6 @@ class TopicsManagerFuturesTest {
                 )
         }
 
-        @SuppressWarnings("NewApi")
         @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
         private fun verifyRequest(topicsRequest: android.adservices.topics.GetTopicsRequest) {
             // Set up the request that we expect the compat code to invoke.
@@ -139,7 +139,6 @@ class TopicsManagerFuturesTest {
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
         }
 
-        @SuppressWarnings("NewApi")
         @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
         private fun verifyResponse(getTopicsResponse: GetTopicsResponse) {
             Assert.assertEquals(2, getTopicsResponse.topics.size)

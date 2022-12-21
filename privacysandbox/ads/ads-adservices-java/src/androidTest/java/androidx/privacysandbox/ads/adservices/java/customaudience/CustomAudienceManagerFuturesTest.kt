@@ -50,6 +50,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class CustomAudienceManagerFuturesTest {
@@ -62,14 +63,17 @@ class CustomAudienceManagerFuturesTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         Truth.assertThat(from(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testJoinCustomAudience() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val customAudienceManager = mockCustomAudienceManager(mContext)
         setupResponse(customAudienceManager)
@@ -77,8 +81,8 @@ class CustomAudienceManagerFuturesTest {
 
         // Actually invoke the compat code.
         val customAudience = CustomAudience.Builder(buyer, name, uri, uri, ads)
-            .setActivationTime(activationTime)
-            .setExpirationTime(expirationTime)
+            .setActivationTime(Instant.now())
+            .setExpirationTime(Instant.now())
             .setUserBiddingSignals(userBiddingSignals)
             .setTrustedBiddingData(trustedBiddingSignals)
             .build()
@@ -96,9 +100,10 @@ class CustomAudienceManagerFuturesTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testLeaveCustomAudience() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val customAudienceManager = mockCustomAudienceManager(mContext)
         setupResponse(customAudienceManager)
@@ -118,18 +123,14 @@ class CustomAudienceManagerFuturesTest {
         verifyLeaveCustomAudienceRequest(captor.value)
     }
 
-    @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
         private lateinit var mContext: Context
         private val uri: Uri = Uri.parse("abc.com")
         private const val adtech = "1234"
         private val buyer: AdTechIdentifier = AdTechIdentifier(adtech)
         private const val name: String = "abc"
-        private val activationTime: Instant = Instant.now()
-        private val expirationTime: Instant = Instant.now()
         private const val signals = "signals"
         private val userBiddingSignals: AdSelectionSignals = AdSelectionSignals(signals)
         private val keys: List<String> = listOf("key1", "key2")
@@ -169,8 +170,8 @@ class CustomAudienceManagerFuturesTest {
             val customAudience = android.adservices.customaudience.CustomAudience.Builder()
                 .setBuyer(adtechIdentifier)
                 .setName(name)
-                .setActivationTime(activationTime)
-                .setExpirationTime(expirationTime)
+                .setActivationTime(Instant.now())
+                .setExpirationTime(Instant.now())
                 .setBiddingLogicUri(uri)
                 .setDailyUpdateUri(uri)
                 .setUserBiddingSignals(userBiddingSignals)
