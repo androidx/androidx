@@ -64,10 +64,12 @@ object FunSpecHelper {
     ): FunSpec.Builder {
         return FunSpec.builder(executableElement.name).apply {
             addModifiers(KModifier.OVERRIDE)
-            if (executableElement.isPublic()) {
-                addModifiers(KModifier.PUBLIC)
+            if (executableElement.isInternal()) {
+                addModifiers(KModifier.INTERNAL)
             } else if (executableElement.isProtected()) {
                 addModifiers(KModifier.PROTECTED)
+            } else if (executableElement.isPublic()) {
+                addModifiers(KModifier.PUBLIC)
             }
             if (executableElement.isSuspendFunction()) {
                 addModifiers(KModifier.SUSPEND)
