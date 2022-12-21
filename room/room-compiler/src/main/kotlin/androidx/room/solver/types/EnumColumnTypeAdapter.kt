@@ -132,7 +132,9 @@ class EnumColumnTypeAdapter(
                             enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
                                 addStatement(
                                     "%T.%L -> %S",
-                                    out.asTypeName(), enumConstantName, enumConstantName
+                                    enumTypeElement.asClassName(),
+                                    enumConstantName,
+                                    enumConstantName
                                 )
                             }
                             endControlFlow()
@@ -142,7 +144,7 @@ class EnumColumnTypeAdapter(
                 builder.apply {
                     returns(CommonTypeNames.STRING.copy(nullable = false))
                     addParameter(
-                        out.asTypeName().copy(nullable = false),
+                        enumTypeElement.asClassName(),
                         paramName
                     )
                     addCode(body)
@@ -175,7 +177,9 @@ class EnumColumnTypeAdapter(
                             enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
                                 addStatement(
                                     "case %S: return %T.%L",
-                                    enumConstantName, out.asTypeName(), enumConstantName
+                                    enumConstantName,
+                                    enumTypeElement.asClassName(),
+                                    enumConstantName
                                 )
                             }
                             addStatement(
@@ -192,7 +196,9 @@ class EnumColumnTypeAdapter(
                             enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
                                 addStatement(
                                     "%S -> %T.%L",
-                                    enumConstantName, out.asTypeName(), enumConstantName
+                                    enumConstantName,
+                                    enumTypeElement.asClassName(),
+                                    enumConstantName
                                 )
                             }
                             addStatement(
@@ -206,7 +212,7 @@ class EnumColumnTypeAdapter(
                     }
                 }.build()
                 builder.apply {
-                    returns(out.asTypeName().copy(nullable = false))
+                    returns(enumTypeElement.asClassName())
                     addParameter(
                         CommonTypeNames.STRING.copy(nullable = false),
                         paramName

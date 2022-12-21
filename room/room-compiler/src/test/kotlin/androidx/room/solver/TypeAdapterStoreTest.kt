@@ -1534,7 +1534,7 @@ class TypeAdapterStoreTest {
                     is CompositeAdapter -> {
                         when (val converter = binder.intoStatementConverter) {
                             null -> "composite null"
-                            is CustomTypeConverterWrapper -> converter.custom.methodName
+                            is CustomTypeConverterWrapper -> converter.custom.method.name
                             else -> "composite unknown"
                         }
                     }

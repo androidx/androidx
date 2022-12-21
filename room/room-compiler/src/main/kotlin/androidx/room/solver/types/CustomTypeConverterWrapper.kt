@@ -45,14 +45,14 @@ class CustomTypeConverterWrapper(
                     scope.language,
                     "%T.INSTANCE.%L(%L)",
                     custom.className,
-                    custom.methodName,
+                    custom.getMethodName(scope.language),
                     inputVarName
                 )
                 CodeLanguage.KOTLIN -> XCodeBlock.of(
                     scope.language,
                     "%T.%L(%L)",
                     custom.className,
-                    custom.methodName,
+                    custom.getMethodName(scope.language),
                     inputVarName
                 )
             }
@@ -61,7 +61,7 @@ class CustomTypeConverterWrapper(
                 scope.language,
                 "%T.%L(%L)",
                 custom.className,
-                custom.methodName,
+                custom.getMethodName(scope.language),
                 inputVarName
             )
         } else {
@@ -70,7 +70,7 @@ class CustomTypeConverterWrapper(
                     scope.language,
                     "%N().%L(%L)",
                     providedTypeConverter(scope),
-                    custom.methodName,
+                    custom.getMethodName(scope.language),
                     inputVarName
                 )
             } else {
@@ -78,7 +78,7 @@ class CustomTypeConverterWrapper(
                     scope.language,
                     "%N.%L(%L)",
                     typeConverter(scope),
-                    custom.methodName,
+                    custom.getMethodName(scope.language),
                     inputVarName
                 )
             }

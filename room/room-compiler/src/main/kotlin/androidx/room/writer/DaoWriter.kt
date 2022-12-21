@@ -699,7 +699,7 @@ class DaoWriter(
     }
 
     class PreparedStatementProperty(val method: QueryMethod) : SharedPropertySpec(
-        baseName = "preparedStmtOf${method.element.jvmName.capitalize(Locale.US)}",
+        baseName = "preparedStmtOf${method.element.name.capitalize(Locale.US)}",
         type = SHARED_SQLITE_STMT
     ) {
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
