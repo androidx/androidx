@@ -52,7 +52,10 @@ class SessionManagerImplTest {
             TODO("Not yet implemented")
         }
 
-        override suspend fun processEmittableTree(context: Context, root: EmittableWithChildren) {
+        override suspend fun processEmittableTree(
+            context: Context,
+            root: EmittableWithChildren
+        ): Boolean {
             TODO("Not yet implemented")
         }
 

@@ -202,8 +202,12 @@ class TestSession(
         return content
     }
 
-    override suspend fun processEmittableTree(context: Context, root: EmittableWithChildren) {
+    override suspend fun processEmittableTree(
+        context: Context,
+        root: EmittableWithChildren
+    ): Boolean {
         onUiFlow?.emit(root)
+        return true
     }
 
     override suspend fun processEvent(context: Context, event: Any) {

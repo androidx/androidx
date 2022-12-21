@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
 
 /**
  * A frame clock implementation that supports interactive mode.
@@ -100,10 +101,21 @@ internal class InteractiveFrameClock(
             period = now - lastFrame
             minPeriod = NANOSECONDS_PER_SECOND / currentHz
         }
-        if (period >= minPeriod) {
-            sendFrame(now)
-        } else {
-            scope.launch {
+        scope.launch {
+            if (period >= minPeriod) {
+                // Our SessionWorker updates the Session whenever Recomposer.currentState is Idle.
+                // When a new frame is awaiting, it usually means that the currentState is
+                // PendingWork. Once the frame is run, the currentState will return to Idle.
+                // Sometimes, the currentState can transition from Idle to PendingWork and back to
+                // Idle without suspending, which means that the SessionWorker cannot collect the
+                // intermediate PendingWork state. Because currentState is a StateFlow,
+                // SessionWorker will not be notified of the second Idle because it is the same
+                // as the state that was collected last.
+                // Yielding here gives the SessionWorker an opportunity to collect the PendingWork
+                // state and the following Idle state as distinct states.
+                yield()
+                sendFrame(now)
+            } else {
                 delay((minPeriod - period) / NANOSECONDS_PER_MILLISECOND)
                 sendFrame(nanoTime())
             }

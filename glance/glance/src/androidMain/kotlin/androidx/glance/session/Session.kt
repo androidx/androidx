@@ -51,8 +51,12 @@ abstract class Session(val key: String) {
      * [provideGlance].
      *
      * This will also be called for the results of future recompositions.
+     * @return true if the tree has been processed and the session is ready to handle events.
      */
-    abstract suspend fun processEmittableTree(context: Context, root: EmittableWithChildren)
+    abstract suspend fun processEmittableTree(
+        context: Context,
+        root: EmittableWithChildren
+    ): Boolean
 
     /**
      * Process an event that was sent to this session.
@@ -79,7 +83,8 @@ abstract class Session(val key: String) {
                 block(event)
                 processEvent(context, event)
             }
-        } catch (_: ClosedReceiveChannelException) {}
+        } catch (_: ClosedReceiveChannelException) {
+        }
     }
 
     suspend fun close() {
