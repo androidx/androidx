@@ -42,10 +42,13 @@ import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.ResolutionSelector
+import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.CameraConfig
@@ -81,6 +84,7 @@ import kotlin.math.abs
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -1490,6 +1494,83 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         // Assert.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+    }
+
+    @Test
+    fun capturedImage_withHighResolutionEnabled_imageCaptureOnly() = runBlocking {
+        capturedImage_withHighResolutionEnabled()
+    }
+
+    @Test
+    fun capturedImage_withHighResolutionEnabled_imageCapturePreviewImageAnalysis() = runBlocking {
+        val preview = Preview.Builder().build().also {
+            withContext(Dispatchers.Main) {
+                it.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+            }
+        }
+        val imageAnalysis = ImageAnalysis.Builder().build().also { imageAnalysis ->
+            imageAnalysis.setAnalyzer(Dispatchers.Default.asExecutor()) { imageProxy ->
+                imageProxy.close()
+            }
+        }
+        capturedImage_withHighResolutionEnabled(preview, imageAnalysis)
+    }
+
+    private fun capturedImage_withHighResolutionEnabled(
+        preview: Preview? = null,
+        imageAnalysis: ImageAnalysis? = null
+    ) = runBlocking {
+        // TODO(b/247492645) Remove camera-pipe-integration restriction after porting
+        //  ResolutionSelector logic
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+
+        val maxHighResolutionOutputSize = CameraUtil.getMaxHighResolutionOutputSizeWithLensFacing(
+            BACK_SELECTOR.lensFacing!!,
+            ImageFormat.JPEG
+        )
+        // Only runs the test when the device has high resolution output sizes
+        assumeTrue(maxHighResolutionOutputSize != null)
+
+        val resolutionSelector =
+            ResolutionSelector.Builder()
+                .setPreferredResolution(maxHighResolutionOutputSize!!)
+                .setHighResolutionEnabled(true)
+                .build()
+        val sensorOrientation = CameraUtil.getSensorOrientation(BACK_SELECTOR.lensFacing!!)
+        // Sets the target rotation to the camera sensor orientation to avoid the captured image
+        // buffer data rotated by the HAL and impact the final image resolution check
+        val targetRotation = if (sensorOrientation!! % 180 == 0) {
+            Surface.ROTATION_0
+        } else {
+            Surface.ROTATION_90
+        }
+        val imageCapture = ImageCapture.Builder()
+            .setResolutionSelector(resolutionSelector)
+            .setTargetRotation(targetRotation)
+            .build()
+
+        val useCases = arrayListOf<UseCase>(imageCapture)
+        preview?.let { useCases.add(it) }
+        imageAnalysis?.let { useCases.add(it) }
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                *useCases.toTypedArray()
+            )
+        }
+
+        assertThat(imageCapture.resolutionInfo!!.resolution).isEqualTo(maxHighResolutionOutputSize)
+
+        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        imageCapture.takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+
+        val imageProperties = callback.results.first()
+        assertThat(imageProperties.size).isEqualTo(maxHighResolutionOutputSize)
     }
 
     private fun createNonRotatedConfiguration(): ImageCaptureConfig {
