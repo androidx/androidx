@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,6 +87,47 @@ public class ScrollAwayTest {
         rule.onNodeWithTag(TIME_TEXT_TAG).assertIsDisplayed()
     }
 
+    @Test
+    fun hidesTimeTextWithMaterialScalingLazyColumn() {
+        lateinit var scrollState: androidx.wear.compose.material.ScalingLazyListState
+        rule.setContentWithTheme {
+            scrollState =
+                androidx.wear.compose.material.rememberScalingLazyListState(
+                    initialCenterItemIndex = 1,
+                    initialCenterItemScrollOffset = 0
+                )
+            MaterialScalingLazyColumnTest(itemIndex = 1, offset = 0.dp, scrollState)
+        }
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
+
+        rule.onNodeWithTag(TIME_TEXT_TAG).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun showsTimeTextWithMaterialScalingLazyColumnIfItemIndexInvalid() {
+        val scrollAwayItemIndex = 10
+        lateinit var scrollState: androidx.wear.compose.material.ScalingLazyListState
+        rule.setContentWithTheme {
+            scrollState =
+                androidx.wear.compose.material.rememberScalingLazyListState(
+                    initialCenterItemIndex = 1,
+                    initialCenterItemScrollOffset = 0
+                )
+            MaterialScalingLazyColumnTest(
+                itemIndex = scrollAwayItemIndex,
+                offset = 0.dp,
+                scrollState
+            )
+        }
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
+
+        // b/256166359 - itemIndex > number of items in the list.
+        // ScrollAway should default to always showing TimeText
+        rule.onNodeWithTag(TIME_TEXT_TAG).assertIsDisplayed()
+    }
+
     @Composable
     private fun ScalingLazyColumnTest(
         itemIndex: Int,
@@ -91,7 +136,9 @@ public class ScrollAwayTest {
     ) {
         WithTouchSlop(0f) {
             Scaffold(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.background),
                 timeText = {
                     TimeText(
                         modifier = Modifier
@@ -108,6 +155,50 @@ public class ScrollAwayTest {
                     contentPadding = PaddingValues(10.dp),
                     state = scrollState,
                     autoCentering = AutoCenteringParams(itemIndex = 1, itemOffset = 0),
+                    modifier = Modifier.testTag(SCROLL_TAG)
+                ) {
+                    item {
+                        ListHeader { Text("Chips") }
+                    }
+
+                    items(5) { i ->
+                        ChipTest(Modifier.fillParentMaxHeight(0.5f), i)
+                    }
+                }
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Composable
+    private fun MaterialScalingLazyColumnTest(
+        itemIndex: Int,
+        offset: Dp,
+        scrollState: androidx.wear.compose.material.ScalingLazyListState
+    ) {
+        WithTouchSlop(0f) {
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.background),
+                timeText = {
+                    TimeText(
+                        modifier = Modifier
+                            .scrollAway(
+                                scrollState = scrollState,
+                                itemIndex = itemIndex,
+                                offset = offset,
+                            )
+                            .testTag(TIME_TEXT_TAG)
+                    )
+                },
+            ) {
+                ScalingLazyColumn(
+                    contentPadding = PaddingValues(10.dp),
+                    state = scrollState,
+                    autoCentering = androidx.wear.compose.material.AutoCenteringParams(
+                        itemIndex = 1, itemOffset = 0
+                    ),
                     modifier = Modifier.testTag(SCROLL_TAG)
                 ) {
                     item {
@@ -149,7 +240,8 @@ public class ScrollAwayTest {
                     initialFirstVisibleItemIndex = 1,
                 )
             LazyColumnTest(
-                itemIndex = scrollAwayItemIndex, offset = 0.dp, scrollState)
+                itemIndex = scrollAwayItemIndex, offset = 0.dp, scrollState
+            )
         }
 
         rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
@@ -167,7 +259,9 @@ public class ScrollAwayTest {
     ) {
         WithTouchSlop(0f) {
             Scaffold(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.background),
                 timeText = {
                     TimeText(
                         modifier = Modifier
