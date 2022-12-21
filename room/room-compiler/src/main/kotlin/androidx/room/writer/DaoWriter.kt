@@ -127,7 +127,13 @@ class DaoWriter(
 
         builder.apply {
             addOriginatingElement(dbElement)
-            setVisibility(VisibilityModifier.PUBLIC)
+            setVisibility(
+                if (dao.element.isInternal()) {
+                    VisibilityModifier.INTERNAL
+                } else {
+                    VisibilityModifier.PUBLIC
+                }
+            )
             if (dao.element.isInterface()) {
                 addSuperinterface(dao.typeName)
             } else {

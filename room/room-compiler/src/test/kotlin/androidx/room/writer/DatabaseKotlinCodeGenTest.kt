@@ -157,6 +157,38 @@ class DatabaseKotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun database_internalVisibility() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
+            internal abstract class MyDatabase : RoomDatabase() {
+              internal abstract fun getDao(): MyDao
+            }
+
+            @Dao
+            internal abstract class MyDao {
+              @Query("SELECT * FROM MyEntity")
+              internal abstract fun getEntity(): MyEntity
+            }
+
+            @Entity
+            internal data class MyEntity internal constructor(
+                @PrimaryKey
+                var pk: Int
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

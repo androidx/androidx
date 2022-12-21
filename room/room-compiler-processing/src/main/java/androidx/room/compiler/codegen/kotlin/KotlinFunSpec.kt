@@ -77,5 +77,6 @@ internal class KotlinFunSpec(
 internal fun VisibilityModifier.toKotlinVisibilityModifier() = when (this) {
     VisibilityModifier.PUBLIC -> KModifier.PUBLIC
     VisibilityModifier.PROTECTED -> KModifier.PROTECTED
+    VisibilityModifier.INTERNAL -> KModifier.INTERNAL
     VisibilityModifier.PRIVATE -> KModifier.PRIVATE
 }

@@ -9,7 +9,7 @@ import kotlin.Unit
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
-public class MyDatabase_AutoMigration_1_2_Impl : Migration {
+internal class MyDatabase_AutoMigration_1_2_Impl : Migration {
     private val callback: AutoMigrationSpec = ValidAutoMigrationWithoutDefault()
 
     public constructor() : super(1, 2)

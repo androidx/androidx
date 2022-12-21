@@ -605,6 +605,47 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun pojoRowAdapter_customTypeConverter_internalVisibility() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            abstract class MyDao {
+              @Query("SELECT * FROM MyEntity")
+              internal abstract fun getEntity(): MyEntity
+              
+              @Insert
+              internal abstract fun addEntity(item: MyEntity)
+            }
+
+            @Entity
+            @TypeConverters(FooConverter::class)
+            internal data class MyEntity internal constructor(
+                @PrimaryKey
+                internal val pk: Int,
+                internal val foo: Foo,
+            )
+
+            internal data class Foo(internal val data: String)
+
+            internal class FooConverter internal constructor() {
+                @TypeConverter
+                internal fun fromString(data: String): Foo = Foo(data)
+                @TypeConverter
+                internal fun toString(foo: Foo): String = foo.data
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
     fun coroutineResultBinder() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
