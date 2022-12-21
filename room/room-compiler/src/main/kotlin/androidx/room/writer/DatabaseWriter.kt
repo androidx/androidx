@@ -52,7 +52,13 @@ class DatabaseWriter(
         return XTypeSpec.classBuilder(codeLanguage, database.implTypeName).apply {
             addOriginatingElement(database.element)
             superclass(database.typeName)
-            setVisibility(VisibilityModifier.PUBLIC)
+            setVisibility(
+                if (database.element.isInternal()) {
+                    VisibilityModifier.INTERNAL
+                } else {
+                    VisibilityModifier.PUBLIC
+                }
+            )
             addFunction(createCreateOpenHelper())
             addFunction(createCreateInvalidationTracker())
             addFunction(createClearAllTables())

@@ -102,5 +102,6 @@ internal class JavaFunSpec(
 internal fun VisibilityModifier.toJavaVisibilityModifier() = when (this) {
     VisibilityModifier.PUBLIC -> Modifier.PUBLIC
     VisibilityModifier.PROTECTED -> Modifier.PROTECTED
+    VisibilityModifier.INTERNAL -> Modifier.PUBLIC
     VisibilityModifier.PRIVATE -> Modifier.PRIVATE
 }

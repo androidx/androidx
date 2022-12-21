@@ -53,7 +53,10 @@ class AutoMigrationWriter(
         builder.apply {
             addOriginatingElement(dbElement)
             superclass(RoomTypeNames.MIGRATION)
-
+            // Class is package-protected in Java (no visibility modifier) and internal in Kotlin
+            if (language == CodeLanguage.KOTLIN) {
+                setVisibility(VisibilityModifier.INTERNAL)
+            }
             if (autoMigration.specClassName != null) {
                 builder.addProperty(
                     name = "callback",
