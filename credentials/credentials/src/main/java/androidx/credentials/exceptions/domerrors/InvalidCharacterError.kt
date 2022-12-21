@@ -29,11 +29,11 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
  */
 @Suppress("ExtendsError")
 class InvalidCharacterError :
-    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALD_CHARACTER_ERROR) {
+    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR) {
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALD_CHARACTER_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALD_CHARACTER_ERROR"
+        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR: String =
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR"
     }
 }
