@@ -16,16 +16,14 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
-import androidx.room.ext.RoomTypeNames.DB_UTIL
-import androidx.room.ext.T
+import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -45,32 +43,40 @@ class GuavaListenableFutureQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val dbField = dbProperty.toJavaPoet()
         val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
-        scope.builder().addStatement(
-            "final $T $L = $T.createCancellationSignal()",
-            AndroidTypeNames.CANCELLATION_SIGNAL.toJavaPoet(),
-            cancellationSignalVar,
-            DB_UTIL.toJavaPoet()
-        )
+        scope.builder.apply {
+            addLocalVariable(
+                name = cancellationSignalVar,
+                typeName = AndroidTypeNames.CANCELLATION_SIGNAL.copy(nullable = true),
+                assignExpr = XCodeBlock.of(
+                    language,
+                    "%M()",
+                    RoomTypeNames.DB_UTIL.packageMember("createCancellationSignal")
+                )
+            )
+        }
 
         // Callable<T> // Note that this callable does not release the query object.
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            createRunQueryAndReturnStatements(
-                builder = this,
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
-                dbField = dbField,
-                inTransaction = inTransaction,
-                scope = scope,
-                cancellationSignalVar = cancellationSignalVar
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+            addCode(
+                XCodeBlock.builder(language).apply {
+                    createRunQueryAndReturnStatements(
+                        builder = this,
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        dbProperty = dbProperty,
+                        inTransaction = inTransaction,
+                        scope = scope,
+                        cancellationSignalVar = cancellationSignalVar
+                    )
+                }.build()
             )
         }.build()
 
-        scope.builder().apply {
+        scope.builder.apply {
             addStatement(
-                "return $T.createListenableFuture($N, $L, $L, $L, $L, $L)",
+                "return %T.createListenableFuture(%N, %L, %L, %L, %L, %L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
-                dbField,
+                dbProperty,
                 if (inTransaction) "true" else "false",
                 callableImpl,
                 roomSQLiteQueryVar,

@@ -24,7 +24,7 @@ import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
-import androidx.room.ext.CallableTypeSpec
+import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
@@ -53,7 +53,7 @@ class CoroutineResultBinder(
             RoomTypeNames.DB_UTIL.packageMember("createCancellationSignal")
         )
 
-        val callableImpl = CallableTypeSpec(scope.language, typeArg.asTypeName()) {
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
            addCode(
                XCodeBlock.builder(language).apply {
                    createRunQueryAndReturnStatements(
@@ -66,7 +66,7 @@ class CoroutineResultBinder(
                    )
                }.build()
            )
-        }
+        }.build()
 
         // For Java there is an extra param to pass, the continuation.
         val formatExpr = when (scope.language) {

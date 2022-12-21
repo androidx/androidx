@@ -18,8 +18,6 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder
@@ -44,7 +42,7 @@ open class RxCallableUpsertMethodBinderProvider internal constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XType): Boolean {
-        return declared.rawType.typeName == rxType.className
+        return declared.rawType.asTypeName() == rxType.className
     }
 
     override fun provide(
@@ -54,7 +52,7 @@ open class RxCallableUpsertMethodBinderProvider internal constructor(
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findUpsertAdapter(typeArg, params)
         return CallableUpsertMethodBinder.createUpsertBinder(typeArg, adapter) { callableImpl, _ ->
-            addStatement("return $T.fromCallable($L)", rxType.className, callableImpl)
+            addStatement("return %T.fromCallable(%L)", rxType.className, callableImpl)
         }
     }
 
@@ -76,7 +74,7 @@ private class RxCompletableUpsertMethodBinderProvider(
 ) : RxCallableUpsertMethodBinderProvider(context, rxType) {
 
     private val completableType: XRawType? by lazy {
-        context.processingEnv.findType(rxType.className)?.rawType
+        context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
     /**

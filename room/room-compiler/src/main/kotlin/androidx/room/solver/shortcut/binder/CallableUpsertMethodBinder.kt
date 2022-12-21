@@ -16,16 +16,14 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Binder for deferred upsert methods.
@@ -36,7 +34,10 @@ import com.squareup.javapoet.TypeSpec
  */
 class CallableUpsertMethodBinder(
     val typeArg: XType,
-    val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
+    val addStmntBlock: XCodeBlock.Builder.(
+        callableImpl: XTypeSpec,
+        dbProperty: XPropertySpec
+    ) -> Unit,
     adapter: InsertOrUpsertMethodAdapter?
 ) : InsertOrUpsertMethodBinder(adapter) {
 
@@ -44,7 +45,10 @@ class CallableUpsertMethodBinder(
         fun createUpsertBinder(
             typeArg: XType,
             adapter: InsertOrUpsertMethodAdapter?,
-            addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
+            addCodeBlock: XCodeBlock.Builder.(
+                callableImpl: XTypeSpec,
+                dbField: XPropertySpec
+            ) -> Unit
         ) = CallableUpsertMethodBinder(typeArg, addCodeBlock, adapter)
     }
 
@@ -54,20 +58,23 @@ class CallableUpsertMethodBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        val dbField = dbProperty.toJavaPoet()
         val adapterScope = scope.fork()
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            adapter?.createMethodBody(
-                parameters = parameters,
-                adapters = adapters,
-                dbProperty = dbProperty,
-                scope = adapterScope
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+            addCode(
+                XCodeBlock.builder(language).apply {
+                    adapter?.createMethodBody(
+                        parameters = parameters,
+                        adapters = adapters,
+                        dbProperty = dbProperty,
+                        scope = adapterScope
+                    )
+                    addCode(adapterScope.generate())
+                }.build()
             )
-            addCode(adapterScope.builder().build())
         }.build()
 
-        scope.builder().apply {
-            addStmntBlock(callableImpl, dbField)
+        scope.builder.apply {
+            addStmntBlock(callableImpl, dbProperty)
         }
     }
 }

@@ -571,21 +571,21 @@ class RawQueryMethodProcessorTest {
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE}",
-            "${RxJava3TypeNames.FLOWABLE}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE}<Int>",
-            "${RxJava3TypeNames.MAYBE}<Int>",
-            "${RxJava3TypeNames.SINGLE}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE}",
-            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
-            "${KotlinTypeNames.FLOW}<Int>"
+            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
         ).forEach { type ->
             singleQueryMethodKotlin(
                 """

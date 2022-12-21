@@ -18,6 +18,7 @@ package androidx.room;
 
 import android.os.CancellationSignal
 import java.util.concurrent.Callable
+import kotlinx.coroutines.flow.Flow
 
 @Suppress("UNUSED_PARAMETER")
 public class CoroutinesRoom {
@@ -28,9 +29,27 @@ public class CoroutinesRoom {
         public suspend fun <R> execute(
             db: RoomDatabase,
             inTransaction: Boolean,
+            callable: Callable<R>
+        ): R {
+            TODO()
+        }
+        @JvmStatic
+        public suspend fun <R> execute(
+            db: RoomDatabase,
+            inTransaction: Boolean,
             cancellationSignal: CancellationSignal?,
             callable: Callable<R>
         ): R {
+            TODO()
+        }
+
+        @JvmStatic
+        public fun <R> createFlow(
+            db: RoomDatabase,
+            inTransaction: Boolean,
+            tableNames: Array<String>,
+            callable: Callable<R>
+        ): Flow<@JvmSuppressWildcards R> {
             TODO()
         }
     }

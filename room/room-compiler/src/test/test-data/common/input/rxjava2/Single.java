@@ -19,5 +19,5 @@ package io.reactivex;
 import java.util.concurrent.Callable;
 
 public abstract class Single<T> {
-    public static <T> Single<T> fromCallable(Callable callable) {return null;}
+    public static <T> Single<T> fromCallable(Callable<T> callable) {return null;}
 }

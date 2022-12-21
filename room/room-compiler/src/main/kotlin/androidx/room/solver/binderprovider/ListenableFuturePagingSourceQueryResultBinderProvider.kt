@@ -16,7 +16,6 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.RoomPagingGuavaTypeNames
 import androidx.room.processor.Context
@@ -36,7 +35,7 @@ fun ListenableFuturePagingSourceQueryResultBinderProvider(
     ).requireArtifact(
         context = context,
         // TODO: Needs to be migrated to take in XTypeName instead of JTypeName
-        requiredType = limitOffsetListenableFuturePagingSource.toJavaPoet(),
+        requiredType = limitOffsetListenableFuturePagingSource,
         missingArtifactErrorMsg = MISSING_ROOM_PAGING_GUAVA_ARTIFACT
     )
 }
