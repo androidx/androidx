@@ -668,7 +668,7 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onDetached() {
+    public void onUnbind() {
         clearPipeline();
         mImageAnalysisAbstractAnalyzer.detach();
     }
@@ -702,7 +702,7 @@ public final class ImageAnalysis extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttached() {
+    public void onBind() {
         mImageAnalysisAbstractAnalyzer.attach();
     }
 

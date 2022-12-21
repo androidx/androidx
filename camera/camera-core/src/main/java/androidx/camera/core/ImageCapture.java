@@ -1490,7 +1490,7 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onDetached() {
+    public void onUnbind() {
         abortImageCaptureRequests();
         clearPipeline();
         mUseSoftwareJpeg = false;
@@ -1503,7 +1503,7 @@ public final class ImageCapture extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttached() {
+    public void onBind() {
         ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getCurrentConfig();
 
         CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);

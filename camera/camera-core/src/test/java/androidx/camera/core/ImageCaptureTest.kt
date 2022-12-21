@@ -236,7 +236,7 @@ class ImageCaptureTest {
 
     @Test
     fun detachWithoutAttach_doesNotCrash() {
-        ImageCapture.Builder().build().onDetached()
+        ImageCapture.Builder().build().onUnbind()
     }
 
     @Test

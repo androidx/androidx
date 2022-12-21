@@ -631,7 +631,7 @@ public final class Preview extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onDetached() {
+    public void onUnbind() {
         clearPipeline();
     }
 
