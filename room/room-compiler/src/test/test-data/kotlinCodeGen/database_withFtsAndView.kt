@@ -24,12 +24,16 @@ import kotlin.Suppress
 import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
+import kotlin.collections.MutableList
 import kotlin.collections.Set
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
 public class MyDatabase_Impl : MyDatabase() {
-    private val _myDao: Lazy<MyDao> = lazy { MyDao_Impl(this) }
+    private val _myDao: Lazy<MyDao> = lazy {
+        MyDao_Impl(this)
+    }
+
 
     public override val dao: MyDao
         get() = _myDao.value
@@ -224,7 +228,7 @@ public class MyDatabase_Impl : MyDatabase() {
     public override
     fun getAutoMigrations(autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>):
         List<Migration> {
-        val _autoMigrations: List<Migration> = ArrayList<Migration>()
+        val _autoMigrations: MutableList<Migration> = ArrayList<Migration>()
         return _autoMigrations
     }
 }

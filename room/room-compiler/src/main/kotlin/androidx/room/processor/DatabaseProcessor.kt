@@ -339,8 +339,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key.toString(context.codeLanguage),
-                        it.value.map { it.element.jvmName }
+                    val error = ProcessorErrors.duplicateDao(
+                        dao = it.key.toString(context.codeLanguage),
+                        methodNames = it.value.map { it.element.name }
                     )
                     it.value.forEach { daoMethod ->
                         context.logger.e(
