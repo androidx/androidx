@@ -25,6 +25,8 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedOutputSizeQuirk;
 
 /**
  * Helper for accessing features in {@link StreamConfigurationMap} in a backwards compatible
@@ -67,7 +69,15 @@ public class StreamConfigurationMapCompat {
      */
     @Nullable
     public Size[] getOutputSizes(int format) {
-        return mImpl.getOutputSizes(format);
+        Size[] sizes = mImpl.getOutputSizes(format);
+
+        ExtraSupportedOutputSizeQuirk quirk = DeviceQuirks.get(ExtraSupportedOutputSizeQuirk.class);
+        if (quirk == null) {
+            return sizes;
+        }
+
+        Size[] extraSizes = quirk.getExtraSupportedResolutions(format);
+        return concatNullableArrays(sizes, extraSizes);
     }
 
     /**
@@ -81,7 +91,42 @@ public class StreamConfigurationMapCompat {
      */
     @Nullable
     public <T> Size[] getOutputSizes(@NonNull Class<T> klass) {
-        return mImpl.getOutputSizes(klass);
+        Size[] sizes = mImpl.getOutputSizes(klass);
+        // Since "getOutputSizes()" returns null if the "klass" is not a supported output, not to
+        // add extra output sizes when klass is not supported.
+        if (sizes == null) {
+            return null;
+        }
+
+        ExtraSupportedOutputSizeQuirk quirk = DeviceQuirks.get(ExtraSupportedOutputSizeQuirk.class);
+        if (quirk == null) {
+            return sizes;
+        }
+
+        Size[] extraSizes = quirk.getExtraSupportedResolutions(klass);
+        return concatNullableArrays(sizes, extraSizes);
+    }
+
+    @Nullable
+    private static Size[] concatNullableArrays(@Nullable Size[] array1, @Nullable Size[] array2) {
+        if (array1 == null) {
+            return array2;
+        } else if (array2 == null) {
+            return array1;
+        } else {
+            return concatArrays(array1, array2);
+        }
+    }
+
+    @NonNull
+    private static Size[] concatArrays(@NonNull Size[] array1, @NonNull Size[] array2) {
+        int length1 = array1.length;
+        int length2 = array2.length;
+        Size[] res = new Size[length1 + length2];
+        System.arraycopy(array1, 0, res, 0, length1);
+        System.arraycopy(array2, 0, res, length1, length2);
+
+        return res;
     }
 
     interface StreamConfigurationMapCompatImpl {
