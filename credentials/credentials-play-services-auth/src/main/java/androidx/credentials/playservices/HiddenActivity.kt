@@ -52,10 +52,7 @@ open class HiddenActivity : Activity() {
             CredentialProviderBaseController.RESULT_RECEIVER_TAG)
 
         if (resultReceiver == null) {
-            Log.i(TAG, "resultreceiver is null")
             finish()
-        } else {
-            Log.i(TAG, "resultreceiver is NOT null")
         }
 
         when (type) {
@@ -68,7 +65,7 @@ open class HiddenActivity : Activity() {
             CredentialProviderBaseController.CREATE_PUBLIC_KEY_CREDENTIAL_TAG -> {
                 handleCreatePublicKeyCredential()
             } else -> {
-                Log.i(TAG, "Unknown type")
+                Log.w(TAG, "Activity handed an unsupported type")
                 finish()
             }
         }
@@ -95,28 +92,25 @@ open class HiddenActivity : Activity() {
                             null /* options= */
                         )
                     } catch (e: IntentSender.SendIntentException) {
-                        Log.i(
-                            TAG,
-                            "Failed to send pending intent for fido client " +
-                                " : " + e.message
-                        )
                         setupFailure(resultReceiver!!,
                             CreateCredentialUnknownException::class.java.name,
-                            "IntentSender failure on public key creation - " + e.message)
+                            "During public key credential, found IntentSender " +
+                                "failure on public key creation: ${e.message}")
                     }
                 }
                 .addOnFailureListener { e: Exception ->
-                    Log.i(TAG, "Fido Registration failed with error: " + e.message)
                     var errName: String = CreateCredentialUnknownException::class.java.name
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
                         errName = CreateCredentialInterruptedException::class.java.name
                     }
-                    setupFailure(resultReceiver!!, errName, e.message +
-                        " - fido registration failure")
+                    setupFailure(resultReceiver!!, errName,
+                        "During create public key credential, fido registration " +
+                            "failure: ${e.message}")
                 }
         } ?: run {
-            Log.i(TAG, "request is null, nothing to launch for public key credentials")
+            Log.w(TAG, "During create public key credential, request is null, so nothing to " +
+                "launch for public key credentials")
             finish()
         }
     }
@@ -137,9 +131,7 @@ open class HiddenActivity : Activity() {
             CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG,
             DEFAULT_VALUE)
         params?.let {
-            Log.i(TAG, "Id: $params")
             Identity.getSignInClient(this).beginSignIn(params).addOnSuccessListener {
-                Log.i(TAG, "On success")
                 try {
                     startIntentSenderForResult(
                         it.pendingIntent.intentSender,
@@ -151,26 +143,23 @@ open class HiddenActivity : Activity() {
                         null
                     )
                 } catch (e: IntentSender.SendIntentException) {
-                    Log.e(
-                        TAG, "Couldn't start One Tap UI in " +
-                            "beginSignIn: " + e.localizedMessage
-                    )
                     setupFailure(resultReceiver!!,
                         GetCredentialUnknownException::class.java.name,
-                            " - one tap ui intent sender failure - " + e.message)
+                            "During begin sign in, one tap ui intent sender " +
+                                "failure: ${e.message}")
                 }
             }.addOnFailureListener { e: Exception ->
-                Log.i(TAG, "On Begin Sign In Failure:  " + e.message)
                 var errName: String = GetCredentialUnknownException::class.java.name
                 if (e is ApiException && e.statusCode in
                     CredentialProviderBaseController.retryables) {
                     errName = GetCredentialInterruptedException::class.java.name
                 }
-                setupFailure(resultReceiver!!, errName, e.message +
-                    " - begin sign in failure response from one tap")
+                setupFailure(resultReceiver!!, errName,
+                    "During begin sign in, failure response from one tap: ${e.message}")
             }
         } ?: run {
-            Log.i(TAG, "params is null, nothing to launch for begin sign in")
+            Log.i(TAG, "During begin sign in, params is null, nothing to launch for " +
+                "begin sign in")
             finish()
         }
     }
@@ -182,11 +171,8 @@ open class HiddenActivity : Activity() {
             CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG,
             DEFAULT_VALUE)
         params?.let {
-            Log.i(TAG, "Id: $params")
-
             Identity.getCredentialSavingClient(this).savePassword(params)
                 .addOnSuccessListener {
-                Log.i(TAG, "On success")
                     try {
                         startIntentSenderForResult(
                             it.pendingIntent.intentSender,
@@ -198,33 +184,29 @@ open class HiddenActivity : Activity() {
                             null
                         )
                     } catch (e: IntentSender.SendIntentException) {
-                        Log.e(
-                            TAG, "Couldn't start save password UI in " +
-                                "create password: " + e.localizedMessage
-                        )
                         setupFailure(resultReceiver!!,
                             GetCredentialUnknownException::class.java.name,
-                                " - save password UI intent sender failure" + e.message)
+                                "During save password, found UI intent sender " +
+                                    "failure: ${e.message}")
                     }
             }.addOnFailureListener { e: Exception ->
-                    Log.i(TAG, "On Create Password Failure:  " + e.message)
                     var errName: String = CreateCredentialUnknownException::class.java.name
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
                         errName = CreateCredentialInterruptedException::class.java.name
                     }
-                    setupFailure(resultReceiver!!, errName, e.message + " - save password " +
-                        "failure response from one tap")
+                    setupFailure(resultReceiver!!, errName, "During save password, found " +
+                        "password failure response from one tap ${e.message}")
             }
         } ?: run {
-            Log.i(TAG, "params is null, nothing to launch for create password")
+            Log.i(TAG, "During save password, params is null, nothing to launch for create" +
+                " password")
             finish()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.i(TAG, "onActivityResult : $requestCode , $resultCode")
         val bundle = Bundle()
         bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE_TAG, false)
         bundle.putInt(CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG, requestCode)
