@@ -83,6 +83,9 @@ public class DeviceQuirksLoader {
         if (ZslDisablerQuirk.load()) {
             quirks.add(new ZslDisablerQuirk());
         }
+        if (ExtraSupportedOutputSizeQuirk.load()) {
+            quirks.add(new ExtraSupportedOutputSizeQuirk());
+        }
 
         return quirks;
     }
