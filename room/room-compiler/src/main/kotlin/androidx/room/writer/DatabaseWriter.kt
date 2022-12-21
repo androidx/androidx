@@ -312,13 +312,15 @@ class DatabaseWriter(
                 // For Kotlin we rely on kotlin.Lazy while for Java we'll memoize the dao impl in
                 // the getter.
                 if (language == CodeLanguage.KOTLIN) {
-                   initializer(
-                       XCodeBlock.of(
-                           language,
-                           "lazy { %L }",
-                           XCodeBlock.ofNewInstance(language, method.dao.implTypeName, "this")
-                       )
-                   )
+                    val lazyInit = XCodeBlock.builder(language).apply {
+                        beginControlFlow("lazy")
+                        addStatement(
+                            "%L",
+                            XCodeBlock.ofNewInstance(language, method.dao.implTypeName, "this")
+                        )
+                        endControlFlow()
+                    }.build()
+                    initializer(lazyInit)
                 }
             }.apply(
                 javaFieldBuilder = {
@@ -441,7 +443,7 @@ class DatabaseWriter(
             val listVar = scope.getTmpVar("_autoMigrations")
             addLocalVariable(
                 name = listVar,
-                typeName = CommonTypeNames.LIST.parametrizedBy(RoomTypeNames.MIGRATION),
+                typeName = CommonTypeNames.MUTABLE_LIST.parametrizedBy(RoomTypeNames.MIGRATION),
                 assignExpr = XCodeBlock.ofNewInstance(codeLanguage, autoMigrationsListTypeName)
             )
             database.autoMigrations.forEach { autoMigrationResult ->

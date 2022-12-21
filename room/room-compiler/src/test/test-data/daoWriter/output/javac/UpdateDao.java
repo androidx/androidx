@@ -1,6 +1,7 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
@@ -262,7 +263,7 @@ public final class UpdateDao_Impl implements UpdateDao {
   public Completable updateUserAndReturnCountCompletable(final User user) {
     return Completable.fromCallable(new Callable<Void>() {
       @Override
-      @NonNull
+      @Nullable
       public Void call() throws Exception {
         __db.beginTransaction();
         try {

@@ -16,6 +16,7 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XMethodElement
@@ -36,6 +37,10 @@ data class CustomTypeConverter(
     val className: XClassName by lazy { enclosingClass.asClassName() }
     val fromTypeName: XTypeName by lazy { from.asTypeName() }
     val toTypeName: XTypeName by lazy { to.asTypeName() }
-    val methodName by lazy { method.jvmName }
     val isStatic by lazy { method.isStatic() }
+
+    fun getMethodName(lang: CodeLanguage) = when (lang) {
+        CodeLanguage.JAVA -> method.jvmName
+        CodeLanguage.KOTLIN -> method.name
+    }
 }

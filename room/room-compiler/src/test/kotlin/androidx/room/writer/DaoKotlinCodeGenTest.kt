@@ -1595,7 +1595,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             "MyDao.kt",
             """
             import androidx.room.*
-            import androidx.paging.*
+            import androidx.paging.DataSource
 
             @Dao
             abstract class MyDao {
@@ -1623,14 +1623,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun rx2CallableQuery() {
+    fun callableQuery_rx2() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
             import androidx.room.*
-            import androidx.paging.*
-            import androidx.paging.rxjava2.*
             import io.reactivex.*
 
             @Dao
@@ -1673,7 +1671,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 src,
                 databaseSrc,
                 COMMON.RX2_ROOM,
-                COMMON.RX2_PAGING_SOURCE,
                 COMMON.RX2_FLOWABLE,
                 COMMON.RX2_OBSERVABLE,
                 COMMON.RX2_SINGLE,
@@ -1686,15 +1683,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun rx3CallableQuery() {
+    fun callableQuery_rx3() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
             import androidx.room.*
-            import androidx.paging.*
-            import androidx.paging.rxjava3.*
-            import io.reactivex.*
             import io.reactivex.rxjava3.core.*
 
             @Dao
@@ -1737,7 +1731,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 src,
                 databaseSrc,
                 COMMON.RX3_ROOM,
-                COMMON.RX3_PAGING_SOURCE,
                 COMMON.RX3_FLOWABLE,
                 COMMON.RX3_OBSERVABLE,
                 COMMON.RX3_SINGLE,
@@ -1750,14 +1743,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun rx2PreparedCallableQuery() {
+    fun preparedCallableQuery_rx2() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
             import androidx.room.*
-            import androidx.paging.*
-            import androidx.paging.rxjava2.*
             import io.reactivex.*
 
             @Dao
@@ -1785,7 +1776,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 src,
                 databaseSrc,
                 COMMON.RX2_ROOM,
-                COMMON.RX2_PAGING_SOURCE,
                 COMMON.RX2_FLOWABLE,
                 COMMON.RX2_OBSERVABLE,
                 COMMON.RX2_SINGLE,
@@ -1799,15 +1789,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun rx3PreparedCallableQuery() {
+    fun preparedCallableQuery_rx3() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
             import androidx.room.*
-            import androidx.paging.*
-            import androidx.paging.rxjava3.*
-            import io.reactivex.*
             import io.reactivex.rxjava3.core.*
 
             @Dao
@@ -1835,7 +1822,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 src,
                 databaseSrc,
                 COMMON.RX3_ROOM,
-                COMMON.RX3_PAGING_SOURCE,
                 COMMON.RX3_FLOWABLE,
                 COMMON.RX3_OBSERVABLE,
                 COMMON.RX3_SINGLE,
@@ -1892,40 +1878,39 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun shortcutMethods_rxJava() {
+    fun shortcutMethods_rx2() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
             import androidx.room.*
             import io.reactivex.*
-            import io.reactivex.rxjava3.core.*
 
             @Dao
             interface MyDao {
                 @Insert
-                fun insertRx2(vararg entities: MyEntity): io.reactivex.Single<List<Long>>
+                fun insertSingle(vararg entities: MyEntity): Single<List<Long>>
 
+                @Upsert
+                fun upsertSingle(vararg entities: MyEntity): Single<List<Long>>
+
+                @Delete
+                fun deleteSingle(entity: MyEntity): Single<Int>
+
+                @Update
+                fun updateSingle(entity: MyEntity): Single<Int>
+                
                 @Insert
-                fun insertRx3(vararg entities: MyEntity): io.reactivex.rxjava3.core.Single<List<Long>>
+                fun insertCompletable(vararg entities: MyEntity): Completable
 
                 @Upsert
-                fun upsertRx2(vararg entities: MyEntity): io.reactivex.Single<List<Long>>
-
-                @Upsert
-                fun upsertRx3(vararg entities: MyEntity): io.reactivex.rxjava3.core.Single<List<Long>>
+                fun upsertCompletable(vararg entities: MyEntity): Completable
 
                 @Delete
-                fun deleteRx2(entity: MyEntity): io.reactivex.Single<Int>
-
-                @Delete
-                fun deleteRx3(entity: MyEntity): io.reactivex.rxjava3.core.Single<Int>
+                fun deleteCompletable(entity: MyEntity): Completable
 
                 @Update
-                fun updateRx2(entity: MyEntity): io.reactivex.Single<Int>
-
-                @Update
-                fun updateRx3(entity: MyEntity): io.reactivex.rxjava3.core.Single<Int>
+                fun updateCompletable(entity: MyEntity): Completable
             }
 
             @Entity
@@ -1940,16 +1925,64 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             sources = listOf(
                 src,
                 databaseSrc,
-                COMMON.RX2_FLOWABLE,
-                COMMON.RX2_OBSERVABLE,
                 COMMON.RX2_SINGLE,
-                COMMON.RX2_MAYBE,
-                COMMON.RX3_FLOWABLE,
-                COMMON.RX3_OBSERVABLE,
-                COMMON.RX3_SINGLE,
-                COMMON.RX3_MAYBE,
-                COMMON.PUBLISHER,
+                COMMON.RX2_COMPLETABLE,
                 COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun shortcutMethods_rx3() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import io.reactivex.rxjava3.core.*
+
+            @Dao
+            interface MyDao {
+                @Insert
+                fun insertSingle(vararg entities: MyEntity): Single<List<Long>>
+
+                @Upsert
+                fun upsertSingle(vararg entities: MyEntity): Single<List<Long>>
+
+                @Delete
+                fun deleteSingle(entity: MyEntity): Single<Int>
+
+                @Update
+                fun updateSingle(entity: MyEntity): Single<Int>
+                
+                @Insert
+                fun insertCompletable(vararg entities: MyEntity): Completable
+
+                @Upsert
+                fun upsertCompletable(vararg entities: MyEntity): Completable
+
+                @Delete
+                fun deleteCompletable(entity: MyEntity): Completable
+
+                @Update
+                fun updateCompletable(entity: MyEntity): Completable
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_COMPLETABLE,
                 COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
             ),
             expectedFilePath = getTestGoldenPath(testName)

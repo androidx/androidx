@@ -78,11 +78,11 @@ private class RxCompletableInsertMethodBinderProvider(
     }
 
     /**
-     * Since Completable is not a generic, the supported return type should be Void.
+     * Since Completable is not a generic, the supported return type should be Void (nullable).
      * Like this, the generated Callable.call method will return Void.
      */
     override fun extractTypeArg(declared: XType): XType =
-        context.COMMON_TYPES.VOID
+        context.COMMON_TYPES.VOID.makeNullable()
 
     override fun matches(declared: XType): Boolean = isCompletable(declared)
 

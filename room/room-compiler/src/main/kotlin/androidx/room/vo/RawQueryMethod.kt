@@ -31,7 +31,6 @@ import androidx.room.solver.query.result.QueryResultBinder
  */
 data class RawQueryMethod(
     val element: XMethodElement,
-    val name: String,
     val returnType: XType,
     val inTransaction: Boolean,
     val observedTableNames: Set<String>,

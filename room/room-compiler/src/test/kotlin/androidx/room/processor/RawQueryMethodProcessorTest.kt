@@ -51,7 +51,7 @@ class RawQueryMethodProcessorTest {
                 abstract public int[] foo(SupportSQLiteQuery query);
                 """
         ) { query, _ ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
@@ -90,7 +90,7 @@ class RawQueryMethodProcessorTest {
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
                 """
         ) { query, _ ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
@@ -113,7 +113,7 @@ class RawQueryMethodProcessorTest {
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
                 """
         ) { query, invocation ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
@@ -191,7 +191,7 @@ class RawQueryMethodProcessorTest {
                 abstract public MyPojo foo(SupportSQLiteQuery query);
                 """
         ) { query, _ ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(

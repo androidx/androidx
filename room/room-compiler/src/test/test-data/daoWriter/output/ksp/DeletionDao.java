@@ -1,6 +1,7 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
@@ -195,7 +196,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   public Completable deleteUserCompletable(final User user) {
     return Completable.fromCallable(new Callable<Void>() {
       @Override
-      @NonNull
+      @Nullable
       public Void call() throws Exception {
         __db.beginTransaction();
         try {

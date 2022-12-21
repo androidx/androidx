@@ -40,7 +40,7 @@ fun XType.toSignature() =
 fun TypeConverter.toSignature(): String {
     return when (this) {
         is CompositeTypeConverter -> "${conv1.toSignature()} / ${conv2.toSignature()}"
-        is CustomTypeConverterWrapper -> this.custom.methodName
+        is CustomTypeConverterWrapper -> this.custom.method.name
         is NullSafeTypeConverter ->
             "(${this.from.toSignature()} == null " +
                 "? null : ${this.delegate.toSignature()})"
