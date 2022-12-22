@@ -28,7 +28,7 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
  * @see CreatePublicKeyCredentialDomException
  */
 @Suppress("ExtendsError")
-class RequestError :
+class HierarchyRequestError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_HIERARCHY_REQUEST_ERROR) {
     /** @hide */
     companion object {
