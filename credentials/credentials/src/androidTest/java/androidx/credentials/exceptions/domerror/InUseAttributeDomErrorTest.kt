@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.credentials.exceptions.domerror
 
-import androidx.credentials.exceptions.domerrors.TimeoutError
+import androidx.credentials.exceptions.domerrors.InUseAttributeError
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class TimeoutDomErrorTest {
+class InUseAttributeDomErrorTest {
     @Test
     fun construct_success() {
-        TimeoutError()
+        InUseAttributeError()
     }
 
     @Test
     fun getter_success() {
-        val error = TimeoutError()
+        val error = InUseAttributeError()
         val expectedType =
-            TimeoutError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TIMEOUT_ERROR
-        assertThat(error.type).isEqualTo(expectedType)
+            InUseAttributeError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR
+        Truth.assertThat(error.type).isEqualTo(expectedType)
     }
 }
