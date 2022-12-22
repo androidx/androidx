@@ -170,7 +170,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 database.endTransaction()
             }
         }
-        assertThat(booksDao.allBooks).isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -192,7 +192,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 database.endTransaction()
             }
         }
-        assertThat(booksDao.allBooks).isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -214,7 +214,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 database.endTransaction()
             }
         }
-        assertThat(booksDao.allBooks).isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -262,7 +262,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 booksDao.deleteUnsoldBooks()
             }
         }
-        assertThat(booksDao.allBooks).isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -280,7 +280,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
         }
-        assertThat(booksDao.allBooks).isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -296,7 +296,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 booksDao.deleteUnsoldBooks()
             }
         }
-        assertThat(booksDao.allBooks).isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -737,7 +737,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
 
         // as Set since insertion order is undefined
-        assertThat(booksDao.allBooks.toSet())
+        assertThat(booksDao.getAllBooks().toSet())
             .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
     }
 
@@ -768,7 +768,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
 
         // as Set since insertion order is undefined
-        assertThat(booksDao.allBooks.toSet())
+        assertThat(booksDao.getAllBooks().toSet())
             .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
     }
 
@@ -1170,7 +1170,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
         }
         assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
-        assertThat(localDatabase.booksDao().allBooks.size).isEqualTo(1)
+        assertThat(localDatabase.booksDao().getAllBooks().size).isEqualTo(1)
 
         executor.shutdown()
         assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
@@ -1206,7 +1206,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
         }
         assertThat(localDatabase.booksDao().getPublishers()).isEmpty()
-        assertThat(localDatabase.booksDao().allBooks).isEmpty()
+        assertThat(localDatabase.booksDao().getAllBooks()).isEmpty()
 
         executor.shutdown()
         assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
@@ -1237,7 +1237,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
         }
         assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
-        assertThat(localDatabase.booksDao().allBooks.size).isEqualTo(1)
+        assertThat(localDatabase.booksDao().getAllBooks().size).isEqualTo(1)
 
         executor.shutdown()
         assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()

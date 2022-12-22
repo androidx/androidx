@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.testing.context
@@ -468,6 +469,44 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 hasWarningContaining(
                     ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                 )
+            }
+        }
+    }
+
+    @Test
+    fun disallowPropertyDao() {
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              val allEntities: List<MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            )
+            """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(src),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+        ) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
             }
         }
     }
