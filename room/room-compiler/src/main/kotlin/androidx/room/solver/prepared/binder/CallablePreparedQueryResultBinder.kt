@@ -16,13 +16,10 @@
 
 package androidx.room.solver.prepared.binder
 
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.isVoid
-import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
@@ -61,16 +58,7 @@ class CallablePreparedQueryResultBinder private constructor(
         scope: CodeGenScope
     ) {
         val binderScope = scope.fork()
-        // Need to handle Void return case for Kotlin, since we need to be able to "return null"
-        val returnTypeName = if (scope.language == CodeLanguage.KOTLIN &&
-            (returnType.isVoidObject() || returnType.isVoid())
-        ) {
-            returnType.makeNullable().asTypeName()
-        } else {
-            returnType.asTypeName()
-        }
-
-        val callableImpl = CallableTypeSpecBuilder(scope.language, returnTypeName) {
+        val callableImpl = CallableTypeSpecBuilder(scope.language, returnType.asTypeName()) {
             adapter?.executeAndReturn(
                 binderScope.prepareQueryStmtBlock(),
                 preparedStmtProperty,

@@ -139,19 +139,19 @@ internal class RxCallableQueryResultBinder(
         endControlFlow()
         transactionWrapper?.endTransactionWithControlFlow()
     }
-}
 
-private fun XTypeSpec.Builder.createFinalizeMethod(roomSQLiteQueryVar: String) {
-    addFunction(
-        XFunSpec.builder(
-            language = language,
-            name = "finalize",
-            visibility = VisibilityModifier.PROTECTED,
-            // To 'override' finalize in Kotlin one does not use the 'override' keyword, but in
-            // Java the @Override is needed
-            isOverride = language == CodeLanguage.JAVA
-        ).apply {
-            addStatement("%L.release()", roomSQLiteQueryVar)
-        }.build()
-    )
+    private fun XTypeSpec.Builder.createFinalizeMethod(roomSQLiteQueryVar: String) {
+        addFunction(
+            XFunSpec.builder(
+                language = language,
+                name = "finalize",
+                visibility = VisibilityModifier.PROTECTED,
+                // To 'override' finalize in Kotlin one does not use the 'override' keyword, but in
+                // Java the @Override is needed
+                isOverride = language == CodeLanguage.JAVA
+            ).apply {
+                addStatement("%L.release()", roomSQLiteQueryVar)
+            }.build()
+        )
+    }
 }

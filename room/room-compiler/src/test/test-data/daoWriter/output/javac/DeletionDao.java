@@ -300,7 +300,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   public Completable deleteByUidCompletable(final int uid) {
     return Completable.fromCallable(new Callable<Void>() {
       @Override
-      @NonNull
+      @Nullable
       public Void call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
         int _argIndex = 1;

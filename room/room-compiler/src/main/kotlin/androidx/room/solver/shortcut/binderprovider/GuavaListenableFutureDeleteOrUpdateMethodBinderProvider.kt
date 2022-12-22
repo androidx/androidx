@@ -16,7 +16,9 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.processor.Context
@@ -45,6 +47,10 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
         }
 
         val typeArg = declared.typeArguments.first()
+        if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
+            context.logger.e(ProcessorErrors.NONNULL_VOID)
+        }
+
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
         return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, dbProperty ->
             addStatement(
