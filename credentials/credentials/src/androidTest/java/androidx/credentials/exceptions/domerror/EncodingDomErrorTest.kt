@@ -17,9 +17,14 @@
 package androidx.credentials.exceptions.domerror
 
 import androidx.credentials.exceptions.domerrors.EncodingError
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class EncodingDomErrorTest {
     @Test
     fun construct_success() {

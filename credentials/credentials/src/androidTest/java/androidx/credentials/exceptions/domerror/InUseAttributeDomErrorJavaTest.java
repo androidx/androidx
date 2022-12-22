@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.credentials.exceptions.domerror;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.credentials.exceptions.domerrors.NetworkError;
+import androidx.credentials.exceptions.domerrors.InUseAttributeError;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -26,19 +27,19 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NetworkDomErrorJavaTest {
+public class InUseAttributeDomErrorJavaTest {
     @Test
     public void construct_success() {
-        new NetworkError();
+        new InUseAttributeError();
     }
 
     @Test
     public void getter_success() {
-        NetworkError error =
-                new NetworkError();
+        InUseAttributeError error =
+                new InUseAttributeError();
         String expectedType =
-                NetworkError
-                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NETWORK_ERROR;
+                InUseAttributeError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR;
         assertThat(error.getType()).isEqualTo(expectedType);
     }
 }
