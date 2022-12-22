@@ -24,6 +24,8 @@ import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class StopwatchTest {
     @Test
     public void testBuilder() {
@@ -42,6 +44,11 @@ public class StopwatchTest {
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setName("my stopwatch")
+                .addAlternateName("my alternate stopwatch")
+                .addAlternateName("my alternate stopwatch 2")
+                .setDescription("this is my stopwatch")
+                .setImage("content://images/stopwatch1")
+                .setUrl("content://stopwatch/1")
                 .setBaseTimeMillis(
                         /*baseTimeMillis=*/10000,
                         /*baseTimeMillisInElapsedRealtime=*/1000,
@@ -57,6 +64,12 @@ public class StopwatchTest {
         assertThat(stopwatch.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(stopwatch.getDocumentTtlMillis()).isEqualTo(6000);
         assertThat(stopwatch.getName()).isEqualTo("my stopwatch");
+        assertThat(stopwatch.getAlternateNames()).isNotNull();
+        assertThat(stopwatch.getAlternateNames())
+                .containsExactly("my alternate stopwatch", "my alternate stopwatch 2");
+        assertThat(stopwatch.getDescription()).isEqualTo("this is my stopwatch");
+        assertThat(stopwatch.getImage()).isEqualTo("content://images/stopwatch1");
+        assertThat(stopwatch.getUrl()).isEqualTo("content://stopwatch/1");
         assertThat(stopwatch.getBaseTimeMillis()).isEqualTo(10000);
         assertThat(stopwatch.getBaseTimeMillisInElapsedRealtime()).isEqualTo(1000);
         assertThat(stopwatch.getBootCount()).isEqualTo(1);
@@ -82,6 +95,11 @@ public class StopwatchTest {
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setName("my stopwatch")
+                .addAlternateName("my alternate stopwatch")
+                .addAlternateName("my alternate stopwatch 2")
+                .setDescription("this is my stopwatch")
+                .setImage("content://images/stopwatch1")
+                .setUrl("content://stopwatch/1")
                 .setBaseTimeMillis(
                         /*baseTimeMillis=*/10000,
                         /*baseTimeMillisInElapsedRealtime=*/1000,
@@ -99,6 +117,11 @@ public class StopwatchTest {
                 .isEqualTo(stopwatch2.getCreationTimestampMillis());
         assertThat(stopwatch1.getDocumentTtlMillis()).isEqualTo(stopwatch2.getDocumentTtlMillis());
         assertThat(stopwatch1.getName()).isEqualTo(stopwatch2.getName());
+        assertThat(stopwatch1.getAlternateNames())
+                .containsExactlyElementsIn(stopwatch2.getAlternateNames());
+        assertThat(stopwatch1.getDescription()).isEqualTo(stopwatch2.getDescription());
+        assertThat(stopwatch1.getImage()).isEqualTo(stopwatch2.getImage());
+        assertThat(stopwatch1.getUrl()).isEqualTo(stopwatch2.getUrl());
         assertThat(stopwatch1.getBaseTimeMillis())
                 .isEqualTo(stopwatch2.getBaseTimeMillis());
         assertThat(stopwatch1.getBaseTimeMillisInElapsedRealtime())
@@ -129,6 +152,11 @@ public class StopwatchTest {
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setName("my stopwatch")
+                .addAlternateName("my alternate stopwatch")
+                .addAlternateName("my alternate stopwatch 2")
+                .setDescription("this is my stopwatch")
+                .setImage("content://images/stopwatch1")
+                .setUrl("content://stopwatch/1")
                 .setBaseTimeMillis(
                         /*baseTimeMillis=*/10000,
                         /*baseTimeMillisInElapsedRealtime=*/1000,
@@ -146,6 +174,15 @@ public class StopwatchTest {
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(6000);
         assertThat(genericDocument.getPropertyString("name")).isEqualTo("my stopwatch");
+        assertThat(genericDocument.getPropertyStringArray("alternateNames")).isNotNull();
+        assertThat(Arrays.asList(genericDocument.getPropertyStringArray("alternateNames")))
+                .containsExactly("my alternate stopwatch", "my alternate stopwatch 2");
+        assertThat(genericDocument.getPropertyString("description"))
+                .isEqualTo("this is my stopwatch");
+        assertThat(genericDocument.getPropertyString("image"))
+                .isEqualTo("content://images/stopwatch1");
+        assertThat(genericDocument.getPropertyString("url"))
+                .isEqualTo("content://stopwatch/1");
         assertThat(genericDocument.getPropertyLong("baseTimeMillis")).isEqualTo(10000);
         assertThat(genericDocument.getPropertyLong("baseTimeMillisInElapsedRealtime"))
                 .isEqualTo(1000);

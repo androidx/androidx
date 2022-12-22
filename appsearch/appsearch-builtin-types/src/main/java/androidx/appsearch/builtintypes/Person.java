@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
-import androidx.appsearch.app.AppSearchSession;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -43,7 +42,7 @@ import java.util.List;
  * {@link ContactPoint} document.
  */
 @Document(name = "builtin:Person")
-public class Person {
+public class Person extends Thing {
     /** Holds type information for additional names for Person. */
     public static class AdditionalName {
         /** @hide */
@@ -108,24 +107,6 @@ public class Person {
         }
     }
 
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.Score
-    private final int mDocumentScore;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
-    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-    private final String mName;
-
     @Document.StringProperty
     private final String mGivenName;
 
@@ -172,7 +153,11 @@ public class Person {
             int documentScore,
             long creationTimestampMillis,
             long documentTtlMillis,
-            @NonNull String name,
+            @Nullable String name,
+            @Nullable List<String> alternateNames,
+            @Nullable String description,
+            @Nullable String image,
+            @Nullable String url,
             @Nullable String givenName,
             @Nullable String middleName,
             @Nullable String familyName,
@@ -186,12 +171,8 @@ public class Person {
             @NonNull List<String> affiliations,
             @NonNull List<String> relations,
             @NonNull List<ContactPoint> contactPoints) {
-        mNamespace = namespace;
-        mId = id;
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
-        mName = name;
+        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
+                alternateNames, description, image, url);
         mGivenName = givenName;
         mMiddleName = middleName;
         mFamilyName = familyName;
@@ -213,67 +194,6 @@ public class Person {
                     mAdditionalNames.get(i)));
         }
         mTypedAdditionalNames = Collections.unmodifiableList(names);
-    }
-
-    /** Returns the namespace of this {@link Person}. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier for this {@link Person} within its namespace. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns the user-provided opaque document score of the {@link Person}, which can be
-     * used for ranking using
-     * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
-     */
-    public int getDocumentScore() {
-        return mDocumentScore;
-    }
-
-    /**
-     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
-     *
-     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
-     * document is written into AppSearch.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Gets the TTL (time-to-live) of the {@link Person}, in milliseconds.
-     *
-     * <p>The TTL is measured against {@link #getCreationTimestampMillis}. At the timestamp of
-     * {@code creationTimestampMillis + ttlMillis} time, measured in the
-     * {@link System#currentTimeMillis} time base, the document will be auto-deleted.
-     *
-     * <p>The default value is 0, which means the document is permanent and won't be
-     * auto-deleted until the app is uninstalled or {@link AppSearchSession#remove} is
-     * called.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
-    }
-
-    /**
-     * Returns a full name associated with the {@link Person}.
-     *
-     * <p>It is a full name consisting of first, middle and family names. E.g.
-     * "Larry Edward Page", or "Page, Larry Edward".
-     */
-    @NonNull
-    public String getName() {
-        return mName;
     }
 
     /** Returns the given (or first) name for this {@link Person}. */
@@ -400,8 +320,31 @@ public class Person {
     }
 
     /** Builder class for {@link Person}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
-        private String mName;
+    public static final class Builder extends BuilderImpl<Builder> {
+        /**
+         * Constructor for {@link Person.Builder}.
+         *
+         * @param namespace Namespace for the {@link Person} Document. See
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the {@link Person} Document. See
+         *                  {@link Document.Id}.
+         * @param name      The searchable full name of this {@link Person}. E.g. "Larry Page", or
+         *                  "Page, Larry".
+         */
+        public Builder(@NonNull String namespace, @NonNull String id, @NonNull String name) {
+            super(namespace, id, name);
+        }
+
+        /**
+         * Constructor for {@link Builder} with all the existing values of an {@link Person}.
+         */
+        public Builder(@NonNull Person person) {
+            super(person);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
         private String mGivenName;
         private String mMiddleName;
         private String mFamilyName;
@@ -418,28 +361,13 @@ public class Person {
         private List<String> mRelations = Collections.emptyList();
         private List<ContactPoint> mContactPoints = Collections.emptyList();
 
-        /**
-         * Constructor for {@link Person.Builder}.
-         *
-         * @param namespace Namespace for the {@link Person} Document. See
-         *                  {@link Document.Namespace}.
-         * @param id        Unique identifier for the {@link Person} Document. See
-         *                  {@link Document.Id}.
-         * @param name      The searchable full name of this {@link Person}. E.g. "Larry Page", or
-         *                  "Page, Larry".
-         */
-        public Builder(@NonNull String namespace, @NonNull String id, @NonNull String name) {
+        BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String name) {
             super(namespace, id);
             mName = Preconditions.checkNotNull(name);
         }
 
-        /**
-         * Constructor for {@link Builder} with all the existing values of an {@link Person}.
-         */
-        public Builder(@NonNull Person person) {
-            this(Preconditions.checkNotNull(person).getNamespace(),
-                    person.getId(),
-                    person.getName());
+        BuilderImpl(@NonNull Person person) {
+            super(new Thing.Builder(person).build());
             mDocumentScore = person.getDocumentScore();
             mCreationTimestampMillis =
                     person.getCreationTimestampMillis();
@@ -460,9 +388,9 @@ public class Person {
 
         /** Sets the given name of this {@link Person}. */
         @NonNull
-        public Builder setGivenName(@NonNull String givenName) {
+        public T setGivenName(@NonNull String givenName) {
             mGivenName = Preconditions.checkNotNull(givenName);
-            return this;
+            return (T) this;
         }
 
         /**
@@ -473,16 +401,16 @@ public class Person {
          * middleName2 middleName3".
          */
         @NonNull
-        public Builder setMiddleName(@NonNull String middleName) {
+        public T setMiddleName(@NonNull String middleName) {
             mMiddleName = Preconditions.checkNotNull(middleName);
-            return this;
+            return (T) this;
         }
 
         /** Sets the family name of this {@link Person}. */
         @NonNull
-        public Builder setFamilyName(@NonNull String familyName) {
+        public T setFamilyName(@NonNull String familyName) {
             mFamilyName = Preconditions.checkNotNull(familyName);
-            return this;
+            return (T) this;
         }
 
         /**
@@ -497,37 +425,37 @@ public class Person {
          * portion refers to a valid contact in the Contacts Provider.
          */
         @NonNull
-        public Builder setExternalUri(@NonNull Uri externalUri) {
+        public T setExternalUri(@NonNull Uri externalUri) {
             mExternalUri = Preconditions.checkNotNull(externalUri);
-            return this;
+            return (T) this;
         }
 
         /** Sets the {@link Uri} of the profile image for the {@link Person}. */
         @NonNull
-        public Builder setImageUri(@NonNull Uri imageUri) {
+        public T setImageUri(@NonNull Uri imageUri) {
             mImageUri = Preconditions.checkNotNull(imageUri);
-            return this;
+            return (T) this;
         }
 
         /** Sets whether this {@link Person} is important. */
         @NonNull
-        public Builder setImportant(boolean isImportant) {
+        public T setImportant(boolean isImportant) {
             mIsImportant = isImportant;
-            return this;
+            return (T) this;
         }
 
         /** Sets whether this {@link Person} is a bot. */
         @NonNull
-        public Builder setBot(boolean isBot) {
+        public T setBot(boolean isBot) {
             mIsBot = isBot;
-            return this;
+            return (T) this;
         }
 
         /** Sets the notes about this {@link Person}. */
         @NonNull
-        public Builder setNotes(@NonNull List<String> notes) {
+        public T setNotes(@NonNull List<String> notes) {
             mNotes = Preconditions.checkNotNull(notes);
-            return this;
+            return (T) this;
         }
 
         /**
@@ -536,7 +464,7 @@ public class Person {
          * <p>Only types defined in {@link AdditionalName.NameType} are accepted.
          */
         @NonNull
-        public Builder setAdditionalNames(@NonNull List<AdditionalName> additionalNames) {
+        public T setAdditionalNames(@NonNull List<AdditionalName> additionalNames) {
             Preconditions.checkNotNull(additionalNames);
             int size = additionalNames.size();
             mAdditionalNameTypes = new ArrayList<>(size);
@@ -549,7 +477,7 @@ public class Person {
                 mAdditionalNameTypes.add(type);
                 mAdditionalNames.add(additionalNames.get(i).getValue());
             }
-            return this;
+            return (T) this;
         }
 
         /**
@@ -557,16 +485,16 @@ public class Person {
          * etc.
          */
         @NonNull
-        public Builder setAffiliations(@NonNull List<String> affiliations) {
+        public T setAffiliations(@NonNull List<String> affiliations) {
             mAffiliations = Preconditions.checkNotNull(affiliations);
-            return this;
+            return (T) this;
         }
 
         /** Sets a list of relations for this {@link Person}, like "Father" or "Mother". */
         @NonNull
-        public Builder setRelations(@NonNull List<String> relations) {
+        public T setRelations(@NonNull List<String> relations) {
             mRelations = Preconditions.checkNotNull(relations);
-            return this;
+            return (T) this;
         }
 
         /**
@@ -575,22 +503,27 @@ public class Person {
          * <p>More information could be found in {@link ContactPoint}.
          */
         @NonNull
-        public Builder setContactPoints(@NonNull List<ContactPoint> contactPoints) {
+        public T setContactPoints(@NonNull List<ContactPoint> contactPoints) {
             mContactPoints = Preconditions.checkNotNull(contactPoints);
-            return this;
+            return (T) this;
         }
 
         /** Builds the {@link Person}. */
         @NonNull
+        @Override
         public Person build() {
             Preconditions.checkState(mAdditionalNameTypes.size() == mAdditionalNames.size());
             return new Person(
                     /*namespace=*/ mNamespace,
                     /*id=*/ mId,
-                    /*documentScore=*/ mDocumentScore,
+                    /*documentScore=*/mDocumentScore,
                     /*creationTimestampMillis=*/ mCreationTimestampMillis,
                     /*documentTtlMillis=*/ mDocumentTtlMillis,
                     /*name=*/ mName,
+                    /*alternateNames=*/ mAlternateNames,
+                    /*description=*/ mDescription,
+                    /*image=*/ mImage,
+                    /*url=*/ mUrl,
                     /*givenName=*/ mGivenName,
                     /*middleName=*/ mMiddleName,
                     /*familyName=*/ mFamilyName,
