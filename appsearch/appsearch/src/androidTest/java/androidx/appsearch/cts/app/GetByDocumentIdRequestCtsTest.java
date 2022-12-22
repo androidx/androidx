@@ -19,6 +19,7 @@ package androidx.appsearch.cts.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GetByDocumentIdRequest;
+import androidx.appsearch.app.PropertyPath;
 
 import org.junit.Test;
 
@@ -30,6 +31,12 @@ public class GetByDocumentIdRequestCtsTest {
     public void testBuildRequest() {
         List<String> expectedPropertyPaths1 = Arrays.asList("path1", "path2");
         List<String> expectedPropertyPaths2 = Arrays.asList("path3", "path4");
+
+        List<PropertyPath> expectedPropertyPathObjects1 =
+                Arrays.asList(new PropertyPath("path1"), new PropertyPath("path2"));
+        List<PropertyPath> expectedPropertyPathObjects2 =
+                Arrays.asList(new PropertyPath("path3"), new PropertyPath("path4"));
+
         GetByDocumentIdRequest getByDocumentIdRequest =
                 new GetByDocumentIdRequest.Builder("namespace")
                         .addIds("uri1", "uri2")
@@ -44,5 +51,9 @@ public class GetByDocumentIdRequestCtsTest {
         assertThat(getByDocumentIdRequest.getProjections())
                 .containsExactly("schemaType1", expectedPropertyPaths1, "schemaType2",
                         expectedPropertyPaths2);
+
+        assertThat(getByDocumentIdRequest.getProjectionPaths())
+                .containsExactly("schemaType1", expectedPropertyPathObjects1, "schemaType2",
+                        expectedPropertyPathObjects2);
     }
 }
