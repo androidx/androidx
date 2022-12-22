@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState as rememberScalingLazyListState
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +26,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
