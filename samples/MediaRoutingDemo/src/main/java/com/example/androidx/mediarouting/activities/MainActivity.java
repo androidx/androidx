@@ -77,13 +77,8 @@ import com.example.androidx.mediarouting.ui.PlaylistAdapter;
 import java.io.File;
 
 /**
- * <h3>Media Router Support Activity</h3>
- *
- * <p>
- * This demonstrates how to use the {@link MediaRouter} API to build an
- * application that allows the user to send content to various rendering
- * targets.
- * </p>
+ * Demonstrates how to use the {@link MediaRouter} API to build an application that allows the user
+ * to send content to various rendering targets.
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -515,6 +510,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Return true to show the menu.
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.settings_menu_item) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     void updateStatusFromSessionManager() {
