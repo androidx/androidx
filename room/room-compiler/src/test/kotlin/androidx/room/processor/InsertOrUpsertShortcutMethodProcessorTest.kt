@@ -582,56 +582,56 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     @Test
     fun validReturnTypes() {
         listOf(
-            Pair("void", InsertOrUpsertMethodAdapter.ReturnType.VOID),
-            Pair("long", InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID),
-            Pair("long[]", InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY),
-            Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY_BOX),
-            Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnType.ID_LIST),
+            Pair("void", InsertOrUpsertMethodAdapter.ReturnInfo.VOID),
+            Pair("long", InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID),
+            Pair("long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY),
+            Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX),
+            Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST),
             Pair(
                 RxJava2TypeNames.COMPLETABLE.canonicalName,
-                InsertOrUpsertMethodAdapter.ReturnType.VOID_OBJECT
+                InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
             ),
             Pair(
                 "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
                 "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             ),
             Pair(
                 "${RxJava2TypeNames.MAYBE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
                 "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             ),
             Pair(
                 RxJava3TypeNames.COMPLETABLE.canonicalName,
-                InsertOrUpsertMethodAdapter.ReturnType.VOID_OBJECT
+                InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
             ),
             Pair(
                 "${RxJava3TypeNames.SINGLE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
                 "${RxJava3TypeNames.SINGLE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             ),
             Pair(
                 "${RxJava3TypeNames.MAYBE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
                 "${RxJava3TypeNames.MAYBE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             )
         ).forEach { pair ->
             val dots = if (pair.second in setOf(
-                    InsertOrUpsertMethodAdapter.ReturnType.ID_LIST,
-                    InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY,
-                    InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY_BOX
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST,
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY,
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX
                 )
             ) {
                 "..."
