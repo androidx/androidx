@@ -17,9 +17,9 @@
 package androidx.appsearch.builtintypes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
-import androidx.appsearch.app.AppSearchSession;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -30,22 +30,7 @@ import java.util.List;
  * A group of contact information corresponding to a label such as "Home" or "Work".
  */
 @Document(name = "builtin:ContactPoint")
-public class ContactPoint {
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.Score
-    private final int mDocumentScore;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
+public class ContactPoint extends Thing {
     @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     private final String mLabel;
 
@@ -67,69 +52,21 @@ public class ContactPoint {
             int documentScore,
             long creationTimestampMillis,
             long documentTtlMillis,
+            @Nullable String name,
+            @Nullable List<String> alternateNames,
+            @Nullable String description,
+            @Nullable String image,
+            @Nullable String url,
             @NonNull String label,
             @NonNull List<String> addresses,
             @NonNull List<String> emails,
             @NonNull List<String> telephones) {
-        mNamespace = namespace;
-        mId = id;
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
+        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
+                alternateNames, description, image, url);
         mLabel = label;
         mAddresses = Collections.unmodifiableList(addresses);
         mEmails = Collections.unmodifiableList(emails);
         mTelephones = Collections.unmodifiableList(telephones);
-    }
-
-    /** Returns the namespace of this {@link ContactPoint}. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier of this {@link ContactPoint} in its namespace. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns the user-provided opaque document score of the {@link ContactPoint}, which can be
-     * used for ranking using
-     * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
-     */
-    public int getDocumentScore() {
-        return mDocumentScore;
-    }
-
-    /**
-     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
-     *
-     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
-     * document is written into AppSearch.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Returns the TTL (time-to-live) of the {@link ContactPoint}, in milliseconds.
-     *
-     * <p>The TTL is measured against {@link #getCreationTimestampMillis}. At the timestamp of
-     * {@code creationTimestampMillis + ttlMillis}, measured in the
-     * {@link System#currentTimeMillis} time base, the document will be auto-deleted.
-     *
-     * <p>The default value is 0, which means the document is permanent and won't be
-     * auto-deleted until the app is uninstalled or {@link AppSearchSession#remove} is
-     * called.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
     }
 
     /**
@@ -164,13 +101,7 @@ public class ContactPoint {
     }
 
     /** Builder for {@link ContactPoint}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<ContactPoint.Builder> {
-        private String mLabel;
-        // Initialization to guarantee those won't be null
-        private List<String> mAddresses = Collections.emptyList();
-        private List<String> mEmails = Collections.emptyList();
-        private List<String> mTelephones = Collections.emptyList();
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link ContactPoint.Builder}.
          *
@@ -182,20 +113,33 @@ public class ContactPoint {
          *                  "Work" or anything user defined.
          */
         public Builder(@NonNull String namespace, @NonNull String id, @NonNull String label) {
-            super(namespace, id);
-            mLabel = Preconditions.checkNotNull(label);
+            super(namespace, id, label);
         }
 
         /**
          * Constructor for {@link Builder} with all the existing values of a {@link ContactPoint}.
          */
         public Builder(@NonNull ContactPoint contactPoint) {
-            this(Preconditions.checkNotNull(contactPoint).getNamespace(),
-                    contactPoint.getId(),
-                    contactPoint.getLabel());
-            mDocumentScore = contactPoint.getDocumentScore();
-            mCreationTimestampMillis = contactPoint.getCreationTimestampMillis();
-            mDocumentTtlMillis = contactPoint.getDocumentTtlMillis();
+            super(contactPoint);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
+        private String mLabel;
+        // Initialization to guarantee those won't be null
+        private List<String> mAddresses = Collections.emptyList();
+        private List<String> mEmails = Collections.emptyList();
+        private List<String> mTelephones = Collections.emptyList();
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String label) {
+            super(namespace, id);
+            mLabel = Preconditions.checkNotNull(label);
+        }
+
+        BuilderImpl(@NonNull ContactPoint contactPoint) {
+            super(new Thing.Builder(contactPoint).build());
+            mLabel = contactPoint.getLabel();
             mAddresses = contactPoint.getAddresses();
             mEmails = contactPoint.getEmails();
             mTelephones = contactPoint.getTelephones();
@@ -203,34 +147,40 @@ public class ContactPoint {
 
         /** Sets the flattened postal addresses. */
         @NonNull
-        public Builder setAddresses(@NonNull List<String> addresses) {
+        public T setAddresses(@NonNull List<String> addresses) {
             mAddresses = Preconditions.checkNotNull(addresses);
-            return this;
+            return (T) this;
         }
 
         /** Sets the email addresses. */
         @NonNull
-        public Builder setEmails(@NonNull List<String> emails) {
+        public T setEmails(@NonNull List<String> emails) {
             mEmails = Preconditions.checkNotNull(emails);
-            return this;
+            return (T) this;
         }
 
         /** Sets the telephone numbers. */
         @NonNull
-        public Builder setTelephones(@NonNull List<String> telephones) {
+        public T setTelephones(@NonNull List<String> telephones) {
             mTelephones = Preconditions.checkNotNull(telephones);
-            return this;
+            return (T) this;
         }
 
         /** Builds the {@link ContactPoint}. */
         @NonNull
+        @Override
         public ContactPoint build() {
             return new ContactPoint(
                     /*namespace=*/ mNamespace,
                     /*id=*/ mId,
-                    /*documentScore=*/ mDocumentScore,
+                    /*documentScore=*/mDocumentScore,
                     /*creationTimestampMillis=*/ mCreationTimestampMillis,
                     /*documentTtlMillis=*/ mDocumentTtlMillis,
+                    /*name=*/ mName,
+                    /*alternateNames=*/ mAlternateNames,
+                    /*description=*/ mDescription,
+                    /*image=*/ mImage,
+                    /*url=*/ mUrl,
                     /*label=*/ mLabel,
                     /*addresses=*/ new ArrayList<>(mAddresses),
                     /*emails=*/ new ArrayList<>(mEmails),
