@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.impl.DEVICE_STATE_CALLBACK_OPTIO
 import androidx.camera.camera2.pipe.integration.impl.SESSION_CAPTURE_CALLBACK_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_STATE_CALLBACK_OPTION
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.impl.TEMPLATE_TYPE_OPTION
 import androidx.camera.camera2.pipe.integration.impl.createCaptureRequestOption
 import androidx.camera.core.ExtendableBuilder
@@ -93,6 +94,35 @@ class Camera2Interop private constructor() {
             baseBuilder.mutableConfig.insertOption(
                 TEMPLATE_TYPE_OPTION,
                 templateType
+            )
+            return this
+        }
+
+        /**
+         * Sets a stream use case flag on the given extendable builder.
+         *
+         * Requires API 33 or above.
+         *
+         *
+         * Calling this method will set the stream useCase for the stream associated with the
+         * surface whose container class is the UseCase.
+         * Valid use cases available on devices can be found in
+         * [android.hardware.camera2.CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
+         * The app should make sure the input argument is in the list of supported use cases first.
+         *
+         * If a unsupported value is provided, [IllegalArgumentException] will be thrown.
+         *
+         * @see android.hardware.camera2.params.OutputConfiguration.setStreamUseCase
+         * to see how Camera2 framework uses this.
+         *
+         * @param streamUseCase The stream use case to set.
+         * @return The current Extender.
+         */
+        @RequiresApi(33)
+        fun setStreamUseCase(streamUseCase: Long): Extender<T> {
+            baseBuilder.mutableConfig.insertOption(
+                STREAM_USE_CASE_OPTION,
+                streamUseCase
             )
             return this
         }
