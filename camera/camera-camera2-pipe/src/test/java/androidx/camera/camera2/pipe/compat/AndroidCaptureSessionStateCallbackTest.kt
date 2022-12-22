@@ -38,7 +38,7 @@ internal class AndroidCaptureSessionStateCallbackTest {
     private val androidStateCallback = AndroidCaptureSessionStateCallback(
         device = camera,
         stateCallback = stateCallback,
-        lastStateCallback = previousStateCallback
+        lastStateCallback = previousStateCallback,
     )
 
     @Test

@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
@@ -137,7 +138,8 @@ internal fun CameraDevice?.closeWithTrace() {
 internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
-    override val cameraId: CameraId
+    override val cameraId: CameraId,
+    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
 ) : CameraDeviceWrapper {
     private val _lastStateCallback = atomic<CameraCaptureSessionWrapper.StateCallback?>(null)
 
@@ -155,7 +157,12 @@ internal class AndroidCameraDevice(
         @Suppress("deprecation")
         cameraDevice.createCaptureSession(
             outputs,
-            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
+            AndroidCaptureSessionStateCallback(
+                this,
+                stateCallback,
+                previousStateCallback,
+                interopSessionStateCallback
+            ),
             handler
         )
     }
@@ -177,7 +184,12 @@ internal class AndroidCameraDevice(
             cameraDevice,
             input,
             outputs,
-            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
+            AndroidCaptureSessionStateCallback(
+                this,
+                stateCallback,
+                previousStateCallback,
+                interopSessionStateCallback
+            ),
             handler
         )
     }
@@ -197,7 +209,12 @@ internal class AndroidCameraDevice(
         Api23Compat.createConstrainedHighSpeedCaptureSession(
             cameraDevice,
             outputs,
-            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
+            AndroidCaptureSessionStateCallback(
+                this,
+                stateCallback,
+                previousStateCallback,
+                interopSessionStateCallback
+            ),
             handler
         )
     }
@@ -217,7 +234,12 @@ internal class AndroidCameraDevice(
         Api24Compat.createCaptureSessionByOutputConfigurations(
             cameraDevice,
             outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
-            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
+            AndroidCaptureSessionStateCallback(
+                this,
+                stateCallback,
+                previousStateCallback,
+                interopSessionStateCallback
+            ),
             handler
         )
     }
@@ -241,7 +263,12 @@ internal class AndroidCameraDevice(
                 inputConfig.width, inputConfig.height, inputConfig.format
             ),
             outputs.map { it.unwrapAs(OutputConfiguration::class) },
-            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
+            AndroidCaptureSessionStateCallback(
+                this,
+                stateCallback,
+                previousStateCallback,
+                interopSessionStateCallback
+            ),
             handler
         )
     }
@@ -256,7 +283,12 @@ internal class AndroidCameraDevice(
             config.sessionType,
             config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
             config.executor,
-            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback)
+            AndroidCaptureSessionStateCallback(
+                this,
+                stateCallback,
+                previousStateCallback,
+                interopSessionStateCallback
+            )
         )
 
         if (config.inputConfiguration != null) {

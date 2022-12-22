@@ -19,7 +19,9 @@
 package androidx.camera.camera2.pipe
 
 import android.content.Context
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.os.HandlerThread
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
@@ -87,7 +89,17 @@ public class CameraPipe(config: Config) {
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
         val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
-        val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig()
+        val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig(),
+        val cameraInteropConfig: CameraInteropConfig = CameraInteropConfig()
+    )
+
+    /**
+     * Application level configuration for Camera2Interop callbacks. If set, these callbacks
+     * will be triggered at the appropriate places in Camera-Pipe.
+     */
+    public data class CameraInteropConfig(
+        val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
+        val cameraSessionStateCallback: CameraCaptureSession.StateCallback? = null
     )
 
     /**
