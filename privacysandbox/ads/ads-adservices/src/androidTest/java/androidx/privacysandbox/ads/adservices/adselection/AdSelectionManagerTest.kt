@@ -46,6 +46,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class AdSelectionManagerTest {
@@ -57,14 +58,17 @@ class AdSelectionManagerTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdSelectionOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(obtain(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testSelectAds() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adSelectionManager = mockAdSelectionManager(mContext)
         setupAdSelectionResponse(adSelectionManager)
@@ -88,9 +92,10 @@ class AdSelectionManagerTest {
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testReportImpression() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adSelectionManager = mockAdSelectionManager(mContext)
         setupAdSelectionResponse(adSelectionManager)
@@ -111,11 +116,9 @@ class AdSelectionManagerTest {
         verifyReportImpressionRequest(captor.value)
     }
 
-    @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
         private lateinit var mContext: Context
         private const val adSelectionId = 1234L
         private const val adId = "1234"

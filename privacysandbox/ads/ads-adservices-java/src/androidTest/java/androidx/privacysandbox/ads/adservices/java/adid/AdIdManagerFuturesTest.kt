@@ -37,6 +37,7 @@ import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
+@SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
 class AdIdManagerFuturesTest {
@@ -49,14 +50,15 @@ class AdIdManagerFuturesTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdIdOlderVersions() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         Truth.assertThat(AdIdManagerFutures.from(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SuppressWarnings("NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testAdIdAsync() {
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adIdManager = mockAdIdManager(mContext)
         setupResponse(adIdManager)
@@ -77,7 +79,6 @@ class AdIdManagerFuturesTest {
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
         private lateinit var mContext: Context
-        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
         private fun mockAdIdManager(spyContext: Context): android.adservices.adid.AdIdManager {
             val adIdManager = Mockito.mock(android.adservices.adid.AdIdManager::class.java)
