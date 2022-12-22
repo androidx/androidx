@@ -63,6 +63,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -772,6 +773,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
     }
 
+    @Ignore // b/263502892
     @Test
     @Suppress("DeferredResultUnused")
     fun withTransaction_multipleTransactions_verifyThreadUsage() {
