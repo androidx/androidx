@@ -59,4 +59,14 @@ public class DocumentIdUtilCtsTest {
         assertThat(qualifiedId)
                 .isEqualTo("pkg$data\\\\\\\\\\\\base/name\\\\\\\\\\\\space#id\\\\\\\\\\\\entifier");
     }
+
+    @Test
+    public void testQualifiedIdFromDocument() {
+        final String packageName = "pkg";
+        final String databaseName = "database";
+
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "type").build();
+        String qualifiedId = DocumentIdUtil.createQualifiedId(packageName, databaseName, document);
+        assertThat(qualifiedId).isEqualTo("pkg$database/namespace#id");
+    }
 }
