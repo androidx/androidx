@@ -167,7 +167,7 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
 
         val channel = database.invalidationTrackerFlow("book")
-            .map { booksDao.allBooks }
+            .map { booksDao.getAllBooks() }
             .produceIn(this)
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1)

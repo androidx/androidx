@@ -36,8 +36,6 @@ import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import java.util.Locale
 import javax.lang.model.element.Modifier
 
@@ -336,13 +334,7 @@ class DatabaseWriter(
                 kotlinPropertyBuilder = { }
             ).build()
             builder.addProperty(privateDaoProperty)
-            val overrideProperty =
-                codeLanguage == CodeLanguage.KOTLIN && method.element.isKotlinPropertyMethod()
-            if (overrideProperty) {
-                builder.addProperty(createDaoProperty(method, privateDaoProperty))
-            } else {
-                builder.addFunction(createDaoGetter(method, privateDaoProperty))
-            }
+            builder.addFunction(createDaoGetter(method, privateDaoProperty))
         }
     }
 
@@ -388,30 +380,6 @@ class DatabaseWriter(
         ).apply {
             addCode(body.build())
         }.build()
-    }
-
-    private fun createDaoProperty(method: DaoMethod, daoProperty: XPropertySpec): XPropertySpec {
-        // TODO(b/257967987): This has a few flaws that need to be fixed.
-        return XPropertySpec.builder(
-            language = codeLanguage,
-            name = method.element.name.drop(3).replaceFirstChar { it.lowercase(Locale.US) },
-            typeName = method.dao.typeName,
-            visibility = when {
-                method.element.isPublic() -> VisibilityModifier.PUBLIC
-                method.element.isProtected() -> VisibilityModifier.PROTECTED
-                else -> VisibilityModifier.PUBLIC // Might be internal... ?
-            }
-        ).apply(
-            javaFieldBuilder = { error("Overriding a property in Java is impossible!") },
-            kotlinPropertyBuilder = {
-                addModifiers(KModifier.OVERRIDE)
-                getter(
-                    FunSpec.getterBuilder()
-                        .addStatement("return %L.value", daoProperty.name)
-                        .build()
-                )
-            }
-        ).build()
     }
 
     private fun createCreateOpenHelper(): XFunSpec {

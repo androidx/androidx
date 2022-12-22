@@ -1124,4 +1124,7 @@ object ProcessorErrors {
         POJO,
         ENTITY,
     }
+
+    val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
+        "Kotlin code, please rewrite as an abstract function."
 }

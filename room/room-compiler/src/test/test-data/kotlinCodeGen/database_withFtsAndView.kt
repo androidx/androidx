@@ -34,10 +34,6 @@ public class MyDatabase_Impl : MyDatabase() {
         MyDao_Impl(this)
     }
 
-
-    public override val dao: MyDao
-        get() = _myDao.value
-
     protected override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
         val _openCallback: SupportSQLiteOpenHelper.Callback = RoomOpenHelper(config, object :
             RoomOpenHelper.Delegate(1) {
@@ -231,4 +227,6 @@ public class MyDatabase_Impl : MyDatabase() {
         val _autoMigrations: MutableList<Migration> = ArrayList<Migration>()
         return _autoMigrations
     }
+
+    public override fun getDao(): MyDao = _myDao.value
 }

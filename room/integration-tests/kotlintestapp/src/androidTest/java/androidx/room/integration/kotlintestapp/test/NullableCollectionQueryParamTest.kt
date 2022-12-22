@@ -46,7 +46,7 @@ class NullableCollectionQueryParamTest {
             ApplicationProvider.getApplicationContext(),
             TestDatabase::class.java
         ).build()
-        dao = db.dao
+        dao = db.getDao()
 
         dao.addSong(songOne)
         dao.addSong(songTwo)
@@ -138,6 +138,6 @@ class NullableCollectionQueryParamTest {
 
     @Database(entities = [Song::class], version = 1, exportSchema = false)
     abstract class TestDatabase : RoomDatabase() {
-        abstract val dao: SongDao
+        abstract fun getDao(): SongDao
     }
 }

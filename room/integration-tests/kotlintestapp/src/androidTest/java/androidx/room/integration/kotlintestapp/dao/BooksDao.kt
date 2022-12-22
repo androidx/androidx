@@ -468,8 +468,8 @@ interface BooksDao {
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
     fun getBooksByPublisherImmutable(): ImmutableListMultimap<Publisher, Book>
 
-    @get:Query("SELECT * FROM Book")
-    val allBooks: List<Book>
+    @Query("SELECT * FROM Book")
+    fun getAllBooks(): List<Book>
 
     @Upsert
     fun upsertBooks(vararg books: Book)

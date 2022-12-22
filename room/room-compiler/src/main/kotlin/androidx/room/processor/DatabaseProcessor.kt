@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
@@ -110,6 +111,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         executable,
                         ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                     )
+                }
+                if (
+                    context.codeLanguage == CodeLanguage.KOTLIN &&
+                    executable.isKotlinPropertyMethod()
+                ) {
+                    context.logger.e(executable, ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
                 }
                 val dao = DaoProcessor(context, daoElement, declaredType, dbVerifier)
                     .process()
