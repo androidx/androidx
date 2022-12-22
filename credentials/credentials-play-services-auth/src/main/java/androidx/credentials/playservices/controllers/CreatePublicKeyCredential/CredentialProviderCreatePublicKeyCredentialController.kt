@@ -23,6 +23,7 @@ import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
@@ -129,6 +130,8 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
+            Log.w(TAG, "Returned request code " +
+                "$CONTROLLER_REQUEST_CODE does not match what was given $uniqueRequestCode")
             return
         }
         if (maybeReportErrorResultCodeCreate(resultCode, TAG,
@@ -142,7 +145,8 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             this.executor.execute { this.callback.onError(
                 CreatePublicKeyCredentialDomException(
                     UnknownError(),
-                "Internal error fido module giving null bytes")
+                "Upon handling create public key credential response, fido module giving null " +
+                    "bytes indicating internal error")
             ) }
             return
         }
