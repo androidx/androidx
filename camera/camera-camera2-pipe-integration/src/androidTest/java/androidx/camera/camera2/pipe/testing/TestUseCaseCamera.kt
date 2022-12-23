@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -71,6 +72,7 @@ class TestUseCaseCamera(
             cameraPipe = cameraPipe,
             requestListener = ComboRequestListener(),
             useCaseSurfaceManager = useCaseSurfaceManager,
+            cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
         )
 
     override val requestControl: UseCaseCameraRequestControl = UseCaseCameraRequestControlImpl(

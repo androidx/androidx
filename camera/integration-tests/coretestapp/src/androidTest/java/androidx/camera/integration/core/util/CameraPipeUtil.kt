@@ -77,6 +77,25 @@ object CameraPipeUtil {
     )
     @OptIn(markerClass = [ExperimentalCamera2Interop::class])
     @JvmStatic
+    fun <T> setSessionStateCallback(
+        implName: String,
+        builder: ExtendableBuilder<T>,
+        stateCallback: CameraCaptureSession.StateCallback
+    ) {
+        if (implName == CameraPipeConfig::class.simpleName) {
+            androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(
+                builder
+            ).setSessionStateCallback(stateCallback)
+        } else {
+            Camera2Interop.Extender(builder).setSessionStateCallback(stateCallback)
+        }
+    }
+
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
+    )
+    @OptIn(markerClass = [ExperimentalCamera2Interop::class])
+    @JvmStatic
     fun getCameraId(implName: String, cameraInfo: CameraInfo): String {
         return if (implName == CameraPipeConfig::class.simpleName) {
             androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(
