@@ -11,6 +11,11 @@ package androidx.wear.protolayout.expression.pipeline {
     method @UiThread public void setStateEntryValues(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
   }
 
+  public interface QuotaManager {
+    method public void releaseQuota(int);
+    method public boolean tryAcquireQuota(int);
+  }
+
 }
 
 package androidx.wear.protolayout.expression.pipeline.sensor {
