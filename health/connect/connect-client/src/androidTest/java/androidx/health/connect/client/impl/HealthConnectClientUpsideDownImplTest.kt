@@ -20,6 +20,7 @@ import android.annotation.TargetApi
 import android.os.Build
 import android.os.RemoteException
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.Metadata
@@ -256,5 +257,40 @@ class HealthConnectClientUpsideDownImplTest {
             )
         )
         assertThat(token).isNotEmpty()
+    }
+
+    @Test
+    fun getChanges() = runTest {
+        val token = healthConnectClient.getChangesToken(
+            ChangesTokenRequest(
+                setOf(StepsRecord::class),
+                setOf()
+            )
+        )
+
+        val insertResponse = healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = ZoneOffset.UTC
+                )
+            )
+        )
+
+        // TODO(b/262240293): delete a record to test DeletionChange conversion
+
+        val record = healthConnectClient.readRecord(
+            StepsRecord::class,
+            insertResponse.recordIdsList[0]
+        ).record
+
+        assertThat(healthConnectClient.getChanges(token).changes).containsExactly(
+            UpsertionChange(
+                record
+            )
+        )
     }
 }

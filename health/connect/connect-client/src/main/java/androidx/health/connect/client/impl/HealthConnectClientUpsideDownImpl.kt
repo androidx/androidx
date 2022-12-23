@@ -17,6 +17,7 @@
 package androidx.health.connect.client.impl
 
 import android.content.Context
+import android.healthconnect.ChangeLogsRequest
 import android.healthconnect.HealthConnectException
 import android.healthconnect.HealthConnectManager
 import android.healthconnect.ReadRecordsRequestUsingIds
@@ -29,6 +30,8 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.changes.DeletionChange
+import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.platform.records.toPlatformChangeLogTokenRequest
 import androidx.health.connect.client.impl.platform.records.toPlatformReadRecordsRequestUsingFilters
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
@@ -201,7 +204,25 @@ class HealthConnectClientUpsideDownImpl :
     }
 
     override suspend fun getChanges(changesToken: String): ChangesResponse {
-        throw UnsupportedOperationException("Method not supported yet")
+        val response = wrapPlatformException {
+            suspendCancellableCoroutine { continuation ->
+                healthConnectManager.getChangeLogs(
+                    ChangeLogsRequest.Builder(changesToken).build(),
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
+        // TODO(b/263472286) revisit changesTokenExpired field in the constructor
+        return ChangesResponse(
+            buildList {
+                response.upsertedRecords.forEach { add(UpsertionChange(it.toSdkRecord())) }
+                response.deletedRecordIds.forEach { add(DeletionChange(it)) }
+            },
+            response.nextChangesToken,
+            response.hasMorePages(),
+            changesTokenExpired = true
+        )
     }
 
     override suspend fun getGrantedPermissions(
