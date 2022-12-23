@@ -105,9 +105,8 @@ class CameraControlAdapter @Inject constructor(
 
     override fun startFocusAndMetering(
         action: FocusMeteringAction
-    ): ListenableFuture<FocusMeteringResult> {
-        return focusMeteringControl.startFocusAndMetering(action)
-    }
+    ): ListenableFuture<FocusMeteringResult> =
+        Futures.nonCancellationPropagating(focusMeteringControl.startFocusAndMetering(action))
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
         return Futures.nonCancellationPropagating(
