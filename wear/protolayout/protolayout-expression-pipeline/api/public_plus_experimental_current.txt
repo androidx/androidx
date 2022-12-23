@@ -1,4 +1,18 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.expression.pipeline {
+
+  public interface DynamicTypeValueReceiver<T> {
+    method @UiThread public void onData(T);
+    method @UiThread public void onInvalidated();
+  }
+
+  public class ObservableStateStore {
+    ctor public ObservableStateStore(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
+    method @UiThread public void setStateEntryValues(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
+  }
+
+}
+
 package androidx.wear.protolayout.expression.pipeline.sensor {
 
   public interface SensorGateway extends java.io.Closeable {
