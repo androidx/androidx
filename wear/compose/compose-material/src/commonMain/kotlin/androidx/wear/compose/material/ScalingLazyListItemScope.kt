@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.layout.height
@@ -28,6 +30,8 @@ import androidx.compose.ui.unit.Dp
  * Receiver scope being used by the item content parameter of ScalingLazyColumn.
  */
 @Stable
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @ScalingLazyScopeMarker
 public sealed interface ScalingLazyListItemScope {
     /**

@@ -772,6 +772,7 @@ internal class ScalingLazyColumnStateAdapter(
  */
 @Deprecated("Use [ScalingLazyColumnStateAdapter] instead")
 internal class MaterialScalingLazyColumnStateAdapter(
+    @Suppress("DEPRECATION")
     private val state: androidx.wear.compose.material.ScalingLazyListState
 ) : BaseScalingLazyColumnStateAdapter() {
 

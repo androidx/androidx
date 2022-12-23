@@ -57,6 +57,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 
+@Suppress("DEPRECATION")
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 // These tests are in addition to ScalingLazyListLayoutInfoTest which handles scroll events at an

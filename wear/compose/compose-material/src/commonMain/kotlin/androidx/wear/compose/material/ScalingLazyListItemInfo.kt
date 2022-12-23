@@ -20,6 +20,8 @@ package androidx.wear.compose.material
  *
  * @see ScalingLazyListLayoutInfo
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public sealed interface ScalingLazyListItemInfo {
     /**
      * The index of the item in the list.

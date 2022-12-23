@@ -87,6 +87,7 @@ public class ScrollAwayTest {
         rule.onNodeWithTag(TIME_TEXT_TAG).assertIsDisplayed()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun hidesTimeTextWithMaterialScalingLazyColumn() {
         lateinit var scrollState: androidx.wear.compose.material.ScalingLazyListState
@@ -104,6 +105,7 @@ public class ScrollAwayTest {
         rule.onNodeWithTag(TIME_TEXT_TAG).assertIsNotDisplayed()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun showsTimeTextWithMaterialScalingLazyColumnIfItemIndexInvalid() {
         val scrollAwayItemIndex = 10

@@ -613,6 +613,7 @@ public object PickerDefaults {
      * Scaling params are used to determine when items start to be scaled down and alpha applied,
      * and how much. For details, see [ScalingParams]
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         "This overload is provided for backwards compatibility with Compose for" +
             " Wear OS 1.1 and was deprecated. Use [defaultScalingParams] instead",
@@ -708,6 +709,7 @@ public interface PickerScope {
 private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
 
 private fun convertToDefaultFoundationScalingParams(
+    @Suppress("DEPRECATION")
     scalingParams: androidx.wear.compose.material.ScalingParams
 ): ScalingParams = PickerDefaults.defaultScalingParams(
     edgeScale = scalingParams.edgeScale,

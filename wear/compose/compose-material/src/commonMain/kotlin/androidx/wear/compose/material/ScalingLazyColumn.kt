@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.CubicBezierEasing
@@ -58,6 +60,8 @@ import androidx.wear.compose.foundation.lazy.verticalNegativePadding
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @ScalingLazyScopeMarker
 public sealed interface ScalingLazyListScope {
     /**
@@ -104,7 +108,9 @@ public sealed interface ScalingLazyListScope {
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> ScalingLazyListScope.items(
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
+public inline fun <T> ScalingLazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit
@@ -124,6 +130,8 @@ inline fun <T> ScalingLazyListScope.items(
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -144,6 +152,8 @@ inline fun <T> ScalingLazyListScope.itemsIndexed(
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 inline fun <T> ScalingLazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -164,6 +174,8 @@ inline fun <T> ScalingLazyListScope.items(
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -173,6 +185,8 @@ public inline fun <T> ScalingLazyListScope.itemsIndexed(
 }
 
 @Immutable
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @kotlin.jvm.JvmInline
 public value class ScalingLazyListAnchorType internal constructor(internal val type: Int) {
 
@@ -241,6 +255,8 @@ public value class ScalingLazyListAnchorType internal constructor(internal val t
  * For an example of a [ScalingLazyColumn] with an explicit itemOffset see:
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @Immutable
 public class AutoCenteringParams(
     // @IntRange(from = 0)
@@ -317,6 +333,8 @@ public class AutoCenteringParams(
  * null no automatic space will be added and instead the developer can use [contentPadding] to
  * manually arrange the items.
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @Composable
 public fun ScalingLazyColumn(
     modifier: Modifier = Modifier,
@@ -441,6 +459,8 @@ public fun ScalingLazyColumn(
 /**
  * Contains the default values used by [ScalingLazyColumn]
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public object ScalingLazyColumnDefaults {
     /**
      * Creates a [ScalingParams] that represents the scaling and alpha properties for a

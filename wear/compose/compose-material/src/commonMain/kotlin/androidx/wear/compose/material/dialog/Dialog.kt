@@ -763,6 +763,7 @@ private fun DialogImpl(
  * Common Wear Material dialog implementation that offers a single content slot,
  * fills the screen and is scrollable by default if the content is taller than the viewport.
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     "Use [DialogImpl] targeting " +
         "androidx.wear.compose.foundation.lazy ScalingLazyColumn instead"

@@ -117,6 +117,7 @@ public fun Modifier.scrollAway(
         "from wear.compose.foundation.lazy package", level = DeprecationLevel.WARNING
 )
 public fun Modifier.scrollAway(
+    @Suppress("DEPRECATION")
     scrollState: androidx.wear.compose.material.ScalingLazyListState,
     itemIndex: Int = 1,
     offset: Dp = 0.dp,

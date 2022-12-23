@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.Easing
@@ -94,6 +96,8 @@ import kotlin.math.roundToInt
  * point for each item.
  */
 @Stable
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public interface ScalingParams {
     /**
      * What fraction of the full size of the item to scale it by when most
