@@ -23,7 +23,7 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
 import androidx.core.os.asOutcomeReceiver
-import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**

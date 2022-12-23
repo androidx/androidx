@@ -27,7 +27,7 @@ import androidx.annotation.RequiresPermission
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
-import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import kotlinx.coroutines.suspendCancellableCoroutine
 
