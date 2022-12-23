@@ -20,16 +20,18 @@ import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CamcorderProfileProxy
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.collect.Range
@@ -38,8 +40,10 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * Test used to find out compatibility issue.
@@ -51,13 +55,20 @@ import org.junit.runner.RunWith
  * add the device to the relevant quirk to pass the test.
  */
 @SmallTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class DeviceCompatibilityTest {
+class DeviceCompatibilityTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
+) {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val cameraConfig = Camera2Config.defaultConfig()
     private val zeroRange by lazy { android.util.Range.create(0, 0) }
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @Before
     fun setup() {
@@ -137,5 +148,14 @@ class DeviceCompatibilityTest {
         } catch (e: IllegalArgumentException) {
             zeroRange
         }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
     }
 }
