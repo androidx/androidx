@@ -23,10 +23,22 @@ plugins {
 
 dependencies {
     annotationProcessor(libs.nullaway)
+    api("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.collection:collection:1.2.0")
+
+    implementation("androidx.annotation:annotation-experimental:1.2.0")
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    implementation(project(":wear:protolayout:protolayout-expression"))
+
+    compileOnly(libs.kotlinStdlib) // For annotation-experimental
 }
 
 android {
     namespace "androidx.wear.protolayout.expression.pipeline"
+
+    defaultConfig {
+        minSdkVersion 26
+    }
 }
 
 androidx {
