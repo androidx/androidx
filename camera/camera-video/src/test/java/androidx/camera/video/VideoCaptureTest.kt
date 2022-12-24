@@ -619,6 +619,37 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun detachUseCases_receiveResultOfSurfaceRequest() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+
+        var surfaceResult: SurfaceRequest.Result? = null
+        val videoOutput = createVideoOutput { surfaceRequest, _ ->
+            surfaceRequest.provideSurface(
+                mock(Surface::class.java),
+                directExecutor()
+            ) { surfaceResult = it }
+        }
+        val videoCapture = createVideoCapture(videoOutput)
+
+        // Act.
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        // Surface is in use, should not receive any result.
+        assertThat(surfaceResult).isNull()
+
+        // Act.
+        cameraUseCaseAdapter.detachUseCases()
+
+        // Assert.
+        assertThat(surfaceResult!!.resultCode).isEqualTo(
+            SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY
+        )
+    }
+
+    @Test
     fun setTargetRotation_rotationIsChanged() {
         // Arrange.
         val videoCapture = createVideoCapture()

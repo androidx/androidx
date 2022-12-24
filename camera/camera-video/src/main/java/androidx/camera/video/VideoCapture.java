@@ -275,38 +275,26 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @hide
      */
+    @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onStateAttached() {
         super.onStateAttached();
-        getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
-                mStreamInfoObserver);
-        setSourceState(VideoOutput.SourceState.ACTIVE_NON_STREAMING);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        Logger.d(TAG, "suggestedResolution = " + suggestedResolution);
-        String cameraId = getCameraId();
-        VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
-
+        Preconditions.checkNotNull(getAttachedSurfaceResolution(), "The suggested resolution "
+                + "should be already updated and shouldn't be null.");
+        Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
+                + "when VideoCapture is attached.");
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mSessionConfigBuilder = createPipeline(cameraId, config, suggestedResolution);
+        mSessionConfigBuilder = createPipeline(getCameraId(),
+                (VideoCaptureConfig<T>) getCurrentConfig(), getAttachedSurfaceResolution());
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
-
-        return suggestedResolution;
+        getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
+                mStreamInfoObserver);
+        setSourceState(VideoOutput.SourceState.ACTIVE_NON_STREAMING);
     }
 
     /**
@@ -343,17 +331,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onUnbind() {
-        clearPipeline();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
     public void onStateDetached() {
         checkState(isMainThread(), "VideoCapture can only be detached on the main thread.");
         setSourceState(VideoOutput.SourceState.INACTIVE);
@@ -364,6 +341,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                         + "cancelled.");
             }
         }
+        // Clear the pipeline to close the surface, which releases the codec so that it's
+        // available for other applications.
+        clearPipeline();
     }
 
     @NonNull
