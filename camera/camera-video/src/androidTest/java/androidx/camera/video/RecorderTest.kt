@@ -66,6 +66,7 @@ import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.camera.video.internal.encoder.InvalidConfigException
+import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -76,6 +77,7 @@ import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -93,6 +95,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -123,6 +126,10 @@ class RecorderTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     @get:Rule
     var testName: TestName = TestName()
@@ -730,6 +737,12 @@ class RecorderTest(
     fun start_finalizeImmediatelyWhenSourceInactive() {
         initializeRecorder()
         invokeSurfaceRequest()
+        val videoCaptureMonitor = VideoCaptureMonitor()
+        recorder.startVideoRecording(temporaryFolder.newFile(), videoCaptureMonitor).use {
+            // Ensure the Recorder is initialized before start test.
+            videoCaptureMonitor.waitForVideoCaptureStatus()
+        }
+
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
@@ -1563,4 +1576,37 @@ class RecorderTest(
             CallTimesAtLeast(5)
         )
     }
+    class VideoCaptureMonitor : Consumer<VideoRecordEvent> {
+        private var countDown: CountDownLatch? = null
+
+        fun waitForVideoCaptureStatus(
+            count: Int = 10,
+            timeoutMillis: Long = TimeUnit.SECONDS.toMillis(10)
+        ) {
+            assertWithMessage("Video recording doesn't start").that(synchronized(this) {
+                countDown = CountDownLatch(count)
+                countDown
+            }!!.await(timeoutMillis, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        override fun accept(event: VideoRecordEvent?) {
+            when (event) {
+                is VideoRecordEvent.Status -> {
+                    synchronized(this) {
+                        countDown?.countDown()
+                    }
+                }
+                else -> {
+                    // Ignore other events.
+                }
+            }
+        }
+    }
+
+    private fun Recorder.startVideoRecording(
+        file: File,
+        eventListener: Consumer<VideoRecordEvent>
+    ): Recording = prepareRecording(
+        context, FileOutputOptions.Builder(file).build()
+    ).start(Dispatchers.Main.asExecutor(), eventListener)
 }
