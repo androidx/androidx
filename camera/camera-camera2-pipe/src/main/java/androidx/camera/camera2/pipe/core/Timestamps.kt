@@ -56,6 +56,10 @@ public value class DurationNs(public val value: Long) {
             1
         }
     }
+
+    companion object {
+        public inline fun fromMs(durationMs: Long) = DurationNs(durationMs * 1_000_000L)
+    }
 }
 
 interface TimeSource {
