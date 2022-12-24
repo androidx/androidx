@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.config
 
+import android.app.admin.DevicePolicyManager
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import androidx.annotation.RequiresApi
@@ -30,7 +31,9 @@ import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.compat.Camera2CameraDevices
+import androidx.camera.camera2.pipe.compat.DevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Threads
@@ -91,6 +94,13 @@ internal abstract class CameraPipeModules {
         @Provides
         fun provideCameraManager(context: Context): CameraManager =
             context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+        @Reusable
+        @Provides
+        fun provideDevicePolicyManagerWrapper(context: Context): DevicePolicyManagerWrapper =
+            AndroidDevicePolicyManagerWrapper(
+                context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            )
 
         @Singleton
         @Provides

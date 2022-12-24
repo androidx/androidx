@@ -37,4 +37,10 @@ class TimestampsTest {
         assertThat(duration1 > duration2).isFalse()
         assertThat(duration1 == duration3).isTrue()
     }
+
+    @Test
+    fun testDurationNsFromMs() {
+        val duration = DurationNs.fromMs(500L)
+        assertThat(duration.value).isEqualTo(500_000_000L)
+    }
 }
