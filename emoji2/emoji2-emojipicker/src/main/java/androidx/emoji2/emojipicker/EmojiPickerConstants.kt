@@ -27,4 +27,7 @@ internal object EmojiPickerConstants {
 
     // The default number of rows of recent items held.
     const val DEFAULT_MAX_RECENT_ITEM_ROWS = 3
+
+    // The max pool size of the Emoji ItemType in RecyclerViewPool.
+    const val EMOJI_VIEW_POOL_SIZE = 100
 }
