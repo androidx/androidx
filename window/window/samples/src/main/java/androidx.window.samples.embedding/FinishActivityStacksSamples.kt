@@ -24,12 +24,9 @@ import androidx.window.embedding.SplitController
 
 @OptIn(ExperimentalWindowApi::class)
 @Sampled
-fun expandPrimaryContainer() {
-    SplitController.getInstance(primaryActivity).addSplitListener(
-        primaryActivity,
-        Runnable::run,
-    ) { splitInfoList ->
-        if (fullScreenEnabled) {
+suspend fun expandPrimaryContainer() {
+    SplitController.getInstance(primaryActivity).splitInfoList(primaryActivity)
+        .collect { splitInfoList ->
             // Find all associated secondary ActivityStacks
             val associatedSecondaryActivityStacks = splitInfoList
                 .mapTo(mutableSetOf()) { splitInfo -> splitInfo.secondaryActivityStack }
@@ -37,8 +34,6 @@ fun expandPrimaryContainer() {
             ActivityEmbeddingController.getInstance(primaryActivity)
                 .finishActivityStacks(associatedSecondaryActivityStacks)
         }
-    }
 }
 
 val primaryActivity = Activity()
-var fullScreenEnabled = true
