@@ -16,8 +16,8 @@
 
 <resources>
     <!-- Describes the category list in the emoji picker header view. -->
-    <dimen name="emoji_picker_header_icon_holder_width">34dp</dimen>
-    <dimen name="emoji_picker_header_icon_holder_min_height">36dp</dimen>
+    <dimen name="emoji_picker_header_icon_holder_width">39dp</dimen>
+    <dimen name="emoji_picker_header_icon_holder_min_height">46dp</dimen>
     <dimen name="emoji_picker_header_icon_width">20dp</dimen>
     <dimen name="emoji_picker_header_icon_height">20dp</dimen>
     <dimen name="emoji_picker_header_icon_underline_width">28dp</dimen>
