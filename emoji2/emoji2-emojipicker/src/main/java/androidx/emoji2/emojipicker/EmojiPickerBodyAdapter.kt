@@ -40,6 +40,8 @@ internal class EmojiPickerBodyAdapter(
     private val onEmojiPickedListener: EmojiPickerBodyAdapter.(EmojiViewItem) -> Unit,
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+    private var emojiCellWidth: Int? = null
+    private var emojiCellHeight: Int? = null
 
     @UiThread
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -50,14 +52,19 @@ internal class EmojiPickerBodyAdapter(
                 ItemType.PLACEHOLDER_TEXT -> createSimpleHolder(
                     R.layout.empty_category_text_view, parent
                 ) {
-                    minimumHeight = (parent.measuredHeight / emojiGridRows).toInt()
+                    minimumHeight =
+                        emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
+                            .also { emojiCellHeight = it }
                 }
 
                 ItemType.EMOJI -> {
                     EmojiViewHolder(context,
                         parent,
-                        getParentWidth(parent) / emojiGridColumns,
-                        (parent.measuredHeight / emojiGridRows).toInt(),
+                        emojiCellWidth ?: (getParentWidth(parent) / emojiGridColumns).also {
+                            emojiCellWidth = it
+                        },
+                        emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
+                            .also { emojiCellHeight = it },
                         layoutInflater,
                         stickyVariantProvider,
                         onEmojiPickedListener = { emojiViewItem ->

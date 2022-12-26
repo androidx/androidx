@@ -215,6 +215,12 @@ class EmojiPickerView @JvmOverloads constructor(
                 // Disable item insertion/deletion animation. This keeps view holder unchanged when
                 // item updates.
                 itemAnimator = null
+                setRecycledViewPool(RecyclerView.RecycledViewPool().apply {
+                    setMaxRecycledViews(
+                        ItemType.EMOJI.ordinal,
+                        EmojiPickerConstants.EMOJI_VIEW_POOL_SIZE
+                    )
+                })
             }
         }
     }
