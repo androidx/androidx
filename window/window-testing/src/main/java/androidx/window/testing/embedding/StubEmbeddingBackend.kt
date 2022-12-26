@@ -18,6 +18,7 @@ package androidx.window.testing.embedding
 
 import android.app.Activity
 import androidx.core.util.Consumer
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.SplitAttributes
@@ -77,6 +78,7 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     override fun isActivityEmbedded(activity: Activity): Boolean =
         embeddedActivities.contains(activity)
 
+    @ExperimentalWindowApi
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {

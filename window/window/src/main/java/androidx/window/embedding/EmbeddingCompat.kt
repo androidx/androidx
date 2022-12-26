@@ -22,6 +22,7 @@ import android.content.Context
 import android.util.Log
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
@@ -89,6 +90,7 @@ internal class EmbeddingCompat constructor(
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
+    @ExperimentalWindowApi
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {

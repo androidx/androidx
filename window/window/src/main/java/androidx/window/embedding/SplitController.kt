@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.DoNotInline
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.window.WindowProperties
@@ -33,6 +34,13 @@ import androidx.window.layout.WindowMetrics
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 
 /**
 * A singleton controller class that gets information about the currently active activity
@@ -50,10 +58,68 @@ class SplitController private constructor(private val applicationContext: Contex
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
         .getInstance(applicationContext)
 
-    // TODO(b/258356512): Make this method a flow API
+    /** A [ReentrantLock] to protect against concurrent access to [consumerToJobMap]. */
+    private val lock = ReentrantLock()
+    @GuardedBy("lock")
+    private val consumerToJobMap = mutableMapOf<Consumer<List<SplitInfo>>, Job>()
+
     /**
-     * Registers a listener for updates about the active split state(s) that this
-     * activity is part of. An activity can be in zero, one or more active splits.
+     * @deprecated Use [splitInfoList] for kotlin usages or delegate to
+     * [androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener] for Java
+     * usages.
+     */
+    @Deprecated(
+        message = "Replace to provide Flow API to get SplitInfo list",
+        replaceWith = ReplaceWith(
+            expression = "splitInfoList",
+            imports = ["androidx.window.embedding.SplitController"]
+        )
+    )
+    @ExperimentalWindowApi
+    fun addSplitListener(
+        activity: Activity,
+        executor: Executor,
+        consumer: Consumer<List<SplitInfo>>
+    ) {
+        lock.withLock {
+            if (consumerToJobMap[consumer] != null) {
+                return
+            }
+            val scope = CoroutineScope(executor.asCoroutineDispatcher())
+            consumerToJobMap[consumer] = scope.launch {
+                splitInfoList(activity).collect { splitInfoList ->
+                    consumer.accept(splitInfoList) }
+            }
+        }
+    }
+
+    /**
+     * @deprecated Use [splitInfoList] for kotlin usages or delegate to
+     * [androidx.window.java.embedding.SplitControllerCallbackAdapter.removeSplitListener] for
+     * Java usages.
+     */
+    @Deprecated(
+        message = "Replace to provide Flow API to get SplitInfo list",
+        replaceWith = ReplaceWith(
+            expression = "splitInfoList",
+            imports = ["androidx.window.embedding.SplitController"]
+        )
+    )
+    @ExperimentalWindowApi
+    fun removeSplitListener(
+        consumer: Consumer<List<SplitInfo>>
+    ) {
+        lock.withLock {
+            consumerToJobMap[consumer]?.cancel()
+            consumerToJobMap.remove(consumer)
+        }
+    }
+
+    /**
+     * A [Flow] of [SplitInfo] list that contains the current split states that this [activity] is
+     * part of.
+     *
+     * An activity can be in zero, one or more [active splits][SplitInfo].
      * More than one active split is possible if an activity created multiple
      * containers to side, stacked on top of each other. Or it can be in two
      * different splits at the same time - in a secondary container for one (it was
@@ -62,29 +128,15 @@ class SplitController private constructor(private val applicationContext: Contex
      * bottom to top by their z-order, more recent splits appearing later.
      * Guaranteed to be called at least once to report the most recent state.
      *
-     * @param activity only split that this [Activity] is part of will be reported.
-     * @param executor when there is an update to the active split state(s), the [consumer] will be
-     * invoked on this [Executor].
-     * @param consumer [Consumer] that will be invoked on the [executor] when there is an update to
-     * the active split state(s).
+     * @param activity The [Activity] that is interested in getting the split states
+     * @return a [Flow] of [SplitInfo] list that includes this [activity]
      */
-    fun addSplitListener(
-        activity: Activity,
-        executor: Executor,
-        consumer: Consumer<List<SplitInfo>>
-    ) {
-        embeddingBackend.addSplitListenerForActivity(activity, executor, consumer)
-    }
-
-    /**
-     * Unregisters a listener that was previously registered via [addSplitListener].
-     *
-     * @param consumer the previously registered [Consumer] to unregister.
-     */
-    fun removeSplitListener(
-        consumer: Consumer<List<SplitInfo>>
-    ) {
-        embeddingBackend.removeSplitListenerForActivity(consumer)
+    fun splitInfoList(activity: Activity): Flow<List<SplitInfo>> = callbackFlow {
+        val listener = Consumer { info: List<SplitInfo> -> trySend(info) }
+        embeddingBackend.addSplitListenerForActivity(activity, Runnable::run, listener)
+        awaitClose {
+            embeddingBackend.removeSplitListenerForActivity(listener)
+        }
     }
 
     /**
