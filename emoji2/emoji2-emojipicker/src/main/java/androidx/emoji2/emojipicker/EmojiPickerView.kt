@@ -185,11 +185,17 @@ class EmojiPickerView @JvmOverloads constructor(
             // set headerView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_header).apply {
                 layoutManager =
-                    LinearLayoutManager(
+                    object : LinearLayoutManager(
                         context,
-                        LinearLayoutManager.HORIZONTAL,
+                        HORIZONTAL,
                         /* reverseLayout = */ false
-                    )
+                    ) {
+                        override fun checkLayoutParams(lp: RecyclerView.LayoutParams): Boolean {
+                            lp.width =
+                                (width - paddingStart - paddingEnd) / emojiPickerItems.numGroups
+                            return true
+                        }
+                    }
                 adapter = headerAdapter
             }
 
