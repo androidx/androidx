@@ -100,6 +100,7 @@ import org.junit.runners.Parameterized
 
 private val DEFAULT_RESOLUTION = Size(640, 480)
 private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
+private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
 private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
 
@@ -196,13 +197,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureMultipleImages() {
-        canTakeMultipleImages(defaultBuilder)
+        canTakeImages(defaultBuilder, numImages = 5)
     }
 
     @Test
     fun canCaptureMultipleImagesWithMaxQuality() {
-        canTakeMultipleImages(
-            ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+        canTakeImages(
+            ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY),
+            numImages = 5
         )
     }
 
@@ -229,15 +231,52 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
-    private fun canTakeMultipleImages(builder: ImageCapture.Builder): Unit = runBlocking {
+    @Test
+    fun canCaptureImageWithFlashModeOn() {
+        canTakeImages(defaultBuilder.setFlashMode(ImageCapture.FLASH_MODE_ON))
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeOn_frontCamera() {
+        // This test also wants to ensure that the image can be captured without the flash unit.
+        // Front camera usually doesn't have a flash unit.
+        canTakeImages(
+            defaultBuilder.setFlashMode(ImageCapture.FLASH_MODE_ON),
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeOnAndUseTorch() {
+        canTakeImages(
+            defaultBuilder.setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
+                .setFlashMode(ImageCapture.FLASH_MODE_ON),
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeOnAndUseTorch_frontCamera() {
+        // This test also wants to ensure that the image can be captured without the flash unit.
+        // Front camera usually doesn't have a flash unit.
+        canTakeImages(
+            defaultBuilder.setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
+                .setFlashMode(ImageCapture.FLASH_MODE_ON),
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    private fun canTakeImages(
+        builder: ImageCapture.Builder,
+        cameraSelector: CameraSelector = BACK_SELECTOR,
+        numImages: Int = 1,
+    ): Unit = runBlocking {
         val useCase = builder.build()
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
         }
 
-        val numImages = 5
         val callback = FakeImageCaptureCallback(capturesCount = numImages)
-        for (i in 0 until numImages) {
+        repeat(numImages) {
             useCase.takePicture(mainExecutor, callback)
         }
 
