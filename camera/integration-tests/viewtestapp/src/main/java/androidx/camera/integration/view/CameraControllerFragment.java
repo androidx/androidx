@@ -21,7 +21,6 @@ import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThre
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -89,6 +88,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -128,7 +128,8 @@ public class CameraControllerFragment extends Fragment {
     private RotationProvider mRotationProvider;
     private int mRotation;
     private final RotationProvider.Listener mRotationListener = rotation -> mRotation = rotation;
-    @Nullable private Recording mActiveRecording = null;
+    @Nullable
+    private Recording mActiveRecording = null;
     private final Consumer<VideoRecordEvent> mVideoRecordEventListener = videoRecordEvent -> {
         if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
             VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) videoRecordEvent;
@@ -375,9 +376,9 @@ public class CameraControllerFragment extends Fragment {
     private void onEffectsToggled() {
         if (mEffectToggle.isChecked()) {
             mCameraController.setEffects(
-                    asList(mToneMappingPreviewEffect, mToneMappingImageEffect));
+                    new HashSet<>(asList(mToneMappingPreviewEffect, mToneMappingImageEffect)));
         } else {
-            mCameraController.setEffects(emptyList());
+            mCameraController.setEffects(null);
         }
     }
 
