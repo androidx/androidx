@@ -44,7 +44,7 @@ class ToneMappingImageEffect : CameraEffect(
 
         override fun process(request: ImageProcessor.Request): Response {
             processoed = true
-            val inputImage = request.inputImages.single() as RgbaImageProxy
+            val inputImage = request.inputImage as RgbaImageProxy
             val bitmap = inputImage.createBitmap()
             applyToneMapping(bitmap)
             val outputImage = createOutputImage(bitmap, inputImage)

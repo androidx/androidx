@@ -18,7 +18,6 @@ package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.internal.utils.ImageUtil.createBitmapFromPlane;
 
-import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
@@ -55,7 +54,7 @@ public class BitmapEffect implements Operation<Packet<Bitmap>, Packet<Bitmap>> {
     public Packet<Bitmap> apply(@NonNull Packet<Bitmap> packet) throws ImageCaptureException {
         // Process the frame.
         ImageProcessor.Response response = mProcessor.safeProcess(new ImageProcessorRequest(
-                singletonList(new RgbaImageProxy(packet)),
+                new RgbaImageProxy(packet),
                 PixelFormat.RGBA_8888));
 
         // Restored it back to a Bitmap packet.

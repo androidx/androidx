@@ -119,6 +119,7 @@ public final class UseCaseGroup {
          * the supported values below:
          * <ul>
          * <li>{@link CameraEffect#PREVIEW}
+         * <li>{@link CameraEffect#IMAGE_CAPTURE}
          * </ul>
          *
          * <p>Once added, CameraX will use the {@link CameraEffect}s to process the outputs of

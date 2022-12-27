@@ -25,6 +25,7 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public abstract class CameraEffect {
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor);
     ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor);
     method public java.util.concurrent.Executor getExecutor();
     method public androidx.camera.core.SurfaceProcessor? getSurfaceProcessor();
@@ -322,6 +323,19 @@ package androidx.camera.core {
     method public int getRotationDegrees();
     method public default android.graphics.Matrix getSensorToBufferTransformMatrix();
     method public long getTimestamp();
+  }
+
+  public interface ImageProcessor {
+    method public androidx.camera.core.ImageProcessor.Response process(androidx.camera.core.ImageProcessor.Request) throws androidx.camera.core.ProcessingException;
+  }
+
+  public static interface ImageProcessor.Request {
+    method public androidx.camera.core.ImageProxy getInputImage();
+    method public int getOutputFormat();
+  }
+
+  public static interface ImageProcessor.Response {
+    method public androidx.camera.core.ImageProxy? getOutputImage();
   }
 
   @RequiresApi(21) public interface ImageProxy extends java.lang.AutoCloseable {
