@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.coroutines.resume
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -92,6 +93,7 @@ internal class Camera2CameraAvailabilityMonitor @Inject constructor(
     private val cameraManager: Provider<CameraManager>,
     private val threads: Threads
 ) : CameraAvailabilityMonitor {
+
     override suspend fun awaitAvailableCamera(cameraId: CameraId, timeoutMillis: Long): Boolean =
         withTimeoutOrNull(timeoutMillis) {
             awaitAvailableCamera(cameraId)
@@ -100,16 +102,22 @@ internal class Camera2CameraAvailabilityMonitor @Inject constructor(
     private suspend fun awaitAvailableCamera(cameraId: CameraId) =
         suspendCancellableCoroutine { continuation ->
             val availabilityCallback = object : CameraManager.AvailabilityCallback() {
+                private val awaitComplete = atomic(false)
+
                 override fun onCameraAvailable(cameraIdString: String) {
                     if (cameraIdString == cameraId.value) {
                         Log.debug { "$cameraId is now available." }
-                        continuation.resume(true)
+                        if (awaitComplete.compareAndSet(expect = false, update = true)) {
+                            continuation.resume(true)
+                        }
                     }
                 }
 
                 override fun onCameraAccessPrioritiesChanged() {
                     Log.debug { "Access priorities changed." }
-                    continuation.resume(true)
+                    if (awaitComplete.compareAndSet(expect = false, update = true)) {
+                        continuation.resume(true)
+                    }
                 }
             }
 
