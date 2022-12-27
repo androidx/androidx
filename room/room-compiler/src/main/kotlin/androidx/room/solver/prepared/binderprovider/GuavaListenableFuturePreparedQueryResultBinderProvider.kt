@@ -16,7 +16,9 @@
 
 package androidx.room.solver.prepared.binderprovider
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.parser.ParsedQuery
@@ -41,6 +43,10 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
             context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
         }
         val typeArg = declared.typeArguments.first()
+        if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
+            context.logger.e(ProcessorErrors.NONNULL_VOID)
+        }
+
         return createPreparedBinder(
             returnType = typeArg,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)

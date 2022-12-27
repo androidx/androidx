@@ -161,7 +161,7 @@ interface BooksDao {
     fun increaseBookSalesFuture(bookId: String): ListenableFuture<Int>
 
     @Query("UPDATE book SET salesCnt = salesCnt + 1 WHERE bookId = :bookId")
-    fun increaseBookSalesVoidFuture(bookId: String): ListenableFuture<Void>
+    fun increaseBookSalesVoidFuture(bookId: String): ListenableFuture<Void?>
 
     @Query("DELETE FROM book WHERE salesCnt = 0")
     fun deleteUnsoldBooks(): Int
@@ -182,7 +182,7 @@ interface BooksDao {
     fun deleteUnsoldBooksFuture(): ListenableFuture<Int>
 
     @Query("DELETE FROM book WHERE salesCnt = 0")
-    fun deleteUnsoldBooksVoidFuture(): ListenableFuture<Void>
+    fun deleteUnsoldBooksVoidFuture(): ListenableFuture<Void?>
 
     @Query("DELETE FROM book WHERE bookId IN (:bookIds)")
     fun deleteBookWithIds(vararg bookIds: String)

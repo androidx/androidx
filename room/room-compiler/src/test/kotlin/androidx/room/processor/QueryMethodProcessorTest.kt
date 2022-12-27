@@ -39,7 +39,6 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
@@ -97,11 +96,11 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 import androidx.room.*
                 import java.util.*
                 import io.reactivex.*         
-                io.reactivex.rxjava3.core.*
-                androidx.lifecycle.*
-                com.google.common.util.concurrent.*
-                org.reactivestreams.*
-                kotlinx.coroutines.flow.*
+                import io.reactivex.rxjava3.core.*
+                import androidx.lifecycle.*
+                import com.google.common.util.concurrent.*
+                import org.reactivestreams.*
+                import kotlinx.coroutines.flow.*
             
                 @Dao
                 abstract class MyClass {
@@ -1822,6 +1821,20 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                     val rawTypeName = type.substringBefore("<")
                     hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
                 }
+            }
+        }
+    }
+
+    @Test
+    fun nonNullVoidGuava() {
+        singleQueryMethodKotlin<WriteQueryMethod>(
+            """
+                @Query("DELETE from User where uid = :id")
+                abstract fun foo(id: Int): ListenableFuture<Void>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
             }
         }
     }

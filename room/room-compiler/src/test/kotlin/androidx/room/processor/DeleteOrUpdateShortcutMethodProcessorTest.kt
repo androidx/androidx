@@ -61,11 +61,11 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 import androidx.room.*
                 import java.util.*
                 import io.reactivex.*         
-                io.reactivex.rxjava3.core.*
-                androidx.lifecycle.*
-                com.google.common.util.concurrent.*
-                org.reactivestreams.*
-                kotlinx.coroutines.flow.*
+                import io.reactivex.rxjava3.core.*
+                import androidx.lifecycle.*
+                import com.google.common.util.concurrent.*
+                import org.reactivestreams.*
+                import kotlinx.coroutines.flow.*
             
                 @Dao
                 abstract class MyClass {
@@ -641,6 +641,20 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
         }
     }
 
+    @Test
+    fun nonNullVoidGuava() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user: User): ListenableFuture<Void>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
+            }
+        }
+    }
+
     abstract fun invalidReturnTypeError(): String
 
     abstract fun process(
@@ -649,7 +663,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
         executableElement: XMethodElement
     ): T
 
-    fun singleShortcutMethod(
+    protected fun singleShortcutMethod(
         vararg input: String,
         additionalSources: List<Source> = emptyList(),
         handler: (T, XTestInvocation) -> Unit
@@ -687,7 +701,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
         }
     }
 
-    fun singleShortcutMethodKotlin(
+    protected fun singleShortcutMethodKotlin(
         vararg input: String,
         additionalSources: List<Source> = emptyList(),
         handler: (T, XTestInvocation) -> Unit

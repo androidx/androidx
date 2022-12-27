@@ -1127,4 +1127,7 @@ object ProcessorErrors {
 
     val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
         "Kotlin code, please rewrite as an abstract function."
+
+    val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
+        "class represents a placeholder type that is uninstantiable and 'null' is always returned."
 }
