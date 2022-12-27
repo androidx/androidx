@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeParameterElement
-import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmTypeParameter
 import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.element.TypeParameterElement
 
@@ -29,9 +29,8 @@ internal class JavacTypeParameterElement(
     env: JavacProcessingEnv,
     override val enclosingElement: XElement,
     override val element: TypeParameterElement,
-    private val kotlinType: KmType?,
+    override val kotlinMetadata: KmTypeParameter?,
 ) : JavacElement(env, element), XTypeParameterElement {
-    override val kotlinMetadata = null
 
     override val name: String
         get() = element.simpleName.toString()
@@ -41,7 +40,9 @@ internal class JavacTypeParameterElement(
     }
 
     override val bounds: List<XType> by lazy {
-        element.bounds.map { env.wrap(it, kotlinType?.extendsBound, XNullability.UNKNOWN) }
+        element.bounds.mapIndexed { i, bound ->
+            env.wrap(bound, kotlinMetadata?.upperBounds?.getOrNull(i), XNullability.UNKNOWN)
+        }
     }
 
     override val fallbackLocationText: String

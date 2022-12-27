@@ -298,6 +298,4 @@ internal abstract class KspType(
         }
         return copyWithNullability(XNullability.NONNULL)
     }
-
-    override fun isTypeVariable() = false
 }

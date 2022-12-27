@@ -253,12 +253,9 @@ internal class KspProcessingEnv(
         }
         val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
-            return KspTypeArgumentType(
+            return KspTypeVariableType(
                 env = this,
-                typeArg = resolver.getTypeArgument(
-                    ksType.createTypeReference(),
-                    declaration.variance
-                ),
+                ksType = ksType,
                 jvmTypeResolver = null
             )
         }

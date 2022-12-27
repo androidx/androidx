@@ -225,6 +225,29 @@ internal class JavacProcessingEnv(
                         )
                     }
                 }
+            TypeKind.TYPEVAR ->
+                when {
+                    kotlinType != null -> {
+                        JavacTypeVariableType(
+                            env = this,
+                            typeMirror = MoreTypes.asTypeVariable(typeMirror),
+                            kotlinType = kotlinType
+                        )
+                    }
+                    elementNullability != null -> {
+                        JavacTypeVariableType(
+                            env = this,
+                            typeMirror = MoreTypes.asTypeVariable(typeMirror),
+                            nullability = elementNullability
+                        )
+                    }
+                    else -> {
+                        JavacTypeVariableType(
+                            env = this,
+                            typeMirror = MoreTypes.asTypeVariable(typeMirror)
+                        )
+                    }
+                }
             else ->
                 when {
                     kotlinType != null -> {
