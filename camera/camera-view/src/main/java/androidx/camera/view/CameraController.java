@@ -21,8 +21,6 @@ import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThre
 import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
 import static androidx.core.content.ContextCompat.getMainExecutor;
 
-import static java.util.Collections.emptyList;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -98,9 +96,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -327,7 +326,7 @@ public abstract class CameraController {
             TAP_TO_FOCUS_NOT_STARTED);
 
     @NonNull
-    private List<CameraEffect> mEffects = emptyList();
+    private final Set<CameraEffect> mEffects = new HashSet<>();
 
     private final Context mAppContext;
 
@@ -1897,14 +1896,27 @@ public abstract class CameraController {
     // ------------------------
 
     /**
-     * Sets post-processing effects.
+     * Sets {@link CameraEffect}.
+     *
+     * <p>Call this method to set a list of active effects. There is maximum one effect per
+     * {@link UseCase}. Adding effects with duplicate or invalid targets throws
+     * {@link IllegalArgumentException}. Once called, CameraX will rebind the {@link UseCase}
+     * with the effects applied. Effects not in the list are automatically removed.
+     *
+     * <p>To remove an effect, call this method with a list without the effect. To remove all
+     * effects, call this method with {@code null} value or a empty set.
+     *
+     * <p>The method throws {@link IllegalArgumentException} if the effects combination is not
+     * supported by CameraX. Please see the Javadoc of {@link UseCaseGroup.Builder#addEffect} to
+     * see the supported effects combinations.
      *
      * @param effects the effects applied to camera output.
-     * @hide
+     * @throws IllegalArgumentException if the combination of effects is not supported by CameraX.
      * @see UseCaseGroup.Builder#addEffect
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setEffects(@NonNull List<CameraEffect> effects) {
+    @MainThread
+    public void setEffects(@Nullable Set<CameraEffect> effects) {
+        checkMainThread();
         if (Objects.equals(mEffects, effects)) {
             // Same effect. No change needed.
             return;
@@ -1913,7 +1925,12 @@ public abstract class CameraController {
             // Unbind to make sure the pipelines will be recreated.
             mCameraProvider.unbindAll();
         }
-        mEffects = effects;
+        if (effects == null) {
+            mEffects.clear();
+        } else {
+            mEffects.clear();
+            mEffects.addAll(effects);
+        }
         startCameraAndTrackStates();
     }
 
@@ -1942,7 +1959,6 @@ public abstract class CameraController {
             if (restoreStateRunnable != null) {
                 restoreStateRunnable.run();
             }
-            // This exception will handled by the app.
             throw exception;
         }
         if (!isCameraAttached()) {

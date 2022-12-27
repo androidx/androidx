@@ -126,22 +126,26 @@ class CameraControllerDeviceTest(
         waitUtilPreviewViewIsReady(previewView!!)
 
         // Act: set the same effect twice, which is invalid.
-        val previewEffect = FakePreviewEffect(
+        val previewEffect1 = FakePreviewEffect(
+            mainThreadExecutor(),
+            FakeSurfaceProcessor(mainThreadExecutor())
+        )
+        val previewEffect2 = FakePreviewEffect(
             mainThreadExecutor(),
             FakeSurfaceProcessor(mainThreadExecutor())
         )
         instrumentation.runOnMainSync {
             controller!!.setEffects(
-                listOf(
-                    previewEffect,
-                    previewEffect
+                setOf(
+                    previewEffect1,
+                    previewEffect2
                 )
             )
         }
     }
 
     @Test
-    fun setEffectBundle_effectSetOnUseCase() {
+    fun setEffect_effectSetOnUseCase() {
         // Arrange: setup PreviewView and CameraController
         var previewView: PreviewView? = null
         activityScenario!!.onActivity {
@@ -158,13 +162,13 @@ class CameraControllerDeviceTest(
         val effect = FakePreviewEffect(
             mainThreadExecutor(), FakeSurfaceProcessor(mainThreadExecutor())
         )
-        instrumentation.runOnMainSync { controller!!.setEffects(listOf(effect)) }
+        instrumentation.runOnMainSync { controller!!.setEffects(setOf(effect)) }
 
         // Assert: preview has effect
         assertThat(controller!!.mPreview.processor).isNotNull()
 
         // Act: clear the effects
-        instrumentation.runOnMainSync { controller!!.setEffects(listOf()) }
+        instrumentation.runOnMainSync { controller!!.setEffects(null) }
 
         // Assert: preview no longer has the effect.
         assertThat(controller!!.mPreview.processor).isNull()
