@@ -356,7 +356,7 @@ public final class UpdateDao_Impl implements UpdateDao {
   public Completable ageUserAllCompletable() {
     return Completable.fromCallable(new Callable<Void>() {
       @Override
-      @NonNull
+      @Nullable
       public Void call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();

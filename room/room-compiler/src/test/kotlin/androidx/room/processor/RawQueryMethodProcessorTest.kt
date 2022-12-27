@@ -600,6 +600,19 @@ class RawQueryMethodProcessorTest {
             }
         }
     }
+    @Test
+    fun nonNullVoidGuava() {
+        singleQueryMethodKotlin(
+            """
+                @RawQuery
+                abstract fun foo(query: SupportSQLiteQuery): ListenableFuture<Void>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
+            }
+        }
+    }
 
     private fun singleQueryMethod(
         vararg input: String,
@@ -699,11 +712,11 @@ class RawQueryMethodProcessorTest {
                 import androidx.room.*
                 import java.util.*
                 import io.reactivex.*         
-                io.reactivex.rxjava3.core.*
-                androidx.lifecycle.*
-                com.google.common.util.concurrent.*
-                org.reactivestreams.*
-                kotlinx.coroutines.flow.*
+                import io.reactivex.rxjava3.core.*
+                import androidx.lifecycle.*
+                import com.google.common.util.concurrent.*
+                import org.reactivestreams.*
+                import kotlinx.coroutines.flow.*
                 
                 @Dao
                 abstract class MyClass {

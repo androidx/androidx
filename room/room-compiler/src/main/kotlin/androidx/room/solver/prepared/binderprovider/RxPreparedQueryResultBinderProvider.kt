@@ -16,9 +16,9 @@
 
 package androidx.room.solver.prepared.binderprovider
 
-import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
+import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
@@ -83,5 +83,10 @@ private class RxCompletablePreparedQueryResultBinderProvider(
         return declared.rawType.isAssignableFrom(completableType!!)
     }
 
-    override fun extractTypeArg(declared: XType) = context.COMMON_TYPES.VOID
+    /**
+     * Since Completable is not a generic, the supported return type should be Void (nullable).
+     * Like this, the generated Callable.call method will return Void.
+     */
+    override fun extractTypeArg(declared: XType): XType =
+        context.COMMON_TYPES.VOID.makeNullable()
 }
