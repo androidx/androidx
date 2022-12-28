@@ -22,7 +22,7 @@
 
 namespace datastore {
 int TruncateFile(int fd);
-int CreateSharedCounter(int fd, void** counter_address, bool enable_mlock);
+int CreateSharedCounter(int fd, void** counter_address);
 uint32_t GetCounterValue(std::atomic<uint32_t>* counter);
 uint32_t IncrementAndGetCounterValue(std::atomic<uint32_t>* counter);
 } // namespace datastore

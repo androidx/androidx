@@ -140,8 +140,7 @@ internal class MultiProcessDataStore<T>(
         initTasksList.toList()
     private val sharedCounter: SharedCounter by lazy {
         SharedCounter.loadLib()
-        // TODO(b/241471375): remove the enableMlock option here
-        SharedCounter.create(/* enableMlock = */ false) {
+        SharedCounter.create {
             val versionFile = fileWithSuffix(VERSION_SUFFIX)
             versionFile.createIfNotExists()
             versionFile
