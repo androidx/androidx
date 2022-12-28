@@ -33,6 +33,7 @@ import androidx.camera.core.imagecapture.Utils.TIMESTAMP
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.core.processing.InternalImageProcessor
@@ -144,7 +145,8 @@ class ProcessingNodeDeviceTest {
             /*rotationDegrees=*/0, // 0 because exif does not have rotation.
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            takePictureCallback
+            takePictureCallback,
+            Futures.immediateFuture(null)
         )
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
@@ -175,7 +177,8 @@ class ProcessingNodeDeviceTest {
             0,
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            takePictureCallback
+            takePictureCallback,
+            Futures.immediateFuture(null)
         )
         val imageIn = createJpegFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
@@ -212,7 +215,8 @@ class ProcessingNodeDeviceTest {
             0,
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            takePictureCallback
+            takePictureCallback,
+            Futures.immediateFuture(null)
         )
         val imageIn = createJpegFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
@@ -250,7 +254,8 @@ class ProcessingNodeDeviceTest {
             0,
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            takePictureCallback
+            takePictureCallback,
+            Futures.immediateFuture(null)
         )
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
 

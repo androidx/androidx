@@ -202,7 +202,8 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
 
         // Send requests.
         Pair<CameraRequest, ProcessingRequest> requests =
-                mImagePipeline.createRequests(request, requestWithCallback);
+                mImagePipeline.createRequests(request, requestWithCallback,
+                        requestWithCallback.getCaptureFuture());
         CameraRequest cameraRequest = requireNonNull(requests.first);
         ProcessingRequest processingRequest = requireNonNull(requests.second);
         mImagePipeline.submitProcessingRequest(processingRequest);

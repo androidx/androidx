@@ -155,7 +155,7 @@ class RequestWithCallback implements TakePictureCallback {
             onFailure(imageCaptureException);
         }
         markComplete();
-        mCaptureCompleter.set(null);
+        mCaptureCompleter.setException(imageCaptureException);
     }
 
     @MainThread
@@ -165,7 +165,7 @@ class RequestWithCallback implements TakePictureCallback {
             // The app has already received a callback. No need to abort.
             return;
         }
-        abort();
+        abort(imageCaptureException);
         onFailure(imageCaptureException);
     }
 
@@ -176,17 +176,18 @@ class RequestWithCallback implements TakePictureCallback {
             // The app has already received a callback. No need to abort.
             return;
         }
-        abort();
+        abort(new ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED,
+                "The request is aborted silently and retried.", null));
         mRetryControl.retryRequest(mTakePictureRequest);
     }
 
     @MainThread
-    private void abort() {
+    private void abort(@NonNull ImageCaptureException imageCaptureException) {
         checkMainThread();
         mIsAborted = true;
         // Cancel the capture request sent to camera2.
         requireNonNull(mCaptureRequestFuture).cancel(true);
-        mCaptureCompleter.set(null);
+        mCaptureCompleter.setException(imageCaptureException);
         mCompleteCompleter.set(null);
     }
 

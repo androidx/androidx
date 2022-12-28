@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
 import androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED
@@ -401,5 +402,45 @@ class TakePictureManagerTest {
             FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
+    }
+
+    @Test
+    fun submitRequestSuccessfully_afterCaptureFailure() {
+        // Arrange.
+        // Uses the real ImagePipeline implementation to do the test
+        takePictureManager.mImagePipeline =
+            ImagePipeline(Utils.createEmptyImageCaptureConfig(), Size(640, 480))
+        val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+
+        // Configures ImageCaptureControl to always fail.
+        val genericException = Exception()
+        imageCaptureControl.shouldUsePendingResult = true
+        imageCaptureControl.pendingResultCompleter.setException(genericException)
+
+        // Act.
+        takePictureManager.offerRequest(request1)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert. new request can be issued after the capture failure of the first request
+        takePictureManager.offerRequest(request2)
+    }
+
+    @Test
+    fun submitRequestSuccessfully_afterAbortingRequests() {
+        // Arrange.
+        // Uses the real ImagePipeline implementation to do the test
+        takePictureManager.mImagePipeline =
+            ImagePipeline(Utils.createEmptyImageCaptureConfig(), Size(640, 480))
+        val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+
+        // Act.
+        takePictureManager.offerRequest(request1)
+        takePictureManager.abortRequests()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert. new request can be issued after the capture failure of the first request
+        takePictureManager.offerRequest(request2)
     }
 }
