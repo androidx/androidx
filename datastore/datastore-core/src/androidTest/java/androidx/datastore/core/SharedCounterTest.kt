@@ -54,14 +54,8 @@ class SharedCounterTest {
     }
 
     @Test
-    fun testCreate_success_enableMlock() {
+    fun testCreate_success() {
         val counter: SharedCounter = SharedCounter.create { testFile }
-        assertThat(counter).isNotNull()
-    }
-
-    @Test
-    fun testCreate_success_disableMlock() {
-        val counter: SharedCounter = SharedCounter.create(false) { testFile }
         assertThat(counter).isNotNull()
     }
 
@@ -78,13 +72,13 @@ class SharedCounterTest {
 
     @Test
     fun testGetValue() {
-        val counter: SharedCounter = SharedCounter.create(false) { testFile }
+        val counter: SharedCounter = SharedCounter.create { testFile }
         assertThat(counter.getValue()).isEqualTo(0)
     }
 
     @Test
     fun testIncrementAndGet() {
-        val counter: SharedCounter = SharedCounter.create(false) { testFile }
+        val counter: SharedCounter = SharedCounter.create { testFile }
         for (count in 1..100) {
             assertThat(counter.incrementAndGetValue()).isEqualTo(count)
         }
@@ -92,7 +86,7 @@ class SharedCounterTest {
 
     @Test
     fun testIncrementInParallel() = runTest {
-        val counter: SharedCounter = SharedCounter.create(false) { testFile }
+        val counter: SharedCounter = SharedCounter.create { testFile }
         val valueToAdd = 100
         val numCoroutines = 10
         val numbers: MutableSet<Int> = mutableSetOf()
@@ -113,14 +107,14 @@ class SharedCounterTest {
     }
 
     @Test
-    fun testManyInstancesWithMlockDisabled() = runTest {
+    fun testManyInstancesWithMlockDisabledByDefault() = runTest {
         // More than 16
         val numCoroutines = 5000
         val counters = mutableListOf<SharedCounter>()
         val deferred = async {
             repeat(numCoroutines) {
                 val tempFile = tempFolder.newFile()
-                val counter = SharedCounter.create(false) { tempFile }
+                val counter = SharedCounter.create { tempFile }
                 assertThat(counter.getValue()).isEqualTo(0)
                 counters.add(counter)
             }
