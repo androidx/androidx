@@ -45,9 +45,9 @@ Java_androidx_datastore_core_NativeSharedCounter_nativeTruncateFile(
 
 JNIEXPORT jlong JNICALL
 Java_androidx_datastore_core_NativeSharedCounter_nativeCreateSharedCounter(
-        JNIEnv *env, jclass clazz, jint fd, jboolean enable_mlock) {
+        JNIEnv *env, jclass clazz, jint fd) {
     void* address = nullptr;
-    if (int errNum = datastore::CreateSharedCounter(fd, &address, enable_mlock)) {
+    if (int errNum = datastore::CreateSharedCounter(fd, &address)) {
         return ThrowIoException(env, strerror(errNum));
     }
     return reinterpret_cast<jlong>(address);

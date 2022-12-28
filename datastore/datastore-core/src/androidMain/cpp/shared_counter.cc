@@ -48,13 +48,11 @@ int TruncateFile(int fd) {
  * "TruncateFile" before calling this method. Caller should use "strerror(errno)" to get error
  * message.
  */
-int CreateSharedCounter(int fd, void** counter_address, bool enable_mlock) {
+int CreateSharedCounter(int fd, void** counter_address) {
     // Map with MAP_SHARED so the memory region is shared with other processes.
-    // MAP_LOCKED may cause memory starvation (b/233902124) so is configurable.
-    int map_flags = MAP_SHARED;
-    // TODO(b/233902124): the impact of MAP_POPULATE is still unclear, experiment
-    // with it when possible.
-    map_flags |= enable_mlock ? MAP_LOCKED : MAP_POPULATE;
+    // TODO(b/233902124): MAP_LOCKED may cause memory starvation so we disabled it. The impact of
+    // MAP_POPULATE is still unclear, experiment with it when possible.
+    int map_flags = MAP_SHARED | MAP_POPULATE;
 
     void* mmap_result = mmap(nullptr, NUM_BYTES, PROT_READ | PROT_WRITE, map_flags, fd, 0);
 

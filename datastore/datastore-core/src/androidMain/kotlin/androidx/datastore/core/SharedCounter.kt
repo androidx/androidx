@@ -26,7 +26,7 @@ import java.io.IOException
  */
 internal class NativeSharedCounter {
     external fun nativeTruncateFile(fd: Int): Int
-    external fun nativeCreateSharedCounter(fd: Int, enableMlock: Boolean): Long
+    external fun nativeCreateSharedCounter(fd: Int): Long
     external fun nativeGetCounterValue(address: Long): Int
     external fun nativeIncrementAndGetCounterValue(address: Long): Int
 }
@@ -58,22 +58,19 @@ internal class SharedCounter private constructor(
         fun loadLib() = System.loadLibrary("datastore_shared_counter")
 
         @SuppressLint("SyntheticAccessor")
-        private fun createCounterFromFd(
-            pfd: ParcelFileDescriptor,
-            enableMlock: Boolean
-        ): SharedCounter {
+        private fun createCounterFromFd(pfd: ParcelFileDescriptor): SharedCounter {
             val nativeFd = pfd.getFd()
             if (nativeSharedCounter.nativeTruncateFile(nativeFd) != 0) {
                 throw IOException("Failed to truncate counter file")
             }
-            val address = nativeSharedCounter.nativeCreateSharedCounter(nativeFd, enableMlock)
+            val address = nativeSharedCounter.nativeCreateSharedCounter(nativeFd)
             if (address < 0) {
                 throw IOException("Failed to mmap counter file")
             }
             return SharedCounter(address)
         }
 
-        internal fun create(enableMlock: Boolean = true, produceFile: () -> File): SharedCounter {
+        internal fun create(produceFile: () -> File): SharedCounter {
             val file = produceFile()
             var pfd: ParcelFileDescriptor? = null
             try {
@@ -81,7 +78,7 @@ internal class SharedCounter private constructor(
                     file,
                     ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
                 )
-                return createCounterFromFd(pfd, enableMlock)
+                return createCounterFromFd(pfd)
             } finally {
                 pfd?.close()
             }
