@@ -20,7 +20,7 @@
         <item>Elephants Dream</item>
         <item>Sintel</item>
         <item>Tears of Steel</item>
-        <item>(Music) Let\'s Dance</item>
+        <item>(Music) Sing Sing Sing</item>
     </string-array>
 
     <string-array name="media_uris">
@@ -28,7 +28,7 @@
         <item>https://archive.org/download/ElephantsDream_277/elephant_dreams_640_512kb.mp4</item>
         <item>https://archive.org/download/Sintel/sintel-2048-stereo_512kb.mp4</item>
         <item>https://archive.org/download/Tears-of-Steel/tears_of_steel_720p.mp4</item>
-        <item>https://archive.org/download/78_lets-dance-theme-song_baldridge-stone-bonime-benny-goodman-and-his-orchestra_gbia0000390b/Let%27s%20Dance%20%28Theme%20Song%29%20-%20Baldridge%20-%20Stone.mp3</item>
+        <item>https://ia600904.us.archive.org/15/items/78_symposium-of-swing-sing-sing-sing-fox-trot-intro-christopher-columbus-pt1_/C_2936_2A_09571.mp3</item>
     </string-array>
 
     <string-array name="media_mimes">
