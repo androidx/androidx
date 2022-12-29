@@ -132,11 +132,15 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -740,7 +744,12 @@ public class CameraXActivity extends AppCompatActivity {
                         mImageSavedIdlingResource.increment();
                         mStartCaptureTime = SystemClock.elapsedRealtime();
                         createDefaultPictureFolderIfNotExist();
+                        Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS",
+                                Locale.US);
+                        String fileName = "CoreTestApp-" + formatter.format(
+                                Calendar.getInstance().getTime()) + ".jpg";
                         ContentValues contentValues = new ContentValues();
+                        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
                         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
                         ImageCapture.OutputFileOptions outputFileOptions =
                                 new ImageCapture.OutputFileOptions.Builder(
@@ -777,7 +786,7 @@ public class CameraXActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onError(@NonNull ImageCaptureException exception) {
-                                        Log.e(TAG, "Failed to save image.", exception.getCause());
+                                        Log.e(TAG, "Failed to save image.", exception);
 
                                         mLastTakePictureErrorMessage =
                                                 getImageCaptureErrorMessage(exception);
