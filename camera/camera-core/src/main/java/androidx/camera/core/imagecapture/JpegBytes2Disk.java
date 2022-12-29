@@ -186,7 +186,9 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
             throw new ImageCaptureException(
                     ERROR_FILE_IO, "Failed to write to MediaStore URI: " + uri, e);
         } finally {
-            updateUriPendingStatus(uri, contentResolver, NOT_PENDING);
+            if (uri != null) {
+                updateUriPendingStatus(uri, contentResolver, NOT_PENDING);
+            }
         }
         return uri;
     }
