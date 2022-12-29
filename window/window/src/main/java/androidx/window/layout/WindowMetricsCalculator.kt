@@ -16,13 +16,16 @@
 
 package androidx.window.layout
 
+import android.view.WindowMetrics as AndroidWindowMetrics
 import android.app.Activity
 import android.content.Context
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.Display
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
+import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.ExperimentalWindowApi
 
 /**
@@ -141,6 +144,18 @@ interface WindowMetricsCalculator {
         fun reset() {
             decorator = { it }
         }
+
+        /**
+         * Converts [Android API WindowMetrics][AndroidWindowMetrics] to
+         * [Jetpack version WindowMetrics][WindowMetrics]
+         */
+        @Suppress("ClassVerificationFailure")
+        @RequiresApi(Build.VERSION_CODES.R)
+        internal fun translateWindowMetrics(windowMetrics: AndroidWindowMetrics): WindowMetrics =
+            WindowMetrics(
+                windowMetrics.bounds,
+                WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
+            )
     }
 }
 
