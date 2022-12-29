@@ -44,11 +44,13 @@ internal interface EmbeddingBackend {
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
-    fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator)
+    fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    )
 
     fun clearSplitAttributesCalculator()
 
-    fun getSplitAttributesCalculator(): SplitAttributesCalculator?
+    fun getSplitAttributesCalculator(): ((SplitAttributesCalculatorParams) -> SplitAttributes)?
 
     fun isSplitAttributesCalculatorSupported(): Boolean
 }

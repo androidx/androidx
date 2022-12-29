@@ -16,13 +16,13 @@
 
 package androidx.window.embedding
 
+import android.util.Pair as AndroidPair
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
-import androidx.window.extensions.embedding.SplitAttributesCalculator as OEMSplitAttributesCalculator
-import androidx.window.extensions.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
+import androidx.window.extensions.embedding.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
@@ -38,16 +38,15 @@ import android.view.WindowMetrics
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
-import androidx.window.embedding.EmbeddingAdapter.VendorApiLevel1Impl.setDefaultSplitAttributesCompat
-import androidx.window.embedding.EmbeddingAdapter.VendorApiLevel1Impl.setFinishPrimaryWithPlaceholderCompat
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributes.SplitType
-import androidx.window.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.core.util.function.Function
+import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
@@ -60,6 +59,7 @@ internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {
     private val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
+    private val vendorApiLevel1Impl = VendorApiLevel1Impl(predicateAdapter)
 
     fun translate(splitInfoList: List<OEMSplitInfo>): List<SplitInfo> {
         return splitInfoList.map(this::translate)
@@ -92,7 +92,7 @@ internal class EmbeddingAdapter(
         val splitAttributes = if (vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
             translate(splitInfo.splitAttributes)
         } else {
-            VendorApiLevel1Impl.getSplitAttributesCompat(splitInfo)
+            vendorApiLevel1Impl.getSplitAttributesCompat(splitInfo)
         }
         return SplitInfo(primaryFragment, secondaryFragment, splitAttributes)
     }
@@ -133,41 +133,10 @@ internal class EmbeddingAdapter(
     private fun translate(splitRatio: OEMSplitType.RatioSplitType): SplitType.RatioSplitType =
         SplitType.ratio(splitRatio.ratio)
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateActivityPairPredicates(splitPairFilters: Set<SplitPairFilter>): Any {
-        return predicateAdapter.buildPairPredicate(
-            Activity::class,
-            Activity::class
-        ) { first: Activity, second: Activity ->
-            splitPairFilters.any { filter -> filter.matchesActivityPair(first, second) }
-        }
-    }
-
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateActivityIntentPredicates(splitPairFilters: Set<SplitPairFilter>): Any {
-        return predicateAdapter.buildPairPredicate(
-            Activity::class,
-            Intent::class
-        ) { first, second ->
-            splitPairFilters.any { filter -> filter.matchesActivityIntentPair(first, second) }
-        }
-    }
-
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateParentMetricsPredicate(context: Context, splitRule: SplitRule): Any =
-        predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
-            splitRule.checkParentMetrics(context, windowMetrics)
-        }
-
     fun translateSplitAttributesCalculator(
-        calculator: SplitAttributesCalculator
-    ): OEMSplitAttributesCalculator =
-        OEMSplitAttributesCalculator { oemSplitAttributesCalculatorParams ->
-            translateSplitAttributes(
-                calculator.computeSplitAttributesForParams(
-                    translate(oemSplitAttributesCalculatorParams)
-                )
-            )
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ): Function<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> = Function { oemParams ->
+            translateSplitAttributes(calculator.invoke(translate(oemParams)))
         }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
@@ -195,52 +164,49 @@ internal class EmbeddingAdapter(
         )
     }
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateActivityPredicates(activityFilters: Set<ActivityFilter>): Any {
-        return predicateAdapter.buildPredicate(Activity::class) { activity ->
-            activityFilters.any { filter -> filter.matchesActivity(activity) }
-        }
-    }
-
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateIntentPredicates(activityFilters: Set<ActivityFilter>): Any {
-        return predicateAdapter.buildPredicate(Intent::class) { intent ->
-            activityFilters.any { filter -> filter.matchesIntent(intent) }
-        }
-    }
-
     private fun translateSplitPairRule(
         context: Context,
         rule: SplitPairRule,
         predicateClass: Class<*>
     ): OEMSplitPairRule {
-        val builder = SplitPairRuleBuilder::class.java.getConstructor(
-            predicateClass,
-            predicateClass,
-            predicateClass,
-        ).newInstance(
-            translateActivityPairPredicates(rule.filters),
-            translateActivityIntentPredicates(rule.filters),
-            translateParentMetricsPredicate(context, rule)
-        )
-            .safeSetDefaultSplitAttributes(rule.defaultSplitAttributes)
-            .setShouldClearTop(rule.clearTop)
-            .setFinishPrimaryWithSecondary(translateFinishBehavior(rule.finishPrimaryWithSecondary))
-            .setFinishSecondaryWithPrimary(translateFinishBehavior(rule.finishSecondaryWithPrimary))
-        val tag = rule.tag
-        if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            builder.setTag(tag)
-        }
-        return builder.build()
-    }
-
-    private fun SplitPairRuleBuilder.safeSetDefaultSplitAttributes(
-        defaultAttrs: SplitAttributes
-    ): SplitPairRuleBuilder = apply {
-        if (vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            setDefaultSplitAttributes(translateSplitAttributes(defaultAttrs))
+        if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+            return vendorApiLevel1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
         } else {
-            setDefaultSplitAttributesCompat(this@safeSetDefaultSplitAttributes, defaultAttrs)
+            val activitiesPairPredicate =
+                Predicate<AndroidPair<Activity, Activity>> { activitiesPair ->
+                    rule.filters.any { filter ->
+                        filter.matchesActivityPair(activitiesPair.first, activitiesPair.second)
+                    }
+                }
+            val activityIntentPredicate =
+                Predicate<AndroidPair<Activity, Intent>> { activityIntentPair ->
+                    rule.filters.any { filter ->
+                        filter.matchesActivityIntentPair(
+                            activityIntentPair.first,
+                            activityIntentPair.second
+                        )
+                    }
+                }
+            val windowMetricsPredicate = Predicate<WindowMetrics> { windowMetrics ->
+                rule.checkParentMetrics(context, windowMetrics)
+            }
+            val tag = rule.tag
+            val builder = SplitPairRuleBuilder(
+                activitiesPairPredicate,
+                activityIntentPredicate,
+                windowMetricsPredicate,
+            )
+                .setDefaultSplitAttributes(translateSplitAttributes(rule.defaultSplitAttributes))
+                .setFinishPrimaryWithSecondary(
+                    translateFinishBehavior(rule.finishPrimaryWithSecondary)
+                ).setFinishSecondaryWithPrimary(
+                    translateFinishBehavior(rule.finishSecondaryWithPrimary)
+                ).setShouldClearTop(rule.clearTop)
+
+            if (tag != null) {
+                builder.setTag(tag)
+            }
+            return builder.build()
         }
     }
 
@@ -297,43 +263,42 @@ internal class EmbeddingAdapter(
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
-        val builder = SplitPlaceholderRuleBuilder::class.java.getConstructor(
-            Intent::class.java,
-            predicateClass,
-            predicateClass,
-            predicateClass
-        ).newInstance(
-            rule.placeholderIntent,
-            translateActivityPredicates(rule.filters),
-            translateIntentPredicates(rule.filters),
-            translateParentMetricsPredicate(context, rule)
-        )
-            .setSticky(rule.isSticky)
-            .safeSetFinishPrimaryWithPlaceholder(rule.finishPrimaryWithPlaceholder)
-            .safeSetDefaultSplitAttributes(rule.defaultSplitAttributes)
-        val tag = rule.tag
-        if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            builder.setTag(tag)
-        }
-        return builder.build()
-    }
-
-    private fun SplitPlaceholderRuleBuilder.safeSetFinishPrimaryWithPlaceholder(
-        behavior: SplitRule.FinishBehavior
-    ): SplitPlaceholderRuleBuilder {
-        return if (
-            vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
-        ) {
-            setFinishPrimaryWithPlaceholder(translateFinishBehavior(behavior))
-        } else {
-            setFinishPrimaryWithPlaceholderCompat(
-                this@safeSetFinishPrimaryWithPlaceholder,
-                translateFinishBehavior(behavior)
+        if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+            return vendorApiLevel1Impl.translateSplitPlaceholderRuleCompat(
+                context,
+                rule,
+                predicateClass
             )
+        } else {
+            val activityPredicate = Predicate<Activity> { activity ->
+                rule.filters.any { filter -> filter.matchesActivity(activity) }
+            }
+            val intentPredicate = Predicate<Intent> { intent ->
+                rule.filters.any { filter -> filter.matchesIntent(intent) }
+            }
+            val windowMetricsPredicate = Predicate<WindowMetrics> { windowMetrics ->
+                rule.checkParentMetrics(context, windowMetrics)
+            }
+            val tag = rule.tag
+            val builder = SplitPlaceholderRuleBuilder(
+                rule.placeholderIntent,
+                activityPredicate,
+                intentPredicate,
+                windowMetricsPredicate
+            )
+                .setSticky(rule.isSticky)
+                .setDefaultSplitAttributes(translateSplitAttributes(rule.defaultSplitAttributes))
+                .setFinishPrimaryWithPlaceholder(
+                    translateFinishBehavior(rule.finishPrimaryWithPlaceholder)
+                )
+            if (tag != null) {
+                builder.setTag(tag)
+            }
+            return builder.build()
         }
     }
 
-    private fun translateFinishBehavior(behavior: SplitRule.FinishBehavior): Int =
+    fun translateFinishBehavior(behavior: SplitRule.FinishBehavior): Int =
         when (behavior) {
             SplitRule.FinishBehavior.NEVER -> FINISH_NEVER
             SplitRule.FinishBehavior.ALWAYS -> FINISH_ALWAYS
@@ -341,33 +306,27 @@ internal class EmbeddingAdapter(
             else -> throw IllegalArgumentException("Unknown finish behavior:$behavior")
         }
 
-    private fun SplitPlaceholderRuleBuilder.safeSetDefaultSplitAttributes(
-        defaultAttrs: SplitAttributes
-    ): SplitPlaceholderRuleBuilder = apply {
-        return if (vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            setDefaultSplitAttributes(translateSplitAttributes(defaultAttrs))
-        } else {
-            setDefaultSplitAttributesCompat(this@safeSetDefaultSplitAttributes, defaultAttrs)
-        }
-    }
-
     private fun translateActivityRule(
         rule: ActivityRule,
         predicateClass: Class<*>
     ): OEMActivityRule {
-        val builder = ActivityRuleBuilder::class.java.getConstructor(
-            predicateClass,
-            predicateClass
-        ).newInstance(
-            translateActivityPredicates(rule.filters),
-            translateIntentPredicates(rule.filters)
-        )
-            .setShouldAlwaysExpand(rule.alwaysExpand)
-        val tag = rule.tag
-        if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            builder.setTag(tag)
+        if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+            return vendorApiLevel1Impl.translateActivityRuleCompat(rule, predicateClass)
+        } else {
+            val activityPredicate = Predicate<Activity> { activity ->
+                rule.filters.any { filter -> filter.matchesActivity(activity) }
+            }
+            val intentPredicate = Predicate<Intent> { intent ->
+                rule.filters.any { filter -> filter.matchesIntent(intent) }
+            }
+            val builder = ActivityRuleBuilder(activityPredicate, intentPredicate)
+                .setShouldAlwaysExpand(rule.alwaysExpand)
+            val tag = rule.tag
+            if (tag != null) {
+                builder.setTag(tag)
+            }
+            return builder.build()
         }
-        return builder.build()
     }
 
     fun translate(context: Context, rules: Set<EmbeddingRule>): Set<OEMEmbeddingRule> {
@@ -390,30 +349,106 @@ internal class EmbeddingAdapter(
      */
     // Suppress deprecation because this object is to provide backward compatibility.
     @Suppress("DEPRECATION")
-    private object VendorApiLevel1Impl {
-        fun setFinishPrimaryWithPlaceholderCompat(
-            builder: SplitPlaceholderRuleBuilder,
-            behavior: Int
-        ): SplitPlaceholderRuleBuilder = builder.setFinishPrimaryWithSecondary(behavior)
+    private inner class VendorApiLevel1Impl(val predicateAdapter: PredicateAdapter) {
+        /**
+         * Obtains [SplitAttributes] from [OEMSplitInfo] with [WindowExtensions.VENDOR_API_LEVEL_1]
+         */
+        fun getSplitAttributesCompat(splitInfo: OEMSplitInfo): SplitAttributes =
+            SplitAttributes.Builder()
+                .setSplitType(SplitType.buildSplitTypeFromValue(splitInfo.splitRatio))
+                .setLayoutDirection(LOCALE)
+                .build()
 
-        fun setDefaultSplitAttributesCompat(
-            builder: SplitPlaceholderRuleBuilder,
+        fun translateActivityRuleCompat(
+            rule: ActivityRule,
+            predicateClass: Class<*>
+        ): OEMActivityRule = ActivityRuleBuilder::class.java.getConstructor(
+                predicateClass,
+                predicateClass
+            ).newInstance(
+                translateActivityPredicates(rule.filters),
+                translateIntentPredicates(rule.filters)
+            )
+                .setShouldAlwaysExpand(rule.alwaysExpand)
+                .build()
+
+        fun translateSplitPlaceholderRuleCompat(
+            context: Context,
+            rule: SplitPlaceholderRule,
+            predicateClass: Class<*>
+        ): OEMSplitPlaceholderRule = SplitPlaceholderRuleBuilder::class.java.getConstructor(
+                Intent::class.java,
+                predicateClass,
+                predicateClass,
+                predicateClass
+            ).newInstance(
+                rule.placeholderIntent,
+                translateActivityPredicates(rule.filters),
+                translateIntentPredicates(rule.filters),
+                translateParentMetricsPredicate(context, rule)
+            )
+                .setSticky(rule.isSticky)
+                .setFinishPrimaryWithSecondary(
+                    translateFinishBehavior(rule.finishPrimaryWithPlaceholder)
+                ).setDefaultSplitAttributesCompat(rule.defaultSplitAttributes)
+                .build()
+
+        private fun SplitPlaceholderRuleBuilder.setDefaultSplitAttributesCompat(
             defaultAttrs: SplitAttributes,
-        ): SplitPlaceholderRuleBuilder {
+        ): SplitPlaceholderRuleBuilder = apply {
             val (splitRatio, layoutDirection) = translateSplitAttributesCompatInternal(defaultAttrs)
-            return builder // #setDefaultAttributes or SplitAttributes ctr weren't supported.
-                .setSplitRatio(splitRatio)
-                .setLayoutDirection(layoutDirection)
+            // #setDefaultAttributes or SplitAttributes ctr weren't supported.
+            setSplitRatio(splitRatio)
+            setLayoutDirection(layoutDirection)
         }
 
-        fun setDefaultSplitAttributesCompat(
-            builder: SplitPairRuleBuilder,
+        fun translateSplitPairRuleCompat(
+            context: Context,
+            rule: SplitPairRule,
+            predicateClass: Class<*>
+        ): OEMSplitPairRule = SplitPairRuleBuilder::class.java.getConstructor(
+                predicateClass,
+                predicateClass,
+                predicateClass,
+            ).newInstance(
+                translateActivityPairPredicates(rule.filters),
+                translateActivityIntentPredicates(rule.filters),
+                translateParentMetricsPredicate(context, rule)
+            )
+                .setDefaultSplitAttributesCompat(rule.defaultSplitAttributes)
+                .setShouldClearTop(rule.clearTop)
+                .setFinishPrimaryWithSecondary(
+                    translateFinishBehavior(rule.finishPrimaryWithSecondary)
+                ).setFinishSecondaryWithPrimary(
+                    translateFinishBehavior(rule.finishSecondaryWithPrimary)
+                ).build()
+
+        @SuppressLint("ClassVerificationFailure", "NewApi")
+        private fun translateActivityPairPredicates(splitPairFilters: Set<SplitPairFilter>): Any {
+            return predicateAdapter.buildPairPredicate(
+                Activity::class,
+                Activity::class
+            ) { first: Activity, second: Activity ->
+                splitPairFilters.any { filter -> filter.matchesActivityPair(first, second) }
+            }
+        }
+
+        @SuppressLint("ClassVerificationFailure", "NewApi")
+        private fun translateActivityIntentPredicates(splitPairFilters: Set<SplitPairFilter>): Any {
+            return predicateAdapter.buildPairPredicate(
+                Activity::class,
+                Intent::class
+            ) { first, second ->
+                splitPairFilters.any { filter -> filter.matchesActivityIntentPair(first, second) }
+            }
+        }
+
+        private fun SplitPairRuleBuilder.setDefaultSplitAttributesCompat(
             defaultAttrs: SplitAttributes,
-        ): SplitPairRuleBuilder {
+        ): SplitPairRuleBuilder = apply {
             val (splitRatio, layoutDirection) = translateSplitAttributesCompatInternal(defaultAttrs)
-            return builder // #setDefaultAttributes or SplitAttributes ctr weren't supported.
-                .setSplitRatio(splitRatio)
-                .setLayoutDirection(layoutDirection)
+            setSplitRatio(splitRatio)
+            setLayoutDirection(layoutDirection)
         }
 
         private fun translateSplitAttributesCompatInternal(
@@ -446,13 +481,24 @@ internal class EmbeddingAdapter(
             attrs.splitType is SplitType.RatioSplitType &&
                 attrs.layoutDirection in arrayOf(LEFT_TO_RIGHT, RIGHT_TO_LEFT, LOCALE)
 
-        /**
-         * Obtains [SplitAttributes] from [OEMSplitInfo] with [WindowExtensions.VENDOR_API_LEVEL_1]
-         */
-        fun getSplitAttributesCompat(splitInfo: OEMSplitInfo): SplitAttributes =
-            SplitAttributes.Builder()
-                .setSplitType(SplitType.buildSplitTypeFromValue(splitInfo.splitRatio))
-                .setLayoutDirection(LOCALE)
-                .build()
+        @SuppressLint("ClassVerificationFailure", "NewApi")
+        private fun translateActivityPredicates(activityFilters: Set<ActivityFilter>): Any {
+            return predicateAdapter.buildPredicate(Activity::class) { activity ->
+                activityFilters.any { filter -> filter.matchesActivity(activity) }
+            }
+        }
+
+        @SuppressLint("ClassVerificationFailure", "NewApi")
+        private fun translateIntentPredicates(activityFilters: Set<ActivityFilter>): Any {
+            return predicateAdapter.buildPredicate(Intent::class) { intent ->
+                activityFilters.any { filter -> filter.matchesIntent(intent) }
+            }
+        }
+
+        @SuppressLint("ClassVerificationFailure", "NewApi")
+        private fun translateParentMetricsPredicate(context: Context, splitRule: SplitRule): Any =
+            predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
+                splitRule.checkParentMetrics(context, windowMetrics)
+            }
     }
 }
