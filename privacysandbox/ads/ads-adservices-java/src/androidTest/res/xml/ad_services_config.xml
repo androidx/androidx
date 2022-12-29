@@ -14,12 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS" />
-    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
-    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_MEASUREMENT" />
-    <application>
-        <property android:name="android.adservices.AD_SERVICES_CONFIG"
-            android:resource="@xml/ad_services_config" />
-    </application>
-</manifest>
+<ad-services-config>
+    <topics allowAllToAccess="true" />
+    <custom-audiences allowAllToAccess="true" />
+    <attribution allowAllToAccess="true" />
+</ad-services-config>

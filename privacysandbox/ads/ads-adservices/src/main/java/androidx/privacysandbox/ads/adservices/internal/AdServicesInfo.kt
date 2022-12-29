@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.ads.adservices.common
+package androidx.privacysandbox.ads.adservices.internal
 
 import android.os.Build
 import android.os.ext.SdkExtensions
