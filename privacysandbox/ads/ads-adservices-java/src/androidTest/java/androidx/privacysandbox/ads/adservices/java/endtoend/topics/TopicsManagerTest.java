@@ -18,15 +18,8 @@ package androidx.privacysandbox.ads.adservices.java.endtoend.topics;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.app.Instrumentation;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ServiceInfo;
-import android.os.Build;
-import android.util.Log;
-
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
+import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures;
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest;
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse;
@@ -42,15 +35,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
-import java.util.List;
 
 @RunWith(JUnit4.class)
 // TODO: Consider refactoring so that we're not duplicating code.
 public class TopicsManagerTest {
-    private Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private static final String TAG = "TopicsManagerTest";
-    // The JobId of the Epoch Computation.
-    private static final int EPOCH_JOB_ID = 2;
+    TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
 
     // Override the Epoch Job Period to this value to speed up the epoch computation.
     private static final long TEST_EPOCH_JOB_PERIOD_MS = 3000;
@@ -62,30 +52,30 @@ public class TopicsManagerTest {
     private static final int TEST_TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC = 0;
     private static final int TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC = 5;
 
-    // Used to get the package name. Copied over from com.android.adservices.AdServicesCommon
-    private static final String TOPICS_SERVICE_NAME = "android.adservices.TOPICS_SERVICE";
-    private static final String ADSERVICES_PACKAGE_NAME = getAdServicesPackageName();
-
     @Before
     public void setup() throws Exception {
-        overrideKillSwitches(true);
+        mTestUtil.overrideKillSwitches(true);
         // We need to skip 3 epochs so that if there is any usage from other test runs, it will
         // not be used for epoch retrieval.
         Thread.sleep(3 * TEST_EPOCH_JOB_PERIOD_MS);
 
-        overrideEpochPeriod(TEST_EPOCH_JOB_PERIOD_MS);
+        mTestUtil.overrideEpochPeriod(TEST_EPOCH_JOB_PERIOD_MS);
         // We need to turn off random topic so that we can verify the returned topic.
-        overridePercentageForRandomTopic(TEST_TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC);
+        mTestUtil.overridePercentageForRandomTopic(TEST_TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC);
+        mTestUtil.overrideConsentManagerDebugMode(true);
+        mTestUtil.overrideAllowlists(true);
         // TODO: Remove this override.
-        enableEnrollmentCheck(true);
+        mTestUtil.enableEnrollmentCheck(true);
     }
 
     @After
     public void teardown() {
-        overrideKillSwitches(false);
-        overrideEpochPeriod(TOPICS_EPOCH_JOB_PERIOD_MS);
-        overridePercentageForRandomTopic(TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC);
-        enableEnrollmentCheck(false);
+        mTestUtil.overrideKillSwitches(false);
+        mTestUtil.overrideEpochPeriod(TOPICS_EPOCH_JOB_PERIOD_MS);
+        mTestUtil.overridePercentageForRandomTopic(TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC);
+        mTestUtil.overrideConsentManagerDebugMode(false);
+        mTestUtil.overrideAllowlists(false);
+        mTestUtil.enableEnrollmentCheck(false);
     }
 
     @Test
@@ -106,7 +96,7 @@ public class TopicsManagerTest {
 
         // Now force the Epoch Computation Job. This should be done in the same epoch for
         // callersCanLearnMap to have the entry for processing.
-        forceEpochComputationJob();
+        mTestUtil.forceEpochComputationJob();
 
         // Wait to the next epoch. We will not need to do this after we implement the fix in
         // go/rb-topics-epoch-scheduling
@@ -137,82 +127,5 @@ public class TopicsManagerTest {
                         .setSdkName("sdk2")
                         .build()).get();
         assertThat(response2.getTopics()).isEmpty();
-    }
-
-    // Run shell command.
-    private void runShellCommand(String command) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mInstrumentation.getUiAutomation().executeShellCommand(command);
-            }
-        }
-    }
-
-    private void overrideKillSwitches(boolean override) {
-        if (override) {
-            runShellCommand("setprop debug.adservices.global_kill_switch " + false);
-            runShellCommand("setprop debug.adservices.topics_kill_switch " + false);
-        } else {
-            runShellCommand("setprop debug.adservices.global_kill_switch " + null);
-            runShellCommand("setprop debug.adservices.topics_kill_switch " + null);
-        }
-    }
-
-    private void enableEnrollmentCheck(boolean enable) {
-        runShellCommand(
-                "setprop debug.adservices.disable_topics_enrollment_check " + enable);
-    }
-
-    // Override the Epoch Period to shorten the Epoch Length in the test.
-    private void overrideEpochPeriod(long overrideEpochPeriod) {
-        runShellCommand(
-                "setprop debug.adservices.topics_epoch_job_period_ms " + overrideEpochPeriod);
-    }
-
-    // Override the Percentage For Random Topic in the test.
-    private void overridePercentageForRandomTopic(long overridePercentage) {
-        runShellCommand(
-                "setprop debug.adservices.topics_percentage_for_random_topics "
-                        + overridePercentage);
-    }
-
-    /** Forces JobScheduler to run the Epoch Computation job */
-    private void forceEpochComputationJob() {
-        runShellCommand(
-                "cmd jobscheduler run -f" + " " + ADSERVICES_PACKAGE_NAME + " " + EPOCH_JOB_ID);
-    }
-
-    @SuppressWarnings("deprecation")
-    // Used to get the package name. Copied over from com.android.adservices.AndroidServiceBinder
-    private static String getAdServicesPackageName() {
-        final Intent intent = new Intent(TOPICS_SERVICE_NAME);
-        final List<ResolveInfo> resolveInfos = ApplicationProvider.getApplicationContext()
-                        .getPackageManager()
-                        .queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY);
-
-        if (resolveInfos == null || resolveInfos.isEmpty()) {
-            Log.e(
-                    TAG,
-                    "Failed to find resolveInfo for adServices service. Intent action: "
-                            + TOPICS_SERVICE_NAME);
-            return null;
-        }
-
-        if (resolveInfos.size() > 1) {
-            Log.e(
-                    TAG,
-                    String.format(
-                            "Found multiple services (%1$s) for the same intent action (%2$s)",
-                            TOPICS_SERVICE_NAME, resolveInfos));
-            return null;
-        }
-
-        final ServiceInfo serviceInfo = resolveInfos.get(0).serviceInfo;
-        if (serviceInfo == null) {
-            Log.e(TAG, "Failed to find serviceInfo for adServices service");
-            return null;
-        }
-
-        return serviceInfo.packageName;
     }
 }
