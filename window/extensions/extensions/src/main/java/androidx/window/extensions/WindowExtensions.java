@@ -73,8 +73,7 @@ public interface WindowExtensions {
      * <ul>
      *     <li>{@link SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitAttributes} APIs</li>
-     *     <li>{@link ActivityEmbeddingComponent#setSplitAttributesCalculator(
-     *         androidx.window.extensions.core.util.function.Function)}</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitAttributesCalculator} APIs</li>
      * </ul>
      * </p>
      * @hide
