@@ -20,10 +20,10 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.window.extensions.WindowExtensions;
-import androidx.window.extensions.core.util.function.Consumer;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Extension component definition that is used by the WindowManager library to trigger custom
@@ -40,29 +40,13 @@ public interface ActivityEmbeddingComponent {
     void setEmbeddingRules(@NonNull Set<EmbeddingRule> splitRules);
 
     /**
-     * @deprecated Use {@link #setSplitInfoCallback(Consumer)} starting with
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-     * {@link #setSplitInfoCallback(Consumer)} can't be called on
-     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
-     */
-    @Deprecated
-    @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
-    void setSplitInfoCallback(@NonNull java.util.function.Consumer<List<SplitInfo>> consumer);
-
-    /**
      * Sets the callback that notifies WM Jetpack about changes in split states from the Extensions
      * Sidecar implementation. The listener should be registered for the lifetime of the process.
      * There are no threading guarantees where the events are dispatched from. All messages are
      * re-posted to the executors provided by developers.
-     *
-     * @param consumer the callback to notify {@link SplitInfo} list changes
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
-    default void setSplitInfoCallback(@NonNull Consumer<List<SplitInfo>> consumer) {
-        throw new UnsupportedOperationException("This method must not be called unless there is a"
-                + " corresponding override implementation on the device.");
-    }
+    void setSplitInfoCallback(@NonNull Consumer<List<SplitInfo>> consumer);
 
     /**
      * Clears the callback that was set in

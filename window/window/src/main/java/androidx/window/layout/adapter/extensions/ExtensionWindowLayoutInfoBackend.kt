@@ -16,7 +16,6 @@
 
 package androidx.window.layout.adapter.extensions
 
-import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.app.Activity
 import android.content.Context
@@ -26,7 +25,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
-import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.adapter.WindowBackend
@@ -57,18 +55,6 @@ internal class ExtensionWindowLayoutInfoBackend(
     private val consumerToToken = mutableMapOf<MulticastConsumer, ConsumerAdapter.Subscription>()
 
     /**
-     * The mapping from [MulticastConsumer] to Extensions Core version [Consumer]. This is used
-     * to translate [MulticastConsumer] to Extensions APIs after
-     * [WindowExtensions.VENDOR_API_LEVEL_2].
-     *
-     * @see WindowLayoutComponent.addWindowLayoutInfoListener
-     * @see WindowLayoutComponent.removeWindowLayoutInfoListener
-     */
-    @GuardedBy("lock")
-    private val consumerToOemConsumer =
-        mutableMapOf<MulticastConsumer, OEMConsumer<OEMWindowLayoutInfo>>()
-
-    /**
      * Registers a listener to consume new values of [WindowLayoutInfo]. If there was a listener
      * registered for a given [Context] then the new listener will receive a replay of the last
      * known value.
@@ -92,37 +78,46 @@ internal class ExtensionWindowLayoutInfoBackend(
                 contextToListeners[context] = consumer
                 listenerToContext[callback] = context
                 consumer.addListener(callback)
-                if (ExtensionsUtil.safeVendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
-                    val consumeWindowLayoutInfo: (OEMWindowLayoutInfo) -> Unit = { value ->
-                        consumer.accept(value)
-                    }
-                    // The registrations above maintain 1-many mapping of Context-Listeners across
-                    // different subscription implementations.
-                    val disposableToken = if (context is Activity) {
-                        consumerAdapter.createSubscription(
-                            component,
-                            OEMWindowLayoutInfo::class,
-                            "addWindowLayoutInfoListener",
-                            "removeWindowLayoutInfoListener",
-                            context,
-                            consumeWindowLayoutInfo
-                        )
-                    } else {
-                        // Prior to WM Extensions v2 addWindowLayoutInfoListener only
-                        // supports Activities. Return empty WindowLayoutInfo if the
-                        // provided Context is not an Activity.
-                        consumer.accept(OEMWindowLayoutInfo(emptyList()))
-                        return@registerLayoutChangeCallback
-                    }
-                    consumerToToken[consumer] = disposableToken
-                } else {
-                    val oemConsumer = OEMConsumer<OEMWindowLayoutInfo> { info ->
-                        consumer.accept(info)
-                    }
-                    consumerToOemConsumer[consumer] = oemConsumer
-                    component.addWindowLayoutInfoListener(context,
-                        oemConsumer)
+                val consumeWindowLayoutInfo: (OEMWindowLayoutInfo) -> Unit = {
+                        value -> consumer.accept(value)
                 }
+                // The registrations above maintain 1-many mapping of Context-Listeners across
+                // different subscription implementations.
+                val disposableToken =
+                    when (ExtensionsUtil.safeVendorApiLevel) {
+                        // TODO(b/246640575) Use Extension Level constants here instead of raw ints.
+                        2 ->
+                            consumerAdapter.createSubscription(
+                                component,
+                                OEMWindowLayoutInfo::class,
+                                "addWindowLayoutInfoListener",
+                                "removeWindowLayoutInfoListener",
+                                context,
+                                consumeWindowLayoutInfo
+                            )
+                        1 ->
+                            if (context is Activity) {
+                                consumerAdapter.createSubscription(
+                                    component,
+                                    OEMWindowLayoutInfo::class,
+                                    "addWindowLayoutInfoListener",
+                                    "removeWindowLayoutInfoListener",
+                                    context,
+                                    consumeWindowLayoutInfo
+                                )
+                            } else {
+                                // Prior to WM Extensions v2 addWindowLayoutInfoListener only
+                                // supports Activities. Return empty WindowLayoutInfo if the
+                                // provided Context is not an Activity.
+                                consumer.accept(OEMWindowLayoutInfo(emptyList()))
+                                return@registerLayoutChangeCallback
+                            }
+                        else -> {
+                            consumer.accept(OEMWindowLayoutInfo(emptyList()))
+                            return@registerLayoutChangeCallback
+                        }
+                    }
+                consumerToToken[consumer] = disposableToken
             }
         }
     }
@@ -140,15 +135,8 @@ internal class ExtensionWindowLayoutInfoBackend(
             multicastListener.removeListener(callback)
             listenerToContext.remove(callback)
             if (multicastListener.isEmpty()) {
+                consumerToToken.remove(multicastListener)?.dispose()
                 contextToListeners.remove(context)
-                if (ExtensionsUtil.safeVendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
-                    consumerToToken.remove(multicastListener)?.dispose()
-                } else {
-                    val oemConsumer = consumerToOemConsumer.remove(multicastListener)
-                    if (oemConsumer != null) {
-                        component.removeWindowLayoutInfoListener(oemConsumer)
-                    }
-                }
             }
         }
     }
