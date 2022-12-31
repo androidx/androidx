@@ -48,6 +48,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraFilter
@@ -199,6 +200,28 @@ class AdvancedSessionProcessorTest {
         val imageCapture = ImageCapture.Builder().build()
         val imageAnalysis = ImageAnalysis.Builder().build()
         verifyUseCasesOutput(fakeSessionProcessImpl, preview, imageCapture, imageAnalysis)
+    }
+
+    @Test
+    fun canInvokeStartTrigger() = runBlocking {
+        val fakeSessionProcessImpl = FakeSessionProcessImpl()
+        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl, context)
+
+        val parametersMap: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
+            CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO,
+            CaptureRequest.JPEG_QUALITY to 0
+        )
+
+        val config = Camera2ImplConfig.Builder().also {
+            for (key in parametersMap.keys) {
+                @Suppress("UNCHECKED_CAST")
+                val anyKey = key as CaptureRequest.Key<Any>
+                it.setCaptureRequestOption(anyKey, parametersMap[anyKey] as Any)
+            }
+        }.build()
+        advancedSessionProcessor.startTrigger(config, object : SessionProcessor.CaptureCallback {})
+
+        fakeSessionProcessImpl.assertStartTriggerIsCalledWithParameters(parametersMap)
     }
 
     private suspend fun assumeAllowsSharedSurface() = withContext(Dispatchers.Main) {
@@ -427,8 +450,16 @@ private suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {
  * [ImageReaderOutputConfigImpl].
  */
 class FakeSessionProcessImpl(
-    var previewConfigBlock: (OutputSurfaceImpl) -> Camera2OutputConfigImpl,
-    var captureConfigBlock: (OutputSurfaceImpl) -> Camera2OutputConfigImpl,
+    var previewConfigBlock: (OutputSurfaceImpl) -> Camera2OutputConfigImpl = { outputSurfaceImpl ->
+        Camera2OutputConfigImplBuilder
+            .newSurfaceConfig(outputSurfaceImpl.surface)
+            .build()
+    },
+    var captureConfigBlock: (OutputSurfaceImpl) -> Camera2OutputConfigImpl = { outputSurfaceImpl ->
+            Camera2OutputConfigImplBuilder
+                .newSurfaceConfig(outputSurfaceImpl.surface)
+                .build()
+    },
     var analysisConfigBlock: ((OutputSurfaceImpl) -> Camera2OutputConfigImpl)? = null,
     var onCaptureSessionStarted: ((RequestProcessorImpl) -> Unit)? = null
 ) : SessionProcessorImpl {
@@ -438,6 +469,8 @@ class FakeSessionProcessImpl(
     private lateinit var captureOutputConfig: Camera2OutputConfigImpl
     private var analysisOutputConfig: Camera2OutputConfigImpl? = null
     private var sharedOutputConfigList = arrayListOf<Camera2OutputConfigImpl>()
+    private var startTriggerParametersDeferred =
+        CompletableDeferred<MutableMap<CaptureRequest.Key<*>, Any>>()
 
     override fun initSession(
         cameraId: String?,
@@ -477,7 +510,15 @@ class FakeSessionProcessImpl(
         triggers: MutableMap<CaptureRequest.Key<*>, Any>?,
         callback: SessionProcessorImpl.CaptureCallback?
     ): Int {
+        startTriggerParametersDeferred.complete(triggers!!)
         return 0
+    }
+
+    suspend fun assertStartTriggerIsCalledWithParameters(
+        parameters: MutableMap<CaptureRequest.Key<*>, Any>
+    ) {
+        assertThat(startTriggerParametersDeferred.awaitWithTimeout(1000))
+            .isEqualTo(parameters)
     }
 
     override fun onCaptureSessionStart(requestProcessor: RequestProcessorImpl?) {
