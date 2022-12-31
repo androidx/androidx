@@ -20,13 +20,18 @@ import android.app.Application
 import android.graphics.Color
 import androidx.annotation.Sampled
 import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributesCalculator
 import androidx.window.embedding.SplitController
 import androidx.window.layout.FoldingFeature
 
 @Sampled
 fun splitAttributesCalculatorSample() {
     SplitController.getInstance(context)
-        .setSplitAttributesCalculator { params ->
+        .setSplitAttributesCalculator(
+            object : SplitAttributesCalculator {
+        override fun computeSplitAttributesForParams(
+            params: SplitAttributesCalculator.SplitAttributesCalculatorParams
+        ): SplitAttributes {
             val tag = params.splitRuleTag
             val parentWindowMetrics = params.parentWindowMetrics
             val parentConfig = params.parentConfiguration
@@ -35,7 +40,7 @@ fun splitAttributesCalculatorSample() {
             val foldingState = if (foldingFeatures.size == 1) foldingFeatures[0] else null
             // Tag can be used to filter the SplitRule to apply the SplitAttributes
             if (TAG_SPLIT_RULE_MAIN != tag && params.isDefaultMinSizeSatisfied) {
-                return@setSplitAttributesCalculator params.defaultSplitAttributes
+                return params.defaultSplitAttributes
             }
 
             // This sample will make the app show a layout to
@@ -47,7 +52,7 @@ fun splitAttributesCalculatorSample() {
             if (foldingState?.isSeparating == true) {
                 // Split the parent container that followed by the hinge if the hinge separates the
                 // parent window.
-                return@setSplitAttributesCalculator SplitAttributes.Builder()
+                return SplitAttributes.Builder()
                     .setSplitType(SplitAttributes.SplitType.splitByHinge())
                     .setLayoutDirection(
                         if (foldingState.orientation == FoldingFeature.Orientation.HORIZONTAL) {
@@ -60,9 +65,7 @@ fun splitAttributesCalculatorSample() {
                     .setAnimationBackgroundColor(Color.GRAY)
                     .build()
             }
-            return@setSplitAttributesCalculator if (
-                parentConfig.screenWidthDp >= 600 && bounds.width() >= bounds.height()
-            ) {
+            return if (parentConfig.screenWidthDp >= 600 && bounds.width() >= bounds.height()) {
                 // Split the parent container equally and vertically if the device is in landscape.
                 SplitAttributes.Builder()
                     .setSplitType(SplitAttributes.SplitType.splitEqually())
@@ -76,17 +79,22 @@ fun splitAttributesCalculatorSample() {
                     .build()
             }
         }
+    })
 }
 
 @Sampled
 fun splitWithOrientations() {
     SplitController.getInstance(context)
-        .setSplitAttributesCalculator { params ->
+        .setSplitAttributesCalculator(
+            object : SplitAttributesCalculator {
+        override fun computeSplitAttributesForParams(
+            params: SplitAttributesCalculator.SplitAttributesCalculatorParams
+        ): SplitAttributes {
             // A sample to split with the dimension that larger than 600 DP. If there's no dimension
             // larger than 600 DP, show the presentation to fill the task bounds.
             val parentConfiguration = params.parentConfiguration
             val builder = SplitAttributes.Builder()
-            return@setSplitAttributesCalculator if (parentConfiguration.screenWidthDp >= 600) {
+            return if (parentConfiguration.screenWidthDp >= 600) {
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                     // Set the color to use when switching between vertical and horizontal
@@ -105,12 +113,17 @@ fun splitWithOrientations() {
                     .build()
             }
         }
+    })
 }
 
 @Sampled
 fun expandContainersInPortrait() {
     SplitController.getInstance(context)
-        .setSplitAttributesCalculator { params ->
+        .setSplitAttributesCalculator(
+            object : SplitAttributesCalculator {
+        override fun computeSplitAttributesForParams(
+            params: SplitAttributesCalculator.SplitAttributesCalculatorParams
+        ): SplitAttributes {
             // A sample to always fill task bounds when the device is in portrait.
             val tag = params.splitRuleTag
             val bounds = params.parentWindowMetrics.bounds
@@ -121,17 +134,18 @@ fun expandContainersInPortrait() {
                 .setSplitType(SplitAttributes.SplitType.expandContainers())
                 .build()
             if (!isDefaultMinSizeSatisfied) {
-                return@setSplitAttributesCalculator expandContainersAttrs
+                return expandContainersAttrs
             }
             // Always expand containers for the splitRule tagged as
             // TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT if the device is in portrait
             // even if [isDefaultMinSizeSatisfied] reports true.
             if (bounds.height() > bounds.width() && TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT.equals(tag)) {
-                return@setSplitAttributesCalculator expandContainersAttrs
+                return expandContainersAttrs
             }
             // Otherwise, use the default splitAttributes.
-            return@setSplitAttributesCalculator defaultSplitAttributes
+            return defaultSplitAttributes
         }
+    })
 }
 
 /** Assume it's a valid [Application]... */

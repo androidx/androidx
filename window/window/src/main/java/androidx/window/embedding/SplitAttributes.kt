@@ -218,10 +218,10 @@ class SplitAttributes internal constructor(
              * containers each expand to fill the parent window; the secondary
              * container overlays the primary container.
              *
-             * Use this method with the callback set in
-             * [SplitController.setSplitAttributesCalculator] to expand the activity containers in
-             * some device states. The following sample shows how to always fill the parent bounds
-             * if the device is in portrait orientation:
+             * Use this method with [SplitAttributesCalculator] to expand the
+             * activity containers in some device states. The following sample
+             * shows how to always fill the parent bounds if the device is in
+             * portrait orientation:
              *
              * @sample androidx.window.samples.embedding.expandContainersInPortrait
              *

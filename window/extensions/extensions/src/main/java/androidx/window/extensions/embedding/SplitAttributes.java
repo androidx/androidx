@@ -29,7 +29,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.window.extensions.core.util.function.Function;
+import androidx.window.extensions.layout.FoldingFeature;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -56,9 +56,10 @@ import java.lang.annotation.RetentionPolicy;
  *     <li>Setting the default {@code SplitAttributes} using
  *         {@link SplitPairRule.Builder#setDefaultSplitAttributes} or
  *         {@link SplitPlaceholderRule.Builder#setDefaultSplitAttributes}.</li>
- *     <li>Using {@link ActivityEmbeddingComponent#setSplitAttributesCalculator(Function)} to set
- *         the callback to customize the {@code SplitAttributes} for a given device and window
- *         state.</li>
+ *     <li>Using
+ *         {@link SplitAttributesCalculator#computeSplitAttributesForParams}
+ *         to customize the {@code SplitAttributes} for a given device and
+ *         window state.</li>
  * </ul>
  *
  * @see SplitAttributes.SplitType

@@ -24,10 +24,9 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.WindowExtensions;
-import androidx.window.extensions.core.util.function.Predicate;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Split configuration rule for individual activities.
@@ -86,29 +85,6 @@ public class ActivityRule extends EmbeddingRule {
         @Nullable
         private String mTag;
 
-        /**
-         * @deprecated Use {@link #Builder(Predicate, Predicate)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-         * {@link #Builder(Predicate, Predicate)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
-         */
-        @Deprecated
-        @RequiresApi(Build.VERSION_CODES.N)
-        public Builder(@NonNull java.util.function.Predicate<Activity> activityPredicate,
-                @NonNull java.util.function.Predicate<Intent> intentPredicate) {
-            mActivityPredicate = activityPredicate::test;
-            mIntentPredicate = intentPredicate::test;
-        }
-
-        /**
-         * The {@link ActivityRule} Builder constructor
-         *
-         * @param activityPredicate the {@link Predicate} to verify if a given {@link Activity}
-         *                         matches the rule
-         * @param intentPredicate the {@link Predicate} to verify if a given {@link Intent}
-         *                         matches the rule
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-         */
         public Builder(@NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate) {
             mActivityPredicate = activityPredicate;

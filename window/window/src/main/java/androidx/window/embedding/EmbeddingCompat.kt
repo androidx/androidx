@@ -24,9 +24,7 @@ import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.extensions.WindowExtensions
-import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.WindowExtensionsProvider
-import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.lang.reflect.Proxy
 
@@ -47,20 +45,13 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        if (ExtensionsUtil.safeVendorApiLevel < VENDOR_API_LEVEL_2) {
-            consumerAdapter.addConsumer(
-                embeddingExtension,
-                List::class,
-                "setSplitInfoCallback"
-            ) { values ->
-                val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
-                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
-            }
-        } else {
-            val callback = Consumer<List<OEMSplitInfo>> { splitInfoList ->
-                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
-            }
-            embeddingExtension.setSplitInfoCallback(callback)
+        consumerAdapter.addConsumer(
+            embeddingExtension,
+            List::class,
+            "setSplitInfoCallback"
+        ) { values ->
+            val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
+            embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
         }
     }
 
@@ -68,9 +59,7 @@ internal class EmbeddingCompat constructor(
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
-    override fun setSplitAttributesCalculator(
-        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
-    ) {
+    override fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
         if (!isSplitAttributesCalculatorSupported()) {
             throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
                 "on the device.")
