@@ -121,7 +121,7 @@ fun TabRow(
       val separatorMeasurables = subcompose(TabRowSlots.Separator, separators)
       val separatorPlaceables =
         separatorMeasurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
-      val separatorWidth = separatorPlaceables.first().width
+      val separatorWidth = separatorPlaceables.firstOrNull()?.width ?: 0
 
       val layoutWidth = tabPlaceables.sumOf { it.width } + separatorsCount * separatorWidth
       val layoutHeight =

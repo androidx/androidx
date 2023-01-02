@@ -57,6 +57,13 @@ class TabRowTest {
     val rule = createComposeRule()
 
     @Test
+    fun tabRow_shouldNotCrashWithOnly1Tab() {
+        val tabs = constructTabs(count = 1)
+
+        setContent(tabs)
+    }
+
+    @Test
     fun tabRow_firstTabIsSelected() {
         val tabs = constructTabs()
         val firstTab = tabs[0]
