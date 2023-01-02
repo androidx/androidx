@@ -46,6 +46,8 @@ import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.processing.InternalImageProcessor;
 import androidx.core.util.Pair;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,12 +168,16 @@ public class ImagePipeline {
      * <p>{@link ImagePipeline} creates two requests from {@link TakePictureRequest}: 1) a
      * request sent for post-processing pipeline and 2) a request for camera. The camera request
      * is returned to the caller, and the post-processing request is handled by this class.
+     *
+     * @param captureFuture used to monitor the events when the request is terminated due to
+     *                      capture failure or abortion.
      */
     @MainThread
     @NonNull
     Pair<CameraRequest, ProcessingRequest> createRequests(
             @NonNull TakePictureRequest takePictureRequest,
-            @NonNull TakePictureCallback takePictureCallback) {
+            @NonNull TakePictureCallback takePictureCallback,
+            @NonNull ListenableFuture<Void> captureFuture) {
         checkMainThread();
         CaptureBundle captureBundle = createCaptureBundle();
         return new Pair<>(
@@ -182,7 +188,8 @@ public class ImagePipeline {
                 createProcessingRequest(
                         captureBundle,
                         takePictureRequest,
-                        takePictureCallback));
+                        takePictureCallback,
+                        captureFuture));
     }
 
     @MainThread
@@ -208,7 +215,8 @@ public class ImagePipeline {
     private ProcessingRequest createProcessingRequest(
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
-            @NonNull TakePictureCallback takePictureCallback) {
+            @NonNull TakePictureCallback takePictureCallback,
+            @NonNull ListenableFuture<Void> captureFuture) {
         return new ProcessingRequest(
                 captureBundle,
                 takePictureRequest.getOutputFileOptions(),
@@ -216,7 +224,8 @@ public class ImagePipeline {
                 takePictureRequest.getRotationDegrees(),
                 takePictureRequest.getJpegQuality(),
                 takePictureRequest.getSensorToBufferTransform(),
-                takePictureCallback);
+                takePictureCallback,
+                captureFuture);
     }
 
     private CameraRequest createCameraRequest(

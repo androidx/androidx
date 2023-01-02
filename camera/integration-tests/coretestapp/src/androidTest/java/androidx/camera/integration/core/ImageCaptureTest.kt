@@ -715,6 +715,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         callback2.awaitCaptures()
         assertThat(callback2.results.size + callback2.errors.size).isEqualTo(3)
+        assertThat(callback2.errors.size).isAtLeast(1)
 
         for (error in callback2.errors) {
             assertThat(error.imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)

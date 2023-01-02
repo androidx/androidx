@@ -23,6 +23,7 @@ import android.util.Size
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createFakeImage
+import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -95,14 +96,16 @@ class CaptureNodeTest {
         // A has two stages: 1 and 2.
         val captureBundleA = createCaptureBundle(intArrayOf(1, 2))
         val callbackA = FakeTakePictureCallback()
-        val requestA = FakeProcessingRequest(captureBundleA, callbackA)
+        val requestA =
+            FakeProcessingRequest(captureBundleA, callbackA, Futures.immediateFuture(null))
         val tagBundleKeyA = captureBundleA.hashCode().toString()
         val imageA1 = createFakeImage(tagBundleKeyA, 1)
         val imageA2 = createFakeImage(tagBundleKeyA, 2)
         // B has one stage: 1
         val captureBundleB = createCaptureBundle(intArrayOf(1))
         val callbackB = FakeTakePictureCallback()
-        val requestB = FakeProcessingRequest(captureBundleB, callbackB)
+        val requestB =
+            FakeProcessingRequest(captureBundleB, callbackB, Futures.immediateFuture(null))
         val tagBundleKeyB = captureBundleB.hashCode().toString()
         val imageB1 = createFakeImage(tagBundleKeyB, 1)
 
@@ -133,10 +136,16 @@ class CaptureNodeTest {
     @Test(expected = IllegalStateException::class)
     fun receiveRequestWhenThePreviousOneUnfinished_throwException() {
         // Arrange: create 2 requests: A and B.
-        val requestA =
-            FakeProcessingRequest(createCaptureBundle(intArrayOf(1)), FakeTakePictureCallback())
-        val requestB =
-            FakeProcessingRequest(createCaptureBundle(intArrayOf(1)), FakeTakePictureCallback())
+        val requestA = FakeProcessingRequest(
+            createCaptureBundle(intArrayOf(1)),
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
+        )
+        val requestB = FakeProcessingRequest(
+            createCaptureBundle(intArrayOf(1)),
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
+        )
         // Act: Send B without A being finished.
         captureNode.onRequestAvailable(requestA)
         captureNode.onRequestAvailable(requestB)
