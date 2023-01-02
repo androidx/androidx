@@ -43,6 +43,9 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.Node;
 
@@ -74,7 +77,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
     @NonNull
     private final Set<Integer> mPendingStageIds = new HashSet<>();
-    private ProcessingRequest mCurrentRequest = null;
+    ProcessingRequest mCurrentRequest = null;
 
     @Nullable
     SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
@@ -170,15 +173,27 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
         // Send the request downstream.
         requireNonNull(mOutputEdge).getRequestEdge().accept(request);
+        Futures.addCallback(request.getCaptureFuture(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                // Do nothing
+            }
+
+            @Override
+            public void onFailure(@NonNull Throwable t) {
+                checkMainThread();
+                if (request == mCurrentRequest) {
+                    mCurrentRequest = null;
+                }
+            }
+        }, CameraXExecutors.directExecutor());
     }
 
     @MainThread
     void sendCaptureError(@NonNull ImageCaptureException e) {
         checkMainThread();
         if (mCurrentRequest != null) {
-            ProcessingRequest request = mCurrentRequest;
-            mCurrentRequest = null;
-            mainThreadExecutor().execute(() -> request.onCaptureFailure(e));
+            mCurrentRequest.onCaptureFailure(e);
         }
     }
 

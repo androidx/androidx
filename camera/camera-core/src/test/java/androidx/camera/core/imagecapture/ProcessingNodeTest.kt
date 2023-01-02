@@ -29,6 +29,7 @@ import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.isSequentialExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
@@ -73,7 +74,8 @@ class ProcessingNodeTest {
             ROTATION_DEGREES,
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            callback
+            callback,
+            Futures.immediateFuture(null)
         )
 
         // Act: process the request.

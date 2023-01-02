@@ -24,6 +24,7 @@ import androidx.camera.core.imagecapture.Utils.createEmptyImageCaptureConfig
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.core.util.Pair
+import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Fake [ImagePipeline] class for testing.
@@ -47,14 +48,15 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     @MainThread
     internal override fun createRequests(
         request: TakePictureRequest,
-        callback: TakePictureCallback
+        callback: TakePictureCallback,
+        captureFuture: ListenableFuture<Void>
     ): Pair<CameraRequest, ProcessingRequest> {
         if (responseMap[request] == null) {
             val captureConfig = captureConfigMap[request] ?: listOf()
             responseMap[request] =
                 Pair(
                     CameraRequest(captureConfig, callback),
-                    FakeProcessingRequest({ mutableListOf() }, callback)
+                    FakeProcessingRequest({ mutableListOf() }, callback, captureFuture)
                 )
         }
         return responseMap[request]!!

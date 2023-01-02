@@ -29,6 +29,7 @@ import androidx.camera.core.impl.CaptureBundle
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeCaptureStage
@@ -74,7 +75,8 @@ object Utils {
             ROTATION_DEGREES,
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            takePictureCallback
+            takePictureCallback,
+            Futures.immediateFuture(null)
         )
     }
 

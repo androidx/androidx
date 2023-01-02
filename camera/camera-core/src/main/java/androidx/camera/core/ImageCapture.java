@@ -1031,7 +1031,9 @@ public final class ImageCapture extends UseCase {
 
     @UiThread
     private void abortImageCaptureRequests() {
-        if (mImageCaptureRequestProcessor != null) {
+        if (mTakePictureManager != null) {
+            mTakePictureManager.abortRequests();
+        } else if (mImageCaptureRequestProcessor != null) {
             Throwable throwable = new CameraClosedException("Camera is closed.");
             mImageCaptureRequestProcessor.cancelRequests(throwable);
         }
@@ -1775,6 +1777,8 @@ public final class ImageCapture extends UseCase {
             mImagePipeline.close();
             mImagePipeline = null;
         }
+        // TODO: no need to abort requests when UseCase unbinds. Clean this up when the old
+        //  pipeline is removed.
         if (!keepTakePictureManager && mTakePictureManager != null) {
             mTakePictureManager.abortRequests();
             mTakePictureManager = null;

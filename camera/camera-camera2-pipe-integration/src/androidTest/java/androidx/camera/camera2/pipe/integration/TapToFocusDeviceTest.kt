@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers
 import org.junit.After
 import org.junit.Assume.assumeThat
@@ -95,9 +96,11 @@ class TapToFocusDeviceTest {
     }
 
     @After
-    fun tearDown() {
-        if (::camera.isInitialized) {
-            camera.detachUseCases()
+    fun tearDown(): Unit = runBlocking {
+        withContext(Dispatchers.Main) {
+            if (::camera.isInitialized) {
+                camera.detachUseCases()
+            }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
