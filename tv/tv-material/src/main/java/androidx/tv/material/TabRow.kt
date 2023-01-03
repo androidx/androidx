@@ -87,7 +87,9 @@ fun TabRow(
   separator: @Composable () -> Unit = { TabRowDefaults.TabSeparator() },
   indicator: @Composable (tabPositions: List<DpRect>) -> Unit =
     @Composable { tabPositions ->
-      TabRowDefaults.PillIndicator(currentTabPosition = tabPositions[selectedTabIndex])
+      tabPositions.getOrNull(selectedTabIndex)?.let {
+        TabRowDefaults.PillIndicator(currentTabPosition = it)
+      }
     },
   tabs: @Composable () -> Unit
 ) {

@@ -64,6 +64,13 @@ class TabRowTest {
     }
 
     @Test
+    fun tabRow_shouldNotCrashWithNoTabs() {
+        val tabs = constructTabs(count = 0)
+
+        setContent(tabs)
+    }
+
+    @Test
     fun tabRow_firstTabIsSelected() {
         val tabs = constructTabs()
         val firstTab = tabs[0]
@@ -234,9 +241,7 @@ private fun TabRowSample(
             modifier = Modifier.testTag(tab),
         )
     },
-    indicator: @Composable (tabPositions: List<DpRect>) -> Unit = @Composable { tabPositions ->
-        TabRowDefaults.PillIndicator(currentTabPosition = tabPositions[selectedTabIndex])
-    },
+    indicator: @Composable ((tabPositions: List<DpRect>) -> Unit)? = null,
     buildTabPanel: @Composable ((index: Int, tab: String) -> Unit) = @Composable { _, tab ->
         BasicText(text = tab)
     },
@@ -262,15 +267,24 @@ private fun TabRowSample(
             fr.requestFocus()
         }
 
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            indicator = indicator,
-            separator = { Spacer(modifier = Modifier.width(12.dp)) },
-        ) {
-            tabs.forEachIndexed { index, tab -> buildTab(index, tab) }
+        if (indicator != null) {
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                indicator = indicator,
+                separator = { Spacer(modifier = Modifier.width(12.dp)) },
+            ) {
+                tabs.forEachIndexed { index, tab -> buildTab(index, tab) }
+            }
+        } else {
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                separator = { Spacer(modifier = Modifier.width(12.dp)) },
+            ) {
+                tabs.forEachIndexed { index, tab -> buildTab(index, tab) }
+            }
         }
 
-        buildTabPanel(selectedTabIndex, tabs[selectedTabIndex])
+        tabs.elementAtOrNull(selectedTabIndex)?.let { buildTabPanel(selectedTabIndex, it) }
     }
 }
 
@@ -305,4 +319,4 @@ private fun performKeyPress(keyCode: Int, count: Int = 1) {
 private fun constructTabs(
     count: Int = 3,
     buildTab: (index: Int) -> String = { "Season $it" }
-): List<String> = (0 until count).map(buildTab)
+): List<String> = List(count, buildTab)
