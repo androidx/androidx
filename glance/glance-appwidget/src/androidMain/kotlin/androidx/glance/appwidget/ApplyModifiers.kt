@@ -45,6 +45,8 @@ import androidx.glance.color.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.semantics.SemanticsModifier
+import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.unit.Dimension
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
@@ -64,6 +66,7 @@ internal fun applyModifiers(
     var actionModifier: ActionModifier? = null
     var enabled: EnabledModifier? = null
     var clipToOutline: ClipToOutlineModifier? = null
+    var semanticsModifier: SemanticsModifier? = null
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> {
@@ -100,6 +103,7 @@ internal fun applyModifiers(
             }
             is ClipToOutlineModifier -> clipToOutline = modifier
             is EnabledModifier -> enabled = modifier
+            is SemanticsModifier -> semanticsModifier = modifier
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -126,6 +130,13 @@ internal fun applyModifiers(
     }
     enabled?.let {
         rv.setBoolean(viewDef.mainViewId, "setEnabled", it.enabled)
+    }
+    semanticsModifier?.let { semantics ->
+        val contentDescription: List<String>? =
+            semantics.configuration.getOrNull(SemanticsProperties.ContentDescription)
+        if (contentDescription != null) {
+            rv.setContentDescription(viewDef.mainViewId, contentDescription.joinToString())
+        }
     }
     rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
 }

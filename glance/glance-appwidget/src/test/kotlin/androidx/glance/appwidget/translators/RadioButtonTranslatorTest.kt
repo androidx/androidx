@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.RadioButton
 import androidx.glance.appwidget.radioButtonColors
@@ -33,6 +34,8 @@ import androidx.glance.appwidget.findView
 import androidx.glance.appwidget.findViewByType
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.color.ColorProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -264,6 +267,25 @@ class RadioButtonTranslatorTest {
         val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         assertThat(radioButtonRoot.hasOnClickListeners()).isFalse()
     }
+
+    @Test
+    fun canTranslateRadioButtonWithSemanticsModifier_contentDescription() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                RadioButton(
+                    checked = true,
+                    onClick = actionRunCallback<ActionCallback>(),
+                    text = "RadioButton",
+                    modifier = GlanceModifier.semantics {
+                        contentDescription = "Custom radio button description"
+                    },
+                )
+            }
+
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.contentDescription)
+                .isEqualTo("Custom radio button description")
+        }
 
     private val ViewGroup.radioImageView: ImageView?
         get() = findView {
