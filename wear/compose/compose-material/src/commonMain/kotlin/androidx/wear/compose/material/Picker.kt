@@ -487,8 +487,6 @@ public class PickerState constructor(
 
     /**
      * Instantly scroll to an item.
-     * Note that for this to work properly, all options need to have the same height, and this can
-     * only be called after the Picker has been laid out.
      *
      * @sample androidx.wear.compose.material.samples.OptionChangePicker
      *
