@@ -18,3 +18,4 @@
 -keepclassmembers class * extends androidx.glance.appwidget.protobuf.GeneratedMessageLite {
   <fields>;
 }
+-keep public class * extends androidx.glance.appwidget.action.ActionCallback
