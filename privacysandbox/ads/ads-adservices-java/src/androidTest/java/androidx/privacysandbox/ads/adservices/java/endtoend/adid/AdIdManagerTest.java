@@ -18,12 +18,10 @@ package androidx.privacysandbox.ads.adservices.java.endtoend.adid;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.app.Instrumentation;
-import android.os.Build;
-
 import androidx.privacysandbox.ads.adservices.adid.AdId;
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
 import androidx.privacysandbox.ads.adservices.java.adid.AdIdManagerFutures;
+import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -37,16 +35,21 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class AdIdManagerTest {
-    private Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private static final String TAG = "AdIdManagerTest";
+    private TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
 
     @Before
     public void setup() throws Exception {
-        overrideKillSwitches(true);
+        mTestUtil.overrideAdIdKillSwitch(true);
+        mTestUtil.overrideConsentManagerDebugMode(true);
+        mTestUtil.overrideAllowlists(true);
     }
 
     @After
     public void teardown() {
-        overrideKillSwitches(false);
+        mTestUtil.overrideAdIdKillSwitch(false);
+        mTestUtil.overrideConsentManagerDebugMode(false);
+        mTestUtil.overrideAllowlists(false);
     }
 
     @Test
@@ -59,22 +62,5 @@ public class AdIdManagerTest {
         AdId adId = adIdManager.getAdIdAsync().get();
         assertThat(adId.getAdId()).isNotEmpty();
         assertThat(adId.isLimitAdTrackingEnabled()).isNotNull();
-    }
-
-    // Run shell command.
-    private void runShellCommand(String command) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mInstrumentation.getUiAutomation().executeShellCommand(command);
-            }
-        }
-    }
-
-    private void overrideKillSwitches(boolean override) {
-        if (override) {
-            runShellCommand("setprop debug.adservices.adid_kill_switch " + false);
-        } else {
-            runShellCommand("setprop debug.adservices.adid_kill_switch " + null);
-        }
     }
 }
