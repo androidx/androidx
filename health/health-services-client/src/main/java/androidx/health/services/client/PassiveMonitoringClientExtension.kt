@@ -44,9 +44,10 @@ import androidx.health.services.client.data.PassiveMonitoringCapabilities
  *
  * @param service the [PassiveListenerService] to bind to
  * @param config the [PassiveListenerConfig] from the client
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  * @throws SecurityException if calling app does not have the required permissions
  */
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun PassiveMonitoringClient.setPassiveListenerService(
     service: Class<out PassiveListenerService>,
     config: PassiveListenerConfig
@@ -58,9 +59,9 @@ public suspend fun PassiveMonitoringClient.setPassiveListenerService(
  * Data will not be delivered after this call so if clients care about any pending batched data
  * they should call flush before unregistering.
  *
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(RuntimeException::class)
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun PassiveMonitoringClient.clearPassiveListenerService() =
     clearPassiveListenerServiceAsync().awaitWithException()
 
@@ -70,9 +71,9 @@ public suspend fun PassiveMonitoringClient.clearPassiveListenerService() =
  * Data will not be delivered after this call so if clients care about any pending batched data
  * they should call flush before unregistering.
  *
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(RuntimeException::class)
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun PassiveMonitoringClient.clearPassiveListenerCallback() =
     clearPassiveListenerCallbackAsync().awaitWithException()
 
@@ -82,9 +83,9 @@ public suspend fun PassiveMonitoringClient.clearPassiveListenerCallback() =
  * If no listener has been registered by this client, this will be a no-op. This call should be
  * used sparingly and will be subject to throttling by Health Services.
  *
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(RuntimeException::class)
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun PassiveMonitoringClient.flush() = flushAsync().awaitWithException()
 
 /**
@@ -95,8 +96,8 @@ public suspend fun PassiveMonitoringClient.flush() = flushAsync().awaitWithExcep
  * will typically reject requests made for [DataType]s which are not supported.
  *
  * @return a [PassiveMonitoringCapabilities] for this device
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(RuntimeException::class)
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun PassiveMonitoringClient.getCapabilities() =
     getCapabilitiesAsync().awaitWithException()

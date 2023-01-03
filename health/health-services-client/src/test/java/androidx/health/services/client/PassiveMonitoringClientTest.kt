@@ -238,7 +238,7 @@ class PassiveMonitoringClientTest {
             try {
 
                 client.getCapabilities()
-            } catch (e: RuntimeException) {
+            } catch (e: HealthServicesException) {
                 isExceptionCaught = true
             }
         }
