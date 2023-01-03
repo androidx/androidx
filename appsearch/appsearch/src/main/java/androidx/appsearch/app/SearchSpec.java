@@ -1232,12 +1232,22 @@ public final class SearchSpec {
          * @throws IllegalStateException if the ranking strategy is
          * {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} and {@link #setJoinSpec} has never been
          * called.
+         * @throws IllegalStateException if the aggregation scoring strategy has been set in
+         * {@link JoinSpec#getAggregationScoringStrategy()} but the ranking strategy is not
+         * {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE}.
          *
          */
         @NonNull
         public SearchSpec build() {
             Bundle bundle = new Bundle();
             if (mJoinSpec != null) {
+                if (mRankingStrategy != RANKING_STRATEGY_JOIN_AGGREGATE_SCORE
+                        && mJoinSpec.getAggregationScoringStrategy()
+                        != JoinSpec.AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL) {
+                    throw new IllegalStateException("Aggregate scoring strategy has been set in "
+                            + "the nested JoinSpec, but ranking strategy is not "
+                            + "RANKING_STRATEGY_JOIN_AGGREGATE_SCORE");
+                }
                 bundle.putBundle(JOIN_SPEC, mJoinSpec.getBundle());
             } else if (mRankingStrategy == RANKING_STRATEGY_JOIN_AGGREGATE_SCORE) {
                 throw new IllegalStateException("Attempting to rank based on joined documents, but "
