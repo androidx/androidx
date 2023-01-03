@@ -35,16 +35,14 @@ const val columnsCount = 100
 @Composable
 fun LazyRowsAndColumns() {
     TvLazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        repeat((0 until rowsCount).count()) {
-            item { SampleLazyRow() }
-        }
+        items(rowsCount) { SampleLazyRow() }
     }
 }
 
 @Composable
 fun SampleLazyRow() {
     val colors = listOf(Color.Red, Color.Magenta, Color.Green, Color.Yellow, Color.Blue, Color.Cyan)
-    val backgroundColors = (0 until columnsCount).map { colors.random() }
+    val backgroundColors = List(columnsCount) { colors.random() }
 
     TvLazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         backgroundColors.forEach { backgroundColor ->

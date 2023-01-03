@@ -16,11 +16,19 @@
 
 package androidx.tv.foundation.lazy.list
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.After
@@ -38,7 +46,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
+import androidx.tv.foundation.lazy.grid.keyPress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -458,6 +468,39 @@ class LazyListBeyondBoundsTest(param: Param) {
             assertThat(placedItems).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
+    }
+
+    @Test
+    fun emptyRowInColumn_focusSearchDoesNotCrash() {
+        val buttonFocusRequester = FocusRequester()
+        rule.setContent {
+            Column {
+                BasicText(
+                    text = "Outer button",
+                    Modifier.focusRequester(buttonFocusRequester).focusable())
+
+                TvLazyColumn {
+                    items(3) {
+                        if (it == 2) {
+                            // intentional empty row
+                            TvLazyRow(
+                                Modifier
+                                    .height(200.dp)
+                                    .width(2000.dp)) {}
+                        } else {
+                            TvLazyRow {
+                                items(30) {
+                                    Box(Modifier.size(200.dp)) { BasicText(text = it.toString()) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { buttonFocusRequester.requestFocus() }
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN)
     }
 
     private fun ComposeContentTestRule.setLazyContent(

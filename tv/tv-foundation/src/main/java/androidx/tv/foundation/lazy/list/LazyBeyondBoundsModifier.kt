@@ -86,7 +86,7 @@ private class LazyListBeyondBoundsModifierLocal(
         // We use a new interval each time because this function is re-entrant.
         var interval = beyondBoundsInfo.addInterval(
             state.firstVisibleItemIndex,
-            state.layoutInfo.visibleItemsInfo.last().index
+            state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: state.firstVisibleItemIndex
         )
 
         var found: T? = null
