@@ -63,6 +63,12 @@ class FocusMeteringControl @Inject constructor(
 
     private val sensorRect =
         cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
+    private val maxAfRegionCount =
+        cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AF, 0)
+    private val maxAeRegionCount =
+        cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AE, 0)
+    private val maxAwbRegionCount =
+        cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB, 0)
 
     fun startFocusAndMetering(
         action: FocusMeteringAction
@@ -79,16 +85,19 @@ class FocusMeteringControl @Inject constructor(
                     useCaseCamera.requestControl.startFocusAndMeteringAsync(
                         aeRegions = meteringRegionsFromMeteringPoints(
                             action.meteringPointsAe,
+                            maxAeRegionCount,
                             sensorRect,
                             defaultAspectRatio
                         ),
                         afRegions = meteringRegionsFromMeteringPoints(
                             action.meteringPointsAf,
+                            maxAfRegionCount,
                             sensorRect,
                             defaultAspectRatio
                         ),
                         awbRegions = meteringRegionsFromMeteringPoints(
                             action.meteringPointsAwb,
+                            maxAwbRegionCount,
                             sensorRect,
                             defaultAspectRatio
                         ),
@@ -116,16 +125,19 @@ class FocusMeteringControl @Inject constructor(
 
         val rectanglesAe = meteringRegionsFromMeteringPoints(
             action.meteringPointsAe,
+            maxAeRegionCount,
             sensorRect,
             defaultAspectRatio
         )
         val rectanglesAf = meteringRegionsFromMeteringPoints(
             action.meteringPointsAf,
+            maxAfRegionCount,
             sensorRect,
             defaultAspectRatio
         )
         val rectanglesAwb = meteringRegionsFromMeteringPoints(
             action.meteringPointsAwb,
+            maxAwbRegionCount,
             sensorRect,
             defaultAspectRatio
         )
@@ -175,9 +187,13 @@ class FocusMeteringControl @Inject constructor(
 
         fun meteringRegionsFromMeteringPoints(
             meteringPoints: List<MeteringPoint>,
+            maxRegionCount: Int,
             cropSensorRegion: Rect,
             defaultAspectRatio: Rational,
         ): List<MeteringRectangle> {
+            if (meteringPoints.isEmpty() || maxRegionCount == 0) {
+                return emptyList()
+            }
             val meteringRegions: MutableList<MeteringRectangle> = ArrayList()
             val cropRegionAspectRatio =
                 Rational(cropSensorRegion.width(), cropSensorRegion.height())
@@ -185,6 +201,10 @@ class FocusMeteringControl @Inject constructor(
             // TODO(sushilnath@): limit the number of metering regions to what is supported by the
             // device.
             for (meteringPoint in meteringPoints) {
+                // Only enable at most maxRegionCount.
+                if (meteringRegions.size >= maxRegionCount) {
+                    break
+                }
                 if (!isValid(meteringPoint)) {
                     continue
                 }
