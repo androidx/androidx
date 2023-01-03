@@ -255,7 +255,7 @@ class ConstrainScope internal constructor(
             margin = endMargin,
             goneMargin = endGoneMargin
         )
-        containerObject.putNumber("hBias", bias)
+        containerObject.putNumber("hRtlBias", bias)
     }
 
     /**

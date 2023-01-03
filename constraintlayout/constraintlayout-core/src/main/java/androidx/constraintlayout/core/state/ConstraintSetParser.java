@@ -1490,6 +1490,16 @@ public class ConstraintSetParser {
                 value = layoutVariables.get(element.get(attributeName));
                 reference.verticalBias(value);
                 break;
+            case "hRtlBias":
+                // TODO: This is a temporary solution to support bias with start/end constraints,
+                //  where the bias needs to be reversed in RTL, we probably want a better or more
+                //  intuitive way to do this
+                value = layoutVariables.get(element.get(attributeName));
+                if (!state.isLtr()) {
+                    value = 1f - value;
+                }
+                reference.horizontalBias(value);
+                break;
             case "hBias":
                 value = layoutVariables.get(element.get(attributeName));
                 reference.horizontalBias(value);
