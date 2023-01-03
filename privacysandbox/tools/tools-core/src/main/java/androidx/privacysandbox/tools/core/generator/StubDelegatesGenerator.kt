@@ -34,6 +34,10 @@ class StubDelegatesGenerator(
     private val basePackageName: String,
     private val binderCodeConverter: BinderCodeConverter
 ) {
+    companion object {
+        fun transportCancellationCallbackNameSpec(packageName: String) =
+            ClassName(packageName, TransportCancellationGenerator.className)
+    }
 
     fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
         val className = annotatedInterface.stubDelegateNameSpec().simpleName
@@ -106,7 +110,8 @@ class StubDelegatesGenerator(
                     }
                 }
                 addStatement(
-                    "val cancellationSignal = TransportCancellationCallback() { job.cancel() }"
+                    "val cancellationSignal = %T() { job.cancel() }",
+                    transportCancellationCallbackNameSpec(basePackageName)
                 )
                 addStatement("transactionCallback.onCancellable(cancellationSignal)")
             }
