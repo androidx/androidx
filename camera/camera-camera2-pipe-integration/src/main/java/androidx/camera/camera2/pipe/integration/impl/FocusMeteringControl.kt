@@ -114,9 +114,6 @@ class FocusMeteringControl @Inject constructor(
         return signal.asListenableFuture()
     }
 
-    // TODO(b/254790453): Add proper tests for the method, might be better to do it after adding the
-    //  logic to check the number of metering regions supported by device,
-    //  in this#meteringRegionsFromMeteringPoints()
     fun isFocusMeteringSupported(
         action: FocusMeteringAction
     ): Boolean {
