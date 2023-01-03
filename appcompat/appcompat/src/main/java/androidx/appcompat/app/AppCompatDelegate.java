@@ -188,8 +188,6 @@ public abstract class AppCompatDelegate {
     private static LocaleListCompat sStoredAppLocales = null;
     private static Boolean sIsAutoStoreLocalesOptedIn = null;
     private static boolean sIsFrameworkSyncChecked = false;
-    private static Object sLocaleManager = null;
-    private static Context sAppContext = null;
 
     /**
      * All AppCompatDelegate instances associated with a "live" Activity, e.g. lifecycle state is
@@ -832,30 +830,16 @@ public abstract class AppCompatDelegate {
      */
     @RequiresApi(33)
     static Object getLocaleManagerForApplication() {
-        if (sLocaleManager != null) {
-            return sLocaleManager;
-        }
-        // Traversing through the active delegates to retrieve context for any one non null
-        // delegate.
-        // This context is used to create a localeManager which is saved as a static variable to
-        // reduce multiple object creation for different activities.
-        if (sAppContext == null) {
-            for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
-                final AppCompatDelegate delegate = activeDelegate.get();
-                if (delegate != null) {
-                    Context context = delegate.getContextForDelegate();
-                    if (context != null) {
-                        sAppContext = context;
-                        break;
-                    }
+        for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
+            final AppCompatDelegate delegate = activeDelegate.get();
+            if (delegate != null) {
+                Context context = delegate.getContextForDelegate();
+                if (context != null) {
+                    return context.getSystemService(Context.LOCALE_SERVICE);
                 }
             }
         }
-
-        if (sAppContext != null) {
-            sLocaleManager = sAppContext.getSystemService(Context.LOCALE_SERVICE);
-        }
-        return sLocaleManager;
+        return null;
     }
 
     /**
@@ -947,15 +931,6 @@ public abstract class AppCompatDelegate {
                 }
             }
         }
-    }
-
-
-    /**
-     * Sets the value for {@link AppCompatDelegate#sAppContext} which is the context for the
-     * current application.
-     */
-    static void setAppContext(Context context) {
-        sAppContext = context;
     }
 
     /**
