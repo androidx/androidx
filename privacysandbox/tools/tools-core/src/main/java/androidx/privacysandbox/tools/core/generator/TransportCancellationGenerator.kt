@@ -26,11 +26,14 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 
 class TransportCancellationGenerator(private val basePackageName: String) {
+    companion object {
+        const val className = "TransportCancellationCallback"
+    }
+
     private val atomicBooleanClass = ClassName("java.util.concurrent.atomic", "AtomicBoolean")
 
     fun generate(): FileSpec {
         val packageName = basePackageName
-        val className = "TransportCancellationCallback"
         val cancellationSignalStubName =
             ClassName(packageName, AidlGenerator.cancellationSignalName, "Stub")
 
