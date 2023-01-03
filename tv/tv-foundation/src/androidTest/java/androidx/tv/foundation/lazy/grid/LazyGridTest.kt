@@ -1098,6 +1098,7 @@ internal fun IntegerSubject.isEqualTo(expected: Int, tolerance: Int) {
 }
 
 internal fun ComposeContentTestRule.keyPress(keyCode: Int, numberOfPresses: Int = 1) {
-    for (index in 0 until numberOfPresses)
+    repeat(numberOfPresses) {
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode)
+    }
 }
