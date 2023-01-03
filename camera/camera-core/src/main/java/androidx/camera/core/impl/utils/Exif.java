@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Utility class for modifying metadata on JPEG files.
@@ -186,7 +187,8 @@ public final class Exif {
         exifTags.removeAll(DO_NOT_COPY_EXIF_TAGS);
         for (String tag : exifTags) {
             String originalValue = mExifInterface.getAttribute(tag);
-            if (originalValue != null) {
+            String croppedExifValue = croppedExif.mExifInterface.getAttribute(tag);
+            if (originalValue != null && !Objects.equals(originalValue, croppedExifValue)) {
                 croppedExif.mExifInterface.setAttribute(tag, originalValue);
             }
         }

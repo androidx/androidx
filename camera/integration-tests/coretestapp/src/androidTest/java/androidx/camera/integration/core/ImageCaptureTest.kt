@@ -26,6 +26,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -95,6 +96,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -121,6 +123,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @get:Rule
     val externalStorageRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     companion object {
         @JvmStatic
@@ -288,8 +294,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveCanSucceed_withNonExistingFile() {
-        val saveLocation = File(context.cacheDir, "test" + System.currentTimeMillis() + ".jpg")
-        saveLocation.deleteOnExit()
+        val saveLocation = temporaryFolder.newFile("test${System.currentTimeMillis()}.jpg")
 
         // make sure file does not exist
         if (saveLocation.exists()) {
@@ -302,8 +307,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveCanSucceed_withExistingFile() {
-        val saveLocation = File.createTempFile("test", ".jpg")
-        saveLocation.deleteOnExit()
+        val saveLocation = temporaryFolder.newFile("test.jpg")
         assertThat(saveLocation.exists())
 
         canSaveToFile(saveLocation)
@@ -366,8 +370,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation = File.createTempFile("test", ".jpg")
-        saveLocation.deleteOnExit()
+        val saveLocation = temporaryFolder.newFile("test.jpg")
 
         val callback = FakeImageSavedCallback(capturesCount = 1)
 
@@ -399,8 +402,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation = File.createTempFile("test", ".jpg")
-        saveLocation.deleteOnExit()
+        val saveLocation = temporaryFolder.newFile("test.jpg")
 
         val callback = FakeImageSavedCallback(capturesCount = 1)
 
@@ -416,8 +418,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // Retrieve the exif from the image
         val exif = Exif.createFromFile(saveLocation)
 
-        val saveLocationRotated90 = File.createTempFile("testRotated90", ".jpg")
-        saveLocationRotated90.deleteOnExit()
+        val saveLocationRotated90 = temporaryFolder.newFile("testRotated90.jpg")
 
         val callbackRotated90 = FakeImageSavedCallback(capturesCount = 1)
 
@@ -488,16 +489,30 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    // See b/263289024, writing location data might cause the output JPEG image corruption on some
+    // specific Android 12 devices. This issue happens if:
+    // 1. The image is not cropped from the original captured image (unnecessary Exif copy is done)
+    // 2. The inserted location provider is FUSED_PROVIDER
     @Test
-    fun canSaveFile_withAttachedLocation() {
-        val location = Location("ImageCaptureTest")
-        val metadata = ImageCapture.Metadata()
-        metadata.location = location
+    fun canSaveFile_withFusedProviderLocation() {
+        val latitudeValue = 50.0
+        val longitudeValue = -100.0
+
+        val metadata = ImageCapture.Metadata().apply {
+            location = Location(LocationManager.FUSED_PROVIDER).apply {
+                latitude = latitudeValue
+                longitude = longitudeValue
+            }
+        }
+
         canSaveFileWithMetadata(
-            configBuilder = defaultBuilder,
-            metadata = metadata,
+            defaultBuilder,
+            metadata,
             verifyExif = { exif ->
-                assertThat(exif.location!!.provider).isEqualTo(location.provider)
+                assertThat(exif.location).isNotNull()
+                assertThat(exif.location!!.provider).isEqualTo(metadata.location!!.provider)
+                assertThat(exif.location!!.latitude).isEqualTo(latitudeValue)
+                assertThat(exif.location!!.longitude).isEqualTo(longitudeValue)
             }
         )
     }
@@ -512,8 +527,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation = File.createTempFile("test", ".jpg")
-        saveLocation.deleteOnExit()
+        val saveLocation = temporaryFolder.newFile("test.jpg")
         val outputFileOptions = ImageCapture.OutputFileOptions
             .Builder(saveLocation)
             .setMetadata(metadata)
@@ -542,8 +556,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val callback = FakeImageSavedCallback(capturesCount = numImages)
 
         for (i in 0 until numImages) {
-            val saveLocation = File.createTempFile("test$i", ".jpg")
-            saveLocation.deleteOnExit()
+            val saveLocation = temporaryFolder.newFile("test$i.jpg")
             useCase.takePicture(
                 ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
                 mainExecutor,
@@ -1128,8 +1141,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation1 = File.createTempFile("test1", ".jpg")
-        saveLocation1.deleteOnExit()
+        val saveLocation1 = temporaryFolder.newFile("test1.jpg")
 
         val callback = FakeImageSavedCallback(capturesCount = 1)
 
@@ -1152,8 +1164,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation2 = File.createTempFile("test2", ".jpg")
-        saveLocation2.deleteOnExit()
+        val saveLocation2 = temporaryFolder.newFile("test2.jpg")
 
         val callback2 = FakeImageSavedCallback(capturesCount = 1)
 
@@ -1174,8 +1185,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation1 = File.createTempFile("test1", ".jpg")
-        saveLocation1.deleteOnExit()
+        val saveLocation1 = temporaryFolder.newFile("test1.jpg")
 
         val callback = FakeImageSavedCallback(capturesCount = 1)
 
@@ -1202,8 +1212,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             )
         }
 
-        val saveLocation2 = File.createTempFile("test2", ".jpg")
-        saveLocation2.deleteOnExit()
+        val saveLocation2 = temporaryFolder.newFile("test2.jpg")
 
         val callback2 = FakeImageSavedCallback(capturesCount = 1)
 
@@ -1299,8 +1308,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val saveLocation = File.createTempFile("test", ".jpg")
-        saveLocation.deleteOnExit()
+        val saveLocation = temporaryFolder.newFile("test.jpg")
         val callback = FakeImageSavedCallback(capturesCount = 1)
         useCase.takePicture(
             ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
