@@ -426,6 +426,16 @@ class CarouselTest {
     }
 
     @Test
+    fun carousel_oneSlideCount_shouldNotCrash() {
+        val testTag = "emptyCarousel"
+        rule.setContent {
+            Carousel(slideCount = 1, modifier = Modifier.testTag(testTag)) {}
+        }
+
+        rule.onNodeWithTag(testTag).assertExists()
+    }
+
+    @Test
     fun carousel_manualScrolling_withFocusableItemsOnTop() {
         rule.setContent {
             Column {
