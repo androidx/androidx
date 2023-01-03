@@ -143,12 +143,12 @@ class ExerciseClientTest {
 
                 try {
                     client.prepareExercise(warmUpConfig)
-                } catch (e: RuntimeException) {
+                } catch (e: HealthServicesException) {
                     exception = e
                 }
 
                 Truth.assertThat(exception).isNotNull()
-                Truth.assertThat(exception).isInstanceOf(RuntimeException::class.java)
+                Truth.assertThat(exception).isInstanceOf(HealthServicesException::class.java)
             }
             advanceMainLooperIdle()
         }
@@ -569,7 +569,7 @@ class ExerciseClientTest {
             service.throwException = true
             try {
                 client.getCurrentExerciseInfo()
-            } catch (e: RuntimeException) {
+            } catch (e: HealthServicesException) {
                 isException = true
             }
         }
@@ -727,7 +727,7 @@ class ExerciseClientTest {
             service.setException()
             try {
                 client.getCapabilities()
-            } catch (e: RuntimeException) {
+            } catch (e: HealthServicesException) {
                 isExceptionCaught = true
             }
         }

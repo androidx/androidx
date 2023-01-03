@@ -23,10 +23,10 @@ import androidx.health.services.client.data.MeasureCapabilities
  *
  * @param dataType the [DeltaDataType] that needs to be unregistered
  * @param callback the [MeasureCallback] which was used in registration
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  */
 @Suppress("PairedRegistration")
-@kotlin.jvm.Throws(RuntimeException::class)
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun MeasureClient.unregisterMeasureCallback(
     dataType: DeltaDataType<*, *>,
     callback: MeasureCallback
@@ -41,7 +41,7 @@ public suspend fun MeasureClient.unregisterMeasureCallback(
  * measurement.
  *
  * @return a [MeasureCapabilities] for this device
- * @throws RuntimeException if Health Service fails to process the call
+ * @throws HealthServicesException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(RuntimeException::class)
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun MeasureClient.getCapabilities() = getCapabilitiesAsync().awaitWithException()
