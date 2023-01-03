@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.graph
 
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -31,6 +32,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.TokenLockImpl
 import androidx.camera.camera2.pipe.core.acquire
 import androidx.camera.camera2.pipe.core.acquireOrNull
+import androidx.camera.camera2.pipe.internal.GraphLifecycleManager
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.StateFlow
@@ -44,10 +46,12 @@ internal class CameraGraphImpl
 constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
+    private val graphLifecycleManager: GraphLifecycleManager,
     private val graphProcessor: GraphProcessor,
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraphImpl,
     private val surfaceGraph: SurfaceGraph,
+    private val cameraBackend: CameraBackend,
     private val cameraController: CameraController,
     private val graphState3A: GraphState3A,
     private val listener3A: Listener3A
@@ -104,7 +108,7 @@ constructor(
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
         graphListener.onGraphStarting()
-        cameraController.start()
+        graphLifecycleManager.monitorAndStart(cameraBackend, cameraController)
         Debug.traceStop()
     }
 
@@ -112,7 +116,7 @@ constructor(
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
         graphListener.onGraphStopping()
-        cameraController.stop()
+        graphLifecycleManager.monitorAndStop(cameraBackend, cameraController)
         Debug.traceStop()
     }
 
@@ -146,7 +150,7 @@ constructor(
         Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
-        cameraController.close()
+        graphLifecycleManager.monitorAndClose(cameraBackend, cameraController)
         surfaceGraph.close()
         Debug.traceStop()
     }

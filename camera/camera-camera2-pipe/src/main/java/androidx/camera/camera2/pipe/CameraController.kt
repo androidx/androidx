@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraController.ControllerState.CLOSED
 import androidx.camera.camera2.pipe.graph.GraphListener
 
 /**
@@ -35,8 +36,10 @@ import androidx.camera.camera2.pipe.graph.GraphListener
  * Once [close] is invoked, this instance should not respond to any additional events.
  */
 interface CameraController {
+    val cameraId: CameraId
+
     /**
-     * Connect and start the underlying camera.This may be called on the main thread and should not
+     * Connect and start the underlying camera. This may be called on the main thread and should not
      * make long blocking calls. This may be called opportunistically (eg, whenever a lifecycle
      * indicates the camera should be in a running state)
      */
@@ -47,6 +50,13 @@ interface CameraController {
      * thread and should not make long blocking calls.
      */
     fun stop()
+
+    /**
+     * Restart the current session. This should basically perform stop() then start(). However, the
+     * implementation should handle its internal states correctly, and only restart when the
+     * conditions are appropriate.
+     */
+    fun tryRestart()
 
     /**
      * Close this instance. [start] and [stop] should not be invoked, and any additional calls will
@@ -61,4 +71,40 @@ interface CameraController {
      * missing from the [StreamGraph] that was used to create this [CameraController].
      */
     fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>)
+
+    /**
+     * ControllerState indicates the internal state of a [CameraController]. These states are needed
+     * to make sure we only invoke [CameraController] methods under the right conditions.
+     *
+     * The following diagram illustrates the state transitions (all states also have a permissible
+     * transition to [CLOSED]).
+     *
+     *   ```
+     *   [STOPPED] --> [STARTED] --> [STOPPING] ---------.--------.
+     *      ^              ^             |               |        |
+     *      |              |             V               V        |
+     *      |              '---------[DISCONNECTED]   [ERROR]     |
+     *      |                                                     |
+     *      '-----------------------------------------------------'
+     *   ```
+     */
+    abstract class ControllerState internal constructor() {
+        /** When the CameraController is started. This is set immediately as start() is called. */
+        object STARTED : ControllerState()
+
+        /** When the CameraController is stopping. This is set immediately as stop() is called. */
+        object STOPPING : ControllerState()
+
+        /** When the camera is stopped normally. */
+        object STOPPED : ControllerState()
+
+        /** When the camera is disconnected and can be later "reconnected". */
+        object DISCONNECTED : ControllerState()
+
+        /** When the camera shuts down with an unrecoverable error. */
+        object ERROR : ControllerState()
+
+        /** When the CameraController is closed, and no further operations can done on it. */
+        object CLOSED : ControllerState()
+    }
 }

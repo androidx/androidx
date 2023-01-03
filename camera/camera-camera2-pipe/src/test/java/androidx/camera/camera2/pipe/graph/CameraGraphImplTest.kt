@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
+import androidx.camera.camera2.pipe.internal.GraphLifecycleManager
 import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -92,6 +93,7 @@ internal class CameraGraphImplTest {
                 threads
             )
         val cameraContext = CameraBackendsImpl.CameraBackendContext(context, threads, backends)
+        val graphLifecycleManager = GraphLifecycleManager(threads)
         val streamGraph = StreamGraphImpl(metadata, graphConfig)
         cameraController =
             CameraControllerSimulator(cameraContext, graphConfig, fakeGraphProcessor, streamGraph)
@@ -101,10 +103,12 @@ internal class CameraGraphImplTest {
             CameraGraphImpl(
                 graphConfig,
                 metadata,
+                graphLifecycleManager,
                 fakeGraphProcessor,
                 fakeGraphProcessor,
                 streamGraph,
                 surfaceGraph,
+                backend,
                 cameraController,
                 GraphState3A(),
                 Listener3A()
