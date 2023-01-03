@@ -32,6 +32,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -50,7 +51,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 }
 
 class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraComponent {
-    private val fakeUseCaseCamera = FakeUseCaseCamera(useCases.toSet())
+    private val fakeUseCaseCamera = FakeUseCaseCamera(MutableLiveData(useCases.toSet()))
 
     override fun getUseCaseCamera(): UseCaseCamera {
         return fakeUseCaseCamera
@@ -128,7 +129,8 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(
-    override var runningUseCases: Set<UseCase> = emptySet(),
+    override val runningUseCasesLiveData: MutableLiveData<Set<UseCase>> =
+        MutableLiveData(emptySet()),
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
 
