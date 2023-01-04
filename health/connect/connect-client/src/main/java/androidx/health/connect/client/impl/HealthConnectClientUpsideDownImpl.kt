@@ -21,6 +21,7 @@ import android.healthconnect.ChangeLogsRequest
 import android.healthconnect.HealthConnectException
 import android.healthconnect.HealthConnectManager
 import android.healthconnect.ReadRecordsRequestUsingIds
+import android.healthconnect.RecordIdFilter
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.RequiresApi
@@ -36,6 +37,7 @@ import androidx.health.connect.client.impl.platform.records.toPlatformChangeLogT
 import androidx.health.connect.client.impl.platform.records.toPlatformReadRecordsRequestUsingFilters
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
+import androidx.health.connect.client.impl.platform.records.toPlatformTimeRangeFilter
 import androidx.health.connect.client.impl.platform.records.toSdkRecord
 import androidx.health.connect.client.impl.platform.response.toKtResponse
 import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
@@ -113,14 +115,46 @@ class HealthConnectClientUpsideDownImpl :
         recordIdsList: List<String>,
         clientRecordIdsList: List<String>
     ) {
-        throw UnsupportedOperationException("Method not supported yet")
+        wrapPlatformException {
+            suspendCancellableCoroutine<Void> { continuation ->
+                healthConnectManager.deleteRecords(
+                    buildList {
+                        recordIdsList.forEach {
+                            add(
+                                RecordIdFilter.Builder(
+                                    recordType.toPlatformRecordClass()
+                                ).setId(it).build()
+                            )
+                        }
+                        clientRecordIdsList.forEach {
+                            add(
+                                RecordIdFilter.Builder(
+                                    recordType.toPlatformRecordClass()
+                                ).setClientRecordId(it).build()
+                            )
+                        }
+                    },
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
     }
 
     override suspend fun deleteRecords(
         recordType: KClass<out Record>,
         timeRangeFilter: TimeRangeFilter
     ) {
-        throw UnsupportedOperationException("Method not supported yet")
+        wrapPlatformException {
+            suspendCancellableCoroutine<Void> { continuation ->
+                healthConnectManager.deleteRecords(
+                    recordType.toPlatformRecordClass(),
+                    timeRangeFilter.toPlatformTimeRangeFilter(timeSource),
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
     }
 
     @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
