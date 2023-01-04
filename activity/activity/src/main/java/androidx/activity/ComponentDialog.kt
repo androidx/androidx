@@ -31,6 +31,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 /**
  * Base class for dialogs that enables composition of higher level components.
@@ -122,5 +123,6 @@ open class ComponentDialog @JvmOverloads constructor(
     private fun initViewTreeOwners() {
         window!!.decorView.setViewTreeLifecycleOwner(this)
         window!!.decorView.setViewTreeOnBackPressedDispatcherOwner(this)
+        window!!.decorView.setViewTreeSavedStateRegistryOwner(this)
     }
 }
