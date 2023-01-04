@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material.carousel
+package androidx.tv.material3
 
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -44,7 +44,6 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.tv.material.ExperimentalTvMaterialApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
@@ -55,6 +54,7 @@ import kotlinx.coroutines.flow.first
  * - an [overlay] layer that is rendered after a delay of
  *   [overlayEnterTransitionStartDelayMillis].
  *
+ * @param modifier modifier applied to the CarouselItem.
  * @param overlayEnterTransitionStartDelayMillis time between the rendering of the
  * background and the overlay.
  * @param overlayEnterTransition animation used to bring the overlay into view.
@@ -64,7 +64,7 @@ import kotlinx.coroutines.flow.first
  */
 @Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalComposeUiApi::class)
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 @Composable
 fun CarouselItem(
     background: @Composable () -> Unit,
@@ -130,7 +130,7 @@ private suspend fun MutableTransitionState<Boolean>.onAnimationCompletion(
     action.invoke()
 }
 
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 object CarouselItemDefaults {
     /**
      * Default delay between the background being rendered and the overlay being rendered.

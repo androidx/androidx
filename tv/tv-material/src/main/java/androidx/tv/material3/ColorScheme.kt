@@ -29,8 +29,6 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.LocalContentColor
 import androidx.tv.material3.tokens.ColorDarkTokens
 import androidx.tv.material3.tokens.ColorLightTokens
 import androidx.tv.material3.tokens.ColorSchemeKeyTokens
@@ -39,7 +37,7 @@ import kotlin.math.ln
 /**
  * Returns a light Material color scheme.
  */
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 fun lightColorScheme(
     primary: Color = ColorLightTokens.Primary,
     onPrimary: Color = ColorLightTokens.OnPrimary,
@@ -165,7 +163,7 @@ fun lightColorScheme(
  * contrast is not required.
  * @property scrim Color of a scrim that obscures content.
  */
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 @Stable
 class ColorScheme(
     primary: Color,
@@ -359,7 +357,7 @@ class ColorScheme(
 /**
  * Returns a dark Material color scheme.
  */
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 fun darkColorScheme(
     primary: Color = ColorDarkTokens.Primary,
     onPrimary: Color = ColorDarkTokens.OnPrimary,
@@ -440,7 +438,7 @@ fun darkColorScheme(
  *
  * @see contentColorFor
  */
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
     when (backgroundColor) {
         primary -> onPrimary
@@ -477,7 +475,7 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
  */
 @Composable
 @ReadOnlyComposable
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 fun contentColorFor(backgroundColor: Color) =
     MaterialTheme.colorScheme.contentColorFor(backgroundColor).takeOrElse {
         LocalContentColor.current
@@ -488,7 +486,7 @@ fun contentColorFor(backgroundColor: Color) =
  * overlay corresponding to [elevation] applied. The overlay will only be applied to
  * [ColorScheme.surface].
  */
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: Dp): Color {
     return if (backgroundColor == surface) {
         surfaceColorAtElevation(elevation)
@@ -506,7 +504,7 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  * overlaid on top of it.
 
  */
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 fun ColorScheme.surfaceColorAtElevation(
     elevation: Dp
 ): Color {
@@ -529,7 +527,7 @@ fun ColorScheme.surfaceColorAtElevation(
  * changes will mutate the internal state of [this], and only cause composables that are reading the
  * specific changed value to recompose.
  */
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
     primary = other.primary
     onPrimary = other.onPrimary
@@ -567,7 +565,7 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
  * tokens:
  * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
     return when (value) {
         ColorSchemeKeyTokens.Background -> background
@@ -610,7 +608,7 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
  * [ColorScheme.updateColorSchemeFrom]. To retrieve the current value of this CompositionLocal, use
  * [MaterialTheme.colorScheme].
  */
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
 
 /**
@@ -621,7 +619,7 @@ internal const val DisabledAlpha = 0.38f
 /** Converts a color token key to the local color scheme provided by the theme */
 @ReadOnlyComposable
 @Composable
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorSchemeKeyTokens.toColor(): Color {
     return MaterialTheme.colorScheme.fromToken(this)
 }

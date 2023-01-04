@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
-import androidx.tv.material.ExperimentalTvMaterialApi
 
 /**
  * Material Theming refers to the customization of your Material Design app to better reflect your
@@ -44,7 +43,7 @@ import androidx.tv.material.ExperimentalTvMaterialApi
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
  * @param content The composable content that will be displayed with this theme
  */
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 @Composable
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
@@ -75,7 +74,7 @@ object MaterialTheme {
     /**
      * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
      */
-    @ExperimentalTvMaterialApi
+    @ExperimentalTvMaterial3Api
     val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable
@@ -91,7 +90,7 @@ object MaterialTheme {
         get() = LocalShapes.current
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 /*@VisibleForTesting*/
 internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {

@@ -42,11 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.carousel.Carousel
-import androidx.tv.material.carousel.CarouselDefaults
-import androidx.tv.material.carousel.CarouselItem
-import androidx.tv.material.carousel.CarouselState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Carousel
+import androidx.tv.material3.CarouselDefaults
+import androidx.tv.material3.CarouselItem
+import androidx.tv.material3.CarouselState
 
 @Composable
 fun FeaturedCarouselContent() {
@@ -81,7 +81,7 @@ fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White): Modifier {
         .onFocusChanged { isFocused = it.isFocused }
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun FeaturedCarousel() {
     val backgrounds = listOf(

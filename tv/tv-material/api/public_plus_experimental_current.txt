@@ -1,112 +1,44 @@
 // Signature format: 4.0
-package androidx.tv.material {
+package androidx.tv.material3 {
 
   public final class BringIntoViewIfChildrenAreFocusedKt {
   }
 
-  public final class ContentColorKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
-  }
-
-  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterialApi {
-  }
-
-  @androidx.compose.runtime.Immutable @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListBackgroundScope implements androidx.compose.foundation.layout.BoxScope {
-    method @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public void AnimatedContent(int targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentScope<java.lang.Integer>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedVisibilityScope,? super java.lang.Integer,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
-  }
-
-  @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListDefaults {
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselDefaults {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void IndicatorRow(int slideCount, int activeSlideIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
     method public androidx.compose.animation.EnterTransition getEnterTransition();
     method public androidx.compose.animation.ExitTransition getExitTransition();
     property public final androidx.compose.animation.EnterTransition EnterTransition;
     property public final androidx.compose.animation.ExitTransition ExitTransition;
-    field public static final androidx.tv.material.ImmersiveListDefaults INSTANCE;
-  }
-
-  public final class ImmersiveListKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void ImmersiveList(kotlin.jvm.functions.Function3<? super androidx.tv.material.ImmersiveListBackgroundScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment listAlignment, kotlin.jvm.functions.Function1<? super androidx.tv.material.ImmersiveListScope,kotlin.Unit> list);
-  }
-
-  @androidx.compose.runtime.Immutable @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListScope {
-    method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
-  }
-
-  public final class TabColors {
-  }
-
-  public final class TabDefaults {
-    method @androidx.compose.runtime.Composable public androidx.tv.material.TabColors pillIndicatorTabColors(optional long activeContentColor, optional long selectedContentColor, optional long focusedContentColor, optional long disabledActiveContentColor, optional long disabledSelectedContentColor);
-    method @androidx.compose.runtime.Composable public androidx.tv.material.TabColors underlinedIndicatorTabColors(optional long activeContentColor, optional long selectedContentColor, optional long focusedContentColor, optional long disabledActiveContentColor, optional long disabledSelectedContentColor);
-    field public static final androidx.tv.material.TabDefaults INSTANCE;
-  }
-
-  public final class TabKt {
-    method @androidx.compose.runtime.Composable public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional boolean enabled, optional androidx.tv.material.TabColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
-  }
-
-  public final class TabRowDefaults {
-    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
-    method @androidx.compose.runtime.Composable public void TabSeparator();
-    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
-    method @androidx.compose.runtime.Composable public long contentColor();
-    method public long getContainerColor();
-    property public final long ContainerColor;
-    field public static final androidx.tv.material.TabRowDefaults INSTANCE;
-  }
-
-  public final class TabRowKt {
-    method @androidx.compose.runtime.Composable public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> separator, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.ui.unit.DpRect>,kotlin.Unit> indicator, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
-  }
-
-}
-
-package androidx.tv.material.carousel {
-
-  @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselDefaults {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public void IndicatorRow(int slideCount, int activeSlideIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
-    method public androidx.compose.animation.EnterTransition getEnterTransition();
-    method public androidx.compose.animation.ExitTransition getExitTransition();
-    property public final androidx.compose.animation.EnterTransition EnterTransition;
-    property public final androidx.compose.animation.ExitTransition ExitTransition;
-    field public static final androidx.tv.material.carousel.CarouselDefaults INSTANCE;
+    field public static final androidx.tv.material3.CarouselDefaults INSTANCE;
     field public static final long TimeToDisplaySlideMillis = 5000L; // 0x1388L
   }
 
-  @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselItemDefaults {
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselItemDefaults {
     method public androidx.compose.animation.EnterTransition getOverlayEnterTransition();
     method public androidx.compose.animation.ExitTransition getOverlayExitTransition();
     property public final androidx.compose.animation.EnterTransition OverlayEnterTransition;
     property public final androidx.compose.animation.ExitTransition OverlayExitTransition;
-    field public static final androidx.tv.material.carousel.CarouselItemDefaults INSTANCE;
+    field public static final androidx.tv.material3.CarouselItemDefaults INSTANCE;
     field public static final long OverlayEnterTransitionStartDelayMillis = 200L; // 0xc8L
   }
 
   public final class CarouselItemKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void CarouselItem(kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional long overlayEnterTransitionStartDelayMillis, optional androidx.compose.animation.EnterTransition overlayEnterTransition, optional androidx.compose.animation.ExitTransition overlayExitTransition, kotlin.jvm.functions.Function0<kotlin.Unit> overlay);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void CarouselItem(kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional long overlayEnterTransitionStartDelayMillis, optional androidx.compose.animation.EnterTransition overlayEnterTransition, optional androidx.compose.animation.ExitTransition overlayExitTransition, kotlin.jvm.functions.Function0<kotlin.Unit> overlay);
   }
 
   public final class CarouselKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void Carousel(int slideCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material.carousel.CarouselState carouselState, optional long timeToDisplaySlideMillis, optional androidx.compose.animation.EnterTransition enterTransition, optional androidx.compose.animation.ExitTransition exitTransition, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Carousel(int slideCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CarouselState carouselState, optional long timeToDisplaySlideMillis, optional androidx.compose.animation.EnterTransition enterTransition, optional androidx.compose.animation.ExitTransition exitTransition, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> content);
   }
 
-  @androidx.compose.runtime.Stable @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselState {
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselState {
     ctor public CarouselState(optional int initialActiveSlideIndex);
     method public int getActiveSlideIndex();
-    method public androidx.tv.material.carousel.ScrollPauseHandle pauseAutoScroll(int slideIndex);
+    method public androidx.tv.material3.ScrollPauseHandle pauseAutoScroll(int slideIndex);
     property public final int activeSlideIndex;
   }
 
-  @androidx.tv.material.ExperimentalTvMaterialApi public sealed interface ScrollPauseHandle {
-    method public void resumeAutoScroll();
-  }
-
-}
-
-package androidx.tv.material3 {
-
-  @androidx.compose.runtime.Stable @androidx.tv.material.ExperimentalTvMaterialApi public final class ColorScheme {
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ColorScheme {
     ctor public ColorScheme(long primary, long onPrimary, long primaryContainer, long onPrimaryContainer, long inversePrimary, long secondary, long onSecondary, long secondaryContainer, long onSecondaryContainer, long tertiary, long onTertiary, long tertiaryContainer, long onTertiaryContainer, long background, long onBackground, long surface, long onSurface, long surfaceVariant, long onSurfaceVariant, long surfaceTint, long inverseSurface, long inverseOnSurface, long error, long onError, long errorContainer, long onErrorContainer, long outline, long outlineVariant, long scrim);
     method public androidx.tv.material3.ColorScheme copy(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
     method public long getBackground();
@@ -170,23 +102,56 @@ package androidx.tv.material3 {
   }
 
   public final class ColorSchemeKt {
-    method @androidx.tv.material.ExperimentalTvMaterialApi public static long contentColorFor(androidx.tv.material3.ColorScheme, long backgroundColor);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material.ExperimentalTvMaterialApi public static long contentColorFor(long backgroundColor);
-    method @androidx.tv.material.ExperimentalTvMaterialApi public static androidx.tv.material3.ColorScheme darkColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
-    method @androidx.tv.material.ExperimentalTvMaterialApi public static androidx.tv.material3.ColorScheme lightColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
-    method @androidx.tv.material.ExperimentalTvMaterialApi public static long surfaceColorAtElevation(androidx.tv.material3.ColorScheme, float elevation);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static long contentColorFor(androidx.tv.material3.ColorScheme, long backgroundColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static long contentColorFor(long backgroundColor);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.ColorScheme darkColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.ColorScheme lightColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static long surfaceColorAtElevation(androidx.tv.material3.ColorScheme, float elevation);
+  }
+
+  public final class ContentColorKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
+  }
+
+  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterial3Api {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListBackgroundScope implements androidx.compose.foundation.layout.BoxScope {
+    method @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public void AnimatedContent(int targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentScope<java.lang.Integer>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedVisibilityScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListDefaults {
+    method public androidx.compose.animation.EnterTransition getEnterTransition();
+    method public androidx.compose.animation.ExitTransition getExitTransition();
+    property public final androidx.compose.animation.EnterTransition EnterTransition;
+    property public final androidx.compose.animation.ExitTransition ExitTransition;
+    field public static final androidx.tv.material3.ImmersiveListDefaults INSTANCE;
+  }
+
+  public final class ImmersiveListKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ImmersiveList(kotlin.jvm.functions.Function3<? super androidx.tv.material3.ImmersiveListBackgroundScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment listAlignment, kotlin.jvm.functions.Function1<? super androidx.tv.material3.ImmersiveListScope,kotlin.Unit> list);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListScope {
+    method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
   }
 
   public final class MaterialTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ColorScheme getColorScheme();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Shapes getShapes();
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material.ExperimentalTvMaterialApi public final androidx.tv.material3.ColorScheme colorScheme;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public final androidx.tv.material3.ColorScheme colorScheme;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Shapes shapes;
     field public static final androidx.tv.material3.MaterialTheme INSTANCE;
   }
 
   public final class MaterialThemeKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public sealed interface ScrollPauseHandle {
+    method public void resumeAutoScroll();
   }
 
   public final class ShapeDefaults {
@@ -219,6 +184,33 @@ package androidx.tv.material3 {
   }
 
   public final class ShapesKt {
+  }
+
+  public final class TabColors {
+  }
+
+  public final class TabDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors pillIndicatorTabColors(optional long activeContentColor, optional long selectedContentColor, optional long focusedContentColor, optional long disabledActiveContentColor, optional long disabledSelectedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors underlinedIndicatorTabColors(optional long activeContentColor, optional long selectedContentColor, optional long focusedContentColor, optional long disabledActiveContentColor, optional long disabledSelectedContentColor);
+    field public static final androidx.tv.material3.TabDefaults INSTANCE;
+  }
+
+  public final class TabKt {
+    method @androidx.compose.runtime.Composable public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional boolean enabled, optional androidx.tv.material3.TabColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+  }
+
+  public final class TabRowDefaults {
+    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void TabSeparator();
+    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public long contentColor();
+    method public long getContainerColor();
+    property public final long ContainerColor;
+    field public static final androidx.tv.material3.TabRowDefaults INSTANCE;
+  }
+
+  public final class TabRowKt {
+    method @androidx.compose.runtime.Composable public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> separator, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.ui.unit.DpRect>,kotlin.Unit> indicator, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
   }
 
 }

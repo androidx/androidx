@@ -36,8 +36,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.ImmersiveList
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.ImmersiveList
 
 @Composable
 fun ImmersiveListContent() {
@@ -48,7 +48,7 @@ fun ImmersiveListContent() {
     }
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleImmersiveList() {
     val immersiveListHeight = 300.dp

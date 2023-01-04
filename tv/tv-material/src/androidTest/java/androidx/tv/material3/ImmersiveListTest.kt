@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material
+package androidx.tv.material3
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -59,7 +59,7 @@ class ImmersiveListTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalTvMaterialApi::class, ExperimentalAnimationApi::class)
+    @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Test
     fun immersiveList_scroll_backgroundChanges() {
         rule.setContent {
@@ -256,7 +256,7 @@ class ImmersiveListTest {
         rule.runOnIdle { focusRequester.requestFocus() }
     }
 
-    @OptIn(ExperimentalTvMaterialApi::class, ExperimentalAnimationApi::class)
+    @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Composable
     private fun TestImmersiveList(focusRequesterList: List<FocusRequester>) {
         val frList = remember { focusRequesterList }
