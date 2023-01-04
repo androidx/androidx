@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -180,23 +179,44 @@ class PickerTest {
         assertThat(state.selectedOption).isEqualTo(numberOfOptions - 1)
     }
 
-    @SdkSuppress(minSdkVersion = 29) // b/260234023
     @Test
     fun uses_positive_separation_correctly() =
-        uses_separation_correctly(1)
+        scroll_with_separation(1)
 
     @Test
     fun uses_negative_separation_correctly() =
-        uses_separation_correctly(-1)
+        scroll_with_separation(-1)
 
-    private fun uses_separation_correctly(separationSign: Int) {
+    /**
+     * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
+     * (itemSizePx + separationPx) and minus 1 pixel
+     * for making it definitely less than a half of an item
+     */
+    @Test
+    fun scroll_with_positive_separation_and_offset() =
+        scroll_with_separation(1, scrollOffset = (itemSizePx + separationPx) / 2 - 1)
+
+    /**
+     * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
+     * (itemSizePx - separationPx) and minus 1 pixel
+     * for making it definitely less than a half of an item
+     */
+    @Test
+    fun scroll_with_negative_separation_and_offset() =
+        scroll_with_separation(-1, scrollOffset = (itemSizePx - separationPx) / 2 - 1)
+
+    private fun scroll_with_separation(
+        separationSign: Int,
+        scrollOffset: Int = 0
+    ) {
         lateinit var state: PickerState
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(20).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
                     separation = separationDp * separationSign
                 ) {
@@ -209,12 +229,14 @@ class PickerTest {
         val itemsToScroll = 4
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            // Start at bottom - 2 to allow for 1.dp padding around the Picker
+            // Start at bottom - 5 to allow for around 2.dp padding around the Picker
             // (which was added to prevent jitter around the start of the gradient).
             swipeWithVelocity(
-                start = Offset(centerX, bottom - 2),
-                end = Offset(centerX, bottom - 2 -
-                    (itemSizePx + separationPx * separationSign) * itemsToScroll),
+                start = Offset(centerX, bottom - 5),
+                end = Offset(
+                    centerX, bottom - 5 - scrollOffset -
+                        (itemSizePx + separationPx * separationSign) * itemsToScroll
+                ),
                 endVelocity = NOT_A_FLING_SPEED
             )
         }
