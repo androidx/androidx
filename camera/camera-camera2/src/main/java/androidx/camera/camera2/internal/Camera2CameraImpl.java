@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
@@ -78,6 +77,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1127,13 +1127,12 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        if (!validatingBuilder.build().getImplementationOptions().containsOption(
-                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
-            validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION,
-                    StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(
-                            mUseCaseAttachState.getAttachedUseCaseConfigs(),
-                            mUseCaseAttachState.getAttachedSessionConfigs()));
-        }
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                mUseCaseAttachState.getAttachedSessionConfigs(),
+                streamUseCaseMap);
+
+        mCaptureSession.setStreamUseCaseMap(streamUseCaseMap);
 
         CaptureSessionInterface captureSession = mCaptureSession;
         ListenableFuture<Void> openCaptureSession = captureSession.open(validatingBuilder.build(),

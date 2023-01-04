@@ -51,6 +51,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.media.MediaCodec;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -69,25 +70,25 @@ import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
 import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.ImageAnalysisConfig;
-import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
-import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -101,7 +102,6 @@ import org.junit.AfterClass;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -114,10 +114,11 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -157,6 +158,16 @@ public final class CaptureSessionTest {
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
     private final List<DeferrableSurface> mDeferrableSurfaces = new ArrayList<>();
+
+    DeferrableSurface mMockSurface = new DeferrableSurface() {
+        private final ListenableFuture<Surface> mSurfaceFuture = ResolvableFuture.create();
+        @NonNull
+        @Override
+        protected ListenableFuture<Surface> provideSurface() {
+            // Return a never complete future.
+            return mSurfaceFuture;
+        }
+    };
 
     @Rule
     public TestRule getUseCameraRule() {
@@ -232,6 +243,7 @@ public final class CaptureSessionTest {
 
         mTestParameters0.tearDown();
         mTestParameters1.tearDown();
+        mDeferrableSurfaces.add(mMockSurface);
         for (DeferrableSurface deferrableSurface : mDeferrableSurfaces) {
             deferrableSurface.close();
         }
@@ -300,7 +312,7 @@ public final class CaptureSessionTest {
     }
 
     // Set stream use case is not supported before API 33
-    @SdkSuppress(maxSdkVersion = 32)
+    @SdkSuppress(maxSdkVersion = 32, minSdkVersion = 21)
     @Test
     public void setStreamUseCaseNotSupported() {
         ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
@@ -327,84 +339,119 @@ public final class CaptureSessionTest {
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
 
-    @Ignore("b/259932467")
-    @SdkSuppress(maxSdkVersion = 32)
+    @SdkSuppress(maxSdkVersion = 32, minSdkVersion = 21)
     @Test
-    public void getStreamUseCaseFromUseCaseConfigsNotSupported() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        useCaseConfigs.add(new FakeUseCaseConfig.Builder().getUseCaseConfig());
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
-                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+    public void getStreamUseCaseFromUseCaseNotSupported() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(Preview.class);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                new ArrayList<>(), streamUseCaseMap);
+        assertTrue(streamUseCaseMap.isEmpty());
     }
 
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    public void getStreamUseCaseFromUseCaseConfigsEmptyUseCase() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
-                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    public void getStreamUseCaseFromUseCaseEmptyUseCase() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                new ArrayList<>(), streamUseCaseMap);
+        assertTrue(streamUseCaseMap.isEmpty());
     }
 
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    public void getStreamUseCaseFromUseCaseConfigsNoPreview() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        useCaseConfigs.add(new FakeUseCaseConfig.Builder().getUseCaseConfig());
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
-                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    public void getStreamUseCaseFromUseCaseNoPreview() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(FakeUseCase.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap);
+        assertTrue(streamUseCaseMap.isEmpty());
     }
 
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    public void getStreamUseCaseFromUseCaseConfigsPreview() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        PreviewConfig previewConfig = new PreviewConfig(MutableOptionsBundle.create());
-        useCaseConfigs.add(previewConfig);
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
+    public void getStreamUseCaseFromUseCasePreview() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(Preview.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap);
+        assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
 
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    public void getStreamUseCaseFromUseCaseConfigsZSL() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        PreviewConfig previewConfig = new PreviewConfig(MutableOptionsBundle.create());
-        useCaseConfigs.add(previewConfig);
-        Collection<SessionConfig> sessionConfigs = new ArrayList<>();
-        sessionConfigs.add(new SessionConfig.Builder().setTemplateType(
-                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG).build());
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                sessionConfigs)
-                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    public void getStreamUseCaseFromUseCaseZSL() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(Preview.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface)
+                        .setTemplateType(
+                                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap);
+        assertTrue(streamUseCaseMap.isEmpty());
     }
 
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    public void getStreamUseCaseFromUseCaseConfigsAnalysis() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        PreviewConfig previewConfig = new PreviewConfig(MutableOptionsBundle.create());
-        useCaseConfigs.add(previewConfig);
-        ImageAnalysisConfig analysisConfig = new ImageAnalysisConfig(MutableOptionsBundle.create());
-        useCaseConfigs.add(analysisConfig);
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
-                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    public void getStreamUseCaseFromUseCaseImageAnalysis() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(ImageAnalysis.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap);
+        assertTrue(streamUseCaseMap.get(mMockSurface)
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
 
     @SdkSuppress(minSdkVersion = 33)
     @Test
     public void getStreamUseCaseFromUseCaseConfigsImageCapture() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig(
-                MutableOptionsBundle.create());
-        useCaseConfigs.add(imageCaptureConfig);
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(ImageCapture.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap);
+        assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsVideoCapture() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(MediaCodec.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap);
+        assertTrue(streamUseCaseMap.get(mMockSurface)
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD);
     }
 
     // Sharing surface of YUV format is supported since API 28

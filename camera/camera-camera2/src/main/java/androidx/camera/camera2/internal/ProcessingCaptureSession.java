@@ -573,6 +573,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
     }
 
+    @Override
+    public void setStreamUseCaseMap(@NonNull Map<DeferrableSurface, Long> streamUseCaseMap) {
+        // No-op
+    }
+
     private void updateParameters(@NonNull CaptureRequestOptions sessionOptions,
             @NonNull CaptureRequestOptions stillCaptureOptions) {
         Camera2ImplConfig.Builder builder = new Camera2ImplConfig.Builder();
