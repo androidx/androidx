@@ -737,6 +737,7 @@ public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test
 \^
 # Gradle will log if you are not authenticated to upload scans
 A build scan was not published as you have not authenticated with server 'ge\.androidx\.dev'\.
+For more information, please see https://gradle\.com/help/gradle\-authenticating\-with\-gradle\-enterprise\.
 # Room unresolved type error messages
 Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\) \(RoomDatabase\.kt:[0-9]+\)
 Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
