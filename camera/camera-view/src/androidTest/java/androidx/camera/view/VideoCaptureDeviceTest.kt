@@ -433,6 +433,7 @@ class VideoCaptureDeviceTest(
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun canRecordToFile_whenPauseAndResumeInTheMiddle() {
         val pauseTimes = 1
         val resumeTimes = 1

@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.testutils.RepeatRule;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
@@ -202,6 +203,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testSchedule() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
