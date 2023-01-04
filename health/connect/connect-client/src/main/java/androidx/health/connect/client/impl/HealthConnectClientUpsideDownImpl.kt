@@ -85,8 +85,7 @@ class HealthConnectClientUpsideDownImpl :
 
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val response = wrapPlatformException {
-            suspendCancellableCoroutine<android.healthconnect.InsertRecordsResponse> { continuation
-                ->
+            suspendCancellableCoroutine { continuation ->
                 healthConnectManager.insertRecords(
                     records.map { it.toPlatformRecord() },
                     Runnable::run,
@@ -99,8 +98,7 @@ class HealthConnectClientUpsideDownImpl :
 
     override suspend fun updateRecords(records: List<Record>) {
         wrapPlatformException {
-            suspendCancellableCoroutine<Void> { continuation
-                ->
+            suspendCancellableCoroutine { continuation ->
                 healthConnectManager.updateRecords(
                     records.map { it.toPlatformRecord() },
                     Runnable::run,
@@ -116,7 +114,7 @@ class HealthConnectClientUpsideDownImpl :
         clientRecordIdsList: List<String>
     ) {
         wrapPlatformException {
-            suspendCancellableCoroutine<Void> { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 healthConnectManager.deleteRecords(
                     buildList {
                         recordIdsList.forEach {
@@ -146,7 +144,7 @@ class HealthConnectClientUpsideDownImpl :
         timeRangeFilter: TimeRangeFilter
     ) {
         wrapPlatformException {
-            suspendCancellableCoroutine<Void> { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 healthConnectManager.deleteRecords(
                     recordType.toPlatformRecordClass(),
                     timeRangeFilter.toPlatformTimeRangeFilter(timeSource),
@@ -163,8 +161,7 @@ class HealthConnectClientUpsideDownImpl :
         recordId: String
     ): ReadRecordResponse<T> {
         val response = wrapPlatformException {
-            suspendCancellableCoroutine { continuation
-                ->
+            suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(
                     ReadRecordsRequestUsingIds
                         .Builder(recordType.toPlatformRecordClass())
@@ -185,8 +182,7 @@ class HealthConnectClientUpsideDownImpl :
         request: ReadRecordsRequest<T>
     ): ReadRecordsResponse<T> {
         val response = wrapPlatformException {
-            suspendCancellableCoroutine { continuation
-                ->
+            suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(
                     request.toPlatformReadRecordsRequestUsingFilters(timeSource),
                     Runnable::run,
@@ -273,7 +269,7 @@ class HealthConnectClientUpsideDownImpl :
         throw UnsupportedOperationException("Method not supported yet")
     }
 
-    internal suspend fun <T> wrapPlatformException(function: suspend () -> T): T {
+    private suspend fun <T> wrapPlatformException(function: suspend () -> T): T {
         return try {
             function()
         } catch (e: HealthConnectException) {
