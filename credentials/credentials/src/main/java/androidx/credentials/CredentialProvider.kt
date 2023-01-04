@@ -45,8 +45,6 @@ import java.util.concurrent.Executor
  * <p>For SDK version 34 and above, this interface will only be implemented by an internal
  * class that will route all requests to the android framework. Providers will need
  * to register directly with the framework to provide credentials.
- *
- * @hide
  */
 interface CredentialProvider {
     /**
