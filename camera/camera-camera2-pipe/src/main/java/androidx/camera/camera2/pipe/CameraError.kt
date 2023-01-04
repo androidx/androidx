@@ -104,7 +104,7 @@ value class CameraError private constructor(val value: Int) {
         internal fun from(exception: CameraAccessException) =
             when (exception.reason) {
                 CAMERA_DISABLED -> ERROR_CAMERA_DISABLED
-                CAMERA_DISCONNECTED -> ERROR_CAMERA_DISABLED
+                CAMERA_DISCONNECTED -> ERROR_CAMERA_DISCONNECTED
                 CAMERA_ERROR -> ERROR_UNDETERMINED
                 CAMERA_IN_USE -> ERROR_CAMERA_IN_USE
                 MAX_CAMERAS_IN_USE -> ERROR_CAMERA_LIMIT_EXCEEDED

@@ -151,6 +151,11 @@ internal class AndroidDevicePolicyManagerWrapper @Inject constructor(
         }
 }
 
+internal data class OpenCameraResult(
+    val cameraState: AndroidCameraState? = null,
+    val errorCode: CameraError? = null,
+)
+
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class CameraStateOpener @Inject constructor(
     private val cameraOpener: CameraOpener,
@@ -161,7 +166,7 @@ internal class CameraStateOpener @Inject constructor(
         cameraId: CameraId,
         attempts: Int,
         requestTimestamp: TimestampNs,
-    ): CameraOpenResult {
+    ): OpenCameraResult {
         val metadata = cameraMetadataProvider.getMetadata(cameraId)
         val cameraState = AndroidCameraState(
             cameraId,
@@ -180,16 +185,16 @@ internal class CameraStateOpener @Inject constructor(
             }
             when (result) {
                 is CameraStateOpen ->
-                    return CameraOpenResult(cameraState = cameraState)
+                    return OpenCameraResult(cameraState = cameraState)
 
                 is CameraStateClosing -> {
                     cameraState.close()
-                    return CameraOpenResult(errorCode = result.cameraErrorCode)
+                    return OpenCameraResult(errorCode = result.cameraErrorCode)
                 }
 
                 is CameraStateClosed -> {
                     cameraState.close()
-                    return CameraOpenResult(errorCode = result.cameraErrorCode)
+                    return OpenCameraResult(errorCode = result.cameraErrorCode)
                 }
 
                 is CameraStateUnopened -> {
@@ -200,14 +205,9 @@ internal class CameraStateOpener @Inject constructor(
         } catch (exception: Throwable) {
             Log.warn(exception) { "Failed to open $cameraId" }
             cameraState.closeWith(exception)
-            return CameraOpenResult(errorCode = CameraError.from(exception))
+            return OpenCameraResult(errorCode = CameraError.from(exception))
         }
     }
-
-    internal data class CameraOpenResult(
-        val cameraState: AndroidCameraState? = null,
-        val errorCode: CameraError? = null,
-    )
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -220,7 +220,7 @@ internal class RetryingCameraStateOpener @Inject constructor(
     internal suspend fun openCameraWithRetry(
         cameraId: CameraId,
         graphListener: GraphListener
-    ): AndroidCameraState? {
+    ): OpenCameraResult {
         val requestTimestamp = Timestamps.now(timeSource)
         var attempts = 0
 
@@ -230,7 +230,7 @@ internal class RetryingCameraStateOpener @Inject constructor(
             val result = cameraStateOpener.tryOpenCamera(cameraId, attempts, requestTimestamp)
             with(result) {
                 if (cameraState != null) {
-                    return cameraState
+                    return result
                 }
 
                 if (errorCode == null) {
@@ -242,7 +242,7 @@ internal class RetryingCameraStateOpener @Inject constructor(
                             "The CameraGraph may have been stopped or closed. " +
                             "Abandoning the camera open attempt."
                     }
-                    return null
+                    return result
                 }
 
                 val willRetry = shouldRetry(
@@ -264,7 +264,7 @@ internal class RetryingCameraStateOpener @Inject constructor(
                             "and ${(Timestamps.now(timeSource) - requestTimestamp).formatMs()}. " +
                             "Last error was $errorCode."
                     }
-                    return null
+                    return result
                 }
             }
 
