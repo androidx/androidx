@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.expression;
 
+import static androidx.wear.protolayout.expression.AnimationParameterBuilders.REPEAT_MODE_REVERSE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
@@ -31,10 +33,10 @@ import org.robolectric.RobolectricTestRunner;
 public final class DynamicFloatTest {
     private static final String STATE_KEY = "state-key";
     private static final float CONSTANT_VALUE = 42.42f;
-    private static final boolean DEFAULT_GROUPING = false;
-    private static final int DEFAULT_MAX_FRACTION_DIGITS = 3;
-    private static final int DEFAULT_MIN_FRACTION_DIGITS = 0;
-    private static final int DEFAULT_MIN_INTEGER_DIGIT = 1;
+    private static final AnimationParameterBuilders.AnimationSpec
+            SPEC = new AnimationParameterBuilders.AnimationSpec.Builder().setDelayMillis(1)
+            .setDurationMillis(2).setRepeatable(new AnimationParameterBuilders.Repeatable.Builder()
+                    .setRepeatMode(REPEAT_MODE_REVERSE).setIterations(10).build()).build();
 
     @Test
     public void constantFloat() {
@@ -97,5 +99,39 @@ public final class DynamicFloatTest {
         assertThat(floatFormatOp.getMaxFractionDigits()).isEqualTo(maxFractionDigits);
         assertThat(floatFormatOp.getMinFractionDigits()).isEqualTo(minFractionDigits);
         assertThat(floatFormatOp.getMinIntegerDigits()).isEqualTo(minIntegerDigits);
+    }
+
+    @Test
+    public void rangeAnimatedFloat() {
+        float startFloat = 100f;
+        float endFloat = 200f;
+
+        DynamicFloat animatedFloat = DynamicFloat.animate(startFloat,
+                endFloat);
+        DynamicFloat animatedFloatWithSpec = DynamicFloat.animate(startFloat, endFloat, SPEC);
+
+        assertThat(animatedFloat.toDynamicFloatProto().getAnimatableFixed().hasSpec()).isFalse();
+        assertThat(animatedFloatWithSpec.toDynamicFloatProto().getAnimatableFixed().getFromValue())
+                .isEqualTo(startFloat);
+        assertThat(animatedFloatWithSpec.toDynamicFloatProto().getAnimatableFixed().getToValue())
+                .isEqualTo(endFloat);
+        assertThat(animatedFloatWithSpec.toDynamicFloatProto().getAnimatableFixed().getSpec())
+                .isEqualTo(SPEC.toProto());
+    }
+
+    @Test
+    public void stateAnimatedFloat() {
+        DynamicFloat stateFloat = DynamicFloat.fromState(STATE_KEY);
+
+        DynamicFloat animatedColor = DynamicFloat.animate(STATE_KEY);
+        DynamicFloat animatedColorWithSpec = DynamicFloat.animate(STATE_KEY, SPEC);
+
+        assertThat(animatedColor.toDynamicFloatProto().getAnimatableDynamic().hasSpec()).isFalse();
+        assertThat(animatedColorWithSpec.toDynamicFloatProto().getAnimatableDynamic().getInput())
+                .isEqualTo(stateFloat.toDynamicFloatProto());
+        assertThat(animatedColorWithSpec.toDynamicFloatProto().getAnimatableDynamic().getSpec())
+                .isEqualTo(SPEC.toProto());
+        assertThat(animatedColor.toDynamicFloatProto())
+                .isEqualTo(stateFloat.animate().toDynamicFloatProto());
     }
 }

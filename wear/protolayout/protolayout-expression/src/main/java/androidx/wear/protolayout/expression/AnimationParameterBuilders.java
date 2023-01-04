@@ -18,8 +18,8 @@ package androidx.wear.protolayout.expression;
 
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
-import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -29,8 +29,51 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Builders for parameters that can be used to customize an animation. */
-final class AnimationParameterBuilders {
+public final class AnimationParameterBuilders {
   private AnimationParameterBuilders() {}
+
+  /** Prebuilt easing functions with cubic polynomial easing. */
+  public static class EasingFunctions {
+    private static CubicBezierEasing buildCubicBezierEasing(
+        float x1, float y1, float x2, float y2) {
+      return new CubicBezierEasing.Builder().setX1(x1).setY1(y1).setX2(x2).setY2(y2).build();
+    }
+
+    private EasingFunctions() {}
+
+    /**
+     * Elements that begin and end at rest use this standard easing. They speed up quickly and slow
+     * down gradually, in order to emphasize the end of the transition.
+     *
+     * <p>Standard easing puts subtle attention at the end of an animation, by giving more time to
+     * deceleration than acceleration. It is the most common form of easing.
+     *
+     * <p>This is equivalent to the Compose {@code FastOutSlowInEasing}.
+     */
+    @NonNull
+    public static final Easing FAST_OUT_SLOW_IN_EASING =
+        buildCubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f);
+
+    /**
+     * Incoming elements are animated using deceleration easing, which starts a transition at peak
+     * velocity (the fastest point of an element’s movement) and ends at rest.
+     *
+     * <p>This is equivalent to the Compose {@code LinearOutSlowInEasing}.
+     */
+    @NonNull
+    public static final Easing LINEAR_OUT_SLOW_IN_EASING =
+        buildCubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f);
+
+    /**
+     * Elements exiting a screen use acceleration easing, where they start at rest and end at peak
+     * velocity.
+     *
+     * <p>This is equivalent to the Compose {@code FastOutLinearInEasing}.
+     */
+    @NonNull
+    public static final Easing FAST_OUT_LINEAR_IN_EASING =
+        buildCubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f);
+  }
 
   /**
    * The repeat mode to specify how animation will behave when repeated.
@@ -69,7 +112,6 @@ final class AnimationParameterBuilders {
    *
    * @since 1.2
    */
-  @ProtoLayoutExperimental
   public static final class AnimationSpec {
     private final AnimationParameterProto.AnimationSpec mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -80,8 +122,7 @@ final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the duration of the animation in milliseconds. If not set, defaults to 300ms. Intended
-     * for testing purposes only.
+     * Gets the duration of the animation in milliseconds.
      *
      * @since 1.2
      */
@@ -90,8 +131,7 @@ final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the delay to start the animation in milliseconds. If not set, defaults to 0. Intended
-     * for testing purposes only.
+     * Gets the delay to start the animation in milliseconds.
      *
      * @since 1.2
      */
@@ -100,8 +140,7 @@ final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the easing to be used for adjusting an animation’s fraction. If not set, defaults to
-     * Linear Interpolator. Intended for testing purposes only.
+     * Gets the easing to be used for adjusting an animation’s fraction.
      *
      * @since 1.2
      */
@@ -116,7 +155,7 @@ final class AnimationParameterBuilders {
 
     /**
      * Gets the repeatable mode to be used for specifying repetition parameters for the animation.
-     * If not set, animation won't be repeated. Intended for testing purposes only.
+     * If not set, animation won't be repeated.
      *
      * @since 1.2
      */
@@ -223,6 +262,15 @@ final class AnimationParameterBuilders {
         return this;
       }
 
+      /** Sets the animation to repeat indefinitely with the given repeat mode. */
+      @NonNull
+      @SuppressWarnings("MissingGetterMatchingBuilder")
+      public Builder setInfiniteRepeatable(@RepeatMode int mode) {
+        Repeatable repeatable =
+                new Repeatable.Builder().setRepeatMode(mode).build();
+        return this.setRepeatable(repeatable);
+      }
+
       /** Builds an instance from accumulated values. */
       @NonNull
       public AnimationSpec build() {
@@ -238,7 +286,6 @@ final class AnimationParameterBuilders {
    *
    * @since 1.2
    */
-  @ProtoLayoutExperimental
   public interface Easing {
     /**
      * Get the protocol buffer representation of this object.
@@ -258,8 +305,11 @@ final class AnimationParameterBuilders {
     @Nullable
     Fingerprint getFingerprint();
 
-    /** Builder to create {@link Easing} objects. */
-    @SuppressLint("StaticFinalBuilder")
+    /** Builder to create {@link Easing} objects.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 
       /** Builds an instance with values accumulated in this Builder. */
@@ -269,7 +319,6 @@ final class AnimationParameterBuilders {
   }
 
   @NonNull
-  @ProtoLayoutExperimental
   static Easing easingFromProto(@NonNull AnimationParameterProto.Easing proto) {
     if (proto.hasCubicBezier()) {
       return CubicBezierEasing.fromProto(proto.getCubicBezier());
@@ -283,7 +332,6 @@ final class AnimationParameterBuilders {
    *
    * @since 1.2
    */
-  @ProtoLayoutExperimental
   public static final class CubicBezierEasing implements Easing {
     private final AnimationParameterProto.CubicBezierEasing mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -296,8 +344,7 @@ final class AnimationParameterBuilders {
 
     /**
      * Gets the x coordinate of the first control point. The line through the point (0, 0) and the
-     * first control point is tangent to the easing at the point (0, 0). Intended for testing
-     * purposes only.
+     * first control point is tangent to the easing at the point (0, 0).
      *
      * @since 1.2
      */
@@ -307,8 +354,7 @@ final class AnimationParameterBuilders {
 
     /**
      * Gets the y coordinate of the first control point. The line through the point (0, 0) and the
-     * first control point is tangent to the easing at the point (0, 0). Intended for testing
-     * purposes only.
+     * first control point is tangent to the easing at the point (0, 0).
      *
      * @since 1.2
      */
@@ -318,8 +364,7 @@ final class AnimationParameterBuilders {
 
     /**
      * Gets the x coordinate of the second control point. The line through the point (1, 1) and the
-     * second control point is tangent to the easing at the point (1, 1). Intended for testing
-     * purposes only.
+     * second control point is tangent to the easing at the point (1, 1).
      *
      * @since 1.2
      */
@@ -329,8 +374,7 @@ final class AnimationParameterBuilders {
 
     /**
      * Gets the y coordinate of the second control point. The line through the point (1, 1) and the
-     * second control point is tangent to the easing at the point (1, 1). Intended for testing
-     * purposes only.
+     * second control point is tangent to the easing at the point (1, 1).
      *
      * @since 1.2
      */
@@ -360,7 +404,6 @@ final class AnimationParameterBuilders {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    @ProtoLayoutExperimental
     public AnimationParameterProto.Easing toEasingProto() {
       return AnimationParameterProto.Easing.newBuilder().setCubicBezier(mImpl).build();
     }
@@ -438,7 +481,6 @@ final class AnimationParameterBuilders {
    *
    * @since 1.2
    */
-  @ProtoLayoutExperimental
   public static final class Repeatable {
     private final AnimationParameterProto.Repeatable mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -449,18 +491,24 @@ final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the number specifying how many times animation will be repeated. If not set, defaults to
-     * 0, i.e. repeat infinitely. Intended for testing purposes only.
+     * Gets the number specifying how many times animation will be repeated. this method can only be
+     * called if {@link #hasInfiniteIteration()} is false.
      *
+     * @throws IllegalStateException if {@link #hasInfiniteIteration()} is true.
      * @since 1.2
      */
     public int getIterations() {
+      if (hasInfiniteIteration()) {
+        throw new IllegalStateException("Repeatable has infinite iteration.");
+      }
       return mImpl.getIterations();
     }
 
+    /** Returns true if the animation has indefinite repeat. */
+    public boolean hasInfiniteIteration() { return isInfiniteIteration(mImpl.getIterations()); }
+
     /**
-     * Gets the repeat mode to specify how animation will behave when repeated. If not set, defaults
-     * to restart. Intended for testing purposes only.
+     * Gets the repeat mode to specify how animation will behave when repeated.
      *
      * @since 1.2
      */
@@ -490,6 +538,10 @@ final class AnimationParameterBuilders {
       return mImpl;
     }
 
+    static boolean isInfiniteIteration(int iteration){
+      return iteration < 1;
+    }
+
     /** Builder for {@link Repeatable} */
     public static final class Builder {
       private final AnimationParameterProto.Repeatable.Builder mImpl =
@@ -500,12 +552,12 @@ final class AnimationParameterBuilders {
 
       /**
        * Sets the number specifying how many times animation will be repeated. If not set, defaults
-       * to 0, i.e. repeat infinitely.
+       * to repeating infinitely.
        *
        * @since 1.2
        */
       @NonNull
-      public Builder setIterations(int iterations) {
+      public Builder setIterations(@IntRange(from = 1) int iterations) {
         mImpl.setIterations(iterations);
         mFingerprint.recordPropertyUpdate(1, iterations);
         return this;
