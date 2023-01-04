@@ -22,6 +22,7 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -102,6 +103,50 @@ class ComponentDialogTest {
                 assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
                     .isEqualTo(Lifecycle.State.INITIALIZED)
                 restoredDialog.onRestoreInstanceState(savedState)
+            }
+            assertThat(hasDefaultSavedState(restoredDialog.savedStateRegistry)).isTrue()
+        }
+    }
+
+    @Test
+    fun testViewTreeSavedStateRegistryOwner() {
+        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+            val dialog = withActivity {
+                ViewOwnerDialog(this).also {
+                    it.show()
+                }
+            }
+            val lifecycle = dialog.lifecycle
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+            // Initialize saved state
+            withActivity {
+                val registry = dialog.savedStateRegistry
+                val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
+                assertThat(savedState).isNull()
+                registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
+                val viewTreeOwner = dialog.view.findViewTreeSavedStateRegistryOwner()
+                assertThat(viewTreeOwner).isNotNull()
+                assertThat(viewTreeOwner).isEqualTo(dialog)
+            }
+
+            // Destroy dialog and restore saved instance state
+            val savedState = dialog.onSaveInstanceState()
+            assertThat(savedState).isNotNull()
+            onActivity {
+                dialog.dismiss()
+            }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            val restoredDialog = withActivity {
+                ViewOwnerDialog(this)
+            }
+            withActivity {
+                assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
+                    .isEqualTo(Lifecycle.State.INITIALIZED)
+                restoredDialog.onRestoreInstanceState(savedState)
+                val viewTreeOwner = restoredDialog.view.findViewTreeSavedStateRegistryOwner()
+                assertThat(viewTreeOwner).isNotNull()
+                assertThat(viewTreeOwner).isEqualTo(restoredDialog)
             }
             assertThat(hasDefaultSavedState(restoredDialog.savedStateRegistry)).isTrue()
         }
