@@ -695,8 +695,8 @@ includeProject(":glance:glance-wear-tiles", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles-preview", [BuildType.GLANCE])
 includeProject(":graphics:filters:filters", [BuildType.MAIN])
 includeProject(":graphics:graphics-core", [BuildType.MAIN])
+includeProject(":graphics:graphics-shapes", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":graphics:integration-tests:testapp", [BuildType.MAIN])
-includeProject(":graphics:graphics-shapes", [BuildType.MAIN])
 includeProject(":gridlayout:gridlayout", [BuildType.MAIN])
 includeProject(":health:connect:connect-client", [BuildType.MAIN])
 includeProject(":health:connect:connect-client-proto", [BuildType.MAIN])
@@ -1015,6 +1015,8 @@ includeProject(":work:work-runtime-lint", "work/work-lint", [BuildType.MAIN])
 includeProject(":work:work-rxjava2", [BuildType.MAIN])
 includeProject(":work:work-rxjava3", [BuildType.MAIN])
 includeProject(":work:work-testing", [BuildType.MAIN])
+// TODO(274500653): reorder correctly in a follow up CL. Correct ordering confuses the automerger.
+includeProject(":graphics:integration-tests:testapp-compose", [BuildType.COMPOSE])
 
 /////////////////////////////
 //
