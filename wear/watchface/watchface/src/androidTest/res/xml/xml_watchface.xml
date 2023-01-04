@@ -87,6 +87,17 @@
         app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
         <ComplicationSlotBounds app:left="3" app:top="70" app:right="7" app:bottom="90"/>
     </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="@integer/complication_slot_50"
+        app:name="@string/complication_name_five"
+        app:boundsType="ROUND_RECT"
+        app:supportedTypes="GOAL_PROGRESS|WEIGHTED_ELEMENTS"
+        app:primaryDataSource="com.package/com.app"
+        app:primaryDataSourceDefaultType="GOAL_PROGRESS"
+        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
+        app:systemDataSourceFallbackDefaultType="WEIGHTED_ELEMENTS">
+        <ComplicationSlotBounds app:left="1" app:top="20" app:right="3" app:bottom="40"/>
+    </ComplicationSlot>
     <UserStyleFlavors>
         <UserStyleFlavor app:id="@string/flavor_id_0">
             <StyleOption app:id="@string/setting_time_style"
