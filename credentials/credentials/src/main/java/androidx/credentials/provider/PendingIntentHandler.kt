@@ -19,16 +19,17 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.Intent
 import android.credentials.CreateCredentialResponse
+import android.service.credentials.BeginGetCredentialRequest
 import android.service.credentials.CreateCredentialRequest
 import android.service.credentials.CredentialProviderService
-import android.util.ArraySet
+import android.service.credentials.CredentialsResponseContent
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialResponse
 
 /**
  * PendingIntentHandler to be used by credential providers to extract requests from
- * [PendingIntent] invoked when a given [CreateEntry], or a [CredentialEntry]
+ * [PendingIntent] invoked when a given [CreateEntry], or a [CustomCredentialEntry]
  * is selected by the user.
  *
  * This handler can also be used to set [android.credentials.CreateCredentialResponse] and
@@ -66,10 +67,22 @@ class PendingIntentHandler {
                         frameworkReq.data,
                         frameworkReq.data,
                         requireSystemProvider = false),
-                CallingAppInfo(
-                    frameworkReq.callingPackage,
-                    ArraySet()
-                ))
+                frameworkReq.callingAppInfo)
+        }
+
+        /**
+         * Extract [BeginGetCredentialRequest] from the provider's
+         * [PendingIntent] invoked by the Android system when the user
+         * selects an [AuthenticationAction].
+         *
+         * @hide
+         */
+        @JvmStatic
+        fun getBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
+            return intent.getParcelableExtra(
+                "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST",
+                BeginGetCredentialRequest::class.java
+            )
         }
 
         /**
@@ -96,7 +109,7 @@ class PendingIntentHandler {
          * @hide
          */
         @JvmStatic
-        fun getGetCredentialsRequest(intent: Intent):
+        fun getGetCredentialRequest(intent: Intent):
             GetCredentialProviderRequest? {
             val frameworkReq = intent.getParcelableExtra(
                 CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
@@ -125,6 +138,23 @@ class PendingIntentHandler {
                 android.credentials.GetCredentialResponse(
                     android.credentials.Credential(response.credential.type,
                         response.credential.data))
+            )
+        }
+
+        /**
+         * Set the [android.service.credentials.CredentialsResponseContent] on the result of the
+         * activity invoked by the [PendingIntent] set on [AuthenticationAction].
+         *
+         * @hide
+         */
+        @JvmStatic
+        fun setCredentialsResponseContent(
+            intent: Intent,
+            response: CredentialsResponseContent
+        ) {
+            intent.putExtra(
+                CredentialProviderService.EXTRA_CREDENTIALS_RESPONSE_CONTENT,
+                response
             )
         }
     }

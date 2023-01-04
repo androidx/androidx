@@ -136,7 +136,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                 CreatePublicKeyCredentialRequestPrivileged
-                        .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED);
+                        .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putString(BUNDLE_KEY_RELYING_PARTY, relyingPartyExpected);
         expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);

@@ -135,7 +135,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
             CreatePublicKeyCredentialRequestPrivileged
-                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV
         )
         expectedData.putString(
             CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON,

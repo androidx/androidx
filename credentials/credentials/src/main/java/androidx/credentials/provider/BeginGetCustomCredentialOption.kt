@@ -17,26 +17,47 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.service.credentials.BeginGetCredentialOption
+import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 
 /**
- * Allows extending custom versions of BeginGetCredentialOptions for unique use cases.
+ * Custom version of [BeginGetCredentialOption] for custom credential types.
  *
- * @property type the credential type determined by the credential-type-specific subclass
- * generated for custom use cases
- * @property candidateQueryData the partial request data in the [Bundle] format that should be used
- * to populate a list of [CredentialEntry] to be set on the
- * [BeginGetCredentialsProviderResponse]
- * @throws IllegalArgumentException If [type] is empty
+ * Providers must use [BeginGetCredentialOption.getType] to determine the credential type
+ * of this custom option parameters, in order to populate a list of [CustomCredentialEntry] to be
+ * set on the [android.service.credentials.BeginGetCredentialResponse].
  *
  * @hide
  */
-open class BeginGetCustomCredentialOption internal constructor(
-    final override val type: String,
-    val candidateQueryData: Bundle,
+@RequiresApi(34)
+class BeginGetCustomCredentialOption internal constructor(
+    type: String,
+    val data: Bundle,
 ) : BeginGetCredentialOption(
-    type
+    type,
+    data
 ) {
-    init {
-        require(type.isNotEmpty()) { "type should not be empty" }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<BeginGetCustomCredentialOption> {
+        override fun createFromParcel(p0: Parcel?): BeginGetCustomCredentialOption {
+            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+            return BeginGetCustomCredentialOption(baseOption.type, baseOption.candidateQueryData)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<BeginGetCustomCredentialOption?> {
+            return arrayOfNulls(size)
+        }
     }
 }

@@ -21,58 +21,87 @@ import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.Log
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.provider.Action.Companion.toSlice
-import androidx.credentials.provider.CreateEntry.Companion.toSlice
+import java.time.Instant
 import java.util.Collections
 
 /**
- * Base class for a credential entry that is displayed on the account selector UI.
- * Each entry corresponds to an account that can provide a credential
+ * Base class for a generic credential entry that is displayed on the account selector UI.
+ * Each entry corresponds to an account that can provide a credential.
  *
- * @property type the type of the credential
- * @property username the username of the account holding the credential
- * @property displayName the displayName of the account holding the credential
- * @property pendingIntent the [PendingIntent] to be invoked when the user selects this entry
- * only one of the selector
- * @property lastUsedTimeMillis the last used time of this entry
+ * @property title the username of the account holding the credential
+ * @property subTitle the displayName of the account holding the credential
+ * @property lastUsedTime the last used time of this entry
  * @property icon the icon to be displayed with this entry on the selector
+ * @param pendingIntent the [PendingIntent] to be invoked when this entry
+ * is selected by the user
+ * @param type the type of the credential e.g.
+ * [androidx.credentials.PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
+ * or [androidx.credentials.PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
+ * @property typeDisplayName the friendly name to be displayed on the UI for
+ * the type of the credential.
+ * @property isAutoSelectAllowed whether this entry is allowed to be auto
+ * selected if it is the only one on the UI. Note that setting this value
+ * to true does not guarantee this behavior. The developer must als set this
+ * to true, and the framework must determine that it is safe to auto select.
  *
- * @throws IllegalArgumentException If [type] or [username] is empty, or [pendingIntent] is null
- * are non null
+ * @throws IllegalArgumentException If [title] is empty
+ * @throws NullPointerException If [title] is null
  *
  * @hide
  */
 @RequiresApi(34)
-open class CredentialEntry constructor(
-    // TODO("Add credential type display name for both CredentialEntry & CreateEntry")
-    val type: String,
-    val typeDisplayName: CharSequence,
-    val username: CharSequence,
-    val displayName: CharSequence?,
-    val pendingIntent: PendingIntent,
-    // TODO("Consider using Instant or other strongly typed time data type")
-    val lastUsedTimeMillis: Long,
+class CustomCredentialEntry constructor(
+    type: String,
+    val title: CharSequence,
+    val subTitle: CharSequence?,
+    val typeDisplayName: CharSequence?,
     val icon: Icon?,
-    var autoSelectAllowed: Boolean
-    ) {
+    val lastUsedTime: Instant?,
+    val pendingIntent: PendingIntent,
+    val isAutoSelectAllowed: Boolean
+    ) : android.service.credentials.CredentialEntry(
+    type,
+    toSlice(
+        type,
+        title,
+        subTitle,
+        pendingIntent,
+        typeDisplayName,
+        lastUsedTime,
+        icon,
+        isAutoSelectAllowed
+    )
+) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
-        require(username.isNotEmpty()) { "type must not be empty" }
     }
 
-    companion object {
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+
+    @Suppress("AcronymName")
+    @RequiresApi(34)
+    companion object CREATOR : Parcelable.Creator<CustomCredentialEntry> {
         private const val TAG = "CredentialEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_USERNAME =
+        internal const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_DISPLAYNAME =
+        internal const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
@@ -91,31 +120,44 @@ open class CredentialEntry constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
 
+        /** @hide */
         @JvmStatic
-        internal fun toSlice(credentialEntry: CredentialEntry): Slice {
+        internal fun toSlice(
+            type: String,
+            title: CharSequence,
+            subTitle: CharSequence?,
+            pendingIntent: PendingIntent,
+            typeDisplayName: CharSequence?,
+            lastUsedTime: Instant?,
+            icon: Icon?,
+            isAutoSelectAllowed: Boolean
+        ): Slice {
             // TODO("Put the right revision value")
-            val autoSelectAllowed = if (credentialEntry.autoSelectAllowed) {
+            val autoSelectAllowed = if (isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
             } else {
                 AUTO_SELECT_FALSE_STRING
             }
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(
-                credentialEntry.type, 1))
-                .addText(credentialEntry.typeDisplayName, /*subType=*/null,
+                type, 1))
+                .addText(typeDisplayName, /*subType=*/null,
                     listOf(SLICE_HINT_TYPE_DISPLAY_NAME))
-                .addText(credentialEntry.username, /*subType=*/null,
-                    listOf(SLICE_HINT_USERNAME))
-                .addText(credentialEntry.displayName, /*subType=*/null,
-                    listOf(SLICE_HINT_DISPLAYNAME))
-                .addLong(credentialEntry.lastUsedTimeMillis, /*subType=*/null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
+                .addText(title, /*subType=*/null,
+                    listOf(SLICE_HINT_TITLE))
+                .addText(subTitle, /*subType=*/null,
+                    listOf(SLICE_HINT_SUBTITLE))
                 .addText(autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED))
-            if (credentialEntry.icon != null) {
-                sliceBuilder.addIcon(credentialEntry.icon, /*subType=*/null,
+            if (lastUsedTime != null) {
+                sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
+            }
+            if (icon != null) {
+                sliceBuilder.addIcon(icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON))
             }
-            sliceBuilder.addAction(credentialEntry.pendingIntent,
+            sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
@@ -124,34 +166,34 @@ open class CredentialEntry constructor(
         }
 
         /**
-         * Returns an instance of [CredentialEntry] derived from a [Slice] object.
+         * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun fromSlice(slice: Slice): CredentialEntry? {
+        fun fromSlice(slice: Slice): CustomCredentialEntry? {
             var typeDisplayName: CharSequence? = null
-            var username: CharSequence? = null
-            var displayName: CharSequence? = null
+            var title: CharSequence? = null
+            var subTitle: CharSequence? = null
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
-            var lastUsedTimeMillis: Long = 0
+            var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
                     typeDisplayName = it.text
-                } else if (it.hasHint(SLICE_HINT_USERNAME)) {
-                    username = it.text
-                } else if (it.hasHint(SLICE_HINT_DISPLAYNAME)) {
-                    displayName = it.text
+                } else if (it.hasHint(SLICE_HINT_TITLE)) {
+                    title = it.text
+                } else if (it.hasHint(SLICE_HINT_SUBTITLE)) {
+                    subTitle = it.text
                 } else if (it.hasHint(SLICE_HINT_ICON)) {
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
-                    lastUsedTimeMillis = it.long
+                    lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
                     val autoSelectValue = it.text
                     if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
@@ -161,21 +203,26 @@ open class CredentialEntry constructor(
             }
 
             return try {
-                CredentialEntry(slice.spec!!.type, typeDisplayName!!, username!!,
-                    displayName, pendingIntent!!,
-                    lastUsedTimeMillis, icon, autoSelectAllowed)
+                CustomCredentialEntry(slice.spec!!.type, title!!,
+                    subTitle,
+                    typeDisplayName!!,
+                    icon,
+                    lastUsedTime, pendingIntent!!, autoSelectAllowed)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
         }
 
-        internal fun toFrameworkClass(credentialEntry: CredentialEntry):
-            android.service.credentials.CredentialEntry {
-            return android.service.credentials.CredentialEntry.Builder(
-                credentialEntry.type, toSlice(credentialEntry),
-                credentialEntry.pendingIntent
-            ).build()
+        override fun createFromParcel(p0: Parcel?): CustomCredentialEntry? {
+            val baseEntry =
+                android.service.credentials.CredentialEntry.CREATOR.createFromParcel(p0)
+            return fromSlice(baseEntry.slice)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<CustomCredentialEntry?> {
+            return arrayOfNulls(size)
         }
     }
 }

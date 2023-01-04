@@ -19,6 +19,7 @@ package androidx.credentials
 import android.app.Activity
 import android.content.Context
 import android.credentials.CredentialManager
+import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.util.Log
@@ -110,7 +111,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
 
     private fun convertGetRequestToFrameworkClass(request: GetCredentialRequest):
         android.credentials.GetCredentialRequest {
-        val builder = android.credentials.GetCredentialRequest.Builder()
+        val builder = android.credentials.GetCredentialRequest.Builder(Bundle())
         request.getCredentialOptions.forEach {
             builder.addGetCredentialOption(
                 android.credentials.GetCredentialOption(

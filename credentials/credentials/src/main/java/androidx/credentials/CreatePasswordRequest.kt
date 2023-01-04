@@ -59,6 +59,13 @@ class CreatePasswordRequest constructor(
         }
 
         @JvmStatic
+        internal fun toCandidateDataBundle(id: String): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_ID, id)
+            return bundle
+        }
+
+        @JvmStatic
         internal fun createFrom(data: Bundle): CreatePasswordRequest {
             try {
                 val id = data.getString(BUNDLE_KEY_ID)

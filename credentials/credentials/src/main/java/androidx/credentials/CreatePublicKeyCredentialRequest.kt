@@ -54,12 +54,25 @@ class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
         const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST =
+        internal const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST"
 
         @JvmStatic
         internal fun toCredentialDataBundle(
+            requestJson: String,
+            preferImmediatelyAvailableCredentials: Boolean
+        ): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_SUBTYPE,
+                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST)
+            bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentials)
+            return bundle
+        }
+
+        @JvmStatic
+        internal fun toCandidateDataBundle(
             requestJson: String,
             preferImmediatelyAvailableCredentials: Boolean
         ): Bundle {

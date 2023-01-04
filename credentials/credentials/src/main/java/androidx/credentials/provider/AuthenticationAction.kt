@@ -19,54 +19,72 @@ import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.Log
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.provider.Action.Companion.toSlice
 import java.util.Collections
+
 /**
  * An entry on the selector, denoting that authentication is needed to proceed.
  *
  * Providers should set this entry when the provider app is locked, and no credentials can
- * be returned. Providers must set the [PendingIntent] that leads to their authentication flow.
+ * be returned.
+ * Providers must set the [PendingIntent] that leads to their unlock activity. Once the app
+ * is unlocked, providers must set the [android.service.credentials.CredentialsResponseContent]
+ * containing the unlocked credential entries, through
+ * the [PendingIntentHandler.setCredentialsResponseContent] method.
  *
- * @property pendingIntent the [PendingIntent] to be invoked when the user selects
- * this authentication entry
+ * @param pendingIntent the [PendingIntent] to be invoked if the user selects
+ * this authentication entry on the UI
  *
- * See [CredentialsResponseContent] for usage details.
+ * See [android.service.credentials.BeginGetCredentialResponse.createWithAuthentication]
+ * for usage details.
  *
  * @hide
  */
 @RequiresApi(34)
 class AuthenticationAction constructor(
     val pendingIntent: PendingIntent,
-) {
-    companion object {
+) : android.service.credentials.Action(
+    toSlice(pendingIntent)) {
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<AuthenticationAction> {
         private const val TAG = "AuthenticationAction"
+        private const val SLICE_SPEC_REVISION = 0
+        private const val SLICE_SPEC_TYPE = "AuthenticationAction"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_PENDING_INTENT"
+
+        /** @hide **/
         @JvmStatic
-        fun toSlice(authenticationAction: AuthenticationAction): Slice {
-            // TODO("Put the right spec and version value")
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
-            sliceBuilder.addAction(authenticationAction.pendingIntent,
+        fun toSlice(pendingIntent: PendingIntent): Slice {
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE,
+                SLICE_SPEC_REVISION))
+            sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
                 /*subType=*/null)
             return sliceBuilder.build()
         }
-        @JvmStatic
-        internal fun toFrameworkClass(authenticationAction: AuthenticationAction):
-            android.service.credentials.Action {
-            return android.service.credentials.Action(toSlice(authenticationAction),
-                authenticationAction.pendingIntent)
-        }
+
         /**
          * Returns an instance of [AuthenticationAction] derived from a [Slice] object.
          *
-         * @param slice the [Slice] object constructed through [toSlice]
+         * @param slice the [Slice] object that contains the information required for
+         * constructing an instance of this class.
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -82,6 +100,17 @@ class AuthenticationAction constructor(
                 }
             }
             return null
+        }
+
+        override fun createFromParcel(p0: Parcel?): AuthenticationAction? {
+            val authAction =
+                android.service.credentials.Action.CREATOR.createFromParcel(p0)
+            return fromSlice(authAction.slice)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<AuthenticationAction?> {
+            return arrayOfNulls(size)
         }
     }
 }
