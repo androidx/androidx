@@ -17,10 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="installation_failed" msgid="863287960437940689">"Инсталација није успела."</string>
-    <string name="installation_cancelled" msgid="475402237100444685">"Инсталација је отказана."</string>
-    <string name="installing_module" msgid="5968445461040787716">"Модул инсталирања:"</string>
-    <string name="progress" msgid="8366783942222789124">"Напредак:"</string>
-    <string name="retry" msgid="1065327189183624288">"Пробај поново"</string>
-    <string name="ok" msgid="4702104660890557116">"Потврди"</string>
+    <string name="installation_failed" msgid="863287960437940689">"Instalacija nije uspela."</string>
+    <string name="installation_cancelled" msgid="475402237100444685">"Instalacija je otkazana."</string>
+    <string name="installing_module" msgid="5968445461040787716">"Modul instaliranja:"</string>
+    <string name="progress" msgid="8366783942222789124">"Napredak:"</string>
+    <string name="retry" msgid="1065327189183624288">"Probaj ponovo"</string>
+    <string name="ok" msgid="4702104660890557116">"Potvrdi"</string>
 </resources>
