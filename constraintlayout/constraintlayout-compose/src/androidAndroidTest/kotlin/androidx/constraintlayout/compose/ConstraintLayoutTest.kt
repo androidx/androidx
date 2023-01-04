@@ -1927,6 +1927,76 @@ class ConstraintLayoutTest {
         )
     }
 
+    @Test
+    fun testLinkToBias_withInlineDsl_rtl() = with(rule.density) {
+        val rootSize = 200
+        val boxSize = 20
+        val box1Bias = 0.2f
+        val box2Bias = 0.2f
+
+        var box1Position = IntOffset.Zero
+        var box2Position = IntOffset.Zero
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)) {
+                ConstraintLayout(Modifier.size(rootSize.toDp())) {
+                    val (box1Ref, box2Ref) = createRefs()
+
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Red)
+                            .constrainAs(box1Ref) {
+                                width = Dimension.value(boxSize.toDp())
+                                height = Dimension.value(boxSize.toDp())
+
+                                centerTo(parent)
+                                horizontalBias = box1Bias // unaffected by Rtl
+                            }
+                            .onGloballyPositioned {
+                                box1Position = it
+                                    .positionInRoot()
+                                    .round()
+                            }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Blue)
+                            .constrainAs(box2Ref) {
+                                width = Dimension.value(boxSize.toDp())
+                                height = Dimension.value(boxSize.toDp())
+
+                                top.linkTo(box1Ref.bottom)
+                                linkTo(
+                                    start = parent.start,
+                                    end = box1Ref.start,
+                                    startMargin = 0.dp,
+                                    endMargin = 0.dp,
+                                    startGoneMargin = 0.dp,
+                                    endGoneMargin = 0.dp,
+                                    bias = box2Bias // affected by Rtl
+                                )
+                            }
+                            .onGloballyPositioned {
+                                box2Position = it
+                                    .positionInRoot()
+                                    .round()
+                            }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            val expectedBox1X = (rootSize - boxSize) * box1Bias
+            val expectedBox1Y = (rootSize * 0.5f) - (boxSize * 0.5f)
+            assertEquals(Offset(expectedBox1X, expectedBox1Y).round(), box1Position)
+
+            val expectedBox1End = expectedBox1X + boxSize
+            val expectedBox2X =
+                (rootSize - expectedBox1End - boxSize) * (1f - box2Bias) + expectedBox1End
+            assertEquals(Offset(expectedBox2X, expectedBox1Y + boxSize).round(), box2Position)
+        }
+    }
+
     private fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {
         // TODO(172055763) directly construct an immutable list when Lint supports it
         val anchors = mutableListOf<ConstrainScope.() -> Unit>()
