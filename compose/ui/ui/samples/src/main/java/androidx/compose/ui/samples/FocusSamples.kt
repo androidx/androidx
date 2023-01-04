@@ -203,7 +203,6 @@ fun MoveFocusSample() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CreateFocusRequesterRefsSample() {
@@ -216,7 +215,6 @@ fun CreateFocusRequesterRefsSample() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusOrderSample() {

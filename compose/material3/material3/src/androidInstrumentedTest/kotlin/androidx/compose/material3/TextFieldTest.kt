@@ -272,7 +272,6 @@ class TextFieldTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun testTextField_showHideKeyboardBasedOnFocus() {
         val (focusRequester, parentFocusRequester) = FocusRequester.createRefs()
