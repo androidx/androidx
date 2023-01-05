@@ -183,7 +183,7 @@ public final class HeifWriter extends WriterBase {
          *                 180 or 270. Default is 0.
          * @return this Builder object.
          */
-        public Builder setRotation(@IntRange(from = 0)  int rotation) {
+        public @NonNull Builder setRotation(@IntRange(from = 0)  int rotation) {
             if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270) {
                 throw new IllegalArgumentException("Invalid rotation angle: " + rotation);
             }
@@ -198,7 +198,7 @@ public final class HeifWriter extends WriterBase {
          *                    automatically chosen. Default is to enable.
          * @return this Builder object.
          */
-        public Builder setGridEnabled(boolean gridEnabled) {
+        public @NonNull Builder setGridEnabled(boolean gridEnabled) {
             mGridEnabled = gridEnabled;
             return this;
         }
@@ -210,7 +210,7 @@ public final class HeifWriter extends WriterBase {
          *                quality supported by this implementation. Default is 100.
          * @return this Builder object.
          */
-        public Builder setQuality(@IntRange(from = 0, to = 100) int quality) {
+        public @NonNull Builder setQuality(@IntRange(from = 0, to = 100) int quality) {
             if (quality < 0 || quality > 100) {
                 throw new IllegalArgumentException("Invalid quality: " + quality);
             }
@@ -229,7 +229,7 @@ public final class HeifWriter extends WriterBase {
          *                  Default is 1.
          * @return this Builder object.
          */
-        public Builder setMaxImages(@IntRange(from = 1) int maxImages) {
+        public @NonNull Builder setMaxImages(@IntRange(from = 1) int maxImages) {
             if (maxImages <= 0) {
                 throw new IllegalArgumentException("Invalid maxImage: " + maxImages);
             }
@@ -244,7 +244,7 @@ public final class HeifWriter extends WriterBase {
          *                     range [0, maxImages - 1] inclusive. Default is 0.
          * @return this Builder object.
          */
-        public Builder setPrimaryIndex(@IntRange(from = 0) int primaryIndex) {
+        public @NonNull Builder setPrimaryIndex(@IntRange(from = 0) int primaryIndex) {
             mPrimaryIndex = primaryIndex;
             return this;
         }
@@ -257,7 +257,7 @@ public final class HeifWriter extends WriterBase {
          *                writer. Default is null.
          * @return this Builder object.
          */
-        public Builder setHandler(@Nullable Handler handler) {
+        public @NonNull Builder setHandler(@Nullable Handler handler) {
             mHandler = handler;
             return this;
         }
@@ -269,7 +269,7 @@ public final class HeifWriter extends WriterBase {
          * @throws IOException if failed to create the writer, possibly due to failure to create
          *                     {@link android.media.MediaMuxer} or {@link android.media.MediaCodec}.
          */
-        public HeifWriter build() throws IOException {
+        public @NonNull HeifWriter build() throws IOException {
             return new HeifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
                 mMaxImages, mPrimaryIndex, mInputMode, mHandler);
         }
