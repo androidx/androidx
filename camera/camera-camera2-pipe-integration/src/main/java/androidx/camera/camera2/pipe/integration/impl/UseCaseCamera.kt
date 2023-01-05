@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
+import androidx.lifecycle.MutableLiveData
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
@@ -46,7 +47,7 @@ internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
 interface UseCaseCamera {
     // UseCases
-    var runningUseCases: Set<UseCase>
+    val runningUseCasesLiveData: MutableLiveData<Set<UseCase>>
 
     // RequestControl of the UseCaseCamera
     val requestControl: UseCaseCameraRequestControl
@@ -81,9 +82,8 @@ class UseCaseCameraImpl @Inject constructor(
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
 
-    override var runningUseCases = setOf<UseCase>()
-        set(value) {
-            field = value
+    override val runningUseCasesLiveData = MutableLiveData<Set<UseCase>>(emptySet()).apply {
+        observeForever { value ->
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
             SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
@@ -97,6 +97,7 @@ class UseCaseCameraImpl @Inject constructor(
                 )
             }
         }
+    }
 
     init {
         debug { "Configured $this for $useCases" }

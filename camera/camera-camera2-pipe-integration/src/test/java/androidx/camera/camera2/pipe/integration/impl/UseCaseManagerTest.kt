@@ -81,7 +81,7 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(useCase))
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCasesLiveData?.value
         assertThat(enabledUseCases).isEmpty()
     }
 
@@ -96,7 +96,7 @@ class UseCaseManagerTest {
         useCaseManager.activate(useCase)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCasesLiveData?.value
         assertThat(enabledUseCases).containsExactly(useCase)
     }
 
@@ -113,7 +113,7 @@ class UseCaseManagerTest {
         useCaseManager.activate(imageCapture)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCasesLiveData?.value
         assertThat(enabledUseCases).containsExactly(preview, imageCapture)
     }
 
@@ -128,7 +128,9 @@ class UseCaseManagerTest {
         useCaseManager.activate(imageCapture)
 
         // Assert
-        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCases?.map { it::class.java }
+        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCasesLiveData?.value?.map {
+            it::class.java
+        }
         assertThat(enabledUseCaseClasses).containsExactly(
             ImageCapture::class.java,
             MeteringRepeating::class.java
@@ -149,7 +151,7 @@ class UseCaseManagerTest {
         useCaseManager.activate(preview)
 
         // Assert
-        val activeUseCases = useCaseManager.camera?.runningUseCases
+        val activeUseCases = useCaseManager.camera?.runningUseCasesLiveData?.value
         assertThat(activeUseCases).containsExactly(preview, imageCapture)
     }
 
@@ -167,7 +169,9 @@ class UseCaseManagerTest {
         useCaseManager.deactivate(preview)
 
         // Assert
-        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCases?.map { it::class.java }
+        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCasesLiveData?.value?.map {
+            it::class.java
+        }
         assertThat(enabledUseCaseClasses).containsExactly(
             ImageCapture::class.java,
             MeteringRepeating::class.java
@@ -186,7 +190,7 @@ class UseCaseManagerTest {
         useCaseManager.deactivate(imageCapture)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCasesLiveData?.value
         assertThat(enabledUseCases).isEmpty()
     }
 
@@ -235,7 +239,7 @@ class UseCaseManagerTest {
             ComboRequestListener()
         ),
         cameraStateAdapter = CameraStateAdapter(),
-        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext())
+        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
     ).also {
         useCaseManagerList.add(it)
     }
