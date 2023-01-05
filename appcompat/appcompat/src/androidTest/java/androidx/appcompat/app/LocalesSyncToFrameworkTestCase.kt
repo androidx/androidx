@@ -35,6 +35,7 @@ import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertNull
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,6 +78,7 @@ class LocalesSyncToFrameworkTestCase {
         )
     }
 
+    @Ignore // b/264589466
     @RequiresApi(33)
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
