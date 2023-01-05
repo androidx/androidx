@@ -170,7 +170,7 @@ ${
                     "Resolved files: ${result.size}"
                 }
                 check(result.isNotEmpty()) {
-                    "Didn't resolve any artifacts from $artifacts"
+                    "Didn't resolve any artifacts from $artifacts . Try --verbose for more information"
                 }
                 result.forEach { artifact ->
                     logger.trace {
