@@ -106,7 +106,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  *
- * There are some limitations of transition animations to {@link SurfaceView} and
+ * <p> There are some limitations of transition animations to {@link SurfaceView} and
  * {@link TextureView}, which applies to {@link PreviewView} as well.
  *
  * @see <a href="https://developer.android.com/training/transitions#Limitations">Limitations</a>
@@ -1018,12 +1018,10 @@ public final class PreviewView extends FrameLayout {
     @MainThread
     private void attachToControllerIfReady(boolean shouldFailSilently) {
         checkMainThread();
-        Display display = getDisplay();
         ViewPort viewPort = getViewPort();
-        if (mCameraController != null && viewPort != null && isAttachedToWindow()
-                && display != null) {
+        if (mCameraController != null && viewPort != null && isAttachedToWindow()) {
             try {
-                mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+                mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort);
             } catch (IllegalStateException ex) {
                 if (shouldFailSilently) {
                     // Swallow the exception and fail silently if the method is invoked by View

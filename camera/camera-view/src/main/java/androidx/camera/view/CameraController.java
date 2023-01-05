@@ -28,7 +28,6 @@ import android.graphics.Matrix;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 import android.util.Size;
-import android.view.Display;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
@@ -158,18 +157,6 @@ public abstract class CameraController {
      * @see ImageAnalysis.Analyzer
      */
     public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1;
-
-    /**
-     * States for tap-to-focus feature.
-     *
-     * @hide
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(value = {TAP_TO_FOCUS_NOT_STARTED, TAP_TO_FOCUS_STARTED, TAP_TO_FOCUS_FOCUSED,
-            TAP_TO_FOCUS_NOT_FOCUSED, TAP_TO_FOCUS_FAILED})
-    public @interface TapToFocusStates {
-    }
 
     /**
      * No tap-to-focus action has been started by the end user.
@@ -304,11 +291,6 @@ public abstract class CameraController {
     @Nullable
     Preview.SurfaceProvider mSurfaceProvider;
 
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    @Nullable
-    Display mPreviewDisplay;
-
     private final RotationProvider mRotationProvider;
 
     @VisibleForTesting
@@ -375,7 +357,7 @@ public abstract class CameraController {
     /**
      * Gets the application context and preserves the attribution tag.
      *
-     * TODO(b/185272953): instrument test getting attribution tag once the view artifact depends
+     * <p> TODO(b/185272953): instrument test getting attribution tag once the view artifact depends
      * on a core version that has the fix.
      */
     private static Context getApplicationContext(@NonNull Context context) {
@@ -431,7 +413,7 @@ public abstract class CameraController {
     }
 
     private boolean isPreviewViewAttached() {
-        return mSurfaceProvider != null && mViewPort != null && mPreviewDisplay != null;
+        return mSurfaceProvider != null && mViewPort != null;
     }
 
     private boolean isCameraAttached() {
@@ -539,14 +521,13 @@ public abstract class CameraController {
     @SuppressLint({"MissingPermission", "WrongConstant"})
     @MainThread
     void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
-            @NonNull ViewPort viewPort, @NonNull Display display) {
+            @NonNull ViewPort viewPort) {
         checkMainThread();
         if (mSurfaceProvider != surfaceProvider) {
             mSurfaceProvider = surfaceProvider;
             mPreview.setSurfaceProvider(surfaceProvider);
         }
         mViewPort = viewPort;
-        mPreviewDisplay = display;
         startListeningToRotationEvents();
         startCameraAndTrackStates();
     }
@@ -565,7 +546,6 @@ public abstract class CameraController {
         mCamera = null;
         mSurfaceProvider = null;
         mViewPort = null;
-        mPreviewDisplay = null;
         stopListeningToRotationEvents();
     }
 
@@ -1827,7 +1807,7 @@ public abstract class CameraController {
     /**
      * Sets current zoom by a linear zoom value ranging from 0f to 1.0f.
      *
-     * LinearZoom 0f represents the minimum zoom while linearZoom 1.0f represents the maximum
+     * <p> LinearZoom 0f represents the minimum zoom while linearZoom 1.0f represents the maximum
      * zoom. The advantage of linearZoom is that it ensures the field of view (FOV) varies
      * linearly with the linearZoom value, for use with slider UI elements (while
      * {@link #setZoomRatio(float)} works well for pinch-zoom gestures).

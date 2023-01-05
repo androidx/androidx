@@ -21,7 +21,6 @@ import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.Size
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.Surface
@@ -140,8 +139,7 @@ class PreviewViewDeviceTest(
         val fakeController: CameraController = object : CameraController(context) {
             override fun attachPreviewSurface(
                 surfaceProvider: Preview.SurfaceProvider,
-                viewPort: ViewPort,
-                display: Display
+                viewPort: ViewPort
             ) {
                 if (viewPort.scaleType == ViewPort.FIT) {
                     fitTypeSemaphore.release()
