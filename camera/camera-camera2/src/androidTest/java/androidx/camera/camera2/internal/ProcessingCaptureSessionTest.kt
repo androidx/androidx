@@ -670,6 +670,8 @@ class ProcessingCaptureSessionTest(
 
         captureSession.close()
         val time5 = sessionProcessor.assertOnCaptureEndInvoked()
+
+        captureSession.release(false)
         val time6 = sessionProcessor.assertDeInitSessionInvoked()
 
         assertThat(time6).isAtLeast(time5)
