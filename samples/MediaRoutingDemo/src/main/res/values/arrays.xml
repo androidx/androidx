@@ -38,4 +38,10 @@
         <item>video/mp4</item>
         <item>audio/mp3</item>
     </string-array>
+
+    <string-array name="dialog_types_array">
+        <item>Default</item>
+        <item>Dynamic</item>
+        <item>Output Switcher</item>
+    </string-array>
 </resources>

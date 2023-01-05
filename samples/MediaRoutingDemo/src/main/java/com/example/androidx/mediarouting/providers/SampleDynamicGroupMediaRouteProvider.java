@@ -19,8 +19,8 @@ package com.example.androidx.mediarouting.providers;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.util.Log;
@@ -34,12 +34,14 @@ import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
-import com.example.androidx.mediarouting.R;
-import com.example.androidx.mediarouting.activities.RouteSettingsActivity;
+import com.example.androidx.mediarouting.RoutesManager;
+import com.example.androidx.mediarouting.activities.SettingsActivity;
+import com.example.androidx.mediarouting.data.RouteItem;
 import com.example.androidx.mediarouting.services.SampleDynamicGroupMediaRouteProviderService;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +55,6 @@ import java.util.UUID;
 public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRouteProvider {
     private static final String TAG = "SampleDynamicGroupMrp";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    private static final String FIXED_VOLUME_ROUTE_ID = "fixed";
-    private static final String VARIABLE_VOLUME_BASIC_ROUTE_ID = "variable_basic";
     private static final String STATIC_GROUP_ROUTE_ID = "static_group";
     private static final int MAX_GROUPABLE_TV_COUNT = 1;
 
@@ -102,14 +101,6 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
         return controller;
     }
 
-    private String generateUniqueId() {
-        String routeId;
-        do {
-            routeId = UUID.randomUUID().toString();
-        } while (mRouteDescriptors.containsKey(routeId));
-        return routeId;
-    }
-
     @Nullable
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
@@ -130,133 +121,138 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
             memberIds.addAll(initialRoute.getGroupMemberIds());
         }
 
-        String groupId = generateUniqueId();
+        String groupId = UUID.randomUUID().toString();
         mDynamicRouteController = new SampleDynamicGroupRouteController(groupId, memberIds);
 
         return mDynamicRouteController;
     }
 
+    /** Reload the provider routes. */
+    public void reloadRoutes() {
+        initializeRoutes();
+        publishRoutes();
+    }
+
+    /** Reload the isDynamicRouteEnabled flag. */
+    public void reloadDynamicRoutesEnabled() {
+        boolean isDynamicRoutesEnabled = RoutesManager.getInstance().isDynamicRoutingEnabled();
+        MediaRouteProviderDescriptor providerDescriptor =
+                new MediaRouteProviderDescriptor.Builder(getDescriptor())
+                        .setSupportsDynamicGroupRoute(isDynamicRoutesEnabled)
+                        .build();
+        setDescriptor(providerDescriptor);
+    }
+
     @Override
     protected void initializeRoutes() {
-        Resources r = getContext().getResources();
+        mVolumes = new ArrayMap<>();
+        mRouteDescriptors = new HashMap<>();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
-        settingsIntent.setClass(getContext(), RouteSettingsActivity.class)
+        settingsIntent
+                .setClass(getContext(), SettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE).getIntentSender();
 
-        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "1", VOLUME_DEFAULT);
-        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "2", VOLUME_DEFAULT);
-        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "3", VOLUME_DEFAULT);
-        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "4", VOLUME_DEFAULT);
-        mVolumes.put(FIXED_VOLUME_ROUTE_ID, VOLUME_DEFAULT);
-        mVolumes.put(STATIC_GROUP_ROUTE_ID, VOLUME_DEFAULT);
-
-        MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
-                VARIABLE_VOLUME_BASIC_ROUTE_ID + "1",
-                r.getString(R.string.dg_tv_route_name1))
-                .setDescription(r.getString(R.string.sample_route_description))
-                .addControlFilters(CONTROL_FILTERS_BASIC)
-                .setDeviceType(MediaRouter.RouteInfo.DEVICE_TYPE_TV)
-                .setPlaybackStream(AudioManager.STREAM_MUSIC)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                .setVolumeMax(VOLUME_MAX)
-                .setVolume(VOLUME_DEFAULT)
-                .setCanDisconnect(true)
-                .setSettingsActivity(is)
-                .build();
-
-        MediaRouteDescriptor routeDescriptor2 = new MediaRouteDescriptor.Builder(
-                VARIABLE_VOLUME_BASIC_ROUTE_ID + "2",
-                r.getString(R.string.dg_tv_route_name2))
-                .setDescription(r.getString(R.string.sample_route_description))
-                .addControlFilters(CONTROL_FILTERS_BASIC)
-                .setDeviceType(MediaRouter.RouteInfo.DEVICE_TYPE_TV)
-                .setPlaybackStream(AudioManager.STREAM_MUSIC)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                .setVolumeMax(VOLUME_MAX)
-                .setVolume(VOLUME_DEFAULT)
-                .setCanDisconnect(true)
-                .setSettingsActivity(is)
-                .build();
-
-        MediaRouteDescriptor routeDescriptor3 = new MediaRouteDescriptor.Builder(
-                VARIABLE_VOLUME_BASIC_ROUTE_ID + "3",
-                r.getString(R.string.dg_speaker_route_name3))
-                .setDescription(r.getString(R.string.sample_route_description))
-                .addControlFilters(CONTROL_FILTERS_BASIC)
-                .setDeviceType(MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER)
-                .setPlaybackStream(AudioManager.STREAM_MUSIC)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                .setVolumeMax(VOLUME_MAX)
-                .setVolume(VOLUME_DEFAULT)
-                .setCanDisconnect(true)
-                .setSettingsActivity(is)
-                .build();
-
-        MediaRouteDescriptor routeDescriptor4 = new MediaRouteDescriptor.Builder(
-                VARIABLE_VOLUME_BASIC_ROUTE_ID + "4",
-                r.getString(R.string.dg_speaker_route_name4))
-                .setDescription(r.getString(R.string.sample_route_description))
-                .addControlFilters(CONTROL_FILTERS_BASIC)
-                .setDeviceType(MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER)
-                .setPlaybackStream(AudioManager.STREAM_MUSIC)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                .setVolumeMax(VOLUME_MAX)
-                .setVolume(VOLUME_DEFAULT)
-                .setCanDisconnect(true)
-                .setSettingsActivity(is)
-                .build();
-
-        MediaRouteDescriptor routeDescriptor5 = new MediaRouteDescriptor.Builder(
-                FIXED_VOLUME_ROUTE_ID,
-                r.getString(R.string.dg_not_unselectable_route_name5))
-                .setDescription(r.getString(R.string.sample_route_description))
-                .addControlFilters(CONTROL_FILTERS_BASIC)
-                .setPlaybackStream(AudioManager.STREAM_MUSIC)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
-                .setVolumeMax(VOLUME_MAX)
-                .setVolume(VOLUME_MAX)
-                .setCanDisconnect(true)
-                .setSettingsActivity(is)
-                .build();
-
-        MediaRouteDescriptor routeDescriptor6 = new MediaRouteDescriptor.Builder(
-                STATIC_GROUP_ROUTE_ID,
-                r.getString(R.string.dg_static_group_route_name6))
-                .setDescription(r.getString(R.string.sample_route_description))
-                .addControlFilters(CONTROL_FILTERS_BASIC)
-                .addGroupMemberId(routeDescriptor1.getId())
-                .addGroupMemberId(routeDescriptor3.getId())
-                .setPlaybackStream(AudioManager.STREAM_MUSIC)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
-                .setVolumeMax(VOLUME_MAX)
-                .setVolume(VOLUME_MAX)
-                .setCanDisconnect(true)
-                .setSettingsActivity(is)
-                .build();
-
-        mRouteDescriptors.put(routeDescriptor1.getId(), routeDescriptor1);
-        mRouteDescriptors.put(routeDescriptor2.getId(), routeDescriptor2);
-        mRouteDescriptors.put(routeDescriptor3.getId(), routeDescriptor3);
-        mRouteDescriptors.put(routeDescriptor4.getId(), routeDescriptor4);
-        mRouteDescriptors.put(routeDescriptor5.getId(), routeDescriptor5);
-        mRouteDescriptors.put(routeDescriptor6.getId(), routeDescriptor6);
+        List<RouteItem> routeItems = RoutesManager.getInstance().getRouteItems();
+        for (RouteItem routeItem : routeItems) {
+            MediaRouteDescriptor routeDescriptor = buildRouteDescriptor(routeItem, is);
+            mVolumes.put(routeItem.getId(), routeItem.getVolume());
+            mRouteDescriptors.put(routeItem.getId(), routeDescriptor);
+        }
     }
 
     @Override
     protected void publishRoutes() {
-        MediaRouteProviderDescriptor providerDescriptor = new MediaRouteProviderDescriptor.Builder()
-                .setSupportsDynamicGroupRoute(true)
-                .addRoutes(mRouteDescriptors.values())
-                .build();
+        MediaRouteProviderDescriptor providerDescriptor =
+                new MediaRouteProviderDescriptor.Builder()
+                        .setSupportsDynamicGroupRoute(true)
+                        .addRoutes(mRouteDescriptors.values())
+                        .build();
         setDescriptor(providerDescriptor);
+    }
+
+    private MediaRouteDescriptor buildRouteDescriptor(RouteItem routeItem, IntentSender is) {
+        return new MediaRouteDescriptor.Builder(routeItem.getId(), routeItem.getName())
+                .setDescription(routeItem.getDescription())
+                .addControlFilters(getControlFilters(routeItem.getControlFilter()))
+                .setPlaybackStream(getPlaybackStream(routeItem.getPlaybackStream()))
+                .setPlaybackType(getPlaybackType(routeItem.getPlaybackType()))
+                .setVolumeHandling(getVolumeHandling(routeItem.getVolumeHandling()))
+                .setDeviceType(getDeviceType(routeItem.getDeviceType()))
+                .setVolumeMax(routeItem.getVolumeMax())
+                .setVolume(routeItem.getVolume())
+                .setCanDisconnect(routeItem.isCanDisconnect())
+                .setSettingsActivity(is)
+                .build();
+    }
+
+    private int getPlaybackStream(RouteItem.PlaybackStream playBackStream) {
+        switch (playBackStream) {
+            case ACCESSIBILITY:
+                return AudioManager.STREAM_ACCESSIBILITY;
+            case ALARM:
+                return AudioManager.STREAM_ALARM;
+            case DTMF:
+                return AudioManager.STREAM_DTMF;
+            case MUSIC:
+                return AudioManager.STREAM_MUSIC;
+            case NOTIFICATION:
+                return AudioManager.STREAM_NOTIFICATION;
+            case RING:
+                return AudioManager.STREAM_RING;
+            case SYSTEM:
+                return AudioManager.STREAM_SYSTEM;
+            case VOICE_CALL:
+                return AudioManager.STREAM_VOICE_CALL;
+        }
+        return AudioManager.STREAM_MUSIC;
+    }
+
+    private int getPlaybackType(RouteItem.PlaybackType playBackType) {
+        switch (playBackType) {
+            case LOCAL:
+                return MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL;
+            case REMOTE:
+                return MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE;
+        }
+        return MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL;
+    }
+
+    private int getVolumeHandling(RouteItem.VolumeHandling volumeHandling) {
+        switch (volumeHandling) {
+            case FIXED:
+                return MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED;
+            case VARIABLE:
+                return MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
+        }
+        return MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED;
+    }
+
+    private List<IntentFilter> getControlFilters(RouteItem.ControlFilter controlFilter) {
+        switch (controlFilter) {
+            case BASIC:
+                return CONTROL_FILTERS_BASIC;
+            case QUEUE:
+                return CONTROL_FILTERS_QUEUING;
+            case SESSION:
+                return CONTROL_FILTERS_SESSION;
+        }
+        return new ArrayList<>();
+    }
+
+    private int getDeviceType(RouteItem.DeviceType deviceType) {
+        switch (deviceType) {
+            case SPEAKER:
+                return MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
+            case BLUETOOTH:
+                return MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH;
+            case TV:
+                return MediaRouter.RouteInfo.DEVICE_TYPE_TV;
+            case UNKNOWN:
+                return MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
+        }
+        return MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
     }
 
     final class SampleDynamicGroupRouteController
