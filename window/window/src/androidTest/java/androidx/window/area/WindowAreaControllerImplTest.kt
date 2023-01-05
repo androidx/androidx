@@ -25,6 +25,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.extensions.area.ExtensionWindowAreaPresentation
+import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.core.util.function.Consumer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -166,6 +168,18 @@ class WindowAreaControllerImplTest {
             statusListeners.remove(consumer)
         }
 
+        override fun addRearDisplayPresentationStatusListener(
+            consumer: Consumer<ExtensionWindowAreaStatus>
+        ) {
+            return
+        }
+
+        override fun removeRearDisplayPresentationStatusListener(
+            consumer: Consumer<ExtensionWindowAreaStatus>
+        ) {
+            return
+        }
+
         // Fake WindowAreaComponent will change the orientation of the activity to signal
         // entering rear display mode, as well as ending the session
         @RequiresApi(Build.VERSION_CODES.N)
@@ -186,6 +200,21 @@ class WindowAreaControllerImplTest {
         override fun endRearDisplaySession() {
             testActivity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             sessionConsumer?.accept(WindowAreaComponent.SESSION_STATE_INACTIVE)
+        }
+
+        override fun startRearDisplayPresentationSession(
+            activity: Activity,
+            consumer: Consumer<Int>
+        ) {
+            return
+        }
+
+        override fun endRearDisplayPresentationSession() {
+            return
+        }
+
+        override fun getRearDisplayPresentation(): ExtensionWindowAreaPresentation? {
+            return null
         }
 
         @RequiresApi(Build.VERSION_CODES.N)
