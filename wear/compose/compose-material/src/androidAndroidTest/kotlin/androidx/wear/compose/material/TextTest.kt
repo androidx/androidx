@@ -65,18 +65,14 @@ class TextTest {
     fun validateGreaterMinLinesResultsGreaterSize() {
         var size1: Int = 0
         var size2: Int = 0
-        val minLines1 = 1
-        val minLines2 = 2
-        val maxLines1 = 3
-        val maxLines2 = 3
 
         rule.setContent {
             CompositionLocalProvider(LocalContentColor provides Color.Blue) {
                 Column(Modifier.background(Color.White)) {
                     Text(
                         "Lorem ipsum",
-                        minLines = minLines1,
-                        maxLines = maxLines1,
+                        minLines = 1,
+                        maxLines = 3,
                         onTextLayout = {
                             size1 = it.size.height
                         }
@@ -84,8 +80,8 @@ class TextTest {
 
                     Text(
                         "Lorem ipsum",
-                        minLines = minLines2,
-                        maxLines = maxLines2,
+                        minLines = 2,
+                        maxLines = 3,
                         onTextLayout = {
                             size2 = it.size.height
                         }
