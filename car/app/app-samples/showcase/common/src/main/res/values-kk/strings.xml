@@ -108,8 +108,8 @@
     <string name="pane_limit" msgid="981518409516855230">"Панель шегі"</string>
     <string name="place_list_limit" msgid="6785181191763056582">"Орындар тізімінің шегі"</string>
     <string name="route_list_limit" msgid="505793441615134116">"Бағыт тізімінің шегі"</string>
-    <string name="content_limits" msgid="5726880972110281095">"Мазмұн шектеулері"</string>
-    <string name="content_limits_demo_title" msgid="3207211638386727610">"Мазмұн шектеулерінің демо нұсқасы"</string>
+    <string name="content_limits" msgid="5726880972110281095">"Контент шектеулері"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"Контент шектеулерінің демо нұсқасы"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Қолданба жабылады, ал қайта ашқан кезде, рұқсат сұрау экранын қосады."</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Қолданбаның демо нұсқасын аяқтау"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Келесі іске қосу кезінде рұқсат сұрау экранын қосу операциясының демо нұсқасы"</string>
@@ -259,7 +259,7 @@
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Кіру үлгісінің демо нұсқасы"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Суреттер белгісіз хост үшін көрсетілмейді."</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Белгіше"</string>
-    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Мазмұн провайдерлерінің белгішесін көрсету"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Контент провайдерлерінің белгішесін көрсету"</string>
     <string name="icons_demo_title" msgid="4082976685262307357">"Белгішенің демо нұсқасы"</string>
     <string name="app_icon_title" msgid="7534936683349723423">"Қолданба белгішесі"</string>
     <string name="vector_no_tint_title" msgid="874591632279039146">"Вектор кескінделетін дереккөз, түс реңкісіз"</string>
