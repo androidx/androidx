@@ -23,6 +23,7 @@ import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataError
+import androidx.credentials.exceptions.domerrors.EncodingError
 import androidx.credentials.exceptions.domerrors.InvalidStateError
 import androidx.credentials.exceptions.domerrors.NetworkError
 import androidx.credentials.exceptions.domerrors.NotAllowedError
@@ -357,7 +358,13 @@ class PublicKeyCredentialControllerUtility {
                             "transports"
                         )
                         for (j in 0 until descriptorTransports.length()) {
-                            transports.add(Transport.fromString(descriptorTransports.getString(j)))
+                            try {
+                                transports.add(Transport.fromString(
+                                    descriptorTransports.getString(j)))
+                            } catch (e: Transport.UnsupportedTransportException) {
+                                throw CreatePublicKeyCredentialDomException(EncodingError(),
+                                    e.message)
+                            }
                         }
                     }
                     excludeCredentialsList.add(
