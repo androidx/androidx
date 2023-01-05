@@ -21,6 +21,8 @@ import androidx.health.services.client.proto.DataProto
 /**
  * Configuration attributes for a specific exercise type that may be modified after the exercise has
  * started. This should not be instantiated outside the health.services.client.data library.
+ * Developers should create instances of [ExerciseTypeConfig] using the constructor of available
+ * subclasses, depending on their needs. Currently available types are: [GolfExerciseTypeConfig].
  */
 abstract class ExerciseTypeConfig internal constructor() {
   internal abstract fun toProto(): DataProto.ExerciseTypeConfig
