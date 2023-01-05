@@ -451,7 +451,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 classSrcDatabase1,
                 classSrcEntity1,
                 classGenDatabase1,
-                classGenDao1
+                classGenDao1,
             )
             assertUnchangedFiles(
                 classSrcDatabase2,
