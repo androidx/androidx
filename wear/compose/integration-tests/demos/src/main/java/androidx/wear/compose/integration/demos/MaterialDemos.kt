@@ -69,7 +69,9 @@ import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
+import androidx.wear.compose.material.samples.StepperWithCustomSemanticsSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
+import androidx.wear.compose.material.samples.StepperWithoutRangeSemanticsSample
 import androidx.wear.compose.material.samples.TextPlaceholder
 import androidx.wear.compose.material.samples.TimeTextAnimation
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
@@ -241,6 +243,12 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Integer Stepper") {
                             Centralize { StepperWithIntegerSample() }
                         },
+                        ComposableDemo("Stepper without RangeSemantics") {
+                            Centralize { StepperWithoutRangeSemanticsSample() }
+                        },
+                        ComposableDemo("Stepper with customSemantics") {
+                            Centralize { StepperWithCustomSemanticsSample() }
+                        }
                     )
                 ),
                 DemoCategory(
