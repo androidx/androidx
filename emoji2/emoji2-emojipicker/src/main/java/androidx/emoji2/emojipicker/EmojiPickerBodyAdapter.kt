@@ -21,14 +21,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.annotation.UiThread
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import androidx.emoji2.emojipicker.Extensions.toItemType
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import androidx.tracing.Trace
 
 /** RecyclerView adapter for emoji body.  */
 internal class EmojiPickerBodyAdapter(
@@ -44,60 +43,54 @@ internal class EmojiPickerBodyAdapter(
     private var emojiCellHeight: Int? = null
 
     @UiThread
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        Trace.beginSection("EmojiPickerBodyAdapter.onCreateViewHolder")
-        return try {
-            when (viewType.toItemType()) {
-                ItemType.CATEGORY_TITLE -> createSimpleHolder(R.layout.category_text_view, parent)
-                ItemType.PLACEHOLDER_TEXT -> createSimpleHolder(
-                    R.layout.empty_category_text_view, parent
-                ) {
-                    minimumHeight =
-                        emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
-                            .also { emojiCellHeight = it }
-                }
-
-                ItemType.EMOJI -> {
-                    EmojiViewHolder(context,
-                        parent,
-                        emojiCellWidth ?: (getParentWidth(parent) / emojiGridColumns).also {
-                            emojiCellWidth = it
-                        },
-                        emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
-                            .also { emojiCellHeight = it },
-                        layoutInflater,
-                        stickyVariantProvider,
-                        onEmojiPickedListener = { emojiViewItem ->
-                            onEmojiPickedListener(emojiViewItem)
-                        },
-                        onEmojiPickedFromPopupListener = { emoji ->
-                            with(
-                                emojiPickerItems.getBodyItem(bindingAdapterPosition)
-                                    as EmojiViewData
-                            ) {
-                                if (updateToSticky) {
-                                    this.emoji = emoji
-                                    notifyItemChanged(bindingAdapterPosition)
-                                }
-                            }
-                        })
-                }
-
-                ItemType.PLACEHOLDER_EMOJI -> object : ViewHolder(View(context)) {}
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        when (viewType.toItemType()) {
+            ItemType.CATEGORY_TITLE -> createSimpleHolder(R.layout.category_text_view, parent)
+            ItemType.PLACEHOLDER_TEXT -> createSimpleHolder(
+                R.layout.empty_category_text_view, parent
+            ) {
+                minimumHeight =
+                    emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
+                        .also { emojiCellHeight = it }
             }
-        } finally {
-            Trace.endSection()
+
+            ItemType.EMOJI -> {
+                EmojiViewHolder(context,
+                    parent,
+                    emojiCellWidth ?: (getParentWidth(parent) / emojiGridColumns).also {
+                        emojiCellWidth = it
+                    },
+                    emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
+                        .also { emojiCellHeight = it },
+                    layoutInflater,
+                    stickyVariantProvider,
+                    onEmojiPickedListener = { emojiViewItem ->
+                        onEmojiPickedListener(emojiViewItem)
+                    },
+                    onEmojiPickedFromPopupListener = { emoji ->
+                        with(
+                            emojiPickerItems.getBodyItem(bindingAdapterPosition)
+                                as EmojiViewData
+                        ) {
+                            if (updateToSticky) {
+                                this.emoji = emoji
+                                notifyItemChanged(bindingAdapterPosition)
+                            }
+                        }
+                    })
+            }
+
+            ItemType.PLACEHOLDER_EMOJI -> object : ViewHolder(View(context)) {}
         }
-    }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val item = emojiPickerItems.getBodyItem(position)
         when (getItemViewType(position).toItemType()) {
-            ItemType.CATEGORY_TITLE -> ViewCompat.requireViewById<AppCompatTextView>(
+            ItemType.CATEGORY_TITLE -> ViewCompat.requireViewById<TextView>(
                 viewHolder.itemView, R.id.category_name
             ).text = (item as CategoryTitle).title
 
-            ItemType.PLACEHOLDER_TEXT -> ViewCompat.requireViewById<AppCompatTextView>(
+            ItemType.PLACEHOLDER_TEXT -> ViewCompat.requireViewById<TextView>(
                 viewHolder.itemView, R.id.emoji_picker_empty_category_view
             ).text = (item as PlaceholderText).text
 

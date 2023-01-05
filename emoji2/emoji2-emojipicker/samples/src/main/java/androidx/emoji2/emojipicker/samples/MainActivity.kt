@@ -18,15 +18,11 @@ package androidx.emoji2.emojipicker.samples
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.emoji2.emojipicker.RecentEmojiProvider
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +35,7 @@ class MainActivity : AppCompatActivity() {
         }
         view.setRecentEmojiProvider(CustomRecentEmojiProvider(applicationContext))
 
-        CoroutineScope(EmptyCoroutineContext).launch(Dispatchers.Main) {
-            // delay a few seconds to view the layout reformat
-            delay(3000)
+        findViewById<Button>(R.id.button).setOnClickListener {
             view.emojiGridColumns = 8
             view.emojiGridRows = 8.3f
         }
@@ -49,14 +43,13 @@ class MainActivity : AppCompatActivity() {
 }
 
 /**
- * Define a custom recent emoji provider which only provides emoji with clicks >= 2
+ * Define a custom recent emoji provider which shows most frequently used emoji
  */
 internal class CustomRecentEmojiProvider(
     context: Context
 ) : RecentEmojiProvider {
 
     companion object {
-        private const val PREF_KEY_CUSTOM_RECENT_EMOJI = "pref_key_custom_recent_emoji"
         private const val PREF_KEY_CUSTOM_EMOJI_FREQ = "pref_key_custom_emoji_freq"
         private const val RECENT_EMOJI_LIST_FILE_NAME =
             "androidx.emoji2.emojipicker.sample.preferences"
@@ -66,31 +59,19 @@ internal class CustomRecentEmojiProvider(
 
     private val sharedPreferences =
         context.getSharedPreferences(RECENT_EMOJI_LIST_FILE_NAME, Context.MODE_PRIVATE)
-    private val recentEmojiList =
-        sharedPreferences.getString(PREF_KEY_CUSTOM_RECENT_EMOJI, null)
-            ?.split(SPLIT_CHAR)
-            ?.toMutableList()
-            ?: mutableListOf()
 
-    private val emoji2Frequency: MutableMap<String, Int> = mutableMapOf()
-
-    init {
-        for (entry in sharedPreferences.getString(PREF_KEY_CUSTOM_EMOJI_FREQ, null)
-            ?.split(SPLIT_CHAR) ?: listOf()) {
-            val kv = entry.split(KEY_VALUE_DELIMITER)
-            emoji2Frequency[kv[0]] = kv[1].toInt()
-        }
+    private val emoji2Frequency: MutableMap<String, Int> by lazy {
+        sharedPreferences.getString(PREF_KEY_CUSTOM_EMOJI_FREQ, null)?.split(SPLIT_CHAR)
+            ?.associate { entry ->
+                entry.split(KEY_VALUE_DELIMITER, limit = 2).takeIf { it.size == 2 }
+                    ?.let { it[0] to it[1].toInt() } ?: ("" to 0)
+            }?.toMutableMap() ?: mutableMapOf()
     }
 
-    override suspend fun getRecentEmojiList(): List<String> {
-        val recentList = mutableListOf<String>()
-        emoji2Frequency.keys.filter { (emoji2Frequency[it] ?: 0) >= 2 }
-            .map { recentList.add(it) }
-        return recentList
-    }
+    override suspend fun getRecentEmojiList() =
+        emoji2Frequency.toList().sortedByDescending { it.second }.map { it.first }
 
     override fun recordSelection(emoji: String) {
-        recentEmojiList.add(0, emoji)
         emoji2Frequency[emoji] = (emoji2Frequency[emoji] ?: 0) + 1
         saveToPreferences()
     }
@@ -98,7 +79,6 @@ internal class CustomRecentEmojiProvider(
     private fun saveToPreferences() {
         sharedPreferences
             .edit()
-            .putString(PREF_KEY_CUSTOM_RECENT_EMOJI, recentEmojiList.joinToString(SPLIT_CHAR))
             .putString(PREF_KEY_CUSTOM_EMOJI_FREQ, emoji2Frequency.entries.joinToString(SPLIT_CHAR))
             .commit()
     }

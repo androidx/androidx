@@ -16,7 +16,6 @@
 
 package androidx.emoji2.emojipicker
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 
@@ -60,16 +59,10 @@ internal class ItemGroup(
 internal class EmojiPickerItems(
     private val groups: List<ItemGroup>,
 ) {
-    companion object {
-        const val LOG_TAG = "EmojiPickerItems"
-    }
-
     val size: Int get() = groups.sumOf { it.size }
 
     init {
-        if (groups.isEmpty()) {
-            Log.wtf(LOG_TAG, "Initialized with empty categorized sources")
-        }
+        check(groups.isNotEmpty()) { "Initialized with empty categorized sources" }
     }
 
     fun getBodyItem(@IntRange(from = 0) absolutePosition: Int): ItemViewData {
