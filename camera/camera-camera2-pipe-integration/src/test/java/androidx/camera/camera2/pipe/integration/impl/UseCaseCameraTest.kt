@@ -110,7 +110,7 @@ class UseCaseCameraTest {
             threads = useCaseThreads,
             requestControl = requestControl
         ).also {
-            it.runningUseCases = setOf(fakeUseCase)
+            it.runningUseCasesLiveData.value = setOf(fakeUseCase)
         }
         assumeTrue(
             fakeCameraGraph.fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(
@@ -124,7 +124,7 @@ class UseCaseCameraTest {
                 addSurface(surface)
             }
         )
-        useCaseCamera.runningUseCases = setOf(fakeUseCase)
+        useCaseCamera.runningUseCasesLiveData.value = setOf(fakeUseCase)
 
         // Assert. The stopRepeating() should be called.
         assertThat(

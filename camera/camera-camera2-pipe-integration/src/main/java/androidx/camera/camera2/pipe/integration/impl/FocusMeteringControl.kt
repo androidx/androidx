@@ -31,6 +31,7 @@ import androidx.camera.core.CameraControl
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
+import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraControlInternal
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
@@ -55,14 +56,33 @@ class FocusMeteringControl @Inject constructor(
         get() = _useCaseCamera
         set(value) {
             _useCaseCamera = value
+
+            // reset to null since preview ratio may not be applicable for current runningUseCases
+            previewAspectRatio = null
+            _useCaseCamera?.runningUseCasesLiveData?.observeForever { useCases ->
+                useCases.forEach { useCase ->
+                    if (useCase is Preview) {
+                        useCase.attachedSurfaceResolution?.apply {
+                            previewAspectRatio = Rational(width, height)
+                        }
+                    }
+                }
+            }
         }
 
     override fun reset() {
         cancelFocusAndMeteringAsync()
     }
 
-    private val sensorRect =
+    private var previewAspectRatio: Rational? = null
+    private val sensorRect by lazy {
+        // TODO("b/262225455"): use the actual crop sensor region like in camera-camera2
         cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
+    }
+
+    private val defaultAspectRatio: Rational
+        get() = previewAspectRatio ?: Rational(sensorRect.width(), sensorRect.height())
+
     private val maxAfRegionCount =
         cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AF, 0)
     private val maxAeRegionCount =
@@ -76,10 +96,6 @@ class FocusMeteringControl @Inject constructor(
         val signal = CompletableDeferred<FocusMeteringResult>()
 
         useCaseCamera?.let { useCaseCamera ->
-            // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect
-            //  ratio.
-            val defaultAspectRatio = Rational(sensorRect.width(), sensorRect.height())
-
             threads.sequentialScope.launch {
                 signal.complete(
                     useCaseCamera.requestControl.startFocusAndMeteringAsync(
@@ -117,9 +133,6 @@ class FocusMeteringControl @Inject constructor(
     fun isFocusMeteringSupported(
         action: FocusMeteringAction
     ): Boolean {
-        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
-        val defaultAspectRatio = Rational(sensorRect.width(), sensorRect.height())
-
         val rectanglesAe = meteringRegionsFromMeteringPoints(
             action.meteringPointsAe,
             maxAeRegionCount,

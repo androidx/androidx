@@ -43,6 +43,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -99,7 +100,7 @@ class TestUseCaseCamera(
         }
     }
 
-    override var runningUseCases = useCases.toSet()
+    override val runningUseCasesLiveData = MutableLiveData(useCases.toSet())
 
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,

@@ -218,7 +218,7 @@ class UseCaseManager @Inject constructor(
         when {
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
-            else -> camera?.runningUseCases = runningUseCases
+            else -> camera?.runningUseCasesLiveData?.value = runningUseCases
         }
     }
 
