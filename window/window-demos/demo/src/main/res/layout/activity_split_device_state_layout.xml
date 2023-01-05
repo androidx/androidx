@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Use the default split attributes"
+                android:text="@string/use_default_split_attributes"
                 android:checked="true"/>
 
             <!-- The fullscreen option group -->
@@ -157,7 +157,7 @@
             android:layout_marginBottom="10dp"
             android:background="#AAAAAA" />
         <TextView
-            android:id="@+id/error_message_text_view"
+            android:id="@+id/warning_message_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
