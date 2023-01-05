@@ -23,6 +23,7 @@ import org.junit.Test
 /**
  * Unit tests for [WindowAreaStatus] that run on the JVM.
  */
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalWindowApi::class)
 class WindowAreaStatusUnitTest {
 

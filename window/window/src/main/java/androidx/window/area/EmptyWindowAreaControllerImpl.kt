@@ -17,26 +17,55 @@
 package androidx.window.area
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
+import android.os.Binder
+import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.util.concurrent.Executor
 
 /**
- * Empty Implementation for devices that do not
- * support the [WindowAreaController] functionality
+ * Empty Implementation for devices that do not support the [WindowAreaController] functionality
  */
-@ExperimentalWindowApi
 internal class EmptyWindowAreaControllerImpl : WindowAreaController {
+
+    override val windowAreaInfos: Flow<List<WindowAreaInfo>>
+        get() = flowOf(listOf())
+
+    override fun transferActivityToWindowArea(
+        token: Binder,
+        activity: Activity,
+        executor: Executor,
+        windowAreaSessionCallback: WindowAreaSessionCallback
+    ) {
+        windowAreaSessionCallback.onSessionEnded(
+            IllegalStateException("There are no WindowAreas"))
+    }
+
+    override fun presentContentOnWindowArea(
+        token: Binder,
+        activity: Activity,
+        executor: Executor,
+        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
+    ) {
+        windowAreaPresentationSessionCallback.onSessionEnded(
+            IllegalStateException("There are no WindowAreas"))
+    }
+
+    @Suppress("DEPRECATION")
+    @Deprecated("Replaced with windowAreaInfoList", replaceWith = ReplaceWith("windowAreaInfoList"))
     override fun rearDisplayStatus(): Flow<WindowAreaStatus> {
         return flowOf(WindowAreaStatus.UNSUPPORTED)
     }
 
+    @Deprecated(
+        "Replaced with transferContentToWindowArea",
+        replaceWith = ReplaceWith("transferContentToWindowArea")
+    )
     override fun rearDisplayMode(
         activity: Activity,
         executor: Executor,
         windowAreaSessionCallback: WindowAreaSessionCallback
     ) {
-        throw WindowAreaController.REAR_DISPLAY_ERROR
+        windowAreaSessionCallback.onSessionEnded(
+            UnsupportedOperationException("Rear Display mode cannot be enabled currently"))
     }
 }
