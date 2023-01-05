@@ -26,6 +26,14 @@ dependencies {
     api(libs.kotlinStdlib)
     implementation project(path: ':privacysandbox:ui:ui-core')
     implementation project(path: ':annotation:annotation')
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 android {
