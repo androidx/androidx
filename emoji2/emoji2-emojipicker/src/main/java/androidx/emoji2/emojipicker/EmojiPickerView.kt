@@ -247,11 +247,10 @@ class EmojiPickerView @JvmOverloads constructor(
     fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
         this.recentEmojiProvider = recentEmojiProvider
 
-        if (::emojiPickerItems.isInitialized) {
-            scope.launch {
-                refreshRecentItems()
+        scope.launch {
+            refreshRecentItems()
+            if (::emojiPickerItems.isInitialized) {
                 val range = emojiPickerItems.groupRange(recentItemGroup)
-
                 withContext(Dispatchers.Main) {
                     bodyAdapter.notifyItemRangeChanged(range.first, range.last + 1)
                 }
