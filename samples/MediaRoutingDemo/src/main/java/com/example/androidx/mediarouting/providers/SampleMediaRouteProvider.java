@@ -45,7 +45,7 @@ import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaSessionStatus;
 
 import com.example.androidx.mediarouting.R;
-import com.example.androidx.mediarouting.activities.RouteSettingsActivity;
+import com.example.androidx.mediarouting.activities.SettingsActivity;
 import com.example.androidx.mediarouting.data.PlaylistItem;
 import com.example.androidx.mediarouting.player.Player;
 import com.example.androidx.mediarouting.services.SampleMediaRouteProviderService;
@@ -53,6 +53,7 @@ import com.example.androidx.mediarouting.session.SessionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,9 +95,9 @@ public class SampleMediaRouteProvider extends MediaRouteProvider {
     public static final String EXTRA_SNAPSHOT =
             "com.example.androidx.media.extra.SNAPSHOT";
 
-    protected static final ArrayList<IntentFilter> CONTROL_FILTERS_BASIC;
-    protected static final ArrayList<IntentFilter> CONTROL_FILTERS_QUEUING;
-    protected static final ArrayList<IntentFilter> CONTROL_FILTERS_SESSION;
+    protected static final List<IntentFilter> CONTROL_FILTERS_BASIC;
+    protected static final List<IntentFilter> CONTROL_FILTERS_QUEUING;
+    protected static final List<IntentFilter> CONTROL_FILTERS_SESSION;
 
     static {
         IntentFilter f1 = new IntentFilter();
@@ -181,7 +182,8 @@ public class SampleMediaRouteProvider extends MediaRouteProvider {
     protected void initializeRoutes() {
         Resources r = getContext().getResources();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
-        settingsIntent.setClass(getContext(), RouteSettingsActivity.class)
+        settingsIntent
+                .setClass(getContext(), SettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         int pendingIntentFlagMutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,

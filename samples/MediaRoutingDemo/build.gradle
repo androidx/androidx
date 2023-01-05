@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(project(":mediarouter:mediarouter"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
 }
 

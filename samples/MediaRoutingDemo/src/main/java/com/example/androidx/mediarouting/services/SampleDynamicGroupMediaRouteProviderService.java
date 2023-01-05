@@ -16,7 +16,12 @@
 
 package com.example.androidx.mediarouting.services;
 
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderService;
 
@@ -29,9 +34,46 @@ import com.example.androidx.mediarouting.providers.SampleDynamicGroupMediaRouteP
  * @see SampleDynamicGroupMediaRouteProvider
  */
 public class SampleDynamicGroupMediaRouteProviderService extends MediaRouteProviderService {
+
+    public static final String ACTION_BIND_LOCAL = "com.example.androidx.mediarouting.BIND_LOCAL";
+
+    private SampleDynamicGroupMediaRouteProvider mDynamicGroupMediaRouteProvider;
+
     @NonNull
     @Override
     public MediaRouteProvider onCreateMediaRouteProvider() {
-        return new SampleDynamicGroupMediaRouteProvider(this);
+        mDynamicGroupMediaRouteProvider = new SampleDynamicGroupMediaRouteProvider(this);
+        return mDynamicGroupMediaRouteProvider;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(@NonNull Intent intent) {
+        if (intent != null && ACTION_BIND_LOCAL.equals(intent.getAction())) {
+            return new LocalBinder();
+        } else {
+            return super.onBind(intent);
+        }
+    }
+
+    /** Reload all routes provided by this service. */
+    public void reloadRoutes() {
+        mDynamicGroupMediaRouteProvider.reloadRoutes();
+    }
+
+    /** Reload the flag for isDynamicRouteEnabled. */
+    public void reloadDynamicRoutesEnabled() {
+        mDynamicGroupMediaRouteProvider.reloadDynamicRoutesEnabled();
+    }
+
+    /**
+     * Allows getting a direct reference to {@link SampleDynamicGroupMediaRouteProviderService} from
+     * bindings within the same process.
+     */
+    public class LocalBinder extends Binder {
+        @NonNull
+        public SampleDynamicGroupMediaRouteProviderService getService() {
+            return SampleDynamicGroupMediaRouteProviderService.this;
+        }
     }
 }

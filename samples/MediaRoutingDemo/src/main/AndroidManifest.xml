@@ -26,14 +26,14 @@
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"
         android:label="@string/activity_sample_code"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SampleMediaRouter">
 
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:label="@string/sample_media_router_activity_dark"
-            android:theme="@style/Theme.SampleMediaRouter">
+            android:label="@string/sample_media_router_activity_dark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.SAMPLE_CODE" />
@@ -43,10 +43,10 @@
         </activity>
 
         <activity
-            android:name=".activities.RouteSettingsActivity"
+            android:name=".activities.SettingsActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:label="@string/sample_media_route_settings_activity"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:label="@string/sample_media_router_activity_dark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
@@ -69,11 +69,12 @@
         <service
             android:name=".services.SampleDynamicGroupMediaRouteProviderService"
             android:label="@string/sample_media_route_provider_service"
-            android:exported="true"
-            android:process=":dynamic_mrp">
+            android:exported="true">
+
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
                 <action android:name="android.media.MediaRoute2ProviderService" />
+                <action android:name="com.example.androidx.mediarouting.BIND_LOCAL" />
             </intent-filter>
         </service>
 
