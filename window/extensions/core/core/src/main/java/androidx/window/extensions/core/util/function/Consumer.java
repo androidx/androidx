@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions.core.util.function
+package androidx.window.extensions.core.util.function;
 
 /**
- * Represents a function that accepts an argument and produces a result.
+ * Represents a function that accepts an argument and produces no result.
  * It is used internally to avoid using Java 8 functional interface that leads to desugaring and
  * Proguard shrinking.
  *
- * @param T: the type of the input of the function
- * @param R: the type of the output of the function
+ * @param <T>: the type of the input of the function
  *
- * @see java.util.function.Function
+ * @see java.util.function.Consumer
  */
-fun interface Function<in T : Any, out R : Any> {
+@FunctionalInterface
+public interface Consumer<T> {
     /**
-     * Applies this function to the given argument.
+     * Performs the operation on the given argument
      *
-     * @param t the function argument
-     * @return the function result
+     * @param t the input argument
      */
-    fun apply(t: T): R
+    void accept(T t);
 }

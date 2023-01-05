@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions.core.util.function
+package androidx.window.extensions.core.util.function;
 
 /**
  * Represents a predicate boolean-valued function of one argument.
  * It is used internally to avoid using Java 8 functional interface that leads to desugaring and
  * Proguard shrinking.
  *
- * @param T the type of the input to the predicate
+ * @param <T> the type of the input to the predicate
  *
  * @see java.util.function.Predicate
  */
-fun interface Predicate<in T : Any> {
+@FunctionalInterface
+public interface Predicate<T> {
     /**
      * Tests the predicate against a given argument.
      *
      * @param t the input of the predicate
-     * @return `true` if the input matches the [Predicate], otherwise, `false`
+     * @return {@code true} if the input matches the {@code Predicate}, otherwise, {@code false}
      */
-    fun test(t: T): Boolean
+    boolean test(T t);
 }
