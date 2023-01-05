@@ -46,7 +46,7 @@ internal class EmojiViewHolder(
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
 ) {
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
-        showPopupWindow {
+        showPopupWindow(context) {
             PopupViewHelper(context).fillPopupView(
                 it,
                 layoutInflater,
@@ -98,6 +98,7 @@ internal class EmojiViewHolder(
     }
 
     private fun showPopupWindow(
+        context: Context,
         init: PopupWindow.(GridLayout) -> Unit
     ) {
         val popupView = layoutInflater
@@ -113,6 +114,9 @@ internal class EmojiViewHolder(
             val y =
                 location[1] - popupView.rowCount * emojiView.height -
                     popupView.paddingBottom - popupView.paddingTop
+            // Set background drawable so that the popup window is dismissed properly when clicking
+            // outside / scrolling for API < 23.
+            setBackgroundDrawable(context.getDrawable(R.drawable.popup_view_rounded_background))
             isOutsideTouchable = true
             isTouchable = true
             animationStyle = R.style.VariantPopupAnimation
