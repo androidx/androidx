@@ -202,7 +202,7 @@ private class PublisherLiveData<T>(
     override fun onInactive() {
         super.onInactive()
         val s = subscriber.getAndSet(null)
-        s.cancelSubscription()
+        s?.cancelSubscription()
     }
 
     inner class LiveDataSubscriber : AtomicReference<Subscription>(), Subscriber<T> {
