@@ -16,6 +16,7 @@
 
 package androidx.credentials.playservices
 
+import android.os.Bundle
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
 import com.google.android.gms.common.ConnectionResult
 import org.json.JSONArray
@@ -101,6 +102,33 @@ class TestUtils {
                 setValue.add(values[i].toString())
             }
             return setValue
+        }
+
+        /** True if the two Bundles contain the same elements, and false otherwise. Borrowed from
+         * the credentials package.
+         */
+        @Suppress("DEPRECATION")
+        fun equals(a: Bundle, b: Bundle): Boolean {
+            if (a.keySet().size != b.keySet().size) {
+                return false
+            }
+            for (key in a.keySet()) {
+                if (!b.keySet().contains(key)) {
+                    return false
+                }
+
+                val valA = a.get(key)
+                val valB = b.get(key)
+                if (valA is Bundle && valB is Bundle && !equals(valA, valB)) {
+                    return false
+                } else {
+                    val isEqual = (valA?.equals(valB) ?: (valB == null))
+                    if (!isEqual) {
+                        return false
+                    }
+                }
+            }
+            return true
         }
 
         @JvmStatic
