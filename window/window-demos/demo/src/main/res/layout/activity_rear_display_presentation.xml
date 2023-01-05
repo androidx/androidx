@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright 2021 The Android Open Source Project
+  Copyright 2023 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,19 +29,8 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <Button
-        android:id="@+id/rear_display_button"
-        android:text="Enable RearDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/rear_display_session_button" />
-
-    <Button
-        android:id="@+id/rear_display_session_button"
-        android:text="Get active session if available"
+        android:id="@+id/rear_display_presentation_button"
+        android:text="Enable Rear Display Presentation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAlignment="center"

@@ -86,4 +86,6 @@
     <string name="choose_split_type">Choose the split type</string>
     <string name="choose_layout_direction">Choose the layout direction</string>
     <string name="show_placeholder_warning">Placeholder Activity may show (again) because "Use a placeholder for A is checked". Clear the check box to expand Activity A to fill the task by either clicking "FINISH SECONDARY ACTIVITIES".</string>
+    <string name="dual_display">Dual Display</string>
+    <string name="dual_display_description">Demo of showing content on the rear and internal displays concurrently</string>
 </resources>
