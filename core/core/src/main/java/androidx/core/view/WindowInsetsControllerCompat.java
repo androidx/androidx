@@ -54,12 +54,30 @@ import java.util.concurrent.TimeUnit;
 public final class WindowInsetsControllerCompat {
 
     /**
-     * The default option for {@link #setSystemBarsBehavior(int)}. System bars will be forcibly
-     * shown on any user interaction on the corresponding display if navigation bars are hidden
-     * by {@link #hide(int)} or
+     * Option for {@link #setSystemBarsBehavior(int)}. System bars will be forcibly shown on any
+     * user interaction on the corresponding display if navigation bars are hidden by
+     * {@link #hide(int)} or
      * {@link WindowInsetsAnimationControllerCompat#setInsetsAndAlpha(Insets, float, float)}.
+     *
+     * @deprecated This is not supported on Android {@link android.os.Build.VERSION_CODES#S} and
+     * later. Use {@link #BEHAVIOR_DEFAULT} or {@link #BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE}
+     * instead.
      */
+    @Deprecated
     public static final int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0;
+
+    /**
+     * The default option for {@link #setSystemBarsBehavior(int)}: Window would like to remain
+     * interactive when hiding navigation bars by calling {@link #hide(int)} or
+     * {@link WindowInsetsAnimationControllerCompat#setInsetsAndAlpha(Insets, float, float)}.
+     *
+     * <p>When system bars are hidden in this mode, they can be revealed with system gestures, such
+     * as swiping from the edge of the screen where the bar is hidden from.</p>
+     *
+     * <p>When the gesture navigation is enabled, the system gestures can be triggered regardless
+     * the visibility of system bars.</p>
+     */
+    public static final int BEHAVIOR_DEFAULT = 1;
 
     /**
      * Option for {@link #setSystemBarsBehavior(int)}: Window would like to remain interactive
@@ -68,8 +86,11 @@ public final class WindowInsetsControllerCompat {
      * <p>
      * When system bars are hidden in this mode, they can be revealed with system
      * gestures, such as swiping from the edge of the screen where the bar is hidden from.
+     *
+     * @deprecated Use {@link #BEHAVIOR_DEFAULT} instead.
      */
-    public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1;
+    @Deprecated
+    public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = BEHAVIOR_DEFAULT;
 
     /**
      * Option for {@link #setSystemBarsBehavior(int)}: Window would like to remain
@@ -135,8 +156,7 @@ public final class WindowInsetsControllerCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(value = {BEHAVIOR_SHOW_BARS_BY_TOUCH, BEHAVIOR_SHOW_BARS_BY_SWIPE,
-            BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE})
+    @IntDef(value = {BEHAVIOR_DEFAULT, BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE})
     @interface Behavior {
     }
 
@@ -515,7 +535,7 @@ public final class WindowInsetsControllerCompat {
         @Override
         void setSystemBarsBehavior(int behavior) {
             switch (behavior) {
-                case BEHAVIOR_SHOW_BARS_BY_SWIPE:
+                case BEHAVIOR_DEFAULT:
                     unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
                     break;
