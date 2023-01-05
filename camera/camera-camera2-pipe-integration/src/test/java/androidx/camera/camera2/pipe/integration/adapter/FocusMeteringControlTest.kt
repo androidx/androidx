@@ -531,8 +531,8 @@ class FocusMeteringControlTest {
     }
 
     @Test
-    @Ignore("When AfState is null, it means AF is not supported")
-    fun startFocusMetering_AfStateIsNull_completesWithFocusFalse() {
+    @Ignore("b/263323720: When AfState is null, it means AF is not supported")
+    fun startFocusMetering_AfStateIsNull_completesWithFocusTrue() {
         fakeRequestControl.focusMeteringResult3A = Result3A(
             status = Result3A.Status.OK,
             frameMetadata = FakeFrameMetadata(
@@ -552,7 +552,7 @@ class FocusMeteringControlTest {
     }
 
     @Test
-    @Ignore("When AF is not supported, focus should be reported as successful")
+    @Ignore("b/263323720: When AF is not supported, focus should be reported as successful")
     fun startFocusMeteringAfRequested_CameraNotSupportAfAuto_CompletesWithTrue() {
         // Use camera which does not support AF_AUTO
         focusMeteringControl = initFocusMeteringControl(CAMERA_ID_2)
@@ -776,27 +776,22 @@ class FocusMeteringControlTest {
     }
 
     // TODO: Port the following tests once their corresponding logics have been implemented.
-    //  - triggerAfWithTemplate, triggerAePrecaptureWithTemplate, cancelAfAeTriggerWithTemplate
+    //  - [b/255679866] triggerAfWithTemplate, triggerAePrecaptureWithTemplate,
+    //          cancelAfAeTriggerWithTemplate
     //  - startFocusAndMetering_AfRegionCorrectedByQuirk
-    //  - cropRegionIsSet_resultBasedOnCropRegion
-    //  - withAFPoints_AFIsTriggered, withoutAFPoints_AFIsNotTriggered (ref: TapToFocusDeviceTest)
-    //  - autoCancelDuration_completeWithIsFocusSuccessfulFalse
-    //  - shorterAutoCancelDuration_cancelIsCalled_completeActionFutureIsNotCalled
-    //  - longerAutoCancelDuration_cancelIsCalled_afterCompleteWithIsFocusSuccessfulFalse
-    //  - autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration
-    //  The following ones should probably be tested with actual camera (shadow or device) since
-    //  these tests guess what camera would return for provided parameters,
-    //  I think it will be better to test these in actual devices (b/263322280). Additionally, we
-    //  should also add some tests here to check if toFocusMeteringResult is working properly.
-    //  - startFocusMeteringAEAWB_sessionUpdated_completesWithFocusFalse
-    //  - startFocusMeteringAE_sessionUpdated_completesWithFocusFalse
-    //  - startFocusMeteringAFOnly_sessionUpdated_completesWithFocusTrue
+    //  - [b/262225455] cropRegionIsSet_resultBasedOnCropRegion
+    //  - [b/205662153] autoCancelDuration_completeWithIsFocusSuccessfulFalse,
+    //      shorterAutoCancelDuration_cancelIsCalled_completeActionFutureIsNotCalled,
+    //      longerAutoCancelDuration_cancelIsCalled_afterCompleteWithIsFocusSuccessfulFalse,
+    //      autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration
     //  The following ones will depend on how exactly they will be implemented.
-    //  - cancelFocusAndMetering_* (probably many of these tests will no longer be applicable in
-    //      this level since Controller3A handles things a bit differently)
-    //  - addFocusMeteringOptions_hasCorrectAfMode,startFocusMetering_isAfAutoModeIsTrue,
-    //      startFocusMetering_AfNotInvolved_isAfAutoModeIsSet,
-    //      startAndThenCancel_isAfAutoModeIsFalse (an alternative way can be checking the AF mode
+    //  - [b/205662153] cancelFocusAndMetering_* (probably many of these tests will no longer be
+    //      applicable in this level since Controller3A handles things a bit differently)
+    //  - [b/264018162] addFocusMeteringOptions_hasCorrectAfMode,
+    //                  startFocusMetering_isAfAutoModeIsTrue,
+    //                  startFocusMetering_AfNotInvolved_isAfAutoModeIsSet,
+    //                  startAndThenCancel_isAfAutoModeIsFalse
+    //      (an alternative way can be checking the AF mode
     //      at the frame with AF_TRIGGER_START request in capture callback, but this requires
     //      invoking actual camera operations, ref: TapToFocusDeviceTest)
 
