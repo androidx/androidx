@@ -78,6 +78,7 @@ import androidx.compose.ui.zIndex
  * @param indicator used to indicate which tab is currently selected and/or focused
  * @param tabs a composable which will render all the tabs
  */
+@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Composable
 fun TabRow(
   selectedTabIndex: Int,
@@ -161,6 +162,7 @@ fun TabRow(
   }
 }
 
+@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object TabRowDefaults {
   /** Color of the background of a tab */
   val ContainerColor = Color.Transparent
