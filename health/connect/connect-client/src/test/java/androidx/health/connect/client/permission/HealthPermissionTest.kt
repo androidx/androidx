@@ -30,14 +30,14 @@ class HealthPermissionTest {
 
     @Test
     fun createReadPermissionLegacy() {
-        val permission = HealthPermission.createReadPermission(StepsRecord::class)
+        val permission = HealthPermission.createReadPermissionLegacy(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.READ)
         assertThat(permission.recordType).isEqualTo(StepsRecord::class)
     }
 
     @Test
     fun createWritePermissionLegacy() {
-        val permission = HealthPermission.createWritePermission(StepsRecord::class)
+        val permission = HealthPermission.createWritePermissionLegacy(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.WRITE)
         assertThat(permission.recordType).isEqualTo(StepsRecord::class)
     }

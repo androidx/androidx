@@ -254,7 +254,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         )
     }
 
-    override suspend fun getGrantedPermissions(
+    override suspend fun getGrantedPermissionsLegacy(
         permissions: Set<HealthPermission>
     ): Set<HealthPermission> {
         throw UnsupportedOperationException("Method not supported yet")

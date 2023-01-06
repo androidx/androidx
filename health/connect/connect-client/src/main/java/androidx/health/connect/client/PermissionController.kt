@@ -36,7 +36,10 @@ interface PermissionController {
      * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    suspend fun getGrantedPermissions(permissions: Set<HealthPermission>): Set<HealthPermission>
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // To be deleted once internal clients have migrated.
+    suspend fun getGrantedPermissionsLegacy(
+        permissions: Set<HealthPermission>
+    ): Set<HealthPermission>
 
     /**
      * Returns a set of all health permissions granted by the user to the calling app.
@@ -45,9 +48,8 @@ interface PermissionController {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
-     * @sample androidx.health.connect.client.samples.GetPermission
+     * @sample androidx.health.connect.client.samples.GetPermissions
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
     suspend fun getGrantedPermissions(): Set<String>
 
     /**
@@ -67,9 +69,10 @@ interface PermissionController {
          *   from.
          * @see androidx.activity.ComponentActivity.registerForActivityResult
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be deleted once internal clients have migrated.
         @JvmStatic
         @JvmOverloads
-        fun createRequestPermissionResultContract(
+        fun createRequestPermissionResultContractLegacy(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> {
             return HealthDataRequestPermissions(providerPackageName = providerPackageName)
@@ -85,8 +88,7 @@ interface PermissionController {
          */
         @JvmStatic
         @JvmOverloads
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
-        fun createRequestPermissionResultContractInternal(
+        fun createRequestPermissionResultContract(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<String>, Set<String>> {
             return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)

@@ -32,16 +32,16 @@ package androidx.health.connect.client {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
-    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract(optional String providerPackageName);
-    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract();
-    method public suspend Object? getGrantedPermissions(java.util.Set<androidx.health.connect.client.permission.HealthPermission> permissions, kotlin.coroutines.Continuation<? super java.util.Set<? extends androidx.health.connect.client.permission.HealthPermission>>);
+    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
+    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
+    method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<? extends java.lang.String>>);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.health.connect.client.PermissionController.Companion Companion;
   }
 
   public static final class PermissionController.Companion {
-    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract(optional String providerPackageName);
-    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract();
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
   }
 
 }
@@ -102,14 +102,14 @@ package androidx.health.connect.client.changes {
 package androidx.health.connect.client.permission {
 
   public final class HealthPermission {
-    method public static androidx.health.connect.client.permission.HealthPermission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
-    method public static androidx.health.connect.client.permission.HealthPermission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    method public static String getReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    method public static String getWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
     field public static final androidx.health.connect.client.permission.HealthPermission.Companion Companion;
   }
 
   public static final class HealthPermission.Companion {
-    method public androidx.health.connect.client.permission.HealthPermission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
-    method public androidx.health.connect.client.permission.HealthPermission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    method public String getReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    method public String getWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
   }
 
 }

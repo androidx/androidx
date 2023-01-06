@@ -398,9 +398,9 @@ class HealthConnectClientUpsideDownImplTest {
     @Test
     fun getGrantedPermission_throwUOE() = runTest {
         assertFailsWith<UnsupportedOperationException> {
-            healthConnectClient.permissionController.getGrantedPermissions(
+            healthConnectClient.permissionController.getGrantedPermissionsLegacy(
                 setOf(
-                    HealthPermission.createReadPermission(
+                    HealthPermission.createReadPermissionLegacy(
                         StepsRecord::class,
                     )
                 )

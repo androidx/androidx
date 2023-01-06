@@ -75,7 +75,7 @@ internal constructor(
         },
 ) : HealthConnectClient, PermissionController {
 
-    override suspend fun getGrantedPermissions(
+    override suspend fun getGrantedPermissionsLegacy(
         permissions: Set<HealthPermission>
     ): Set<HealthPermission> {
         val grantedPermissions =

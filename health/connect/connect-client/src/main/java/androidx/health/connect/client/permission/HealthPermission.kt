@@ -91,8 +91,9 @@ internal constructor(
          * @return Permission object to use with
          *   [androidx.health.connect.client.PermissionController].
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be deleted.
         @JvmStatic
-        public fun createReadPermission(recordType: KClass<out Record>): HealthPermission {
+        public fun createReadPermissionLegacy(recordType: KClass<out Record>): HealthPermission {
             return HealthPermission(recordType, AccessTypes.READ)
         }
 
@@ -103,7 +104,6 @@ internal constructor(
          * @return Permission to use with [androidx.health.connect.client.PermissionController].
          * @throws IllegalArgumentException if the given record type is invalid.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
         @JvmStatic
         public fun getReadPermission(recordType: KClass<out Record>): String {
             if (RECORD_TYPE_TO_PERMISSION[recordType] == null) {
@@ -119,8 +119,9 @@ internal constructor(
          *
          * @return Permission to use with [androidx.health.connect.client.PermissionController].
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be deleted.
         @JvmStatic
-        public fun createWritePermission(recordType: KClass<out Record>): HealthPermission {
+        public fun createWritePermissionLegacy(recordType: KClass<out Record>): HealthPermission {
             return HealthPermission(recordType, AccessTypes.WRITE)
         }
 
@@ -132,7 +133,6 @@ internal constructor(
          *   [androidx.health.connect.client.PermissionController].
          * @throws IllegalArgumentException if the given record type is invalid.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
         @JvmStatic
         public fun getWritePermission(recordType: KClass<out Record>): String {
             if (RECORD_TYPE_TO_PERMISSION[recordType] == null) {
