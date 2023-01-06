@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import java.io.Closeable
 import javax.inject.Inject
 
 /**
@@ -47,7 +46,7 @@ internal class SurfaceGraph @Inject constructor(
     private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
 
     @GuardedBy("lock")
-    private val surfaceUsageMap: MutableMap<Surface, Closeable> = mutableMapOf()
+    private val surfaceUsageMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
 
     @GuardedBy("lock")
     private val closed: Boolean = false
@@ -66,7 +65,7 @@ internal class SurfaceGraph @Inject constructor(
                     "Removed surface for $streamId"
                 }
             }
-            var oldSurfaceToken: Closeable? = null
+            var oldSurfaceToken: AutoCloseable? = null
 
             if (surface == null) {
                 // TODO: Tell the graph processor that it should resubmit the repeating request or

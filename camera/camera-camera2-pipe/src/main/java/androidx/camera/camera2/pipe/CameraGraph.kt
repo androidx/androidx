@@ -26,7 +26,6 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
-import java.io.Closeable
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
 
@@ -66,7 +65,7 @@ abstract class GraphState internal constructor() {
  * A [CameraGraph] represents the combined configuration and state of a camera.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface CameraGraph : Closeable {
+public interface CameraGraph : AutoCloseable {
     public val streams: StreamGraph
 
     /**
@@ -213,7 +212,7 @@ public interface CameraGraph : Closeable {
      * While this object is thread-safe, it should not shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
-    public interface Session : Closeable {
+    public interface Session : AutoCloseable {
         /**
          * Causes the CameraGraph to start or update the current repeating request with the
          * provided [Request] object. The [Request] object may be cached, and may be used for
