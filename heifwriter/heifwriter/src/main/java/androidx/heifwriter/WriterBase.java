@@ -554,6 +554,10 @@ public class WriterBase implements AutoCloseable {
 
     /*
      * Gets handler.
+     *
+     * The result is the same as clients' input from setHandler() method.
+     * If not null, client will receive all callbacks on the handler's looper.
+     * Otherwise, client will receive callbacks on the current looper.
      */
     public @Nullable Handler getHandler() {
         return mHandler;

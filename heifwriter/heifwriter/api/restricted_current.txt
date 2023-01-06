@@ -59,13 +59,13 @@ package androidx.heifwriter {
   public static final class HeifWriter.Builder {
     ctor public HeifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     ctor public HeifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
-    method public androidx.heifwriter.HeifWriter! build() throws java.io.IOException;
-    method public androidx.heifwriter.HeifWriter.Builder! setGridEnabled(boolean);
-    method public androidx.heifwriter.HeifWriter.Builder! setHandler(android.os.Handler?);
-    method public androidx.heifwriter.HeifWriter.Builder! setMaxImages(@IntRange(from=1) int);
-    method public androidx.heifwriter.HeifWriter.Builder! setPrimaryIndex(@IntRange(from=0) int);
-    method public androidx.heifwriter.HeifWriter.Builder! setQuality(@IntRange(from=0, to=100) int);
-    method public androidx.heifwriter.HeifWriter.Builder! setRotation(@IntRange(from=0) int);
+    method public androidx.heifwriter.HeifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.HeifWriter.Builder setGridEnabled(boolean);
+    method public androidx.heifwriter.HeifWriter.Builder setHandler(android.os.Handler?);
+    method public androidx.heifwriter.HeifWriter.Builder setMaxImages(@IntRange(from=1) int);
+    method public androidx.heifwriter.HeifWriter.Builder setPrimaryIndex(@IntRange(from=0) int);
+    method public androidx.heifwriter.HeifWriter.Builder setQuality(@IntRange(from=0, to=100) int);
+    method public androidx.heifwriter.HeifWriter.Builder setRotation(@IntRange(from=0) int);
   }
 
 }
