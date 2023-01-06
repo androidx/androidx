@@ -32,6 +32,7 @@ import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.DialogFragmentNavigator.Destination
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Navigator that uses [DialogFragment.show]. Every
@@ -75,6 +76,12 @@ public class DialogFragmentNavigator(
             }
         }
     }
+
+    /**
+     * Gets the backstack of [NavBackStackEntry] associated with this Navigator
+     */
+    internal val backStack: StateFlow<List<NavBackStackEntry>>
+        get() = state.backStack
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         if (fragmentManager.isStateSaved) {
