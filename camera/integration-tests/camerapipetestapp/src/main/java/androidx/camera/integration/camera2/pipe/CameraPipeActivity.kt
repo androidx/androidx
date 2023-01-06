@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.Trace
 import android.util.Log
 import android.view.View
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import kotlinx.coroutines.runBlocking
@@ -36,6 +37,7 @@ class CameraPipeActivity : CameraPermissionActivity() {
 
     private var lastCameraId: CameraId? = null
     private var currentCamera: SimpleCamera? = null
+    private var operatingMode: CameraGraph.OperatingMode = CameraGraph.OperatingMode.NORMAL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,7 +118,7 @@ class CameraPipeActivity : CameraPermissionActivity() {
         Trace.endSection()
 
         Trace.beginSection("CXCP-App#startCameraGraph")
-        camera = SimpleCamera.create(cameraPipe, cameraId, ui.viewfinder, listOf())
+        camera = SimpleCamera.create(cameraPipe, cameraId, ui.viewfinder, listOf(), operatingMode)
         Trace.endSection()
         currentCamera = camera
         lastCameraId = cameraId
@@ -137,6 +139,17 @@ class CameraPipeActivity : CameraPermissionActivity() {
                     CameraCharacteristics.LENS_FACING_BACK
             } ?: cameras.first()
         }
+
+        // If a camera was previously opened and the operating mode is NORMAL, return the same
+        // camera but switch to HIGH_SPEED operating mode
+        if (operatingMode == CameraGraph.OperatingMode.NORMAL) {
+            operatingMode = CameraGraph.OperatingMode.HIGH_SPEED
+            return lastCameraId
+        }
+
+        // If the operating mode is not NORMAL, continue finding the next camera, which will
+        // be opened in NORMAL operating mode
+        operatingMode = CameraGraph.OperatingMode.NORMAL
 
         // If a camera was previously open, select the next camera in the list of all cameras. It is
         // possible that the list of cameras contains only one camera, in which case this will return
