@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import java.util.Locale;
 
 @SmallTest
-@SdkSuppress(minSdkVersion = VERSION_CODES.TIRAMISU)
+@SdkSuppress(minSdkVersion = VERSION_CODES.N)
 @RunWith(AndroidJUnit4.class)
 public class LocalePreferencesTest {
     private static Locale sLocale;
