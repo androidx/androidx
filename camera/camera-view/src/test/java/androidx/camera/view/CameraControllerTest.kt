@@ -19,34 +19,37 @@ package androidx.camera.view
 import android.content.Context
 import android.graphics.Matrix
 import android.os.Build
+import android.os.Looper.getMainLooper
+import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.TorchState
+import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.fakes.FakeAppConfig
+import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.video.Quality
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.transform.OutputTransform
-import androidx.camera.video.Quality
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -56,32 +59,59 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class CameraControllerTest {
+class CameraControllerTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private lateinit var cameraProvider: ProcessCameraProvider
-    private lateinit var controller: CameraController
+    private lateinit var controller: LifecycleCameraController
     private val targetSizeWithAspectRatio =
         CameraController.OutputSize(AspectRatio.RATIO_16_9)
     private val targetSizeWithResolution =
         CameraController.OutputSize(Size(1080, 1960))
     private val targetVideoQuality = Quality.HIGHEST
+    private val fakeViewPort = ViewPort.Builder(Rational(1, 1), 0).build()
+    private val fakeCamera = FakeCamera()
+    private val processCameraProviderWrapper = FakeProcessCameraProviderWrapper(fakeCamera)
+    private lateinit var lifecycleCameraProviderCompleter:
+        CallbackToFutureAdapter.Completer<ProcessCameraProviderWrapper>
 
     @Before
-    public fun setUp() {
-        val cameraXConfig = CameraXConfig.Builder.fromConfig(
-            FakeAppConfig.create()
-        ).build()
-        ProcessCameraProvider.configureInstance(cameraXConfig)
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        controller = LifecycleCameraController(context)
+    fun setUp() {
+        val lifecycleCameraProviderFuture = CallbackToFutureAdapter.getFuture { completer ->
+            lifecycleCameraProviderCompleter = completer
+            "CameraControllerTest.lifecycleCameraProviderFuture"
+        }
+        controller = LifecycleCameraController(context, lifecycleCameraProviderFuture)
+        controller.bindToLifecycle(FakeLifecycleOwner())
+        controller.attachPreviewSurface({ }, fakeViewPort)
     }
 
-    @After
-    public fun shutDown() {
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
-        }
+    @Test
+    fun initCompletes_torchStatePropagated() {
+        // Arrange: get LiveData before init completes
+        val torchState = controller.torchState
+        // State is null.
+        assertThat(torchState.value).isNull()
+        // Act: complete initialization.
+        completeCameraInitialization()
+        // Assert: LiveData gets a value update.
+        assertThat(torchState.value).isEqualTo(TorchState.OFF)
+    }
+
+    @Test
+    fun initCompletes_zoomStatePropagated() {
+        // Arrange: get LiveData before init completes
+        val zoomState = controller.zoomState
+        // State is null.
+        assertThat(zoomState.value).isNull()
+        // Act: complete initialization.
+        completeCameraInitialization()
+        // Assert: LiveData gets a value update.
+        assertThat(zoomState.value).isEqualTo(fakeCamera.cameraInfo.zoomState.value)
+    }
+
+    private fun completeCameraInitialization() {
+        lifecycleCameraProviderCompleter.set(processCameraProviderWrapper)
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test
@@ -191,7 +221,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setPreviewAspectRatio() {
+    fun setPreviewAspectRatio() {
         controller.previewTargetSize = targetSizeWithAspectRatio
         assertThat(controller.previewTargetSize).isEqualTo(targetSizeWithAspectRatio)
 
@@ -201,7 +231,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setPreviewResolution() {
+    fun setPreviewResolution() {
         controller.previewTargetSize = targetSizeWithResolution
         assertThat(controller.previewTargetSize).isEqualTo(targetSizeWithResolution)
 
@@ -211,7 +241,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setAnalysisAspectRatio() {
+    fun setAnalysisAspectRatio() {
         controller.imageAnalysisTargetSize = targetSizeWithAspectRatio
         assertThat(controller.imageAnalysisTargetSize).isEqualTo(targetSizeWithAspectRatio)
 
@@ -221,7 +251,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setAnalysisBackgroundExecutor() {
+    fun setAnalysisBackgroundExecutor() {
         val executor = Executors.newSingleThreadExecutor()
         controller.imageAnalysisBackgroundExecutor = executor
         assertThat(controller.imageAnalysisBackgroundExecutor).isEqualTo(executor)
@@ -231,7 +261,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setAnalysisQueueDepth() {
+    fun setAnalysisQueueDepth() {
         controller.imageAnalysisImageQueueDepth = 100
         assertThat(controller.imageAnalysisImageQueueDepth).isEqualTo(100)
         assertThat(controller.mImageAnalysis.imageQueueDepth).isEqualTo(100)
@@ -239,7 +269,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setAnalysisBackpressureStrategy() {
+    fun setAnalysisBackpressureStrategy() {
         controller.imageAnalysisBackpressureStrategy = ImageAnalysis.STRATEGY_BLOCK_PRODUCER
         assertThat(controller.imageAnalysisBackpressureStrategy)
             .isEqualTo(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
@@ -249,7 +279,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setImageCaptureResolution() {
+    fun setImageCaptureResolution() {
         controller.imageCaptureTargetSize = targetSizeWithResolution
         assertThat(controller.imageCaptureTargetSize).isEqualTo(targetSizeWithResolution)
 
@@ -259,7 +289,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setImageCaptureAspectRatio() {
+    fun setImageCaptureAspectRatio() {
         controller.imageCaptureTargetSize = targetSizeWithAspectRatio
         assertThat(controller.imageCaptureTargetSize).isEqualTo(targetSizeWithAspectRatio)
 
@@ -269,7 +299,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setImageCaptureMode() {
+    fun setImageCaptureMode() {
         controller.imageCaptureMode = ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
         assertThat(controller.imageCaptureMode)
             .isEqualTo(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
@@ -279,7 +309,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setImageCaptureIoExecutor() {
+    fun setImageCaptureIoExecutor() {
         val ioExecutor = Executors.newSingleThreadExecutor()
         controller.imageCaptureIoExecutor = ioExecutor
         assertThat(controller.imageCaptureIoExecutor).isEqualTo(ioExecutor)
@@ -296,7 +326,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun sensorRotationChanges_useCaseTargetRotationUpdated() {
+    fun sensorRotationChanges_useCaseTargetRotationUpdated() {
         // Act.
         controller.mDeviceRotationListener.onRotationChanged(Surface.ROTATION_180)
 
@@ -309,7 +339,7 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setSelectorBeforeBound_selectorSet() {
+    fun setSelectorBeforeBound_selectorSet() {
         // Arrange.
         assertThat(controller.cameraSelector.lensFacing).isEqualTo(CameraSelector.LENS_FACING_BACK)
 

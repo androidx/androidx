@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.UseCase;
@@ -36,6 +37,8 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A controller that provides most of the CameraX features.
@@ -70,6 +73,12 @@ public final class LifecycleCameraController extends CameraController {
 
     public LifecycleCameraController(@NonNull Context context) {
         super(context);
+    }
+
+    @VisibleForTesting
+    LifecycleCameraController(@NonNull Context context,
+            @NonNull ListenableFuture<ProcessCameraProviderWrapper> cameraProviderFuture) {
+        super(context, cameraProviderFuture);
     }
 
     /**

@@ -17,7 +17,9 @@
 package androidx.camera.view;
 
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.camera.core.impl.utils.futures.Futures.transform;
 import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
 import static androidx.core.content.ContextCompat.getMainExecutor;
 
@@ -65,7 +67,6 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -279,7 +280,7 @@ public abstract class CameraController {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    ProcessCameraProvider mCameraProvider;
+    ProcessCameraProviderWrapper mCameraProvider;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -315,7 +316,14 @@ public abstract class CameraController {
     @NonNull
     private final ListenableFuture<Void> mInitializationFuture;
 
+
     CameraController(@NonNull Context context) {
+        this(context, transform(ProcessCameraProvider.getInstance(context),
+                ProcessCameraProviderWrapperImpl::new, directExecutor()));
+    }
+
+    CameraController(@NonNull Context context,
+            @NonNull ListenableFuture<ProcessCameraProviderWrapper> cameraProviderFuture) {
         mAppContext = getApplicationContext(context);
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
@@ -323,8 +331,8 @@ public abstract class CameraController {
         mVideoCapture = createNewVideoCapture();
 
         // Wait for camera to be initialized before binding use cases.
-        mInitializationFuture = Futures.transform(
-                ProcessCameraProvider.getInstance(mAppContext),
+        mInitializationFuture = transform(
+                cameraProviderFuture,
                 provider -> {
                     mCameraProvider = provider;
                     startCameraAndTrackStates();
@@ -1632,7 +1640,7 @@ public abstract class CameraController {
                         Logger.d(TAG, "Tap to focus failed.", t);
                         mTapToFocusState.postValue(TAP_TO_FOCUS_FAILED);
                     }
-                }, CameraXExecutors.directExecutor());
+                }, directExecutor());
     }
 
     /**
