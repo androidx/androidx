@@ -44,6 +44,7 @@ kotlinSerialization = "1.3.3"
 ksp = "1.7.21-1.0.8"
 ktlint = "0.46.0-20220520.192227-74"
 leakcanary = "2.8.1"
+media3 = "1.0.0-beta03"
 metalava = "1.0.0-alpha07"
 mockito = "2.25.0"
 moshi = "1.13.0"
@@ -183,6 +184,15 @@ kxml2 = { module = "net.sf.kxml:kxml2", version = "2.3.0" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
+media3Common = { module = "androidx.media3:media3-cast", version.ref = "media3" }
+media3Decoder = { module = "androidx.media3:media3-decoder", version.ref = "media3" }
+media3Effect = { module = "androidx.media3:media3-effect", version.ref = "media3" }
+media3Exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+media3Extractor = { module = "androidx.media3:media3-extractor", version.ref = "media3" }
+media3Session = { module = "androidx.media3:media3-session", version.ref = "media3" }
+media3TestUtils = { module = "androidx.media3:media3-test-utils", version.ref = "media3" }
+media3Transformer = { module = "androidx.media3:media3-transformer", version.ref = "media3" }
+media3Ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 metalava = { module = "com.android.tools.metalava:metalava", version.ref = "metalava" }
 mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
