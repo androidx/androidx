@@ -309,6 +309,15 @@ public abstract class CameraController {
             TAP_TO_FOCUS_NOT_STARTED);
 
     @NonNull
+    private final PendingValue<Boolean> mPendingEnableTorch = new PendingValue<>();
+
+    @NonNull
+    private final PendingValue<Float> mPendingLinearZoom = new PendingValue<>();
+
+    @NonNull
+    private final PendingValue<Float> mPendingZoomRatio = new PendingValue<>();
+
+    @NonNull
     private final Set<CameraEffect> mEffects = new HashSet<>();
 
     private final Context mAppContext;
@@ -1806,8 +1815,7 @@ public abstract class CameraController {
     public ListenableFuture<Void> setZoomRatio(float zoomRatio) {
         checkMainThread();
         if (!isCameraAttached()) {
-            Logger.w(TAG, CAMERA_NOT_ATTACHED);
-            return Futures.immediateFuture(null);
+            return mPendingZoomRatio.setValue(zoomRatio);
         }
         return mCamera.getCameraControl().setZoomRatio(zoomRatio);
     }
@@ -1834,8 +1842,7 @@ public abstract class CameraController {
     public ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
         checkMainThread();
         if (!isCameraAttached()) {
-            Logger.w(TAG, CAMERA_NOT_ATTACHED);
-            return Futures.immediateFuture(null);
+            return mPendingLinearZoom.setValue(linearZoom);
         }
         return mCamera.getCameraControl().setLinearZoom(linearZoom);
     }
@@ -1873,8 +1880,7 @@ public abstract class CameraController {
     public ListenableFuture<Void> enableTorch(boolean torchEnabled) {
         checkMainThread();
         if (!isCameraAttached()) {
-            Logger.w(TAG, CAMERA_NOT_ATTACHED);
-            return Futures.immediateFuture(null);
+            return mPendingEnableTorch.setValue(torchEnabled);
         }
         return mCamera.getCameraControl().enableTorch(torchEnabled);
     }
@@ -1955,6 +1961,9 @@ public abstract class CameraController {
         }
         mZoomState.setSource(mCamera.getCameraInfo().getZoomState());
         mTorchState.setSource(mCamera.getCameraInfo().getTorchState());
+        mPendingEnableTorch.propagateIfHasValue(this::enableTorch);
+        mPendingLinearZoom.propagateIfHasValue(this::setLinearZoom);
+        mPendingZoomRatio.propagateIfHasValue(this::setZoomRatio);
     }
 
     /**
