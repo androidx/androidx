@@ -119,6 +119,8 @@ import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
@@ -930,6 +932,18 @@ public final class ImageCapture extends UseCase {
         int rotationDegrees = getRelativeRotation(camera);
 
         return ResolutionInfo.create(resolution, requireNonNull(cropRect), rotationDegrees);
+    }
+
+    /**
+     * Returns the resolution selector setting.
+     *
+     * <p>This setting is set when constructing an ImageCapture using
+     * {@link Builder#setResolutionSelector(ResolutionSelector)}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public ResolutionSelector getResolutionSelector() {
+        return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
     }
 
     /**
@@ -2885,21 +2899,20 @@ public final class ImageCapture extends UseCase {
         /**
          * Sets the resolution selector to select the preferred supported resolution.
          *
-         * <p>If no resolution selector is set, the largest available resolution will be selected
-         * to use. Usually, users will intend to get the largest still image that the camera
-         * device can support. Unlike {@link Builder#setTargetResolution(Size)},
-         * {@link #setCropAspectRatio(Rational)} won't be automatically called to set the
-         * corresponding value and crop the output image when a target resolution is set. Use
-         * {@link ViewPort} instead if the output images need to be cropped in a specific
-         * aspect ratio.
+         * <p>The default resolution strategy for ImageCapture is
+         * {@link ResolutionStrategy#HIGHEST_AVAILABLE_STRATEGY}, which will select the largest
+         * available resolution to use. Applications can override this default strategy with a
+         * different resolution strategy.
          *
          * <p>The existing {@link #setTargetResolution(Size)} and
          * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
-         * {@link ResolutionSelector}. Calling any of these APIs together with
-         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
-         * {@link #build()} is called to create the {@link ImageCapture} instance.
+         * {@link #setResolutionSelector(ResolutionSelector)}. Calling either of these APIs
+         * together with {@link #setResolutionSelector(ResolutionSelector)} will result in an
+         * {@link IllegalArgumentException} being thrown when you attempt to build the
+         * {@link ImageCapture} instance.
          *
-         **/
+         * @return The current Builder.
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull

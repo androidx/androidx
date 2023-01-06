@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.MirrorMode;
-import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -36,6 +35,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.List;
 import java.util.UUID;

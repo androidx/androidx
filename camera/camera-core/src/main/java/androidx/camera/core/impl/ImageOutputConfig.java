@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.MirrorMode;
-import androidx.camera.core.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
