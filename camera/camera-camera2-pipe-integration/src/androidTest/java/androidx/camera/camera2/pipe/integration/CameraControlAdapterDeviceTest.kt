@@ -53,7 +53,6 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -101,10 +100,6 @@ class CameraControlAdapterDeviceTest {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
 
-    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
-
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -143,7 +138,6 @@ class CameraControlAdapterDeviceTest {
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist
     //  after adding/removing the UseCase.
-    @LabTestRule.LabTestOnly
     @Test
     fun addUseCase_requestOptionsShouldSetToCamera(): Unit = runBlocking {
         // Arrange.
@@ -164,7 +158,6 @@ class CameraControlAdapterDeviceTest {
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist
     //  after adding/removing the UseCase.
-    @LabTestRule.LabTestOnly
     @Test
     fun removeUseCase_requestOptionsShouldSetToCamera(): Unit = runBlocking {
         // Arrange.
@@ -183,7 +176,6 @@ class CameraControlAdapterDeviceTest {
         verifyRequestOptions()
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun setFlashModeAuto_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -199,7 +191,6 @@ class CameraControlAdapterDeviceTest {
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_AUTO)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun setFlashModeOff_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -215,7 +206,6 @@ class CameraControlAdapterDeviceTest {
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun setFlashModeOn_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -231,7 +221,6 @@ class CameraControlAdapterDeviceTest {
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun enableTorch_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -247,7 +236,6 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun disableTorchFlashModeAuto_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
