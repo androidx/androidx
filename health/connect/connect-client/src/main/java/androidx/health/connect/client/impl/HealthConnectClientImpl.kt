@@ -66,6 +66,13 @@ class HealthConnectClientImpl
 internal constructor(
     private val providerPackageName: String,
     private val delegate: HealthDataAsyncClient,
+    private val allPermissions: List<String> =
+        HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
+            listOf<String>(
+                HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
+                HealthPermission.READ_PERMISSION_PREFIX + it.value
+            )
+        },
 ) : HealthConnectClient, PermissionController {
 
     override suspend fun getGrantedPermissions(
@@ -84,21 +91,20 @@ internal constructor(
         return grantedPermissions
     }
 
-    override suspend fun filterGrantedPermissions(
-        permissions: Set<String>
-    ): Set<String> {
+    override suspend fun getGrantedPermissions(): Set<String> {
         val grantedPermissions =
             delegate
                 .filterGrantedPermissions(
-                    permissions.map {
-                        PermissionProto.Permission.newBuilder().setPermission(it).build() }
-                        .toSet())
+                    allPermissions
+                        .map { PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                        .toSet()
+                )
                 .await()
                 .map { it.permission }
                 .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
+            "Granted ${grantedPermissions.size} out of ${allPermissions.size} permissions."
         )
         return grantedPermissions
     }
