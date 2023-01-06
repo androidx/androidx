@@ -39,7 +39,7 @@ public class ComposeNavigator : Navigator<Destination>() {
     /**
      * Get the back stack from the [state].
      */
-    internal val backStack get() = state.backStack
+    public val backStack get() = state.backStack
 
     override fun navigate(
         entries: List<NavBackStackEntry>,
@@ -60,14 +60,16 @@ public class ComposeNavigator : Navigator<Destination>() {
     }
 
     /**
-     * Callback that removes the given [NavBackStackEntry] from the [map of the transitions in
-     * progress][transitionsInProgress]. This should be called in conjunction with [navigate] and
-     * [popBackStack] as those call are responsible for adding entries to [transitionsInProgress].
+     * Callback to mark a navigation in transition as complete.
+     *
+     * This should be called in conjunction with [navigate] and [popBackStack] as those
+     * calls merely start a transition to the target destination, and requires manually marking
+     * the transition as complete by calling this method.
      *
      * Failing to call this method could result in entries being prevented from reaching their
-     * final [Lifecycle.State]}.
+     * final [Lifecycle.State].
      */
-    internal fun onTransitionComplete(entry: NavBackStackEntry) {
+    public fun onTransitionComplete(entry: NavBackStackEntry) {
         state.markTransitionComplete(entry)
     }
 
