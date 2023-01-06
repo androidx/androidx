@@ -29,6 +29,7 @@ import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEnti
 import androidx.room.awaitPendingRefresh
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
@@ -408,6 +409,7 @@ class MultiTypedPagingSourceTest(
         }
     }
 
+    @FlakyTest(bugId = 261205680)
     @Test
     fun appendWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
