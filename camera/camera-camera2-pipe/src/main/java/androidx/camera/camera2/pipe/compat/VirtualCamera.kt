@@ -104,7 +104,7 @@ internal enum class ClosedReason {
 internal interface VirtualCamera {
     val state: Flow<CameraState>
     val value: CameraState
-    fun disconnect()
+    fun disconnect(lastCameraError: CameraError? = null)
 }
 
 internal val virtualCameraDebugIds = atomic(0)
@@ -159,7 +159,7 @@ internal class VirtualCameraState(
         }
     }
 
-    override fun disconnect() {
+    override fun disconnect(lastCameraError: CameraError?) {
         synchronized(lock) {
             if (closed) {
                 return
@@ -179,7 +179,8 @@ internal class VirtualCameraState(
                 emitState(
                     CameraStateClosed(
                         cameraId,
-                        cameraClosedReason = ClosedReason.APP_DISCONNECTED
+                        cameraClosedReason = ClosedReason.APP_DISCONNECTED,
+                        cameraErrorCode = lastCameraError
                     )
                 )
             }
