@@ -45,7 +45,7 @@ public class MediumInterstitialActivity extends AppCompatActivity {
 
     public static final String LAYOUT_HORIZONTAL = "layoutHorizontal";
     private static final int STRETCH_THIS_DIMENSION = 0;
-    private static final int MARGIN_DP = 5;
+    private static final int MARGIN_DP = 2;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
