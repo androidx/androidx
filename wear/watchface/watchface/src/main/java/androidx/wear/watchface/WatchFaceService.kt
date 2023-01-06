@@ -103,6 +103,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -820,38 +821,44 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    internal fun writeComplicationDataCache(
+    internal fun periodicallyWriteComplicationDataCache(
         context: Context,
-        complicationSlotsManager: ComplicationSlotsManager,
-        fileName: String
+        fileName: String,
+        complicationsFlow: MutableStateFlow<List<IdAndComplicationDataWireFormat>>
     ) = TraceEvent(
         "WatchFaceService.writeComplicationCache"
     ).use {
-        try {
-            val stream = ByteArrayOutputStream()
-            val objectOutputStream = ObjectOutputStream(stream)
-            objectOutputStream.writeInt(complicationSlotsManager.complicationSlots.size)
-            for (slot in complicationSlotsManager.complicationSlots) {
-                objectOutputStream.writeInt(slot.key)
-                objectOutputStream.writeObject(
-                    if ((slot.value.complicationData.value.persistencePolicy and
-                            ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
-                    ) {
-                        NoDataComplicationData().asWireComplicationData()
-                    } else {
-                        slot.value.complicationData.value.asWireComplicationData()
+        val backgroundThreadCoroutineScope =
+            CoroutineScope(getBackgroundThreadHandler().asCoroutineDispatcher().immediate)
+        backgroundThreadCoroutineScope.launch {
+            complicationsFlow.collect { complicationDataWireFormats ->
+                try {
+                    // The combination of 'collect' which conflates the updates and adding a delay
+                    // here ensures that we write updates at least 1 second apart. The delay is at
+                    // the beginning to delay writes during WF init.
+                    delay(1000)
+                    val stream = ByteArrayOutputStream()
+                    val objectOutputStream = ObjectOutputStream(stream)
+                    objectOutputStream.writeInt(complicationDataWireFormats.size)
+                    for (wireData in complicationDataWireFormats) {
+                        objectOutputStream.writeInt(wireData.id)
+                        objectOutputStream.writeObject(
+                            if ((wireData.complicationData.persistencePolicy and
+                                    ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
+                            ) {
+                                NoDataComplicationData().asWireComplicationData()
+                            } else {
+                                wireData.complicationData
+                            }
+                        )
                     }
-                )
+                    objectOutputStream.close()
+                    val byteArray = stream.toByteArray()
+                    writeComplicationDataCacheByteArray(context, fileName, byteArray)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to write to complication cache due to exception", e)
+                }
             }
-            objectOutputStream.close()
-            val byteArray = stream.toByteArray()
-
-            // File IO can be slow so perform the write from a background thread.
-            getBackgroundThreadHandler().post {
-                writeComplicationDataCacheByteArray(context, fileName, byteArray)
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to write to complication cache due to exception", e)
         }
     }
 
@@ -1212,7 +1219,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal var destroyed = false
         internal var surfaceDestroyed = false
-        internal var pendingComplicationDataCacheWrite = false
         internal var systemViewOfContentDescriptionLabelsIsStale = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
@@ -1570,7 +1576,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                     complicationSlotsManager.onComplicationsUpdated()
                     invalidate()
-                    scheduleWriteComplicationDataCache()
                 }
             }
         }
@@ -2060,6 +2065,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 complicationSlotsManager.watchState = watchState
                 complicationSlotsManager.listenForStyleChanges(uiThreadCoroutineScope)
                 listenForComplicationChanges(complicationSlotsManager)
+                if (!watchState.isHeadless) {
+                    periodicallyWriteComplicationDataCache(
+                        _context,
+                        watchState.watchFaceInstanceId.value,
+                        complicationsFlow
+                    )
+                }
 
                 val userStyleFlavors =
                     TraceEvent("WatchFaceService.createUserStyleFlavors").use {
@@ -2361,28 +2373,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         override fun getComplicationRationaleIntent() =
             getWatchFaceImplOrNull()?.complicationRationaleDialogIntent
-
-        @UiThread
-        override fun scheduleWriteComplicationDataCache() {
-            if (mutableWatchState.isHeadless || pendingComplicationDataCacheWrite) {
-                return
-            }
-            // During start up we'll typically get half a dozen or so updates. Here we de-duplicate.
-            pendingComplicationDataCacheWrite = true
-            getUiThreadHandler().postDelayed(
-                {
-                    pendingComplicationDataCacheWrite = false
-                    getWatchFaceImplOrNull()?.let { watchFaceImpl ->
-                        writeComplicationDataCache(
-                            _context,
-                            watchFaceImpl.complicationSlotsManager,
-                            mutableWatchState.watchFaceInstanceId.value
-                        )
-                    }
-                },
-                1000
-            )
-        }
 
         override fun onActionTimeTick() {
             // In interactive mode we don't need to do anything with onActionTimeTick() since the
