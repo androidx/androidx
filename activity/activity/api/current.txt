@@ -292,17 +292,19 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
+  @RequiresApi(19) public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
-    method public static final boolean isPhotoPickerAvailable();
+    method @Deprecated public static final boolean isPhotoPickerAvailable();
+    method public static final boolean isPhotoPickerAvailable(android.content.Context context);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {
-    method public boolean isPhotoPickerAvailable();
+    method @Deprecated public boolean isPhotoPickerAvailable();
+    method public boolean isPhotoPickerAvailable(android.content.Context context);
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.ImageAndVideo implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {
