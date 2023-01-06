@@ -158,6 +158,12 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
         mSplitController = SplitController.getInstance(this);
+        if (!mSplitController.isSplitSupported()) {
+            Toast.makeText(this, R.string.toast_split_not_support,
+                    Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         mRuleController = RuleController.getInstance(this);
     }
 

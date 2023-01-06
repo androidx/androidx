@@ -40,6 +40,21 @@ internal class EmbeddingCompat constructor(
 ) : EmbeddingInterfaceCompat {
 
     override fun setRules(rules: Set<EmbeddingRule>) {
+        var hasSplitRule = false
+        for (rule in rules) {
+            if (rule is SplitRule) {
+                hasSplitRule = true
+                break
+            }
+        }
+        if (hasSplitRule && !SplitController.getInstance(applicationContext).isSplitSupported()) {
+            Log.e(
+                TAG, "Cannot set SplitRule because ActivityEmbedding Split is not supported" +
+                    " or PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED is not set."
+            )
+            return
+        }
+
         val r = adapter.translate(applicationContext, rules)
         embeddingExtension.setEmbeddingRules(r)
     }

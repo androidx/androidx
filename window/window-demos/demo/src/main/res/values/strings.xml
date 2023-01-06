@@ -57,4 +57,5 @@
     <string name="ime_button_settings">System IME Settings</string>
     <string name="ime_button_switch_default">Switch default IME</string>
     <string name="install_samples_2">Install window-demos:demo-second-app to launch activities from a different UID.</string>
+    <string name="toast_split_not_support">Please enable PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED and ensure device supports splits.</string>
 </resources>
