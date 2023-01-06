@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -153,6 +156,41 @@ class LazyListBeyondBoundsTest(param: Param) {
         rule.runOnIdle {
             assertThat(placedItems).containsExactly(0, 1, 2)
             assertThat(visibleItems).containsExactly(0, 1, 2)
+        }
+    }
+
+    @Test
+    fun emptyLazyList_doesNotCrash() {
+        // Arrange.
+        var addItems by mutableStateOf(true)
+        lateinit var beyondBoundsLayoutRef: BeyondBoundsLayout
+        rule.setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
+            if (addItems) {
+                item {
+                    Box(
+                        Modifier.modifierLocalConsumer {
+                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
+                        }
+                    )
+                }
+            }
+        }
+        rule.runOnIdle {
+            beyondBoundsLayoutRef = beyondBoundsLayout!!
+            addItems = false
+        }
+
+        // Act.
+        rule.waitForIdle()
+        val hasMoreContent = rule.runOnUiThread {
+            beyondBoundsLayoutRef.layout(beyondBoundsLayoutDirection) {
+                hasMoreContent
+            }
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(hasMoreContent).isFalse()
         }
     }
 
