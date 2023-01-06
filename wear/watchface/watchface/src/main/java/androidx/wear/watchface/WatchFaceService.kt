@@ -95,6 +95,7 @@ import java.io.InputStreamReader
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.PrintWriter
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
@@ -1199,6 +1200,9 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         private var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
 
+        private val pendingUpdateTime: CancellableUniqueTask =
+            CancellableUniqueTask(getUiThreadHandler())
+
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible || forceIsVisibleForTesting()
             // Watch faces with the old [onSetBinder] init flow don't know whether the system
@@ -1692,6 +1696,7 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
             super.onDestroy()
+            pendingUpdateTime.cancel()
             if (!mutableWatchState.isHeadless) {
                 mainThreadPriorityDelegate.setNormalPriority()
             }
@@ -2375,6 +2380,10 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        override fun postInvalidate(delay: Duration) {
+            pendingUpdateTime.postDelayedUnique(delay) { invalidate() }
+        }
+
         override fun getComplicationDeniedIntent() =
             getWatchFaceImplOrNull()?.complicationDeniedDialogIntent
 
@@ -2700,8 +2709,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 )
                 if (wslFlow.iWatchFaceService.asBinder().isBinderAlive) {
                     writer.println(
-                        "iWatchFaceService.apiVersion=" +
-                            "${wslFlow.iWatchFaceService.apiVersion}"
+                        "iWatchFaceService.apiVersion=${wslFlow.iWatchFaceService.apiVersion}"
                     )
                 }
             }
@@ -2719,13 +2727,12 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("frameCallbackPending=$frameCallbackPending")
             writer.println("destroyed=$destroyed")
             writer.println("surfaceDestroyed=$surfaceDestroyed")
-            writer.println(
-                "lastComplications=" + complicationsFlow.value.joinToString()
-            )
+            writer.println("lastComplications=${complicationsFlow.value.joinToString()}")
+            writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
 
             synchronized(lock) {
                 forEachListener("dump") {
-                    writer.println("listener = " + it.asBinder())
+                    writer.println("listener = ${it.asBinder()}")
                 }
             }
 
