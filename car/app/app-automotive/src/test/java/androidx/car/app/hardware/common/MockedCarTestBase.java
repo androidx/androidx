@@ -121,6 +121,7 @@ public class MockedCarTestBase {
     private CarPropertyManager mCarPropertyManagerMock;
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() {
         // Mock car
         ShadowCar.setCar(mCarMock);
