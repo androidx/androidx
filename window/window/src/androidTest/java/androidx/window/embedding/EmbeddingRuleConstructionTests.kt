@@ -38,6 +38,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -225,6 +226,7 @@ class EmbeddingRuleConstructionTests {
     @RequiresApi(Build.VERSION_CODES.M)
     @Test
     fun testHorizontalLayout_SplitPlaceholderRule_Xml() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         val rules = RuleController
             .parseRules(application, R.xml.test_split_config_split_placeholder_horizontal_layout)
         assertEquals(1, rules.size)
