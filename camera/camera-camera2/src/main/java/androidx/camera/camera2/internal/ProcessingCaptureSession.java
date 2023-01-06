@@ -115,7 +115,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         SESSION_INITIALIZED,
         ON_CAPTURE_SESSION_STARTED,
         ON_CAPTURE_SESSION_ENDED,
-        CLOSED
+        DE_INITIALIZED
     }
 
     // For debugging only
@@ -155,7 +155,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                         .transformAsync(surfaceList -> {
                             Logger.d(TAG,
                                     "-- getSurfaces done, start init (id=" + mInstanceId + ")");
-                            if (mProcessorState == ProcessorState.CLOSED) {
+                            if (mProcessorState == ProcessorState.DE_INITIALIZED) {
                                 return Futures.immediateFailedFuture(new IllegalStateException(
                                         "SessionProcessorCaptureSession is closed."));
                             }
@@ -251,11 +251,13 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 }
 
                                 @Override
+                                @SuppressWarnings("FutureReturnValueIgnored")
                                 public void onFailure(@NonNull Throwable t) {
                                     // Close() will invoke appropriate SessionProcessor methods
                                     // to clear up and mark this session as CLOSED.
                                     Logger.e(TAG, "open session failed ", t);
                                     close();
+                                    release(false);
                                 }
                             }, mExecutor);
                             return openSessionFuture;
@@ -376,7 +378,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                 }
                 break;
             case ON_CAPTURE_SESSION_ENDED:
-            case CLOSED:
+            case DE_INITIALIZED:
                 Logger.d(TAG, "Run issueCaptureRequests in wrong state, state = "
                         + mProcessorState);
                 cancelRequests(captureConfigs);
@@ -436,10 +438,20 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @Override
     @NonNull
     public ListenableFuture<Void> release(boolean abortInFlightCaptures) {
-        Preconditions.checkState(mProcessorState == ProcessorState.CLOSED,
-                "release() can only be called in CLOSED state");
-        Logger.d(TAG, "release (id=" + mInstanceId + ")");
-        return mCaptureSession.release(abortInFlightCaptures);
+        Logger.d(TAG, "release (id=" + mInstanceId + ") mProcessorState=" + mProcessorState);
+
+        ListenableFuture<Void> future = mCaptureSession.release(abortInFlightCaptures);
+
+        switch (mProcessorState) {
+            case ON_CAPTURE_SESSION_ENDED:
+            case SESSION_INITIALIZED:
+                future.addListener(() -> mSessionProcessor.deInitSession(), mExecutor);
+                break;
+            default:
+                break;
+        }
+        mProcessorState = ProcessorState.DE_INITIALIZED;
+        return future;
     }
 
     private static List<SessionProcessorSurface> getSessionProcessorSurfaceList(
@@ -514,26 +526,14 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     public void close() {
         Logger.d(TAG, "close (id=" + mInstanceId + ") state=" + mProcessorState);
 
-        switch (mProcessorState) {
-            case ON_CAPTURE_SESSION_STARTED:
-                mSessionProcessor.onCaptureSessionEnd();
-                if (mRequestProcessor != null) {
-                    mRequestProcessor.close();
-                }
-                mProcessorState = ProcessorState.ON_CAPTURE_SESSION_ENDED;
-                // fall through
-            case ON_CAPTURE_SESSION_ENDED:
-            case SESSION_INITIALIZED:
-                mSessionProcessor.deInitSession();
-                break;
-            case UNINITIALIZED:
-                // do nothing
-                break;
-            case CLOSED:
-                return; // already closed, no need to close again.
+        if (mProcessorState == ProcessorState.ON_CAPTURE_SESSION_STARTED) {
+            mSessionProcessor.onCaptureSessionEnd();
+            if (mRequestProcessor != null) {
+                mRequestProcessor.close();
+            }
+            mProcessorState = ProcessorState.ON_CAPTURE_SESSION_ENDED;
         }
 
-        mProcessorState = ProcessorState.CLOSED;
         mCaptureSession.close();
     }
 
