@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.compat
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
@@ -178,12 +179,13 @@ internal class VirtualCameraManager @Inject constructor(
             // Stage 3: Open or select an active camera device.
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
-                realCamera =
+                val openResult =
                     openCameraWithRetry(cameraIdToOpen, request.graphListener, scope = this)
-                if (realCamera != null) {
+                if (openResult.activeCamera != null) {
+                    realCamera = openResult.activeCamera
                     activeCameras.add(realCamera)
                 } else {
-                    request.virtualCamera.disconnect()
+                    request.virtualCamera.disconnect(openResult.lastCameraError)
                     requests.remove(request)
                 }
                 continue
@@ -199,16 +201,22 @@ internal class VirtualCameraManager @Inject constructor(
         cameraId: CameraId,
         graphListener: GraphListener,
         scope: CoroutineScope
-    ): ActiveCamera? {
+    ): OpenVirtualCameraResult {
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
         //   causing the application process to restart.
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
-        val cameraState = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
-        if (cameraState == null) {
-            return null
+        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
+        if (result.cameraState == null) {
+            return OpenVirtualCameraResult(lastCameraError = result.errorCode)
         }
-        return ActiveCamera(androidCameraState = cameraState, scope = scope, channel = requestQueue)
+        return OpenVirtualCameraResult(
+            activeCamera = ActiveCamera(
+                androidCameraState = result.cameraState,
+                scope = scope,
+                channel = requestQueue
+            )
+        )
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -272,4 +280,18 @@ internal class VirtualCameraManager @Inject constructor(
             androidCameraState.awaitClosed()
         }
     }
+
+    /**
+     * There are 3 possible scenarios with [OpenVirtualCameraResult]. Suppose we denote the values
+     * in pairs of ([activeCamera], [lastCameraError]):
+     *
+     * - ([activeCamera], null): Camera opened without an issue.
+     * - (null, [lastCameraError]): Camera opened failed and the last error was [lastCameraError].
+     * - (null, null): Camera open didn't complete, likely due to CameraGraph being stopped or
+     *   closed during the process.
+     */
+    private data class OpenVirtualCameraResult(
+        val activeCamera: ActiveCamera? = null,
+        val lastCameraError: CameraError? = null
+    )
 }

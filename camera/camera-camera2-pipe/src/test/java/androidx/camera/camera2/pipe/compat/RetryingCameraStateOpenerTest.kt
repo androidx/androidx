@@ -20,7 +20,12 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraError
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISABLED
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISCONNECTED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_LIMIT_EXCEEDED
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_ILLEGAL_ARGUMENT_EXCEPTION
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_SECURITY_EXCEPTION
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
@@ -430,7 +435,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(30_000)
         advanceUntilIdle()
 
-        assertThat(result.await()).isNull()
+        val openResult = result.await()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_CAMERA_IN_USE)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
         } else {
@@ -453,7 +460,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(30_000)
         advanceUntilIdle()
 
-        assertThat(result.await()).isNull()
+        val openResult = result.await()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_CAMERA_LIMIT_EXCEEDED)
         assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly the number of camera opens minus 1.
@@ -473,7 +482,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(750)
         advanceUntilIdle()
 
-        assertThat(result.getCompleted()).isNull()
+        val openResult = result.getCompleted()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_CAMERA_DISABLED)
         assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly 1.
@@ -492,7 +503,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(30_000)
         advanceUntilIdle()
 
-        assertThat(result.await()).isNull()
+        val openResult = result.await()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_CAMERA_DISABLED)
         assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly the number of camera opens minus 1.
@@ -511,7 +524,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(30_000)
         advanceUntilIdle()
 
-        assertThat(result.await()).isNull()
+        val openResult = result.await()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_CAMERA_DISCONNECTED)
         assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly the number of camera opens minus 1.
@@ -530,7 +545,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(30_000)
         advanceUntilIdle()
 
-        assertThat(result.await()).isNull()
+        val openResult = result.await()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_ILLEGAL_ARGUMENT_EXCEPTION)
         assertThat(cameraOpener.numberOfOpens).isGreaterThan(2)
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly the number of camera opens minus 1.
@@ -550,7 +567,9 @@ class RetryingCameraStateOpenerTest {
         advanceTimeBy(750)
         advanceUntilIdle()
 
-        assertThat(result.getCompleted()).isNull()
+        val openResult = result.getCompleted()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_SECURITY_EXCEPTION)
         assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly 1.
