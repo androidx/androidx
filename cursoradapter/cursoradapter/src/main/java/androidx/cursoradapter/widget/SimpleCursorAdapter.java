@@ -109,7 +109,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * Binding occurs in two phases. First, if a
      * {@link android.widget.SimpleCursorAdapter.ViewBinder} is available,
      * {@link ViewBinder#setViewValue(android.view.View, android.database.Cursor, int)}
-     * is invoked. If the returned value is true, binding has occured. If the
+     * is invoked. If the returned value is true, binding has occurred. If the
      * returned value is false and the view to bind is a TextView,
      * {@link #setViewText(TextView, String)} is invoked. If the returned value is
      * false and the view to bind is an ImageView,
