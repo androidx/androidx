@@ -20,10 +20,12 @@ import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_PACK
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD_INSIDE;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.state.helpers.AlignHorizontallyReference;
 import androidx.constraintlayout.core.state.helpers.AlignVerticallyReference;
 import androidx.constraintlayout.core.state.helpers.BarrierReference;
 import androidx.constraintlayout.core.state.helpers.FlowReference;
+import androidx.constraintlayout.core.state.helpers.GridReference;
 import androidx.constraintlayout.core.state.helpers.GuidelineReference;
 import androidx.constraintlayout.core.state.helpers.HorizontalChainReference;
 import androidx.constraintlayout.core.state.helpers.VerticalChainReference;
@@ -93,6 +95,9 @@ public class State {
         LAYER,
         HORIZONTAL_FLOW,
         VERTICAL_FLOW,
+        GRID,
+        ROW,
+        COLUMN,
         FLOW
     }
 
@@ -338,6 +343,12 @@ public class State {
                     reference = new FlowReference(this, type);
                 }
                 break;
+                case GRID:
+                case ROW:
+                case COLUMN: {
+                    reference = new GridReference(this, type);
+                }
+                    break;
                 default: {
                     reference = new HelperReference(this, type);
                 }
@@ -380,6 +391,29 @@ public class State {
             reference.setFacade(barrierReference);
         }
         return (BarrierReference) reference.getFacade();
+    }
+
+    /**
+     * Get a Grid reference
+     *
+     * @param key name of the reference object
+     * @param gridType type of Grid pattern - Grid, Row, or Column
+     * @return a GridReference object
+     */
+    @NonNull
+    public GridReference getGrid(@NonNull Object key, @NonNull String gridType) {
+        ConstraintReference reference = constraints(key);
+        if (reference.getFacade() == null || !(reference.getFacade() instanceof GridReference)) {
+            State.Helper Type = Helper.GRID;
+            if (gridType.charAt(0) == 'r') {
+                Type = Helper.ROW;
+            } else if (gridType.charAt(0) == 'c') {
+                Type = Helper.COLUMN;
+            }
+            GridReference gridReference = new GridReference(this, Type);
+            reference.setFacade(gridReference);
+        }
+        return (GridReference) reference.getFacade();
     }
 
     /**
