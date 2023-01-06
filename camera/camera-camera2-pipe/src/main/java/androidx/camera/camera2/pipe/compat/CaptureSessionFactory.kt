@@ -174,7 +174,20 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        TODO("Implement this")
+        try {
+            cameraDevice.createConstrainedHighSpeedCaptureSession(
+                surfaces.map { it.value },
+                captureSessionState,
+                threads.camera2Handler
+            )
+        } catch (e: Throwable) {
+            Log.warn {
+                "Failed to create ConstrainedHighSpeedCaptureSession " +
+                    "from $cameraDevice for $captureSessionState!"
+            }
+            captureSessionState.disconnect()
+        }
+        return emptyMap()
     }
 }
 
