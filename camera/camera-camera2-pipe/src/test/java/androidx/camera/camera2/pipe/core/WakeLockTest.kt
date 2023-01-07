@@ -70,4 +70,13 @@ internal class WakeLockTest {
         wakelock.release()
         assertThat(result.await()).isTrue()
     }
+
+    @Test
+    fun testWakeLockCompletesWhenStartTimeoutOnCreation() = runTest {
+        val result = CompletableDeferred<Boolean>()
+        WakeLock(this, 100, startTimeoutOnCreation = true) {
+            result.complete(true)
+        }
+        assertThat(result.await()).isTrue()
+    }
 }
