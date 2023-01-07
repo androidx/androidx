@@ -114,6 +114,21 @@ public final class AudioUtils {
     }
 
     /**
+     * Calculates the size in bytes by the input frame count and the per frame size.
+     *
+     * <p>Negative frame count is allowed which is useful to calculate size difference.
+     *
+     * @param frameCount    frame count.
+     * @param bytesPerFrame bytes per frame. Must be greater than 0.
+     * @return size in bytes.
+     * @throws IllegalArgumentException if bytesPerFrame is not greater than 0.
+     */
+    public static long frameCountToSize(long frameCount, int bytesPerFrame) {
+        checkArgument(bytesPerFrame > 0L, "bytesPerFrame must be greater than 0.");
+        return frameCount * bytesPerFrame;
+    }
+
+    /**
      * Calculates the duration in nanoseconds by the input frame count and sample rate.
      *
      * <p>Negative frame count is allowed which is useful to calculate negative duration offset.
