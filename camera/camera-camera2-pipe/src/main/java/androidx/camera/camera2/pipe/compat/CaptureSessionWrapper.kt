@@ -25,6 +25,7 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
@@ -191,7 +192,8 @@ internal interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptu
 internal class AndroidCaptureSessionStateCallback(
     private val device: CameraDeviceWrapper,
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback,
-    lastStateCallback: CameraCaptureSessionWrapper.StateCallback?
+    lastStateCallback: CameraCaptureSessionWrapper.StateCallback?,
+    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
 ) : CameraCaptureSession.StateCallback() {
     private val _lastStateCallback = atomic(lastStateCallback)
     private val captureSession = atomic<CameraCaptureSessionWrapper?>(null)
@@ -203,28 +205,36 @@ internal class AndroidCaptureSessionStateCallback(
         //   instances receive some kind of "finalization" signal if onClosed is not fired by the
         //   framework after a subsequent session has been configured.
         finalizeLastSession()
+        interopSessionStateCallback?.onConfigured(session)
     }
 
     override fun onConfigureFailed(session: CameraCaptureSession) {
         stateCallback.onConfigureFailed(getWrapped(session))
         finalizeSession()
+        interopSessionStateCallback?.onConfigureFailed(session)
     }
 
     override fun onReady(session: CameraCaptureSession) {
         stateCallback.onReady(getWrapped(session))
+        interopSessionStateCallback?.onReady(session)
     }
 
     override fun onActive(session: CameraCaptureSession) {
         stateCallback.onActive(getWrapped(session))
+        interopSessionStateCallback?.onActive(session)
     }
 
     override fun onClosed(session: CameraCaptureSession) {
         stateCallback.onClosed(getWrapped(session))
         finalizeSession()
+        interopSessionStateCallback?.onClosed(session)
     }
 
     override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
         stateCallback.onCaptureQueueEmpty(getWrapped(session))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Api26CompatImpl.onCaptureQueueEmpty(session, interopSessionStateCallback)
+        }
     }
 
     private fun getWrapped(session: CameraCaptureSession): CameraCaptureSessionWrapper {
@@ -264,6 +274,18 @@ internal class AndroidCaptureSessionStateCallback(
         val previousSession = _lastStateCallback.getAndSet(null)
         previousSession?.let {
             previousSession.onSessionFinalized()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private object Api26CompatImpl {
+        @DoNotInline
+        @JvmStatic
+        fun onCaptureQueueEmpty(
+            session: CameraCaptureSession,
+            interopSessionStateCallback: CameraCaptureSession.StateCallback?
+        ) {
+            interopSessionStateCallback?.onCaptureQueueEmpty(session)
         }
     }
 }

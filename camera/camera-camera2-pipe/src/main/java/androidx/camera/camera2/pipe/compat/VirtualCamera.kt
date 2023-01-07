@@ -19,6 +19,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -206,7 +207,9 @@ internal class AndroidCameraState(
     val metadata: CameraMetadata,
     private val attemptNumber: Int,
     private val attemptTimestampNanos: TimestampNs,
-    private val timeSource: TimeSource
+    private val timeSource: TimeSource,
+    private val interopDeviceStateCallback: CameraDevice.StateCallback? = null,
+    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
 ) : CameraDevice.StateCallback() {
     private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
@@ -282,6 +285,7 @@ internal class AndroidCameraState(
                 opening = true
             }
         }
+        interopDeviceStateCallback?.onOpened(cameraDevice)
         if (closeCamera) {
             cameraDevice.close()
             return
@@ -293,7 +297,8 @@ internal class AndroidCameraState(
             AndroidCameraDevice(
                 metadata,
                 cameraDevice,
-                cameraId
+                cameraId,
+                interopSessionStateCallback
             )
         )
 
@@ -323,6 +328,7 @@ internal class AndroidCameraState(
                 errorCode = CameraError.ERROR_CAMERA_DISCONNECTED
             )
         )
+        interopDeviceStateCallback?.onDisconnected(cameraDevice)
         Debug.traceStop()
     }
 
@@ -339,6 +345,7 @@ internal class AndroidCameraState(
                 errorCode = CameraError.from(errorCode)
             )
         )
+        interopDeviceStateCallback?.onError(cameraDevice, errorCode)
         Debug.traceStop()
     }
 
@@ -354,6 +361,7 @@ internal class AndroidCameraState(
                 ClosedReason.CAMERA2_CLOSED
             )
         )
+        interopDeviceStateCallback?.onClosed(cameraDevice)
         Debug.traceStop()
     }
 
