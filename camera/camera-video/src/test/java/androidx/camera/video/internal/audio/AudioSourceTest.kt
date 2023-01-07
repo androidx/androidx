@@ -243,30 +243,39 @@ class AudioSourceTest {
     }
 
     @Test
-    fun failedToStartAudioStream_receiveError() {
+    fun failedToStartAudioStream_retryStart() {
         // Arrange.
         val error = AudioStream.AudioStreamException()
-        val audioStream = createAudioStream(exceptionOnStart = error)
+        val audioStream = createAudioStream(
+            exceptionOnStart = error,
+            exceptionOnStartMaxTimes = 1,
+        )
         val audioSourceCallback = createAudioSourceCallback()
         val audioSource = createAudioSource(
             audioStreamFactory = { _, _ -> audioStream },
             audioSourceCallback = audioSourceCallback,
+            retryStartIntervalMs = 200L
         )
 
         // Act.
         audioSource.start()
 
         // Assert.
-        audioSourceCallback.verifyOnError(CallTimes(1), COMMON_TIMEOUT_MS) {
-            assertThat(it.single()).isInstanceOf(AudioSourceAccessException::class.java)
-            assertThat(it.single().cause).isEqualTo(error)
+        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(2), COMMON_TIMEOUT_MS) {
+            assertThat(it[0]).isTrue()
+            assertThat(it[1]).isFalse()
         }
     }
 
     private fun createAudioStream(
         audioDataProvider: (Int) -> FakeAudioStream.AudioData = createAudioDataProvider(),
         exceptionOnStart: AudioStream.AudioStreamException? = null,
-    ) = FakeAudioStream(audioDataProvider, exceptionOnStart = exceptionOnStart)
+        exceptionOnStartMaxTimes: Int = Int.MAX_VALUE,
+    ) = FakeAudioStream(
+        audioDataProvider,
+        exceptionOnStart = exceptionOnStart,
+        exceptionOnStartMaxTimes = exceptionOnStartMaxTimes
+    )
 
     private fun createAudioDataProvider(): (Int) -> FakeAudioStream.AudioData = { index ->
         val byteBuffer = ByteBuffer.allocate(BYTE_BUFFER_CAPACITY).put(0, index.toByte())
@@ -291,12 +300,14 @@ class AudioSourceTest {
         audioStreamFactory: AudioStreamFactory = AudioStreamFactory { _, _ -> createAudioStream() },
         bufferProvider: FakeBufferProvider = createBufferProvider(),
         audioSourceCallback: FakeAudioSourceCallback = createAudioSourceCallback(),
-        callbackExecutor: Executor = ioExecutor()
+        callbackExecutor: Executor = ioExecutor(),
+        retryStartIntervalMs: Long = AudioSource.DEFAULT_START_RETRY_INTERVAL_MS,
     ): AudioSource = AudioSource(
         audioSettings,
         executor,
         /*attributionContext=*/null,
-        audioStreamFactory
+        audioStreamFactory,
+        retryStartIntervalMs,
     ).apply {
         setAudioSourceCallback(callbackExecutor, audioSourceCallback)
         setBufferProvider(bufferProvider)

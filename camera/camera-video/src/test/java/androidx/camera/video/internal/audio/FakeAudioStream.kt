@@ -26,7 +26,8 @@ import java.util.concurrent.Executor
 class FakeAudioStream(
     private val audioDataProvider: (index: Int) -> AudioData,
     isSilenced: Boolean = false,
-    private val exceptionOnStart: AudioStream.AudioStreamException? = null
+    private val exceptionOnStart: AudioStream.AudioStreamException? = null,
+    private val exceptionOnStartMaxTimes: Int = Int.MAX_VALUE
 ) : AudioStream {
     var isSilenced: Boolean = isSilenced
         set(value) {
@@ -44,12 +45,13 @@ class FakeAudioStream(
     private var isStarted = false
     private var audioStreamCallback: AudioStream.AudioStreamCallback? = null
     private var callbackExecutor: Executor? = null
+    private var exceptionOnStartTimes = 0
 
     override fun start() {
         if (isReleased) {
             throw IllegalStateException()
         }
-        if (exceptionOnStart != null) {
+        if (exceptionOnStart != null && exceptionOnStartTimes++ < exceptionOnStartMaxTimes) {
             throw exceptionOnStart
         }
         if (isStarted) {
@@ -68,6 +70,7 @@ class FakeAudioStream(
             return
         }
         isStarted = false
+        exceptionOnStartTimes = 0
         stopCalls.accept(Unit)
     }
 
