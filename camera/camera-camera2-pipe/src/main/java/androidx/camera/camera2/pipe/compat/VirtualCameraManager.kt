@@ -57,7 +57,7 @@ private const val requestQueueDepth = 8
 internal class VirtualCameraManager @Inject constructor(
     private val permissions: Permissions,
     private val retryingCameraStateOpener: RetryingCameraStateOpener,
-    threads: Threads
+    private val threads: Threads
 ) {
     // TODO: Consider rewriting this as a MutableSharedFlow
     private val requestQueue: Channel<CameraRequest> = Channel(requestQueueDepth)

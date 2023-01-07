@@ -79,7 +79,7 @@ class RetryingCameraStateOpenerTest {
     private val fakeTimeSource = FakeTimeSource()
 
     private val cameraStateOpener =
-        CameraStateOpener(cameraOpener, cameraMetadataProvider, fakeTimeSource)
+        CameraStateOpener(cameraOpener, cameraMetadataProvider, fakeTimeSource, null)
 
     private val cameraAvailabilityMonitor = object : CameraAvailabilityMonitor {
         override suspend fun awaitAvailableCamera(

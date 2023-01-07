@@ -24,6 +24,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
@@ -160,7 +161,8 @@ internal data class OpenCameraResult(
 internal class CameraStateOpener @Inject constructor(
     private val cameraOpener: CameraOpener,
     private val cameraMetadataProvider: CameraMetadataProvider,
-    private val timeSource: TimeSource
+    private val timeSource: TimeSource,
+    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
     internal suspend fun tryOpenCamera(
         cameraId: CameraId,
@@ -173,7 +175,9 @@ internal class CameraStateOpener @Inject constructor(
             metadata,
             attempts,
             requestTimestamp,
-            timeSource
+            timeSource,
+            cameraInteropConfig?.cameraDeviceStateCallback,
+            cameraInteropConfig?.cameraSessionStateCallback
         )
 
         try {

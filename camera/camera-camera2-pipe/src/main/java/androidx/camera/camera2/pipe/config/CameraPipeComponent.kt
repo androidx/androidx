@@ -72,6 +72,13 @@ internal interface CameraPipeComponent {
 internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
     @Provides
     fun provideCameraPipeConfig(): CameraPipe.Config = config
+
+    @Provides
+    fun provideCameraInteropConfig(
+        cameraPipeConfig: CameraPipe.Config
+    ): CameraPipe.CameraInteropConfig {
+        return cameraPipeConfig.cameraInteropConfig
+    }
 }
 
 @Module
