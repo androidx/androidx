@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockConsumer<T> implements Consumer<T> {
 
-    private static final long NO_TIMEOUT = 0;
+    public static final long NO_TIMEOUT = 0;
 
     @GuardedBy("mLock")
     private CountDownLatch mLatch;
