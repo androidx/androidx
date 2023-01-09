@@ -21,6 +21,7 @@ import android.content.res.Configuration
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.action.ActionCallback
@@ -31,6 +32,8 @@ import androidx.glance.appwidget.findView
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.switchColors
 import androidx.glance.color.ColorProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -270,6 +273,23 @@ class SwitchTranslatorTest {
 
         val switchRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         assertThat(switchRoot.hasOnClickListeners()).isTrue()
+    }
+
+    @Test
+    fun canTranslateSwitchWithSemanticsModifier_contentDescription() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Switch(
+                checked = true,
+                onCheckedChange = actionRunCallback<ActionCallback>(),
+                text = "Switch",
+                modifier = GlanceModifier.semantics {
+                    contentDescription = "Custom switch description"
+                },
+            )
+        }
+
+        val switchRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(switchRoot.contentDescription).isEqualTo("Custom switch description")
     }
 
     private val ViewGroup.thumbImageView: ImageView?

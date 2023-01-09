@@ -21,6 +21,7 @@ import android.content.res.Configuration
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.checkBoxColors
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
@@ -31,6 +32,8 @@ import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findViewByType
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.color.ColorProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.unit.FixedColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -221,4 +224,22 @@ class CheckBoxTranslatorTest {
         val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         assertThat(checkboxRoot.hasOnClickListeners()).isTrue()
     }
+
+    @Test
+    fun canTranslateCheckBoxWithSemanticsModifier_contentDescription() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                CheckBox(
+                    checked = true,
+                    onCheckedChange = actionRunCallback<ActionCallback>(),
+                    text = "CheckBox",
+                    modifier = GlanceModifier.semantics {
+                        contentDescription = "Custom checkbox description"
+                    },
+                )
+            }
+
+            val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(checkboxRoot.contentDescription).isEqualTo("Custom checkbox description")
+        }
 }

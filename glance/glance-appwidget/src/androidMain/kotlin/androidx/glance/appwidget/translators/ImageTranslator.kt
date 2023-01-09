@@ -53,7 +53,6 @@ internal fun RemoteViews.translateEmittableImage(
         }
     }
     val viewDef = insertView(translationContext, selector, element.modifier)
-    setContentDescription(viewDef.mainViewId, element.contentDescription)
     when (val provider = element.provider) {
         is AndroidResourceImageProvider -> setImageViewResource(
             viewDef.mainViewId,
