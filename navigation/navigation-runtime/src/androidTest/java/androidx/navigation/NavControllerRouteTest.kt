@@ -49,6 +49,7 @@ import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers
@@ -341,6 +342,215 @@ class NavControllerRouteTest {
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.data).isEqualTo(deepLink)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // first nav with arg filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13")
+        navController.navigate(deepLink)
+
+        // second nav with arg filled in
+        val deepLink2 = Uri.parse("android-app://androidx.navigation/second_test/18")
+        navController.navigate(deepLink2)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13", "second_test/18"]
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val entry1 = navController.getBackStackEntry("second_test/13")
+        assertThat(entry1).isEqualTo(navigator.backStack[1])
+
+        val entry2 = navController.getBackStackEntry("second_test/18")
+        assertThat(entry2).isEqualTo(navigator.backStack[2])
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithExactRoute_multiArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        // navigate with both args filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/18")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/18"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val entry1 = navController.getBackStackEntry("second_test/13/18")
+        assertThat(entry1).isEqualTo(navigator.backStack[1])
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        // navigate with args partially filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/{arg2}")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/{arg2}"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        // routes with partially filled in args will also match as long as the args
+        // are filled in the exact same way
+        val entry1 = navController.getBackStackEntry("second_test/13/{arg2}")
+        assertThat(entry1).isEqualTo(navigator.backStack[1])
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithIncorrectExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // navigate with arg filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // route "second_test/18" should not match with any entries in backstack since we never
+        // navigated with args "18"
+        val route = "second_test/18"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithIncorrectExactRoute_multiArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        // navigate with args partially filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/18")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/18"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // route "second_test/13/13" should not match with any entries in backstack
+        val route = "second_test/13/19"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithAdditionalPartialArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        // navigate with args partially filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/{arg2}")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/{arg2}"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // route with additional arg "14" should not match
+        val route = "second_test/13/14"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithMissingPartialArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/18")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/18"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // route missing arg "18" should not match
+        val route = "second_test/13/{arg2}"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
     }
 
     @UiThreadTest
