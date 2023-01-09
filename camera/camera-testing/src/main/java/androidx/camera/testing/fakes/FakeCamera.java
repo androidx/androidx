@@ -79,6 +79,10 @@ public class FakeCamera implements CameraInternal {
                 new FakeCameraInfoInternal(DEFAULT_CAMERA_ID));
     }
 
+    public FakeCamera(@NonNull CameraControlInternal cameraControl) {
+        this(DEFAULT_CAMERA_ID, cameraControl, new FakeCameraInfoInternal(DEFAULT_CAMERA_ID));
+    }
+
     public FakeCamera(@NonNull String cameraId) {
         this(cameraId, /*cameraControl=*/null, new FakeCameraInfoInternal(cameraId));
     }

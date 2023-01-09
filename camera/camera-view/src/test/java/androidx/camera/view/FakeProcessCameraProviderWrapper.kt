@@ -21,13 +21,20 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.testing.fakes.FakeCamera
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Fake [ProcessCameraProviderWrapper].
+ *
+ * @param bindToLifecycleException the [Exception] to throw when [bindToLifecycle] is called.
+ * If null, [bindToLifecycle] will not throw any error.
  */
-class FakeProcessCameraProviderWrapper(private val camera: Camera) : ProcessCameraProviderWrapper {
+class FakeProcessCameraProviderWrapper(
+    private val camera: Camera = FakeCamera(),
+    private val bindToLifecycleException: Throwable? = null
+) : ProcessCameraProviderWrapper {
 
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         return true
@@ -46,6 +53,9 @@ class FakeProcessCameraProviderWrapper(private val camera: Camera) : ProcessCame
         cameraSelector: CameraSelector,
         useCaseGroup: UseCaseGroup
     ): Camera {
+        if (bindToLifecycleException != null) {
+            throw bindToLifecycleException
+        }
         return camera
     }
 
