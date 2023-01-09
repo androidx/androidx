@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class AudioSourceSettingsDefaultResolverTest {
+class AudioSettingsDefaultResolverTest {
 
     @Test
     fun sampleRateRangeResolvesToSupportedSampleRate() {
@@ -43,7 +43,7 @@ class AudioSourceSettingsDefaultResolverTest {
         )
 
         audioSpecs.forEach {
-            val audioSettings = AudioSourceSettingsDefaultResolver(it).get()
+            val audioSettings = AudioSettingsDefaultResolver(it).get()
             assertThat(
                 AudioSource.isSettingsSupported(
                     audioSettings.sampleRate,
@@ -58,7 +58,7 @@ class AudioSourceSettingsDefaultResolverTest {
     fun audioSpecDefaultProducesValidSourceEnum() {
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceEnum =
-            AudioSourceSettingsDefaultResolver(audioSpec).get().audioSource
+            AudioSettingsDefaultResolver(audioSpec).get().audioSource
 
         assertThat(resolvedAudioSourceEnum).isAnyOf(
             MediaRecorder.AudioSource.CAMCORDER,
@@ -70,7 +70,7 @@ class AudioSourceSettingsDefaultResolverTest {
     fun audioSpecDefaultProducesValidSourceFormat() {
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceFormat =
-            AudioSourceSettingsDefaultResolver(audioSpec).get().audioFormat
+            AudioSettingsDefaultResolver(audioSpec).get().audioFormat
 
         assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
     }
