@@ -25,7 +25,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
-import androidx.camera.video.internal.AudioSource;
+import androidx.camera.video.internal.audio.AudioSource;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.core.util.Supplier;
 
