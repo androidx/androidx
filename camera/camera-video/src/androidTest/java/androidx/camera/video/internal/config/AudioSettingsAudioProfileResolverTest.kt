@@ -32,6 +32,7 @@ import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
+import androidx.camera.video.internal.audio.AudioSettings
 import androidx.camera.video.internal.audio.AudioSource
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -51,7 +52,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class AudioSourceSettingsAudioProfileResolverTest(
+class AudioSettingsAudioProfileResolverTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig
 ) {
@@ -112,7 +113,7 @@ class AudioSourceSettingsAudioProfileResolverTest(
             if (audioProfile == null) {
                 null
             } else {
-                AudioSourceSettingsAudioProfileResolver(
+                AudioSettingsAudioProfileResolver(
                     defaultAudioSpec,
                     audioProfile
                 ).get()
@@ -145,7 +146,7 @@ class AudioSourceSettingsAudioProfileResolverTest(
                 emptyList()
             } else {
                 audioSpecs.map {
-                    AudioSourceSettingsAudioProfileResolver(
+                    AudioSettingsAudioProfileResolver(
                         it,
                         audioProfile
                     ).get()
@@ -175,13 +176,13 @@ class AudioSourceSettingsAudioProfileResolverTest(
         // If a dependency between the two is introduced, this will stop working and will
         // need to be rewritten.
         val autoEncoderProfileConfig =
-            AudioSourceSettingsAudioProfileResolver(
+            AudioSettingsAudioProfileResolver(
                 defaultAudioSpec,
                 audioProfile!!
             ).get()
         // Try to find a sample rate that is supported, but not the
         // sample rate advertised by EncoderProfiles
-        val nonReportedSampleRate = AudioSource.COMMON_SAMPLE_RATES.firstOrNull {
+        val nonReportedSampleRate = AudioSettings.COMMON_SAMPLE_RATES.firstOrNull {
             it != audioProfile.sampleRate && AudioSource.isSettingsSupported(
                 it,
                 audioProfile.channels,
@@ -198,7 +199,7 @@ class AudioSourceSettingsAudioProfileResolverTest(
             AudioSpec.builder().setSampleRate(Range(nonReportedSampleRate!!, nonReportedSampleRate))
                 .build()
         val resolvedSampleRate =
-            AudioSourceSettingsAudioProfileResolver(
+            AudioSettingsAudioProfileResolver(
                 audioSpec,
                 audioProfile
             ).get().sampleRate
@@ -215,7 +216,7 @@ class AudioSourceSettingsAudioProfileResolverTest(
 
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceEnum =
-            AudioSourceSettingsAudioProfileResolver(
+            AudioSettingsAudioProfileResolver(
                 audioSpec,
                 audioProfile!!
             ).get().audioSource
@@ -234,7 +235,7 @@ class AudioSourceSettingsAudioProfileResolverTest(
 
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceFormat =
-            AudioSourceSettingsAudioProfileResolver(
+            AudioSettingsAudioProfileResolver(
                 audioSpec,
                 audioProfile!!
             ).get().audioFormat

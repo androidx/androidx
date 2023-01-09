@@ -109,17 +109,14 @@ class AudioEncoderConfigAudioProfileResolverTest(
         for (encoderProfiles in supportedProfiles) {
             val audioProfile = encoderProfiles.defaultAudioProfile ?: continue
 
-            val sourceSettings =
-                AudioSourceSettingsAudioProfileResolver(
-                    defaultAudioSpec,
-                    audioProfile
-                ).get()
+            val audioSettings =
+                AudioSettingsAudioProfileResolver(defaultAudioSpec, audioProfile).get()
             val config = AudioEncoderConfigAudioProfileResolver(
                 audioProfile.mediaType,
                 audioProfile.profile,
                 timebase,
                 defaultAudioSpec,
-                sourceSettings,
+                audioSettings,
                 audioProfile
             ).get()
 
@@ -137,8 +134,8 @@ class AudioEncoderConfigAudioProfileResolverTest(
         Assume.assumeTrue(profile != null)
 
         // Get default channel count
-        val defaultSourceSettings =
-            AudioSourceSettingsAudioProfileResolver(
+        val defaultAudioSettings =
+            AudioSettingsAudioProfileResolver(
                 defaultAudioSpec,
                 profile!!
             ).get()
@@ -148,20 +145,20 @@ class AudioEncoderConfigAudioProfileResolverTest(
                 profile.profile,
                 timebase,
                 defaultAudioSpec,
-                defaultSourceSettings,
+                defaultAudioSettings,
                 profile
             ).get()
         val defaultChannelCount = defaultConfig.channelCount
 
-        val higherChannelCountSourceSettings =
-            defaultSourceSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
+        val higherChannelCountAudioSettings =
+            defaultAudioSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
 
         val higherChannelCountConfig = AudioEncoderConfigAudioProfileResolver(
             profile.mediaType,
             profile.profile,
             timebase,
             defaultAudioSpec,
-            higherChannelCountSourceSettings,
+            higherChannelCountAudioSettings,
             profile
         ).get()
 
@@ -175,8 +172,8 @@ class AudioEncoderConfigAudioProfileResolverTest(
         Assume.assumeTrue(profile != null)
 
         // Get default sample rate
-        val defaultSourceSettings =
-            AudioSourceSettingsAudioProfileResolver(
+        val defaultAudioSettings =
+            AudioSettingsAudioProfileResolver(
                 defaultAudioSpec,
                 profile!!
             ).get()
@@ -186,20 +183,20 @@ class AudioEncoderConfigAudioProfileResolverTest(
                 profile.profile,
                 timebase,
                 defaultAudioSpec,
-                defaultSourceSettings,
+                defaultAudioSettings,
                 profile
             ).get()
         val defaultSampleRate = defaultConfig.sampleRate
 
-        val higherSampleRateSourceSettings =
-            defaultSourceSettings.toBuilder().setChannelCount(defaultSampleRate * 2).build()
+        val higherSampleRateAudioSettings =
+            defaultAudioSettings.toBuilder().setChannelCount(defaultSampleRate * 2).build()
 
         val higherSampleRateConfig = AudioEncoderConfigAudioProfileResolver(
             profile.mediaType,
             profile.profile,
             timebase,
             defaultAudioSpec,
-            higherSampleRateSourceSettings,
+            higherSampleRateAudioSettings,
             profile
         ).get()
 
@@ -212,8 +209,8 @@ class AudioEncoderConfigAudioProfileResolverTest(
         val profile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(profile != null)
 
-        val defaultSourceSettings =
-            AudioSourceSettingsAudioProfileResolver(
+        val defaultAudioSettings =
+            AudioSettingsAudioProfileResolver(
                 defaultAudioSpec,
                 profile!!
             ).get()
@@ -235,7 +232,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
                 profile.profile,
                 timebase,
                 higherAudioSpec,
-                defaultSourceSettings,
+                defaultAudioSettings,
                 profile
             ).get().bitrate
         ).isEqualTo(higherBitrate)
@@ -246,7 +243,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
                 profile.profile,
                 timebase,
                 lowerAudioSpec,
-                defaultSourceSettings,
+                defaultAudioSettings,
                 profile
             ).get().bitrate
         ).isEqualTo(lowerBitrate)
