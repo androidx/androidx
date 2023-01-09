@@ -150,7 +150,6 @@ public final class SystemOutputSwitcherDialogController {
         Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .putExtra("EXTRA_CONNECTION_ONLY", true)
-                .putExtra("EXTRA_CLOSE_ON_CONNECT", true)
                 .putExtra("android.bluetooth.devicepicker.extra.FILTER_TYPE", 1);
 
         PackageManager packageManager = context.getPackageManager();

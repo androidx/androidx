@@ -105,7 +105,7 @@ public class SystemOutputSwitcherDialogControllerTest {
         assertThat(intent.getAction())
                 .isEqualTo(Settings.ACTION_BLUETOOTH_SETTINGS);
         assertThat(intent.getBooleanExtra("EXTRA_CONNECTION_ONLY", false)).isTrue();
-        assertThat(intent.getBooleanExtra("EXTRA_CLOSE_ON_CONNECT", false)).isTrue();
+        assertThat(intent.getBooleanExtra("EXTRA_CLOSE_ON_CONNECT", false)).isFalse();
         assertThat(intent.getIntExtra("android.bluetooth.devicepicker.extra.FILTER_TYPE", 0))
                 .isEqualTo(1);
     }
