@@ -25,7 +25,7 @@ import android.os.Looper
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.toDataType
-import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermissionLegacy
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
@@ -86,7 +86,7 @@ private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissions(setOf()) },
+        { getGrantedPermissionsLegacy(setOf()) },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -191,8 +191,8 @@ class HealthConnectClientImplTest {
     @Test
     fun getGrantedPermissions_none() = runTest {
         val response = testBlocking {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+            healthConnectClient.getGrantedPermissionsLegacy(
+                setOf(createReadPermissionLegacy(StepsRecord::class))
             )
         }
 
@@ -210,12 +210,12 @@ class HealthConnectClientImplTest {
             )
         )
         val response = testBlocking {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+            healthConnectClient.getGrantedPermissionsLegacy(
+                setOf(createReadPermissionLegacy(StepsRecord::class))
             )
         }
 
-        assertThat(response).containsExactly(createReadPermission(StepsRecord::class))
+        assertThat(response).containsExactly(createReadPermissionLegacy(StepsRecord::class))
     }
 
     @Test
