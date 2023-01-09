@@ -16,31 +16,21 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -83,6 +73,7 @@ import androidx.compose.ui.unit.dp
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
+ * @param content The content displayed on the [Button] such as text, icon or image.
  */
 @Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
     "A newer overload is available with an additional shape parameter.",
@@ -150,6 +141,7 @@ public fun Button(
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
  * See [ButtonDefaults.buttonBorder].
+ * @param content The content displayed on the [Button] such as text, icon or image.
  */
 @Composable
 public fun Button(
@@ -162,40 +154,23 @@ public fun Button(
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val borderStroke = border.borderStroke(enabled = enabled).value
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .defaultMinSize(
-                minWidth = ButtonDefaults.DefaultButtonSize,
-                minHeight = ButtonDefaults.DefaultButtonSize
-            )
-            .then(
-                if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
-                else Modifier
-            )
-            .clip(shape)
-            .clickable(
-                onClick = onClick,
-                enabled = enabled,
-                role = Role.Button,
-                interactionSource = interactionSource,
-                indication = rememberRipple(),
-            )
-            .background(
-                color = colors.backgroundColor(enabled = enabled).value,
-                shape = shape
-            )
-    ) {
-        val contentColor = colors.contentColor(enabled = enabled).value
-        CompositionLocalProvider(
+    val contentColor = colors.contentColor(enabled = enabled).value
+    androidx.wear.compose.materialcore.Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        backgroundColor = { colors.backgroundColor(enabled = it) },
+        interactionSource = interactionSource,
+        shape = shape,
+        border = { border.borderStroke(enabled = it) },
+        minButtonSize = ButtonDefaults.DefaultButtonSize,
+        contentProviderValues = arrayOf(
             LocalContentColor provides contentColor,
             LocalContentAlpha provides contentColor.alpha,
-            LocalTextStyle provides MaterialTheme.typography.button,
-        ) {
-            content()
-        }
-    }
+            LocalTextStyle provides MaterialTheme.typography.button
+        ),
+        content = content
+    )
 }
 
 /**
@@ -234,6 +209,7 @@ public fun Button(
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
  * See [ButtonDefaults.outlinedButtonBorder].
+ * @param content The content displayed on the [OutlinedButton] such as text, icon or image.
  */
 @Composable
 public fun OutlinedButton(
@@ -282,6 +258,7 @@ public fun OutlinedButton(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
+ * @param content The content displayed on the [CompactButton] such as text, icon or image.
  */
 @Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
     "A newer overload is available with an additional shape parameter.",
@@ -343,6 +320,9 @@ public fun CompactButton(
  * appearance / behavior of this Button in different [Interaction]s.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
+ * @param border [ButtonBorder] that will be used to resolve the button border in different states.
+ * See [ButtonDefaults.outlinedButtonBorder].
+ * @param content The content displayed on the [CompactButton] such as text, icon or image.
  */
 @Composable
 public fun CompactButton(
@@ -356,40 +336,25 @@ public fun CompactButton(
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val borderStroke = border.borderStroke(enabled).value
-    Box(
-        contentAlignment = Alignment.Center,
+    val contentColor = colors.contentColor(enabled = enabled).value
+    androidx.wear.compose.materialcore.Button(
+        onClick = onClick,
         modifier = modifier
-            .clip(shape)
-            .clickable(
-                onClick = onClick,
-                enabled = enabled,
-                role = Role.Button,
-                interactionSource = interactionSource,
-                indication = rememberRipple()
-            )
             .padding(backgroundPadding)
-            .requiredSize(ButtonDefaults.ExtraSmallButtonSize)
-            .then(
-                if (borderStroke != null) Modifier.border(
-                    border = borderStroke,
-                    shape = shape
-                ) else Modifier
-            )
-            .background(
-                color = colors.backgroundColor(enabled = enabled).value,
-                shape = shape
-            )
-    ) {
-        val contentColor = colors.contentColor(enabled = enabled).value
-        CompositionLocalProvider(
+            .requiredSize(ButtonDefaults.ExtraSmallButtonSize),
+        enabled = enabled,
+        backgroundColor = { colors.backgroundColor(enabled = it) },
+        interactionSource = interactionSource,
+        shape = shape,
+        border = { border.borderStroke(it) },
+        minButtonSize = ButtonDefaults.ExtraSmallButtonSize,
+        contentProviderValues = arrayOf(
             LocalContentColor provides contentColor,
             LocalContentAlpha provides contentColor.alpha,
             LocalTextStyle provides MaterialTheme.typography.button,
-        ) {
-            content()
-        }
-    }
+        ),
+        content = content
+    )
 }
 
 /**
@@ -430,6 +395,7 @@ public fun CompactButton(
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
  * See [ButtonDefaults.outlinedButtonBorder].
+ * @param content The content displayed on the [OutlinedCompactButton] such as text, icon or image.
  */
 @Composable
 public fun OutlinedCompactButton(
