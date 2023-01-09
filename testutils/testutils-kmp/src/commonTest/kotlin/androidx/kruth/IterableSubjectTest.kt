@@ -192,259 +192,232 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun iterableContainsAtLeast() {
-//        assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2)
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithMany() {
-//        assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2)
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithDuplicates() {
-//        assertThat(listOf(1, 2, 2, 2, 3)).containsAtLeast(2, 2)
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithNull() {
-//        assertThat(listOf(1, null, 3)).containsAtLeast(3, null as Int?)
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithNullAtThirdAndFinalPosition() {
-//        assertThat(listOf(1, null, 3)).containsAtLeast(1, 3, null as Any?)
-//    }
-//
-//    /*
-//   * Test that we only call toString() if the assertion fails -- that is, not just if the elements
-//   * are out of order, but only if someone actually calls inOrder(). There are 2 reasons for this:
-//   *
-//   * 1. Calling toString() uses extra time and space. (To be fair, Iterable assertions often use a
-//   * lot of those already.)
-//   *
-//   * 2. Some toString() methods are buggy. Arguably we shouldn't accommodate these, especially since
-//   * those users are in for a nasty surprise if their tests actually fail someday, but I don't want
-//   * to bite that off now. (Maybe Fact should catch exceptions from toString()?)
-//   */
-//    @Test
-//    fun iterableContainsAtLeastElementsInOutOfOrderDoesNotStringify() {
-//        val o = CountsToStringCalls()
-//        val actual: List<Any> = listOf(o, 1)
-//        val expected: List<Any> = listOf(1, o)
-//        assertThat(actual).containsAtLeastElementsIn(expected)
-//        assertThat(o.calls).isEqualTo(0)
-//        expectFailureWhenTestingThat(actual).containsAtLeastElementsIn(expected).inOrder()
-//        assertThat(o.calls).isGreaterThan(0)
-//    }
+    @Test
+    fun iterableContainsAtLeast() {
+        assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2)
+    }
 
-//    @Test
-//    fun iterableContainsAtLeastFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsAtLeast(1, 2, 4)
-//        assertFailureKeys("missing (1)", "---", "expected to contain at least", "but was")
-//        assertFailureValue("missing (1)", "4")
-//        assertFailureValue("expected to contain at least", "[1, 2, 4]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithExtras() {
-//        expectFailureWhenTestingThat(listOf("y", "x")).containsAtLeast("x", "y", "z")
-//        assertFailureValue("missing (1)", "z")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithExtraCopiesOfOutOfOrder() {
-//        expectFailureWhenTestingThat(listOf("y", "x")).containsAtLeast("x", "y", "y")
-//        assertFailureValue("missing (1)", "y")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithDuplicatesFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsAtLeast(1, 2, 2, 2, 3, 4)
-//        assertFailureValue("missing (3)", "2 [2 copies], 4")
-//    }
-//
-//    /*
-//   * Slightly subtle test to ensure that if multiple equal elements are found
-//   * to be missing we only reference it once in the output message.
-//   */
-//    @Test
-//    fun iterableContainsAtLeastWithDuplicateMissingElements() {
-//        expectFailureWhenTestingThat(listOf(1, 2)).containsAtLeast(4, 4, 4)
-//        assertFailureValue("missing (3)", "4 [3 copies]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastWithNullFailure() {
-//        expectFailureWhenTestingThat(listOf(1, null, 3)).containsAtLeast(1, null, null, 3)
-//        assertFailureValue("missing (1)", "null")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastFailsWithSameToStringAndHomogeneousList() {
-//        expectFailureWhenTestingThat(listOf(1L, 2L)).containsAtLeast(1, 2)
-//        assertFailureValue("missing (2)", "1, 2 (java.lang.Integer)")
-//        assertFailureValue("though it did contain (2)", "1, 2 (java.lang.Long)")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastFailsWithSameToStringAndHomogeneousListWithDuplicates() {
-//        expectFailureWhenTestingThat(listOf(1L, 2L, 2L)).containsAtLeast(1, 1, 2)
-//        assertFailureValue("missing (3)", "1 [2 copies], 2 (java.lang.Integer)")
-//        assertFailureValue("though it did contain (3)", "1, 2 [2 copies] (java.lang.Long)")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastFailsWithSameToStringAndHomogeneousListWithNull() {
-//        expectFailureWhenTestingThat(listOf("null", "abc")).containsAtLeast("abc", null)
-//        assertFailureValue("missing (1)", "null (null type)")
-//        assertFailureValue("though it did contain (1)", "null (java.lang.String)")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastFailsWithSameToStringAndHeterogeneousListWithDuplicates() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 2L, 3L, 3L)).containsAtLeast(2L, 2L, 3, 3)
-//        assertFailureValue("missing (3)", "2 (java.lang.Long), 3 (java.lang.Integer) [2 copies]")
-//        assertFailureValue(
-//            "though it did contain (3)", "2 (java.lang.Integer), 3 (java.lang.Long) [2 copies]"
-//        )
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastFailsWithEmptyString() {
-//        expectFailureWhenTestingThat(listOf("a", null)).containsAtLeast("", null)
-//        assertFailureKeys("missing (1)", "---", "expected to contain at least", "but was")
-//        assertFailureValue("missing (1)", "")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrder() {
-//        assertThat(listOf(3, 2, 5)).containsAtLeast(3, 2, 5).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWithGaps() {
-//        assertThat(listOf(3, 2, 5)).containsAtLeast(3, 5).inOrder()
-//        assertThat(listOf(3, 2, 2, 4, 5)).containsAtLeast(3, 2, 2, 5).inOrder()
-//        assertThat(listOf(3, 1, 4, 1, 5)).containsAtLeast(3, 1, 5).inOrder()
-//        assertThat(listOf("x", "y", "y", "z")).containsAtLeast("x", "y", "z").inOrder()
-//        assertThat(listOf("x", "x", "y", "z")).containsAtLeast("x", "y", "z").inOrder()
-//        assertThat(listOf("z", "x", "y", "z")).containsAtLeast("x", "y", "z").inOrder()
-//        assertThat(listOf("x", "x", "y", "z", "x")).containsAtLeast("x", "y", "z", "x").inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWithNull() {
-//        assertThat(listOf(3, null, 5)).containsAtLeast(3, null, 5).inOrder()
-//        assertThat(listOf(3, null, 7, 5)).containsAtLeast(3, null, 5).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWithFailure() {
-//        expectFailureWhenTestingThat(listOf(1, null, 3)).containsAtLeast(null, 1, 3).inOrder()
-//        assertFailureKeys(
-//            "required elements were all found, but order was wrong",
-//            "expected order for required elements",
-//            "but was"
-//        )
-//        assertFailureValue("expected order for required elements", "[null, 1, 3]")
-//        assertFailureValue("but was", "[1, null, 3]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWithFailureWithActualOrder() {
-//        expectFailureWhenTestingThat(listOf(1, 2, null, 3, 4)).containsAtLeast(null, 1, 3).inOrder()
-//        assertFailureKeys(
-//            "required elements were all found, but order was wrong",
-//            "expected order for required elements",
-//            "but order was",
-//            "full contents"
-//        )
-//        assertFailureValue("expected order for required elements", "[null, 1, 3]")
-//        assertFailureValue("but order was", "[1, null, 3]")
-//        assertFailureValue("full contents", "[1, 2, null, 3, 4]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWithOneShotIterable() {
-//        val iterable: Iterable<Any> =
-//            Arrays.< Object > asList < kotlin . Any ? > 2, 1, null, 4, "a", 3, "b")
-//        val iterator = iterable.iterator()
-//        val oneShot: Iterable<Any> = object : Iterable<Any?> {
-//            override fun iterator(): Iterator<Any> {
-//                return iterator
-//            }
-//
-//            override fun toString(): String {
-//                return Iterables.toString(iterable)
-//            }
-//        }
-//        assertThat(oneShot).containsAtLeast(1, null, 3).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWithOneShotIterableWrongOrder() {
-//        val iterator: Iterator<Any> = listOf(2 as Any, 1, null, 4, "a", 3, "b").iterator()
-//        val iterable: Iterable<Any> = object : Iterable<Any?> {
-//            override fun iterator(): Iterator<Any> {
-//                return iterator
-//            }
-//
-//            override fun toString(): String {
-//                return "BadIterable"
-//            }
-//        }
-//        expectFailureWhenTestingThat(iterable).containsAtLeast(1, 3, null as Any?).inOrder()
-//        assertFailureKeys(
-//            "required elements were all found, but order was wrong",
-//            "expected order for required elements",
-//            "but was"
-//        )
-//        assertFailureValue("expected order for required elements", "[1, 3, null]")
-//        assertFailureValue("but was", "BadIterable") // TODO(b/231966021): Output its elements.
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastInOrderWrongOrderAndMissing() {
-//        expectFailureWhenTestingThat(listOf(1, 2)).containsAtLeast(2, 1, 3).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastElementsInIterable() {
-//        assertThat(listOf(1, 2, 3)).containsAtLeastElementsIn(listOf(1, 2))
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsAtLeastElementsIn(listOf(1, 2, 4))
-//        assertFailureKeys("missing (1)", "---", "expected to contain at least", "but was")
-//        assertFailureValue("missing (1)", "4")
-//        assertFailureValue("expected to contain at least", "[1, 2, 4]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastElementsInCanUseFactPerElement() {
-//        expectFailureWhenTestingThat(listOf("abc"))
-//            .containsAtLeastElementsIn(listOf("123\n456", "789"))
-//        assertFailureKeys(
-//            "missing (2)",
-//            "#1",
-//            "#2",
-//            "---",
-//            "expected to contain at least",
-//            "but was"
-//        )
-//        assertFailureValue("#1", "123\n456")
-//        assertFailureValue("#2", "789")
-//    }
-//
-//    @Test
-//    fun iterableContainsAtLeastElementsInArray() {
-//        assertThat(listOf(1, 2, 3)).containsAtLeastElementsIn(arrayOf(1, 2))
-//        expectFailureWhenTestingThat(listOf(1, 2, 3))
-//            .containsAtLeastElementsIn(arrayOf(1, 2, 4))
-//        assertFailureKeys("missing (1)", "---", "expected to contain at least", "but was")
-//        assertFailureValue("missing (1)", "4")
-//        assertFailureValue("expected to contain at least", "[1, 2, 4]")
-//    }
-//
+    @Test
+    fun iterableContainsAtLeastWithMany() {
+        assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2)
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithDuplicates() {
+        assertThat(listOf(1, 2, 2, 2, 3)).containsAtLeast(2, 2)
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithNull() {
+        assertThat(listOf(1, null, 3)).containsAtLeast(3, null as Int?)
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithNullAtThirdAndFinalPosition() {
+        assertThat(listOf(1, null, 3)).containsAtLeast(1, 3, null as Any?)
+    }
+
+    /*
+     * Test that we only call toString() if the assertion fails -- that is, not just if the elements
+     * are out of order, but only if someone actually calls inOrder(). There are 2 reasons for this:
+     *
+     * 1. Calling toString() uses extra time and space. (To be fair, Iterable assertions often use a
+     * lot of those already.)
+     *
+     * 2. Some toString() methods are buggy. Arguably we shouldn't accommodate these, especially since
+     * those users are in for a nasty surprise if their tests actually fail someday, but I don't want
+     * to bite that off now. (Maybe Fact should catch exceptions from toString()?)
+     */
+    @Test
+    fun iterableContainsAtLeastElementsInOutOfOrderDoesNotStringify() {
+        val o = CountsToStringCalls()
+        val actual: List<Any> = listOf(o, 1)
+        val expected: List<Any> = listOf(1, o)
+        assertThat(actual).containsAtLeastElementsIn(expected)
+        assertThat(o.calls).isEqualTo(0)
+
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsAtLeastElementsIn(expected).inOrder()
+        }
+
+        assertThat(o.calls > 0)
+    }
+
+    @Test
+    fun iterableContainsAtLeastFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithExtras() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("y", "x")).containsAtLeast("x", "y", "z")
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithExtraCopiesOfOutOfOrder() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("y", "x")).containsAtLeast("x", "y", "y")
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithDuplicatesFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2, 2, 2, 3, 4)
+        }
+    }
+
+    /*
+     * Slightly subtle test to ensure that if multiple equal elements are found
+     * to be missing we only reference it once in the output message.
+     */
+    @Test
+    fun iterableContainsAtLeastWithDuplicateMissingElements() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2)).containsAtLeast(4, 4, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastWithNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, null, 3)).containsAtLeast(1, null, null, 3)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastFailsWithSameToStringAndHomogeneousList() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2L)).containsAtLeast(1, 2)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastFailsWithSameToStringAndHomogeneousListWithDuplicates() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2L, 2L)).containsAtLeast(1, 1, 2)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastFailsWithSameToStringAndHomogeneousListWithNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("null", "abc")).containsAtLeast("abc", null)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastFailsWithSameToStringAndHeterogeneousListWithDuplicates() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 2L, 3L, 3L)).containsAtLeast(2L, 2L, 3, 3)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastFailsWithEmptyString() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("a", null)).containsAtLeast("", null)
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrder() {
+        assertThat(listOf(3, 2, 5)).containsAtLeast(3, 2, 5).inOrder()
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWithGaps() {
+        assertThat(listOf(3, 2, 5)).containsAtLeast(3, 5).inOrder()
+        assertThat(listOf(3, 2, 2, 4, 5)).containsAtLeast(3, 2, 2, 5).inOrder()
+        assertThat(listOf(3, 1, 4, 1, 5)).containsAtLeast(3, 1, 5).inOrder()
+        assertThat(listOf("x", "y", "y", "z")).containsAtLeast("x", "y", "z").inOrder()
+        assertThat(listOf("x", "x", "y", "z")).containsAtLeast("x", "y", "z").inOrder()
+        assertThat(listOf("z", "x", "y", "z")).containsAtLeast("x", "y", "z").inOrder()
+        assertThat(listOf("x", "x", "y", "z", "x")).containsAtLeast("x", "y", "z", "x").inOrder()
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWithNull() {
+        assertThat(listOf(3, null, 5)).containsAtLeast(3, null, 5).inOrder()
+        assertThat(listOf(3, null, 7, 5)).containsAtLeast(3, null, 5).inOrder()
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWithFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, null, 3)).containsAtLeast(null, 1, 3).inOrder()
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWithFailureWithActualOrder() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, null, 3, 4)).containsAtLeast(null, 1, 3).inOrder()
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWithOneShotIterable() {
+        val iterable = listOf(2, 1, null, 4, "a", 3, "b")
+        val iterator = iterable.iterator()
+
+        val oneShot =
+            object : Iterable<Any?> {
+                override fun iterator(): Iterator<Any?> = iterator
+            }
+
+        assertThat(oneShot).containsAtLeast(1, null, 3).inOrder()
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWithOneShotIterableWrongOrder() {
+        val iterator = listOf(2, 1, null, 4, "a", 3, "b").iterator()
+
+        val iterable =
+            object : Iterable<Any?> {
+                override fun iterator(): Iterator<Any?> = iterator
+            }
+        assertFailsWith<AssertionError> {
+            assertThat(iterable).containsAtLeast(1, 3, null as Any?).inOrder()
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastInOrderWrongOrderAndMissing() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2)).containsAtLeast(2, 1, 3).inOrder()
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastElementsInIterable() {
+        assertThat(listOf(1, 2, 3)).containsAtLeastElementsIn(listOf(1, 2))
+
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAtLeastElementsIn(listOf(1, 2, 4))
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastElementsInCanUseFactPerElement() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("abc")).containsAtLeastElementsIn(listOf("123\n456", "789"))
+        }
+    }
+
+    @Test
+    fun iterableContainsAtLeastElementsInArray() {
+        assertThat(listOf(1, 2, 3)).containsAtLeastElementsIn(arrayOf(1, 2))
+
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAtLeastElementsIn(arrayOf(1, 2, 4))
+        }
+    }
+
 //    @Test
 //    fun iterableContainsNoneOf() {
 //        assertThat(listOf(1, 2, 3)).containsNoneOf(4, 5, 6)
