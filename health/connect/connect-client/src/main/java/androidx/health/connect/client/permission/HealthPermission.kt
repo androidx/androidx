@@ -29,9 +29,6 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -64,7 +61,6 @@ import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
@@ -300,10 +296,6 @@ internal constructor(
                 DistanceRecord::class to READ_DISTANCE.substringAfter(READ_PERMISSION_PREFIX),
                 ElevationGainedRecord::class to
                     READ_ELEVATION_GAINED.substringAfter(READ_PERMISSION_PREFIX),
-                ExerciseEventRecord::class to READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
-                ExerciseLapRecord::class to READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
-                ExerciseRepetitionsRecord::class to
-                    READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
                 ExerciseSessionRecord::class to
                     READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
                 FloorsClimbedRecord::class to
@@ -356,8 +348,6 @@ internal constructor(
                 SpeedRecord::class to READ_SPEED.substringAfter(READ_PERMISSION_PREFIX),
                 StepsCadenceRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
                 StepsRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
-                SwimmingStrokesRecord::class to
-                    READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
                 TotalCaloriesBurnedRecord::class to
                     READ_TOTAL_CALORIES_BURNED.substringAfter(READ_PERMISSION_PREFIX),
                 Vo2MaxRecord::class to READ_VO2_MAX.substringAfter(READ_PERMISSION_PREFIX),

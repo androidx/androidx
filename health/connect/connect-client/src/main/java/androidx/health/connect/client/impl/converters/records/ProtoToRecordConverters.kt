@@ -34,9 +34,6 @@ import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENS
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -70,7 +67,6 @@ import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
@@ -474,29 +470,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "ActivityEvent" ->
-                ExerciseEventRecord(
-                    eventType =
-                        mapEnum(
-                            "eventType",
-                            ExerciseEventRecord.EVENT_TYPE_STRING_TO_INT_MAP,
-                            ExerciseEventRecord.EVENT_TYPE_UNKNOWN,
-                        ),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "ActivityLap" ->
-                ExerciseLapRecord(
-                    length = getDouble("length").meters,
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
             "ActivitySession" ->
                 ExerciseSessionRecord(
                     exerciseType =
@@ -606,21 +579,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "Repetitions" ->
-                ExerciseRepetitionsRecord(
-                    count = getLong("count"),
-                    type =
-                        mapEnum(
-                            "type",
-                            ExerciseRepetitionsRecord.REPETITION_TYPE_STRING_TO_INT_MAP,
-                            ExerciseRepetitionsRecord.REPETITION_TYPE_UNKNOWN
-                        ),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
             "SleepSession" ->
                 SleepSessionRecord(
                     title = getString("title"),
@@ -654,21 +612,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "Steps" ->
                 StepsRecord(
                     count = getLong("count"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "SwimmingStrokes" ->
-                SwimmingStrokesRecord(
-                    count = getLong("count"),
-                    type =
-                        mapEnum(
-                            "type",
-                            SwimmingStrokesRecord.SWIMMING_TYPE_STRING_TO_INT_MAP,
-                            SwimmingStrokesRecord.SWIMMING_TYPE_OTHER
-                        ),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
