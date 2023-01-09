@@ -2,7 +2,7 @@
 package androidx.lifecycle {
 
   public class AndroidViewModel extends androidx.lifecycle.ViewModel {
-    ctor public AndroidViewModel(android.app.Application);
+    ctor public AndroidViewModel(android.app.Application application);
     method public <T extends android.app.Application> T getApplication();
   }
 
