@@ -17,6 +17,11 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.service.credentials.BeginGetCredentialOption
+import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
@@ -27,26 +32,38 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property requestJson the privileged request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
  * @property allowHybrid defines whether hybrid credentials are allowed to fulfill this request,
- * true by default, with hybrid credentials defined
- * [here](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
+ * true by default. For definition of hybrid credentials,
+ * [see](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
  *
  * @hide
  */
+@RequiresApi(34)
 class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
+    val data: Bundle,
     val requestJson: String,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true,
 ) : BeginGetCredentialOption(
-    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    data
 ) {
     init {
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
     }
 
-    /** @hide */
-    companion object {
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<BeginGetPublicKeyCredentialOption> {
+        /** @hide */
         @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
                                          // boolean value from being returned.
         @JvmStatic
@@ -57,10 +74,21 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
                 val allowHybrid = data.get(
                     GetPublicKeyCredentialOption
                         .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
-                return BeginGetPublicKeyCredentialOption(requestJson!!, (allowHybrid!!) as Boolean)
+                return BeginGetPublicKeyCredentialOption(data, requestJson!!, (allowHybrid!!)
+                    as Boolean)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
+        }
+
+        override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOption {
+            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+            return createFrom(baseOption.candidateQueryData)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<BeginGetPublicKeyCredentialOption?> {
+            return arrayOfNulls(size)
         }
     }
 }

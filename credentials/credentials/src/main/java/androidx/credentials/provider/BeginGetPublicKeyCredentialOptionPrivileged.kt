@@ -17,6 +17,11 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.service.credentials.BeginGetCredentialOption
+import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.credentials.GetPublicKeyCredentialOptionPrivileged
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
@@ -37,18 +42,22 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property clientDataHash a hash that is used to verify the [relyingParty] Identity
  * @throws NullPointerException If any of [requestJson], [relyingParty], or [clientDataHash]
  * is null
- * @throws IllegalArgumentException If any of [requestJson], [relyingParty], or [clientDataHash] is empty
+ * @throws IllegalArgumentException If any of [requestJson], [relyingParty], or [clientDataHash]
+ * is empty
  *
  * @hide
  */
+@RequiresApi(34)
 class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constructor(
     val requestJson: String,
     val relyingParty: String,
     val clientDataHash: String,
+    val data: Bundle,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
 ) : BeginGetCredentialOption(
-    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    data
 ) {
 
     init {
@@ -57,8 +66,18 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
         require(clientDataHash.isNotEmpty()) { "clientDataHash must not be empty" }
     }
 
-    /** @hide */
-    companion object {
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<BeginGetPublicKeyCredentialOptionPrivileged> {
+
+        /** @hide */
         @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
                                          // boolean value from being returned.
         @JvmStatic
@@ -77,11 +96,22 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
                     requestJson!!,
                     rp!!,
                     clientDataHash!!,
+                    data,
                     (allowHybrid!!) as Boolean,
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
+        }
+
+        override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOptionPrivileged {
+            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+            return createFrom(baseOption.candidateQueryData)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<BeginGetPublicKeyCredentialOptionPrivileged?> {
+            return arrayOfNulls(size)
         }
     }
 }

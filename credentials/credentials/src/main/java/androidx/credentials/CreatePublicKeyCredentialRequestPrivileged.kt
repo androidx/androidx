@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -125,22 +124,16 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_RELYING_PARTY = "androidx.credentials.BUNDLE_KEY_RELYING_PARTY"
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_CLIENT_DATA_HASH =
+        internal const val BUNDLE_KEY_RELYING_PARTY =
+            "androidx.credentials.BUNDLE_KEY_RELYING_PARTY"
+        internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
             "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
+        internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED =
+        internal const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_" +
                 "PRIVILEGED"
 
@@ -154,7 +147,7 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
             val bundle = Bundle()
             bundle.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putString(BUNDLE_KEY_RELYING_PARTY, relyingParty)

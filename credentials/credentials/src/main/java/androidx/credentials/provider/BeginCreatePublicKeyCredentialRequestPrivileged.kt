@@ -25,22 +25,25 @@ import android.service.credentials.BeginCreateCredentialRequest
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.toCandidateDataBundle
-import androidx.credentials.CreatePublicKeyCredentialRequest
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_RELYING_PARTY
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.toCredentialDataBundle
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
- * Request to begin registering a public key credential.
+ * Request to begin registering a public key credential, coming from a privileged source that
+ * can call on behalf of another relying party.
  *
  * This request will not contain all parameters needed to create the public key. Provider must
  * use the initial parameters to determine if the public key can be registered, and return
  * a list of [CreateEntry], denoting the accounts/groups where the public key can be registered.
  * When user selects one of the returned [CreateEntry], the corresponding [PendingIntent] set on
  * the [CreateEntry] will be fired. The [Intent] invoked through the [PendingIntent] will contain
- * the complete [CreatePublicKeyCredentialRequest]. This request will contain all required
- * parameters to actually register a public key.
+ * the complete [CreatePublicKeyCredentialRequestPrivileged]. This request will contain all
+ * required parameters to actually register a public key.
  *
  * @property json the request json to be used for registering the public key credential
  *
@@ -49,13 +52,16 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @hide
  */
 @RequiresApi(34)
-class BeginCreatePublicKeyCredentialRequest internal constructor(
+class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
     val json: String,
+    val relyingParty: String,
+    val clientDataHash: String,
     callingAppInfo: CallingAppInfo,
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toCandidateDataBundle(json, preferImmediatelyAvailableCredentials = false)
+    toCredentialDataBundle(json, relyingParty, clientDataHash,
+        preferImmediatelyAvailableCredentials = false)
 ) {
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -70,27 +76,34 @@ class BeginCreatePublicKeyCredentialRequest internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginCreatePublicKeyCredentialRequest> {
+    companion object CREATOR : Parcelable.Creator<BeginCreatePublicKeyCredentialRequestPrivileged> {
 
         /** @hide */
         @JvmStatic
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
-            BeginCreatePublicKeyCredentialRequest {
+            BeginCreatePublicKeyCredentialRequestPrivileged {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                return BeginCreatePublicKeyCredentialRequest(requestJson!!, callingAppInfo)
+                val rp = data.getString(BUNDLE_KEY_RELYING_PARTY)
+                val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
+                return BeginCreatePublicKeyCredentialRequestPrivileged(
+                    requestJson!!,
+                    rp!!,
+                    clientDataHash!!,
+                    callingAppInfo)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): BeginCreatePublicKeyCredentialRequest {
+        override fun createFromParcel(p0: Parcel?):
+            BeginCreatePublicKeyCredentialRequestPrivileged {
             val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
             return createFrom(baseRequest.data, baseRequest.callingAppInfo)
         }
 
         @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginCreatePublicKeyCredentialRequest?> {
+        override fun newArray(size: Int): Array<BeginCreatePublicKeyCredentialRequestPrivileged?> {
             return arrayOfNulls(size)
         }
     }

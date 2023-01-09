@@ -19,10 +19,17 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.service.credentials.BeginCreateCredentialRequest
+import android.service.credentials.CallingAppInfo
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordRequest.Companion.BUNDLE_KEY_ID
+import androidx.credentials.CreatePasswordRequest.Companion.toCandidateDataBundle
 import androidx.credentials.PasswordCredential
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Request to begin saving a password credential, received by the provider with a
@@ -37,36 +44,57 @@ import androidx.credentials.PasswordCredential
  * actually store the password.
  *
  * @property id the id of the password to be stored
- * @property callingAppInfo the information of the calling app for which the password needs to
- * be stored
  * @throws NullPointerException If [id] is null
  * @throws IllegalArgumentException If [id] is empty
  *
- * @see BeginCreateCredentialProviderRequest
+ * @see BeginCreateCredentialRequest
  *
  * @hide
  */
-// TODO ("Add custom class similar to developer side")
 @RequiresApi(34)
 class BeginCreatePasswordCredentialRequest internal constructor(
     val id: String,
     callingAppInfo: CallingAppInfo
-) : BeginCreateCredentialProviderRequest(
+) : BeginCreateCredentialRequest(
+    callingAppInfo,
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    callingAppInfo) {
+    toCandidateDataBundle(id)
+    ) {
 
     init {
         require(id.isNotEmpty()) { "id must not be empty" }
     }
+    override fun describeContents(): Int {
+        return 0
+    }
 
-    companion object {
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<BeginCreatePasswordCredentialRequest> {
         @JvmStatic
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
             BeginCreatePasswordCredentialRequest {
-            return BeginCreatePasswordCredentialRequest(
-                data.getString(BUNDLE_KEY_ID)!!,
-                callingAppInfo
-            )
+            try {
+                return BeginCreatePasswordCredentialRequest(
+                    data.getString(BUNDLE_KEY_ID)!!,
+                    callingAppInfo
+                )
+            } catch (e: Exception) {
+            throw FrameworkClassParsingException()
+            }
+        }
+
+        override fun createFromParcel(p0: Parcel?): BeginCreatePasswordCredentialRequest {
+            val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
+            return createFrom(baseRequest.data, baseRequest.callingAppInfo)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<BeginCreatePasswordCredentialRequest?> {
+            return arrayOfNulls(size)
         }
     }
 }

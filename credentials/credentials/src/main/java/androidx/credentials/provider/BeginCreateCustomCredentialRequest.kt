@@ -19,8 +19,13 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.service.credentials.BeginCreateCredentialRequest
+import android.service.credentials.CallingAppInfo
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CreateCustomCredentialRequest
 
 /**
  * Request to begin saving a custom credential, received by the provider with a
@@ -30,28 +35,47 @@ import androidx.credentials.CreatePasswordRequest
  * use the initial parameters to determine if the password can be stored, and return
  * a list of [CreateEntry], denoting the accounts/groups where the password can be stored.
  * When user selects one of the returned [CreateEntry], the corresponding [PendingIntent] set on
- * the [CreateEntry] will be fired. The [Intent] invoked through the [PendingIntent] will contain the
- * complete [CreatePasswordRequest]. This request will contain all required parameters to
- * actually store the password.
+ * the [CreateEntry] will be fired. The [Intent] invoked through the [PendingIntent] will contain
+ * the complete [CreateCustomCredentialRequest]. This request will contain all required
+ * parameters to actually store the credential.
  *
- * @property type the type of this custom credential type
- * @property data the request parameters for the custom credential option
- * @throws IllegalArgumentException If [type] is empty
- * @throws NullPointerException If [type] or [data] is null
+ * @param type the type of this custom credential type
  *
- * @see BeginCreateCredentialProviderRequest
+ * @see BeginCreateCredentialRequest
  *
  * @hide
  */
 @RequiresApi(34)
 class BeginCreateCustomCredentialRequest internal constructor(
-    override val type: String,
-    val data: Bundle,
+    type: String,
+    data: Bundle,
     callingAppInfo: CallingAppInfo
-) : BeginCreateCredentialProviderRequest(
+) : BeginCreateCredentialRequest(
+    callingAppInfo,
     type,
-    callingAppInfo) {
-    init {
-        require(type.isNotEmpty()) { "type must not be empty" }
+    data
+) {
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<BeginCreateCustomCredentialRequest> {
+        override fun createFromParcel(p0: Parcel?): BeginCreateCustomCredentialRequest {
+            val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
+            return BeginCreateCustomCredentialRequest(
+                baseRequest.type,
+                baseRequest.data,
+                baseRequest.callingAppInfo)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<BeginCreateCustomCredentialRequest?> {
+            return arrayOfNulls(size)
+        }
     }
 }

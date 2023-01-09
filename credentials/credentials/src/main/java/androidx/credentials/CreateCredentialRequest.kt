@@ -18,7 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
-import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -62,7 +62,7 @@ abstract class CreateCredentialRequest internal constructor(
                             CreatePublicKeyCredentialRequest
                                 .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
                                 CreatePublicKeyCredentialRequest.createFrom(credentialData)
-                            BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED ->
+                            BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV ->
                                 CreatePublicKeyCredentialRequestPrivileged
                                     .createFrom(credentialData)
                             else -> throw FrameworkClassParsingException()

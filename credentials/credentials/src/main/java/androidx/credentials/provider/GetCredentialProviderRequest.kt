@@ -16,18 +16,18 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
-import android.util.ArraySet
+import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialOption
 import androidx.credentials.GetCredentialRequest
 
 /**
  * Request received by the provider after the query phase of the get flow is complete and the
- * user has made a selection from the list of [CredentialEntry] that was set on the
- * [BeginGetCredentialsProviderResponse].
+ * user has made a selection from the list of [CustomCredentialEntry] that was set on the
+ * [android.service.credentials.BeginGetCredentialResponse].
  *
  * This request will be added to the intent that starts the activity invoked by the [PendingIntent]
- * set on the [CredentialEntry] that the user selected. The request can be extracted by using
+ * set on the [CustomCredentialEntry] that the user selected. The request can be extracted by using
  * the PendingIntentHandler.
  *
  * @property callingAppRequest an instance of [GetCredentialRequest] that contains the credential
@@ -41,24 +41,23 @@ class GetCredentialProviderRequest internal constructor(
     val callingAppRequest: GetCredentialRequest,
     val callingAppInfo: CallingAppInfo
     ) {
+
+    /** @hide */
     companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
         GetCredentialProviderRequest {
             val options = ArrayList<GetCredentialOption>()
-            request.getCredentialOptions.forEach {
-                options.add(GetCredentialOption.createFrom(
-                    it.type, it.candidateQueryData,
-                    it.credentialRetrievalData, it.requireSystemProvider()))
-            }
+            options.add(GetCredentialOption.createFrom(
+                request.getCredentialOption.type,
+                request.getCredentialOption.candidateQueryData,
+                request.getCredentialOption.credentialRetrievalData,
+                request.getCredentialOption.requireSystemProvider()))
             return GetCredentialProviderRequest(
                 GetCredentialRequest.Builder()
                     .setGetCredentialOptions(options)
                     .setAutoSelectAllowed(false)
                     .build(),
-                CallingAppInfo(
-                    request.callingPackage,
-                    ArraySet()
-                ))
+                request.callingAppInfo)
         }
     }
 }

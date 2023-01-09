@@ -22,11 +22,13 @@ import android.app.slice.SliceSpec
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.Log
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialManager
-import androidx.credentials.provider.Action.Companion.toSlice
 import java.util.Collections
 
 /**
@@ -39,10 +41,11 @@ import java.util.Collections
  *
  * @property accountName the name of the account where the credential
  * will be registered
- * @property pendingIntent the [PendingIntent] to be fired when this
- * [CreateEntry] is selected
  * @property lastUsedTimeMillis the last used time of the account/group underlying this entry
  * @property credentialCountInformationList a list of count information per credential type
+ * @param pendingIntent the [PendingIntent] to be fired when this
+ * [CreateEntry] is selected
+ *
  * @throws IllegalArgumentException If [accountName] is empty
  *
  * @hide
@@ -54,10 +57,25 @@ class CreateEntry internal constructor(
     val icon: Icon?,
     val lastUsedTimeMillis: Long,
     val credentialCountInformationList: List<CredentialCountInformation>
-    ) {
+    ) : android.service.credentials.CreateEntry(
+    toSlice(
+        accountName,
+        icon,
+        lastUsedTimeMillis,
+        credentialCountInformationList,
+        pendingIntent)
+) {
 
     init {
         require(accountName.isNotEmpty()) { "accountName must not be empty" }
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
     }
 
     /**
@@ -72,7 +90,7 @@ class CreateEntry internal constructor(
     class Builder constructor(
         private val accountName: CharSequence,
         private val pendingIntent: PendingIntent
-        ) {
+    ) {
 
         private var credentialCountInformationList: MutableList<CredentialCountInformation> =
             mutableListOf()
@@ -122,54 +140,80 @@ class CreateEntry internal constructor(
          * @throws IllegalArgumentException If [accountName] is empty
          */
         fun build(): CreateEntry {
-            return CreateEntry(accountName, pendingIntent, icon, lastUsedTimeMillis,
-                credentialCountInformationList)
+            return CreateEntry(
+                accountName, pendingIntent, icon, lastUsedTimeMillis,
+                credentialCountInformationList
+            )
         }
     }
 
-    companion object {
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<CreateEntry> {
         private const val TAG = "CreateEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ACCOUNT_NAME =
             "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ICON =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
             "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
         @JvmStatic
-        fun toSlice(createEntry: CreateEntry): Slice {
+        fun toSlice(
+            accountName: CharSequence,
+            icon: Icon?,
+            lastUsedTimeMillis: Long,
+            credentialCountInformationList: List<CredentialCountInformation>,
+            pendingIntent: PendingIntent
+        ): Slice {
             // TODO("Use the right type and revision")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
-            sliceBuilder.addText(createEntry.accountName, /*subType=*/null,
-                listOf(SLICE_HINT_ACCOUNT_NAME))
-                .addLong(createEntry.lastUsedTimeMillis, /*subType=*/null, listOf(
-                    SLICE_HINT_LAST_USED_TIME_MILLIS))
-            if (createEntry.icon != null) {
-                sliceBuilder.addIcon(createEntry.icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON))
+            sliceBuilder.addText(
+                accountName, /*subType=*/null,
+                listOf(SLICE_HINT_ACCOUNT_NAME)
+            )
+                .addLong(
+                    lastUsedTimeMillis, /*subType=*/null, listOf(
+                        SLICE_HINT_LAST_USED_TIME_MILLIS
+                    )
+                )
+            if (icon != null) {
+                sliceBuilder.addIcon(
+                    icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON)
+                )
             }
-
-                val credentialCountBundle = convertCredentialCountInfoToBundle(
-                    createEntry.credentialCountInformationList)
-                if (credentialCountBundle != null) {
-                    sliceBuilder.addBundle(convertCredentialCountInfoToBundle(
-                        createEntry.credentialCountInformationList), null, listOf(
-                        SLICE_HINT_CREDENTIAL_COUNT_INFORMATION))
-                }
-            sliceBuilder.addAction(createEntry.pendingIntent,
+            val credentialCountBundle = convertCredentialCountInfoToBundle(
+                credentialCountInformationList
+            )
+            if (credentialCountBundle != null) {
+                sliceBuilder.addBundle(
+                    convertCredentialCountInfoToBundle(
+                        credentialCountInformationList
+                    ), null, listOf(
+                        SLICE_HINT_CREDENTIAL_COUNT_INFORMATION
+                    )
+                )
+            }
+            sliceBuilder.addAction(
+                pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/null)
+                /*subType=*/null
+            )
             return sliceBuilder.build()
         }
 
@@ -187,7 +231,6 @@ class CreateEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var credentialCountInfo: List<CredentialCountInformation> = listOf()
             var lastUsedTimeMillis: Long = 0
-
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
                     accountName = it.text
@@ -201,10 +244,11 @@ class CreateEntry internal constructor(
                     lastUsedTimeMillis = it.long
                 }
             }
-
             return try {
-                CreateEntry(accountName, pendingIntent!!, icon,
-                    lastUsedTimeMillis, credentialCountInfo)
+                CreateEntry(
+                    accountName, pendingIntent!!, icon,
+                    lastUsedTimeMillis, credentialCountInfo
+                )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
@@ -221,7 +265,8 @@ class CreateEntry internal constructor(
             bundle.keySet().forEach {
                 try {
                     credentialCountList.add(
-                        CredentialCountInformation(it, bundle.getInt(it)))
+                        CredentialCountInformation(it, bundle.getInt(it))
+                    )
                 } catch (e: Exception) {
                     Log.i(TAG, "Issue unpacking credential count info bundle: " + e.message)
                 }
@@ -243,12 +288,14 @@ class CreateEntry internal constructor(
             return bundle
         }
 
-        @JvmStatic
-        internal fun toFrameworkClass(createEntry: CreateEntry):
-            android.service.credentials.CreateEntry {
-            return android.service.credentials.CreateEntry(
-                toSlice(createEntry),
-                createEntry.pendingIntent)
+        override fun createFromParcel(p0: Parcel?): CreateEntry? {
+            val createEntry = android.service.credentials.CreateEntry.CREATOR.createFromParcel(p0)
+            return fromSlice(createEntry.slice)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<CreateEntry?> {
+            return arrayOfNulls(size)
         }
     }
-}
+    }

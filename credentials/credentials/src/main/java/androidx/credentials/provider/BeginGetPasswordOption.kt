@@ -17,23 +17,55 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.service.credentials.BeginGetCredentialOption
+import androidx.annotation.RequiresApi
+import android.service.credentials.BeginGetCredentialResponse
+import androidx.annotation.NonNull
 import androidx.credentials.PasswordCredential
 
 /**
- * A request to begin the flow of retrieving the user's saved application password from their
- * password provider.
+ * A request to a password provider to begin the flow of retrieving the user's saved application
+ * passwords.
+ *
+ * Providers must use the parameters in this option to retrieve the corresponding credentials,
+ * and then return them in the form of a list of [PasswordCredentialEntry]
+ * set on the [BeginGetCredentialResponse.createWithResponseContent].
  *
  * @hide
  */
-class BeginGetPasswordOption : BeginGetCredentialOption(
-    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL
+@RequiresApi(34)
+class BeginGetPasswordOption(val data: Bundle) : BeginGetCredentialOption(
+    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    data
 ) {
-    /** @hide */
-    @Suppress("UNUSED_PARAMETER")
-    companion object {
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
+    }
+
+    @Suppress("AcronymName")
+    companion object CREATOR : Parcelable.Creator<BeginGetPasswordOption> {
+
+        /** @hide */
         @JvmStatic
         internal fun createFrom(data: Bundle): BeginGetPasswordOption {
-            return BeginGetPasswordOption()
+            return BeginGetPasswordOption(data)
+        }
+
+        override fun createFromParcel(p0: Parcel?): BeginGetPasswordOption {
+            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+            return createFrom(baseOption.candidateQueryData)
+        }
+
+        @Suppress("ArrayReturn")
+        override fun newArray(size: Int): Array<BeginGetPasswordOption?> {
+            return arrayOfNulls(size)
         }
     }
 }

@@ -16,14 +16,24 @@
 
 package androidx.credentials.provider
 
+import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreateCredentialRequest
 
 /**
- * Request class for registering a credential.
+ * Final request received by the provider after the user has selected a given [CreateEntry]
+ * on the UI.
  *
  * This request contains the actual request coming from the calling app,
- * and the application information associated with the calling app
+ * and the application information associated with the calling app.
+ *
+ * @property callingRequest the complete [CreateCredentialRequest] coming from
+ * the calling app that is requesting for credential creation
+ * @property callingAppInfo information pertaining to the calling app making
+ * the request
+ *
+ * @throws NullPointerException If [callingRequest] is null
+ * @throws NullPointerException If [callingAppInfo] is null
  *
  * @hide
  */
