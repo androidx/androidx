@@ -28,8 +28,30 @@
     <!-- The smallest value of height of the parent window when the split should be used. -->
     <attr name="splitMinHeightDp" format="integer" />
     <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
-     the split should be used. -->
+    the split should be used. -->
     <attr name="splitMinSmallestWidthDp" format="integer" />
+    <!-- The largest value of the aspect ratio, expressed as (height / width) in decimal form, of
+    the parent window bounds in portrait when the split should be used.
+    `0` or `alwaysAllow` means to always allow split in portrait.
+    `-1` or `alwaysDisallow` means to always disallow split in portrait.
+    Any other values less than 1 are invalid. -->
+    <attr name="splitMaxAspectRatioInPortrait"  format="float">
+        <!-- Special value to always allow split in portrait. -->
+        <enum name="alwaysAllow" value="0" />
+        <!-- Special value to always disallow split in portrait. -->
+        <enum name="alwaysDisallow" value="-1" />
+    </attr>
+    <!-- The largest value of the aspect ratio, expressed as (width / height) in decimal form, of
+    the parent window bounds in landscape when the split should be used.
+    `0` or `alwaysAllow` means to always allow split in landscape.
+    `-1` or `alwaysDisallow` means to always disallow split in landscape.
+    Any other values less than 1 are invalid. -->
+    <attr name="splitMaxAspectRatioInLandscape"  format="float">
+        <!-- Special value to always allow split in landscape. -->
+        <enum name="alwaysAllow" value="0" />
+        <!-- Special value to always disallow split in landscape. -->
+        <enum name="alwaysDisallow" value="-1" />
+    </attr>
     <attr name="splitLayoutDirection" format="enum">
         <!-- A layout direction that splits the task bounds vertically, and the direction is deduced
         from the language script of locale. The direction can be either rtl or ltr -->
@@ -87,6 +109,8 @@
         <attr name="splitMinWidthDp"/>
         <attr name="splitMinHeightDp"/>
         <attr name="splitMinSmallestWidthDp"/>
+        <attr name="splitMaxAspectRatioInPortrait" />
+        <attr name="splitMaxAspectRatioInLandscape" />
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
         <attr name="animationBackgroundColor"/>
@@ -108,6 +132,8 @@
         <attr name="splitMinWidthDp"/>
         <attr name="splitMinHeightDp"/>
         <attr name="splitMinSmallestWidthDp"/>
+        <attr name="splitMaxAspectRatioInPortrait" />
+        <attr name="splitMaxAspectRatioInLandscape" />
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
         <attr name="animationBackgroundColor"/>

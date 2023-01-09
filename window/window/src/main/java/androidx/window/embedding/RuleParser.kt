@@ -23,6 +23,7 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.XmlRes
 import androidx.window.R
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.buildAspectRatioFromValue
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
@@ -142,15 +143,23 @@ internal object RuleParser {
             val ratio = typedArray.getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
             val minWidthDp = typedArray.getInteger(
                 R.styleable.SplitPairRule_splitMinWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
             val minHeightDp = typedArray.getInteger(
                 R.styleable.SplitPairRule_splitMinHeightDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
             val minSmallestWidthDp = typedArray.getInteger(
                 R.styleable.SplitPairRule_splitMinSmallestWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
+            )
+            val maxAspectRatioInPortrait = typedArray.getFloat(
+                R.styleable.SplitPairRule_splitMaxAspectRatioInPortrait,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT.value
+            )
+            val maxAspectRatioInLandscape = typedArray.getFloat(
+                R.styleable.SplitPairRule_splitMaxAspectRatioInLandscape,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT.value
             )
             val layoutDir = typedArray.getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
@@ -183,6 +192,8 @@ internal object RuleParser {
                 .setMinWidthDp(minWidthDp)
                 .setMinHeightDp(minHeightDp)
                 .setMinSmallestWidthDp(minSmallestWidthDp)
+                .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
+                .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
                 .setFinishPrimaryWithSecondary(
                     getFinishBehaviorFromValue(finishPrimaryWithSecondary))
                 .setFinishSecondaryWithPrimary(
@@ -223,15 +234,23 @@ internal object RuleParser {
             val ratio = typedArray.getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
             val minWidthDp = typedArray.getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
             val minHeightDp = typedArray.getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinHeightDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
             val minSmallestWidthDp = typedArray.getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinSmallestWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
+            )
+            val maxAspectRatioInPortrait = typedArray.getFloat(
+                R.styleable.SplitPlaceholderRule_splitMaxAspectRatioInPortrait,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT.value
+            )
+            val maxAspectRatioInLandscape = typedArray.getFloat(
+                R.styleable.SplitPlaceholderRule_splitMaxAspectRatioInLandscape,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT.value
             )
             val layoutDir = typedArray.getInt(
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
@@ -263,6 +282,8 @@ internal object RuleParser {
                 .setMinWidthDp(minWidthDp)
                 .setMinHeightDp(minHeightDp)
                 .setMinSmallestWidthDp(minSmallestWidthDp)
+                .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
+                .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
                 .setSticky(stickyPlaceholder)
                 .setFinishPrimaryWithPlaceholder(
                     getFinishBehaviorFromValue(finishPrimaryWithPlaceholder))

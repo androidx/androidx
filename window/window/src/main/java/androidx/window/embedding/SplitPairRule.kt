@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import androidx.annotation.IntRange
-import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 
@@ -62,14 +61,14 @@ class SplitPairRule : SplitRule {
         finishPrimaryWithSecondary: FinishBehavior = NEVER,
         finishSecondaryWithPrimary: FinishBehavior = ALWAYS,
         clearTop: Boolean = false,
-        @IntRange(from = 0) minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
-        @IntRange(from = 0) minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
-        @IntRange(from = 0) minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
+        maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, defaultSplitAttributes) {
-        checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
-        checkArgumentNonnegative(minHeightDp, "minHeightDp must be non-negative")
-        checkArgumentNonnegative(minSmallestWidthDp, "minSmallestWidthDp must be non-negative")
+    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, maxAspectRatioInPortrait,
+        maxAspectRatioInLandscape, defaultSplitAttributes) {
         this.filters = filters.toSet()
         this.clearTop = clearTop
         this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
@@ -86,15 +85,17 @@ class SplitPairRule : SplitRule {
     ) {
         private var tag: String? = null
         @IntRange(from = 0)
-        private var minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0)
-        private var minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        private var minHeightDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0)
-        private var minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
-        private var finishPrimaryWithSecondary: FinishBehavior = NEVER
-        private var finishSecondaryWithPrimary: FinishBehavior = ALWAYS
-        private var clearTop: Boolean = false
-        private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
+        private var minSmallestWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
+        private var maxAspectRatioInPortrait = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
+        private var maxAspectRatioInLandscape = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
+        private var finishPrimaryWithSecondary = NEVER
+        private var finishSecondaryWithPrimary = ALWAYS
+        private var clearTop = false
+        private var defaultSplitAttributes = SplitAttributes.Builder().build()
 
         /**
          * @see SplitPairRule.minWidthDp
@@ -113,6 +114,18 @@ class SplitPairRule : SplitRule {
          */
         fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
             apply { this.minSmallestWidthDp = minSmallestWidthDp }
+
+        /**
+         * @see SplitPairRule.maxAspectRatioInPortrait
+         */
+        fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply { this.maxAspectRatioInPortrait = aspectRatio }
+
+        /**
+         * @see SplitPairRule.maxAspectRatioInLandscape
+         */
+        fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply { this.maxAspectRatioInLandscape = aspectRatio }
 
         /**
          * @see SplitPairRule.finishPrimaryWithSecondary
@@ -154,6 +167,8 @@ class SplitPairRule : SplitRule {
             minWidthDp,
             minHeightDp,
             minSmallestWidthDp,
+            maxAspectRatioInPortrait,
+            maxAspectRatioInLandscape,
             defaultSplitAttributes,
         )
     }
@@ -171,6 +186,8 @@ class SplitPairRule : SplitRule {
             .setMinWidthDp(minWidthDp)
             .setMinHeightDp(minHeightDp)
             .setMinSmallestWidthDp(minSmallestWidthDp)
+            .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
+            .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
             .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
@@ -207,6 +224,8 @@ class SplitPairRule : SplitRule {
             ", minWidthDp=$minWidthDp" +
             ", minHeightDp=$minHeightDp" +
             ", minSmallestWidthDp=$minSmallestWidthDp" +
+            ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
+            ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
             ", clearTop=$clearTop" +
             ", finishPrimaryWithSecondary=$finishPrimaryWithSecondary" +
             ", finishSecondaryWithPrimary=$finishSecondaryWithPrimary" +
