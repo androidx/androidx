@@ -104,6 +104,7 @@ import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
+import androidx.camera.core.impl.utils.TransformUtils;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -211,6 +212,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private VideoEncoderInfo mVideoEncoderInfo;
     @Nullable
     private Rect mCropRect;
+    private boolean mHasCompensatingTransformation = false;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -500,8 +502,20 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (cameraInternal != null && cameraEdge != null) {
             int relativeRotation = getRelativeRotation(cameraInternal,
                     isMirroringRequired(cameraInternal));
-            cameraEdge.updateTransformation(relativeRotation, getAppTargetRotation());
+            cameraEdge.updateTransformation(
+                    adjustRotationWithInProgressTransformation(relativeRotation),
+                    getAppTargetRotation());
         }
+    }
+
+    private int adjustRotationWithInProgressTransformation(int rotationDegrees) {
+        int adjustedRotationDegrees = rotationDegrees;
+        if (shouldCompensateTransformation()) {
+            mHasCompensatingTransformation = true;
+            adjustedRotationDegrees = TransformUtils.within360((rotationDegrees
+                    - mStreamInfo.getInProgressTransformationInfo().getRotationDegrees()));
+        }
+        return adjustedRotationDegrees;
     }
 
     @VisibleForTesting
@@ -585,7 +599,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
                 mCropRect,
-                getRelativeRotation(camera, isMirroringRequired(camera)),
+                adjustRotationWithInProgressTransformation(getRelativeRotation(camera,
+                        isMirroringRequired(camera))),
                 getAppTargetRotation(),
                 shouldMirror(camera));
         mCameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
@@ -670,6 +685,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         mCropRect = null;
         mSurfaceRequest = null;
         mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
+        mHasCompensatingTransformation = false;
     }
 
     @MainThread
@@ -785,11 +801,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // includes notifyUpdated(). So we just take actions on higher order item for
             // optimization.
             StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
-            if (!StreamInfo.NON_SURFACE_STREAM_ID.contains(currentStreamInfo.getId())
-                    && !StreamInfo.NON_SURFACE_STREAM_ID.contains(streamInfo.getId())
-                    && currentStreamInfo.getId() != streamInfo.getId()) {
-                // Reset pipeline if the stream ids are different, which means there's a new
-                // surface ready to be requested.
+            if (isStreamIdChanged(currentStreamInfo.getId(), streamInfo.getId())
+                    || shouldResetCompensatingTransformation(currentStreamInfo, streamInfo)) {
+                // Reset pipeline if it's one of the following cases:
+                // 1. The stream ids are different, which means there's a new surface ready to be
+                // requested.
+                // 2. The in-progress transformation info becomes null, which means a recording
+                // has been finalized, and there's an existing compensating transformation.
                 resetPipeline(getCameraId(), (VideoCaptureConfig<T>) getCurrentConfig(),
                         Preconditions.checkNotNull(getAttachedStreamSpec()));
             } else if ((currentStreamInfo.getId() != STREAM_ID_ERROR
@@ -851,7 +869,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (getEffect() != null
                 || shouldEnableSurfaceProcessingByQuirk(camera)
                 || shouldCrop(cropRect, resolution)
-                || shouldMirror(camera)) {
+                || shouldMirror(camera)
+                || shouldCompensateTransformation()) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     getEffect() != null ? getEffect().createSurfaceProcessorInternal() :
@@ -987,10 +1006,29 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean isStreamIdChanged(int currentId, int newId) {
+        return !StreamInfo.NON_SURFACE_STREAM_ID.contains(currentId)
+                && !StreamInfo.NON_SURFACE_STREAM_ID.contains(newId)
+                && currentId != newId;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean shouldResetCompensatingTransformation(@NonNull StreamInfo currentStreamInfo,
+            @NonNull StreamInfo streamInfo) {
+        return mHasCompensatingTransformation
+                && currentStreamInfo.getInProgressTransformationInfo() != null
+                && streamInfo.getInProgressTransformationInfo() == null;
+    }
+
     private boolean shouldMirror(@NonNull CameraInternal camera) {
         // Stream is always mirrored during buffer copy. If there has been a buffer copy, it
         // means the input stream is already mirrored. Otherwise, mirror it as needed.
         return camera.getHasTransform() && isMirroringRequired(camera);
+    }
+
+    private boolean shouldCompensateTransformation() {
+        return mStreamInfo.getInProgressTransformationInfo() != null;
     }
 
     private static boolean shouldCrop(@NonNull Rect cropRect, @NonNull Size resolution) {
