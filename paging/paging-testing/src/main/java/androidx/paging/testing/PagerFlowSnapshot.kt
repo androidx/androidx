@@ -24,6 +24,9 @@ import androidx.paging.NullPaddedList
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
+import androidx.paging.testing.LoaderCallback.CallbackType.ON_CHANGED
+import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
+import androidx.paging.testing.LoaderCallback.CallbackType.ON_REMOVED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
@@ -51,13 +54,22 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
 
     val callback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
-            loader.onDataSetChanged(loader.generations.value)
+            loader.onDataSetChanged(
+                loader.generations.value,
+                LoaderCallback(ON_CHANGED, position, count)
+            )
         }
         override fun onInserted(position: Int, count: Int) {
-            loader.onDataSetChanged(loader.generations.value)
+            loader.onDataSetChanged(
+                loader.generations.value,
+                LoaderCallback(ON_INSERTED, position, count)
+            )
         }
         override fun onRemoved(position: Int, count: Int) {
-            loader.onDataSetChanged(loader.generations.value)
+            loader.onDataSetChanged(
+                loader.generations.value,
+                LoaderCallback(ON_REMOVED, position, count)
+            )
         }
     }
 
