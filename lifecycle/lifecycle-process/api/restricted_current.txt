@@ -7,9 +7,14 @@ package androidx.lifecycle {
     method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>> dependencies();
   }
 
-  public class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
+  public final class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
     method public static androidx.lifecycle.LifecycleOwner get();
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    field public static final androidx.lifecycle.ProcessLifecycleOwner.Companion Companion;
+  }
+
+  public static final class ProcessLifecycleOwner.Companion {
+    method public androidx.lifecycle.LifecycleOwner get();
   }
 
 }
