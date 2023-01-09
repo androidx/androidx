@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleService;
@@ -44,7 +45,7 @@ public class TestService extends LifecycleService {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@NonNull Intent intent) {
         super.onBind(intent);
         return mBinder;
     }
