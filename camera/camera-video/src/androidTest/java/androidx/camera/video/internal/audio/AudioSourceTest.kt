@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.video.internal
+
+package androidx.camera.video.internal.audio
 
 import android.Manifest
 import android.media.AudioFormat
 import android.media.MediaRecorder
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.AudioUtil
+import androidx.camera.video.internal.FakeBufferProvider
 import androidx.camera.video.internal.encoder.FakeInputBuffer
 import androidx.camera.video.internal.encoder.noInvocation
 import androidx.test.ext.junit.runners.AndroidJUnit4
