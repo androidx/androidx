@@ -16,29 +16,21 @@
 
 package androidx.camera.video.internal.audio;
 
-import static android.media.AudioFormat.ENCODING_PCM_16BIT;
-import static android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED;
-import static android.media.AudioFormat.ENCODING_PCM_32BIT;
-import static android.media.AudioFormat.ENCODING_PCM_8BIT;
-import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
-
 import static androidx.camera.video.internal.audio.AudioSource.InternalState.CONFIGURED;
 import static androidx.camera.video.internal.audio.AudioSource.InternalState.RELEASED;
 import static androidx.camera.video.internal.audio.AudioSource.InternalState.STARTED;
 
+import static java.util.Objects.requireNonNull;
+
 import android.Manifest;
 import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.AudioRecordingConfiguration;
-import android.media.AudioTimestamp;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -46,23 +38,18 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.BufferProvider;
-import androidx.camera.video.internal.compat.Api23Impl;
-import androidx.camera.video.internal.compat.Api24Impl;
-import androidx.camera.video.internal.compat.Api29Impl;
-import androidx.camera.video.internal.compat.Api31Impl;
-import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk;
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * AudioSource is used to obtain audio raw data and write to the buffer from {@link BufferProvider}.
@@ -97,44 +84,42 @@ public final class AudioSource {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mExecutor;
 
-    private AudioManager.AudioRecordingCallback mAudioRecordingCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final AtomicReference<Boolean> mNotifiedSilenceState = new AtomicReference<>(null);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    AtomicBoolean mSourceSilence = new AtomicBoolean(false);
+    final AtomicBoolean mNotifiedSuspendState = new AtomicBoolean(false);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final AudioRecord mAudioRecord;
+    final AudioStream mAudioStream;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final int mBufferSize;
-
-    final int mSampleRate;
-
-    final int mBytesPerFrame;
-
-    long mTotalFramesRead = 0;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
     InternalState mState = CONFIGURED;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
     BufferProvider.State mBufferProviderState = BufferProvider.State.INACTIVE;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mIsSendingAudio;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @Nullable
     Executor mCallbackExecutor;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @Nullable
     AudioSourceCallback mAudioSourceCallback;
 
     // The following should only be accessed by mExecutor
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    BufferProvider<InputBuffer> mBufferProvider;
+    @Nullable
+    BufferProvider<? extends InputBuffer> mBufferProvider;
+    @Nullable
     private FutureCallback<InputBuffer> mAcquireBufferCallback;
+    @Nullable
     private Observable.Observer<BufferProvider.State> mStateObserver;
-
 
     /**
      * Creates an AudioSource for the given settings.
@@ -162,88 +147,32 @@ public final class AudioSource {
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
-            @Nullable Context attributionContext)
+            @Nullable Context attributionContext) throws AudioSourceAccessException {
+        this(settings, executor, attributionContext, AudioStreamImpl::new);
+    }
+
+    @VisibleForTesting
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
+            @Nullable Context attributionContext, @NonNull AudioStreamFactory audioStreamFactory)
             throws AudioSourceAccessException {
-        if (!isSettingsSupported(settings.getSampleRate(), settings.getChannelCount(),
-                settings.getAudioFormat())) {
-            throw new UnsupportedOperationException(String.format(
-                    "The combination of sample rate %d, channel count %d and audio format"
-                            + " %d is not supported.",
-                    settings.getSampleRate(), settings.getChannelCount(),
-                    settings.getAudioFormat()));
-        }
-
-        int minBufferSize = getMinBufferSize(settings.getSampleRate(), settings.getChannelCount(),
-                settings.getAudioFormat());
-        // The minBufferSize should be a positive value since the settings had already been checked
-        // by the isSettingsSupported().
-        Preconditions.checkState(minBufferSize > 0);
-
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
-        mBufferSize = minBufferSize * 2;
-        mSampleRate = settings.getSampleRate();
         try {
-            mBytesPerFrame = getBytesPerFrame(settings.getAudioFormat(),
-                    settings.getChannelCount());
-            if (Build.VERSION.SDK_INT >= 23) {
-                AudioFormat audioFormatObj = new AudioFormat.Builder()
-                        .setSampleRate(settings.getSampleRate())
-                        .setChannelMask(channelCountToChannelMask(settings.getChannelCount()))
-                        .setEncoding(settings.getAudioFormat())
-                        .build();
-                AudioRecord.Builder audioRecordBuilder = Api23Impl.createAudioRecordBuilder();
-                if (Build.VERSION.SDK_INT >= 31 && attributionContext != null) {
-                    Api31Impl.setContext(audioRecordBuilder, attributionContext);
-                }
-                Api23Impl.setAudioSource(audioRecordBuilder, settings.getAudioSource());
-                Api23Impl.setAudioFormat(audioRecordBuilder, audioFormatObj);
-                Api23Impl.setBufferSizeInBytes(audioRecordBuilder, mBufferSize);
-                mAudioRecord = Api23Impl.build(audioRecordBuilder);
-            } else {
-                mAudioRecord = new AudioRecord(settings.getAudioSource(),
-                        settings.getSampleRate(),
-                        channelCountToChannelConfig(settings.getChannelCount()),
-                        settings.getAudioFormat(),
-                        mBufferSize);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new AudioSourceAccessException("Unable to create AudioRecord", e);
+            mAudioStream = audioStreamFactory.create(settings, attributionContext);
+        } catch (IllegalArgumentException | AudioStream.AudioStreamException e) {
+            throw new AudioSourceAccessException("Unable to create AudioStream", e);
         }
-
-        if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-            mAudioRecord.release();
-            throw new AudioSourceAccessException("Unable to initialize AudioRecord");
-        }
-
-        if (Build.VERSION.SDK_INT >= 29) {
-            mAudioRecordingCallback = new AudioRecordingApi29Callback();
-            Api29Impl.registerAudioRecordingCallback(mAudioRecord, mExecutor,
-                    mAudioRecordingCallback);
-        }
+        mAudioStream.setCallback(new AudioStreamCallback(), mExecutor);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @RequiresApi(29)
-    class AudioRecordingApi29Callback extends AudioManager.AudioRecordingCallback {
+    class AudioStreamCallback implements AudioStream.AudioStreamCallback {
+        @ExecutedBy("mExecutor")
         @Override
-        public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
-            super.onRecordingConfigChanged(configs);
-            if (mCallbackExecutor != null && mAudioSourceCallback != null) {
-                for (AudioRecordingConfiguration config : configs) {
-                    if (Api24Impl.getClientAudioSessionId(config)
-                            == mAudioRecord.getAudioSessionId()) {
-                        boolean isSilenced = Api29Impl.isClientSilenced(config);
-                        if (mSourceSilence.getAndSet(isSilenced) != isSilenced) {
-                            mCallbackExecutor.execute(
-                                    () -> mAudioSourceCallback.onSilenced(isSilenced));
-                        }
-                        break;
-                    }
-                }
-            }
+        public void onSilenceStateChanged(boolean isSilenced) {
+            notifySilenced(isSilenced);
         }
     }
-
 
     /**
      * Sets the {@link BufferProvider}.
@@ -253,7 +182,7 @@ public final class AudioSource {
      *
      * @param bufferProvider The new buffer provider to use.
      */
-    public void setBufferProvider(@NonNull BufferProvider<InputBuffer> bufferProvider) {
+    public void setBufferProvider(@NonNull BufferProvider<? extends InputBuffer> bufferProvider) {
         mExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
@@ -264,7 +193,7 @@ public final class AudioSource {
                     }
                     break;
                 case RELEASED:
-                    throw new AssertionError("AudioRecorder is released");
+                    throw new AssertionError("AudioSource is released");
             }
         });
     }
@@ -283,6 +212,8 @@ public final class AudioSource {
         mExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
+                    mNotifiedSilenceState.set(null);
+                    mNotifiedSuspendState.set(false);
                     setState(STARTED);
                     updateSendingAudio();
                     break;
@@ -290,7 +221,7 @@ public final class AudioSource {
                     // Do nothing
                     break;
                 case RELEASED:
-                    throw new AssertionError("AudioRecorder is released");
+                    throw new AssertionError("AudioSource is released");
             }
         });
     }
@@ -311,7 +242,7 @@ public final class AudioSource {
                     // Do nothing
                     break;
                 case RELEASED:
-                    Logger.w(TAG, "AudioRecorder is released. "
+                    Logger.w(TAG, "AudioSource is released. "
                             + "Calling stop() is a no-op.");
             }
         });
@@ -332,11 +263,7 @@ public final class AudioSource {
                             // Fall-through
                         case CONFIGURED:
                             resetBufferProvider(null);
-                            if (Build.VERSION.SDK_INT >= 29) {
-                                Api29Impl.unregisterAudioRecordingCallback(mAudioRecord,
-                                        mAudioRecordingCallback);
-                            }
-                            mAudioRecord.release();
+                            mAudioStream.release();
                             stopSendingAudio();
                             setState(RELEASED);
                             break;
@@ -380,26 +307,30 @@ public final class AudioSource {
     }
 
     @ExecutedBy("mExecutor")
-    private void resetBufferProvider(@Nullable BufferProvider<InputBuffer> bufferProvider) {
+    private void resetBufferProvider(
+            @Nullable BufferProvider<? extends InputBuffer> bufferProvider) {
         if (mBufferProvider != null) {
-            mBufferProvider.removeObserver(mStateObserver);
+            mBufferProvider.removeObserver(requireNonNull(mStateObserver));
             mBufferProvider = null;
             mStateObserver = null;
             mAcquireBufferCallback = null;
+            mBufferProviderState = BufferProvider.State.INACTIVE;
+            updateSendingAudio();
         }
-        mBufferProviderState = BufferProvider.State.INACTIVE;
-        updateSendingAudio();
         if (bufferProvider != null) {
             mBufferProvider = bufferProvider;
             mStateObserver = new Observable.Observer<BufferProvider.State>() {
                 @ExecutedBy("mExecutor")
                 @Override
                 public void onNewData(@Nullable BufferProvider.State state) {
+                    requireNonNull(state);
                     if (mBufferProvider == bufferProvider) {
                         Logger.d(TAG, "Receive BufferProvider state change: "
                                 + mBufferProviderState + " to " + state);
-                        mBufferProviderState = state;
-                        updateSendingAudio();
+                        if (mBufferProviderState != state) {
+                            mBufferProviderState = state;
+                            updateSendingAudio();
+                        }
                     }
                 }
 
@@ -422,12 +353,12 @@ public final class AudioSource {
                     }
                     ByteBuffer byteBuffer = inputBuffer.getByteBuffer();
 
-                    int length = mAudioRecord.read(byteBuffer, mBufferSize);
-                    if (length > 0) {
-                        byteBuffer.limit(length);
-                        inputBuffer.setPresentationTimeUs(generatePresentationTimeUs());
+                    AudioStream.PacketInfo packetInfo = mAudioStream.read(byteBuffer);
+                    if (packetInfo.getSizeInBytes() > 0) {
+                        byteBuffer.limit(byteBuffer.position() + packetInfo.getSizeInBytes());
+                        inputBuffer.setPresentationTimeUs(
+                                TimeUnit.NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
                         inputBuffer.submit();
-                        mTotalFramesRead += length / mBytesPerFrame;
                     } else {
                         Logger.w(TAG, "Unable to read data from AudioRecord.");
                         inputBuffer.cancel();
@@ -439,28 +370,71 @@ public final class AudioSource {
                 @Override
                 public void onFailure(@NonNull Throwable throwable) {
                     if (mBufferProvider != bufferProvider) {
-                        Logger.d(TAG, "Unable to get input buffer, the BufferProvider "
-                                + "could be transitioning to INACTIVE state.");
+                        return;
+                    }
+                    Logger.d(TAG, "Unable to get input buffer, the BufferProvider "
+                            + "could be transitioning to INACTIVE state.");
+                    // IllegalStateException and CancellationException (extends
+                    // IllegalStateException) indicate BufferProvider is transitioning to
+                    // INACTIVE state, which is normal case and should not notify error.
+                    if (!(throwable instanceof IllegalStateException)) {
                         notifyError(throwable);
                     }
                 }
             };
+            // Update BufferProvider state as possible.
+            BufferProvider.State state = fetchBufferProviderState(bufferProvider);
+            if (state != null) {
+                mBufferProviderState = state;
+                updateSendingAudio();
+            }
             mBufferProvider.addObserver(mExecutor, mStateObserver);
         }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void notifyError(Throwable throwable) {
-        if (mCallbackExecutor != null && mAudioSourceCallback != null) {
-            mCallbackExecutor.execute(() -> mAudioSourceCallback.onError(throwable));
+    @ExecutedBy("mExecutor")
+    void notifyError(@NonNull Throwable throwable) {
+        Executor executor = mCallbackExecutor;
+        AudioSourceCallback callback = mAudioSourceCallback;
+        if (executor != null && callback != null) {
+            executor.execute(() -> callback.onError(throwable));
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    void notifySilenced(boolean isSilenced) {
+        Executor executor = mCallbackExecutor;
+        AudioSourceCallback callback = mAudioSourceCallback;
+        if (executor != null && callback != null) {
+            if (!Objects.equals(mNotifiedSilenceState.getAndSet(isSilenced), isSilenced)) {
+                executor.execute(() -> callback.onSilenceStateChanged(isSilenced));
+            }
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    void notifySuspended(boolean isSuspended) {
+        Executor executor = mCallbackExecutor;
+        AudioSourceCallback callback = mAudioSourceCallback;
+        if (executor != null && callback != null) {
+            if (mNotifiedSuspendState.getAndSet(isSuspended) != isSuspended) {
+                executor.execute(() -> callback.onSuspendStateChanged(isSuspended));
+            }
         }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
     void updateSendingAudio() {
-        if (mState == STARTED && mBufferProviderState == BufferProvider.State.ACTIVE) {
-            startSendingAudio();
+        if (mState == STARTED) {
+            boolean isBufferProviderActive = mBufferProviderState == BufferProvider.State.ACTIVE;
+            notifySuspended(!isBufferProviderActive);
+            if (isBufferProviderActive) {
+                startSendingAudio();
+            } else {
+                stopSendingAudio();
+            }
         } else {
             stopSendingAudio();
         }
@@ -474,18 +448,13 @@ public final class AudioSource {
         }
         try {
             Logger.d(TAG, "startSendingAudio");
-            mAudioRecord.startRecording();
-            if (mAudioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
-                throw new IllegalStateException("Unable to start AudioRecord with state: "
-                                + mAudioRecord.getRecordingState());
-            }
-        } catch (IllegalStateException e) {
-            Logger.w(TAG, "Failed to start AudioRecord", e);
+            mAudioStream.start();
+        } catch (AudioStream.AudioStreamException e) {
+            Logger.w(TAG, "Failed to start AudioStream", e);
             setState(CONFIGURED);
-            notifyError(new AudioSourceAccessException("Unable to start the audio record.", e));
+            notifyError(new AudioSourceAccessException("Unable to start the audio stream.", e));
             return;
         }
-        mTotalFramesRead = 0;
         mIsSendingAudio = true;
         sendNextAudio();
     }
@@ -497,23 +466,16 @@ public final class AudioSource {
             return;
         }
         mIsSendingAudio = false;
-        try {
-            Logger.d(TAG, "stopSendingAudio");
-            mAudioRecord.stop();
-            if (mAudioRecord.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
-                throw new IllegalStateException("Unable to stop AudioRecord with state: "
-                        + mAudioRecord.getRecordingState());
-            }
-        } catch (IllegalStateException e) {
-            Logger.w(TAG, "Failed to stop AudioRecord", e);
-            notifyError(e);
-        }
+        Logger.d(TAG, "stopSendingAudio");
+        mAudioStream.stop();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
     void sendNextAudio() {
-        Futures.addCallback(mBufferProvider.acquireBuffer(), mAcquireBufferCallback, mExecutor);
+        Futures.addCallback(requireNonNull(mBufferProvider).acquireBuffer(),
+                requireNonNull(mAcquireBufferCallback),
+                mExecutor);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -523,92 +485,45 @@ public final class AudioSource {
         mState = state;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    long generatePresentationTimeUs() {
-        long presentationTimeUs = -1;
-        if (Build.VERSION.SDK_INT >= 24 && !hasAudioTimestampQuirk()) {
-            AudioTimestamp audioTimestamp = new AudioTimestamp();
-            if (Api24Impl.getTimestamp(mAudioRecord, audioTimestamp,
-                    AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
-                presentationTimeUs = computeInterpolatedTimeUs(mSampleRate, mTotalFramesRead,
-                        audioTimestamp);
-            } else {
-                Logger.w(TAG, "Unable to get audio timestamp");
-            }
+    @Nullable
+    private static BufferProvider.State fetchBufferProviderState(
+            @NonNull BufferProvider<? extends InputBuffer> bufferProvider) {
+        try {
+            ListenableFuture<BufferProvider.State> state = bufferProvider.fetchData();
+            return state.isDone() ? state.get() : null;
+        } catch (ExecutionException | InterruptedException e) {
+            return null;
         }
-        if (presentationTimeUs == -1) {
-            presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
-        }
-        return presentationTimeUs;
-    }
-
-    private static boolean hasAudioTimestampQuirk() {
-        return DeviceQuirks.get(AudioTimestampFramePositionIncorrectQuirk.class) != null;
-    }
-
-    private static long computeInterpolatedTimeUs(int sampleRate, long framePosition,
-            @NonNull AudioTimestamp timestamp) {
-        long frameDiff = framePosition - timestamp.framePosition;
-        long compensateTimeInNanoSec = TimeUnit.SECONDS.toNanos(1) * frameDiff / sampleRate;
-        long resultInNanoSec = timestamp.nanoTime + compensateTimeInNanoSec;
-
-        return resultInNanoSec < 0 ? 0 : TimeUnit.NANOSECONDS.toMicros(resultInNanoSec);
     }
 
     /** Check if the combination of sample rate, channel count and audio format is supported. */
     public static boolean isSettingsSupported(int sampleRate, int channelCount, int audioFormat) {
-        if (sampleRate <= 0 || channelCount <= 0) {
-            return false;
-        }
-        return getMinBufferSize(sampleRate, channelCount, audioFormat) > 0;
-    }
-
-    private static int channelCountToChannelConfig(int channelCount) {
-        return channelCount == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO;
-    }
-
-    private static int channelCountToChannelMask(int channelCount) {
-        // Currently equivalent to channelCountToChannelConfig, but keep this logic separate
-        // since technically channel masks are different from the legacy channel config and we don't
-        // want any future updates to break things.
-        return channelCount == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO;
-    }
-
-    private static int getMinBufferSize(int sampleRate, int channelCount, int audioFormat) {
-        return AudioRecord.getMinBufferSize(sampleRate, channelCountToChannelConfig(channelCount),
-                audioFormat);
-    }
-
-    private static int getBytesPerFrame(int audioFormat, int channelCount) {
-        Preconditions.checkState(channelCount > 0);
-
-        switch (audioFormat) {
-            case ENCODING_PCM_8BIT:
-                return channelCount;
-            case ENCODING_PCM_16BIT:
-                return channelCount * 2;
-            case ENCODING_PCM_24BIT_PACKED:
-                return channelCount * 3;
-            case ENCODING_PCM_32BIT:
-            case ENCODING_PCM_FLOAT:
-                return channelCount * 4;
-            default:
-                throw new IllegalArgumentException("Invalid audio format: " + audioFormat);
-        }
+        return AudioStreamImpl.isSettingsSupported(sampleRate, channelCount, audioFormat);
     }
 
     /**
      * The callback for receiving the audio source status.
      */
     public interface AudioSourceCallback {
+
         /**
-         * The method called when the audio source is silenced.
+         * The method called when the audio source suspend state changed.
+         *
+         * <p>One case where the audio source goes into suspend state is when it is started but the
+         * {@link BufferProvider} is in {@link BufferProvider.State#INACTIVE} state.
+         */
+        @VisibleForTesting
+        default void onSuspendStateChanged(boolean suspended) {
+        }
+
+        /**
+         * The method called when the audio source silence state changed.
          *
          * <p>The audio source is silenced when the audio record is occupied by privilege
          * application. When it happens, the audio source will keep providing audio data with
          * silence sample.
          */
-        void onSilenced(boolean silenced);
+        void onSilenceStateChanged(boolean silenced);
 
         /**
          * The method called when the audio source encountered errors.
