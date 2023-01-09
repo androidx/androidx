@@ -5915,6 +5915,63 @@ public class WatchFaceServiceTest {
         InteractiveInstanceManager.releaseInstance(NEW_ID)
     }
 
+    @Test
+    public fun updateComplications_after_updateInstance() {
+        val complicationList = listOf(
+            IdAndComplicationDataWireFormat(
+                LEFT_COMPLICATION_ID,
+                ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                    .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+            ),
+            IdAndComplicationDataWireFormat(
+                RIGHT_COMPLICATION_ID,
+                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+            )
+        )
+
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null
+            )
+        )
+
+        interactiveWatchFaceInstance.updateComplicationData(complicationList)
+
+        val NEW_ID = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "New"
+        runBlocking {
+            interactiveWatchFaceInstance.updateWatchfaceInstance(
+                NEW_ID,
+                UserStyleWireFormat(emptyMap())
+            )
+        }
+
+        assertThat(leftComplication.complicationData.value).isInstanceOf(
+            NoDataComplicationData::class.java)
+        assertThat(rightComplication.complicationData.value).isInstanceOf(
+            NoDataComplicationData::class.java)
+
+        interactiveWatchFaceInstance.updateComplicationData(complicationList)
+
+        assertThat(leftComplication.complicationData.value).isInstanceOf(
+            LongTextComplicationData::class.java)
+        assertThat(rightComplication.complicationData.value).isInstanceOf(
+            ShortTextComplicationData::class.java)
+    }
+
     @OptIn(WatchFaceExperimental::class)
     @Test
     @RequiresApi(27)
