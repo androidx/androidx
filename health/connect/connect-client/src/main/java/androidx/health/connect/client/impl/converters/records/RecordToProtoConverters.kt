@@ -34,9 +34,6 @@ import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENS
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -72,7 +69,6 @@ import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_T
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
@@ -351,23 +347,6 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
-        is ExerciseEventRecord ->
-            intervalProto()
-                .setDataType(protoDataType("ActivityEvent"))
-                .apply {
-                    enumValFromInt(eventType, ExerciseEventRecord.EVENT_TYPE_INT_TO_STRING_MAP)
-                        ?.let { putValues("eventType", it) }
-                }
-                .build()
-        is ExerciseLapRecord ->
-            intervalProto()
-                .setDataType(protoDataType("ActivityLap"))
-                .apply {
-                    if (length != null) {
-                        putValues("length", doubleVal(length.inMeters))
-                    }
-                }
-                .build()
         is ExerciseSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
@@ -539,18 +518,6 @@ fun Record.toProto(): DataProto.DataPoint =
                     name?.let { putValues("name", stringVal(it)) }
                 }
                 .build()
-        is ExerciseRepetitionsRecord ->
-            intervalProto()
-                .setDataType(protoDataType("Repetitions"))
-                .apply {
-                    putValues("count", longVal(count))
-                    enumValFromInt(
-                            type,
-                            ExerciseRepetitionsRecord.REPETITION_TYPE_INT_TO_STRING_MAP
-                        )
-                        ?.let { putValues("type", it) }
-                }
-                .build()
         is SleepSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepSession"))
@@ -572,19 +539,6 @@ fun Record.toProto(): DataProto.DataPoint =
             intervalProto()
                 .setDataType(protoDataType("Steps"))
                 .apply { putValues("count", longVal(count)) }
-                .build()
-        is SwimmingStrokesRecord ->
-            intervalProto()
-                .setDataType(protoDataType("SwimmingStrokes"))
-                .apply {
-                    if (count > 0) {
-                        putValues("count", longVal(count))
-                    }
-                    val swimmingType =
-                        enumValFromInt(type, SwimmingStrokesRecord.SWIMMING_TYPE_INT_TO_STRING_MAP)
-                            ?: enumVal(SwimmingStrokesRecord.SwimmingType.OTHER)
-                    putValues("type", swimmingType)
-                }
                 .build()
         is TotalCaloriesBurnedRecord ->
             intervalProto()

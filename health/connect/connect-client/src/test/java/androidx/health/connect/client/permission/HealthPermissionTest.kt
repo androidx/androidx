@@ -16,7 +16,6 @@
 package androidx.health.connect.client.permission
 
 import androidx.health.connect.client.RECORD_CLASSES
-import androidx.health.connect.client.records.ExerciseRouteRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -50,7 +49,7 @@ class HealthPermissionTest {
 
     @Test
     fun createReadPermission_everyRecord() {
-        RECORD_CLASSES.filterNot { it == ExerciseRouteRecord::class }
+        RECORD_CLASSES
             .forEach {
                 val permission = HealthPermission.getReadPermission(it)
                 assertThat(permission).isNotNull()
@@ -72,7 +71,7 @@ class HealthPermissionTest {
 
     @Test
     fun createWritePermission_everyRecord() {
-        RECORD_CLASSES.filterNot { it == ExerciseRouteRecord::class }
+        RECORD_CLASSES
             .forEach {
                 val permission = HealthPermission.getWritePermission(it)
                 assertThat(permission).isNotNull()

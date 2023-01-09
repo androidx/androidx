@@ -31,9 +31,6 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -66,7 +63,6 @@ import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
@@ -77,8 +73,6 @@ import kotlin.reflect.KClass
 val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
     mapOf(
         "ActiveCaloriesBurned" to ActiveCaloriesBurnedRecord::class,
-        "ActivityEvent" to ExerciseEventRecord::class, // Keep legacy Activity name
-        "ActivityLap" to ExerciseLapRecord::class, // Keep legacy Activity name
         "ActivitySession" to ExerciseSessionRecord::class, // Keep legacy Activity name
         "BasalBodyTemperature" to BasalBodyTemperatureRecord::class,
         "BasalMetabolicRate" to BasalMetabolicRateRecord::class,
@@ -115,7 +109,6 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "OvulationTest" to OvulationTestRecord::class,
         "OxygenSaturation" to OxygenSaturationRecord::class,
         "PowerSeries" to PowerRecord::class, // Keep legacy Series suffix
-        "Repetitions" to ExerciseRepetitionsRecord::class, // Keep legacy Repetitions name
         "RespiratoryRate" to RespiratoryRateRecord::class,
         "RestingHeartRate" to RestingHeartRateRecord::class,
         "SexualActivity" to SexualActivityRecord::class,
@@ -125,7 +118,6 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "IntermenstrualBleeding" to IntermenstrualBleedingRecord::class,
         "Steps" to StepsRecord::class,
         "StepsCadenceSeries" to StepsCadenceRecord::class, // Keep legacy Series suffix
-        "SwimmingStrokes" to SwimmingStrokesRecord::class,
         "TotalCaloriesBurned" to TotalCaloriesBurnedRecord::class,
         "Vo2Max" to Vo2MaxRecord::class,
         "WaistCircumference" to WaistCircumferenceRecord::class,

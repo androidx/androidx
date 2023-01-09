@@ -30,10 +30,6 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord.Companion.REPETITION_TYPE_JUMPING_JACK
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BACK_EXTENSION
 import androidx.health.connect.client.records.FloorsClimbedRecord
@@ -69,8 +65,6 @@ import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_T
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord.Companion.SWIMMING_TYPE_BACKSTROKE
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
@@ -732,38 +726,6 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testActivityEvent() {
-        val data =
-            ExerciseEventRecord(
-                eventType = ExerciseEventRecord.EVENT_TYPE_REST,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testActivityLap() {
-        val data =
-            ExerciseLapRecord(
-                length = 1.meters,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
     fun testActivitySession() {
         val data =
             ExerciseSessionRecord(
@@ -905,23 +867,6 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testRepetitions() {
-        val data =
-            ExerciseRepetitionsRecord(
-                count = 1,
-                type = REPETITION_TYPE_JUMPING_JACK,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
     fun testSleepSession() {
         val data =
             SleepSessionRecord(
@@ -959,23 +904,6 @@ class AllRecordsConverterTest {
         val data =
             StepsRecord(
                 count = 1,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testSwimmingStrokes() {
-        val data =
-            SwimmingStrokesRecord(
-                count = 1,
-                type = SWIMMING_TYPE_BACKSTROKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
