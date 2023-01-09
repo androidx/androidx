@@ -36,6 +36,7 @@ import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.video.Quality
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
@@ -60,6 +61,11 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraControllerTest {
+    companion object {
+        const val LINEAR_ZOOM = .1F
+        const val ZOOM_RATIO = .5F
+        const val TORCH_ENABLED = true
+    }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var controller: LifecycleCameraController
@@ -69,7 +75,8 @@ class CameraControllerTest {
         CameraController.OutputSize(Size(1080, 1960))
     private val targetVideoQuality = Quality.HIGHEST
     private val fakeViewPort = ViewPort.Builder(Rational(1, 1), 0).build()
-    private val fakeCamera = FakeCamera()
+    private val fakeCameraControl = FakeCameraControl()
+    private val fakeCamera = FakeCamera(fakeCameraControl)
     private val processCameraProviderWrapper = FakeProcessCameraProviderWrapper(fakeCamera)
     private lateinit var lifecycleCameraProviderCompleter:
         CallbackToFutureAdapter.Completer<ProcessCameraProviderWrapper>
@@ -83,6 +90,31 @@ class CameraControllerTest {
         controller = LifecycleCameraController(context, lifecycleCameraProviderFuture)
         controller.bindToLifecycle(FakeLifecycleOwner())
         controller.attachPreviewSurface({ }, fakeViewPort)
+    }
+
+    @Test
+    fun setPendingValues_valuesPropagateAfterInit() {
+        // Arrange: set pending values
+        val linearZoomFuture = controller.setLinearZoom(LINEAR_ZOOM)
+        val zoomRatioFuture = controller.setZoomRatio(ZOOM_RATIO)
+        val torchFuture = controller.enableTorch(TORCH_ENABLED)
+        assertThat(fakeCameraControl.linearZoom).isNotEqualTo(LINEAR_ZOOM)
+        assertThat(fakeCameraControl.zoomRatio).isNotEqualTo(ZOOM_RATIO)
+        assertThat(fakeCameraControl.torchEnabled).isNotEqualTo(TORCH_ENABLED)
+        assertThat(linearZoomFuture.isDone).isFalse()
+        assertThat(zoomRatioFuture.isDone).isFalse()
+        assertThat(torchFuture.isDone).isFalse()
+
+        // Act.
+        completeCameraInitialization()
+
+        // Assert:
+        assertThat(fakeCameraControl.linearZoom).isEqualTo(LINEAR_ZOOM)
+        assertThat(fakeCameraControl.zoomRatio).isEqualTo(ZOOM_RATIO)
+        assertThat(fakeCameraControl.torchEnabled).isEqualTo(TORCH_ENABLED)
+        assertThat(linearZoomFuture.isDone).isTrue()
+        assertThat(zoomRatioFuture.isDone).isTrue()
+        assertThat(torchFuture.isDone).isTrue()
     }
 
     @Test
