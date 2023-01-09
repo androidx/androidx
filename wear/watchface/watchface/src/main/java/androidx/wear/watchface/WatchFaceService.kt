@@ -1579,7 +1579,14 @@ public abstract class WatchFaceService : WallpaperService() {
         internal suspend fun updateInstance(newInstanceId: String) {
             val watchFaceImpl = deferredWatchFaceImpl.await()
             // If the favorite ID has changed then the complications are probably invalid.
-            watchFaceImpl.complicationSlotsManager.clearComplicationData()
+            setComplicationDataList(
+                watchFaceImpl.complicationSlotsManager.complicationSlots.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        NoDataComplicationData().asWireComplicationData()
+                    )
+                }
+            )
 
             // However we may have valid complications cached.
             readComplicationDataCache(_context, newInstanceId)?.let {
