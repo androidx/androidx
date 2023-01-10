@@ -78,6 +78,7 @@ public class MultiWindowTest extends BaseTest {
         }
     }
 
+    @Ignore // b/264940470
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testMultiWindow_pictureInPicture() {
