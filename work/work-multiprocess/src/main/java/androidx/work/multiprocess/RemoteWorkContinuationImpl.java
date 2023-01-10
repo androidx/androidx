@@ -31,7 +31,6 @@ import java.util.List;
 /**
  * An implementation of {@link RemoteWorkContinuation}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkContinuationImpl extends RemoteWorkContinuation {

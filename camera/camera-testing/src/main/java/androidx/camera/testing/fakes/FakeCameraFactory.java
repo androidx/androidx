@@ -42,7 +42,6 @@ import java.util.concurrent.Callable;
 /**
  * A {@link CameraFactory} implementation that contains and produces fake cameras.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)

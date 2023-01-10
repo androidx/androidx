@@ -56,7 +56,6 @@ import java.util.UUID;
  * Handles requests for executing {@link androidx.work.WorkRequest}s on behalf of
  * {@link SystemForegroundService}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemForegroundDispatcher implements WorkConstraintsCallback, ExecutionListener {

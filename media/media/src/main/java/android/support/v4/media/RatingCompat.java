@@ -47,7 +47,6 @@ public final class RatingCompat implements Parcelable {
     private final static String TAG = "Rating";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({RATING_NONE, RATING_HEART, RATING_THUMB_UP_DOWN, RATING_3_STARS, RATING_4_STARS,
@@ -56,7 +55,6 @@ public final class RatingCompat implements Parcelable {
     public @interface Style {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({RATING_3_STARS, RATING_4_STARS, RATING_5_STARS})

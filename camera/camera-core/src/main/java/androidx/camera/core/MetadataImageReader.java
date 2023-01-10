@@ -47,7 +47,6 @@ import java.util.concurrent.Executor;
  * acquired at one time as defined by <code>maxImages</code> in the constructor. Any ImageProxy
  * produced after that will be dropped unless one of the ImageProxy currently acquired is closed.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

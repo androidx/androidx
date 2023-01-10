@@ -86,13 +86,11 @@ public final class CustomTabsIntent {
      * Extra used to match the session ID. This is PendingIntent which is created with
      * {@link CustomTabsClient#createSessionId}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String EXTRA_SESSION_ID = "android.support.customtabs.extra.SESSION_ID";
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({COLOR_SCHEME_SYSTEM, COLOR_SCHEME_LIGHT, COLOR_SCHEME_DARK})
@@ -238,7 +236,6 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({SHARE_STATE_DEFAULT, SHARE_STATE_ON, SHARE_STATE_OFF})
@@ -352,7 +349,6 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_PX";
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ACTIVITY_HEIGHT_DEFAULT, ACTIVITY_HEIGHT_ADJUSTABLE, ACTIVITY_HEIGHT_FIXED})
@@ -400,7 +396,6 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.TOOLBAR_CORNER_RADIUS_DP";
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({CLOSE_BUTTON_POSITION_DEFAULT, CLOSE_BUTTON_POSITION_START, CLOSE_BUTTON_POSITION_END})
@@ -542,7 +537,6 @@ public final class CustomTabsIntent {
          * Associates the {@link Intent} with the given {@link CustomTabsSession.PendingSession}.
          * Overrides the effect of {@link #setSession}.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull

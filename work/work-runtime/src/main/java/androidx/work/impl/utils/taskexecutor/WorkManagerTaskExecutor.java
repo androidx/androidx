@@ -27,7 +27,6 @@ import java.util.concurrent.Executor;
 
 /**
  * Default Task Executor for executing common tasks in WorkManager
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {

@@ -51,7 +51,6 @@ import java.util.Map;
 /**
  * Service invoked by {@link JobScheduler} to run work tasks.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)

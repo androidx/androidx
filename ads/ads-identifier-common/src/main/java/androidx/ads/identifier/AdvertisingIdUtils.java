@@ -36,7 +36,6 @@ import java.util.List;
 /**
  * Internal utilities for Advertising ID.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AdvertisingIdUtils {

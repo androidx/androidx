@@ -35,7 +35,6 @@ import java.util.Set;
 /**
  * A class that contains the information of an video output stream.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -61,7 +60,6 @@ public abstract class StreamInfo {
      *
      * <p>This is used in the observable returned by {@link #getStreamState()} to inform
      * producers that they can start or stop producing frames.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     enum StreamState {

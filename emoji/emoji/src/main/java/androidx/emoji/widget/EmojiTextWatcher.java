@@ -33,7 +33,6 @@ import java.lang.ref.WeakReference;
 /**
  * TextWatcher used for an EditText.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)

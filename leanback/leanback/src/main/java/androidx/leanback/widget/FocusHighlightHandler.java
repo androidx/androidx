@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
 interface FocusHighlightHandler {
     /**
      * Called when an item gains or loses focus.
-     * @hide
      *
      * @param view The view whose focus is changing.
      * @param hasFocus True if focus is gained; false otherwise.

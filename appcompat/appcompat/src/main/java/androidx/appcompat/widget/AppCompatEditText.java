@@ -190,7 +190,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -204,7 +203,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -218,7 +216,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -232,7 +229,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -437,7 +433,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTint
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
-     * @hide
      */
     @Nullable
     @Override
@@ -461,7 +456,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTint
      * @see #getSupportCompoundDrawablesTintList()
      *
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -480,7 +474,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTintMode
      * @see #setSupportCompoundDrawablesTintMode(PorterDuff.Mode)
      *
-     * @hide
      */
     @Nullable
     @Override
@@ -501,7 +494,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTintMode
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)

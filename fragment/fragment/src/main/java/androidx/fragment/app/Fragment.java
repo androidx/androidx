@@ -285,7 +285,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     // Holds the unique ID for the previous instance of the fragment if it had already been
     // added to a FragmentManager and has since been removed.
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
     public String mPreviousWho;
@@ -1245,14 +1244,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 && mFragmentManager.isParentHidden(mParentFragment));
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @SuppressLint("KotlinPropertyAccess")
     final public boolean hasOptionsMenu() {
         return mHasMenu;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final public boolean isMenuVisible() {
         return mMenuVisible && (mFragmentManager == null
@@ -1760,7 +1757,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * LayoutInflater or call {@link #getLayoutInflater()} when you want to
      * retrieve the current LayoutInflater.
      *
-     * @hide
      * @deprecated Override {@link #onGetLayoutInflater(Bundle)} or call
      * {@link #getLayoutInflater()} instead of this method.
      */

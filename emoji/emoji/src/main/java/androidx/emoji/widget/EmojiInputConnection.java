@@ -35,7 +35,6 @@ import androidx.emoji.text.EmojiCompat;
  * <p/>
  * This class tries to correctly delete an emoji checking if there is an emoji span.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)

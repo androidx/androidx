@@ -713,7 +713,6 @@ public final class PreviewView extends FrameLayout {
     /**
      * Sets a listener to receive frame update event with sensor timestamp.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setFrameUpdateListener(@NonNull Executor executor,
@@ -734,7 +733,6 @@ public final class PreviewView extends FrameLayout {
     /**
      * Listener to be notified when the frame is updated.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface OnFrameUpdateListener {

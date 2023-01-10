@@ -31,7 +31,6 @@ public interface ImageInfo {
     /**
      * Returns all tags stored in the metadata.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -123,7 +122,6 @@ public interface ImageInfo {
     /**
      * Adds any stored EXIF information in this ImageInfo into the provided ExifData builder.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void populateExifData(@NonNull ExifData.Builder exifBuilder);

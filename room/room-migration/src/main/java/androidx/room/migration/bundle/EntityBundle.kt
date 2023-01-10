@@ -34,7 +34,6 @@ import com.google.gson.annotations.SerializedName
  * @property indices The list of indices
  * @property foreignKeys The list of foreign keys
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class EntityBundle(

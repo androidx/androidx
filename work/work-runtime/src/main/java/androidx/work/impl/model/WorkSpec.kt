@@ -40,7 +40,6 @@ import java.util.UUID
 /**
  * Stores information about a logical unit of work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["last_enqueue_time"])])

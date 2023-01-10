@@ -336,7 +336,6 @@ public abstract class VideoRecordEvent {
          *
          * <p>This is the error code returning from {@link Finalize#getError()}.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)

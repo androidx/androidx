@@ -245,14 +245,12 @@ public final class ImageCapture extends UseCase {
     /**
      * When flash is required for taking a picture, a normal one shot flash will be used.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_ONE_SHOT_FLASH = 0;
     /**
      * When flash is required for taking a picture, torch will be used as flash.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_USE_TORCH_AS_FLASH = 1;
@@ -260,7 +258,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -506,7 +503,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -528,7 +524,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -540,7 +535,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -614,7 +608,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -838,7 +831,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1022,7 +1014,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
@@ -1490,7 +1481,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -1503,7 +1493,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1524,7 +1513,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @Override
@@ -1815,7 +1803,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * @inheritDoc
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1833,7 +1820,6 @@ public final class ImageCapture extends UseCase {
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
      * ImageCapture.OnImageSavedCallback#onError(ImageCaptureException)}.
      *
-     * @hide
      */
     @IntDef({ERROR_UNKNOWN, ERROR_FILE_IO, ERROR_CAPTURE_FAILED, ERROR_CAMERA_CLOSED,
             ERROR_INVALID_CAMERA})
@@ -1846,7 +1832,6 @@ public final class ImageCapture extends UseCase {
      * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
      *
-     * @hide
      */
     @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY,
             CAPTURE_MODE_ZERO_SHUTTER_LAG})
@@ -1868,7 +1853,6 @@ public final class ImageCapture extends UseCase {
      * the torch is disabled, flash will function as specified by
      * {@link #setFlashMode(int)}.
      *
-     * @hide
      */
     @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
     @Retention(RetentionPolicy.SOURCE)
@@ -1879,7 +1863,6 @@ public final class ImageCapture extends UseCase {
     /**
      * The flash type options when flash is required for taking a picture.
      *
-     * @hide
      */
     @IntDef({FLASH_TYPE_ONE_SHOT_FLASH, FLASH_TYPE_USE_TORCH_AS_FLASH})
     @Retention(RetentionPolicy.SOURCE)
@@ -1954,7 +1937,6 @@ public final class ImageCapture extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
@@ -2015,7 +1997,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2024,7 +2005,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2033,7 +2013,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2042,7 +2021,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2051,7 +2029,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2064,7 +2041,6 @@ public final class ImageCapture extends UseCase {
          * front camera. External core API users shouldn't need this because they are the ones who
          * created the {@link Metadata}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2183,7 +2159,6 @@ public final class ImageCapture extends UseCase {
         private final Uri mSavedUri;
 
         /**
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public OutputFileResults(@Nullable Uri savedUri) {
@@ -2247,7 +2222,6 @@ public final class ImageCapture extends UseCase {
          * <p> CameraController's default behavior is mirroring the picture when front camera is
          * used. This method is used to check if reverseHorizontal is set explicitly by the app.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public boolean isReversedHorizontalSet() {
@@ -2486,7 +2460,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2499,7 +2472,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2510,7 +2482,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2522,7 +2493,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2631,7 +2601,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param bufferImageFormat The image format for captured images.
          * @return The current Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2640,7 +2609,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2649,7 +2617,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -2660,7 +2627,6 @@ public final class ImageCapture extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2813,7 +2779,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2824,7 +2789,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2850,7 +2814,6 @@ public final class ImageCapture extends UseCase {
          * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
          * {@link #build()} is called to create the {@link ImageCapture} instance.
          *
-         * @hide
          **/
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2860,7 +2823,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setImageReaderProxyProvider(
@@ -2870,7 +2832,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setSoftwareJpegEncoderRequested(boolean requestSoftwareJpeg) {
@@ -2887,7 +2848,6 @@ public final class ImageCapture extends UseCase {
          * @param flashType The requested flash mode. Value is {@link #FLASH_TYPE_ONE_SHOT_FLASH}
          *                  or {@link #FLASH_TYPE_USE_TORCH_AS_FLASH}.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2945,7 +2905,6 @@ public final class ImageCapture extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2954,7 +2913,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2963,7 +2921,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2973,7 +2930,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2983,7 +2939,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2992,7 +2947,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -3001,7 +2955,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -3014,7 +2967,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3027,7 +2979,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

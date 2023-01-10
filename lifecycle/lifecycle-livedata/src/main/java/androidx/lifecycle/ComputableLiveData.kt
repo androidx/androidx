@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  * This is an internal class for now, might be public if we see the necessity.
  *
  * @param <T> The type of the live data
- * @hide internal
 */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 abstract class ComputableLiveData<T> @JvmOverloads

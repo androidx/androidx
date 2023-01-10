@@ -93,7 +93,6 @@ public abstract class AudioStats {
      */
     public static final int AUDIO_STATE_SOURCE_ERROR = 4;
 
-    /** @hide */
     @IntDef({AUDIO_STATE_ACTIVE, AUDIO_STATE_DISABLED, AUDIO_STATE_SOURCE_SILENCED,
             AUDIO_STATE_ENCODER_ERROR, AUDIO_STATE_SOURCE_ERROR})
     @Retention(RetentionPolicy.SOURCE)

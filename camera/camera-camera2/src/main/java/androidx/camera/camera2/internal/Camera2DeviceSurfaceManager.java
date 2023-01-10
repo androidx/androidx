@@ -60,7 +60,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Creates a new, initialized Camera2DeviceSurfaceManager.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public Camera2DeviceSurfaceManager(@NonNull Context context,

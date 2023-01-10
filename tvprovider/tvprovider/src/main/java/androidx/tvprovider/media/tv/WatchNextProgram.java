@@ -79,14 +79,12 @@ import java.util.Set;
  */
 public final class WatchNextProgram extends BasePreviewProgram {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_LONG_VALUE = -1;
 
-    /** @hide */
     @IntDef({
             WATCH_NEXT_TYPE_UNKNOWN,
             WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE,
@@ -170,7 +168,6 @@ public final class WatchNextProgram extends BasePreviewProgram {
      * into the TV Input Framework database.
      *
      * @param includeProtectedFields Whether the fields protected by system is included or not.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

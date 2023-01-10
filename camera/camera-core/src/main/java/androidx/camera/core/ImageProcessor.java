@@ -93,7 +93,6 @@ public interface ImageProcessor {
      *
      * <p>{@link Request#getOutputFormat()} can only return the formats defined by this annotation.
      *
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -28,7 +28,6 @@ import java.io.PrintStream
  *
  * See [InstrumentationResults.runEndResultBundle]
  *
- * @hide
  */
 @Suppress("unused") // referenced by inst arg at runtime
 @RestrictTo(RestrictTo.Scope.LIBRARY)

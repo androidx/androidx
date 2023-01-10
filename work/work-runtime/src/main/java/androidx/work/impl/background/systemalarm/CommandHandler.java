@@ -42,7 +42,6 @@ import java.util.Map;
 /**
  * The command handler used by {@link SystemAlarmDispatcher}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CommandHandler implements ExecutionListener {

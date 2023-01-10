@@ -242,7 +242,6 @@ public class MediaSession implements Closeable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public boolean isClosed() {
@@ -414,7 +413,6 @@ public class MediaSession implements Closeable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public MediaSessionCompat getSessionCompat() {
@@ -436,7 +434,6 @@ public class MediaSession implements Closeable {
      * Sets the timeout for disconnecting legacy controller.
      * @param timeoutMs timeout in millis
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
@@ -952,7 +949,6 @@ public class MediaSession implements Closeable {
          * so can be trusted to accept connection and incoming command request.
          *
          * @return {@code true} if the controller is trusted.
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTrusted() {
@@ -1287,7 +1283,6 @@ public class MediaSession implements Closeable {
      *      T extends MediaSession,
      *      U extends MediaSession.BuilderBase<
      *              T, U, C extends MediaSession.SessionCallback>, C></pre>
-     * @hide
      */
     @RestrictTo(LIBRARY)
     abstract static class BuilderBase

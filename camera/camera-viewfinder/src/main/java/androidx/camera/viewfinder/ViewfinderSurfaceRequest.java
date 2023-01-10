@@ -535,7 +535,6 @@ public class ViewfinderSurfaceRequest {
         /**
          * Possible result codes.
          *
-         * @hide
          */
         @IntDef({RESULT_SURFACE_USED_SUCCESSFULLY, RESULT_REQUEST_CANCELLED, RESULT_INVALID_SURFACE,
                 RESULT_SURFACE_ALREADY_PROVIDED, RESULT_WILL_NOT_PROVIDE_SURFACE})

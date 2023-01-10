@@ -114,7 +114,6 @@ class Constraints(
 
     /**
      * @return `true` if [ContentUriTrigger] is not empty
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun hasContentUriTriggers(): Boolean {
@@ -168,7 +167,6 @@ class Constraints(
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         constructor(constraints: Constraints) {

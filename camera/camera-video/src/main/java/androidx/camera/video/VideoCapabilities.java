@@ -50,7 +50,6 @@ import java.util.TreeMap;
  *
  * <p>Calling {@link #from(CameraInfo)} to obtain the VideoCapabilities.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)

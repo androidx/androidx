@@ -63,7 +63,6 @@ import java.lang.reflect.Method;
  * it only works with an XmlPullParser returned from a compiled resource (R.
  * <em>something</em> file.)
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SupportMenuInflater extends MenuInflater {

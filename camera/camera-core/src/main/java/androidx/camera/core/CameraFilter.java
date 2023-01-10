@@ -33,7 +33,6 @@ public interface CameraFilter {
     /**
      * Default identifier of camera filter.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     Identifier DEFAULT_ID = Identifier.create(new Object());
@@ -68,7 +67,6 @@ public interface CameraFilter {
      * retrieving the {@link CameraConfig} of an extension mode given the {@link Identifier} of
      * its camera filter.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

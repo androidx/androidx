@@ -41,7 +41,6 @@ import kotlin.jvm.Throws
 /**
  * Data class that holds the information about a database schema export.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class SchemaBundle(
@@ -62,7 +61,6 @@ public open class SchemaBundle(
             .create()
 
         /**
-         * @hide
          */
         @Throws(UnsupportedEncodingException::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -75,7 +73,6 @@ public open class SchemaBundle(
         }
 
         /**
-         * @hide
          */
         @Throws(IOException::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

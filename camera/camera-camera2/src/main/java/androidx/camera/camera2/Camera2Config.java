@@ -71,7 +71,6 @@ public final class Camera2Config {
         return appConfigBuilder.build();
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final class DefaultProvider implements CameraXConfig.Provider {
 

@@ -39,7 +39,6 @@ internal actual fun isComposeRootInScrollableContainer(): () -> Boolean {
     }
 }
 
-// Copied from View#isInScrollingContainer() which is @hide
 private fun View.isInScrollableViewGroup(): Boolean {
     var p = parent
     while (p != null && p is ViewGroup) {

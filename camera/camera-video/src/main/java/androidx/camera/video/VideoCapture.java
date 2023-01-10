@@ -240,7 +240,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * has been attached to a camera.
      *
      * @return The rotation of the intended target.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @RotationValue
@@ -260,7 +259,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * created. The use case is fully created once it has been attached to a camera.
      *
      * @param rotation Desired rotation of the output video.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setTargetRotation(@RotationValue int rotation) {
@@ -272,7 +270,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -299,7 +296,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -311,7 +307,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -339,7 +334,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -361,7 +355,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -377,7 +370,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -593,7 +585,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<VideoCaptureConfig<?>> {
@@ -1130,7 +1121,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * Builder for a {@link VideoCapture}.
      *
      * @param <T> the type of VideoOutput
-     * @hide
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1166,7 +1156,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             setTargetClass((Class<VideoCapture<T>>) (Type) VideoCapture.class);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         static Builder<? extends VideoOutput> fromConfig(@NonNull Config configuration) {
@@ -1196,7 +1185,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1208,7 +1196,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1238,7 +1225,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1281,7 +1267,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * <p>To set aspect ratio, see {@link Recorder.Builder#setAspectRatio(int)}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1316,7 +1301,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * <p>To set resolution, see {@link Recorder.Builder#setQualitySelector(QualitySelector)}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1330,7 +1314,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1340,7 +1323,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1349,7 +1331,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1359,7 +1340,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1368,7 +1348,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1387,7 +1366,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1399,7 +1377,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1408,7 +1385,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1417,7 +1393,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1427,7 +1402,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1437,7 +1411,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1446,7 +1419,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1455,7 +1427,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1465,7 +1436,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1474,7 +1444,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override

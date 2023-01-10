@@ -93,7 +93,6 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
