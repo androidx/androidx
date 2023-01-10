@@ -32,17 +32,8 @@ import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
-import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
-import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
-import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
@@ -63,7 +54,6 @@ import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
-import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import kotlin.reflect.KClass
@@ -301,27 +291,9 @@ internal constructor(
                 FloorsClimbedRecord::class to
                     READ_FLOORS_CLIMBED.substringAfter(READ_PERMISSION_PREFIX),
                 HeartRateRecord::class to READ_HEART_RATE.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilityDifferentialIndexRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
                 HeartRateVariabilityRmssdRecord::class to
                     READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilitySd2Record::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilitySdannRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilitySdnnIndexRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilitySdnnRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilitySdsdRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilitySRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
-                HeartRateVariabilityTinnRecord::class to
-                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
                 HeightRecord::class to READ_HEIGHT.substringAfter(READ_PERMISSION_PREFIX),
-                HipCircumferenceRecord::class to
-                    READ_HIP_CIRCUMFERENCE.substringAfter(READ_PERMISSION_PREFIX),
                 HydrationRecord::class to READ_HYDRATION.substringAfter(READ_PERMISSION_PREFIX),
                 IntermenstrualBleedingRecord::class to
                     READ_INTERMENSTRUAL_BLEEDING.substringAfter(READ_PERMISSION_PREFIX),
@@ -351,8 +323,6 @@ internal constructor(
                 TotalCaloriesBurnedRecord::class to
                     READ_TOTAL_CALORIES_BURNED.substringAfter(READ_PERMISSION_PREFIX),
                 Vo2MaxRecord::class to READ_VO2_MAX.substringAfter(READ_PERMISSION_PREFIX),
-                WaistCircumferenceRecord::class to
-                    READ_WAIST_CIRCUMFERENCE.substringAfter(READ_PERMISSION_PREFIX),
                 WeightRecord::class to READ_WEIGHT.substringAfter(READ_PERMISSION_PREFIX),
                 WheelchairPushesRecord::class to
                     READ_WHEELCHAIR_PUSHES.substringAfter(READ_PERMISSION_PREFIX),
