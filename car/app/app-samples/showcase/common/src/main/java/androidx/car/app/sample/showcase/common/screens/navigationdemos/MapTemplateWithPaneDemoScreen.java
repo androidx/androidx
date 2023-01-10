@@ -179,8 +179,7 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
                 // Row with a large image.
                 return new Row.Builder()
                         .setTitle(getCarContext().getString(R.string.first_row_title))
-                        .addText(getCarContext().getString(R.string.first_row_text))
-                        .addText(getCarContext().getString(R.string.first_row_text))
+                        .addText(getCarContext().getString(R.string.long_line_text))
                         .setImage(new CarIcon.Builder(mRowLargeIcon).build())
                         .build();
             default:
