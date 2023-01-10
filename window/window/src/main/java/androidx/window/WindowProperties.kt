@@ -30,9 +30,10 @@ object WindowProperties {
      *
      * If `true`, the system is permitted to override the app's windowing
      * behavior and implement activity embedding split rules, such as displaying
-     * activities side by side. A system override informs the app that the
-     * activity embedding APIs are disabled so the app will not provide its own
-     * activity embedding rules, which would conflict with the system's rules.
+     * activities adjacent to each other. A system override informs the app that
+     * the activity embedding APIs are disabled so the app will not provide its
+     * own activity embedding rules, which would conflict with the system's
+     * rules.
      *
      * If `false`, the system is not permitted to override the windowing
      * behavior of the app. Set the property to `false` if the app provides its

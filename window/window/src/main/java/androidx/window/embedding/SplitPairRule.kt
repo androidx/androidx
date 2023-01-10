@@ -21,8 +21,8 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 
 /**
- * Split configuration rules for activity pairs. Define when activities that were launched on top of
- * each other should be shown side-by-side, and the visual properties of such splits. Can be set
+ * Split configuration rules for activity pairs. Define when activities that were launched on top
+ * should be placed adjacent to the one below, and the visual properties of such splits. Can be set
  * either by [RuleController.setRules] or [RuleController.addRule]. The rules are always
  * applied only to activities that will be started after the rules were set.
  */

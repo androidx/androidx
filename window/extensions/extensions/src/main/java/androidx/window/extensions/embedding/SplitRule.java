@@ -35,7 +35,7 @@ import java.util.Objects;
 /**
  * Split configuration rules for activities that are launched to side in a split. Define when an
  * activity that was launched in a side container from another activity should be shown
- * side-by-side or on top of it, as well as the visual properties of the split. Can be applied to
+ * adjacent or on top of it, as well as the visual properties of the split. Can be applied to
  * new activities started from the same process automatically by the embedding implementation on
  * the device.
  */
@@ -57,9 +57,8 @@ public abstract class SplitRule extends EmbeddingRule {
      */
     public static final int FINISH_ALWAYS = 1;
     /**
-     * Only finish the associated container when displayed side-by-side/adjacent to the one
-     * being finished. Does not finish the associated one when containers are stacked on top of
-     * each other.
+     * Only finish the associated container when displayed adjacent to the one being finished. Does
+     * not finish the associated one when containers are stacked on top of each other.
      * @see SplitFinishBehavior
      */
     public static final int FINISH_ADJACENT = 2;
@@ -70,7 +69,7 @@ public abstract class SplitRule extends EmbeddingRule {
      * <p>
      * For example, given that {@link SplitPairRule#getFinishPrimaryWithSecondary()} is
      * {@link #FINISH_ADJACENT} and secondary container finishes. The primary associated
-     * container is finished if it's side-by-side with secondary container. The primary
+     * container is finished if it's shown adjacent to the secondary container. The primary
      * associated container is not finished if it occupies entire task bounds.</p>
      *
      * @see SplitPairRule#getFinishPrimaryWithSecondary()
