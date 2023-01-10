@@ -13,219 +13,194 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import android.app.Activity;
-import android.app.Application;
-import android.os.Build;
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
+import android.app.Activity
+import android.app.Application
+import android.os.Build
+import android.os.Bundle
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * Internal class that dispatches initialization events.
  *
  * @hide
  */
-@SuppressWarnings({"UnknownNullness", "deprecation"})
-// TODO https://issuetracker.google.com/issues/112197238
+@Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ReportFragment extends android.app.Fragment {
-    private static final String REPORT_FRAGMENT_TAG = "androidx.lifecycle"
-            + ".LifecycleDispatcher.report_fragment_tag";
+open class ReportFragment() : android.app.Fragment() {
+    private var processListener: ActivityInitializationListener? = null
 
-    public static void injectIfNeededIn(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            // On API 29+, we can register for the correct Lifecycle callbacks directly
-            LifecycleCallbacks.registerIn(activity);
-        }
-        // Prior to API 29 and to maintain compatibility with older versions of
-        // ProcessLifecycleOwner (which may not be updated when lifecycle-runtime is updated and
-        // need to support activities that don't extend from FragmentActivity from support lib),
-        // use a framework fragment to get the correct timing of Lifecycle events
-        android.app.FragmentManager manager = activity.getFragmentManager();
-        if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
-            manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
-            // Hopefully, we are the first to make a transaction.
-            manager.executePendingTransactions();
-        }
+    private fun dispatchCreate(listener: ActivityInitializationListener?) {
+        listener?.onCreate()
     }
 
-    @SuppressWarnings("deprecation")
-    static void dispatch(@NonNull Activity activity, @NonNull Lifecycle.Event event) {
-        if (activity instanceof LifecycleRegistryOwner) {
-            ((LifecycleRegistryOwner) activity).getLifecycle().handleLifecycleEvent(event);
-            return;
-        }
-
-        if (activity instanceof LifecycleOwner) {
-            Lifecycle lifecycle = ((LifecycleOwner) activity).getLifecycle();
-            if (lifecycle instanceof LifecycleRegistry) {
-                ((LifecycleRegistry) lifecycle).handleLifecycleEvent(event);
-            }
-        }
+    private fun dispatchStart(listener: ActivityInitializationListener?) {
+        listener?.onStart()
     }
 
-    static ReportFragment get(Activity activity) {
-        return (ReportFragment) activity.getFragmentManager().findFragmentByTag(
-                REPORT_FRAGMENT_TAG);
+    private fun dispatchResume(listener: ActivityInitializationListener?) {
+        listener?.onResume()
     }
 
-    private ActivityInitializationListener mProcessListener;
-
-    private void dispatchCreate(ActivityInitializationListener listener) {
-        if (listener != null) {
-            listener.onCreate();
-        }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        dispatchCreate(processListener)
+        dispatch(Lifecycle.Event.ON_CREATE)
     }
 
-    private void dispatchStart(ActivityInitializationListener listener) {
-        if (listener != null) {
-            listener.onStart();
-        }
+    override fun onStart() {
+        super.onStart()
+        dispatchStart(processListener)
+        dispatch(Lifecycle.Event.ON_START)
     }
 
-    private void dispatchResume(ActivityInitializationListener listener) {
-        if (listener != null) {
-            listener.onResume();
-        }
+    override fun onResume() {
+        super.onResume()
+        dispatchResume(processListener)
+        dispatch(Lifecycle.Event.ON_RESUME)
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        dispatchCreate(mProcessListener);
-        dispatch(Lifecycle.Event.ON_CREATE);
+    override fun onPause() {
+        super.onPause()
+        dispatch(Lifecycle.Event.ON_PAUSE)
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        dispatchStart(mProcessListener);
-        dispatch(Lifecycle.Event.ON_START);
+    override fun onStop() {
+        super.onStop()
+        dispatch(Lifecycle.Event.ON_STOP)
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        dispatchResume(mProcessListener);
-        dispatch(Lifecycle.Event.ON_RESUME);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        dispatch(Lifecycle.Event.ON_PAUSE);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        dispatch(Lifecycle.Event.ON_STOP);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        dispatch(Lifecycle.Event.ON_DESTROY);
+    override fun onDestroy() {
+        super.onDestroy()
+        dispatch(Lifecycle.Event.ON_DESTROY)
         // just want to be sure that we won't leak reference to an activity
-        mProcessListener = null;
+        processListener = null
     }
 
-    private void dispatch(@NonNull Lifecycle.Event event) {
+    private fun dispatch(event: Lifecycle.Event) {
         if (Build.VERSION.SDK_INT < 29) {
             // Only dispatch events from ReportFragment on API levels prior
             // to API 29. On API 29+, this is handled by the ActivityLifecycleCallbacks
             // added in ReportFragment.injectIfNeededIn
-            dispatch(getActivity(), event);
+            dispatch(activity, event)
         }
     }
 
-    void setProcessListener(ActivityInitializationListener processListener) {
-        mProcessListener = processListener;
+    fun setProcessListener(processListener: ActivityInitializationListener?) {
+        this.processListener = processListener
     }
 
     interface ActivityInitializationListener {
-        void onCreate();
-
-        void onStart();
-
-        void onResume();
+        fun onCreate()
+        fun onStart()
+        fun onResume()
     }
 
     // this class isn't inlined only because we need to add a proguard rule for it (b/142778206)
     // In addition to that registerIn method allows to avoid class verification failure,
     // because registerActivityLifecycleCallbacks is available only since api 29.
     @RequiresApi(29)
-    static class LifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
+    internal class LifecycleCallbacks : Application.ActivityLifecycleCallbacks {
+        override fun onActivityCreated(
+            activity: Activity,
+            bundle: Bundle?
+        ) {}
 
-        static void registerIn(Activity activity) {
-            activity.registerActivityLifecycleCallbacks(new LifecycleCallbacks());
+        override fun onActivityPostCreated(
+            activity: Activity,
+            savedInstanceState: Bundle?
+        ) {
+            dispatch(activity, Lifecycle.Event.ON_CREATE)
         }
 
-        @Override
-        public void onActivityCreated(@NonNull Activity activity,
-                @Nullable Bundle bundle) {
+        override fun onActivityStarted(activity: Activity) {}
+
+        override fun onActivityPostStarted(activity: Activity) {
+            dispatch(activity, Lifecycle.Event.ON_START)
         }
 
-        @Override
-        public void onActivityPostCreated(@NonNull Activity activity,
-                @Nullable Bundle savedInstanceState) {
-            dispatch(activity, Lifecycle.Event.ON_CREATE);
+        override fun onActivityResumed(activity: Activity) {}
+
+        override fun onActivityPostResumed(activity: Activity) {
+            dispatch(activity, Lifecycle.Event.ON_RESUME)
         }
 
-        @Override
-        public void onActivityStarted(@NonNull Activity activity) {
+        override fun onActivityPrePaused(activity: Activity) {
+            dispatch(activity, Lifecycle.Event.ON_PAUSE)
         }
 
-        @Override
-        public void onActivityPostStarted(@NonNull Activity activity) {
-            dispatch(activity, Lifecycle.Event.ON_START);
+        override fun onActivityPaused(activity: Activity) {}
+
+        override fun onActivityPreStopped(activity: Activity) {
+            dispatch(activity, Lifecycle.Event.ON_STOP)
         }
 
-        @Override
-        public void onActivityResumed(@NonNull Activity activity) {
+        override fun onActivityStopped(activity: Activity) {}
+
+        override fun onActivitySaveInstanceState(
+            activity: Activity,
+            bundle: Bundle
+        ) {}
+
+        override fun onActivityPreDestroyed(activity: Activity) {
+            dispatch(activity, Lifecycle.Event.ON_DESTROY)
         }
 
-        @Override
-        public void onActivityPostResumed(@NonNull Activity activity) {
-            dispatch(activity, Lifecycle.Event.ON_RESUME);
+        override fun onActivityDestroyed(activity: Activity) {}
+
+        companion object {
+            @JvmStatic
+            fun registerIn(activity: Activity) {
+                activity.registerActivityLifecycleCallbacks(LifecycleCallbacks())
+            }
+        }
+    }
+
+    companion object {
+        private const val REPORT_FRAGMENT_TAG =
+            "androidx.lifecycle.LifecycleDispatcher.report_fragment_tag"
+
+        @JvmStatic
+        fun injectIfNeededIn(activity: Activity) {
+            if (Build.VERSION.SDK_INT >= 29) {
+                // On API 29+, we can register for the correct Lifecycle callbacks directly
+                LifecycleCallbacks.registerIn(activity)
+            }
+            // Prior to API 29 and to maintain compatibility with older versions of
+            // ProcessLifecycleOwner (which may not be updated when lifecycle-runtime is updated and
+            // need to support activities that don't extend from FragmentActivity from support lib),
+            // use a framework fragment to get the correct timing of Lifecycle events
+            val manager = activity.fragmentManager
+            if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
+                manager.beginTransaction().add(ReportFragment(), REPORT_FRAGMENT_TAG).commit()
+                // Hopefully, we are the first to make a transaction.
+                manager.executePendingTransactions()
+            }
         }
 
-        @Override
-        public void onActivityPrePaused(@NonNull Activity activity) {
-            dispatch(activity, Lifecycle.Event.ON_PAUSE);
+        @JvmStatic
+        internal fun dispatch(activity: Activity, event: Lifecycle.Event) {
+            if (activity is LifecycleRegistryOwner) {
+                activity.lifecycle.handleLifecycleEvent(event)
+                return
+            }
+            if (activity is LifecycleOwner) {
+                val lifecycle = (activity as LifecycleOwner).lifecycle
+                if (lifecycle is LifecycleRegistry) {
+                    lifecycle.handleLifecycleEvent(event)
+                }
+            }
         }
 
-        @Override
-        public void onActivityPaused(@NonNull Activity activity) {
-        }
-
-        @Override
-        public void onActivityPreStopped(@NonNull Activity activity) {
-            dispatch(activity, Lifecycle.Event.ON_STOP);
-        }
-
-        @Override
-        public void onActivityStopped(@NonNull Activity activity) {
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(@NonNull Activity activity,
-                @NonNull Bundle bundle) {
-        }
-
-        @Override
-        public void onActivityPreDestroyed(@NonNull Activity activity) {
-            dispatch(activity, Lifecycle.Event.ON_DESTROY);
-        }
-
-        @Override
-        public void onActivityDestroyed(@NonNull Activity activity) {
-        }
+        @JvmStatic
+        @get:JvmName("get")
+        val Activity.reportFragment: ReportFragment
+            get() {
+                return this.fragmentManager.findFragmentByTag(
+                    REPORT_FRAGMENT_TAG
+                ) as ReportFragment
+            }
     }
 }
