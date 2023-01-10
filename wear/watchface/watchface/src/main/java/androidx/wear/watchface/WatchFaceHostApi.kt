@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -123,6 +124,8 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
+
+    public fun postInvalidate(delay: Duration = Duration.ZERO)
 
     /** Intent to launch the complication permission denied activity. */
     public fun getComplicationDeniedIntent(): Intent?
