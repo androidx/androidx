@@ -18,12 +18,12 @@ package androidx.credentials.provider.utils
 
 import android.os.Bundle
 import android.service.credentials.BeginGetCredentialOption
+import android.service.credentials.BeginGetCredentialRequest
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.GetPublicKeyCredentialOptionPrivileged
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
-import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.provider.BeginGetCustomCredentialOption
 import androidx.credentials.provider.BeginGetPasswordOption
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
@@ -36,37 +36,49 @@ import androidx.credentials.provider.BeginGetPublicKeyCredentialOptionPrivileged
 class BeginGetCredentialUtil {
     companion object {
         @JvmStatic
-        fun convertRequestOption(type: String, candidateQueryData: Bundle):
-            BeginGetCredentialOption? {
-            return try {
-                when (type) {
-                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
-                        BeginGetPasswordOption(candidateQueryData)
-                    }
-                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
-                        when (candidateQueryData.getString(
-                            PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
-                            GetPublicKeyCredentialOption
-                                .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION -> {
-                                BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData)
-                            }
-                            GetPublicKeyCredentialOptionPrivileged
-                                .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED
-                            -> {
-                                BeginGetPublicKeyCredentialOptionPrivileged
-                                    .createFrom(candidateQueryData)
-                            }
-                            else -> {
-                                throw FrameworkClassParsingException()
-                            }
+        internal fun convertToStructuredRequest(request: BeginGetCredentialRequest):
+            BeginGetCredentialRequest {
+            val beginGetCredentialOptions: MutableList<BeginGetCredentialOption> =
+                mutableListOf()
+            request.beginGetCredentialOptions.forEach {
+                beginGetCredentialOptions.add(convertRequestOption(
+                    it.type,
+                    it.candidateQueryData)
+                )
+            }
+            return BeginGetCredentialRequest.Builder(request.callingAppInfo)
+                .setBeginGetCredentialOptions(beginGetCredentialOptions)
+                .build()
+        }
+        @JvmStatic
+        internal fun convertRequestOption(type: String, candidateQueryData: Bundle):
+            BeginGetCredentialOption {
+            return when (type) {
+                PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
+                    BeginGetPasswordOption(candidateQueryData)
+                }
+                PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
+                    when (candidateQueryData.getString(
+                        PublicKeyCredential.BUNDLE_KEY_SUBTYPE
+                    )) {
+                        GetPublicKeyCredentialOption
+                            .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION -> {
+                            BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData)
+                        }
+                        GetPublicKeyCredentialOptionPrivileged
+                            .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED
+                        -> {
+                            BeginGetPublicKeyCredentialOptionPrivileged
+                                .createFrom(candidateQueryData)
+                        }
+                        else -> {
+                            BeginGetCustomCredentialOption(type, candidateQueryData)
                         }
                     }
-                    else -> {
-                        BeginGetCustomCredentialOption(type, candidateQueryData)
-                    }
                 }
-            } catch (e: FrameworkClassParsingException) {
-                null
+                else -> {
+                    BeginGetCustomCredentialOption(type, candidateQueryData)
+                }
             }
         }
     }

@@ -26,6 +26,7 @@ import android.service.credentials.CredentialsResponseContent
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
  * PendingIntentHandler to be used by credential providers to extract requests from
@@ -79,10 +80,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun getBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
-            return intent.getParcelableExtra(
+            val request = intent.getParcelableExtra(
                 "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST",
                 BeginGetCredentialRequest::class.java
             )
+            return request?.let { BeginGetCredentialUtil.convertToStructuredRequest(it) }
         }
 
         /**
