@@ -25,12 +25,12 @@ internal object PerfettoNative {
 
     // TODO(224510255): load from a file produced at build time
     object Metadata {
-        const val version = "1.0.0-alpha09"
+        const val version = "1.0.0-alpha10"
         val checksums = mapOf(
-            "arm64-v8a" to "130cea2d90e941acb9d2087c0bebe8229b461175454df20763bfe901c0d73155",
-            "armeabi-v7a" to "cb0e60c5d8726d274bbc678cfa3a8724e66d2bfa6874c06c5f4347e545c0439d",
-            "x86" to "c6b19ce773d17c74aa74aa813637bc1d2bd61f5bcc280e6a5c030a36948dd6dd",
-            "x86_64" to "af62d109588db30c8ce11f2027227664520372f8c77259d4155dd92f7cc73a6e",
+            "arm64-v8a" to "189348f277f588ff41f51b4284bf0568bf3d0eab786f6664f8d66847694e0674",
+            "armeabi-v7a" to "9550b32340d790d58fe069b3882815e3d2b20474aa634f01e448392e898cc95b",
+            "x86" to "07967aaad711d16f35f509783f56139903f28f661ebb0415522c10fc0453810f",
+            "x86_64" to "6b2f4129cb1e52d9c9dca5b89d575c7b2a905670da2e0474917d37223f0c8bf5",
         )
     }
 
