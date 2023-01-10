@@ -273,7 +273,7 @@ class PublicKeyCredentialEntry internal constructor(
         /** Builds an instance of [PublicKeyCredentialEntry] */
         fun build(): PublicKeyCredentialEntry {
             if (icon == null) {
-                icon = Icon.createWithResource(context, R.drawable.ic_password)
+                icon = Icon.createWithResource(context, R.drawable.ic_passkey)
             }
             val typeDisplayName = context.getString(
                 R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL)
