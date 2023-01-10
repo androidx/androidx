@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.Orientation.Horizontal
-import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -31,12 +30,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.ScrollContainerInfo
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.provideScrollContainerInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 
 /* Copied from
@@ -118,17 +115,7 @@ private fun Modifier.pointerScrollable(
         scrollableNestedScrollConnection(scrollLogic, enabled)
     }
 
-    val scrollContainerInfo = remember(orientation, enabled) {
-        object : ScrollContainerInfo {
-            override fun canScrollHorizontally() = enabled && orientation == Horizontal
-
-            override fun canScrollVertically() = enabled && orientation == Vertical
-        }
-    }
-
-    return this
-        .nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
-        .provideScrollContainerInfo(scrollContainerInfo)
+    return this.nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
 }
 
 private class ScrollingLogic(
