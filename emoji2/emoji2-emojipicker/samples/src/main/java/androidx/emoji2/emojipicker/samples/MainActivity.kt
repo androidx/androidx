@@ -18,11 +18,15 @@ package androidx.emoji2.emojipicker.samples
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji2.emojipicker.EmojiPickerView
-import androidx.emoji2.emojipicker.RecentEmojiProvider
+import androidx.emoji2.emojipicker.RecentEmojiAsyncProvider
+import androidx.emoji2.emojipicker.RecentEmojiProviderAdapter
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +37,8 @@ class MainActivity : AppCompatActivity() {
         view.setOnEmojiPickedListener {
             findViewById<EditText>(R.id.edit_text).append(it.emoji)
         }
-        view.setRecentEmojiProvider(CustomRecentEmojiProvider(applicationContext))
 
-        findViewById<ToggleButton>(R.id.button)
+        findViewById<ToggleButton>(R.id.toggle_button)
             .setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     view.emojiGridColumns = 8
@@ -45,6 +48,11 @@ class MainActivity : AppCompatActivity() {
                     view.emojiGridRows = 15f
                 }
             }
+        findViewById<Button>(R.id.button).setOnClickListener {
+            view.setRecentEmojiProvider(
+                RecentEmojiProviderAdapter(CustomRecentEmojiProvider(applicationContext))
+            )
+        }
     }
 }
 
@@ -53,7 +61,7 @@ class MainActivity : AppCompatActivity() {
  */
 internal class CustomRecentEmojiProvider(
     context: Context
-) : RecentEmojiProvider {
+) : RecentEmojiAsyncProvider {
 
     companion object {
         private const val PREF_KEY_CUSTOM_EMOJI_FREQ = "pref_key_custom_emoji_freq"
@@ -74,8 +82,9 @@ internal class CustomRecentEmojiProvider(
             }?.toMutableMap() ?: mutableMapOf()
     }
 
-    override suspend fun getRecentEmojiList() =
-        emoji2Frequency.toList().sortedByDescending { it.second }.map { it.first }
+    override fun getRecentEmojiListAsync(): ListenableFuture<List<String>> =
+        Futures.immediateFuture(emoji2Frequency.toList().sortedByDescending { it.second }
+            .map { it.first })
 
     override fun recordSelection(emoji: String) {
         emoji2Frequency[emoji] = (emoji2Frequency[emoji] ?: 0) + 1

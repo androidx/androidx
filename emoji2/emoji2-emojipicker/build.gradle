@@ -29,6 +29,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.8.0")
     implementation project(path: ':emoji2:emoji2')
     implementation project(path: ':core:core')
+    implementation(libs.kotlinCoroutinesGuava)
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
