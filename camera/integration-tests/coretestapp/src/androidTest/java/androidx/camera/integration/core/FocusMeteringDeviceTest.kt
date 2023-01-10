@@ -51,7 +51,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeThat
@@ -262,11 +261,6 @@ class FocusMeteringDeviceTest(
 
     @Test
     fun focusMeteringFailsWithIllegalArgumentException_whenMeteringPointInvalid() = runBlocking {
-        assumeThat(
-            "Test ignored for CameraPipe config: b/263323720",
-            implName, not(CameraPipeConfig::class.simpleName)
-        )
-
         val focusMeteringAction = FocusMeteringAction.Builder(invalidMeteringPoint).build()
 
         assumeThat(

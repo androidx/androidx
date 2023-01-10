@@ -92,7 +92,9 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     }
 
     val focusMeteringCalls = mutableListOf<FocusMeteringParams>()
-    var focusMeteringResult3A = Result3A(status = Result3A.Status.OK)
+    var focusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    var cancelFocusMeteringCallCount = 0
+    var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
@@ -103,11 +105,12 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         focusMeteringCalls.add(
             FocusMeteringParams(aeRegions, afRegions, awbRegions, afTriggerStartAeMode)
         )
-        return CompletableDeferred(focusMeteringResult3A)
+        return focusMeteringResult
     }
 
     override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+        cancelFocusMeteringCallCount++
+        return cancelFocusMeteringResult
     }
 
     override suspend fun issueSingleCaptureAsync(
@@ -120,10 +123,10 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     }
 
     data class FocusMeteringParams(
-        val aeRegions: List<MeteringRectangle>,
-        val afRegions: List<MeteringRectangle>,
-        val awbRegions: List<MeteringRectangle>,
-        val afTriggerStartAeMode: AeMode?
+        val aeRegions: List<MeteringRectangle> = emptyList(),
+        val afRegions: List<MeteringRectangle> = emptyList(),
+        val awbRegions: List<MeteringRectangle> = emptyList(),
+        val afTriggerStartAeMode: AeMode? = null
     )
 }
 

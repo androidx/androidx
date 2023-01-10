@@ -18,11 +18,17 @@ package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE
+import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF
+import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_REGIONS
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_REGIONS
+import android.hardware.camera2.CaptureRequest.CONTROL_AWB_REGIONS
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
 import android.hardware.camera2.CaptureRequest.CONTROL_ZOOM_RATIO
@@ -30,6 +36,7 @@ import android.hardware.camera2.CaptureRequest.FLASH_MODE
 import android.hardware.camera2.CaptureRequest.FLASH_MODE_TORCH
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
@@ -38,19 +45,21 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.UseCase
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -64,7 +73,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 private val TIMEOUT = TimeUnit.SECONDS.toMillis(10)
 
@@ -92,10 +100,6 @@ class CameraControlAdapterDeviceTest {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
 
-    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
-
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -122,9 +126,11 @@ class CameraControlAdapterDeviceTest {
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
-            camera.detachUseCases()
+            withContext(Dispatchers.Main) {
+                camera.detachUseCases()
+            }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -132,7 +138,6 @@ class CameraControlAdapterDeviceTest {
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist
     //  after adding/removing the UseCase.
-    @LabTestRule.LabTestOnly
     @Test
     fun addUseCase_requestOptionsShouldSetToCamera(): Unit = runBlocking {
         // Arrange.
@@ -153,7 +158,6 @@ class CameraControlAdapterDeviceTest {
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist
     //  after adding/removing the UseCase.
-    @LabTestRule.LabTestOnly
     @Test
     fun removeUseCase_requestOptionsShouldSetToCamera(): Unit = runBlocking {
         // Arrange.
@@ -172,7 +176,6 @@ class CameraControlAdapterDeviceTest {
         verifyRequestOptions()
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun setFlashModeAuto_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -188,7 +191,6 @@ class CameraControlAdapterDeviceTest {
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_AUTO)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun setFlashModeOff_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -204,7 +206,6 @@ class CameraControlAdapterDeviceTest {
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun setFlashModeOn_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -220,7 +221,6 @@ class CameraControlAdapterDeviceTest {
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun enableTorch_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -236,7 +236,6 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun disableTorchFlashModeAuto_aeModeSetAndRequestUpdated(): Unit = runBlocking {
         Assume.assumeTrue(hasFlashUnit)
@@ -252,6 +251,94 @@ class CameraControlAdapterDeviceTest {
             TIMEOUT
         )
     }
+
+    @Test
+    fun startFocusAndMetering_3ARegionsUpdated() = runBlocking {
+        Assume.assumeTrue(
+            characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AF) > 0 ||
+                characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AE) > 0 ||
+                characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AWB) > 0
+        )
+        val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f)
+        val action = FocusMeteringAction.Builder(factory.createPoint(0f, 0f)).build()
+        bindUseCase(imageAnalysis)
+
+        // Act.
+        cameraControl.startFocusAndMetering(action).await()
+
+        // Assert. Here we verify only 3A region count is correct.
+        val expectedAfCount =
+            characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AF).coerceAtMost(1)
+        val expectedAeCount =
+            characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AE).coerceAtMost(1)
+        val expectedAwbCount =
+            characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AWB).coerceAtMost(1)
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+                val afRegionMatched = requestMeta.getOrDefault(
+                    CONTROL_AF_REGIONS,
+                    emptyArray()
+                ).size == expectedAfCount
+
+                val aeRegionMatched = requestMeta.getOrDefault(
+                    CONTROL_AE_REGIONS,
+                    emptyArray()
+                ).size == expectedAeCount
+
+                val awbRegionMatched = requestMeta.getOrDefault(
+                    CONTROL_AWB_REGIONS,
+                    emptyArray()
+                ).size == expectedAwbCount
+
+                afRegionMatched && aeRegionMatched && awbRegionMatched
+            },
+            TIMEOUT
+        )
+    }
+
+    @Test
+    fun cancelFocusAndMetering_3ARegionsReset() = runBlocking {
+        Assume.assumeTrue(
+            characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AF) > 0 ||
+                characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AE) > 0 ||
+                characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AWB) > 0
+        )
+        val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f)
+        val action = FocusMeteringAction.Builder(factory.createPoint(0f, 0f)).build()
+        bindUseCase(imageAnalysis)
+
+        // Act.
+        cameraControl.startFocusAndMetering(action).await()
+        cameraControl.cancelFocusAndMetering().await()
+
+        // Assert. The regions are reset to the default.
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+
+                val isDefaultAfRegion = requestMeta.getOrDefault(
+                    CONTROL_AF_REGIONS,
+                    CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+                ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
+
+                val isDefaultAeRegion = requestMeta.getOrDefault(
+                    CONTROL_AE_REGIONS,
+                    CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+                ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
+
+                val isDefaultAwbRegion = requestMeta.getOrDefault(
+                    CONTROL_AWB_REGIONS,
+                    CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+                ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
+
+                isDefaultAfRegion && isDefaultAeRegion && isDefaultAwbRegion
+            },
+            TIMEOUT
+        )
+    }
+
+    private fun CameraCharacteristics.getMaxRegionCount(
+        option_max_regions: CameraCharacteristics.Key<Int>
+    ) = get(option_max_regions) ?: 0
 
     private suspend fun arrangeRequestOptions() {
         cameraControl.setExposureCompensationIndex(1)
