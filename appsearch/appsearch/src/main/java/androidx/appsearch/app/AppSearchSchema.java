@@ -570,14 +570,14 @@ public final class AppSearchSchema {
         public static final int JOINABLE_VALUE_TYPE_NONE = 0;
 
         /**
-         * Content in this property will be used as string qualified id to join documents.
+         * Content in this string property will be used as a qualified id to join documents.
          * <ul>
          *     <li>Qualified id: a unique identifier for a document, and this joinable value type is
          *     similar to primary and foreign key in relational database. See
-         *     {@link androidx.appsearch.util.DocumentIdUtil} for more details.</li>
+         *     {@link androidx.appsearch.util.DocumentIdUtil} for more details.
          *     <li>Currently we only support single string joining, so it should only be used with
-         *     {@link PropertyConfig.Cardinality} other than
-         *     {@link PropertyConfig#CARDINALITY_REPEATED}.
+         *     {@link PropertyConfig#CARDINALITY_OPTIONAL} and
+         *     {@link PropertyConfig#CARDINALITY_REQUIRED}.
          * </ul>
          */
         // @exportToFramework:startStrip()
