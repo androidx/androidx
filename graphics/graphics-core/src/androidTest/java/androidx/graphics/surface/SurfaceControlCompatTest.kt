@@ -532,7 +532,7 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_singleReleaseCallback() {
         val releaseLatch = CountDownLatch(1)
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
@@ -592,7 +592,7 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_multipleReleaseCallbacksAndOverwriteWithSingleSC() {
         val releaseLatch = CountDownLatch(1)
         val releaseLatch2 = CountDownLatch(1)
