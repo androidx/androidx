@@ -50,7 +50,7 @@ internal class EmojiPickerBodyAdapter(
                 R.layout.empty_category_text_view, parent
             ) {
                 minimumHeight =
-                    emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
+                    emojiCellHeight ?: (getEmojiCellTotalHeight(parent) / (emojiGridRows)).toInt()
                         .also { emojiCellHeight = it }
             }
 
@@ -60,7 +60,7 @@ internal class EmojiPickerBodyAdapter(
                     emojiCellWidth ?: (getParentWidth(parent) / emojiGridColumns).also {
                         emojiCellWidth = it
                     },
-                    emojiCellHeight ?: (parent.measuredHeight / emojiGridRows).toInt()
+                    emojiCellHeight ?: (getEmojiCellTotalHeight(parent) / (emojiGridRows)).toInt()
                         .also { emojiCellHeight = it },
                     layoutInflater,
                     stickyVariantProvider,
@@ -113,6 +113,13 @@ internal class EmojiPickerBodyAdapter(
     private fun getParentWidth(parent: ViewGroup): Int {
         return parent.measuredWidth - parent.paddingLeft - parent.paddingRight
     }
+
+    private fun getEmojiCellTotalHeight(parent: ViewGroup) =
+        parent.measuredHeight - context.resources.getDimensionPixelSize(
+            R.dimen.emoji_picker_category_name_height
+        ) * 2 - context.resources.getDimensionPixelSize(
+            R.dimen.emoji_picker_category_name_padding_top
+        )
 
     private fun createSimpleHolder(
         @LayoutRes layoutId: Int,
