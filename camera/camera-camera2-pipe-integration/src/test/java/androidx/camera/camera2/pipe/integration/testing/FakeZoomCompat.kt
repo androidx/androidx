@@ -23,8 +23,9 @@ class FakeZoomCompat constructor(
     override val minZoom: Float = 0f,
     override val maxZoom: Float = 0f,
 ) : ZoomCompat {
+    var zoomRatio = 0f
 
     override fun apply(zoomRatio: Float, camera: UseCaseCamera) {
-        TODO("Not yet implemented")
+        this.zoomRatio = zoomRatio
     }
 }

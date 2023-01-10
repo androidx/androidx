@@ -25,10 +25,7 @@ import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * [CameraControlStateAdapter] caches and updates based on callbacks from the active CameraGraph.
@@ -44,23 +41,8 @@ class CameraControlStateAdapter @Inject constructor(
     val torchStateLiveData: LiveData<Int>
         get() = torchControl.torchStateLiveData
 
-    private val _zoomState by lazy {
-        MutableLiveData<ZoomState>(
-            ZoomValue(
-                zoomControl.zoomRatio,
-                zoomControl.minZoom,
-                zoomControl.maxZoom
-            )
-        )
-    }
     val zoomStateLiveData: LiveData<ZoomState>
-        get() = _zoomState
-
-    suspend fun setZoomState(value: ZoomState) {
-        withContext(Dispatchers.Main) {
-            _zoomState.value = value
-        }
-    }
+        get() = zoomControl.zoomStateLiveData
 
     val exposureState: ExposureState
         get() = evCompControl.exposureState
