@@ -17,6 +17,9 @@
 package androidx.health.connect.client.impl
 
 import android.content.Context
+import android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED
+import android.content.pm.PackageManager.GET_PERMISSIONS
+import android.content.pm.PackageManager.PackageInfoFlags
 import android.healthconnect.ChangeLogsRequest
 import android.healthconnect.HealthConnectException
 import android.healthconnect.HealthConnectManager
@@ -44,6 +47,7 @@ import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
 import androidx.health.connect.client.impl.platform.time.TimeSource
 import androidx.health.connect.client.impl.platform.toKtException
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -261,7 +265,20 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun getGrantedPermissions(): Set<String> {
-        throw UnsupportedOperationException("Method not supported yet")
+        context.packageManager
+            .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
+            .let {
+                return buildSet {
+                    for (i in it.requestedPermissions.indices) {
+                        if (
+                            it.requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
+                                it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0
+                        ) {
+                            add(it.requestedPermissions[i])
+                        }
+                    }
+                }
+            }
     }
 
     override suspend fun revokeAllPermissions() {

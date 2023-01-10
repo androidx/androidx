@@ -25,6 +25,7 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -62,18 +63,19 @@ import org.junit.runner.RunWith
 class HealthConnectClientUpsideDownImplTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private val allHealthPermissions =
+        context.packageManager
+            .getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
+            )
+            .requestedPermissions
+            .filter { it.startsWith(PERMISSION_PREFIX) }
+            .toTypedArray()
 
     // Grant every permission as deletion by id checks for every permission
     @get:Rule
-    val grantPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(
-            *context.packageManager
-                .getPackageInfo(
-                    context.packageName,
-                    PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-                )
-                .requestedPermissions
-        )
+    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(*allHealthPermissions)
 
     private lateinit var healthConnectClient: HealthConnectClient
 
@@ -389,10 +391,9 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun filterGrantedPermissions_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
-            healthConnectClient.permissionController.getGrantedPermissions()
-        }
+    fun getGrantedPermissions() = runTest {
+        assertThat(healthConnectClient.permissionController.getGrantedPermissions())
+            .containsExactlyElementsIn(allHealthPermissions)
     }
 
     @Test
