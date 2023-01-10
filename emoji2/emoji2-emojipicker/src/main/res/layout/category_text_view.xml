@@ -15,17 +15,17 @@
   limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:importantForAccessibility="no">
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/category_name"
         android:layout_width="wrap_content"
-        android:layout_height="24dp"
+        android:layout_height="@dimen/emoji_picker_category_name_height"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:paddingTop="4dp"
+        android:paddingTop="@dimen/emoji_picker_category_name_padding_top"
         android:paddingLeft="7dp"
         android:paddingRight="7dp"
         android:gravity="center_vertical|start"
@@ -33,4 +33,4 @@
         android:importantForAccessibility="yes"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="12dp" />
-</RelativeLayout>
+</FrameLayout>
