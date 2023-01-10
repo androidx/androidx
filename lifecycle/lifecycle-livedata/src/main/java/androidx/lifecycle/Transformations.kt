@@ -19,6 +19,7 @@ package androidx.lifecycle
 
 import androidx.annotation.CheckResult
 import androidx.annotation.MainThread
+import androidx.arch.core.util.Function
 
 /**
  * Returns a [LiveData] mapped from `this` LiveData by applying [transform] to each value set on
@@ -49,6 +50,19 @@ fun <X, Y> LiveData<X>.map(
 ): LiveData<Y> {
     val result = MediatorLiveData<Y>()
     result.addSource(this) { x -> result.value = transform(x) }
+    return result
+}
+
+@Deprecated(
+    "Use kotlin functions, instead of outdated arch core Functions",
+    level = DeprecationLevel.HIDDEN
+)
+@JvmName("map")
+@MainThread
+@CheckResult
+fun <X, Y> LiveData<X>.map(mapFunction: Function<X, Y>): LiveData<Y> {
+    val result = MediatorLiveData<Y>()
+    result.addSource(this) { x -> result.value = mapFunction.apply(x) }
     return result
 }
 
@@ -108,6 +122,35 @@ fun <X, Y> LiveData<X>.switchMap(
 
         override fun onChanged(x: X) {
             val newLiveData = transform(x)
+            if (liveData === newLiveData) {
+                return
+            }
+            if (liveData != null) {
+                result.removeSource(liveData!!)
+            }
+            liveData = newLiveData
+            if (liveData != null) {
+                result.addSource(liveData!!) { y -> result.setValue(y) }
+            }
+        }
+    })
+    return result
+}
+
+@Deprecated(
+    "Use kotlin functions, instead of outdated arch core Functions",
+    level = DeprecationLevel.HIDDEN
+)
+@JvmName("switchMap")
+@MainThread
+@CheckResult
+fun <X, Y> LiveData<X>.switchMap(switchMapFunction: Function<X, LiveData<Y>>): LiveData<Y> {
+    val result = MediatorLiveData<Y>()
+    result.addSource(this, object : Observer<X> {
+        var liveData: LiveData<Y>? = null
+
+        override fun onChanged(x: X) {
+            val newLiveData = switchMapFunction.apply(x)
             if (liveData === newLiveData) {
                 return
             }
