@@ -8,10 +8,12 @@ package androidx.lifecycle {
     method @MainThread public <S> void removeSource(androidx.lifecycle.LiveData<S!>);
   }
 
-  public class Transformations {
-    method @MainThread public static <X> androidx.lifecycle.LiveData<X!> distinctUntilChanged(androidx.lifecycle.LiveData<X!>);
-    method @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y!> map(androidx.lifecycle.LiveData<X!>, androidx.arch.core.util.Function<X!,Y!>);
-    method @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y!> switchMap(androidx.lifecycle.LiveData<X!>, androidx.arch.core.util.Function<X!,androidx.lifecycle.LiveData<Y!>!>);
+  public final class Transformations {
+    method @CheckResult @MainThread public static <X> androidx.lifecycle.LiveData<X> distinctUntilChanged(androidx.lifecycle.LiveData<X>);
+    method @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<X,Y> transform);
+    method @Deprecated @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y> mapFunction);
+    method @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<X,androidx.lifecycle.LiveData<Y>> transform);
+    method @Deprecated @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>> switchMapFunction);
   }
 
 }
