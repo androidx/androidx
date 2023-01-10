@@ -40,6 +40,7 @@ import androidx.test.espresso.matcher.RootMatchers.hasWindowLayoutParams
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.hamcrest.Description
@@ -188,6 +189,7 @@ class EmojiPickerViewTest {
         assertSelectedHeaderIndex(4)
     }
 
+    @FlakyTest(bugId = 265006871)
     @Test(expected = UnsupportedOperationException::class)
     fun testAddView_throwsException() {
         activityTestRule.scenario.onActivity {
