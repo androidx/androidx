@@ -424,6 +424,7 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "active_screenshot")
     }
 
+    @FlakyTest(bugId = 264868778)
     @Test
     public fun testAmbientScreenshot() {
         handler.post(this::initCanvasWatchFace)
