@@ -70,6 +70,11 @@ class DeviceCompatibilityTest(
         active = implName == CameraPipeConfig::class.simpleName,
     )
 
+    @get:Rule
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(cameraConfig)
+    )
+
     @Before
     fun setup() {
         CameraXUtil.initialize(context, cameraConfig).get()
