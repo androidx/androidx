@@ -34,17 +34,8 @@ import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
-import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
-import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
-import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
@@ -65,7 +56,6 @@ import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
-import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import kotlin.reflect.KClass
@@ -89,18 +79,8 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "ElevationGained" to ElevationGainedRecord::class,
         "FloorsClimbed" to FloorsClimbedRecord::class,
         "HeartRateSeries" to HeartRateRecord::class, // Keep legacy Series suffix
-        "HeartRateVariabilityDifferentialIndex" to
-            HeartRateVariabilityDifferentialIndexRecord::class,
         "HeartRateVariabilityRmssd" to HeartRateVariabilityRmssdRecord::class,
-        "HeartRateVariabilityS" to HeartRateVariabilitySRecord::class,
-        "HeartRateVariabilitySd2" to HeartRateVariabilitySd2Record::class,
-        "HeartRateVariabilitySdann" to HeartRateVariabilitySdannRecord::class,
-        "HeartRateVariabilitySdnn" to HeartRateVariabilitySdnnRecord::class,
-        "HeartRateVariabilitySdnnIndex" to HeartRateVariabilitySdnnIndexRecord::class,
-        "HeartRateVariabilitySdsd" to HeartRateVariabilitySdsdRecord::class,
-        "HeartRateVariabilityTinn" to HeartRateVariabilityTinnRecord::class,
         "Height" to HeightRecord::class,
-        "HipCircumference" to HipCircumferenceRecord::class,
         "Hydration" to HydrationRecord::class,
         "LeanBodyMass" to LeanBodyMassRecord::class,
         "Menstruation" to MenstruationFlowRecord::class,
@@ -120,7 +100,6 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "StepsCadenceSeries" to StepsCadenceRecord::class, // Keep legacy Series suffix
         "TotalCaloriesBurned" to TotalCaloriesBurnedRecord::class,
         "Vo2Max" to Vo2MaxRecord::class,
-        "WaistCircumference" to WaistCircumferenceRecord::class,
         "WheelchairPushes" to WheelchairPushesRecord::class,
         "Weight" to WeightRecord::class,
     )

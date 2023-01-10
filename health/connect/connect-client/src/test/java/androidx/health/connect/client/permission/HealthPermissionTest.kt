@@ -49,11 +49,10 @@ class HealthPermissionTest {
 
     @Test
     fun createReadPermission_everyRecord() {
-        RECORD_CLASSES
-            .forEach {
-                val permission = HealthPermission.getReadPermission(it)
-                assertThat(permission).isNotNull()
-            }
+        RECORD_CLASSES.forEach {
+            val permission = HealthPermission.getReadPermission(it)
+            assertThat(permission).isNotNull()
+        }
     }
 
     @Test
@@ -71,11 +70,10 @@ class HealthPermissionTest {
 
     @Test
     fun createWritePermission_everyRecord() {
-        RECORD_CLASSES
-            .forEach {
-                val permission = HealthPermission.getWritePermission(it)
-                assertThat(permission).isNotNull()
-            }
+        RECORD_CLASSES.forEach {
+            val permission = HealthPermission.getWritePermission(it)
+            assertThat(permission).isNotNull()
+        }
     }
 
     @Test
