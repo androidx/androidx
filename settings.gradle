@@ -961,6 +961,8 @@ includeProject(":wear:watchface:watchface-samples-minimal-complications", [Build
 includeProject(":wear:watchface:watchface-samples-minimal-instances", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-samples-minimal-style", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-style", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:watchface:watchface-style-old-api-test-service", "wear/watchface/watchface-style/old-api-test-service", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:watchface:watchface-style-old-api-test-stub", "wear/watchface/watchface-style/old-api-test-stub", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":webkit:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", [BuildType.MAIN])
 includeProject(":window:window", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
