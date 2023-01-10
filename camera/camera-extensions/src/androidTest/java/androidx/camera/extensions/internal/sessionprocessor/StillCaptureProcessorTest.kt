@@ -43,6 +43,7 @@ import androidx.camera.testing.Camera2Util
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
@@ -339,6 +340,7 @@ class StillCaptureProcessorTest {
         }
     }
 
+    @FlakyTest(bugId = 265008341)
     @Test
     fun canCloseBeforeJpegConversion(): Unit = runBlocking {
         withTimeout(3000) {
