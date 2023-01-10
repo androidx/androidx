@@ -145,7 +145,7 @@ fun SimpleOnSwipe() {
         ) {
             Box(
                 modifier = Modifier
-                    .background(motionProperties(id = "box").value.color("bColor"))
+                    .background(customProperties(id = "box").color("bColor"))
                     .layoutId("box")
             )
         }

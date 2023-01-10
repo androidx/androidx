@@ -55,6 +55,15 @@ interface HorizontalAnchorable {
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp
     )
+
+    /**
+     * Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor].
+     */
+    fun linkTo(
+        anchor: ConstraintLayoutBaseScope.BaselineAnchor,
+        margin: Dp = 0.dp,
+        goneMargin: Dp = 0.dp
+    )
 }
 
 @JvmDefaultWithCompatibility
@@ -68,6 +77,15 @@ interface BaselineAnchorable {
      */
     fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
+        margin: Dp = 0.dp,
+        goneMargin: Dp = 0.dp
+    )
+
+    /**
+     * Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor].
+     */
+    fun linkTo(
+        anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp
     )
@@ -110,6 +128,20 @@ internal abstract class BaseHorizontalAnchorable(
         val constraintArray = CLArray(charArrayOf()).apply {
             add(CLString.from(anchor.id.toString()))
             add(CLString.from(targetAnchorName))
+            add(CLNumber(margin.value))
+            add(CLNumber(goneMargin.value))
+        }
+        containerObject.put(anchorName, constraintArray)
+    }
+
+    final override fun linkTo(
+        anchor: ConstraintLayoutBaseScope.BaselineAnchor,
+        margin: Dp,
+        goneMargin: Dp
+    ) {
+        val constraintArray = CLArray(charArrayOf()).apply {
+            add(CLString.from(anchor.id.toString()))
+            add(CLString.from("baseline"))
             add(CLNumber(margin.value))
             add(CLNumber(goneMargin.value))
         }

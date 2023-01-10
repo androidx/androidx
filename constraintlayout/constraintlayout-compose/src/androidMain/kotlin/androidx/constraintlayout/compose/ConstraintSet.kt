@@ -51,7 +51,6 @@ internal interface DerivedConstraintSet : ConstraintSet {
     val extendFrom: ConstraintSet?
 
     override fun applyTo(state: State, measurables: List<Measurable>) {
-        buildMapping(state, measurables)
         extendFrom?.applyTo(state, measurables)
         applyToState(state)
     }

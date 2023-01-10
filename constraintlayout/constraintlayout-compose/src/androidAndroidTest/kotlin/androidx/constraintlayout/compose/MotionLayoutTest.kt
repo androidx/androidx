@@ -22,7 +22,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
@@ -38,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -48,12 +55,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlin.math.roundToInt
 import kotlin.test.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -67,7 +78,7 @@ internal class MotionLayoutTest {
     val rule = createComposeRule()
 
     /**
-     * Tests that [MotionLayoutScope.motionFontSize] works as expected.
+     * Tests that [MotionLayoutScope.customFontSize] works as expected.
      *
      * See custom_text_size_scene.json5
      */
@@ -138,19 +149,33 @@ internal class MotionLayoutTest {
                 progress = progress.value,
                 modifier = Modifier.size(200.dp)
             ) {
-                val props by motionProperties(id = "element")
+                val props = customProperties(id = "element")
                 Column(Modifier.layoutId("element")) {
                     Text(
-                        text = "Color: #${props.color("color").toArgb().toUInt().toString(16)}"
+                        text = "1) Color: #${props.color("color").toHexString()}"
                     )
                     Text(
-                        text = "Distance: ${props.distance("distance")}"
+                        text = "2) Distance: ${props.distance("distance")}"
                     )
                     Text(
-                        text = "FontSize: ${props.fontSize("fontSize")}"
+                        text = "3) FontSize: ${props.fontSize("fontSize")}"
                     )
                     Text(
-                        text = "Int: ${props.int("int")}"
+                        text = "4) Int: ${props.int("int")}"
+                    )
+
+                    // Missing properties
+                    Text(
+                        text = "5) Color: #${props.color("a").toHexString()}"
+                    )
+                    Text(
+                        text = "6) Distance: ${props.distance("b")}"
+                    )
+                    Text(
+                        text = "7) FontSize: ${props.fontSize("c")}"
+                    )
+                    Text(
+                        text = "8) Int: ${props.int("d")}"
                     )
                 }
             }
@@ -159,18 +184,114 @@ internal class MotionLayoutTest {
 
         progress.value = 0.25f
         rule.waitForIdle()
-        rule.onNodeWithText("Color: #ffffbaba").assertExists()
-        rule.onNodeWithText("Distance: 10.0.dp").assertExists()
-        rule.onNodeWithText("FontSize: 15.0.sp").assertExists()
-        rule.onNodeWithText("Int: 20").assertExists()
+        rule.onNodeWithText("1) Color: #ffffbaba").assertExists()
+        rule.onNodeWithText("2) Distance: 10.0.dp").assertExists()
+        rule.onNodeWithText("3) FontSize: 15.0.sp").assertExists()
+        rule.onNodeWithText("4) Int: 20").assertExists()
+
+        // Undefined custom properties
+        rule.onNodeWithText("5) Color: #0").assertExists()
+        rule.onNodeWithText("6) Distance: Dp.Unspecified").assertExists()
+        rule.onNodeWithText("7) FontSize: NaN.sp").assertExists()
+        rule.onNodeWithText("8) Int: 0").assertExists()
 
         progress.value = 0.75f
         rule.waitForIdle()
-        rule.onNodeWithText("Color: #ffba0000").assertExists()
-        rule.onNodeWithText("Distance: 15.0.dp").assertExists()
-        rule.onNodeWithText("FontSize: 25.0.sp").assertExists()
-        rule.onNodeWithText("Int: 35").assertExists()
+        rule.onNodeWithText("1) Color: #ffba0000").assertExists()
+        rule.onNodeWithText("2) Distance: 15.0.dp").assertExists()
+        rule.onNodeWithText("3) FontSize: 25.0.sp").assertExists()
+        rule.onNodeWithText("4) Int: 35").assertExists()
+
+        // Undefined custom properties
+        rule.onNodeWithText("5) Color: #0").assertExists()
+        rule.onNodeWithText("6) Distance: Dp.Unspecified").assertExists()
+        rule.onNodeWithText("7) FontSize: NaN.sp").assertExists()
+        rule.onNodeWithText("8) Int: 0").assertExists()
     }
+
+    @Test
+    fun testMotionLayout_withParentIntrinsics() = with(rule.density) {
+        val constraintSet = ConstraintSet {
+            val (one, two) = createRefsFor("one", "two")
+            val horChain = createHorizontalChain(one, two, chainStyle = ChainStyle.Packed(0f))
+            constrain(horChain) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+            constrain(one) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+            }
+            constrain(two) {
+                width = Dimension.preferredWrapContent
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+            }
+        }
+
+        val rootBoxWidth = 200
+        val box1Size = 40
+        val box2Size = 70
+
+        var rootSize = IntSize.Zero
+        var mlSize = IntSize.Zero
+        var box1Position = IntOffset.Zero
+        var box2Position = IntOffset.Zero
+
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .width(rootBoxWidth.toDp())
+                    .height(IntrinsicSize.Max)
+                    .background(Color.LightGray)
+                    .onGloballyPositioned {
+                        rootSize = it.size
+                    }
+            ) {
+                MotionLayout(
+                    start = constraintSet,
+                    end = constraintSet,
+                    transition = Transition {},
+                    progress = 0f, // We're not testing the animation
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .background(Color.Yellow)
+                        .onGloballyPositioned {
+                            mlSize = it.size
+                        }
+                ) {
+                    Box(
+                        Modifier
+                            .size(box1Size.toDp())
+                            .background(Color.Green)
+                            .layoutId("one")
+                            .onGloballyPositioned {
+                                box1Position = it.positionInRoot().round()
+                            })
+                    Box(
+                        Modifier
+                            .size(box2Size.toDp())
+                            .background(Color.Red)
+                            .layoutId("two")
+                            .onGloballyPositioned {
+                                box2Position = it.positionInRoot().round()
+                            })
+                }
+            }
+        }
+
+        val expectedSize = IntSize(rootBoxWidth, box2Size)
+        val expectedBox1Y = ((box2Size / 2f) - (box1Size / 2f)).roundToInt()
+        rule.runOnIdle {
+            assertEquals(expectedSize, rootSize)
+            assertEquals(expectedSize, mlSize)
+            assertEquals(IntOffset(0, expectedBox1Y), box1Position)
+            assertEquals(IntOffset(box1Size, 0), box2Position)
+        }
+    }
+
+    private fun Color.toHexString(): String = toArgb().toUInt().toString(16)
 }
 
 @OptIn(ExperimentalMotionApi::class)
@@ -195,7 +316,7 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
             progress = progress,
             modifier = modifier
         ) {
-            val profilePicProperties = motionProperties(id = "profile_pic")
+            val profilePicProperties = customProperties(id = "profile_pic")
             Box(
                 modifier = Modifier
                     .layoutTestId("box")
@@ -208,16 +329,16 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
                     .clip(CircleShape)
                     .border(
                         width = 2.dp,
-                        color = profilePicProperties.value.color("background"),
+                        color = profilePicProperties.color("background"),
                         shape = CircleShape
                     )
                     .layoutTestId("profile_pic")
             )
             Text(
                 text = "Hello",
-                fontSize = motionFontSize("username", "textSize"),
+                fontSize = customFontSize("username", "textSize"),
                 modifier = Modifier.layoutTestId("username"),
-                color = profilePicProperties.value.color("background")
+                color = profilePicProperties.color("background")
             )
         }
     }
