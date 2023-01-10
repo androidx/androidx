@@ -27,6 +27,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
+import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.background
 import androidx.glance.extractModifier
@@ -136,10 +137,9 @@ internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<La
     children.foldIndexed(
         mutableMapOf<String, MutableList<LambdaAction>>()
     ) { index, actions, child ->
-        val (actionMod, modifiers) = child.modifier.extractModifier<ActionModifier>()
-        if (actionMod != null && actionMod.action is LambdaAction &&
-            child !is EmittableSizeBox && child !is EmittableLazyListItem) {
-            val action = actionMod.action as LambdaAction
+        val (action: LambdaAction?, modifiers: GlanceModifier) =
+            child.modifier.extractLambdaAction()
+        if (action != null && child !is EmittableSizeBox && child !is EmittableLazyListItem) {
             val newKey = action.key + "+$index"
             val newAction = LambdaAction(newKey, action.block)
             actions.getOrPut(newKey) { mutableListOf() }.add(newAction)
@@ -151,6 +151,17 @@ internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<La
             }
         }
         actions
+    }
+
+private fun GlanceModifier.extractLambdaAction(): Pair<LambdaAction?, GlanceModifier> =
+    extractModifier<ActionModifier>().let { (actionModifier, modifiers) ->
+        val action = actionModifier?.action
+        when {
+            action is LambdaAction -> action to modifiers
+            action is CompoundButtonAction && action.innerAction is LambdaAction ->
+                action.innerAction to modifiers
+            else -> null to modifiers
+        }
     }
 
 private fun normalizeLazyListItem(view: EmittableLazyListItem) {

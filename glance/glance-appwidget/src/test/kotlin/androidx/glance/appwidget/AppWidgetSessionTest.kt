@@ -21,6 +21,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Emittable
@@ -54,7 +55,7 @@ import org.robolectric.Shadows
 class AppWidgetSessionTest {
 
     private val id = AppWidgetId(123)
-    private val widget = SampleGlanceAppWidget {}
+    private val widget = TestWidget {}
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val defaultOptions =
         optionsBundleOf(listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp)))
@@ -76,14 +77,17 @@ class AppWidgetSessionTest {
 
     @Test
     fun provideGlanceRunsGlance() = runTest {
-        session.provideGlance(context).first()
+        runTestingComposition(session.provideGlance(context))
+        assertThat(widget.provideGlanceCalled.get()).isTrue()
     }
 
     @Test
     fun provideGlanceEmitsIgnoreResultForNullContent() = runTest {
         // The session starts out with null content, so we can check that here.
-        val initialContent = session.provideGlance(context).first()
-        val root = runTestingComposition(initialContent)
+        val root = runCompositionUntil(
+            { state, _ -> state == Recomposer.State.Idle },
+            session.provideGlance(context)
+        )
         assertThat(root.shouldIgnoreResult()).isTrue()
     }
 

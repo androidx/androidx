@@ -24,12 +24,18 @@ import android.widget.RemoteViews
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
+import androidx.glance.GlanceId
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalState
@@ -38,9 +44,14 @@ import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import java.util.concurrent.CancellationException
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 /**
  * A session that composes UI for a single app widget.
@@ -78,34 +89,35 @@ internal class AppWidgetSession(
 
     override fun createRootEmittable() = RemoteViewsRoot(MaxComposeTreeDepth)
 
-    override suspend fun provideGlance(
-        context: Context,
-    ): Flow<@Composable @GlanceComposable () -> Unit> {
-        val manager = context.appWidgetManager
-        val minSize = appWidgetMinSize(
-            context.resources.displayMetrics,
-            manager,
-            id.appWidgetId
-        )
-        options.value = initialOptions ?: manager.getAppWidgetOptions(id.appWidgetId)!!
-        glanceState.value =
-            configManager.getValue(context, PreferencesGlanceStateDefinition, key)
-        return widget.runGlance(context, id).map {
-                content: (@Composable @GlanceComposable () -> Unit)? ->
-            {
-                CompositionLocalProvider(
-                    LocalContext provides context,
-                    LocalGlanceId provides id,
-                    LocalAppWidgetOptions provides options.value,
-                    LocalState provides glanceState.value,
-                ) {
-                    if (content != null) {
-                        ForEachSize(widget.sizeMode, minSize, content)
-                    } else {
-                        IgnoreResult()
-                    }
-                }
+    override fun provideGlance(context: Context): @Composable @GlanceComposable () -> Unit = {
+        CompositionLocalProvider(
+            LocalContext provides context,
+            LocalGlanceId provides id,
+            LocalAppWidgetOptions provides options.value,
+            LocalState provides glanceState.value,
+        ) {
+            val manager = remember { context.appWidgetManager }
+            val minSize = remember {
+                appWidgetMinSize(
+                    context.resources.displayMetrics,
+                    manager,
+                    id.appWidgetId
+                )
             }
+            val configIsReady by produceState(false) {
+                options.value = initialOptions ?: manager.getAppWidgetOptions(id.appWidgetId)
+                glanceState.value =
+                    configManager.getValue(context, PreferencesGlanceStateDefinition, key)
+                value = true
+            }
+            remember { widget.runGlance(context, id) }
+                .collectAsState(null)
+                .takeIf { configIsReady }
+                ?.value?.let { ForEachSize(widget.sizeMode, minSize, it) }
+                ?: IgnoreResult()
+            // The following line ensures that when glanceState is updated, it increases the
+            // Recomposer.changeCount and triggers processEmittableTree.
+            SideEffect { glanceState.value }
         }
     }
 
@@ -207,7 +219,44 @@ internal class AppWidgetSession(
         get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
 }
 
+internal fun interface ContentReceiver : CoroutineContext.Element {
+    /**
+     * Provide [content] to the Glance session, suspending until the session is
+     * shut down.
+     *
+     * If this function is called concurrently with itself, the previous call will throw
+     * [CancellationException] and the new content will replace it.
+     */
+    suspend fun provideContent(
+        content: @Composable @GlanceComposable () -> Unit
+    ): Nothing
+
+    override val key: CoroutineContext.Key<*> get() = Key
+
+    companion object Key : CoroutineContext.Key<ContentReceiver>
+}
+
+internal fun GlanceAppWidget.runGlance(
+    context: Context,
+    id: GlanceId,
+): Flow<(@GlanceComposable @Composable () -> Unit)?> = channelFlow {
+    val contentCoroutine: AtomicReference<CancellableContinuation<Nothing>?> =
+        AtomicReference(null)
+    val receiver = ContentReceiver { content ->
+        suspendCancellableCoroutine {
+            it.invokeOnCancellation { trySend(null) }
+            contentCoroutine.getAndSet(it)?.cancel()
+            trySend(content)
+        }
+    }
+    withContext(receiver) { provideGlance(context, id) }
+}
+
+internal val Context.appWidgetManager: AppWidgetManager
+    get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
+
 internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetId"
+
 internal fun AppWidgetId.toSessionKey() = createUniqueRemoteUiName(appWidgetId)
 
 /**

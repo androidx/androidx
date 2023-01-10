@@ -31,7 +31,6 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -47,9 +46,9 @@ class SessionManagerImplTest {
             TODO("Not yet implemented")
         }
 
-        override suspend fun provideGlance(
+        override fun provideGlance(
             context: Context
-        ): Flow<@Composable @GlanceComposable () -> Unit> {
+        ): @Composable @GlanceComposable () -> Unit {
             TODO("Not yet implemented")
         }
 

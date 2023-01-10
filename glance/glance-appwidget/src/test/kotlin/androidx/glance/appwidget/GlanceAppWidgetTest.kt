@@ -40,6 +40,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.take
@@ -69,7 +70,7 @@ class GlanceAppWidgetTest {
 
     @Test
     fun createEmptyUi() = fakeCoroutineScope.runTest {
-        val composer = SampleGlanceAppWidget { }
+        val composer = TestWidget { }
 
         val rv = composer.composeForSize(
             context,
@@ -87,7 +88,7 @@ class GlanceAppWidgetTest {
 
     @Test
     fun createUiWithSize() = fakeCoroutineScope.runTest {
-        val composer = SampleGlanceAppWidget {
+        val composer = TestWidget {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
         }
@@ -108,7 +109,7 @@ class GlanceAppWidgetTest {
 
     @Test
     fun createUiFromOptionBundle() = fakeCoroutineScope.runTest {
-        val composer = SampleGlanceAppWidget {
+        val composer = TestWidget {
             val options = LocalAppWidgetOptions.current
 
             Text(options.getString("StringKey", "<NOT FOUND>"))
@@ -132,7 +133,7 @@ class GlanceAppWidgetTest {
 
     @Test
     fun createUiFromGlanceId() = fakeCoroutineScope.runTest {
-        val composer = SampleGlanceAppWidget {
+        val composer = TestWidget {
             val glanceId = LocalGlanceId.current
 
             Text(glanceId.toString())
@@ -155,7 +156,7 @@ class GlanceAppWidgetTest {
 
     @Test
     fun createUiWithUniqueMode() = fakeCoroutineScope.runTest {
-        val composer = SampleGlanceAppWidget {
+        val composer = TestWidget {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
         }
@@ -188,7 +189,7 @@ class GlanceAppWidgetTest {
     @Config(sdk = [30])
     @Test
     fun createUiWithExactModePreS() = fakeCoroutineScope.runTest {
-        val composer = SampleGlanceAppWidget(SizeMode.Exact) {
+        val composer = TestWidget(SizeMode.Exact) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
         }
@@ -222,7 +223,7 @@ class GlanceAppWidgetTest {
             DpSize(100.dp, 70.dp),
             DpSize(120.dp, 100.dp),
         )
-        val composer = SampleGlanceAppWidget(SizeMode.Responsive(sizes)) {
+        val composer = TestWidget(SizeMode.Responsive(sizes)) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
         }
@@ -253,7 +254,7 @@ class GlanceAppWidgetTest {
     @Test
     fun createUiWithExactMode_noSizeFallsBackToUnique() {
         runBlocking {
-            val composer = SampleGlanceAppWidget(SizeMode.Exact) {
+            val composer = TestWidget(SizeMode.Exact) {
                 val size = LocalSize.current
                 Text("${size.width} x ${size.height}")
             }
@@ -295,7 +296,7 @@ class GlanceAppWidgetTest {
             DpSize(100.dp, 70.dp),
             DpSize(120.dp, 100.dp),
         )
-        val composer = SampleGlanceAppWidget(SizeMode.Responsive(sizes)) {
+        val composer = TestWidget(SizeMode.Responsive(sizes)) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
         }
@@ -458,22 +459,22 @@ class GlanceAppWidgetTest {
     fun cancellingProvideContentEmitsNullContent() = runBlocking {
         val widget = object : GlanceAppWidget() {
             override suspend fun provideGlance(context: Context, id: GlanceId) {
-                val provideContentJob = launch { provideContent { Content() } }
-                delay(100)
-                provideContentJob.cancel()
+                coroutineScope {
+                    val provideContentJob = launch { provideContent { Text("") } }
+                    delay(100)
+                    provideContentJob.cancel()
+                }
             }
             override val sessionManager = GlanceSessionManager
             @Composable
             override fun Content() { }
         }
-        widget.runGlance(context, AppWidgetId(0)).take(3).collectIndexed { index, content ->
+        widget.runGlance(context, AppWidgetId(0)).take(2).collectIndexed { index, content ->
             when (index) {
-                // Initial state of content is null
-                0 -> assertThat(content).isNull()
-                // Content is non-null when provideContent is called
-                1 -> assertThat(content).isNotNull()
+                // Initial content
+                0 -> assertThat(content).isNotNull()
                 // Content is null again when provideContent is cancelled
-                2 -> assertThat(content).isNull()
+                1 -> assertThat(content).isNull()
                 else -> throw Error("Invalid index $index")
             }
         }
@@ -489,16 +490,6 @@ class GlanceAppWidgetTest {
         val config = context.resources.configuration
         config.orientation = orientation
         return context.createConfigurationContext(config)
-    }
-
-    private class SampleGlanceAppWidget(
-        override val sizeMode: SizeMode = SizeMode.Single,
-        val ui: @Composable () -> Unit,
-    ) : GlanceAppWidget() {
-        @Composable
-        override fun Content() {
-            ui()
-        }
     }
 }
 
