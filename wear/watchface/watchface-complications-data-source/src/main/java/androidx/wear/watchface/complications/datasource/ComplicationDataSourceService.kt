@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.wear.watchface.complications.datasource
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -30,6 +33,7 @@ import android.support.wearable.complications.IComplicationProvider
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
@@ -37,6 +41,9 @@ import androidx.wear.watchface.complications.data.TimeRange
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion.METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener
 import java.util.concurrent.CountDownLatch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 /**
  * Data associated with complication request in
@@ -191,7 +198,11 @@ public class ComplicationRequest(
  */
 public abstract class ComplicationDataSourceService : Service() {
     private var wrapper: IComplicationProviderWrapper? = null
+    private var lastExpressionEvaluator: ComplicationDataExpressionEvaluator? = null
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
+    internal val mainThreadCoroutineScope by lazy {
+        CoroutineScope(mainThreadHandler.asCoroutineDispatcher())
+    }
 
     /* @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -206,6 +217,11 @@ public abstract class ComplicationDataSourceService : Service() {
             return wrapper
         }
         return null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lastExpressionEvaluator?.close()
     }
 
     /**
@@ -382,11 +398,7 @@ public abstract class ComplicationDataSourceService : Service() {
                                 }
                             }
 
-                            // When no update is needed, the complicationData is going to be null.
-                            iComplicationManager.updateComplicationData(
-                                complicationInstanceId,
-                                complicationData?.asWireComplicationData()
-                            )
+                            complicationData?.asWireComplicationData().evaluateAndUpdateManager()
                         }
 
                         override fun onComplicationDataTimeline(
@@ -442,14 +454,51 @@ public abstract class ComplicationDataSourceService : Service() {
                                     }
                                 }
                             }
-                            // When no update is needed, the complicationData is going to be null.
-                            iComplicationManager.updateComplicationData(
-                                complicationInstanceId,
-                                complicationDataTimeline?.asWireComplicationData()
-                            )
+                            complicationDataTimeline?.asWireComplicationData()
+                                .evaluateAndUpdateManager()
+                        }
+
+                        private fun WireComplicationData?.evaluateAndUpdateManager() {
+                            lastExpressionEvaluator?.close() // Cancelling any previous evaluation.
+                            if (
+                            // Will be evaluated by the platform.
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ||
+                                // When no update is needed, the data is going to be null.
+                                this == null
+                            ) {
+                                iComplicationManager.updateComplicationData(
+                                    complicationInstanceId,
+                                    this
+                                )
+                                return
+                            }
+                            lastExpressionEvaluator =
+                                ComplicationDataExpressionEvaluator(this).apply {
+                                    init()
+                                    listenAndUpdateManager(
+                                        iComplicationManager,
+                                        complicationInstanceId,
+                                    )
+                                }
                         }
                     }
                 )
+            }
+        }
+
+        private fun ComplicationDataExpressionEvaluator.listenAndUpdateManager(
+            iComplicationManager: IComplicationManager,
+            complicationInstanceId: Int,
+        ) {
+            mainThreadCoroutineScope.launch {
+                data.collect { evaluatedData ->
+                    if (evaluatedData == null) return@collect // Ignore pre-evaluation.
+                    close() // Doing one-off evaluation, the service will be re-invoked.
+                    iComplicationManager.updateComplicationData(
+                        complicationInstanceId,
+                        evaluatedData
+                    )
+                }
             }
         }
 
