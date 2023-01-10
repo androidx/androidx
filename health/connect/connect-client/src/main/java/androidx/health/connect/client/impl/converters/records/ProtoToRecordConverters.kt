@@ -37,17 +37,8 @@ import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
-import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
-import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
-import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
@@ -69,7 +60,6 @@ import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
-import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.units.BloodGlucose
@@ -247,71 +237,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "HipCircumference" ->
-                HipCircumferenceRecord(
-                    circumference = getDouble("circumference").meters,
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilityDifferentialIndex" ->
-                HeartRateVariabilityDifferentialIndexRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
             "HeartRateVariabilityRmssd" ->
                 HeartRateVariabilityRmssdRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilityS" ->
-                HeartRateVariabilitySRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySd2" ->
-                HeartRateVariabilitySd2Record(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdann" ->
-                HeartRateVariabilitySdannRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdnnIndex" ->
-                HeartRateVariabilitySdnnIndexRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdnn" ->
-                HeartRateVariabilitySdnnRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdsd" ->
-                HeartRateVariabilitySdsdRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilityTinn" ->
-                HeartRateVariabilityTinnRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
@@ -443,13 +370,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                             Vo2MaxRecord.MEASUREMENT_METHOD_STRING_TO_INT_MAP,
                             Vo2MaxRecord.MEASUREMENT_METHOD_OTHER
                         ),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "WaistCircumference" ->
-                WaistCircumferenceRecord(
-                    circumference = getDouble("circumference").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
