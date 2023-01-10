@@ -185,9 +185,8 @@ class ProcessLifecycleOwner private constructor() : LifecycleOwner {
         })
     }
 
-    override fun getLifecycle(): Lifecycle {
-        return registry
-    }
+    override val lifecycle: Lifecycle
+        get() = registry
 
     @RequiresApi(29)
     internal object Api29Impl {
