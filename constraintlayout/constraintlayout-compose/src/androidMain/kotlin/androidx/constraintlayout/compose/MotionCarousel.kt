@@ -260,6 +260,7 @@ fun MotionCarousel(
             ItemHolder(i, slotPrefix, showSlots) {
                 if (visible) {
                     if (provider.value.hasItemsWithProperties()) {
+                        @Suppress("DEPRECATION")
                         val properties = motionProperties("$slotPrefix$i")
                         provider.value.getContent(idx, properties).invoke()
                     } else {

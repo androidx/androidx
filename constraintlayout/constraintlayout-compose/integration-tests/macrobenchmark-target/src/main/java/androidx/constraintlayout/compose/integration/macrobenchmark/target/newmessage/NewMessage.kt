@@ -485,7 +485,7 @@ internal fun MotionLayoutScope.MotionMessageContent(
     }
     Surface(
         modifier = Modifier.layoutId("box"),
-        color = motionColor(id = "box", name = "background"),
+        color = customColor(id = "box", name = "background"),
         elevation = 4.dp,
         shape = RoundedCornerShape(8.dp)
     ) {}
@@ -495,7 +495,7 @@ internal fun MotionLayoutScope.MotionMessageContent(
             NewMessageLayout.Fab -> Icons.Default.Edit
             else -> Icons.Default.Close
         },
-        color = motionColor("editClose", "content"),
+        color = customColor("editClose", "content"),
         enabled = true
     ) {
         when (currentState) {
@@ -506,7 +506,7 @@ internal fun MotionLayoutScope.MotionMessageContent(
     ColorableIconButton(
         modifier = Modifier.layoutId("minIcon"),
         imageVector = Icons.Default.KeyboardArrowDown,
-        color = motionColor("minIcon", "content"),
+        color = customColor("minIcon", "content"),
         enabled = true
     ) {
         when (currentState) {
@@ -517,7 +517,7 @@ internal fun MotionLayoutScope.MotionMessageContent(
     CheapText(
         text = dialogName,
         modifier = Modifier.layoutId("title"),
-        color = motionColor("title", "content"),
+        color = customColor("title", "content"),
         style = MaterialTheme.typography.h6
     )
     MessageWidget(modifier = Modifier.layoutId("content"), onDelete = {

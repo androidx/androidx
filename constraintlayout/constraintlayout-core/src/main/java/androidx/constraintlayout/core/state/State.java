@@ -67,8 +67,10 @@ public class State {
         END_TO_END,
         TOP_TO_TOP,
         TOP_TO_BOTTOM,
+        TOP_TO_BASELINE,
         BOTTOM_TO_TOP,
         BOTTOM_TO_BOTTOM,
+        BOTTOM_TO_BASELINE,
         BASELINE_TO_BASELINE,
         BASELINE_TO_TOP,
         BASELINE_TO_BOTTOM,
@@ -186,6 +188,7 @@ public class State {
     }
 
     public State() {
+        mParent.setKey(PARENT);
         mReferences.put(PARENT, mParent);
     }
 
@@ -238,7 +241,7 @@ public class State {
      */
     public int convertDimension(Object value) {
         if (value instanceof Float) {
-            return (int) (((Float) value) + 0.5f);
+            return Math.round((Float) value);
         }
         if (value instanceof Integer) {
             return (Integer) value;

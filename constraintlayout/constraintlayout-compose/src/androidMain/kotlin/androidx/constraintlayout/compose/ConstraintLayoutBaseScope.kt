@@ -131,6 +131,18 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
     ): ConstrainScope = ConstrainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /**
+     * Convenient way to apply the same constraints to multiple [ConstrainedLayoutReference]s.
+     */
+    fun constrain(
+        vararg refs: ConstrainedLayoutReference,
+        constrainBlock: ConstrainScope.() -> Unit
+    ) {
+        refs.forEach { ref ->
+            constrain(ref, constrainBlock)
+        }
+    }
+
+    /**
      * Creates a guideline at a specific offset from the start of the [ConstraintLayout].
      */
     fun createGuidelineFromStart(offset: Dp): VerticalAnchor {

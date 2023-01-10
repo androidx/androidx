@@ -1822,6 +1822,11 @@ public class ConstraintSetParser {
                             break;
                         case "bottom":
                             reference.topToBottom(targetReference);
+                            break;
+                        case "baseline":
+                            state.baselineNeededFor(targetReference.getKey());
+                            reference.topToBaseline(targetReference);
+                            break;
                     }
                     break;
                 case "bottom":
@@ -1831,6 +1836,10 @@ public class ConstraintSetParser {
                             break;
                         case "bottom":
                             reference.bottomToBottom(targetReference);
+                            break;
+                        case "baseline":
+                            state.baselineNeededFor(targetReference.getKey());
+                            reference.bottomToBaseline(targetReference);
                     }
                     break;
                 case "baseline":
@@ -1842,12 +1851,10 @@ public class ConstraintSetParser {
                             break;
                         case "top":
                             state.baselineNeededFor(reference.getKey());
-                            state.baselineNeededFor(targetReference.getKey());
                             reference.baselineToTop(targetReference);
                             break;
                         case "bottom":
                             state.baselineNeededFor(reference.getKey());
-                            state.baselineNeededFor(targetReference.getKey());
                             reference.baselineToBottom(targetReference);
                             break;
                     }

@@ -58,6 +58,7 @@ fun Transition(@Language("json5") content: String): Transition {
  * Used to reduced the exposed API from [Transition].
  */
 @ExperimentalMotionApi
+@PublishedApi
 internal class TransitionImpl(
     private val parsedTransition: CLObject
 ) : Transition {
@@ -108,7 +109,9 @@ internal class TransitionImpl(
         return parsedTransition.hashCode()
     }
 
+    @PublishedApi
     internal companion object {
+        @PublishedApi
         internal val EMPTY = TransitionImpl(CLObject(charArrayOf()))
     }
 }

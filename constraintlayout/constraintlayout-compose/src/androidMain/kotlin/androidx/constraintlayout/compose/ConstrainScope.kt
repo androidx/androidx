@@ -449,6 +449,14 @@ class ConstrainScope internal constructor(
         containerObject.remove("pivotY")
     }
 
+    /**
+     * Convenience extension variable to parse a [Dp] as a [Dimension] object.
+     *
+     * @see Dimension.value
+     */
+    val Dp.asDimension: Dimension
+        get() = Dimension.value(this)
+
     private inner class DimensionProperty(initialValue: Dimension) :
         ObservableProperty<Dimension>(initialValue) {
         override fun afterChange(property: KProperty<*>, oldValue: Dimension, newValue: Dimension) {
@@ -515,6 +523,24 @@ private class ConstraintBaselineAnchorable constructor(
         val constraintArray = CLArray(charArrayOf()).apply {
             add(CLString.from(anchor.id.toString()))
             add(CLString.from("baseline"))
+            add(CLNumber(margin.value))
+            add(CLNumber(goneMargin.value))
+        }
+        containerObject.put("baseline", constraintArray)
+    }
+
+    /**
+     * Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor].
+     */
+    override fun linkTo(
+        anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
+        margin: Dp,
+        goneMargin: Dp
+    ) {
+        val targetAnchorName = AnchorFunctions.horizontalAnchorIndexToAnchorName(anchor.index)
+        val constraintArray = CLArray(charArrayOf()).apply {
+            add(CLString.from(anchor.id.toString()))
+            add(CLString.from(targetAnchorName))
             add(CLNumber(margin.value))
             add(CLNumber(goneMargin.value))
         }
