@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-ChangedType: androidx.lifecycle.ComputableLiveData#getLiveData():
-    Method androidx.lifecycle.ComputableLiveData.getLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
 ChangedType: androidx.lifecycle.Transformations#distinctUntilChanged(androidx.lifecycle.LiveData<X>):
     Method androidx.lifecycle.Transformations.distinctUntilChanged has changed return type from androidx.lifecycle.LiveData<X!> to androidx.lifecycle.LiveData<X>
 
