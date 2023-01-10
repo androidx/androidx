@@ -28,7 +28,10 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
-import androidx.window.embedding.SplitRule.Companion.DEFAULT_SPLIT_MIN_DIMENSION_DP
+import androidx.core.util.Preconditions
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.alwaysAllow
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.ratio
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
 import kotlin.math.min
 
 /**
@@ -46,11 +49,11 @@ open class SplitRule internal constructor(
      * When the window size is smaller than requested here, activities in the secondary container
      * will be stacked on top of the activities in the primary one, completely overlapping them.
      *
-     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
-     * `0` means to always allow split.
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+     * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      */
     @IntRange(from = 0)
-    val minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+    val minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
 
     /**
      * The smallest value of the smallest possible width of the parent window in any rotation
@@ -58,18 +61,53 @@ open class SplitRule internal constructor(
      * here, activities in the secondary container will be stacked on top of the activities in
      * the primary one, completely overlapping them.
      *
-     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
-     * `0` means to always allow split.
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+     * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      */
     @IntRange(from = 0)
-    val minSmallestWidthDp: Int,
+    val minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
 
     /**
-     * Defines what part of the width should be given to the primary activity. Defaults to an
-     * equal width split.
+     * The largest value of the aspect ratio, expressed as (height / width) in decimal form, of the
+     * parent window bounds in portrait when the split should be used. When the window aspect ratio
+     * is greater than requested here, activities in the secondary container will stacked on top of
+     * the activities in the primary one, completely overlapping them.
+     *
+     * This value is only used when the parent window is in portrait (height >= width).
+     *
+     * The default is [SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT] if the app doesn't set, which is the
+     * recommend value to only allow split when the parent window is not too stretched in portrait.
+     *
+     * @see EmbeddingAspectRatio.ratio
+     * @see EmbeddingAspectRatio.alwaysAllow
+     * @see EmbeddingAspectRatio.alwaysDisallow
+     */
+    val maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
+
+    /**
+     * The largest value of the aspect ratio, expressed as (width / height) in decimal form, of the
+     * parent window bounds in landscape when the split should be used. When the window aspect ratio
+     * is greater than requested here, activities in the secondary container will stacked on top of
+     * the activities in the primary one, completely overlapping them.
+     *
+     * This value is only used when the parent window is in landscape (width > height).
+     *
+     * The default is [SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT] if the app doesn't set, which is
+     * the recommend value to always allow split when the parent window is in landscape.
+     *
+     * @see EmbeddingAspectRatio.ratio
+     * @see EmbeddingAspectRatio.alwaysAllow
+     * @see EmbeddingAspectRatio.alwaysDisallow
+     */
+    val maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
+
+    /**
+     * Defines what part of the width should be given to the primary activity.
+     *
+     * The default is `0.5` if the app doesn't set, which is to split with equal width.
      */
     @FloatRange(from = 0.0, to = 1.0)
-    val splitRatio: Float = 0.5f,
+    val splitRatio: Float = SPLIT_RATIO_DEFAULT,
 
     /**
      * The layout direction for the split. The value must be one of [LTR], [RTL] or [LOCALE].
@@ -83,6 +121,15 @@ open class SplitRule internal constructor(
     @LayoutDirection
     val layoutDirection: Int = LOCALE
 ) : EmbeddingRule() {
+
+    init {
+        Preconditions.checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
+        Preconditions.checkArgumentNonnegative(
+            minSmallestWidthDp,
+            "minSmallestWidthDp must be non-negative"
+        )
+        Preconditions.checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+    }
 
     @IntDef(LTR, RTL, LOCALE)
     @Retention(AnnotationRetention.SOURCE)
@@ -119,11 +166,41 @@ open class SplitRule internal constructor(
          * @see SplitRule.Companion
          */
         const val FINISH_ADJACENT = 2
+
+        /**
+         * The default split ratio if it is not set by apps.
+         * @see SplitRule.splitRatio
+         */
+        internal const val SPLIT_RATIO_DEFAULT = 0.5f
+
+        /**
+         * When the min dimension is set to this value, it means to always allow split.
+         * @see SplitRule.minWidthDp
+         * @see SplitRule.minSmallestWidthDp
+         */
+        const val SPLIT_MIN_DIMENSION_ALWAYS_ALLOW = 0
+
         /**
          * The default min dimension in DP for allowing split if it is not set by apps. The value
          * reflects [androidx.window.core.layout.WindowWidthSizeClass.MEDIUM].
+         * @see SplitRule.minWidthDp
+         * @see SplitRule.minSmallestWidthDp
          */
-        const val DEFAULT_SPLIT_MIN_DIMENSION_DP = 600
+        const val SPLIT_MIN_DIMENSION_DP_DEFAULT = 600
+
+        /**
+         * The default max aspect ratio for allowing split when the parent window is in portrait.
+         * @see SplitRule.maxAspectRatioInPortrait
+         */
+        @JvmField
+        val SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT = ratio(1.4f)
+
+        /**
+         * The default max aspect ratio for allowing split when the parent window is in landscape.
+         * @see SplitRule.maxAspectRatioInLandscape
+         */
+        @JvmField
+        val SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT = alwaysAllow()
     }
 
     /**
@@ -135,7 +212,8 @@ open class SplitRule internal constructor(
     internal annotation class SplitFinishBehavior
 
     /**
-     * Verifies if the provided parent bounds are large enough to apply the rule.
+     * Verifies if the provided parent bounds satisfy the dimensions and aspect ratio requirements
+     * to apply the rule.
      */
     internal fun checkParentMetrics(context: Context, parentMetrics: WindowMetrics): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
@@ -152,14 +230,27 @@ open class SplitRule internal constructor(
      * @see checkParentMetrics
      */
     internal fun checkParentBounds(density: Float, bounds: Rect): Boolean {
+        val width = bounds.width()
+        val height = bounds.height()
+        if (width == 0 || height == 0) {
+            return false
+        }
         val minWidthPx = convertDpToPx(density, minWidthDp)
         val minSmallestWidthPx = convertDpToPx(density, minSmallestWidthDp)
-        val validMinWidth = (minWidthDp == 0 || bounds.width() >= minWidthPx)
-        val validSmallestMinWidth = (
-            minSmallestWidthDp == 0 ||
-                min(bounds.width(), bounds.height()) >= minSmallestWidthPx
-            )
-        return validMinWidth && validSmallestMinWidth
+        // Always allow split if the min dimensions are 0.
+        val validMinWidth = minWidthDp == SPLIT_MIN_DIMENSION_ALWAYS_ALLOW || width >= minWidthPx
+        val validSmallestMinWidth = minSmallestWidthDp == SPLIT_MIN_DIMENSION_ALWAYS_ALLOW ||
+            min(width, height) >= minSmallestWidthPx
+        val validAspectRatio = if (height >= width) {
+            // Portrait
+            maxAspectRatioInPortrait == alwaysAllow() ||
+                height * 1f / width <= maxAspectRatioInPortrait.value
+        } else {
+            // Landscape
+            maxAspectRatioInLandscape == alwaysAllow() ||
+                width * 1f / height <= maxAspectRatioInLandscape.value
+        }
+        return validMinWidth && validSmallestMinWidth && validAspectRatio
     }
 
     /**
@@ -183,6 +274,8 @@ open class SplitRule internal constructor(
 
         if (minWidthDp != other.minWidthDp) return false
         if (minSmallestWidthDp != other.minSmallestWidthDp) return false
+        if (maxAspectRatioInPortrait != other.maxAspectRatioInPortrait) return false
+        if (maxAspectRatioInLandscape != other.maxAspectRatioInLandscape) return false
         if (splitRatio != other.splitRatio) return false
         if (layoutDirection != other.layoutDirection) return false
 
@@ -192,8 +285,20 @@ open class SplitRule internal constructor(
     override fun hashCode(): Int {
         var result = minWidthDp
         result = 31 * result + minSmallestWidthDp
+        result = 31 * result + maxAspectRatioInPortrait.hashCode()
+        result = 31 * result + maxAspectRatioInLandscape.hashCode()
         result = 31 * result + splitRatio.hashCode()
         result = 31 * result + layoutDirection
         return result
     }
+
+    override fun toString(): String =
+        "${SplitRule::class.java.simpleName}{" +
+            " splitRatio=$splitRatio" +
+            ", layoutDirection=$layoutDirection" +
+            ", minWidthDp=$minWidthDp" +
+            ", minSmallestWidthDp=$minSmallestWidthDp" +
+            ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
+            ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
+            "}"
 }
