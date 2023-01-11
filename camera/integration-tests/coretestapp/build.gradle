@@ -106,6 +106,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
