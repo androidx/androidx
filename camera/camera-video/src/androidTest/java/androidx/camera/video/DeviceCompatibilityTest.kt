@@ -129,6 +129,9 @@ class DeviceCompatibilityTest(
     }
 
     private fun getSupportedProfiles(cameraSelector: CameraSelector): List<CamcorderProfileProxy> {
+        if (!CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!)) {
+            return emptyList()
+        }
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         return videoCapabilities.supportedQualities
