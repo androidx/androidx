@@ -40,12 +40,16 @@ class SplitAttributesCalculatorParams internal constructor(
      */
     val defaultSplitAttributes: SplitAttributes,
     /**
-     * Whether the [parentWindowMetrics] are larger than [SplitRule]'s minimum size criteria,
-     * which are [SplitRule.minWidthDp], [SplitRule.minHeightDp] and
-     * [SplitRule.minSmallestWidthDp]
+     * Whether the [parentWindowMetrics] satisfies the dimensions and aspect
+     * ratios requirements specified in the [SplitRule], which are:
+     *  - [SplitRule.minWidthDp]
+     *  - [SplitRule.minHeightDp]
+     *  - [SplitRule.minSmallestWidthDp]
+     *  - [SplitRule.maxAspectRatioInPortrait]
+     *  - [SplitRule.maxAspectRatioInLandscape]
      */
-    @get: JvmName("isDefaultMinSizeSatisfied")
-    val isDefaultMinSizeSatisfied: Boolean,
+    @get: JvmName("areDefaultConstraintsSatisfied")
+    val areDefaultConstraintsSatisfied: Boolean,
     /**
      * The [tag of `SplitRule`][SplitRule.tag] to apply this [SplitAttributes], which is `null`
      * if the tag is not set.
@@ -61,6 +65,6 @@ class SplitAttributesCalculatorParams internal constructor(
             ", configuration=$parentConfiguration" +
             ", windowLayoutInfo=$parentWindowLayoutInfo" +
             ", defaultSplitAttributes=$defaultSplitAttributes" +
-            ", isDefaultMinSizeSatisfied=$isDefaultMinSizeSatisfied" +
+            ", areDefaultConstraintsSatisfied=$areDefaultConstraintsSatisfied" +
             ", tag=$splitRuleTag}"
 }

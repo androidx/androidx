@@ -107,12 +107,12 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitAttributesCalculatorParams {
+    method public boolean areDefaultConstraintsSatisfied();
     method public androidx.window.extensions.embedding.SplitAttributes getDefaultSplitAttributes();
     method public android.content.res.Configuration getParentConfiguration();
     method public androidx.window.extensions.layout.WindowLayoutInfo getParentWindowLayoutInfo();
     method public android.view.WindowMetrics getParentWindowMetrics();
     method public String? getSplitRuleTag();
-    method public boolean isDefaultMinSizeSatisfied();
   }
 
   public class SplitInfo {

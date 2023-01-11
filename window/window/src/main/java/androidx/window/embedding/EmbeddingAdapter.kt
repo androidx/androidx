@@ -148,7 +148,7 @@ internal class EmbeddingAdapter(
         val taskConfiguration = params.parentConfiguration
         val windowLayoutInfo = params.parentWindowLayoutInfo
         val defaultSplitAttributes = params.defaultSplitAttributes
-        val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
+        val areDefaultConstraintsSatisfied = params.areDefaultConstraintsSatisfied()
         val splitRuleTag = params.splitRuleTag
         val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(taskWindowMetrics)
 
@@ -157,7 +157,7 @@ internal class EmbeddingAdapter(
             taskConfiguration,
             ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, windowLayoutInfo),
             translate(defaultSplitAttributes),
-            isDefaultMinSizeSatisfied,
+            areDefaultConstraintsSatisfied,
             splitRuleTag,
         )
     }

@@ -41,7 +41,7 @@ import kotlin.math.min
  * [SplitController.setSplitAttributesCalculator] will still be called for the rule if the
  * calculator is registered via [SplitController.setSplitAttributesCalculator].
  * Whether this [SplitRule]'s minimum requirements are satisfied is dispatched in
- * [SplitAttributesCalculatorParams.isDefaultMinSizeSatisfied] instead.
+ * [SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied] instead.
  * The width and height could be verified in the [SplitAttributes] calculator callback
  * as the sample linked below shows.
  *

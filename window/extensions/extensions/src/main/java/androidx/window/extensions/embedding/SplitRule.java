@@ -91,6 +91,18 @@ public abstract class SplitRule extends EmbeddingRule {
         mDefaultSplitAttributes = defaultSplitAttributes;
     }
 
+    /**
+     * Checks whether the parent window satisfied the dimensions and aspect ratios requirements
+     * specified in the {@link androidx.window.embedding.SplitRule}, which are
+     * {@link androidx.window.embedding.SplitRule#minWidthDp},
+     * {@link androidx.window.embedding.SplitRule#minHeightDp},
+     * {@link androidx.window.embedding.SplitRule#minSmallestWidthDp},
+     * {@link androidx.window.embedding.SplitRule#maxAspectRatioInPortrait} and
+     * {@link androidx.window.embedding.SplitRule#maxAspectRatioInLandscape}.
+     *
+     * @param parentMetrics the {@link WindowMetrics} of the parent window.
+     * @return whether the parent window satisfied the {@link SplitRule} requirements.
+     */
     @SuppressLint("ClassVerificationFailure") // Only called by Extensions implementation on device.
     @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean checkParentMetrics(@NonNull WindowMetrics parentMetrics) {
