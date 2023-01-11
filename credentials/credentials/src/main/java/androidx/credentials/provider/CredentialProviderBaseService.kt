@@ -21,7 +21,6 @@ import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.service.credentials.BeginCreateCredentialRequest
 import android.service.credentials.BeginCreateCredentialResponse
-import android.service.credentials.BeginGetCredentialOption
 import android.service.credentials.BeginGetCredentialRequest
 import android.service.credentials.BeginGetCredentialResponse
 import android.service.credentials.CredentialProviderService
@@ -48,21 +47,7 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
         cancellationSignal: CancellationSignal,
         callback: OutcomeReceiver<BeginGetCredentialResponse, GetCredentialException>
     ) {
-        val beginGetCredentialOptions: MutableList<BeginGetCredentialOption> =
-            mutableListOf()
-        request.beginGetCredentialOptions.forEach {
-            val structuredOption = BeginGetCredentialUtil
-                .convertRequestOption(
-                    it.type,
-                    it.candidateQueryData)
-            if (structuredOption != null) {
-                beginGetCredentialOptions.add(structuredOption)
-            }
-        }
-        val structuredRequest =
-            BeginGetCredentialRequest.Builder(request.callingAppInfo)
-                .setBeginGetCredentialOptions(beginGetCredentialOptions)
-                .build()
+        val structuredRequest = BeginGetCredentialUtil.convertToStructuredRequest(request)
         val outcome = object : OutcomeReceiver<BeginGetCredentialResponse,
             androidx.credentials.exceptions.GetCredentialException> {
             override fun onResult(response: BeginGetCredentialResponse?) {

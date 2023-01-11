@@ -35,7 +35,7 @@ import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequestPrivil
 class BeginCreateCredentialUtil {
     companion object {
         @JvmStatic
-        fun convertToStructuredRequest(request: BeginCreateCredentialRequest):
+        internal fun convertToStructuredRequest(request: BeginCreateCredentialRequest):
             BeginCreateCredentialRequest {
             return try {
                 when (request.type) {
