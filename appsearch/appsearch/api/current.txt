@@ -523,7 +523,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionPathsForDocumentClass(Class<?>, java.util.Collection<androidx.appsearch.app.PropertyPath!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionsForDocumentClass(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec build();
-    method public androidx.appsearch.app.SearchSpec.Builder setJoinSpec(androidx.appsearch.app.JoinSpec);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) public androidx.appsearch.app.SearchSpec.Builder setJoinSpec(androidx.appsearch.app.JoinSpec);
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightPaths(String, java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>);
