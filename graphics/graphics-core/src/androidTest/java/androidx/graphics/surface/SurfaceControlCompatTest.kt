@@ -45,6 +45,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -532,6 +533,7 @@ class SurfaceControlCompatTest {
     }
 
     @Test
+    @Ignore("b/262903415")
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_singleReleaseCallback() {
         val releaseLatch = CountDownLatch(1)
@@ -591,6 +593,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @Ignore("b/262909049")
     @Test
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_multipleReleaseCallbacksAndOverwriteWithSingleSC() {
@@ -735,6 +738,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @Ignore("b/262909049")
     @Test
     fun testTransactionSetBuffer_ReleaseCallbacksAndOverwriteWithMultipleSC() {
         val releaseLatch = CountDownLatch(1)

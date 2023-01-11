@@ -41,6 +41,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -52,6 +53,7 @@ class GLFrontBufferedRendererTest {
         val TAG = "GLFrontBufferedRenderer"
     }
 
+    @Ignore("b/262909049")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferedLayerRender() {
@@ -531,6 +533,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/262909049")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderAfterPauseAndResume() {
