@@ -15,12 +15,11 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:minSdkVersion="21"/>
     <application>
         <activity android:name=".MainActivity" android:exported="true"
-            android:theme="@style/Theme.AppCompat.DayNight">
+            android:theme="@style/MyPinkTheme">
             <!-- Handle Google app icon launch. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
