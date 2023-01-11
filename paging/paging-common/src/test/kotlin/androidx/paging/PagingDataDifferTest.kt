@@ -41,6 +41,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -217,7 +218,7 @@ class PagingDataDifferTest(
         pageEventCh.trySend(
             localLoadStateUpdate(refreshLocal = Loading)
         )
-        assertThat(differ.loadStateFlow.first()).isEqualTo(
+        assertThat(differ.nonNullLoadStateFlow.first()).isEqualTo(
             localLoadStatesOf(refreshLocal = Loading)
         )
 
@@ -999,7 +1000,7 @@ class PagingDataDifferTest(
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates = it
                 itemCount = differ.size
             }
@@ -1049,7 +1050,7 @@ class PagingDataDifferTest(
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -1074,7 +1075,7 @@ class PagingDataDifferTest(
         // Should emit real values to new collectors immediately
         val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
         val newLoadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 newCombinedLoadStates.add(it)
             }
         }
@@ -1096,7 +1097,7 @@ class PagingDataDifferTest(
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -1144,7 +1145,7 @@ class PagingDataDifferTest(
         // New observers should receive the previous state.
         val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
         val newLoadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 newCombinedLoadStates.add(it)
             }
         }
@@ -1173,7 +1174,7 @@ class PagingDataDifferTest(
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -1221,7 +1222,7 @@ class PagingDataDifferTest(
         // New observers should receive the previous state.
         val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
         val newLoadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 newCombinedLoadStates.add(it)
             }
         }
@@ -1249,7 +1250,7 @@ class PagingDataDifferTest(
 
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         backgroundScope.launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -2194,6 +2195,8 @@ private class SimpleDiffer(
 
     private val _localLoadStates = mutableListOf<CombinedLoadStates>()
 
+    val nonNullLoadStateFlow = loadStateFlow.filterNotNull()
+
     fun newCombinedLoadStates(): List<CombinedLoadStates?> {
         val newCombinedLoadStates = _localLoadStates.toList()
         _localLoadStates.clear()
@@ -2202,7 +2205,7 @@ private class SimpleDiffer(
 
     fun collectLoadStates(): Job {
         return coroutineScope.launch {
-            loadStateFlow.collect { combinedLoadStates ->
+            nonNullLoadStateFlow.collect { combinedLoadStates ->
                 _localLoadStates.add(combinedLoadStates)
             }
         }
