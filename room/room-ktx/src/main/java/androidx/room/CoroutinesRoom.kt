@@ -53,7 +53,7 @@ public class CoroutinesRoom private constructor() {
             inTransaction: Boolean,
             callable: Callable<R>
         ): R {
-            if (db.isOpen && db.inTransaction()) {
+            if (db.isOpenInternal && db.inTransaction()) {
                 return callable.call()
             }
 
@@ -74,7 +74,7 @@ public class CoroutinesRoom private constructor() {
             cancellationSignal: CancellationSignal?,
             callable: Callable<R>
         ): R {
-            if (db.isOpen && db.inTransaction()) {
+            if (db.isOpenInternal && db.inTransaction()) {
                 return callable.call()
             }
 
