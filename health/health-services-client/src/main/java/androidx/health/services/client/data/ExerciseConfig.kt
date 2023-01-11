@@ -41,6 +41,7 @@ import androidx.health.services.client.proto.DataProto
  * this exercise
  * @property exerciseTypeConfig [ExerciseTypeConfig] containing attributes which may be
  * modified after the exercise has started
+ * @property batchingModeOverrides [BatchingMode] overrides for this exercise
  */
 @Suppress("ParcelCreator")
 class ExerciseConfig(
@@ -51,8 +52,30 @@ class ExerciseConfig(
     val exerciseGoals: List<ExerciseGoal<*>> = listOf(),
     val exerciseParams: Bundle = Bundle(),
     @FloatRange(from = 0.0) val swimmingPoolLengthMeters: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED,
-    val exerciseTypeConfig: ExerciseTypeConfig? = null
+    val exerciseTypeConfig: ExerciseTypeConfig? = null,
+    val batchingModeOverrides: Set<BatchingMode> = emptySet(),
 ) {
+    constructor(
+        exerciseType: ExerciseType,
+        dataTypes: Set<DataType<*, *>>,
+        isAutoPauseAndResumeEnabled: Boolean,
+        isGpsEnabled: Boolean,
+        exerciseGoals: List<ExerciseGoal<*>> = listOf(),
+        exerciseParams: Bundle = Bundle(),
+        @FloatRange(from = 0.0) swimmingPoolLengthMeters: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED,
+        exerciseTypeConfig: ExerciseTypeConfig? = null,
+    ) : this(
+        exerciseType,
+        dataTypes,
+        isAutoPauseAndResumeEnabled,
+        isGpsEnabled,
+        exerciseGoals,
+        exerciseParams,
+        swimmingPoolLengthMeters,
+        exerciseTypeConfig,
+        emptySet()
+    )
+
     constructor(
         exerciseType: ExerciseType,
         dataTypes: Set<DataType<*, *>>,
@@ -89,7 +112,8 @@ class ExerciseConfig(
         },
         if (proto.hasExerciseTypeConfig()) {
             ExerciseTypeConfig.fromProto(proto.exerciseTypeConfig)
-        } else null
+        } else null,
+        proto.batchingModeOverridesList.map { BatchingMode(it) }.toSet(),
     )
 
     init {
@@ -124,6 +148,7 @@ class ExerciseConfig(
         private var exerciseParams: Bundle = Bundle.EMPTY
         private var swimmingPoolLength: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED
         private var exerciseTypeConfig: ExerciseTypeConfig? = null
+        private var batchingModeOverrides: Set<BatchingMode> = emptySet()
 
         /**
          * Sets the requested [DataType]s that should be tracked during this exercise. If not
@@ -213,6 +238,16 @@ class ExerciseConfig(
             return this
         }
 
+        /**
+         * Sets the [BatchingMode] overrides for the ongoing exercise.
+         *
+         * @param batchingModeOverrides [BatchingMode] overrides
+         */
+        fun setBatchingModeOverrides(batchingModeOverrides: Set<BatchingMode>): Builder {
+            this.batchingModeOverrides = batchingModeOverrides
+            return this
+        }
+
         /** Returns the built [ExerciseConfig]. */
         fun build(): ExerciseConfig {
             return ExerciseConfig(
@@ -223,7 +258,8 @@ class ExerciseConfig(
                 exerciseGoals,
                 exerciseParams,
                 swimmingPoolLength,
-                exerciseTypeConfig
+                exerciseTypeConfig,
+                batchingModeOverrides,
             )
         }
     }
@@ -248,6 +284,7 @@ class ExerciseConfig(
             .addAllExerciseGoals(exerciseGoals.map { it.proto })
             .setExerciseParams(BundlesUtil.toProto(exerciseParams))
             .setSwimmingPoolLength(swimmingPoolLengthMeters)
+            .addAllBatchingModeOverrides(batchingModeOverrides.map { it.toProto() })
         if (exerciseTypeConfig != null) {
             builder.exerciseTypeConfig = exerciseTypeConfig.toProto()
         }

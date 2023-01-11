@@ -16,6 +16,7 @@
 
 package androidx.health.services.client
 
+import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
@@ -270,6 +271,18 @@ public interface ExerciseClient {
      */
     public fun overrideAutoPauseAndResumeForActiveExerciseAsync(
         enabled: Boolean
+    ): ListenableFuture<Void>
+
+    /**
+     * Sets the batching mode for the current exercise.
+     *
+     * @param batchingModes [BatchingMode] overrides for exercise updates. Passing an empty set will
+     * clear all existing overrides.
+     * @return a [ListenableFuture] that completes once the override has completed. This returned
+     * [ListenableFuture] fails if an exercise is not active for this app.
+     */
+    public fun overrideBatchingModesForActiveExerciseAsync(
+        batchingModes: Set<BatchingMode>
     ): ListenableFuture<Void>
 
     /**
