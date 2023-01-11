@@ -17,6 +17,7 @@
 package androidx.window.extensions.embedding;
 
 import androidx.annotation.Nullable;
+import androidx.window.extensions.core.util.function.Function;
 
 import java.util.Objects;
 
@@ -32,13 +33,13 @@ public abstract class EmbeddingRule {
         mTag = tag;
     }
 
-    // TODO(b/240912390): refer to the real API in later CLs.
     /**
      * A unique string to identify this {@link EmbeddingRule}.
      * The suggested usage is to set the tag in the corresponding rule builder to be able to
-     * differentiate between different rules in the callbacks. For example, it can be used to
-     * compute the right {@link SplitAttributes} for the right split rule in
-     * {@code SplitAttributesCalculator#computeSplitAttributesForState}.
+     * differentiate between different rules in {@link SplitAttributes} calculator function. For
+     * example, it can be used to compute the {@link SplitAttributes} for the specific
+     * {@link SplitRule} in the {@link Function} set with
+     * {@link ActivityEmbeddingComponent#setSplitAttributesCalculator(Function)}.
      *
      * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */

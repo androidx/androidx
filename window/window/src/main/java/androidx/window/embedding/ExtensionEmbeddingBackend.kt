@@ -41,7 +41,6 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @VisibleForTesting
     val splitChangeCallbacks: CopyOnWriteArrayList<SplitListenerWrapper>
     private val splitInfoEmbeddingCallback = EmbeddingCallbackImpl()
-    private var splitAttributesCalculator: SplitAttributesCalculator? = null
 
     init {
         splitChangeCallbacks = CopyOnWriteArrayList<SplitListenerWrapper>()
@@ -304,22 +303,19 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 
-    override fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
+    override fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ) {
         globalLock.withLock {
-            splitAttributesCalculator = calculator
             embeddingExtension?.setSplitAttributesCalculator(calculator)
         }
     }
 
     override fun clearSplitAttributesCalculator() {
         globalLock.withLock {
-            splitAttributesCalculator = null
             embeddingExtension?.clearSplitAttributesCalculator()
         }
     }
-
-    override fun getSplitAttributesCalculator(): SplitAttributesCalculator? =
-        globalLock.withLock { splitAttributesCalculator }
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
         embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
