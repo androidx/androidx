@@ -25,11 +25,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Button
+    <ToggleButton
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Change Layout" />
+        android:textOff="Display Larger Emojis"
+        android:textOn="Display Smaller Emojis" />
 
     <androidx.emoji2.emojipicker.EmojiPickerView
         android:id="@+id/emoji_picker"

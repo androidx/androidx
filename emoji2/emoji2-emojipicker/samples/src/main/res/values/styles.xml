@@ -19,11 +19,11 @@
 
     <style name="MyPinkTheme" parent="Theme.AppCompat.DayNight" >
         <!-- The color for selected headers -->
-        <item name="colorAccent">#ffffff</item>
+        <item name="colorAccent">#696969</item>
         <!-- The color for unselected headers -->
-        <item name="colorControlNormal">#FF69B4</item>
+        <item name="colorControlNormal">#FFC0CB</item>
         <!-- The color for all text -->
-        <item name="android:textColorPrimary">#ffffff</item>
+        <item name="android:textColorPrimary">#696969</item>
         <!-- The color for variant popup background -->
         <item name="colorButtonNormal">#FFC0CB</item>
     </style>

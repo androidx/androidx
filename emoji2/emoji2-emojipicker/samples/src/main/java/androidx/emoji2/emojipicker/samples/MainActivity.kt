@@ -18,8 +18,8 @@ package androidx.emoji2.emojipicker.samples
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
+import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.emoji2.emojipicker.RecentEmojiProvider
@@ -35,10 +35,16 @@ class MainActivity : AppCompatActivity() {
         }
         view.setRecentEmojiProvider(CustomRecentEmojiProvider(applicationContext))
 
-        findViewById<Button>(R.id.button).setOnClickListener {
-            view.emojiGridColumns = 8
-            view.emojiGridRows = 8.3f
-        }
+        findViewById<ToggleButton>(R.id.button)
+            .setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    view.emojiGridColumns = 8
+                    view.emojiGridRows = 8.3f
+                } else {
+                    view.emojiGridColumns = 9
+                    view.emojiGridRows = 15f
+                }
+            }
     }
 }
 
