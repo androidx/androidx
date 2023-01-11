@@ -7,8 +7,8 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
+import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
-import android.widget.FrameLayout
 import android.widget.GridLayout
 import androidx.core.content.ContextCompat
 
@@ -99,8 +99,8 @@ internal class PopupViewHelper(private val context: Context) {
                     R.layout.emoji_view_holder,
                     null,
                     false
-                ) as FrameLayout).apply {
-                    (this.getChildAt(0) as EmojiView).apply {
+                ) as ViewGroup).apply {
+                    findViewById<EmojiView>(R.id.emoji_view).apply {
                         emoji = variants[it - 1]
                         setOnClickListener(clickListener)
                         if (it == 1) {
