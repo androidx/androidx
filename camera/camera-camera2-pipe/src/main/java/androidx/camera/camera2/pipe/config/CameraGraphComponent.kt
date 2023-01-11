@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.config
 
+import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackends
@@ -47,6 +48,9 @@ internal annotation class CameraGraphScope
 
 @Qualifier
 internal annotation class ForCameraGraph
+
+@Qualifier
+internal annotation class CameraGraphContext
 
 @CameraGraphScope
 @Subcomponent(
@@ -84,6 +88,10 @@ internal abstract class SharedCameraGraphModules {
 
     @Binds
     abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
+
+    @Binds
+    @CameraGraphContext
+    abstract fun bindCameraGraphContext(@CameraPipeContext cameraPipeContext: Context): Context
 
     companion object {
         @CameraGraphScope

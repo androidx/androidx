@@ -49,7 +49,11 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Qualifier
-internal annotation class CameraPipeCameraBackend
+internal annotation class DefaultCameraBackend
+
+/** Qualifier for requesting the CameraPipe scoped Context object */
+@Qualifier
+internal annotation class CameraPipeContext
 
 @Singleton
 @Component(
@@ -91,6 +95,7 @@ internal abstract class CameraPipeModules {
 
     companion object {
         @Provides
+        @CameraPipeContext
         fun provideContext(config: CameraPipe.Config): Context = config.appContext
 
         @Provides
@@ -99,25 +104,28 @@ internal abstract class CameraPipeModules {
 
         @Reusable
         @Provides
-        fun provideCameraManager(context: Context): CameraManager =
-            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        fun provideCameraManager(@CameraPipeContext cameraPipeContext: Context): CameraManager =
+            cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         @Reusable
         @Provides
-        fun provideDevicePolicyManagerWrapper(context: Context): DevicePolicyManagerWrapper =
-            AndroidDevicePolicyManagerWrapper(
-                context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            )
+        fun provideDevicePolicyManagerWrapper(
+            @CameraPipeContext cameraPipeContext: Context
+        ): DevicePolicyManagerWrapper {
+            val devicePolicyService =
+                cameraPipeContext.getSystemService(Context.DEVICE_POLICY_SERVICE)
+            return AndroidDevicePolicyManagerWrapper(devicePolicyService as DevicePolicyManager)
+        }
 
         @Singleton
         @Provides
         fun provideCameraContext(
-            context: Context,
+            @CameraPipeContext cameraPipeContext: Context,
             threads: Threads,
             cameraBackends: CameraBackends
         ): CameraContext =
             object : CameraContext {
-                override val appContext: Context = context
+                override val appContext: Context = cameraPipeContext
                 override val threads: Threads = threads
                 override val cameraBackends: CameraBackends = cameraBackends
             }
@@ -126,15 +134,15 @@ internal abstract class CameraPipeModules {
         @Provides
         fun provideCameraBackends(
             config: CameraPipe.Config,
-            @CameraPipeCameraBackend cameraPipeCameraBackend: Provider<CameraBackend>,
-            appContext: Context,
+            @DefaultCameraBackend defaultCameraBackend: Provider<CameraBackend>,
+            @CameraPipeContext cameraPipeContext: Context,
             threads: Threads,
         ): CameraBackends {
             // This is intentionally lazy. If an internalBackend is defined as part of the
             // CameraPipe configuration, we will never create the default cameraPipeCameraBackend.
             val internalBackend = config.cameraBackendConfig.internalBackend
-                ?: Debug.trace("Initialize cameraPipeCameraBackend") {
-                    cameraPipeCameraBackend.get()
+                ?: Debug.trace("Initialize defaultCameraBackend") {
+                    defaultCameraBackend.get()
                 }
 
             // Make sure that the list of additional backends does not contain the
@@ -151,7 +159,7 @@ internal abstract class CameraPipeModules {
                 "Failed to find $defaultBackendId in the list of available CameraPipe backends! " +
                     "Available values are ${allBackends.keys}"
             }
-            return CameraBackendsImpl(defaultBackendId, allBackends, appContext, threads)
+            return CameraBackendsImpl(defaultBackendId, allBackends, cameraPipeContext, threads)
         }
     }
 }

@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
@@ -44,7 +45,7 @@ import kotlinx.coroutines.withContext
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2MetadataCache @Inject constructor(
-    private val context: Context,
+    @CameraPipeContext private val cameraPipeContext: Context,
     private val threads: Threads,
     private val permissions: Permissions,
     private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
@@ -93,7 +94,7 @@ internal class Camera2MetadataCache @Inject constructor(
         return Debug.trace("Camera-${cameraId.value}#readCameraMetadata") {
             try {
                 val cameraManager =
-                    context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
 

@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraBackends
 import androidx.camera.camera2.pipe.CameraContext
+import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Threads
 
 /**
@@ -31,7 +32,7 @@ import androidx.camera.camera2.pipe.core.Threads
 internal class CameraBackendsImpl(
     private val defaultBackendId: CameraBackendId,
     private val cameraBackends: Map<CameraBackendId, CameraBackendFactory>,
-    private val appContext: Context,
+    @CameraPipeContext private val cameraPipeContext: Context,
     private val threads: Threads
 ) : CameraBackends {
     private val lock = Any()
@@ -55,7 +56,7 @@ internal class CameraBackendsImpl(
             if (existing != null) return existing
 
             val backend = cameraBackends[backendId]?.create(
-                CameraBackendContext(appContext, threads, this)
+                CameraBackendContext(cameraPipeContext, threads, this)
             )
             if (backend != null) {
                 check(backendId == backend.id) {
