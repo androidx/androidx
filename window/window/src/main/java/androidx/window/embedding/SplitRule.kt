@@ -22,10 +22,14 @@ import android.os.Build
 import android.view.WindowMetrics
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.core.util.Preconditions
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.alwaysAllow
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.ratio
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 import kotlin.math.min
@@ -228,14 +232,19 @@ open class SplitRule internal constructor(
      * Verifies if the provided parent bounds satisfy the dimensions and aspect ratio requirements
      * to apply the rule.
      */
+    // TODO(b/265089843) remove after Build.VERSION_CODES.U released.
+    @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     internal fun checkParentMetrics(context: Context, parentMetrics: WindowMetrics): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             return false
         }
         val bounds = Api30Impl.getBounds(parentMetrics)
-        // TODO(b/257000820): Application displayMetrics should only be used as a fallback. Replace
-        // with Task density after we include it in WindowMetrics.
-        val density = context.resources.displayMetrics.density
+        // TODO(b/265089843) replace with Build.VERSION.SDK_INT >= Build.VERSION_CODES.U
+        val density = if (BuildCompat.isAtLeastU()) {
+            Api34Impl.getDensity(parentMetrics)
+        } else {
+            context.resources.displayMetrics.density
+        }
         return checkParentBounds(density, bounds)
     }
 
@@ -281,6 +290,14 @@ open class SplitRule internal constructor(
         @DoNotInline
         fun getBounds(windowMetrics: WindowMetrics): Rect {
             return windowMetrics.bounds
+        }
+    }
+
+    @RequiresApi(34)
+    internal object Api34Impl {
+        @DoNotInline
+        fun getDensity(windowMetrics: WindowMetrics): Float {
+            return windowMetrics.density
         }
     }
 
