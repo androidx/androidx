@@ -19,9 +19,11 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     implementation("androidx.arch.core:core-common:2.1.0")
     implementation("androidx.arch.core:core-runtime:2.1.0")
     api(project(":lifecycle:lifecycle-common"))
