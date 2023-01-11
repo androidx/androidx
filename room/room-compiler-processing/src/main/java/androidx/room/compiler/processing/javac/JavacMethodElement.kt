@@ -51,8 +51,8 @@ internal class JavacMethodElement(
 
     override val typeParameters: List<XTypeParameterElement> by lazy {
         element.typeParameters.mapIndexed { index, typeParameter ->
-            val typeArgument = kotlinMetadata?.typeArguments?.get(index)
-            JavacTypeParameterElement(env, this, typeParameter, typeArgument)
+            val typeParameterMetadata = kotlinMetadata?.typeParameters?.get(index)
+            JavacTypeParameterElement(env, this, typeParameter, typeParameterMetadata)
         }
     }
 

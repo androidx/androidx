@@ -279,6 +279,7 @@ class XClassName internal constructor(
     val packageName: String = java.packageName()
     val simpleNames: List<String> = java.simpleNames()
     val canonicalName: String = java.canonicalName()
+    val reflectionName: String = java.reflectionName()
 
     /**
      * Returns a parameterized type, applying the `typeArguments` to `this`.

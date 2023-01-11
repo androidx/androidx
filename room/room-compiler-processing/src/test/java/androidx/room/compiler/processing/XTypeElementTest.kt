@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.ksp.jvmDescriptor
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
@@ -1919,6 +1920,43 @@ class XTypeElementTest(
             assertThat(publicClass.getDeclaredMethod("getLateinitVarField").isInternal()).isFalse()
             assertThat(publicClass.getDeclaredMethod("setVarField").isInternal()).isFalse()
             assertThat(publicClass.getDeclaredMethod("setLateinitVarField").isInternal()).isFalse()
+        }
+    }
+
+    @Test
+    fun sameMethodNameOrder() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.Foo.kt",
+                    """
+                    package test
+                    class Foo<T1: Bar, T2: Baz> {
+                        fun method(): String = TODO()
+                        fun method(param: String): String = TODO()
+                        fun method(param: Any): String = TODO()
+                        fun method(param: T1): T2 = TODO()
+                        fun method(param: T2): T1 = TODO()
+                        fun <U1: Baz, U2> method(param1: U1, param2: U2) {}
+                        fun <U1: Baz, U2: U1> method(param1: U1, param2: U2): T1 = TODO()
+                    }
+                    interface Bar
+                    interface Baz
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("test.Foo")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor() }.toList())
+                .containsExactly(
+                    "method()Ljava/lang/String;",
+                    "method(Ljava/lang/String;)Ljava/lang/String;",
+                    "method(Ljava/lang/Object;)Ljava/lang/String;",
+                    "method(Ltest/Bar;)Ltest/Baz;",
+                    "method(Ltest/Baz;)Ltest/Bar;",
+                    "method(Ltest/Baz;Ljava/lang/Object;)V",
+                    "method(Ltest/Baz;Ltest/Baz;)Ltest/Bar;"
+                ).inOrder()
         }
     }
 
