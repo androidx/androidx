@@ -163,8 +163,8 @@ public class SplitPairRule extends SplitRule {
          * @param activityIntentPredicate the {@link Predicate} to verify if an ({@link Activity},
          *                              {@link Intent}) pair matches this rule
          * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the matched split
-         *                               pair is allowed to show side-by-side with the given
-         *                               parent {@link WindowMetrics}
+         *                               pair is allowed to show adjacent to each other with the
+         *                               given parent {@link WindowMetrics}
          * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,

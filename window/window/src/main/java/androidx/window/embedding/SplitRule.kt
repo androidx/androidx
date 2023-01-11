@@ -59,8 +59,8 @@ open class SplitRule internal constructor(
      * When the window size is smaller than requested here, activities in the secondary container
      * will be stacked on top of the activities in the primary one, completely overlapping them.
      *
-     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
-     * `0` means to always allow split.
+     * Uses `0` to always allow split regardless of the parent task width.
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT].
      */
     @IntRange(from = 0)
     val minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
@@ -71,8 +71,8 @@ open class SplitRule internal constructor(
      * will be stacked on top of the activities in the primary one, completely overlapping them.
      * It is useful if it's necessary to split the parent window horizontally for this [SplitRule].
      *
-     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
-     * `0` means to always allow split.
+     * Uses `0` to always allow split regardless of the parent task height.
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT].
      *
      * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
      * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
@@ -86,8 +86,8 @@ open class SplitRule internal constructor(
      * activities in the secondary container will be stacked on top of the activities in the primary
      * one, completely overlapping them.
      *
-     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
-     * `0` means to always allow split.
+     * Uses `0` to always allow split regardless of the parent task smallest width.
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT].
      */
     @IntRange(from = 0)
     val minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
@@ -100,8 +100,8 @@ open class SplitRule internal constructor(
      *
      * This value is only used when the parent window is in portrait (height >= width).
      *
-     * The default is [SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT] if the app doesn't set, which is the
-     * recommend value to only allow split when the parent window is not too stretched in portrait.
+     * The default is [SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT], which is the recommend value to
+     * only allow split when the parent window is not too stretched in portrait.
      *
      * @see EmbeddingAspectRatio.ratio
      * @see EmbeddingAspectRatio.alwaysAllow
@@ -117,8 +117,8 @@ open class SplitRule internal constructor(
      *
      * This value is only used when the parent window is in landscape (width > height).
      *
-     * The default is [SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT] if the app doesn't set, which is
-     * the recommend value to always allow split when the parent window is in landscape.
+     * The default is [SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT], which is the recommend value to
+     * always allow split when the parent window is in landscape.
      *
      * @see EmbeddingAspectRatio.ratio
      * @see EmbeddingAspectRatio.alwaysAllow
@@ -177,7 +177,7 @@ open class SplitRule internal constructor(
      *
      * For example, given that [SplitPairRule.finishPrimaryWithSecondary] is [ADJACENT] and
      * secondary container finishes. The primary associated container is finished if it's
-     * side-by-side with secondary container. The primary associated container is not finished
+     * adjacent to the secondary container. The primary associated container is not finished
      * if it occupies entire task bounds.
      *
      * @see SplitPairRule.finishPrimaryWithSecondary
@@ -202,9 +202,9 @@ open class SplitRule internal constructor(
             @JvmField
             val ALWAYS = FinishBehavior("ALWAYS", 1)
             /**
-             * Only finish the associated container when displayed side-by-side/adjacent to the one
-             * being finished. Does not finish the associated one when containers are stacked on top
-             * of each other.
+             * Only finish the associated container when displayed adjacent to the one being
+             * finished. Does not finish the associated one when containers are stacked on top of
+             * each other.
              */
             @JvmField
             val ADJACENT = FinishBehavior("ADJACENT", 2)
