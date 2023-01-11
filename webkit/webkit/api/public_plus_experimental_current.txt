@@ -5,6 +5,16 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_COOKIE_INFO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static java.util.List<java.lang.String!> getCookieInfo(android.webkit.CookieManager, String);
   }
 
+  public final class DropDataContentProvider extends android.content.ContentProvider {
+    ctor public DropDataContentProvider();
+    method public int delete(android.net.Uri, String?, String![]?);
+    method public String? getType(android.net.Uri);
+    method public android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
+    method public boolean onCreate();
+    method public android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method public int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
+  }
+
   public abstract class JavaScriptReplyProxy {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }

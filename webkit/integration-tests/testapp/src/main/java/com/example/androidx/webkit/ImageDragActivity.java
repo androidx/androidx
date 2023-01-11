@@ -18,6 +18,7 @@ package com.example.androidx.webkit;
 
 import android.os.Bundle;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +34,7 @@ public class ImageDragActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_drag);
         WebView demoWebview = findViewById(R.id.image_webview);
+        demoWebview.setWebViewClient(new WebViewClient()); // Open links in this WebView.
 
         demoWebview.loadUrl("www.google.com");
     }
