@@ -51,7 +51,7 @@ import kotlinx.coroutines.CoroutineScope
 )
 internal abstract class Camera2Module {
     @Binds
-    @CameraPipeCameraBackend
+    @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
 
     @Binds
