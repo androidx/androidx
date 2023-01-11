@@ -70,8 +70,6 @@ internal class KspTypeArgumentType(
         return _extendsBound
     }
 
-    override fun isTypeVariable() = true
-
     override fun copyWithNullability(nullability: XNullability): KspTypeArgumentType {
         return KspTypeArgumentType(
             env = env,

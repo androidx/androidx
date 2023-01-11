@@ -18,6 +18,7 @@ package androidx.room.preconditions
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isTypeVariable
 import androidx.room.log.RLog
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
