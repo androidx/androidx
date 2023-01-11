@@ -23,6 +23,8 @@ import java.util.List;
 /**
  * A config representing a {@link android.hardware.camera2.params.OutputConfiguration} where
  * Surface will be created by the information in this config.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface Camera2OutputConfigImpl {
