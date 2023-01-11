@@ -58,7 +58,7 @@ class BeginCreatePasswordCredentialRequest internal constructor(
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    toCandidateDataBundle(id)
+    toCandidateDataBundle()
     ) {
 
     init {
@@ -83,7 +83,7 @@ class BeginCreatePasswordCredentialRequest internal constructor(
                     callingAppInfo
                 )
             } catch (e: Exception) {
-            throw FrameworkClassParsingException()
+                throw FrameworkClassParsingException()
             }
         }
 

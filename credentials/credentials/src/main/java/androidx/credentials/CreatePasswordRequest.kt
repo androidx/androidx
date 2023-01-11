@@ -35,8 +35,7 @@ class CreatePasswordRequest constructor(
 ) : CreateCredentialRequest(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     credentialData = toCredentialDataBundle(id, password),
-    // No credential data should be sent during the query phase.
-    candidateQueryData = Bundle(),
+    candidateQueryData = toCandidateDataBundle(),
     requireSystemProvider = false,
 ) {
 
@@ -58,11 +57,10 @@ class CreatePasswordRequest constructor(
             return bundle
         }
 
+        // No credential data should be sent during the query phase.
         @JvmStatic
-        internal fun toCandidateDataBundle(id: String): Bundle {
-            val bundle = Bundle()
-            bundle.putString(BUNDLE_KEY_ID, id)
-            return bundle
+        internal fun toCandidateDataBundle(): Bundle {
+            return Bundle()
         }
 
         @JvmStatic
