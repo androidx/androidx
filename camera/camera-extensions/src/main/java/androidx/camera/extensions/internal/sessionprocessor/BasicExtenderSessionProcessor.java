@@ -49,6 +49,7 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
+import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -90,6 +91,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     static AtomicInteger sLastOutputConfigId = new AtomicInteger(0);
     @GuardedBy("mLock")
     private final Map<CaptureRequest.Key<?>, Object> mParameters = new LinkedHashMap<>();
+    private OnEnableDisableSessionDurationCheck mOnEnableDisableSessionDurationCheck =
+            new OnEnableDisableSessionDurationCheck();
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
@@ -252,6 +255,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         if (captureStage2 != null) {
             captureStages.add(captureStage2);
         }
+        mOnEnableDisableSessionDurationCheck.onEnableSessionInvoked();
 
         if (!captureStages.isEmpty()) {
             submitRequestByCaptureStages(requestProcessor, captureStages);
@@ -323,6 +327,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
     @Override
     public void onCaptureSessionEnd() {
+        mOnEnableDisableSessionDurationCheck.onDisableSessionInvoked();
         List<CaptureStageImpl> captureStages = new ArrayList<>();
         CaptureStageImpl captureStage1 = mPreviewExtenderImpl.onDisableSession();
         Logger.d(TAG, "preview onDisableSession: " + captureStage1);

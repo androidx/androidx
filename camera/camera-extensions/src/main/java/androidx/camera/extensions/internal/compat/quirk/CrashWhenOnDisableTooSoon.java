@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,22 @@
 
 package androidx.camera.extensions.internal.compat.quirk;
 
-import androidx.annotation.NonNull;
+import android.os.Build;
+
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Loads all device specific quirks required for the current device
+ * <p>QuirkSummary
+ * Bug Id: b/245226085,
+ * Description: When enabling Extensions on devices that implement the Basic Extender. If
+ * onDisableSession is invoked within 50ms after onEnableSession, It could cause crashes like
+ * surface abandoned.
+ * Device(s): All Samsung devices
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class DeviceQuirksLoader {
-
-    private DeviceQuirksLoader() {
-    }
-
-    /**
-     * Goes through all defined device-specific quirks, and returns those that should be loaded
-     * on the current device.
-     */
-    @NonNull
-    static List<Quirk> loadQuirks() {
-        final List<Quirk> quirks = new ArrayList<>();
-
-        if (ExtensionDisabledQuirk.load()) {
-            quirks.add(new ExtensionDisabledQuirk());
-        }
-
-        if (CrashWhenOnDisableTooSoon.load()) {
-            quirks.add(new CrashWhenOnDisableTooSoon());
-        }
-
-        return quirks;
+public class CrashWhenOnDisableTooSoon implements Quirk {
+    static boolean load() {
+        return Build.BRAND.equalsIgnoreCase("SAMSUNG");
     }
 }
