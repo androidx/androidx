@@ -66,7 +66,21 @@ fun FeaturedCarouselContent() {
                         )
                     }
                 }
-                FeaturedCarousel()
+
+                FeaturedCarousel(Modifier.weight(1f))
+
+                Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    repeat(3) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color.Magenta.copy(alpha = 0.3f))
+                                .width(50.dp)
+                                .height(50.dp)
+                                .drawBorderOnFocus()
+                                .focusable()
+                        )
+                    }
+                }
             }
         }
         items(2) { SampleLazyRow() }
@@ -83,18 +97,23 @@ fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White): Modifier {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun FeaturedCarousel() {
+internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     val backgrounds = listOf(
         Color.Red.copy(alpha = 0.3f),
         Color.Yellow.copy(alpha = 0.3f),
-        Color.Green.copy(alpha = 0.3f)
+        Color.Green.copy(alpha = 0.3f),
+        Color.Blue.copy(alpha = 0.3f),
+        Color.LightGray.copy(alpha = 0.3f),
+        Color.Magenta.copy(alpha = 0.3f),
+        Color.DarkGray.copy(alpha = 0.3f),
+        Color.LightGray.copy(alpha = 0.3f),
     )
 
     val carouselState = remember { CarouselState() }
     Carousel(
         slideCount = backgrounds.size,
         carouselState = carouselState,
-        modifier = Modifier
+        modifier = modifier
             .height(300.dp)
             .fillMaxWidth(),
         carouselIndicator = {
@@ -113,7 +132,6 @@ internal fun FeaturedCarousel() {
                 Box(
                     modifier = Modifier
                         .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
                         .fillMaxSize()
                 )
             }
