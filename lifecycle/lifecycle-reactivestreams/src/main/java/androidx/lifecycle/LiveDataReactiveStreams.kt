@@ -75,7 +75,7 @@ private class LiveDataPublisher<T>(
         val subscriber: Subscriber<in T>,
         val lifecycle: LifecycleOwner,
         val liveData: LiveData<T>
-    ) : Subscription, Observer<T> {
+    ) : Subscription, Observer<T?> {
         @Volatile
         var canceled = false
 

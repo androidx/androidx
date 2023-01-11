@@ -27,7 +27,7 @@ abstract class TestObserver<T> : Observer<T> {
         mLastData = null
     }
 
-    override fun onChanged(value: T?) {
+    override fun onChanged(value: T) {
         mLastData = value
         mHasValue = true
     }
