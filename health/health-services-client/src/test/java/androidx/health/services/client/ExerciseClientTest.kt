@@ -47,6 +47,7 @@ import androidx.health.services.client.impl.internal.IStatusCallback
 import androidx.health.services.client.impl.ipc.ClientConfiguration
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
+import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
@@ -61,6 +62,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import java.util.concurrent.CancellationException
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -755,6 +757,17 @@ class ExerciseClientTest {
         Truth.assertThat(service.exerciseConfig?.exerciseTypeConfig).isEqualTo(exerciseTypeConfig)
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun overrideBatchingModesForActiveExercise_notImplementedError() = runTest {
+        var request: BatchingModeConfigRequest?
+        request = null
+        assertFailsWith(
+            exceptionClass = NotImplementedError::class,
+            block = { service.overrideBatchingModesForActiveExercise(request, null) }
+        )
+    }
+
     class FakeExerciseUpdateCallback : ExerciseUpdateCallback {
         val availabilities = mutableMapOf<DataType<*, *>, Availability>()
         val registrationFailureThrowables = mutableListOf<Throwable>()
@@ -913,6 +926,13 @@ class ExerciseClientTest {
         override fun overrideAutoPauseAndResumeForActiveExercise(
             request: AutoPauseAndResumeConfigRequest?,
             statusCallback: IStatusCallback?
+        ) {
+            throw NotImplementedError()
+        }
+
+        override fun overrideBatchingModesForActiveExercise(
+            batchingModeConfigRequest: BatchingModeConfigRequest?,
+            statuscallback: IStatusCallback?
         ) {
             throw NotImplementedError()
         }

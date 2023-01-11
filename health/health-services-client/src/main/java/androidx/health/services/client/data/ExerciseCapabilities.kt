@@ -29,7 +29,16 @@ public class ExerciseCapabilities(
      * Mapping for each supported [ExerciseType] to its [ExerciseTypeCapabilities] on this device.
      */
     public val typeToCapabilities: Map<ExerciseType, ExerciseTypeCapabilities>,
+    /** Supported [BatchingMode] overrides on this device. */
+    public val supportedBatchingModeOverrides: Set<BatchingMode> = emptySet(),
 ) {
+
+    constructor(
+        typeToCapabilities: Map<ExerciseType, ExerciseTypeCapabilities>
+    ) : this(
+        typeToCapabilities,
+        emptySet()
+    )
 
     internal constructor(
         proto: DataProto.ExerciseCapabilities
@@ -39,7 +48,8 @@ public class ExerciseCapabilities(
             .map { entry ->
                 ExerciseType.fromProto(entry.type) to ExerciseTypeCapabilities(entry.capabilities)
             }
-            .toMap()
+            .toMap(),
+        proto.supportedBatchingModeOverridesList.map { BatchingMode(it) }.toSet(),
     )
 
     internal val proto: DataProto.ExerciseCapabilities =
@@ -53,6 +63,9 @@ public class ExerciseCapabilities(
                             .build()
                     }
                     .sortedBy { it.type.name } // Ensures equals() works correctly
+            )
+            .addAllSupportedBatchingModeOverrides(
+                supportedBatchingModeOverrides.map { it.toProto() }
             )
             .build()
 

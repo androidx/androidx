@@ -35,6 +35,12 @@ message BackgroundRegistrationRequest {
   reserved 2 to max;  // Next ID
 }
 
+message BatchingModeConfigRequest {
+  optional string package_name = 1;
+  repeated BatchingMode batching_mode_overrides = 2 [packed = true];
+  reserved 3 to max;  // Next ID
+}
+
 // Request for capabilities.
 message CapabilitiesRequest {
   optional string package_name = 1;
