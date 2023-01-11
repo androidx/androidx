@@ -23,9 +23,7 @@ package androidx.lifecycle
 fun interface Observer<T> {
 
     /**
-     * Called when the data is changed.
-     *
-     * @param t  The new data
+     * Called when the data is changed is changed to [value].
      */
-    fun onChanged(t: T)
+    fun onChanged(value: T)
 }

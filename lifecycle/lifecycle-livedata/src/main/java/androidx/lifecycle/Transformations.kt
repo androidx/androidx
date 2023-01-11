@@ -120,8 +120,8 @@ fun <X, Y> LiveData<X>.switchMap(
     result.addSource(this, object : Observer<X> {
         var liveData: LiveData<Y>? = null
 
-        override fun onChanged(x: X) {
-            val newLiveData = transform(x)
+        override fun onChanged(value: X) {
+            val newLiveData = transform(value)
             if (liveData === newLiveData) {
                 return
             }
@@ -149,8 +149,8 @@ fun <X, Y> LiveData<X>.switchMap(switchMapFunction: Function<X, LiveData<Y>>): L
     result.addSource(this, object : Observer<X> {
         var liveData: LiveData<Y>? = null
 
-        override fun onChanged(x: X) {
-            val newLiveData = switchMapFunction.apply(x)
+        override fun onChanged(value: X) {
+            val newLiveData = switchMapFunction.apply(value)
             if (liveData === newLiveData) {
                 return
             }
@@ -180,14 +180,14 @@ fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> {
     outputLiveData.addSource(this, object : Observer<X> {
         var firstTime = true
 
-        override fun onChanged(currentValue: X) {
+        override fun onChanged(value: X) {
             val previousValue = outputLiveData.value
             if (firstTime ||
-                previousValue == null && currentValue != null ||
-                previousValue != null && previousValue != currentValue
+                previousValue == null && value != null ||
+                previousValue != null && previousValue != value
             ) {
                 firstTime = false
-                outputLiveData.value = currentValue
+                outputLiveData.value = value
             }
         }
     })
