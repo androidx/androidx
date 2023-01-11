@@ -24,7 +24,6 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -97,7 +96,7 @@ class EmojiPickerViewTest {
             )!!
             // No variant indicator
             assertEquals(
-                (targetView.parent as FrameLayout).findViewById<ImageView>(
+                (targetView.parent.parent as ViewGroup).findViewById<ImageView>(
                     EmojiPickerViewR.id.variant_availability_indicator
                 ).visibility,
                 GONE
@@ -122,7 +121,7 @@ class EmojiPickerViewTest {
         val targetView = findViewByEmoji(view, NOSE_EMOJI)!!
         // Variant indicator visible
         assertEquals(
-            (targetView.parent as FrameLayout).findViewById<ImageView>(
+            (targetView.parent.parent as ViewGroup).findViewById<ImageView>(
                 EmojiPickerViewR.id.variant_availability_indicator
             ).visibility, VISIBLE
         )
@@ -229,7 +228,7 @@ class EmojiPickerViewTest {
             BoundedMatcher<RecyclerView.ViewHolder, EmojiViewHolder>(EmojiViewHolder::class.java) {
             override fun describeTo(description: Description) {}
             override fun matchesSafely(item: EmojiViewHolder) =
-                (item.itemView as FrameLayout)
+                (item.itemView as ViewGroup)
                     .findViewById<EmojiView>(EmojiPickerViewR.id.emoji_view)
                     .emoji == emoji
         }
