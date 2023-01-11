@@ -162,11 +162,11 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    // TODO: Close CleanupStatement
-    internal fun onAutoCloseCallback() {
+    private fun onAutoCloseCallback() {
         synchronized(trackerLock) {
             initialized = false
             observedTableTracker.resetTriggerState()
+            cleanupStatement?.close()
         }
     }
 
@@ -329,7 +329,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     }
 
     internal fun ensureInitialization(): Boolean {
-        if (!database.isOpen) {
+        if (!database.isOpenInternal) {
             return false
         }
         if (!initialized) {
@@ -526,7 +526,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * This api should eventually be public.
      */
     internal fun syncTriggers() {
-        if (!database.isOpen) {
+        if (!database.isOpenInternal) {
             return
         }
         syncTriggers(database.openHelper.writableDatabase)

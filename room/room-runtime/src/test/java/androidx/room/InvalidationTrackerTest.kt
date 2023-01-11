@@ -77,7 +77,7 @@ class InvalidationTrackerTest {
         doReturn(statement).whenever(mSqliteDb)
             .compileStatement(eq(InvalidationTracker.RESET_UPDATED_TABLES_SQL))
         doReturn(mSqliteDb).whenever(mOpenHelper).writableDatabase
-        doReturn(true).whenever(mRoomDatabase).isOpen
+        doReturn(true).whenever(mRoomDatabase).isOpenInternal
         doReturn(ArchTaskExecutor.getIOThreadExecutor()).whenever(mRoomDatabase).queryExecutor
         val closeLock = ReentrantLock()
         doReturn(closeLock).whenever(mRoomDatabase).getCloseLock()
@@ -247,7 +247,7 @@ class InvalidationTrackerTest {
 
     @Test
     fun closedDb() {
-        doReturn(false).whenever(mRoomDatabase).isOpen
+        doReturn(false).whenever(mRoomDatabase).isOpenInternal
         doThrow(IllegalStateException("foo")).whenever(mOpenHelper).writableDatabase
         mTracker.addObserver(LatchObserver(1, "a", "b"))
         mTracker.refreshRunnable.run()
