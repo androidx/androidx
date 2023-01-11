@@ -1250,6 +1250,8 @@ package androidx.constraintlayout.core.motion.utils {
     method public void getSlope(double, double[]!);
     method public double getSlope(double, int);
     method public double[]! getTimePoints();
+    field public static final int ARC_ABOVE = 5; // 0x5
+    field public static final int ARC_BELOW = 4; // 0x4
     field public static final int ARC_START_FLIP = 3; // 0x3
     field public static final int ARC_START_HORIZONTAL = 2; // 0x2
     field public static final int ARC_START_LINEAR = 0; // 0x0

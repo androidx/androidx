@@ -388,6 +388,7 @@ package androidx.constraintlayout.motion.widget {
     field public static final String PERCENT_Y = "percentY";
     field public static final String SIZE_PERCENT = "sizePercent";
     field public static final String TRANSITION_EASING = "transitionEasing";
+    field public static final int TYPE_AXIS = 3; // 0x3
     field public static final int TYPE_CARTESIAN = 0; // 0x0
     field public static final int TYPE_PATH = 1; // 0x1
     field public static final int TYPE_SCREEN = 2; // 0x2
@@ -1106,7 +1107,7 @@ package androidx.constraintlayout.widget {
     method protected void setSelfDimensionBehaviour(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, int, int, int, int);
     method public void setState(int, int, int);
     field public static final int DESIGN_INFO_ID = 0; // 0x0
-    field public static final String VERSION = "ConstraintLayout-2.2.0-alpha03";
+    field public static final String VERSION = "ConstraintLayout-2.2.0-alpha04";
     field protected androidx.constraintlayout.widget.ConstraintLayoutStates! mConstraintLayoutSpec;
     field protected boolean mDirtyHierarchy;
     field protected androidx.constraintlayout.core.widgets.ConstraintWidgetContainer! mLayoutWidget;
