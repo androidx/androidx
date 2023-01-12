@@ -6,6 +6,6 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 
 @PrivacySandboxService
-interface BackwardsCompatibleSdk {
+interface WithoutRuntimeLibrarySdk {
     suspend fun doStuff(x: Int, y: Int): String
 }

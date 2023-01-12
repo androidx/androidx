@@ -24,20 +24,24 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class SdkRuntimeLibrarySdkTest {
+class WithoutRuntimeLibrarySdkTest {
     @Test
     fun compileServiceInterface_ok() {
-        val inputTestDataDir = File("src/test/test-data/sdkruntimelibrarysdk/input")
-        val outputTestDataDir = File("src/test/test-data/sdkruntimelibrarysdk/output")
+        val inputTestDataDir = File("src/test/test-data/withoutruntimelibrarysdk/input")
+        val outputTestDataDir = File("src/test/test-data/withoutruntimelibrarysdk/output")
         val inputSources = loadSourcesFromDirectory(inputTestDataDir)
         val expectedKotlinSources = loadSourcesFromDirectory(outputTestDataDir)
 
-        val result = compileWithPrivacySandboxKspCompiler(inputSources)
+        val result = compileWithPrivacySandboxKspCompiler(
+            inputSources,
+            platformStubs = PlatformStubs.API_33,
+            extraProcessorOptions = mapOf("skip_sdk_runtime_compat_library" to "true")
+        )
         assertThat(result).succeeds()
 
         val expectedAidlFilepath = listOf(
             "com/mysdk/ICancellationSignal.java",
-            "com/mysdk/IBackwardsCompatibleSdk.java",
+            "com/mysdk/IWithoutRuntimeLibrarySdk.java",
             "com/mysdk/IStringTransactionCallback.java",
             "com/mysdk/ParcelableStackFrame.java",
             "com/mysdk/PrivacySandboxThrowableParcel.java",
