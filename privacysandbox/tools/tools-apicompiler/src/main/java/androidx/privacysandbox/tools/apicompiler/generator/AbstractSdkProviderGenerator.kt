@@ -41,7 +41,7 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
             return null
         }
         val packageName = api.getOnlyService().type.packageName
-        val className = "AbstractSandboxedSdkProvider"
+        val className = "AbstractSandboxedSdkProviderCompat"
         val classSpec =
             TypeSpec.classBuilder(className)
                 .superclass(superclassName)
