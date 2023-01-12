@@ -34,11 +34,7 @@ class FullFeaturedSdkTest {
         val inputSources = loadSourcesFromDirectory(inputTestDataDir)
         val expectedKotlinSources = loadSourcesFromDirectory(outputTestDataDir)
 
-        val result = compileWithPrivacySandboxKspCompiler(
-            inputSources,
-            platformStubs = PlatformStubs.API_33,
-            extraProcessorOptions = mapOf("skip_sdk_runtime_compat_library" to "true")
-        )
+        val result = compileWithPrivacySandboxKspCompiler(inputSources)
         assertThat(result).succeeds()
 
         val expectedAidlFilepath = listOf(

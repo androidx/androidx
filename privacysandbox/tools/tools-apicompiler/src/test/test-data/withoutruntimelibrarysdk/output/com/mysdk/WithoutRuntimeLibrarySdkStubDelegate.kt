@@ -8,9 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-public class BackwardsCompatibleSdkStubDelegate internal constructor(
-  public val `delegate`: BackwardsCompatibleSdk,
-) : IBackwardsCompatibleSdk.Stub() {
+public class WithoutRuntimeLibrarySdkStubDelegate internal constructor(
+  public val `delegate`: WithoutRuntimeLibrarySdk,
+) : IWithoutRuntimeLibrarySdk.Stub() {
   public override fun doStuff(
     x: Int,
     y: Int,

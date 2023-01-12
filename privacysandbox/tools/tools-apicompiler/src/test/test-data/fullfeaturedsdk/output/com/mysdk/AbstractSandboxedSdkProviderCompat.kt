@@ -8,10 +8,10 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.crea
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import kotlin.Int
 
-public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProviderCompat() {
+public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProviderCompat() {
   public override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
-    val sdk = createBackwardsCompatibleSdk(context!!)
-    return create(BackwardsCompatibleSdkStubDelegate(sdk))
+    val sdk = createMySdk(context!!)
+    return create(MySdkStubDelegate(sdk))
   }
 
   public override fun getView(
@@ -23,5 +23,5 @@ public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProviderCompat(
     TODO("Implement")
   }
 
-  protected abstract fun createBackwardsCompatibleSdk(context: Context): BackwardsCompatibleSdk
+  protected abstract fun createMySdk(context: Context): MySdk
 }
