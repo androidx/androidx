@@ -17,6 +17,8 @@
 package androidx.build
 
 import com.google.common.truth.Truth.assertThat
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -237,13 +239,160 @@ class LibraryVersionsServiceTest {
         ).isEqualTo(null)
     }
 
+    @Test
+    fun androidxExtension_noAtomicGroup() {
+        runAndroidExtensionTest(
+            projectPath = "myGroup:project1",
+            tomlFile = """
+                [versions]
+                [groups]
+                G1 = { group = "androidx.myGroup" }
+            """.trimIndent(),
+            validateWithKmp = { extension ->
+                extension.mavenVersion = Version("1.0.0")
+                extension.mavenMultiplatformVersion = Version("1.0.0-dev01")
+                assertThat(
+                    extension.mavenGroup
+                ).isEqualTo(
+                    LibraryGroup("androidx.myGroup", atomicGroupVersion = null)
+                )
+                assertThat(
+                    extension.project.version
+                ).isEqualTo(Version("1.0.0-dev01"))
+                extension.validateMavenVersion()
+            },
+            validateWithoutKmp = { extension ->
+                extension.mavenVersion = Version("1.0.0")
+                extension.mavenMultiplatformVersion = Version("1.0.0-dev01")
+                assertThat(
+                    extension.mavenGroup
+                ).isEqualTo(
+                    LibraryGroup("androidx.myGroup", atomicGroupVersion = null)
+                )
+                assertThat(
+                    extension.project.version
+                ).isEqualTo(Version("1.0.0"))
+                extension.validateMavenVersion()
+            }
+        )
+    }
+
+    @Test
+    fun androidxExtension_noAtomicGroup_setKmpVersionFirst() {
+        runAndroidExtensionTest(
+            projectPath = "myGroup:project1",
+            tomlFile = """
+                [versions]
+                [groups]
+                G1 = { group = "androidx.myGroup" }
+            """.trimIndent(),
+            validateWithKmp = { extension ->
+                extension.mavenMultiplatformVersion = Version("1.0.0-dev01")
+                extension.mavenVersion = Version("1.0.0")
+                assertThat(
+                    extension.mavenGroup
+                ).isEqualTo(
+                    LibraryGroup("androidx.myGroup", atomicGroupVersion = null)
+                )
+                assertThat(
+                    extension.project.version
+                ).isEqualTo(Version("1.0.0-dev01"))
+                extension.validateMavenVersion()
+            },
+            validateWithoutKmp = { extension ->
+                extension.mavenMultiplatformVersion = Version("1.0.0-dev01")
+                extension.mavenVersion = Version("1.0.0")
+                assertThat(
+                    extension.mavenGroup
+                ).isEqualTo(
+                    LibraryGroup("androidx.myGroup", atomicGroupVersion = null)
+                )
+                assertThat(
+                    extension.project.version
+                ).isEqualTo(Version("1.0.0"))
+                extension.validateMavenVersion()
+            }
+        )
+    }
+
+    @Test
+    fun androidxExtension_withAtomicGroup() {
+        runAndroidExtensionTest(
+            projectPath = "myGroup:project1",
+            tomlFile = """
+                [versions]
+                V1 = "1.0.0"
+                V1_KMP = "1.0.0-dev01"
+                [groups]
+                G1 = { group = "androidx.myGroup", atomicGroupVersion = "versions.V1", multiplatformGroupVersion = "versions.V1_KMP" }
+            """.trimIndent(),
+            validateWithKmp = { extension ->
+                assertThat(
+                    extension.mavenGroup
+                ).isEqualTo(
+                    LibraryGroup("androidx.myGroup", atomicGroupVersion = Version("1.0.0-dev01"))
+                )
+                assertThat(
+                    extension.project.version
+                ).isEqualTo(Version("1.0.0-dev01"))
+                extension.validateMavenVersion()
+            },
+            validateWithoutKmp = { extension ->
+                assertThat(
+                    extension.mavenGroup
+                ).isEqualTo(
+                    LibraryGroup("androidx.myGroup", atomicGroupVersion = Version("1.0.0"))
+                )
+                assertThat(
+                    extension.project.version
+                ).isEqualTo(Version("1.0.0"))
+                extension.validateMavenVersion()
+            }
+        )
+    }
+
+    private fun runAndroidExtensionTest(
+        projectPath: String,
+        tomlFile: String,
+        validateWithoutKmp: (AndroidXExtension) -> Unit,
+        validateWithKmp: (AndroidXExtension) -> Unit
+    ) {
+        listOf(false, true).forEach { useKmpVersions ->
+            val rootProjectDir = tempDir.newFolder()
+            val rootProject = ProjectBuilder.builder().withProjectDir(
+                rootProjectDir
+            ).build()
+            val subject = ProjectBuilder.builder()
+                .withParent(rootProject)
+                .withName(projectPath)
+                .build()
+            // create the service before extensions are created so that they'll use the test service
+            // we've created.
+            createLibraryVersionsService(
+                tomlFile = tomlFile,
+                project = rootProject,
+                useMultiplatformGroupVersions = useKmpVersions
+            )
+            // needed for AndroidXExtension initialization
+            rootProject.setSupportRootFolder(rootProjectDir)
+            // create androidx extensions
+            val extension = subject.extensions
+                .create<AndroidXExtension>(AndroidXImplPlugin.EXTENSION_NAME)
+            if (useKmpVersions) {
+                validateWithKmp(extension)
+            } else {
+                validateWithoutKmp(extension)
+            }
+        }
+    }
+
     private fun createLibraryVersionsService(
         tomlFile: String,
         composeCustomVersion: String? = null,
         composeCustomGroup: String? = null,
-        useMultiplatformGroupVersions: Boolean = false
+        useMultiplatformGroupVersions: Boolean = false,
+        project: Project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build()
     ): LibraryVersionsService {
-        val project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build()
         val serviceProvider = project.gradle.sharedServices.registerIfAbsent(
             "libraryVersionsService", LibraryVersionsService::class.java
         ) { spec ->
