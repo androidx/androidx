@@ -36,10 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.ImmersiveList
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.ImmersiveList
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
 @Composable
 private fun SampleImmersiveList() {

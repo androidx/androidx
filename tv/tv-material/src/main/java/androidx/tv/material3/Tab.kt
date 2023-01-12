@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material
+package androidx.tv.material3
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable

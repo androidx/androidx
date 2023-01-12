@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material.carousel
+package androidx.tv.material3
 
 import android.view.KeyEvent.KEYCODE_BACK
 import androidx.compose.animation.AnimatedContent
@@ -64,8 +64,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.bringIntoViewIfChildrenAreFocused
 import java.lang.Math.floorMod
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -78,6 +76,7 @@ import kotlinx.coroutines.yield
  * @sample androidx.tv.samples.SimpleCarousel
  * @sample androidx.tv.samples.CarouselIndicatorWithRectangleShape
  *
+ * @param modifier Modifier applied to the Carousel.
  * @param slideCount total number of slides present in the carousel.
  * @param carouselState state associated with this carousel.
  * @param timeToDisplaySlideMillis duration for which slide should be visible before moving to
@@ -90,7 +89,7 @@ import kotlinx.coroutines.yield
 
 @Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
     slideCount: Int,
@@ -167,7 +166,7 @@ private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspen
     action.invoke()
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun AutoScrollSideEffect(
     timeToDisplaySlideMillis: Long,
@@ -199,7 +198,7 @@ private fun AutoScrollSideEffect(
 }
 
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalTvMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 private fun Modifier.manualScrolling(
     carouselState: CarouselState,
     slideCount: Int,
@@ -245,7 +244,7 @@ private fun Modifier.manualScrolling(
         }
     }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun CarouselStateUpdater(carouselState: CarouselState, slideCount: Int) {
     LaunchedEffect(carouselState, slideCount) {
@@ -264,7 +263,7 @@ private fun CarouselStateUpdater(carouselState: CarouselState, slideCount: Int) 
  * @param initialActiveSlideIndex the index of the first active slide
  */
 @Stable
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 class CarouselState(initialActiveSlideIndex: Int = 0) {
     internal var activePauseHandlesCount by mutableStateOf(0)
 
@@ -307,7 +306,7 @@ class CarouselState(initialActiveSlideIndex: Int = 0) {
     }
 }
 
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 /**
  * Handle returned by [CarouselState.pauseAutoScroll] that can be used to resume auto-scroll.
  */
@@ -318,7 +317,7 @@ sealed interface ScrollPauseHandle {
     fun resumeAutoScroll()
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal object NoOpScrollPauseHandle : ScrollPauseHandle {
     /**
      * Resumes the auto-scroll behaviour if there are no other active [ScrollPauseHandle]s.
@@ -326,7 +325,7 @@ internal object NoOpScrollPauseHandle : ScrollPauseHandle {
     override fun resumeAutoScroll() {}
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal class ScrollPauseHandleImpl(private val carouselState: CarouselState) : ScrollPauseHandle {
     private var active by mutableStateOf(true)
     init {
@@ -343,7 +342,7 @@ internal class ScrollPauseHandleImpl(private val carouselState: CarouselState) :
     }
 }
 
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 object CarouselDefaults {
     /**
      * Default time for which the slide is visible to the user.
@@ -370,7 +369,7 @@ object CarouselDefaults {
      * @param spacing spacing between the indicator dots
      * @param indicator indicator dot representing each slide in the carousel
      */
-    @ExperimentalTvMaterialApi
+    @ExperimentalTvMaterial3Api
     @Composable
     fun IndicatorRow(
         slideCount: Int,

@@ -34,11 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material.LocalContentColor
-import androidx.tv.material.Tab
-import androidx.tv.material.TabDefaults
-import androidx.tv.material.TabRow
-import androidx.tv.material.TabRowDefaults
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.Tab
+import androidx.tv.material3.TabDefaults
+import androidx.tv.material3.TabRow
+import androidx.tv.material3.TabRowDefaults
 import kotlin.time.Duration.Companion.microseconds
 import kotlinx.coroutines.delay
 
