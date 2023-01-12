@@ -9,6 +9,9 @@ package androidx.tv.material {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
+  public final class ImmersiveListKt {
+  }
+
   public final class TabColors {
   }
 
@@ -44,13 +47,6 @@ package androidx.tv.material.carousel {
   }
 
   public final class CarouselKt {
-  }
-
-}
-
-package androidx.tv.material.immersivelist {
-
-  public final class ImmersiveListKt {
   }
 
 }
