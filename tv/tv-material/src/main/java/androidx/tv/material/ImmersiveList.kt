@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material.immersivelist
+package androidx.tv.material
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -26,7 +26,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
@@ -41,8 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.bringIntoViewIfChildrenAreFocused
 
 /**
  * Immersive List consists of a list with multiple items and a background that displays content
@@ -50,6 +47,8 @@ import androidx.tv.material.bringIntoViewIfChildrenAreFocused
  * To animate the background's entry and exit, use [ImmersiveListBackgroundScope.AnimatedContent].
  * To display the background only when the list is in focus, use
  * [ImmersiveListBackgroundScope.AnimatedVisibility].
+ *
+ * @sample androidx.tv.samples.SampleImmersiveList
  *
  * @param background Composable defining the background to be displayed for a given item's
  * index. `listHasFocus` argument can be used to hide the background when the list is not in focus
@@ -100,7 +99,7 @@ object ImmersiveListDefaults {
 
 @Immutable
 @ExperimentalTvMaterialApi
-public class ImmersiveListBackgroundScope internal constructor(boxScope: BoxScope) : BoxScope
+class ImmersiveListBackgroundScope internal constructor(boxScope: BoxScope) : BoxScope
 by boxScope {
 
     /**
@@ -113,6 +112,7 @@ by boxScope {
      * @param modifier modifier for the Layout created to contain the [content]
      * @param enter EnterTransition(s) used for the appearing animation, fading in by default
      * @param exit ExitTransition(s) used for the disappearing animation, fading out by default
+     * @param label used to differentiate different transitions in Android Studio
      * @param content Content to appear or disappear based on the value of [visible]
      *
      * @link androidx.compose.animation.AnimatedVisibility
@@ -149,6 +149,8 @@ by boxScope {
      * @param modifier modifier for the Layout created to contain the [content]
      * @param transitionSpec defines the EnterTransition(s) and ExitTransition(s) used to display
      * and remove the content, fading in and fading out by default
+     * @param contentAlignment specifies how the background content should be aligned in the
+     * container
      * @param content Content to appear or disappear based on the value of [targetState]
      *
      * @link androidx.compose.animation.AnimatedContent
@@ -180,15 +182,21 @@ by boxScope {
 
 @Immutable
 @ExperimentalTvMaterialApi
-public class ImmersiveListScope internal constructor(private val onFocused: (Int) -> Unit) {
+class ImmersiveListScope internal constructor(private val onFocused: (Int) -> Unit) {
     /**
      * Modifier to be added to each of the items of the list within ImmersiveList to inform the
-     * ImmersiveList of the index of the item in focus.
+     * ImmersiveList of the index of the item in focus
      *
-     * @param index index of the item within the list.
+     * > **NOTE**: This modifier needs to be paired with either the "focusable" or the "clickable"
+     * modifier for it to work
+     *
+     * @param index index of the item within the list
      */
-    fun Modifier.focusableItem(index: Int): Modifier {
-        return onFocusChanged { if (it.hasFocus || it.isFocused) { onFocused(index) } }
-            .focusable()
+    fun Modifier.immersiveListItem(index: Int): Modifier {
+        return onFocusChanged {
+            if (it.isFocused) {
+                onFocused(index)
+            }
+        }
     }
 }

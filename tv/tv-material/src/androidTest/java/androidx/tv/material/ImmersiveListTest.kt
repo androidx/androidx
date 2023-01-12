@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.tv.material.immersivelist
+package androidx.tv.material
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -26,25 +27,30 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.material.ExperimentalTvMaterialApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -56,40 +62,43 @@ class ImmersiveListTest {
     @OptIn(ExperimentalTvMaterialApi::class, ExperimentalAnimationApi::class)
     @Test
     fun immersiveList_scroll_backgroundChanges() {
-        val firstCard = FocusRequester()
-        val secondCard = FocusRequester()
-
         rule.setContent {
             ImmersiveList(
                 background = { index, _ ->
                     AnimatedContent(targetState = index) {
                         Box(
-                            Modifier
+                            modifier = Modifier
                                 .testTag("background-$it")
-                                .size(200.dp)) {
+                                .size(200.dp)
+                        ) {
                             BasicText("background-$it")
                         }
                     }
                 }) {
                     TvLazyRow {
                         items(3) { index ->
-                            var modifier = Modifier
-                                .testTag("card-$index")
-                                .size(100.dp)
-                            when (index) {
-                                0 -> modifier = modifier
-                                    .focusRequester(firstCard)
-                                1 -> modifier = modifier
-                                    .focusRequester(secondCard)
-                            }
+                            var isFocused by remember { mutableStateOf(false) }
 
-                            Box(modifier.focusableItem(index)) { BasicText("card-$index") }
+                            Box(
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .testTag("card-$index")
+                                    .background(if (isFocused) Color.Red else Color.Transparent)
+                                    .size(100.dp)
+                                    .onFocusChanged { isFocused = it.isFocused }
+                                    .immersiveListItem(index)
+                                    .focusable(true)
+                            ) {
+                                BasicText("card-$index")
+                            }
                         }
                     }
             }
         }
 
-        rule.runOnIdle { firstCard.requestFocus() }
+        rule.waitForIdle()
+        rule.onNodeWithTag("card-0").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.waitForIdle()
 
         rule.onNodeWithTag("card-0").assertIsFocused()
         rule.onNodeWithTag("background-0").assertIsDisplayed()
@@ -275,7 +284,12 @@ class ImmersiveListTest {
                     for (item in frList) {
                         modifier = modifier.focusRequester(frList[index])
                     }
-                    Box(modifier.focusableItem(index)) { BasicText("list-card-$index") }
+                    Box(
+                        modifier
+                            .immersiveListItem(index)
+                            .focusable(true)) {
+                        BasicText("list-card-$index")
+                    }
                 }
             }
         }
