@@ -26,16 +26,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.tv.material.ExperimentalTvMaterialApi
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.darkColorScheme
 
+@OptIn(ExperimentalTvMaterialApi::class)
 @Composable
 fun App() {
     var selectedTab by remember { mutableStateOf(Navigation.FeaturedCarousel) }
 
-    Column(
-        modifier = Modifier.padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+    MaterialTheme(
+        colorScheme = darkColorScheme()
     ) {
-        TopNavigation(updateSelectedTab = { selectedTab = it })
-        selectedTab.action.invoke()
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            TopNavigation(updateSelectedTab = { selectedTab = it })
+            selectedTab.action.invoke()
+        }
     }
 }
