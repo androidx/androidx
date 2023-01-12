@@ -46,14 +46,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property json the request json to be used for registering the public key credential
  *
  * @see BeginCreateCredentialRequest
- *
- * @hide
  */
 @RequiresApi(34)
 class BeginCreatePublicKeyCredentialRequest internal constructor(
-    callingAppInfo: CallingAppInfo,
     val json: String,
-    val preferImmediatelyAvailableCredentials: Boolean = false
+    val preferImmediatelyAvailableCredentials: Boolean,
+    callingAppInfo: CallingAppInfo,
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
@@ -72,7 +70,7 @@ class BeginCreatePublicKeyCredentialRequest internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginCreatePublicKeyCredentialRequest> {
+    companion object {
 
         /** @hide */
         @JvmStatic
@@ -80,23 +78,26 @@ class BeginCreatePublicKeyCredentialRequest internal constructor(
             BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                val preferImmediatelyAvailableCredentials = data.getBoolean(
-                    BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
-                return BeginCreatePublicKeyCredentialRequest(callingAppInfo, requestJson!!,
-                    preferImmediatelyAvailableCredentials)
+                val preferImmediatelyAvailableCredentials =
+                    data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
+                return BeginCreatePublicKeyCredentialRequest(requestJson!!,
+                    (preferImmediatelyAvailableCredentials), callingAppInfo)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): BeginCreatePublicKeyCredentialRequest {
-            val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
-            return createFrom(baseRequest.data, baseRequest.callingAppInfo)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<BeginCreatePublicKeyCredentialRequest> = object :
+            Parcelable.Creator<BeginCreatePublicKeyCredentialRequest> {
+                override fun createFromParcel(p0: Parcel?): BeginCreatePublicKeyCredentialRequest {
+                    val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
+                    return createFrom(baseRequest.data, baseRequest.callingAppInfo)
+                }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginCreatePublicKeyCredentialRequest?> {
-            return arrayOfNulls(size)
-        }
+                @Suppress("ArrayReturn")
+                override fun newArray(size: Int): Array<BeginCreatePublicKeyCredentialRequest?> {
+                    return arrayOfNulls(size)
+                }
+            }
     }
 }

@@ -34,7 +34,7 @@ import androidx.credentials.GetCredentialOption
  * @property callingAppInfo information pertaining to the calling application
  */
 @RequiresApi(34)
-class GetCredentialProviderRequest internal constructor(
+class ProviderGetCredentialRequest internal constructor(
     val credentialOption: GetCredentialOption,
     val callingAppInfo: CallingAppInfo
     ) {
@@ -42,13 +42,13 @@ class GetCredentialProviderRequest internal constructor(
     /** @hide */
     companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
-        GetCredentialProviderRequest {
+        ProviderGetCredentialRequest {
             val option = GetCredentialOption.createFrom(
                 request.getCredentialOption.type,
                 request.getCredentialOption.candidateQueryData,
                 request.getCredentialOption.credentialRetrievalData,
                 request.getCredentialOption.isSystemProviderRequired())
-            return GetCredentialProviderRequest(
+            return ProviderGetCredentialRequest(
                 option,
                 request.callingAppInfo)
         }

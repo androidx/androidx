@@ -43,8 +43,6 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * actually store the password.
  *
  * @see BeginCreateCredentialRequest
- *
- * @hide
  */
 @RequiresApi(34)
 class BeginCreatePasswordCredentialRequest internal constructor(
@@ -63,9 +61,11 @@ class BeginCreatePasswordCredentialRequest internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginCreatePasswordCredentialRequest> {
+    companion object {
+
+        /** @hide **/
         @JvmStatic
-	@Suppress("UNUSED_PARAMETER")
+	    @Suppress("UNUSED_PARAMETER")
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
             BeginCreatePasswordCredentialRequest {
             try {
@@ -77,14 +77,17 @@ class BeginCreatePasswordCredentialRequest internal constructor(
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): BeginCreatePasswordCredentialRequest {
-            val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
-            return createFrom(baseRequest.data, baseRequest.callingAppInfo)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<BeginCreatePasswordCredentialRequest> =
+            object : Parcelable.Creator<BeginCreatePasswordCredentialRequest> {
+            override fun createFromParcel(p0: Parcel?): BeginCreatePasswordCredentialRequest {
+                val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
+                return createFrom(baseRequest.data, baseRequest.callingAppInfo)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginCreatePasswordCredentialRequest?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<BeginCreatePasswordCredentialRequest?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

@@ -62,8 +62,8 @@ class Action internal constructor(
     /**
      * A builder for [Action]
      *
-     * @property title the title of this action entry
-     * @property pendingIntent the [PendingIntent] that will be fired when the user selects
+     * @param title the title of this action entry
+     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
      * this action entry
      */
     class Builder constructor(

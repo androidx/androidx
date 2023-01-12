@@ -98,12 +98,12 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
     /**
      * Called by the Credential Manager Jetpack library to get credentials stored with a provider
      * service. Provider services must extend this in order to handle a
-     * [GetCredentialProviderRequest] request.
+     * [ProviderGetCredentialRequest] request.
      *
      * Provider service must call one of the [callback] methods to notify the result of the
      * request.
      *
-     * @param [request] the [GetCredentialProviderRequest] to handle
+     * @param [request] the [ProviderGetCredentialRequest] to handle
      * See [BeginGetCredentialResponse] for the response to be returned
      * @param cancellationSignal signal for observing cancellation requests. The system will
      * use this to notify you that the result is no longer needed and you should stop
