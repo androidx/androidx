@@ -25,7 +25,6 @@ import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -56,9 +55,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
-import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
+import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
@@ -364,6 +363,7 @@ public abstract class WatchFaceService : WallpaperService() {
             UI,
             CURRENT
         }
+
         /**
          * Waits for deferredValue using runBlocking, then executes the task on the thread
          * specified by executionThread param.
@@ -389,6 +389,7 @@ public abstract class WatchFaceService : WallpaperService() {
                                     task(deferredValue)
                                 }
                             }
+
                             ExecutionThread.CURRENT -> {
                                 task(deferredValue)
                             }
@@ -714,10 +715,16 @@ public abstract class WatchFaceService : WallpaperService() {
     internal open fun allowWatchFaceToAnimate() = true
 
     /**
-     * Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
-     * This is open for use by tests.
+     * Equivalent to [Build.VERSION.SDK_INT], but allows override for any platform-independent
+     * versioning.
+     *
+     * This is meant to only be used in androidTest, which only support testing on one SDK. In
+     * Robolectric tests use `@Config(sdk = [Build.VERSION_CODES.*])`.
+     *
+     * Note that this cannot override platform-dependent versioning, which means inconsistency.
      */
-    internal open fun isPreAndroidR() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+    @VisibleForTesting
+    internal open val wearSdkVersion = Build.VERSION.SDK_INT
 
     /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
     internal interface ChoreographerWrapper {
@@ -728,6 +735,7 @@ public abstract class WatchFaceService : WallpaperService() {
     /** This is open to allow mocking. */
     internal open fun getChoreographer(): ChoreographerWrapper = object : ChoreographerWrapper {
         private val choreographer = Choreographer.getInstance()
+
         init {
             require(Looper.myLooper() == Looper.getMainLooper()) {
                 "Creating choreographer not on the main thread"
@@ -1357,7 +1365,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
-            if (pendingWallpaperInstance == null && !isPreAndroidR()) {
+            if (pendingWallpaperInstance == null && wearSdkVersion >= Build.VERSION_CODES.R) {
                 val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
                 directBootParams = params
                 // In tests a watchface may already have been created.
@@ -1767,7 +1775,7 @@ public abstract class WatchFaceService : WallpaperService() {
         ): Bundle? {
             // From android R onwards the integration changes and no wallpaper commands are allowed
             // or expected and can/should be ignored.
-            if (!isPreAndroidR()) {
+            if (wearSdkVersion >= Build.VERSION_CODES.R) {
                 TraceEvent("onCommand Ignored").close()
                 return null
             }
@@ -1776,26 +1784,32 @@ public abstract class WatchFaceService : WallpaperService() {
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_AMBIENT_UPDATE") {
                         ambientTickUpdate()
                     }
+
                 Constants.COMMAND_BACKGROUND_ACTION ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_BACKGROUND_ACTION") {
                         wslFlow.onBackgroundAction(extras!!)
                     }
+
                 Constants.COMMAND_COMPLICATION_DATA ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_COMPLICATION_DATA") {
                         wslFlow.onComplicationSlotDataUpdate(extras!!)
                     }
+
                 Constants.COMMAND_REQUEST_STYLE ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_REQUEST_STYLE") {
                         wslFlow.onRequestStyle()
                     }
+
                 Constants.COMMAND_SET_BINDER ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_SET_BINDER") {
                         wslFlow.onSetBinder(extras!!)
                     }
+
                 Constants.COMMAND_SET_PROPERTIES ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_SET_PROPERTIES") {
                         wslFlow.onPropertiesChanged(extras!!)
                     }
+
                 Constants.COMMAND_TAP ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TAP") {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
@@ -1810,6 +1824,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             )
                         )
                     }
+
                 Constants.COMMAND_TOUCH ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TOUCH") {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
@@ -1824,6 +1839,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             )
                         )
                     }
+
                 Constants.COMMAND_TOUCH_CANCEL ->
                     uiThreadCoroutineScope.runBlockingWithTracing(
                         "onCommand COMMAND_TOUCH_CANCEL"
@@ -1840,6 +1856,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             )
                         )
                     }
+
                 else -> {
                 }
             }
@@ -2187,7 +2204,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 deferredWatchFaceImpl,
                 uiThreadCoroutineScope,
                 _context.contentResolver,
-                !isPreAndroidR()
+                wearSdkVersion >= Build.VERSION_CODES.R
             )
 
             // There's no point creating BroadcastsReceiver or listening for Accessibility state
@@ -2323,7 +2340,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // watchface after requesting a change. It used [Constants.ACTION_REQUEST_STATE] as a
             // signal to trigger the old boot flow (sending the binder etc). This is no longer
             // required from android R onwards. See (b/181965946).
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (wearSdkVersion < Build.VERSION_CODES.R) {
                 // We are requesting state every time the watch face changes its visibility because
                 // wallpaper commands have a tendency to be dropped. By requesting it on every
                 // visibility change, we ensure that we don't become a victim of some race
@@ -2634,7 +2651,9 @@ public abstract class WatchFaceService : WallpaperService() {
          * enabled.
          */
         private fun maybeSendContentDescriptionLabelsBroadcast() {
-            if (!isPreAndroidR() && getAccessibilityManager().isEnabled) {
+            if (
+                wearSdkVersion >= Build.VERSION_CODES.R && getAccessibilityManager().isEnabled
+            ) {
                 // TODO(alexclarke): This should require a permission. See http://b/184717802
                 _context.sendBroadcast(
                     Intent(Constants.ACTION_WATCH_FACE_REFRESH_A11Y_LABELS)
@@ -2697,8 +2716,11 @@ public abstract class WatchFaceService : WallpaperService() {
                     writer.println("WSL style init flow")
                     writer.println("watchFaceInitStarted=${wslFlow.watchFaceInitStarted}")
                 }
+
                 this.watchFaceCreatedOrPending() -> writer.println("Androidx style init flow")
-                isPreAndroidR() -> writer.println("Expecting WSL style init")
+                wearSdkVersion < Build.VERSION_CODES.R ->
+                    writer.println("Expecting WSL style init")
+
                 else -> writer.println("Expecting androidx style style init")
             }
 
@@ -2750,7 +2772,7 @@ public abstract class WatchFaceService : WallpaperService() {
         indentingPrintWriter.println("AndroidX WatchFaceService $packageName")
         InteractiveInstanceManager.dump(indentingPrintWriter)
         EditorService.globalEditorService.dump(indentingPrintWriter)
-        if (SDK_INT >= 27) {
+        if (Build.VERSION.SDK_INT >= 27) {
             HeadlessWatchFaceImpl.dump(indentingPrintWriter)
         }
         indentingPrintWriter.flush()
