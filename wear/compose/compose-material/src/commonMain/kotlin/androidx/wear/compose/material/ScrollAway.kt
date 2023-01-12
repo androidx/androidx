@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 
 /**
  * Scroll an item vertically in/out of view based on a [ScrollState].
@@ -87,6 +89,36 @@ public fun Modifier.scrollAway(
  */
 public fun Modifier.scrollAway(
     scrollState: ScalingLazyListState,
+    itemIndex: Int = 1,
+    offset: Dp = 0.dp,
+): Modifier =
+    scrollAway {
+        ScrollParams(
+            valid = itemIndex < scrollState.layoutInfo.totalItemsCount,
+            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
+                -it.offset - offset.toPx()
+            }
+        )
+    }
+
+/**
+ * Scroll an item vertically in/out of view based on a [ScalingLazyListState].
+ * Typically used to scroll a [TimeText] item out of view as the user starts to scroll
+ * a [ScalingLazyColumn] of items upwards and bring additional items into view.
+ *
+ * @param scrollState The [ScalingLazyListState] to used as the basis for the scroll-away.
+ * @param itemIndex The item for which the scroll offset will trigger scrolling away.
+ * @param offset Adjustment to the starting point for scrolling away. Positive values result in
+ * the scroll away starting later, negative values start scrolling away earlier.
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available which uses ScalingLazyListState " +
+        "from wear.compose.foundation.lazy package", level = DeprecationLevel.WARNING
+)
+public fun Modifier.scrollAway(
+    @Suppress("DEPRECATION")
+    scrollState: androidx.wear.compose.material.ScalingLazyListState,
     itemIndex: Int = 1,
     offset: Dp = 0.dp,
 ): Modifier =

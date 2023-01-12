@@ -28,15 +28,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberScalingLazyListState
 import kotlin.math.roundToInt
 
 @Composable

@@ -50,6 +50,7 @@ import org.junit.runner.RunWith
 import kotlin.math.roundToInt
 import org.junit.Ignore
 
+@Suppress("DEPRECATION")
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class ScalingLazyListLayoutInfoTest {
