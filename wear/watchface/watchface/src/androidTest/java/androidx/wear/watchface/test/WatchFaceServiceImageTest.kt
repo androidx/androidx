@@ -42,16 +42,12 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.TapType
-import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.LongTextComplicationData
@@ -75,8 +71,6 @@ import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Compa
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.GREEN_STYLE
-import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
@@ -85,7 +79,6 @@ import java.time.ZoneId
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -134,74 +127,6 @@ public class ComplicationTapActivity : Activity() {
         countDown!!.countDown()
         finish()
     }
-}
-
-internal class TestControllableWatchFaceService(
-    private val handler: Handler,
-    private var surfaceHolderOverride: SurfaceHolder,
-    private val factory: TestWatchFaceFactory,
-    private val watchState: MutableWatchState,
-    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
-) : WatchFaceService() {
-    init {
-        attachBaseContext(ApplicationProvider.getApplicationContext())
-    }
-
-    abstract class TestWatchFaceFactory {
-        fun createUserStyleSchema(): UserStyleSchema = UserStyleSchema(emptyList())
-
-        fun createComplicationsManager(
-            currentUserStyleRepository: CurrentUserStyleRepository
-        ): ComplicationSlotsManager =
-            ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
-
-        abstract fun createWatchFaceAsync(
-            surfaceHolder: SurfaceHolder,
-            watchState: WatchState,
-            complicationSlotsManager: ComplicationSlotsManager,
-            currentUserStyleRepository: CurrentUserStyleRepository
-        ): Deferred<WatchFace>
-    }
-
-    override fun createUserStyleSchema() = factory.createUserStyleSchema()
-
-    override fun createComplicationSlotsManager(
-        currentUserStyleRepository: CurrentUserStyleRepository
-    ) = factory.createComplicationsManager(currentUserStyleRepository)
-
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState,
-        complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
-    ) = factory.createWatchFaceAsync(
-        surfaceHolderOverride,
-        watchState,
-        complicationSlotsManager,
-        currentUserStyleRepository
-    ).await()
-
-    override fun getUiThreadHandlerImpl() = handler
-
-    override fun getBackgroundThreadHandlerImpl() = handler
-
-    override fun getMutableWatchState() = watchState
-
-    override fun readDirectBootPrefs(
-        context: Context,
-        fileName: String
-    ) = directBootParams
-
-    override fun writeDirectBootPrefs(
-        context: Context,
-        fileName: String,
-        prefs: WallpaperInteractiveWatchFaceInstanceParams
-    ) {
-    }
-
-    override fun isPreAndroidR() = false
-
-    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }
 
 @RunWith(AndroidJUnit4::class)

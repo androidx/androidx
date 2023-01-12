@@ -55,7 +55,6 @@ internal class TestWatchFaceService(
     private val watchState: MutableWatchState?,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
-    private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
     private val choreographer: ChoreographerWrapper,
     var mockSystemTimeMillis: Long = 0L,
@@ -170,8 +169,6 @@ internal class TestWatchFaceService(
     ) {
         complicationCache?.set(fileName, byteArray)
     }
-
-    override fun isPreAndroidR() = preAndroidR
 
     override fun getSystemTimeProvider() = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = mockSystemTimeMillis

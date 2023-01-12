@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.test
 
+import android.os.Build
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -42,5 +43,5 @@ open class SimpleWatchFaceTestService : WatchFaceService() {
     ) = throw NotImplementedError("Should not reach this step")
 
     // Set this to `true` so that the whole setup is skipped for this test
-    override fun isPreAndroidR() = true
+    override val wearSdkVersion = Build.VERSION_CODES.O_MR1
 }
