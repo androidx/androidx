@@ -71,6 +71,7 @@ interface UseCaseCamera {
 /**
  * API for interacting with a [CameraGraph] that has been configured with a set of [UseCase]'s
  */
+@RequiresApi(21)
 @UseCaseCameraScope
 class UseCaseCameraImpl @Inject constructor(
     private val useCaseGraphConfig: UseCaseGraphConfig,

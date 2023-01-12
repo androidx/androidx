@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraSurfaceManager.SurfaceListener
 import androidx.camera.camera2.pipe.CameraSurfaceManager.SurfaceToken
 import androidx.camera.camera2.pipe.core.Log
-import java.io.Closeable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.atomicfu.atomic
@@ -63,7 +62,7 @@ public class CameraSurfaceManager @Inject constructor() {
      */
     inner class SurfaceToken(
         internal val surface: Surface
-    ) : Closeable {
+    ) : AutoCloseable {
         private val closed = atomic(false)
         override fun close() {
             if (closed.compareAndSet(expect = false, update = true)) {
@@ -118,7 +117,7 @@ public class CameraSurfaceManager @Inject constructor() {
         }
     }
 
-    internal fun registerSurface(surface: Surface): Closeable {
+    internal fun registerSurface(surface: Surface): AutoCloseable {
         check(surface.isValid) { "Surface $surface isn't valid!" }
         val surfaceToken: SurfaceToken
         var listenersToInvoke: List<SurfaceListener>? = null

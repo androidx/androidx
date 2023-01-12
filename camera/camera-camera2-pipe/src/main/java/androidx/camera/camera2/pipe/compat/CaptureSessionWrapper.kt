@@ -29,7 +29,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
-import java.io.Closeable
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
@@ -39,7 +38,7 @@ import kotlinx.atomicfu.atomic
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-internal interface CameraCaptureSessionWrapper : UnsafeWrapper, Closeable {
+internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
 
     /**
      * @see [CameraCaptureSession.getDevice]
