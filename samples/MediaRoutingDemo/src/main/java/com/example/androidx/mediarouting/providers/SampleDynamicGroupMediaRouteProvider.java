@@ -135,7 +135,8 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
 
     /** Reload the isDynamicRouteEnabled flag. */
     public void reloadDynamicRoutesEnabled() {
-        boolean isDynamicRoutesEnabled = RoutesManager.getInstance().isDynamicRoutingEnabled();
+        boolean isDynamicRoutesEnabled = RoutesManager.getInstance(getContext())
+                .isDynamicRoutingEnabled();
         MediaRouteProviderDescriptor providerDescriptor =
                 new MediaRouteProviderDescriptor.Builder(getDescriptor())
                         .setSupportsDynamicGroupRoute(isDynamicRoutesEnabled)
@@ -154,7 +155,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE).getIntentSender();
 
-        List<RouteItem> routeItems = RoutesManager.getInstance().getRouteItems();
+        List<RouteItem> routeItems = RoutesManager.getInstance(getContext()).getRouteItems();
         for (RouteItem routeItem : routeItems) {
             MediaRouteDescriptor routeDescriptor = buildRouteDescriptor(routeItem, is);
             mVolumes.put(routeItem.getId(), routeItem.getVolume());
