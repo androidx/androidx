@@ -21,8 +21,8 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.TextView
 import androidx.activity.test.R
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -62,7 +62,7 @@ class ContentViewTest {
                     .that(inflatedTextView.findViewTreeLifecycleOwner())
                     .isSameInstanceAs(this@withActivity)
                 assertWithMessage("inflated view has correct ViewTreeViewModelStoreOwner")
-                    .that(ViewTreeViewModelStoreOwner.get(inflatedTextView))
+                    .that(inflatedTextView.findViewTreeViewModelStoreOwner())
                     .isSameInstanceAs(this@withActivity)
                 assertWithMessage("inflated view has correct ViewTreeSavedStateRegistryOwner")
                     .that(inflatedTextView.findViewTreeSavedStateRegistryOwner())
@@ -100,7 +100,7 @@ class ContentViewTest {
 
                     override fun onViewAttachedToWindow(v: View) {
                         attachedLifecycleOwner = view.findViewTreeLifecycleOwner()
-                        attachedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
+                        attachedViewModelStoreOwner = view.findViewTreeViewModelStoreOwner()
                         attachedSavedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()
                     }
                 })
