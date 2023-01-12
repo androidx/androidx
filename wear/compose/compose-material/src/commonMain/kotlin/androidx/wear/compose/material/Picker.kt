@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -16,6 +15,11 @@
  */
 package androidx.wear.compose.material
 
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
@@ -113,7 +117,7 @@ public fun Picker(
     readOnly: Boolean = false,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     onSelected: () -> Unit = {},
-    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
+    scalingParams: ScalingParams = PickerDefaults.defaultScalingParams(),
     separation: Dp = 0.dp,
     /* @FloatRange(from = 0.0, to = 0.5) */
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
@@ -224,6 +228,44 @@ public fun Picker(
     }
 }
 
+@Suppress("DEPRECATION")
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available which uses ScalingParams from " +
+        "androidx.wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun Picker(
+    state: PickerState,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    onSelected: () -> Unit = {},
+    scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
+    separation: Dp = 0.dp,
+    /* @FloatRange(from = 0.0, to = 0.5) */
+    gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
+    gradientColor: Color = MaterialTheme.colors.background,
+    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    userScrollEnabled: Boolean = true,
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+) = Picker(
+    state = state,
+    contentDescription = contentDescription,
+    modifier = modifier,
+    readOnly = readOnly,
+    readOnlyLabel = readOnlyLabel,
+    onSelected = onSelected,
+    scalingParams = convertToDefaultFoundationScalingParams(scalingParams),
+    separation = separation,
+    gradientRatio = gradientRatio,
+    gradientColor = gradientColor,
+    flingBehavior = flingBehavior,
+    userScrollEnabled = userScrollEnabled,
+    option = option
+)
+
 /**
  * A scrollable list of items to pick from. By default, items will be repeated
  * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
@@ -265,6 +307,7 @@ public fun Picker(
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
  * align with the centrally selected Picker value.
  */
+@Suppress("DEPRECATION")
 @Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
     "A newer overload is available with additional userScrollEnabled parameter which improves " +
     "accessibility of [Picker].", level = DeprecationLevel.HIDDEN)
@@ -276,7 +319,7 @@ public fun Picker(
     readOnly: Boolean = false,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     onSelected: () -> Unit = {},
-    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
+    scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
     /* @FloatRange(from = 0.0, to = 0.5) */
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
@@ -290,7 +333,7 @@ public fun Picker(
     readOnly = readOnly,
     readOnlyLabel = readOnlyLabel,
     onSelected = onSelected,
-    scalingParams = scalingParams,
+    scalingParams = convertToDefaultFoundationScalingParams(scalingParams),
     separation = separation,
     gradientRatio = gradientRatio,
     gradientColor = gradientColor,
@@ -333,6 +376,7 @@ public fun Picker(
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
  * align with the centrally selected Picker value.
  */
+@Suppress("DEPRECATION")
 @Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
   "A newer overload is available with additional contentDescription, onSelected and " +
   "userScrollEnabled parameters, which improves accessibility of [Picker].")
@@ -342,7 +386,7 @@ public fun Picker(
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
-    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
+    scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
     /* @FloatRange(from = 0.0, to = 0.5) */
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
@@ -355,7 +399,7 @@ public fun Picker(
     modifier = modifier,
     readOnly = readOnly,
     readOnlyLabel = readOnlyLabel,
-    scalingParams = scalingParams,
+    scalingParams = convertToDefaultFoundationScalingParams(scalingParams),
     separation = separation,
     gradientRatio = gradientRatio,
     gradientColor = gradientColor,
@@ -557,14 +601,27 @@ public class PickerState constructor(
         }
     }
 }
+
 /**
  * Contains the default values used by [Picker]
  */
 public object PickerDefaults {
+
     /**
      * Scaling params are used to determine when items start to be scaled down and alpha applied,
      * and how much. For details, see [ScalingParams]
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "This overload is provided for backwards compatibility with Compose for" +
+            " Wear OS 1.1 and was deprecated. Use [defaultScalingParams] instead",
+        replaceWith = ReplaceWith(
+            "PickerDefaults.defaultScalingParams(edgeScale," +
+                " edgeAlpha, minElementHeight, maxElementHeight, minTransitionArea, " +
+                "maxTransitionArea, scaleInterpolator, viewportVerticalOffsetResolver)"
+        ),
+        level = DeprecationLevel.WARNING
+    )
     public fun scalingParams(
         edgeScale: Float = 0.45f,
         edgeAlpha: Float = 1.0f,
@@ -574,16 +631,42 @@ public object PickerDefaults {
         maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
-    ): ScalingParams = DefaultScalingParams(
-        edgeScale = edgeScale,
-        edgeAlpha = edgeAlpha,
-        minElementHeight = minElementHeight,
-        maxElementHeight = maxElementHeight,
-        minTransitionArea = minTransitionArea,
-        maxTransitionArea = maxTransitionArea,
-        scaleInterpolator = scaleInterpolator,
-        viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
-    )
+    ): androidx.wear.compose.material.ScalingParams =
+        androidx.wear.compose.material.ScalingLazyColumnDefaults.scalingParams(
+            edgeScale = edgeScale,
+            edgeAlpha = edgeAlpha,
+            minElementHeight = minElementHeight,
+            maxElementHeight = maxElementHeight,
+            minTransitionArea = minTransitionArea,
+            maxTransitionArea = maxTransitionArea,
+            scaleInterpolator = scaleInterpolator,
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+        )
+
+    /**
+     * Scaling params are used to determine when items start to be scaled down and alpha applied,
+     * and how much. For details, see [ScalingParams]
+     */
+    public fun defaultScalingParams(
+        edgeScale: Float = 0.45f,
+        edgeAlpha: Float = 1.0f,
+        minElementHeight: Float = 0.0f,
+        maxElementHeight: Float = 0.0f,
+        minTransitionArea: Float = 0.45f,
+        maxTransitionArea: Float = 0.45f,
+        scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
+        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
+    ): ScalingParams =
+        ScalingLazyColumnDefaults.scalingParams(
+            edgeScale = edgeScale,
+            edgeAlpha = edgeAlpha,
+            minElementHeight = minElementHeight,
+            maxElementHeight = maxElementHeight,
+            minTransitionArea = minTransitionArea,
+            maxTransitionArea = maxTransitionArea,
+            scaleInterpolator = scaleInterpolator,
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+        )
 
     /**
      * Create and remember a [FlingBehavior] that will represent natural fling curve with snap to
@@ -597,14 +680,13 @@ public object PickerDefaults {
         state: PickerState,
         decay: DecayAnimationSpec<Float> = exponentialDecay()
     ): FlingBehavior {
-        return remember(state, decay) {
-            ScalingLazyColumnSnapFlingBehavior(
-                state = state.scalingLazyListState,
-                snapOffset = 0,
-                decay = decay
-            )
-        }
+        return ScalingLazyColumnDefaults.snapFlingBehavior(
+            state = state.scalingLazyListState,
+            snapOffset = 0.dp,
+            decay = decay
+        )
     }
+
     /**
      * Default Picker gradient ratio - the proportion of the Picker height allocated to each of the
      * of the top and bottom gradients.
@@ -623,6 +705,22 @@ public interface PickerScope {
 }
 
 private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
+
+private fun convertToDefaultFoundationScalingParams(
+    @Suppress("DEPRECATION")
+    scalingParams: androidx.wear.compose.material.ScalingParams
+): ScalingParams = PickerDefaults.defaultScalingParams(
+    edgeScale = scalingParams.edgeScale,
+    edgeAlpha = scalingParams.edgeAlpha,
+    minElementHeight = scalingParams.minElementHeight,
+    maxElementHeight = scalingParams.maxElementHeight,
+    minTransitionArea = scalingParams.minTransitionArea,
+    maxTransitionArea = scalingParams.maxTransitionArea,
+    scaleInterpolator = scalingParams.scaleInterpolator,
+    viewportVerticalOffsetResolver = { viewportConstraints ->
+        scalingParams.resolveViewportVerticalOffset(viewportConstraints)
+    }
+)
 
 @Stable
 private class PickerScopeImpl(

@@ -414,8 +414,6 @@ class CurvedLayoutTest {
     }
 }
 
-internal const val TEST_TAG = "test-item"
-
 fun checkAngle(expected: Float, actual: Float) {
     var d = abs(expected - actual)
     d = min(d, 360 - d)

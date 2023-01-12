@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.MutatePriority
@@ -44,6 +46,8 @@ import kotlin.math.roundToInt
  * @param initialCenterItemScrollOffset the initial value for
  * [ScalingLazyListState.centerItemScrollOffset] in pixels
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @Composable
 public fun rememberScalingLazyListState(
     initialCenterItemIndex: Int = 1,
@@ -79,6 +83,8 @@ public fun rememberScalingLazyListState(
  * [ScalingLazyColumn]. After the [ScalingLazyColumn] is initially drawn the actual values for the
  * [centerItemIndex] and [centerItemScrollOffset] can be read from the state.
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @Stable
 class ScalingLazyListState constructor(
     private var initialCenterItemIndex: Int = 1,
