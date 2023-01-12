@@ -116,6 +116,11 @@ class UseCaseManager @Inject constructor(
             !attachedUseCases.contains(useCase)
         }
 
+        // Notify state attached to use cases
+        for (useCase in unattachedUseCases) {
+            useCase.onStateAttached()
+        }
+
         if (attachedUseCases.addAll(useCases)) {
             if (shouldAddRepeatingUseCase(getRunningUseCases())) {
                 addRepeatingUseCase()
@@ -124,9 +129,9 @@ class UseCaseManager @Inject constructor(
             }
         }
 
-        // Notify state attached to use cases that weren't attached before
-        for (useCase in unattachedUseCases) {
-            useCase.onStateAttached()
+        unattachedUseCases.forEach { useCase ->
+            // Notify CameraControl is ready after the UseCaseCamera is created
+            useCase.onCameraControlReady()
         }
     }
 

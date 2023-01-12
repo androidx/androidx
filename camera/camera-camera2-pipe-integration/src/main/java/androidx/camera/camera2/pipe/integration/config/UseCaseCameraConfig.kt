@@ -42,6 +42,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
+import java.util.concurrent.CancellationException
 import javax.inject.Scope
 
 @Scope
@@ -135,11 +136,15 @@ class UseCaseCameraConfig(
 
         if (sessionConfigAdapter.isSessionConfigValid()) {
             useCaseSurfaceManager.setupAsync(graph, sessionConfigAdapter, surfaceToStreamMap)
-                .invokeOnCompletion {
-                    it?.let { Log.error(it) { "Surface setup error!" } }
+                .invokeOnCompletion { throwable ->
+                    // Only show logs for error cases, ignore CancellationException since the task
+                    // could be cancelled by UseCaseSurfaceManager#stopAsync().
+                    if (throwable != null && throwable !is CancellationException) {
+                        Log.error(throwable) { "Surface setup error!" }
+                    }
                 }
         } else {
-            Log.debug {
+            Log.error {
                 "Unable to create capture session due to conflicting configurations"
             }
         }
