@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material.carousel
+package androidx.tv.material
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,7 +61,13 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.tv.material.ExperimentalTvMaterialApi
+import androidx.tv.material3.Carousel
+import androidx.tv.material3.CarouselDefaults
+import androidx.tv.material3.CarouselItem
+import androidx.tv.material3.CarouselItemDefaults
+import androidx.tv.material3.CarouselState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.ScrollPauseHandle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -70,7 +76,7 @@ private const val delayBetweenSlides = 2500L
 private const val animationTime = 900L
 private const val overlayRenderWaitTime = 1500L
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 class CarouselTest {
     @get:Rule
     val rule = createComposeRule()
@@ -661,7 +667,7 @@ class CarouselTest {
     }
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleCarousel(
     carouselState: CarouselState = remember { CarouselState() },
@@ -692,7 +698,7 @@ private fun SampleCarousel(
     )
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleCarouselSlide(
     index: Int,

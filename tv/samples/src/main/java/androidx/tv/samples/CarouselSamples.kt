@@ -39,13 +39,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.carousel.Carousel
-import androidx.tv.material.carousel.CarouselDefaults
-import androidx.tv.material.carousel.CarouselItem
-import androidx.tv.material.carousel.CarouselState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Carousel
+import androidx.tv.material3.CarouselDefaults
+import androidx.tv.material3.CarouselItem
+import androidx.tv.material3.CarouselState
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
 @Composable
 fun SimpleCarousel() {
@@ -92,7 +92,7 @@ fun SimpleCarousel() {
     }
 }
 
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
 @Composable
 fun CarouselIndicatorWithRectangleShape() {

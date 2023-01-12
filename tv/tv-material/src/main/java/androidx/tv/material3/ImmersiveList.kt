@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material
+package androidx.tv.material3
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -58,7 +58,7 @@ import androidx.compose.ui.platform.LocalFocusManager
  */
 @Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalComposeUiApi::class)
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 @Composable
 fun ImmersiveList(
     background:
@@ -84,7 +84,7 @@ fun ImmersiveList(
     }
 }
 
-@ExperimentalTvMaterialApi
+@ExperimentalTvMaterial3Api
 object ImmersiveListDefaults {
     /**
      * Default transition used to bring the background content into view
@@ -98,8 +98,8 @@ object ImmersiveListDefaults {
 }
 
 @Immutable
-@ExperimentalTvMaterialApi
-class ImmersiveListBackgroundScope internal constructor(boxScope: BoxScope) : BoxScope
+@ExperimentalTvMaterial3Api
+public class ImmersiveListBackgroundScope internal constructor(boxScope: BoxScope) : BoxScope
 by boxScope {
 
     /**
@@ -112,7 +112,7 @@ by boxScope {
      * @param modifier modifier for the Layout created to contain the [content]
      * @param enter EnterTransition(s) used for the appearing animation, fading in by default
      * @param exit ExitTransition(s) used for the disappearing animation, fading out by default
-     * @param label used to differentiate different transitions in Android Studio
+     * @param label helps differentiate from other animations in Android Studio
      * @param content Content to appear or disappear based on the value of [visible]
      *
      * @link androidx.compose.animation.AnimatedVisibility
@@ -181,8 +181,8 @@ by boxScope {
 }
 
 @Immutable
-@ExperimentalTvMaterialApi
-class ImmersiveListScope internal constructor(private val onFocused: (Int) -> Unit) {
+@ExperimentalTvMaterial3Api
+public class ImmersiveListScope internal constructor(private val onFocused: (Int) -> Unit) {
     /**
      * Modifier to be added to each of the items of the list within ImmersiveList to inform the
      * ImmersiveList of the index of the item in focus
