@@ -15,9 +15,9 @@ package androidx.fragment.app {
   }
 
   public final class FragmentTransactionKt {
-    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String tag, optional android.os.Bundle? args);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String? tag, optional android.os.Bundle? args);
     method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, String tag, optional android.os.Bundle? args);
-    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction replace(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String tag, optional android.os.Bundle? args);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction replace(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String? tag, optional android.os.Bundle? args);
   }
 
   public final class FragmentViewModelLazyKt {
