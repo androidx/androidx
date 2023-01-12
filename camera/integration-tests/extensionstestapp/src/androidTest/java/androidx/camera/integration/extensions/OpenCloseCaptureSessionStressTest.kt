@@ -17,27 +17,17 @@
 package androidx.camera.integration.extensions
 
 import android.content.Context
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraDevice
+import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.impl.Camera2ImplConfig
-import androidx.camera.camera2.impl.CameraEventCallback
-import androidx.camera.camera2.impl.CameraEventCallbacks
-import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraFilter
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraConfig
-import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
-import androidx.camera.core.impl.Identifier
-import androidx.camera.core.impl.MutableOptionsBundle
-import androidx.camera.core.impl.OptionsBundle
-import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
@@ -88,7 +78,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
     private lateinit var imageAnalysis: ImageAnalysis
     private var isImageAnalysisSupported = false
     private lateinit var lifecycleOwner: FakeLifecycleOwner
-    private val cameraEventMonitor = CameraEventMonitor()
+    private val cameraSessionMonitor = CameraSessionMonitor()
 
     @Before
     fun setUp(): Unit = runBlocking {
@@ -114,7 +104,9 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
             cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector)
         }
 
-        preview = Preview.Builder().build()
+        val previewBuilder = Preview.Builder()
+        injectCameraSessionMonitor(previewBuilder, cameraSessionMonitor)
+        preview = previewBuilder.build()
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
         }
@@ -125,6 +117,51 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
             camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis)
     }
 
+    private fun injectCameraSessionMonitor(
+        previewBuilder: Preview.Builder,
+        cameraMonitor: CameraSessionMonitor
+    ) {
+        Camera2Interop.Extender(previewBuilder)
+            .setSessionStateCallback(object : CameraCaptureSession.StateCallback() {
+                override fun onConfigured(session: CameraCaptureSession) {
+                    cameraMonitor.onOpenedSession()
+                }
+
+                override fun onClosed(session: CameraCaptureSession) {
+                    cameraMonitor.onClosedSession()
+                }
+
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                }
+
+                override fun onReady(session: CameraCaptureSession) {
+                }
+
+                override fun onActive(session: CameraCaptureSession) {
+                }
+
+                override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
+                }
+
+                override fun onSurfacePrepared(session: CameraCaptureSession, surface: Surface) {
+                }
+            })
+            .setDeviceStateCallback(object : CameraDevice.StateCallback() {
+                override fun onOpened(device: CameraDevice) {
+                }
+                // Some device doesn't invoke CameraCaptureSession onClosed callback thus
+                // we need to invoke when camera is closed.
+                override fun onClosed(device: CameraDevice) {
+                    cameraMonitor.onClosedSession()
+                }
+
+                override fun onDisconnected(device: CameraDevice) {
+                }
+
+                override fun onError(device: CameraDevice, error: Int) {
+                }
+            })
+    }
     @After
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
@@ -157,7 +194,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
 
     /**
      * Repeatedly binds use cases, unbind all to check whether the capture session can be opened
-     * and closed successfully by monitoring the CameraEvent callbacks.
+     * and closed successfully by monitoring the camera session state.
      */
     private fun bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(
         vararg useCases: UseCase,
@@ -165,36 +202,27 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
             // Arrange: resets the camera event monitor
-            cameraEventMonitor.reset()
+            cameraSessionMonitor.reset()
 
             withContext(Dispatchers.Main) {
-                // Arrange: retrieves the camera selector which allows to monitor camera event
-                // callbacks
-                val extensionEnabledCameraEventMonitorCameraSelector =
-                    getExtensionsCameraEventMonitorCameraSelector(
-                        extensionsManager,
-                        config.extensionMode,
-                        baseCameraSelector
-                    )
-
                 // Act: binds use cases
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
-                    extensionEnabledCameraEventMonitorCameraSelector,
+                    extensionCameraSelector,
                     *useCases
                 )
             }
 
-            // Assert: checks the CameraEvent#onEnableSession callback function is called
-            cameraEventMonitor.awaitSessionEnabledAndAssert()
+            // Assert: checks the camera session is opened.
+            cameraSessionMonitor.awaitSessionOpenedAndAssert()
 
             // Act: unbinds all use cases
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
             }
 
-            // Assert: checks the CameraEvent#onSessionDisabled callback function is called
-            cameraEventMonitor.awaitSessionDisabledAndAssert()
+            // Assert: checks the camera session is closed.
+            cameraSessionMonitor.awaitSessionClosedAndAssert()
         }
     }
 
@@ -231,186 +259,18 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
     }
 
     /**
-     * Gets the camera selector which allows to monitor the camera event callbacks
+     * An implementation of CameraEventCallback to monitor whether the camera is closed or opened.
      */
-    private fun getExtensionsCameraEventMonitorCameraSelector(
-        extensionsManager: ExtensionsManager,
-        extensionMode: Int,
-        baseCameraSelector: CameraSelector
-    ): CameraSelector {
-        // Injects the ExtensionsCameraEventMonitorUseCaseConfigFactory which allows to monitor and
-        // verify the camera event callbacks
-        injectExtensionsCameraEventMonitorUseCaseConfigFactory(
-            extensionsManager,
-            extensionMode,
-            baseCameraSelector
-        )
-
-        val builder = CameraSelector.Builder.fromSelector(baseCameraSelector)
-        // Add an ExtensionCameraEventMonitorCameraFilter which includes the CameraFilter to check
-        // whether the camera is supported for the extension mode or not and also includes the
-        // identifier to find the extended camera config provider from
-        // ExtendedCameraConfigProviderStore
-        builder.addCameraFilter(
-            ExtensionsCameraEventMonitorCameraFilter(
-                extensionsManager,
-                extensionMode
-            )
-        )
-        return builder.build()
-    }
-
-    /**
-     * Injects the ExtensionsCameraEventMonitorUseCaseConfigFactory which allows to monitor and
-     * verify the camera event callbacks
-     */
-    private fun injectExtensionsCameraEventMonitorUseCaseConfigFactory(
-        extensionsManager: ExtensionsManager,
-        extensionMode: Int,
-        baseCameraSelector: CameraSelector
-    ): Unit = runBlocking {
-        val defaultConfigProviderId =
-            Identifier.create(getExtendedCameraConfigProviderId(extensionMode))
-        val cameraEventConfigProviderId =
-            Identifier.create(getCameraEventMonitorCameraConfigProviderId(extensionMode))
-
-        // Calls the ExtensionsManager#getExtensionEnabledCameraSelector() function to add the
-        // default extended camera config provider to ExtendedCameraConfigProviderStore
-        extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-
-        // Injects the new camera config provider which will keep the original extensions needed
-        // configs and also add additional CameraEventMonitor to monitor the camera event callbacks.
-        ExtendedCameraConfigProviderStore.addConfig(cameraEventConfigProviderId) {
-                cameraInfo: CameraInfo, context: Context ->
-            // Retrieves the default extended camera config provider and
-            // ExtensionsUseCaseConfigFactory
-            val defaultCameraConfigProvider =
-                ExtendedCameraConfigProviderStore.getConfigProvider(defaultConfigProviderId)
-            val defaultCameraConfig = defaultCameraConfigProvider.getConfig(cameraInfo, context)!!
-            val defaultExtensionsUseCaseConfigFactory =
-                defaultCameraConfig.retrieveOption(CameraConfig.OPTION_USECASE_CONFIG_FACTORY, null)
-
-            // Creates a new ExtensionsCameraEventMonitorUseCaseConfigFactory on top of the default
-            // ExtensionsCameraEventMonitorUseCaseConfigFactory to monitor the capture session
-            // callbacks
-            val extensionsCameraEventMonitorUseCaseConfigFactory =
-                ExtensionsCameraEventMonitorUseCaseConfigFactory(
-                    defaultExtensionsUseCaseConfigFactory,
-                    cameraEventMonitor
-                )
-
-            // Creates the config from the original config and replaces its use case config factory
-            // with the ExtensionsCameraEventMonitorUseCaseConfigFactory
-            val mutableOptionsBundle = MutableOptionsBundle.from(defaultCameraConfig)
-            mutableOptionsBundle.insertOption(
-                CameraConfig.OPTION_USECASE_CONFIG_FACTORY,
-                extensionsCameraEventMonitorUseCaseConfigFactory
-            )
-
-            // Returns a CameraConfig implemented with the updated config
-            object : CameraConfig {
-                val config = OptionsBundle.from(mutableOptionsBundle)
-
-                override fun getConfig(): Config {
-                    return config
-                }
-
-                override fun getCompatibilityId(): Identifier {
-                    return config.retrieveOption(CameraConfig.OPTION_COMPATIBILITY_ID)!!
-                }
-            }
-        }
-    }
-
-    /**
-     * A ExtensionsCameraEventMonitorCameraFilter which includes the CameraFilter to check whether
-     * the camera is supported for the extension mode or not and also includes the identifier to
-     * find the extended camera config provider from ExtendedCameraConfigProviderStore.
-     */
-    private class ExtensionsCameraEventMonitorCameraFilter constructor(
-        private val extensionManager: ExtensionsManager,
-        @ExtensionMode.Mode private val mode: Int
-    ) : CameraFilter {
-        override fun getIdentifier(): Identifier {
-            return Identifier.create(getCameraEventMonitorCameraConfigProviderId(mode))
-        }
-
-        override fun filter(cameraInfos: MutableList<CameraInfo>): MutableList<CameraInfo> =
-            cameraInfos.mapNotNull { cameraInfo ->
-                val cameraId = Camera2CameraInfo.from(cameraInfo).cameraId
-                val cameraIdCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
-                if (extensionManager.isExtensionAvailable(cameraIdCameraSelector, mode)) {
-                    cameraInfo
-                } else {
-                    null
-                }
-            }.toMutableList()
-    }
-
-    /**
-     * A UseCaseConfigFactory implemented on top of the default ExtensionsUseCaseConfigFactory to
-     * monitor the camera event callbacks
-     */
-    private class ExtensionsCameraEventMonitorUseCaseConfigFactory constructor(
-        private val useCaseConfigFactory: UseCaseConfigFactory?,
-        private val cameraEventMonitor: CameraEventMonitor
-    ) :
-        UseCaseConfigFactory {
-        override fun getConfig(
-            captureType: UseCaseConfigFactory.CaptureType,
-            captureMode: Int
-        ): Config {
-            // Retrieves the config from the default ExtensionsUseCaseConfigFactory
-            val mutableOptionsBundle = useCaseConfigFactory?.getConfig(
-                captureType, captureMode
-            )?.let {
-                MutableOptionsBundle.from(it)
-            } ?: MutableOptionsBundle.create()
-
-            // Adds the CameraEventMonitor to the original CameraEventCallbacks of ImageCapture to
-            // monitor the camera event callbacks
-            if (captureType.equals(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE)) {
-                var cameraEventCallbacks = mutableOptionsBundle.retrieveOption(
-                    Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
-                    null
-                )
-
-                if (cameraEventCallbacks != null) {
-                    cameraEventCallbacks.addAll(
-                        mutableListOf<CameraEventCallback>(
-                            cameraEventMonitor
-                        )
-                    )
-                } else {
-                    cameraEventCallbacks = CameraEventCallbacks(cameraEventMonitor)
-                }
-
-                mutableOptionsBundle.insertOption(
-                    Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
-                    cameraEventCallbacks
-                )
-            }
-
-            return OptionsBundle.from(mutableOptionsBundle)
-        }
-    }
-
-    /**
-     * An implementation of CameraEventCallback to monitor whether the camera event callbacks are
-     * called properly or not.
-     */
-    private class CameraEventMonitor : CameraEventCallback() {
+    private class CameraSessionMonitor {
         private var sessionEnabledLatch = CountDownLatch(1)
         private var sessionDisabledLatch = CountDownLatch(1)
 
-        override fun onEnableSession(): CaptureConfig? {
+        fun onOpenedSession() {
             sessionEnabledLatch.countDown()
-            return super.onEnableSession()
         }
 
-        override fun onDisableSession(): CaptureConfig? {
+        fun onClosedSession() {
             sessionDisabledLatch.countDown()
-            return super.onDisableSession()
         }
 
         fun reset() {
@@ -418,11 +278,11 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
             sessionDisabledLatch = CountDownLatch(1)
         }
 
-        fun awaitSessionEnabledAndAssert() {
+        fun awaitSessionOpenedAndAssert() {
             assertThat(sessionEnabledLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
         }
 
-        fun awaitSessionDisabledAndAssert() {
+        fun awaitSessionClosedAndAssert() {
             assertThat(sessionDisabledLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
