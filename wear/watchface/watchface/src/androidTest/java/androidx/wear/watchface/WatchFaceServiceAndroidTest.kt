@@ -19,12 +19,17 @@ package androidx.wear.watchface
 import android.content.Context
 import android.graphics.drawable.Icon
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.test.SimpleWatchFaceTestService
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
+@MediumTest
 class WatchFaceServiceAndroidTest {
     @Test
     fun measuresWatchFaceIconsFromCustomContext() {
