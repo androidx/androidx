@@ -32,6 +32,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -141,7 +142,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
  * the aggregated LoadStates can reflect `NotLoading` when source states are `Loading`.
  */
 internal suspend fun <Value : Any> PagingDataDiffer<Value>.awaitNotLoading() {
-    loadStateFlow.filter {
+    loadStateFlow.filterNotNull().filter {
         it.source.isIdle() && it.mediator?.isIdle() ?: true
     }.firstOrNull()
 }
