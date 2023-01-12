@@ -177,6 +177,13 @@ public sealed class ComplicationData constructor(
         other is ComplicationData &&
             asWireComplicationData() == other.asWireComplicationData()
 
+    /**
+     * Similar to [equals], but avoids comparing evaluated fields (if expressions exist).
+     * @hide
+     */
+    infix fun equalsUnevaluated(other: ComplicationData): Boolean =
+        asWireComplicationData() equalsUnevaluated other.asWireComplicationData()
+
     override fun hashCode(): Int = asWireComplicationData().hashCode()
 
     /**

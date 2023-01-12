@@ -199,11 +199,9 @@ public class ComplicationSlotsManager(
     /** Finish initialization. */
     @WorkerThread
     internal fun init(
-        watchFaceHostApi: WatchFaceHostApi,
         renderer: Renderer,
         complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
     ) = TraceEvent("ComplicationSlotsManager.init").use {
-        this.watchFaceHostApi = watchFaceHostApi
         this.renderer = renderer
 
         for ((_, complication) in complicationSlots) {

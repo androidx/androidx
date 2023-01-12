@@ -1237,6 +1237,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private lateinit var choreographer: ChoreographerWrapper
         override val systemTimeProvider = getSystemTimeProvider()
+        override val wearSdkVersion = this@WatchFaceService.wearSdkVersion
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
@@ -2091,6 +2092,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     TraceEvent("WatchFaceService.createComplicationsManager").use {
                         createComplicationSlotsManager(currentUserStyleRepository)
                     }
+                complicationSlotsManager.watchFaceHostApi = this@EngineWrapper
                 complicationSlotsManager.watchState = watchState
                 complicationSlotsManager.listenForStyleChanges(uiThreadCoroutineScope)
                 listenForComplicationChanges(complicationSlotsManager)
@@ -2315,7 +2317,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // to render soon anyway.
             var initFinished = false
             complicationSlotsManager.init(
-                this, renderer,
+                renderer,
                 object : ComplicationSlot.InvalidateListener {
                     @SuppressWarnings("SyntheticAccessor")
                     override fun onInvalidate() {
