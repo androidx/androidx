@@ -101,6 +101,7 @@ public fun Modifier.scrollAway(
 
 private fun Modifier.scrollAway(scrollFn: Density.() -> ScrollParams): Modifier =
     this.then(
+        @Suppress("ModifierInspectorInfo")
         object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,

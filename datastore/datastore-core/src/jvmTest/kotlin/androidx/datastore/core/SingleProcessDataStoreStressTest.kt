@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job

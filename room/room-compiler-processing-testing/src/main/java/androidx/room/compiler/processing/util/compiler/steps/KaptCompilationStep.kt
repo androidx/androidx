@@ -26,7 +26,8 @@ import org.jetbrains.kotlin.base.kapt3.AptMode
 import org.jetbrains.kotlin.base.kapt3.KaptFlag
 import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.cli.common.ExitCode
-import org.jetbrains.kotlin.compiler.plugin.parsePluginOption
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.compiler.plugin.parseLegacyPluginOption
 
 /**
  * Runs KAPT to run annotation processors.
@@ -72,6 +73,7 @@ internal class KaptCompilationStep(
         }
     }
 
+    @OptIn(ExperimentalCompilerApi::class)
     override fun execute(
         workingDir: File,
         arguments: CompilationStepArguments
@@ -131,7 +133,7 @@ internal class KaptCompilationStep(
             val options = kotlincArguments.dropLast(1).zip(kotlincArguments.drop(1))
                 .filter { it.first == "-P" }
                 .mapNotNull {
-                    parsePluginOption(it.second)
+                    parseLegacyPluginOption(it.second)
                 }
             val filteredOptionsMap = options
                 .filter { it.pluginId == pluginId }
