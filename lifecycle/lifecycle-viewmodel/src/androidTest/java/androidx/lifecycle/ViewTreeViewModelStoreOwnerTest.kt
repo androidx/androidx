@@ -133,8 +133,9 @@ class ViewTreeViewModelStoreOwnerTest {
     }
 
     internal class FakeViewModelStoreOwner : ViewModelStoreOwner {
-        override fun getViewModelStore(): ViewModelStore {
-            throw UnsupportedOperationException("not a real ViewModelStoreOwner")
-        }
+        override val viewModelStore: ViewModelStore
+            get() {
+                throw UnsupportedOperationException("not a real ViewModelStoreOwner")
+            }
     }
 }
