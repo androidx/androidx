@@ -30,7 +30,6 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
-import androidx.lifecycle.MutableLiveData
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
@@ -47,7 +46,14 @@ internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
 interface UseCaseCamera {
     // UseCases
-    val runningUseCasesLiveData: MutableLiveData<Set<UseCase>>
+    var runningUseCases: Set<UseCase>
+
+    interface RunningUseCasesChangeListener {
+        /**
+         * Invoked when value of [UseCaseCamera.runningUseCases] has been changed.
+         */
+        fun onRunningUseCasesChanged()
+    }
 
     // RequestControl of the UseCaseCamera
     val requestControl: UseCaseCameraRequestControl
@@ -73,7 +79,9 @@ interface UseCaseCamera {
  */
 @RequiresApi(21)
 @UseCaseCameraScope
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
 class UseCaseCameraImpl @Inject constructor(
+    private val controls: java.util.Set<UseCaseCameraControl>,
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val useCases: java.util.ArrayList<UseCase>,
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
@@ -83,8 +91,9 @@ class UseCaseCameraImpl @Inject constructor(
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
 
-    override val runningUseCasesLiveData = MutableLiveData<Set<UseCase>>(emptySet()).apply {
-        observeForever { value ->
+    override var runningUseCases = setOf<UseCase>()
+        set(value) {
+            field = value
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
             SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
@@ -97,8 +106,13 @@ class UseCaseCameraImpl @Inject constructor(
                     }.build()
                 )
             }
+
+            controls.forEach { control ->
+                if (control is UseCaseCamera.RunningUseCasesChangeListener) {
+                    control.onRunningUseCasesChanged()
+                }
+            }
         }
-    }
 
     init {
         debug { "Configured $this for $useCases" }

@@ -33,9 +33,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
-import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
-import androidx.lifecycle.Observer
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
 import dagger.Module
@@ -43,10 +41,7 @@ import dagger.multibindings.IntoSet
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -58,13 +53,20 @@ class FocusMeteringControl @Inject constructor(
     private val cameraProperties: CameraProperties,
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
-) : UseCaseCameraControl {
+) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
 
-    private val useCaseObserver = Observer<Set<UseCase>> { useCases ->
-        // reset to null since preview use case may not be active in current runningUseCases
+    override var useCaseCamera: UseCaseCamera?
+        get() = _useCaseCamera
+        set(value) {
+            _useCaseCamera = value
+        }
+
+    override fun onRunningUseCasesChanged() {
+        // reset to null since preview use case may not be active for current runningUseCases
         previewAspectRatio = null
-        useCases.forEach { useCase ->
+
+        _useCaseCamera?.runningUseCases?.forEach { useCase ->
             if (useCase is Preview) {
                 useCase.attachedSurfaceResolution?.apply {
                     previewAspectRatio = Rational(width, height)
@@ -73,29 +75,8 @@ class FocusMeteringControl @Inject constructor(
         }
     }
 
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
-        set(value) {
-            if (_useCaseCamera != value) {
-                previewAspectRatio = null
-                // withContext does not switch thread properly with scope.launch so async is used
-                threads.sequentialScope.async {
-                    withContext(Dispatchers.Main) {
-                        _useCaseCamera?.runningUseCasesLiveData?.removeObserver(useCaseObserver)
-                    }
-                }
-            }
-
-            _useCaseCamera = value
-
-            threads.sequentialScope.async {
-                withContext(Dispatchers.Main) {
-                    _useCaseCamera?.runningUseCasesLiveData?.observeForever(useCaseObserver)
-                }
-            }
-        }
-
     override fun reset() {
+        previewAspectRatio = null
         cancelFocusAndMeteringAsync()
     }
 
