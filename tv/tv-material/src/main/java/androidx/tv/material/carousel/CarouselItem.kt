@@ -16,6 +16,7 @@
 
 package androidx.tv.material.carousel
 
+import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -37,6 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.tv.material.ExperimentalTvMaterialApi
 import kotlinx.coroutines.delay
@@ -72,6 +78,7 @@ fun CarouselItem(
     val overlayVisible = remember { MutableTransitionState(initialState = false) }
     var focusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
+    var exitFocus by remember { mutableStateOf(false) }
 
     LaunchedEffect(overlayVisible) {
         overlayVisible.onAnimationCompletion {
@@ -81,9 +88,16 @@ fun CarouselItem(
     }
 
     Box(modifier = modifier
+        .onKeyEvent {
+            exitFocus = it.key.nativeKeyCode == KeyEvent.KEYCODE_BACK && it.type == KeyDown
+            false
+        }
         .onFocusChanged {
             focusState = it
-            if (it.isFocused && overlayVisible.isIdle && overlayVisible.currentState) {
+            if (it.isFocused && exitFocus) {
+                focusManager.moveFocus(FocusDirection.Exit)
+                exitFocus = false
+            } else if (it.isFocused && overlayVisible.isIdle && overlayVisible.currentState) {
                 focusManager.moveFocus(FocusDirection.Enter)
             }
         }
@@ -99,13 +113,7 @@ fun CarouselItem(
 
         AnimatedVisibility(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        focusManager.moveFocus(FocusDirection.Enter)
-                    }
-                }
-                .focusable(),
+                .align(Alignment.BottomStart),
             visibleState = overlayVisible,
             enter = overlayEnterTransition,
             exit = overlayExitTransition
