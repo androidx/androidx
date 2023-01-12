@@ -32,7 +32,6 @@ import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
-import java.io.Closeable
 import java.util.Collections.synchronizedMap
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
@@ -57,6 +56,7 @@ internal val captureSessionDebugIds = atomic(0)
  *
  * This class is thread safe.
  */
+@RequiresApi(21)
 internal class CaptureSessionState(
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
@@ -111,7 +111,7 @@ internal class CaptureSessionState(
     private var _surfaceMap: Map<StreamId, Surface>? = null
 
     @GuardedBy("lock")
-    private val _surfaceTokenMap: MutableMap<Surface, Closeable> = mutableMapOf()
+    private val _surfaceTokenMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
     fun configureSurfaceMap(surfaces: Map<StreamId, Surface>) {
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
