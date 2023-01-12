@@ -4,14 +4,13 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.create
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import kotlin.Int
 
 public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProviderCompat() {
   public override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
     val sdk = createMySdk(context!!)
-    return create(MySdkStubDelegate(sdk))
+    return SandboxedSdkCompat(MySdkStubDelegate(sdk))
   }
 
   public override fun getView(
