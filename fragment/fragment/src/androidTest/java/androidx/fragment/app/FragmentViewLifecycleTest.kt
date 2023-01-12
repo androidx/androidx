@@ -29,7 +29,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -287,7 +287,7 @@ class FragmentViewLifecycleTest {
                 observedLifecycleOwner = owner
                 observedTreeLifecycleOwner = fragment.view?.let { it.findViewTreeLifecycleOwner() }
                 observedTreeViewModelStoreOwner = fragment.view?.let {
-                    ViewTreeViewModelStoreOwner.get(it)
+                    it.findViewTreeViewModelStoreOwner()
                 }
                 observedTreeViewSavedStateRegistryOwner = fragment.view?.let {
                     it.findViewTreeSavedStateRegistryOwner()
@@ -308,10 +308,9 @@ class FragmentViewLifecycleTest {
                 " after commitNow"
         )
             .that(
-                ViewTreeViewModelStoreOwner.get(
-                    fragment.view
-                        ?: error("no fragment view created")
-                )
+                checkNotNull(fragment.view) {
+                    "no fragment view created"
+                }.findViewTreeViewModelStoreOwner()
             )
             .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
@@ -415,7 +414,7 @@ class FragmentViewLifecycleTest {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             onViewCreatedLifecycleOwner = view.findViewTreeLifecycleOwner()
-            onViewCreatedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
+            onViewCreatedViewModelStoreOwner = view.findViewTreeViewModelStoreOwner()
             onViewCreatedSavedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()
         }
     }
