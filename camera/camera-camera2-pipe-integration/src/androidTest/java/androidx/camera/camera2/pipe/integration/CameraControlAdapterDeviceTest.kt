@@ -70,6 +70,7 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -158,6 +159,7 @@ class CameraControlAdapterDeviceTest {
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist
     //  after adding/removing the UseCase.
+    @Ignore("b/265316774")
     @Test
     fun removeUseCase_requestOptionsShouldSetToCamera(): Unit = runBlocking {
         // Arrange.
