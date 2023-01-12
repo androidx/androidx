@@ -29,6 +29,7 @@ import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_RELYING_PARTY
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.toCredentialDataBundle
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
@@ -53,15 +54,16 @@ import androidx.credentials.internal.FrameworkClassParsingException
  */
 @RequiresApi(34)
 class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
+    callingAppInfo: CallingAppInfo,
     val json: String,
     val relyingParty: String,
     val clientDataHash: String,
-    callingAppInfo: CallingAppInfo,
+    val preferImmediatelyAvailableCredentials: Boolean = false
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     toCredentialDataBundle(json, relyingParty, clientDataHash,
-        preferImmediatelyAvailableCredentials = false)
+        preferImmediatelyAvailableCredentials)
 ) {
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -86,11 +88,14 @@ class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
                 val rp = data.getString(BUNDLE_KEY_RELYING_PARTY)
                 val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
+                val preferImmediatelyAvailableCredentials = data.getBoolean(
+                    BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return BeginCreatePublicKeyCredentialRequestPrivileged(
+                    callingAppInfo,
                     requestJson!!,
                     rp!!,
                     clientDataHash!!,
-                    callingAppInfo)
+                    preferImmediatelyAvailableCredentials)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

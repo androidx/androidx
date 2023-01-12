@@ -36,8 +36,6 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
  * This handler can also be used to set [android.credentials.CreateCredentialResponse] and
  * [android.credentials.GetCredentialResponse] on the result of the activity
  * invoked by the [PendingIntent]
- *
- * @hide
  */
 @RequiresApi(34)
 class PendingIntentHandler {
@@ -75,8 +73,6 @@ class PendingIntentHandler {
          * Extract [BeginGetCredentialRequest] from the provider's
          * [PendingIntent] invoked by the Android system when the user
          * selects an [AuthenticationAction].
-         *
-         * @hide
          */
         @JvmStatic
         fun getBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
@@ -107,11 +103,9 @@ class PendingIntentHandler {
         /**
          * Extract the [GetCredentialProviderRequest] from the provider's
          * [PendingIntent] invoked by the Android system.
-         *
-         * @hide
          */
         @JvmStatic
-        fun getGetCredentialRequest(intent: Intent):
+        fun retrieveGetCredentialProviderRequest(intent: Intent):
             GetCredentialProviderRequest? {
             val frameworkReq = intent.getParcelableExtra(
                 CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
@@ -127,8 +121,6 @@ class PendingIntentHandler {
         /**
          * Set the [android.credentials.GetCredentialResponse] on the result of the
          * activity invoked by the [PendingIntent] set on [CreateEntry]
-         *
-         * @hide
          */
         @JvmStatic
         fun setGetCredentialResponse(
@@ -146,8 +138,6 @@ class PendingIntentHandler {
         /**
          * Set the [android.service.credentials.CredentialsResponseContent] on the result of the
          * activity invoked by the [PendingIntent] set on [AuthenticationAction].
-         *
-         * @hide
          */
         @JvmStatic
         fun setCredentialsResponseContent(

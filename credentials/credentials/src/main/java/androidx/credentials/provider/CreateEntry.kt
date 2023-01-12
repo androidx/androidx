@@ -221,6 +221,8 @@ class CreateEntry internal constructor(
          * Returns an instance of [CreateEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic

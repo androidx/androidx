@@ -28,22 +28,26 @@ import androidx.annotation.VisibleForTesting
 import java.util.Collections
 
 /**
- * An entry on the selector, denoting that authentication is needed to proceed.
+ * An entry on the selector, denoting that the provider service is locked and authentication
+ * is needed to proceed.
  *
  * Providers should set this entry when the provider app is locked, and no credentials can
  * be returned.
- * Providers must set the [PendingIntent] that leads to their unlock activity. Once the app
- * is unlocked, providers must set the [android.service.credentials.CredentialsResponseContent]
- * containing the unlocked credential entries, through
- * the [PendingIntentHandler.setCredentialsResponseContent] method.
+ * Providers must set the [PendingIntent] that leads to their unlock activity. When the user
+ * selects this entry, the corresponding [PendingIntent] is fired and the unlock activity is
+ * invoked. Once the provider authentication flow is complete, providers must set
+ * the [android.service.credentials.CredentialsResponseContent] containing the unlocked credential
+ * entries, through the [PendingIntentHandler.setCredentialsResponseContent] method, before
+ * finishing the activity.
+ * If providers fail to set the [android.service.credentials.CredentialsResponseContent], the
+ * system will assume that there are no credentials available and the this entry will be removed
+ * from the selector.
  *
- * @param pendingIntent the [PendingIntent] to be invoked if the user selects
+ * @property pendingIntent the [PendingIntent] to be invoked if the user selects
  * this authentication entry on the UI
  *
  * See [android.service.credentials.BeginGetCredentialResponse.createWithAuthentication]
  * for usage details.
- *
- * @hide
  */
 @RequiresApi(34)
 class AuthenticationAction constructor(
@@ -59,7 +63,7 @@ class AuthenticationAction constructor(
         super.writeToParcel(dest, flags)
     }
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<AuthenticationAction> {
+    companion object {
         private const val TAG = "AuthenticationAction"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "AuthenticationAction"
@@ -85,6 +89,8 @@ class AuthenticationAction constructor(
          *
          * @param slice the [Slice] object that contains the information required for
          * constructing an instance of this class.
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -102,15 +108,18 @@ class AuthenticationAction constructor(
             return null
         }
 
-        override fun createFromParcel(p0: Parcel?): AuthenticationAction? {
-            val authAction =
-                android.service.credentials.Action.CREATOR.createFromParcel(p0)
-            return fromSlice(authAction.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<AuthenticationAction> = object :
+        Parcelable.Creator<AuthenticationAction> {
+            override fun createFromParcel(p0: Parcel?): AuthenticationAction? {
+                val authAction =
+                    android.service.credentials.Action.CREATOR.createFromParcel(p0)
+                return fromSlice(authAction.slice)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<AuthenticationAction?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<AuthenticationAction?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

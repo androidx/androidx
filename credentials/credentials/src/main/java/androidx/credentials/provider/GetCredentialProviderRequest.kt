@@ -19,26 +19,23 @@ import android.app.PendingIntent
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialOption
-import androidx.credentials.GetCredentialRequest
 
 /**
- * Request received by the provider after the query phase of the get flow is complete and the
- * user has made a selection from the list of [CustomCredentialEntry] that was set on the
- * [android.service.credentials.BeginGetCredentialResponse].
+ * Request received by the provider after the query phase of the get flow is complete i.e. the user
+ * was presented with a list of credentials, and the user has now made a selection from the list of
+ * [android.service.credentials.CredentialEntry] presented on the selector UI.
  *
- * This request will be added to the intent that starts the activity invoked by the [PendingIntent]
- * set on the [CustomCredentialEntry] that the user selected. The request can be extracted by using
- * the PendingIntentHandler.
+ * This request will be added to the intent extras of the activity invoked by the [PendingIntent]
+ * set on the [android.service.credentials.CredentialEntry] that the user selected. The request
+ * must be extracted using the [PendingIntentHandler.retrieveGetCredentialProviderRequest] helper
+ * API.
  *
- * @property callingAppRequest an instance of [GetCredentialRequest] that contains the credential
- * type request parameters for the final credential request
+ * @property credentialOption the credential retrieval parameters
  * @property callingAppInfo information pertaining to the calling application
- *
- * @hide
  */
 @RequiresApi(34)
 class GetCredentialProviderRequest internal constructor(
-    val callingAppRequest: GetCredentialRequest,
+    val credentialOption: GetCredentialOption,
     val callingAppInfo: CallingAppInfo
     ) {
 
@@ -46,17 +43,13 @@ class GetCredentialProviderRequest internal constructor(
     companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
         GetCredentialProviderRequest {
-            val options = ArrayList<GetCredentialOption>()
-            options.add(GetCredentialOption.createFrom(
+            val option = GetCredentialOption.createFrom(
                 request.getCredentialOption.type,
                 request.getCredentialOption.candidateQueryData,
                 request.getCredentialOption.credentialRetrievalData,
-                request.getCredentialOption.isSystemProviderRequired()))
+                request.getCredentialOption.isSystemProviderRequired())
             return GetCredentialProviderRequest(
-                GetCredentialRequest.Builder()
-                    .setGetCredentialOptions(options)
-                    .setAutoSelectAllowed(false)
-                    .build(),
+                option,
                 request.callingAppInfo)
         }
     }

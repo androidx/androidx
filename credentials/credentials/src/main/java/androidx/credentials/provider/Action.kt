@@ -29,26 +29,18 @@ import androidx.annotation.VisibleForTesting
 import java.util.Collections
 
 /**
- * An actionable entry that is shown on the user selector. When selected,
- * the associated [PendingIntent] is invoked to launch a provider controlled
+ * An actionable entry that is returned as part of the
+ * [android.service.credentials.BeginGetCredentialResponse], and then shown on the user selector.
+ * When selected, the associated [PendingIntent] is invoked to launch a provider controlled
  * activity.
  *
  * See [android.service.credentials.CredentialsResponseContent] for usage.
  *
- * @property title the title to be displayed on the UI with this
- * action entry
- * @property subTitle the subTitle to be displayed on the UI with this
- * action entry
- * @param pendingIntent the pendingIntent to be invoked when the user selects
- * this action on the UI
- *
  * @throws IllegalArgumentException If [title] is empty
  * @throws NullPointerException If [title] or [pendingIntent] is null
- *
- * @hide
  */
 @RequiresApi(34)
-class Action constructor(
+class Action internal constructor(
     val title: CharSequence,
     val subTitle: CharSequence?,
     val pendingIntent: PendingIntent,
@@ -67,8 +59,37 @@ class Action constructor(
         super.writeToParcel(dest, flags)
     }
 
+    /**
+     * A builder for [Action]
+     *
+     * @property title the title of this action entry
+     * @property pendingIntent the [PendingIntent] that will be fired when the user selects
+     * this action entry
+     */
+    class Builder constructor(
+        private val title: CharSequence,
+        private val pendingIntent: PendingIntent
+    ) {
+        private var subTitle: CharSequence? = null
+
+        /** Sets a sub title to be shown on the UI with this entry */
+        fun setSubTitle(subTitle: CharSequence?): Builder {
+            this.subTitle = subTitle
+            return this
+        }
+
+        /**
+         * Builds an instance of [Action]
+         *
+         * @throws IllegalArgumentException If [title] is empty
+         */
+        fun build(): Action {
+            return Action(title, subTitle, pendingIntent)
+        }
+    }
+
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<Action> {
+    companion object {
         private const val TAG = "Action"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "Action"
@@ -107,6 +128,8 @@ class Action constructor(
          * Returns an instance of [Action] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -133,19 +156,22 @@ class Action constructor(
             }
         }
 
-        /**
-         * This will not be used in any of the credMan flows as Action is constructed
-         * in the jetpack library and sent to the framework. UI app will receive the
-         * slice and use [fromSlice] to get back the object.
-         */
-        override fun createFromParcel(p0: Parcel?): Action? {
-            val action = android.service.credentials.Action.CREATOR.createFromParcel(p0)
-            return fromSlice(action.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<Action> = object :
+            Parcelable.Creator<Action> {
+            /**
+             * This will not be used in any of the credMan flows as Action is constructed
+             * in the jetpack library and sent to the framework. UI app will receive the
+             * slice and use [fromSlice] to get back the object.
+             */
+            override fun createFromParcel(p0: Parcel?): Action? {
+                val action = android.service.credentials.Action.CREATOR.createFromParcel(p0)
+                return fromSlice(action.slice)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<Action?> {
-            return arrayOfNulls<Action>(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<Action?> {
+                return arrayOfNulls<Action>(size)
+            }
         }
     }
 }

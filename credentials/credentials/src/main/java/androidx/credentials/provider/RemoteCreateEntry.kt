@@ -38,7 +38,7 @@ import java.util.Collections
  * When the user selects this entry, the corresponding [PendingIntent] is fired,
  * and the credential creation can be completed.
  *
- * @param pendingIntent the [PendingIntent] to be fired when this
+ * @property pendingIntent the [PendingIntent] to be fired when this
  * [RemoteCreateEntry] is selected
  *
  * @throws NullPointerException If [pendingIntent] is empty
