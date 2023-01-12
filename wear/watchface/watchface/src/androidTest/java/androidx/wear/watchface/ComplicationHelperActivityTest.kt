@@ -22,6 +22,8 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.LONG_TEXT
 import androidx.wear.watchface.complications.data.ComplicationType.MONOCHROMATIC_IMAGE
@@ -34,9 +36,12 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.runner.RunWith
 
 const val TIME_OUT_MILLIS = 500L
 
+@RunWith(AndroidJUnit4::class)
+@MediumTest
 public class ComplicationHelperActivityTest {
     private val mainThreadHandler = Handler(Looper.getMainLooper())
 
