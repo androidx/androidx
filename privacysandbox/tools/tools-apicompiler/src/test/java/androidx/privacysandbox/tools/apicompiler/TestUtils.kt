@@ -62,12 +62,8 @@ private val syntheticSdkRuntimeLibraryStubs = listOf(
         |import android.os.IBinder
         |
         |@Suppress("UNUSED_PARAMETER")
-        |sealed class SandboxedSdkCompat {
-        |    abstract fun getInterface(): IBinder?
-        |
-        |    companion object {
-        |        fun create(binder: IBinder): SandboxedSdkCompat = throw RuntimeException("Stub!")
-        |    }
+        |class SandboxedSdkCompat(sdkInterface: IBinder) {
+        |    fun getInterface(): IBinder? = throw RuntimeException("Stub!")
         |}
         |""".trimMargin()
     ),

@@ -23,7 +23,6 @@ import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.MemberName
 
 /** SDK Provider generator that uses the SDK Runtime library to communicate with the sandbox. */
 internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
@@ -31,14 +30,6 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
     companion object {
         private val sandboxedSdkCompatClass =
             ClassName("androidx.privacysandbox.sdkruntime.core", "SandboxedSdkCompat")
-        private val sandboxedSdkCompatCreateMethod =
-            MemberName(
-                ClassName(
-                    sandboxedSdkCompatClass.packageName,
-                    sandboxedSdkCompatClass.simpleName,
-                    "Companion"
-                ), "create"
-            )
     }
 
     override val superclassName =
@@ -52,8 +43,8 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
             "val sdk = ${createServiceFunctionName(api.getOnlyService())}(context!!)"
         )
         addStatement(
-            "return %M(%T(sdk))",
-            sandboxedSdkCompatCreateMethod,
+            "return %T(%T(sdk))",
+            sandboxedSdkCompatClass,
             api.getOnlyService().stubDelegateNameSpec()
         )
     }
