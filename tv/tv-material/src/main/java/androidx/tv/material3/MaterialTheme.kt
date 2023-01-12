@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
  *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The composable content that will be displayed with this theme
  */
 @ExperimentalTvMaterial3Api
@@ -48,6 +49,7 @@ import androidx.compose.runtime.remember
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,
+    typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
     val rememberedColorScheme = remember {
@@ -62,8 +64,10 @@ fun MaterialTheme(
         LocalColorScheme provides rememberedColorScheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
-        content = content
-    )
+        LocalTypography provides typography
+    ) {
+        ProvideTextStyle(value = typography.bodyLarge, content = content)
+    }
 }
 
 /**
@@ -80,6 +84,14 @@ object MaterialTheme {
         @ReadOnlyComposable
         @SuppressWarnings("HiddenTypeParameter", "UnavailableSymbol")
         get() = LocalColorScheme.current
+
+    /**
+     * Retrieves the current [Typography] at the call site's position in the hierarchy.
+     */
+    val typography: Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalTypography.current
 
     /**
      * Retrieves the current [Shapes] at the call site's position in the hierarchy.
