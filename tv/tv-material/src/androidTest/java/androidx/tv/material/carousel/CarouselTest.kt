@@ -326,6 +326,78 @@ class CarouselTest {
     }
 
     @Test
+    fun carousel_parentContainerGainsFocus_onBackPress() {
+        rule.setContent {
+            Box(modifier = Modifier
+                .testTag("box-container")
+                .fillMaxSize()
+                .focusable()) {
+                SampleCarousel { index ->
+                    SampleButton("Button-${index + 1}")
+                }
+            }
+        }
+
+        // Request focus for Carousel on start
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag("pager")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+
+        // Trigger recomposition after requesting focus
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Check if the overlay button is focused
+        rule.onNodeWithText("Button-1").assertIsFocused()
+
+        // Trigger back press event to exit focus
+        performKeyPress(NativeKeyEvent.KEYCODE_BACK)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Check if carousel loses focus and parent container gains focus
+        rule.onNodeWithText("Button-1").assertIsNotFocused()
+        rule.onNodeWithTag("box-container").assertIsFocused()
+    }
+
+    @Test
+    fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
+        rule.setContent {
+            Box(modifier = Modifier
+                .testTag("box-container")
+                .fillMaxSize()
+                .focusable()) {
+                SampleCarousel {
+                    SampleCarouselSlide(index = it)
+                }
+            }
+        }
+
+        // Request focus for Carousel on start
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag("pager")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+
+        // Trigger recomposition after requesting focus and advance time to finish animations
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        rule.waitForIdle()
+
+        // Check if the overlay button is focused
+        rule.onNodeWithText("Play 0").assertIsFocused()
+
+        // Trigger back press event to exit focus
+        performKeyPress(NativeKeyEvent.KEYCODE_BACK)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Check if carousel loses focus and parent container gains focus
+        rule.onNodeWithText("Play 0").assertIsNotFocused()
+        rule.onNodeWithTag("box-container").assertIsFocused()
+    }
+
+    @Test
     fun carousel_scrollToRegainFocus_checkBringIntoView() {
         val focusRequester = FocusRequester()
         rule.setContent {
@@ -671,7 +743,7 @@ private fun checkNodeCompletelyVisible(
 }
 
 private fun performKeyPress(keyCode: Int, count: Int = 1) {
-    for (i in 1..count) {
+    repeat(count) {
         InstrumentationRegistry
             .getInstrumentation()
             .sendKeyDownUpSync(keyCode)

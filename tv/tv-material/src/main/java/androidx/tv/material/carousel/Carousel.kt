@@ -16,6 +16,7 @@
 
 package androidx.tv.material.carousel
 
+import android.view.KeyEvent.KEYCODE_BACK
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
@@ -53,6 +54,11 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -122,6 +128,12 @@ fun Carousel(
     Box(modifier = modifier
         .bringIntoViewIfChildrenAreFocused()
         .focusRequester(carouselOuterBoxFocusRequester)
+        .onKeyEvent {
+            if (it.key.nativeKeyCode == KEYCODE_BACK && it.type == KeyDown) {
+                focusManager.moveFocus(FocusDirection.Exit)
+            }
+            false
+        }
         .onFocusChanged {
             focusState = it
             if (it.isFocused && isAutoScrollActive) {
