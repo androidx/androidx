@@ -31,6 +31,8 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
+import androidx.camera.core.impl.utils.Threads
+import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
@@ -218,7 +220,7 @@ class UseCaseManager @Inject constructor(
         when {
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
-            else -> camera?.runningUseCasesLiveData?.value = runningUseCases
+            else -> camera?.runningUseCasesLiveData?.setLiveDataValue(runningUseCases)
         }
     }
 
@@ -323,5 +325,13 @@ class UseCaseManager @Inject constructor(
         val sessionConfig = validatingBuilder.build()
         val captureConfig = sessionConfig.repeatingCaptureConfig
         return predicate(captureConfig.surfaces, sessionConfig.surfaces)
+    }
+
+    private fun <T> MutableLiveData<T>.setLiveDataValue(value: T?) {
+        if (Threads.isMainThread()) {
+            this.value = value
+        } else {
+            this.postValue(value)
+        }
     }
 }
