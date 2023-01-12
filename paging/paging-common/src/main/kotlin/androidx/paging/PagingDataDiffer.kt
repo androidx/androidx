@@ -34,8 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
@@ -338,8 +338,8 @@ public abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    public val loadStateFlow: Flow<CombinedLoadStates> =
-        combinedLoadStatesCollection.stateFlow.filterNotNull()
+    public val loadStateFlow: StateFlow<CombinedLoadStates?> =
+        combinedLoadStatesCollection.stateFlow
 
     private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> = MutableSharedFlow(
         replay = 0,
