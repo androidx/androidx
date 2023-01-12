@@ -13,44 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.savedstate.SavedStateRegistry
 
-import androidx.annotation.NonNull;
-import androidx.savedstate.SavedStateRegistry;
+internal class SavedStateHandleController(
+    private val key: String,
+    val handle: SavedStateHandle
+) : LifecycleEventObserver {
 
-final class SavedStateHandleController implements LifecycleEventObserver {
-    private final String mKey;
-    private boolean mIsAttached = false;
-    private final SavedStateHandle mHandle;
+    var isAttached = false
+        private set
 
-    SavedStateHandleController(String key, SavedStateHandle handle) {
-        mKey = key;
-        mHandle = handle;
+    fun attachToLifecycle(registry: SavedStateRegistry, lifecycle: Lifecycle) {
+        check(!isAttached) { "Already attached to lifecycleOwner" }
+        isAttached = true
+        lifecycle.addObserver(this)
+        registry.registerSavedStateProvider(key, handle.savedStateProvider())
     }
 
-    boolean isAttached() {
-        return mIsAttached;
-    }
-
-    void attachToLifecycle(SavedStateRegistry registry, Lifecycle lifecycle) {
-        if (mIsAttached) {
-            throw new IllegalStateException("Already attached to lifecycleOwner");
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event === Lifecycle.Event.ON_DESTROY) {
+            isAttached = false
+            source.lifecycle.removeObserver(this)
         }
-        mIsAttached = true;
-        lifecycle.addObserver(this);
-        registry.registerSavedStateProvider(mKey, mHandle.savedStateProvider());
-    }
-
-    @Override
-    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
-        if (event == Lifecycle.Event.ON_DESTROY) {
-            mIsAttached = false;
-            source.getLifecycle().removeObserver(this);
-        }
-    }
-
-    SavedStateHandle getHandle() {
-        return mHandle;
     }
 }
