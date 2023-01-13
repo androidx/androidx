@@ -1094,31 +1094,16 @@ public class ConstraintSetParser {
                     flow.setWrapMode(State.Wrap.getValueByString(wrapValue));
                     break;
                 case "vGap":
-                    String vGapValue = element.get(param).content();
-                    try {
-                        int value = Integer.parseInt(vGapValue);
-                        flow.setVerticalGap(value);
-                    } catch(NumberFormatException e) {
-
-                    }
+                    int vGapValue = element.get(param).getInt();
+                    flow.setVerticalGap(vGapValue);
                     break;
                 case "hGap":
-                    String hGapValue = element.get(param).content();
-                    try {
-                        int value = Integer.parseInt(hGapValue);
-                        flow.setHorizontalGap(value);
-                    } catch(NumberFormatException e) {
-
-                    }
+                    int hGapValue = element.get(param).getInt();
+                    flow.setHorizontalGap(hGapValue);
                     break;
                 case "maxElement":
-                    String maxElementValue = element.get(param).content();
-                    try {
-                        int value = Integer.parseInt(maxElementValue);
-                        flow.setMaxElementsWrap(value);
-                    } catch(NumberFormatException e) {
-
-                    }
+                    int maxElementValue = element.get(param).getInt();
+                    flow.setMaxElementsWrap(maxElementValue);
                     break;
                 case "padding":
                     CLElement paddingObject = element.get(param);
