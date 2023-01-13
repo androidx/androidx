@@ -62,7 +62,7 @@ public final class SettingsActivity extends AppCompatActivity {
 
         mMediaRouter = MediaRouter.getInstance(this);
 
-        mRoutesManager = RoutesManager.getInstance();
+        mRoutesManager = RoutesManager.getInstance(getApplicationContext());
 
         mConnection = new ProviderServiceConnection();
 
