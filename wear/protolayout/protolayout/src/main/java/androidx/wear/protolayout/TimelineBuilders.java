@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package androidx.wear.protolayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.protolayout.proto.TimelineProto;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.LayoutElementBuilders.Layout;
+import androidx.wear.protolayout.proto.TimelineProto;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,25 +33,31 @@ import java.util.List;
 public final class TimelineBuilders {
   private TimelineBuilders() {}
 
-  /** A time interval, typically used to describe the validity period of a {@link TimelineEntry}. */
+  /**
+   * A time interval, typically used to describe the validity period of a {@link TimelineEntry}.
+   *
+   * @since 1.0
+   */
   public static final class TimeInterval {
     private final TimelineProto.TimeInterval mImpl;
 
-    private TimeInterval(TimelineProto.TimeInterval impl) {
+    TimeInterval(TimelineProto.TimeInterval impl) {
       this.mImpl = impl;
     }
 
     /**
-     * Gets starting point of the time interval, in milliseconds since the Unix epoch. Intended for
-     * testing purposes only.
+     * Gets starting point of the time interval, in milliseconds since the Unix epoch.
+     *
+     * @since 1.0
      */
     public long getStartMillis() {
       return mImpl.getStartMillis();
     }
 
     /**
-     * Gets end point of the time interval, in milliseconds since the Unix epoch. Intended for
-     * testing purposes only.
+     * Gets end point of the time interval, in milliseconds since the Unix epoch.
+     *
+     * @since 1.0
      */
     public long getEndMillis() {
       return mImpl.getEndMillis();
@@ -72,14 +80,22 @@ public final class TimelineBuilders {
 
       public Builder() {}
 
-      /** Sets starting point of the time interval, in milliseconds since the Unix epoch. */
+      /**
+       * Sets starting point of the time interval, in milliseconds since the Unix epoch.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setStartMillis(long startMillis) {
         mImpl.setStartMillis(startMillis);
         return this;
       }
 
-      /** Sets end point of the time interval, in milliseconds since the Unix epoch. */
+      /**
+       * Sets end point of the time interval, in milliseconds since the Unix epoch.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setEndMillis(long endMillis) {
         mImpl.setEndMillis(endMillis);
@@ -94,15 +110,23 @@ public final class TimelineBuilders {
     }
   }
 
-  /** One piece of renderable content along with the time that it is valid for. */
+  /**
+   * One piece of renderable content along with the time that it is valid for.
+   *
+   * @since 1.0
+   */
   public static final class TimelineEntry {
     private final TimelineProto.TimelineEntry mImpl;
 
-    private TimelineEntry(TimelineProto.TimelineEntry impl) {
+    TimelineEntry(TimelineProto.TimelineEntry impl) {
       this.mImpl = impl;
     }
 
-    /** Gets the validity period for this timeline entry. Intended for testing purposes only. */
+    /**
+     * Gets the validity period for this timeline entry.
+     *
+     * @since 1.0
+     */
     @Nullable
     public TimeInterval getValidity() {
       if (mImpl.hasValidity()) {
@@ -112,7 +136,11 @@ public final class TimelineBuilders {
       }
     }
 
-    /** Gets the contents of this timeline entry. Intended for testing purposes only. */
+    /**
+     * Gets the contents of this timeline entry.
+     *
+     * @since 1.0
+     */
     @Nullable
     public Layout getLayout() {
       if (mImpl.hasLayout()) {
@@ -146,14 +174,22 @@ public final class TimelineBuilders {
 
       public Builder() {}
 
-      /** Sets the validity period for this timeline entry. */
+      /**
+       * Sets the validity period for this timeline entry.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setValidity(@NonNull TimeInterval validity) {
         mImpl.setValidity(validity.toProto());
         return this;
       }
 
-      /** Sets the contents of this timeline entry. */
+      /**
+       * Sets the contents of this timeline entry.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setLayout(@NonNull Layout layout) {
         mImpl.setLayout(layout.toProto());
@@ -180,15 +216,21 @@ public final class TimelineBuilders {
    * period will be shown. This allows a layout provider to show a "default" layout, and override it
    * at set points without having to explicitly insert the default layout between the "override"
    * layout.
+   *
+   * @since 1.0
    */
   public static final class Timeline {
     private final TimelineProto.Timeline mImpl;
 
-    private Timeline(TimelineProto.Timeline impl) {
+    Timeline(TimelineProto.Timeline impl) {
       this.mImpl = impl;
     }
 
-    /** Gets the entries in a timeline. Intended for testing purposes only. */
+    /**
+     * Gets the entries in a timeline.
+     *
+     * @since 1.0
+     */
     @NonNull
     public List<TimelineEntry> getTimelineEntries() {
       List<TimelineEntry> list = new ArrayList<>();
@@ -205,13 +247,26 @@ public final class TimelineBuilders {
       return new Builder().addTimelineEntry(TimelineEntry.fromLayoutElement(layoutElement)).build();
     }
 
+    /**
+     * Creates a new wrapper instance from the proto. An object created using this method can't
+     * be added to any other wrapper.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
+    public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
       return new Timeline(proto);
     }
 
+    /**
+     * Returns the internal proto instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    TimelineProto.Timeline toProto() {
+    public TimelineProto.Timeline toProto() {
       return mImpl;
     }
 
@@ -221,7 +276,11 @@ public final class TimelineBuilders {
 
       public Builder() {}
 
-      /** Adds one item to the entries in a timeline. */
+      /**
+       * Adds one item to the entries in a timeline.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder addTimelineEntry(@NonNull TimelineEntry timelineEntry) {
         mImpl.addTimelineEntries(timelineEntry.toProto());

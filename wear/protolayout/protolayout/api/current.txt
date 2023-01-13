@@ -890,11 +890,13 @@ package androidx.wear.protolayout {
   }
 
   public static final class StateBuilders.State {
+    method public java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue!> getIdToValueMapping();
     method public String getLastClickableId();
   }
 
   public static final class StateBuilders.State.Builder {
     ctor public StateBuilders.State.Builder();
+    method public androidx.wear.protolayout.StateBuilders.State.Builder addIdToValueMapping(String, androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue);
     method public androidx.wear.protolayout.StateBuilders.State build();
   }
 

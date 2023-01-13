@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,11 @@ public final class ColorBuilders {
     return new ColorProp.Builder().setArgb(colorArgb).build();
   }
 
-  /** A property defining a color. */
+  /**
+   * A property defining a color.
+   *
+   * @since 1.0
+   */
   public static final class ColorProp {
     private final ColorProto.ColorProp mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -44,7 +48,11 @@ public final class ColorBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** Gets the color value, in ARGB format. Intended for testing purposes only. */
+    /**
+     * Gets the color value, in ARGB format.
+     *
+     * @since 1.0
+     */
     @ColorInt
     public int getArgb() {
       return mImpl.getArgb();
@@ -74,11 +82,15 @@ public final class ColorBuilders {
     /** Builder for {@link ColorProp} */
     public static final class Builder {
       private final ColorProto.ColorProp.Builder mImpl = ColorProto.ColorProp.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-1332287496);
+      private final Fingerprint mFingerprint = new Fingerprint(-1955659823);
 
       public Builder() {}
 
-      /** Sets the color value, in ARGB format. */
+      /**
+       * Sets the color value, in ARGB format.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setArgb(@ColorInt int argb) {
         mImpl.setArgb(argb);

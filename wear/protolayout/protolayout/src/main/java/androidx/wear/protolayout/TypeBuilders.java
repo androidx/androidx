@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,11 @@ import androidx.wear.protolayout.proto.TypesProto;
 public final class TypeBuilders {
   private TypeBuilders() {}
 
-  /** An int32 type. */
+  /**
+   * An int32 type.
+   *
+   * @since 1.0
+   */
   public static final class Int32Prop {
     private final TypesProto.Int32Prop mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -38,7 +42,11 @@ public final class TypeBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** Gets the value. Intended for testing purposes only. */
+    /**
+     * Gets the value.
+     *
+     * @since 1.0
+     */
     public int getValue() {
       return mImpl.getValue();
     }
@@ -67,11 +75,15 @@ public final class TypeBuilders {
     /** Builder for {@link Int32Prop} */
     public static final class Builder {
       private final TypesProto.Int32Prop.Builder mImpl = TypesProto.Int32Prop.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-1809132005);
+      private final Fingerprint mFingerprint = new Fingerprint(-1360212989);
 
       public Builder() {}
 
-      /** Sets the value. */
+      /**
+       * Sets the value.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setValue(int value) {
         mImpl.setValue(value);
@@ -87,7 +99,11 @@ public final class TypeBuilders {
     }
   }
 
-  /** A string type. */
+  /**
+   * A string type.
+   *
+   * @since 1.0
+   */
   public static final class StringProp {
     private final TypesProto.StringProp mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -97,7 +113,11 @@ public final class TypeBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** Gets the value. Intended for testing purposes only. */
+    /**
+     * Gets the value.
+     *
+     * @since 1.0
+     */
     @NonNull
     public String getValue() {
       return mImpl.getValue();
@@ -127,11 +147,15 @@ public final class TypeBuilders {
     /** Builder for {@link StringProp} */
     public static final class Builder {
       private final TypesProto.StringProp.Builder mImpl = TypesProto.StringProp.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-319420356);
+      private final Fingerprint mFingerprint = new Fingerprint(327834307);
 
       public Builder() {}
 
-      /** Sets the value. */
+      /**
+       * Sets the value.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setValue(@NonNull String value) {
         mImpl.setValue(value);
@@ -147,7 +171,11 @@ public final class TypeBuilders {
     }
   }
 
-  /** A float type. */
+  /**
+   * A float type.
+   *
+   * @since 1.0
+   */
   public static final class FloatProp {
     private final TypesProto.FloatProp mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -157,7 +185,11 @@ public final class TypeBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** Gets the value. Intended for testing purposes only. */
+    /**
+     * Gets the value.
+     *
+     * @since 1.0
+     */
     public float getValue() {
       return mImpl.getValue();
     }
@@ -186,11 +218,15 @@ public final class TypeBuilders {
     /** Builder for {@link FloatProp} */
     public static final class Builder {
       private final TypesProto.FloatProp.Builder mImpl = TypesProto.FloatProp.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(399943127);
+      private final Fingerprint mFingerprint = new Fingerprint(-641088370);
 
       public Builder() {}
 
-      /** Sets the value. */
+      /**
+       * Sets the value.
+       *
+       * @since 1.0
+       */
       @NonNull
       public Builder setValue(float value) {
         mImpl.setValue(value);
@@ -206,7 +242,11 @@ public final class TypeBuilders {
     }
   }
 
-  /** A boolean type. */
+  /**
+   * A boolean type.
+   *
+   * @since 1.0
+   */
   public static final class BoolProp {
     private final TypesProto.BoolProp mImpl;
     @Nullable private final Fingerprint mFingerprint;
@@ -216,7 +256,11 @@ public final class TypeBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** Gets the value. Intended for testing purposes only. */
+    /**
+     * Gets the value.
+     *
+     * @since 1.0
+     */
     public boolean getValue() {
       return mImpl.getValue();
     }
@@ -245,11 +289,15 @@ public final class TypeBuilders {
     /** Builder for {@link BoolProp} */
     public static final class Builder {
       private final TypesProto.BoolProp.Builder mImpl = TypesProto.BoolProp.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-278424864);
+      private final Fingerprint mFingerprint = new Fingerprint(1691257528);
 
       public Builder() {}
 
-      /** Sets the value. */
+      /**
+       * Sets the value.
+       *
+       * @since 1.0
+       */
       @SuppressLint("MissingGetterMatchingBuilder")
       @NonNull
       public Builder setValue(boolean value) {
