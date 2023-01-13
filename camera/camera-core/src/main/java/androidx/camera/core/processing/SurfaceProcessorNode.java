@@ -126,7 +126,7 @@ public class SurfaceProcessorNode implements
         Size inputSize = input.getSize();
         Rect cropRect = outConfig.getCropRect();
         int rotationDegrees = input.getRotationDegrees();
-        boolean mirroring = input.getMirroring();
+        boolean mirroring = outConfig.getMirroring();
 
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
@@ -149,7 +149,7 @@ public class SurfaceProcessorNode implements
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/0,
-                /*mirroring=*/false);
+                /*mirroring=*/input.getMirroring() != mirroring);
 
         return outputSurface;
     }
@@ -194,7 +194,7 @@ public class SurfaceProcessorNode implements
                 input.getSize(),
                 output.getKey().getCropRect(),
                 input.getRotationDegrees(),
-                input.getMirroring());
+                output.getKey().getMirroring());
         Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
             @Override
             public void onSuccess(@Nullable SurfaceOutput output) {
@@ -339,6 +339,11 @@ public class SurfaceProcessorNode implements
         abstract Size getSize();
 
         /**
+         * The whether the stream should be mirrored.
+         */
+        abstract boolean getMirroring();
+
+        /**
          * Creates an {@link OutConfig} instance from the input edge.
          *
          * <p>The result is an output edge with the input's transformation applied.
@@ -347,15 +352,17 @@ public class SurfaceProcessorNode implements
         public static OutConfig of(@NonNull SurfaceEdge surface) {
             return of(surface.getTargets(),
                     surface.getCropRect(),
-                    getRotatedSize(surface.getCropRect(), surface.getRotationDegrees()));
+                    getRotatedSize(surface.getCropRect(), surface.getRotationDegrees()),
+                    surface.getMirroring());
         }
 
         /**
          * Creates an {@link OutConfig} instance with custom transformations.
          */
         @NonNull
-        public static OutConfig of(int targets, @NonNull Rect cropRect, @NonNull Size size) {
-            return new AutoValue_SurfaceProcessorNode_OutConfig(targets, cropRect, size);
+        public static OutConfig of(int targets, @NonNull Rect cropRect, @NonNull Size size,
+                boolean mirroring) {
+            return new AutoValue_SurfaceProcessorNode_OutConfig(targets, cropRect, size, mirroring);
         }
     }
 }
