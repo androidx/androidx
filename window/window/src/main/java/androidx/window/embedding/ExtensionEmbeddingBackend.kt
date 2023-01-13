@@ -319,4 +319,22 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
         embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
+
+    override fun getActivityStack(activity: Activity): ActivityStack? {
+        globalLock.withLock {
+            val lastInfo: List<SplitInfo> = splitInfoEmbeddingCallback.lastInfo ?: return null
+            for (info in lastInfo) {
+                if (activity !in info) {
+                    continue
+                }
+                if (activity in info.primaryActivityStack) {
+                    return info.primaryActivityStack
+                }
+                if (activity in info.secondaryActivityStack) {
+                    return info.secondaryActivityStack
+                }
+            }
+            return null
+        }
+    }
 }

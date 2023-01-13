@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -36,6 +37,19 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
     fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingBackend.isActivityEmbedded(activity)
     }
+
+    /**
+     * Returns the [ActivityStack] that this [activity] is part of when it is being organized in the
+     * embedding container and associated with a [SplitInfo]. Returns `null` if there is no such
+     * [ActivityStack].
+     *
+     * @param activity The [Activity] to check.
+     * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
+     *   [ActivityStack].
+     */
+    @ExperimentalWindowApi
+    fun getActivityStack(activity: Activity): ActivityStack? =
+        embeddingBackend.getActivityStack(activity)
 
     companion object {
         @Volatile
