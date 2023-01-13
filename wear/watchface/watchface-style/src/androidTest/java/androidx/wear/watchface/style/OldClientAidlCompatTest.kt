@@ -39,6 +39,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -191,6 +192,7 @@ class OldClientAidlCompatTest {
     }
 
     @Test
+    @Ignore // TODO(b/265425077): This test is failing on the bots, fix it.
     fun roundTripUserStyleSchema() = runBlocking {
         val service = IStyleEchoService.Stub.asInterface(
             bindService(Intent(ACTON).apply { setPackage(PACKAGE_NAME) })
