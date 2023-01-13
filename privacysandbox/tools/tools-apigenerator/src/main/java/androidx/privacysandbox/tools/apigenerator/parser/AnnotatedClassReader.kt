@@ -22,8 +22,8 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import java.nio.file.Path
 import kotlinx.metadata.KmClass
-import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
+import kotlinx.metadata.jvm.Metadata
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -91,7 +91,7 @@ internal object AnnotatedClassReader {
         // ASM models annotation attributes as flat List<Objects>, so the unchecked cast is
         // inevitable when some of these objects have type parameters, like the lists below.
         @Suppress("UNCHECKED_CAST")
-        val header = KotlinClassHeader(
+        val metadataAnnotation = Metadata(
             kind = metadataValues["k"] as Int?,
             metadataVersion = (metadataValues["mv"] as? List<Int>?)?.toIntArray(),
             data1 = (metadataValues["d1"] as? List<String>?)?.toTypedArray(),
@@ -101,7 +101,7 @@ internal object AnnotatedClassReader {
             extraString = metadataValues["xs"] as? String?,
         )
 
-        return when (val metadata = KotlinClassMetadata.read(header)) {
+        return when (val metadata = KotlinClassMetadata.read(metadataAnnotation)) {
             is KotlinClassMetadata.Class -> metadata.toKmClass()
             else -> throw PrivacySandboxParsingException(
                 "Unable to parse Kotlin metadata from ${classNode.name}. " +

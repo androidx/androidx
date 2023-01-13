@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeParameterElement
-import androidx.room.compiler.processing.javac.kotlin.KmTypeParameter
+import androidx.room.compiler.processing.javac.kotlin.KmTypeParameterContainer
 import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.element.TypeParameterElement
 
@@ -29,7 +29,7 @@ internal class JavacTypeParameterElement(
     env: JavacProcessingEnv,
     override val enclosingElement: XElement,
     override val element: TypeParameterElement,
-    override val kotlinMetadata: KmTypeParameter?,
+    override val kotlinMetadata: KmTypeParameterContainer?,
 ) : JavacElement(env, element), XTypeParameterElement {
 
     override val name: String
