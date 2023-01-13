@@ -97,9 +97,6 @@ package androidx.wear.watchface.complications.data {
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
 
-  public final class FloatExpressionKt {
-  }
-
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GoalProgressComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     method public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
