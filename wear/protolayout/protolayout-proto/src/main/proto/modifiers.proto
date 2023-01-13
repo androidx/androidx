@@ -4,6 +4,7 @@ syntax = "proto3";
 package androidx.wear.protolayout.proto;
 
 import "action.proto";
+import "animation_parameters.proto";
 import "color.proto";
 import "dimension.proto";
 import "types.proto";
@@ -23,13 +24,52 @@ message Clickable {
   Action on_click = 2;
 }
 
+// The type of user interface element. Accessibility services might use this to
+// describe the element or do customizations.
+enum SemanticsRole {
+  // Role is undefined. It may be automatically populated.
+  SEMANTICS_ROLE_NONE = 0;
+
+  // The element is an Image.
+  SEMANTICS_ROLE_IMAGE = 1;
+
+  // The element is a Button control.
+  SEMANTICS_ROLE_BUTTON = 2;
+
+  // The element is a Checkbox which is a component that represents two states
+  // (checked / unchecked).
+  SEMANTICS_ROLE_CHECKBOX = 3;
+
+  // The element is a Switch which is a two state toggleable component that
+  // provides on/off like options.
+  SEMANTICS_ROLE_SWITCH = 4;
+
+  // This element is a RadioButton which is a component to represent two states,
+  // selected and not selected.
+  SEMANTICS_ROLE_RADIOBUTTON = 5;
+}
+
 // A modifier for an element which has accessibility semantics associated with
 // it. This should generally be used sparingly, and in most cases should only be
 // applied to the top-level layout element or to Clickables.
 message Semantics {
   // The content description associated with this element. This will be dictated
   // when the element is focused by the screen reader.
-  string content_description = 1;
+  // @deprecated Use content_description instead.
+  string obsolete_content_description = 1;
+
+  // The content description associated with this element. This will be dictated
+  // when the element is focused by the screen reader.
+  StringProp content_description = 4;
+
+  // The type of user interface element. Accessibility services might use this
+  // to describe the element or do customizations.
+  SemanticsRole role = 2;
+
+  // The localized state description of the semantics node.
+  // For example: "on" or "off". This will be dictated when the element is
+  // focused by the screen reader.
+  StringProp state_description = 3;
 }
 
 // A modifier to apply padding around an element.
@@ -95,26 +135,192 @@ message ElementMetadata {
 // Padding or Background), or change their behaviour (e.g. Clickable, or
 // Semantics).
 message Modifiers {
-  // Allows its wrapped element to have actions associated with it, which will
-  // be executed when the element is tapped.
+  // The clickable property of the modified element. It allows its wrapped
+  // element to have actions associated with it, which will be executed when the
+  // element is tapped.
   Clickable clickable = 1;
 
-  // Adds metadata for the modified element, for example, screen reader content
-  // descriptions.
+  // The semantics of the modified element. This can be used to add metadata to
+  // the modified element (eg. screen reader content descriptions).
   Semantics semantics = 2;
 
-  // Adds padding to the modified element.
+  // The padding of the modified element.
   Padding padding = 3;
 
-  // Draws a border around the modified element.
+  // The border of the modified element.
   Border border = 4;
 
-  // Adds a background (with corner radius) to the modified element.
+  // The background (with optional corner radius) of the modified element.
   Background background = 5;
 
   // Metadata about an element. For use by libraries building higher-level
   // components only. This can be used to track component metadata
   ElementMetadata metadata = 6;
+
+  // The content transition of an element. Any update to the element or its
+  // children will trigger this animation for this element and everything
+  // underneath it.
+  AnimatedVisibility content_update_animation = 7;
+
+  // Whether the attached element is hidden, or visible. If the element is
+  // hidden, then it will still consume space in the layout, but will not render
+  // any contents, nor will any children render any contents.
+  //
+  // Note that a hidden element also cannot be clickable (i.e. a Clickable
+  // modifier would be ignored).
+  //
+  // Defaults to false (i.e. not hidden).
+  BoolProp hidden = 8;
+}
+
+// The content transition of an element. Any update to the element or its
+// children will trigger this animation for this element and everything
+// underneath it.
+message AnimatedVisibility {
+  // The content transition that is triggered when element enters the layout.
+  EnterTransition enter = 1;
+
+  // The content transition that is triggered when element exits the layout.
+  // Note that indefinite exit animations are ignored.
+  ExitTransition exit = 2;
+}
+
+// The content transition that is triggered when element enters the layout.
+message EnterTransition {
+  // The fading in animation for content transition of an element and its
+  // children happening when entering the layout.
+  FadeInTransition fade_in = 1;
+
+  // The sliding in animation for content transition of an element and its
+  // children happening when entering the layout.
+  SlideInTransition slide_in = 2;
+}
+
+// The fading animation for content transition of an element and its children,
+// from the specified starting alpha to fully visible.
+message FadeInTransition {
+  // The starting alpha of the fade in transition. It should be between 0 and 1.
+  // If not set, defaults to fully transparent, i.e. 0.
+  float initial_alpha = 1;
+
+  // The animation parameters for duration, delay, etc.
+  androidx.wear.protolayout.expression.proto.AnimationSpec animation_spec = 2;
+}
+
+// The sliding in animation for content transition of an element and its
+// children.
+message SlideInTransition {
+  // The slide direction used for slide animations on any element, from the
+  // specified point to its destination in the layout. If not set, defaults to
+  // horizontal from left to the right.
+  SlideDirection direction = 1;
+
+  // The initial offset for animation. By default the transition starts from the
+  // left parent boundary for horizontal orientation and from the top for
+  // vertical orientation. Note that sliding from the screen boundaries can only
+  // be achieved if all parent's sizes are big enough to accommodate it.
+  SlideBound initial_slide_bound = 2;
+
+  // The animation parameters for duration, delay, etc.
+  androidx.wear.protolayout.expression.proto.AnimationSpec animation_spec = 3;
+}
+
+// The content transition that is triggered when element exits the layout.
+message ExitTransition {
+  // The fading out animation for content transition of an element and its
+  // children happening when exiting the layout.
+  FadeOutTransition fade_out = 1;
+
+  // The sliding out animation for content transition of an element and its
+  // children happening when exiting the layout.
+  SlideOutTransition slide_out = 2;
+}
+
+// The fading animation for content transition of an element and its children,
+// from fully visible to the specified target alpha.
+message FadeOutTransition {
+  // The target alpha of the fade out transition. It should be between 0 and 1.
+  // If not set, defaults to fully invisible, i.e. 0.
+  float target_alpha = 1;
+
+  // The animation parameters for duration, delay, etc.
+  androidx.wear.protolayout.expression.proto.AnimationSpec animation_spec = 2;
+}
+
+// The sliding out animation for content transition of an element and its
+// children.
+message SlideOutTransition {
+  // The slide direction used for slide animations on any element, from its
+  // destination in the layout to the specified point. If not set, defaults to
+  // horizontal from right to the left.
+  SlideDirection direction = 1;
+
+  // The target offset for animation. By default the transition will end at the
+  // left parent boundary for horizontal orientation and at the top for
+  // vertical orientation. Note that sliding from the screen boundaries can only
+  // be achieved if all parent's sizes are big enough to accommodate it.
+  SlideBound target_slide_bound = 2;
+
+  // The animation parameters for duration, delay, etc.
+  androidx.wear.protolayout.expression.proto.AnimationSpec animation_spec = 3;
+}
+
+// The boundary that a Slide animation will use for start/end.
+message SlideBound {
+  oneof inner {
+    SlideParentBound parent_bound = 1;
+    SlideLinearBound linear_bound = 2;
+  }
+}
+
+// The slide animation will animate from/to the parent elements boundaries.
+message SlideParentBound {
+  // The snap options to use when sliding using parent boundaries. Defaults to
+  // SLIDE_PARENT_SNAP_TO_INSIDE if not specified.
+  SlideParentSnapOption snap_to = 1;
+}
+
+// The snap options to use when sliding using parent boundaries.
+enum SlideParentSnapOption {
+  // The undefined snapping option.
+  SLIDE_PARENT_SNAP_UNDEFINED = 0;
+
+  // The option that snaps insides of the element and its parent at start/end.
+  SLIDE_PARENT_SNAP_TO_INSIDE = 1;
+
+  // The option that snaps outsides of the element and its parent at start/end.
+  SLIDE_PARENT_SNAP_TO_OUTSIDE = 2;
+}
+
+// The slide animation will use the explicit offset for the animation boundary.
+message SlideLinearBound {
+  // The absolute delta linear distance to animate from/to. A direction will be
+  // defined by SlideDirection and this value should be a positive offset.
+  float offset_dp = 1;
+}
+
+// The slide direction used for slide animations on any element, from the
+// specified point to its destination in the layout for in animation or reverse
+// for out animation.
+enum SlideDirection {
+  // The undefined sliding orientation.
+  SLIDE_DIRECTION_UNDEFINED = 0;
+
+  // The sliding orientation that moves an element horizontally from left to the
+  // right.
+  SLIDE_DIRECTION_LEFT_TO_RIGHT = 1;
+
+  // The sliding orientation that moves an element horizontally from right to
+  // the left.
+  SLIDE_DIRECTION_RIGHT_TO_LEFT = 2;
+
+  // The sliding orientation that moves an element vertically from top to the
+  // bottom.
+  SLIDE_DIRECTION_TOP_TO_BOTTOM = 3;
+
+  // The sliding orientation that moves an element vertically from bottom to the
+  // top.
+  SLIDE_DIRECTION_BOTTOM_TO_TOP = 4;
 }
 
 // Modifiers that can be used with ArcLayoutElements. These may change the way

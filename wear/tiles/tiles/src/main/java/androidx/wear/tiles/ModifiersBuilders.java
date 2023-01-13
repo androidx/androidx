@@ -127,7 +127,7 @@ public final class ModifiersBuilders {
          */
         @NonNull
         public String getContentDescription() {
-            return mImpl.getContentDescription();
+            return mImpl.getObsoleteContentDescription();
         }
 
         /** @hide */
@@ -157,7 +157,7 @@ public final class ModifiersBuilders {
              */
             @NonNull
             public Builder setContentDescription(@NonNull String contentDescription) {
-                mImpl.setContentDescription(contentDescription);
+                mImpl.setObsoleteContentDescription(contentDescription);
                 return this;
             }
 
