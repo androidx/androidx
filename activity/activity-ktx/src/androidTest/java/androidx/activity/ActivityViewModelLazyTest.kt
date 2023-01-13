@@ -62,15 +62,15 @@ class ActivityViewModelLazyTest {
             super.onCreate(savedInstanceState)
         }
 
-        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            return SavedStateViewModelFactory()
-        }
+        override val defaultViewModelProviderFactory
+            get() = SavedStateViewModelFactory()
 
-        override fun getDefaultViewModelCreationExtras(): CreationExtras {
-            val extras = MutableCreationExtras(super.getDefaultViewModelCreationExtras())
-            extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
-            return extras
-        }
+        override val defaultViewModelCreationExtras: CreationExtras
+            get() {
+                val extras = MutableCreationExtras(super.defaultViewModelCreationExtras)
+                extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+                return extras
+            }
     }
 
     class TestViewModel : ViewModel()

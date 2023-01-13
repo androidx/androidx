@@ -109,7 +109,7 @@ constructor(
      *
      *
      * This method will use the
-     * [default factory][HasDefaultViewModelProviderFactory.getDefaultViewModelProviderFactory]
+     * [default factory][HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory]
      * if the owner implements [HasDefaultViewModelProviderFactory]. Otherwise, a
      * [NewInstanceFactory] will be used.
      */
