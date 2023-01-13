@@ -37,6 +37,17 @@ public interface WatchFaceHostApi {
     /** The [WatchFaceService.SystemTimeProvider]. */
     public val systemTimeProvider: WatchFaceService.SystemTimeProvider
 
+    /**
+     * Equivalent to [android.os.Build.VERSION.SDK_INT], but allows override for any
+     * platform-independent versioning.
+     *
+     * This is meant to only be used in androidTest, which only support testing on one SDK. In
+     * Robolectric tests use `@Config(sdk = [Build.VERSION_CODES.*])`.
+     *
+     * Note that this cannot override platform-dependent versioning, which means inconsistency.
+     */
+    public val wearSdkVersion: Int
+
     /** Returns the watch face's [Context]. */
     public fun getContext(): Context
 
