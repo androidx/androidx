@@ -248,7 +248,14 @@ internal class VirtualCameraManager @Inject constructor(
             timeout = 1000,
             callback = {
                 channel.trySend(RequestClose(this)).isSuccess
-            }
+            },
+            // Every ActiveCamera is associated with an opened camera. We should ensure that we
+            // issue a RequestClose eventually for every ActiveCamera created.
+            //
+            // A notable bug is b/264396089 where, because camera opens took too long, we didn't
+            // acquire a WakeLockToken, and thereby not issuing the request to close camera
+            // eventually.
+            startTimeoutOnCreation = true
         )
 
         init {
