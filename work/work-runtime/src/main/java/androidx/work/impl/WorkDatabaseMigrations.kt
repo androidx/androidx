@@ -23,6 +23,7 @@ import androidx.room.RenameColumn
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.work.OverwritingInputMerger
 import androidx.work.impl.WorkDatabaseVersions.VERSION_1
 import androidx.work.impl.WorkDatabaseVersions.VERSION_10
 import androidx.work.impl.WorkDatabaseVersions.VERSION_11
@@ -299,8 +300,14 @@ object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
 object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // b/261721822: unclear how the content of input_merger_class_name could have been,
-        // null such that it fails to migrate to a table with a NOT NULL constrain.
-        db.execSQL("DELETE FROM WorkSpec WHERE input_merger_class_name IS NULL")
+        // null such that it fails to migrate to a table with a NOT NULL constrain, therefore
+        // set the current default value to avoid dropping the worker.
+        db.execSQL(
+            """UPDATE WorkSpec
+                SET input_merger_class_name = '${OverwritingInputMerger::class.java.name}'
+                WHERE input_merger_class_name IS NULL
+                """.trimIndent()
+        )
         db.execSQL(
             """CREATE TABLE IF NOT EXISTS `_new_WorkSpec` (
                 `id` TEXT NOT NULL,
