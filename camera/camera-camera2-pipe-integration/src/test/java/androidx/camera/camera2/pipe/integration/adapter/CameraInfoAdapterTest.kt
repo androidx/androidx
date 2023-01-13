@@ -18,12 +18,23 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
+import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
+import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
+import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.ImageFormatConstants
+import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.util.concurrent.MoreExecutors
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -33,7 +44,11 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraInfoAdapterTest {
-    private val cameraInfoAdapter = createCameraInfoAdapter()
+    private val zoomControl = ZoomControl(useCaseThreads, FakeZoomCompat())
+    private val cameraInfoAdapter = createCameraInfoAdapter(zoomControl = zoomControl)
+
+    @get:Rule
+    val dispatcherRule = MainDispatcherRule(MoreExecutors.directExecutor().asCoroutineDispatcher())
 
     @Test
     fun getSupportedResolutions() {
@@ -60,5 +75,52 @@ class CameraInfoAdapterTest {
         assertWithMessage("isFocusMeteringSupported() method did not return successfully")
             .that(cameraInfoAdapter.isFocusMeteringSupported(action))
             .isAnyOf(true, false)
+    }
+
+    @Test
+    fun canReturnDefaultZoomState() {
+        // make new ZoomControl to test first-time initialization scenario
+        val zoomControl = ZoomControl(useCaseThreads, FakeZoomCompat())
+        val cameraInfoAdapter = createCameraInfoAdapter(zoomControl = zoomControl)
+
+        assertWithMessage("zoomState did not return default zoom ratio successfully")
+            .that(cameraInfoAdapter.zoomState.value)
+            .isEqualTo(zoomControl.defaultZoomState)
+    }
+
+    @Test
+    fun canObserveZoomStateUpdate(): Unit = runBlocking {
+        var currentZoomState: ZoomState = ZoomValue(-1.0f, -1.0f, -1.0f)
+        cameraInfoAdapter.zoomState.observeForever {
+            currentZoomState = it
+        }
+
+        // if useCaseCamera is null, zoom setting operation will be cancelled
+        zoomControl.useCaseCamera = FakeUseCaseCamera()
+
+        zoomControl.setZoomRatioAsync(3.0f)[3, TimeUnit.SECONDS]
+
+        // minZoom and maxZoom will be set as 0 due to FakeZoomCompat using those values
+        assertWithMessage("zoomState did not return default zoom ratio successfully")
+            .that(currentZoomState)
+            .isEqualTo(ZoomValue(3.0f, zoomControl.minZoom, zoomControl.maxZoom))
+    }
+
+    @Test
+    fun canObserveZoomStateReset(): Unit = runBlocking {
+        var currentZoomState: ZoomState = ZoomValue(-1.0f, -1.0f, -1.0f)
+        cameraInfoAdapter.zoomState.observeForever {
+            currentZoomState = it
+        }
+
+        // if useCaseCamera is null, zoom setting operation will be cancelled
+        zoomControl.useCaseCamera = FakeUseCaseCamera()
+
+        zoomControl.reset()
+
+        // minZoom and maxZoom will be set as 0 due to FakeZoomCompat using those values
+        assertWithMessage("zoomState did not return default zoom state successfully")
+            .that(currentZoomState)
+            .isEqualTo(zoomControl.defaultZoomState)
     }
 }

@@ -47,11 +47,9 @@ import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 
 /**
  * Adapt the [CameraControlInternal] interface to [CameraPipe].
@@ -118,19 +116,8 @@ class CameraControlAdapter @Inject constructor(
         )
     }
 
-    override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {
-        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                zoomControl.zoomRatio = ratio
-                val zoomValue = ZoomValue(
-                    ratio,
-                    zoomControl.minZoom,
-                    zoomControl.maxZoom
-                )
-                cameraControlStateAdapter.setZoomState(zoomValue)
-            }
-        }.asListenableFuture()
-    }
+    override fun setZoomRatio(ratio: Float): ListenableFuture<Void> =
+        zoomControl.setZoomRatioAsync(ratio)
 
     override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
         val ratio = zoomControl.toZoomRatio(linearZoom)
