@@ -2281,7 +2281,7 @@ public open class NavController(
      */
     public fun getBackStackEntry(route: String): NavBackStackEntry {
         val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
-            entry.destination.hasRoute(route, entry.arguments, _graph!!)
+            entry.destination.hasRoute(route, entry.arguments)
         }
         requireNotNull(lastFromBackStack) {
             "No destination with route $route is on the NavController's back stack. The " +

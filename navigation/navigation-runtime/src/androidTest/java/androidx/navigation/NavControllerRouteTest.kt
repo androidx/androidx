@@ -377,6 +377,42 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testGetBackStackEntryWithExactRoute_onNavGraph() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "graph", startDestination = "start") {
+                test("start")
+                navigation(route = "graph2/{arg}", startDestination = "start2") {
+                    argument("arg") { type = NavType.StringType }
+                    test("start2")
+                    navigation(route = "graph3/{arg}", startDestination = "start3") {
+                        argument("arg") { type = NavType.StringType }
+                        test("start3")
+                    }
+                }
+            }
+
+        // fist nested graph
+        val deepLink = Uri.parse("android-app://androidx.navigation/graph2/13")
+        navController.navigate(deepLink)
+
+        // second nested graph
+        val deepLink2 = Uri.parse("android-app://androidx.navigation/graph3/18")
+        navController.navigate(deepLink2)
+
+        val navigator = navController.navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+        // ["graph", "graph2/13", "graph3/18"]
+        assertThat(navigator.backStack.value.size).isEqualTo(3)
+
+        val entry1 = navController.getBackStackEntry("graph2/13")
+        assertThat(entry1).isEqualTo(navigator.backStack.value[1])
+
+        val entry2 = navController.getBackStackEntry("graph3/18")
+        assertThat(entry2).isEqualTo(navigator.backStack.value[2])
+    }
+
+    @UiThreadTest
+    @Test
     fun testGetBackStackEntryWithExactRoute_multiArgs() {
         val navController = createNavController()
         navController.graph =
