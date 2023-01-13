@@ -23,6 +23,7 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -70,6 +71,7 @@ class MacrobenchmarkScopeTest {
         assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
+    @RequiresDevice // b/264938965
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun compile_speedProfile() {
@@ -91,6 +93,7 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
+    @RequiresDevice // b/264938965
     @Test
     fun compile_full() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
