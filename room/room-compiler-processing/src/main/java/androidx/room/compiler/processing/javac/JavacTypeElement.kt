@@ -29,7 +29,7 @@ import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
-import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
+import androidx.room.compiler.processing.javac.kotlin.KmClassContainer
 import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -53,7 +53,7 @@ internal sealed class JavacTypeElement(
         get() = MoreElements.getPackage(element).qualifiedName.toString()
 
     override val kotlinMetadata by lazy {
-        KotlinMetadataElement.createFor(element)
+        KmClassContainer.createFor(env, element)
     }
 
     override val qualifiedName by lazy {
@@ -151,7 +151,7 @@ internal sealed class JavacTypeElement(
     }
 
     override fun findPrimaryConstructor(): JavacConstructorElement? {
-        val primarySignature = kotlinMetadata?.findPrimaryConstructorSignature() ?: return null
+        val primarySignature = kotlinMetadata?.primaryConstructorSignature ?: return null
         return getConstructors().firstOrNull {
             primarySignature == it.descriptor
         }
@@ -194,7 +194,7 @@ internal sealed class JavacTypeElement(
     override val type: JavacDeclaredType by lazy {
         env.wrap(
             typeMirror = element.asType(),
-            kotlinType = kotlinMetadata?.kmType,
+            kotlinType = kotlinMetadata?.type,
             elementNullability = element.nullability
         )
     }
@@ -222,7 +222,7 @@ internal sealed class JavacTypeElement(
             val element = MoreTypes.asTypeElement(it)
             env.wrap<JavacType>(
                 typeMirror = it,
-                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                kotlinType = KmClassContainer.createFor(env, element)?.type,
                 elementNullability = element.nullability
             )
         }

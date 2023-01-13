@@ -17,8 +17,8 @@
 package androidx.room.compiler.processing.javac.kotlin
 
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
-import androidx.room.compiler.processing.javac.nullability
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runJavaProcessorTest
@@ -26,14 +26,14 @@ import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.AssumptionViolatedException
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.ElementFilter
+import org.junit.AssumptionViolatedException
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 class KotlinMetadataElementTest(
@@ -164,7 +164,7 @@ class KotlinMetadataElementTest(
             assertThat(
                 testClassElement.getConstructors().map {
                     val desc = it.descriptor()
-                    desc to (desc == metadataElement.findPrimaryConstructorSignature())
+                    desc to (desc == metadataElement.primaryConstructorSignature)
                 }
             ).containsExactly(
                 "<init>(Ljava/lang/String;)V" to true,
@@ -347,7 +347,7 @@ class KotlinMetadataElementTest(
             )
 
             fun assertSetter(
-                kmFunction: KmFunction?,
+                kmFunction: KmFunctionContainer?,
                 name: String,
                 jvmName: String,
                 paramNullable: Boolean
@@ -366,7 +366,7 @@ class KotlinMetadataElementTest(
             }
 
             fun assertSetter(
-                metadata: KotlinMetadataElement,
+                metadata: KmClassContainer,
                 method: ExecutableElement,
                 name: String,
                 jvmName: String,
@@ -391,7 +391,7 @@ class KotlinMetadataElementTest(
             }
 
             fun assertGetter(
-                kmFunction: KmFunction?,
+                kmFunction: KmFunctionContainer?,
                 name: String,
                 jvmName: String,
                 returnsNullable: Boolean
@@ -582,7 +582,7 @@ class KotlinMetadataElementTest(
                 invocation,
                 "Subject"
             )
-            fun assertParams(params: List<KmValueParameter>?) {
+            fun assertParams(params: List<KmValueParameterContainer>?) {
                 assertThat(
                     params?.map {
                         Triple(
@@ -670,22 +670,22 @@ class KotlinMetadataElementTest(
         )
         simpleRun(listOf(src)) { invocation ->
             val (_, simple) = getMetadataElement(invocation, "Simple")
-            assertThat(simple.kmType.isNullable()).isFalse()
-            assertThat(simple.kmType.typeArguments).isEmpty()
+            assertThat(simple.type.isNullable()).isFalse()
+            assertThat(simple.type.typeArguments).isEmpty()
 
             val (_, twoArgGeneric) = getMetadataElement(invocation, "TwoArgGeneric")
-            assertThat(twoArgGeneric.kmType.isNullable()).isFalse()
-            assertThat(twoArgGeneric.kmType.typeArguments).hasSize(2)
-            assertThat(twoArgGeneric.kmType.typeArguments[0].isNullable()).isFalse()
-            assertThat(twoArgGeneric.kmType.typeArguments[1].isNullable()).isFalse()
+            assertThat(twoArgGeneric.type.isNullable()).isFalse()
+            assertThat(twoArgGeneric.type.typeArguments).hasSize(2)
+            assertThat(twoArgGeneric.type.typeArguments[0].isNullable()).isFalse()
+            assertThat(twoArgGeneric.type.typeArguments[1].isNullable()).isFalse()
 
             val (_, withUpperBounds) = getMetadataElement(invocation, "WithUpperBounds")
-            assertThat(withUpperBounds.kmType.typeArguments).hasSize(2)
-            assertThat(withUpperBounds.kmType.typeArguments[0].upperBounds).hasSize(1)
-            assertThat(withUpperBounds.kmType.typeArguments[0].upperBounds!![0].isNullable())
+            assertThat(withUpperBounds.type.typeArguments).hasSize(2)
+            assertThat(withUpperBounds.type.typeArguments[0].upperBounds).hasSize(1)
+            assertThat(withUpperBounds.type.typeArguments[0].upperBounds!![0].isNullable())
                 .isFalse()
-            assertThat(withUpperBounds.kmType.typeArguments[1].upperBounds).hasSize(1)
-            assertThat(withUpperBounds.kmType.typeArguments[1].upperBounds!![0].isNullable())
+            assertThat(withUpperBounds.type.typeArguments[1].upperBounds).hasSize(1)
+            assertThat(withUpperBounds.type.typeArguments[1].upperBounds!![0].isNullable())
                 .isTrue()
 
             val (_, withSuperType) = getMetadataElement(invocation, "WithSuperType")
@@ -821,7 +821,8 @@ class KotlinMetadataElementTest(
 
     private fun getMetadataElement(processingEnv: ProcessingEnvironment, qName: String) =
         processingEnv.elementUtils.getTypeElement(qName).let {
-            it to KotlinMetadataElement.createFor(it)!!
+            it to KmClassContainer.createFor(
+                JavacProcessingEnv(processingEnv, XProcessingEnvConfig.DEFAULT), it)!!
         }
 
     companion object {

@@ -19,7 +19,8 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeVariableType
-import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
+import androidx.room.compiler.processing.javac.kotlin.nullability
 import com.google.auto.common.MoreTypes.asIntersection
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeVariable
@@ -28,7 +29,7 @@ internal class JavacTypeVariableType(
     env: JavacProcessingEnv,
     override val typeMirror: TypeVariable,
     nullability: XNullability?,
-    override val kotlinType: KmType?
+    override val kotlinType: KmTypeContainer?
 ) : JavacType(env, typeMirror, nullability), XTypeVariableType {
     constructor(
         env: JavacProcessingEnv,
@@ -43,7 +44,7 @@ internal class JavacTypeVariableType(
     constructor(
         env: JavacProcessingEnv,
         typeMirror: TypeVariable,
-        kotlinType: KmType
+        kotlinType: KmTypeContainer
     ) : this(
         env = env,
         typeMirror = typeMirror,

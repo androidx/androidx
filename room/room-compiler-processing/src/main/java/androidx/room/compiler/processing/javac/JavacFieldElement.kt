@@ -17,8 +17,8 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XFieldElement
-import androidx.room.compiler.processing.javac.kotlin.KmProperty
-import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmPropertyContainer
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import javax.lang.model.element.VariableElement
 
 internal class JavacFieldElement(
@@ -26,11 +26,11 @@ internal class JavacFieldElement(
     element: VariableElement
 ) : JavacVariableElement(env, element), XFieldElement {
 
-    override val kotlinMetadata: KmProperty? by lazy {
+    override val kotlinMetadata: KmPropertyContainer? by lazy {
         (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(name)
     }
 
-    override val kotlinType: KmType?
+    override val kotlinType: KmTypeContainer?
         get() = kotlinMetadata?.type
 
     override val enclosingElement: JavacTypeElement by lazy {
