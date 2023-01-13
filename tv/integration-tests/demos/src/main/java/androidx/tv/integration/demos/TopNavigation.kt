@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
@@ -66,6 +67,7 @@ internal fun TopNavigation(
 /**
  * Pill indicator tab row for reference
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PillIndicatorTabRow(
   tabs: List<String>,
