@@ -21,7 +21,9 @@ import androidx.camera.integration.avsync.ui.theme.LightOn
 import androidx.camera.integration.avsync.ui.widget.AdvancedFloatingActionButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -89,21 +91,23 @@ private fun MainContent(
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LightingScreen(isOn = isSignalActive)
-        SignalControl(
-            enabled = isGeneratorReady,
-            isStarted = isSignalStarted,
-            onStartClick = onSignalStartClick,
-            onStopClick = onSignalStopClick,
-        )
-        RecordingControl(
-            enabled = isRecorderReady,
-            isStarted = isRecording,
-            isPaused = isPaused,
-            onStartClick = onRecordingStartClick,
-            onStopClick = onRecordingStopClick,
-            onPauseClick = onRecordingPauseClick,
-            onResumeClick = onRecordingResumeClick,
-        )
+        ControlPanel {
+            SignalControl(
+                enabled = isGeneratorReady,
+                isStarted = isSignalStarted,
+                onStartClick = onSignalStartClick,
+                onStopClick = onSignalStopClick,
+            )
+            RecordingControl(
+                enabled = isRecorderReady,
+                isStarted = isRecording,
+                isPaused = isPaused,
+                onStartClick = onRecordingStartClick,
+                onStopClick = onRecordingStopClick,
+                onPauseClick = onRecordingPauseClick,
+                onResumeClick = onRecordingResumeClick,
+            )
+        }
     }
 }
 
@@ -113,6 +117,19 @@ private fun LightingScreen(modifier: Modifier = Modifier, isOn: Boolean = false)
     Box(
         modifier = modifier.fillMaxSize().background(color = backgroundColor)
     )
+}
+
+@Composable
+private fun ControlPanel(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        Spacer(modifier = Modifier.weight(2f))
+        Box(modifier = Modifier.weight(1f)) {
+            content()
+        }
+    }
 }
 
 @Composable
