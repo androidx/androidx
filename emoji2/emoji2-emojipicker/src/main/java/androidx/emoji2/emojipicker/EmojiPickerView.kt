@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.util.Consumer
 import androidx.core.view.ViewCompat
@@ -46,9 +47,10 @@ class EmojiPickerView @JvmOverloads constructor(
     /**
      * The number of rows of the emoji picker.
      *
-     * Default value will be used if emojiGridRows is set to non-positive value. Float value
-     * indicates that we will display partial of the last row and have content down, so the users
-     * get the idea that they can scroll down for more contents.
+     * Default value([EmojiPickerConstants.DEFAULT_BODY_ROWS]: 7.5) will be used if emojiGridRows
+     * is set to non-positive value. Float value indicates that we will display partial of the last
+     * row and have content down, so the users get the idea that they can scroll down for more
+     * contents.
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridRows
      */
     var emojiGridRows: Float = EmojiPickerConstants.DEFAULT_BODY_ROWS
@@ -63,7 +65,8 @@ class EmojiPickerView @JvmOverloads constructor(
     /**
      * The number of columns of the emoji picker.
      *
-     * Default value will be used if emojiGridColumns is set to non-positive value.
+     * Default value([EmojiPickerConstants.DEFAULT_BODY_COLUMNS]: 9) will be used if
+     * emojiGridColumns is set to non-positive value.
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridColumns
      */
     var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
@@ -180,7 +183,7 @@ class EmojiPickerView @JvmOverloads constructor(
             })
 
         // clear view's children in case of resetting layout
-        removeAllViews()
+        super.removeAllViews()
         with(inflate(context, R.layout.emoji_picker, this)) {
             // set headerView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_header).apply {
@@ -259,14 +262,110 @@ class EmojiPickerView @JvmOverloads constructor(
     }
 
     /**
-     * Disallow clients to add view to the EmojiPickerView
+     * The following functions disallow clients to add view to the EmojiPickerView
      *
      * @param child the child view to be added
      * @throws UnsupportedOperationException
      */
     override fun addView(child: View?) {
-        throw UnsupportedOperationException(
-            "Adding views to the EmojiPickerView is unsupported"
-        )
+        if (childCount > 0)
+            throw UnsupportedOperationException(EmojiPickerConstants.ADD_VIEW_EXCEPTION_MESSAGE)
+        else super.addView(child)
+    }
+
+    /**
+     * @param child
+     * @param params
+     * @throws UnsupportedOperationException
+     */
+    override fun addView(child: View?, params: ViewGroup.LayoutParams?) {
+        if (childCount > 0)
+            throw UnsupportedOperationException(EmojiPickerConstants.ADD_VIEW_EXCEPTION_MESSAGE)
+        else super.addView(child, params)
+    }
+
+    /**
+     * @param child
+     * @param index
+     * @throws UnsupportedOperationException
+     */
+    override fun addView(child: View?, index: Int) {
+        if (childCount > 0)
+            throw UnsupportedOperationException(EmojiPickerConstants.ADD_VIEW_EXCEPTION_MESSAGE)
+        else super.addView(child, index)
+    }
+
+    /**
+     * @param child
+     * @param index
+     * @param params
+     * @throws UnsupportedOperationException
+     */
+    override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
+        if (childCount > 0)
+            throw UnsupportedOperationException(EmojiPickerConstants.ADD_VIEW_EXCEPTION_MESSAGE)
+        else super.addView(child, index, params)
+    }
+
+    /**
+     * @param child
+     * @param width
+     * @param height
+     * @throws UnsupportedOperationException
+     */
+    override fun addView(child: View?, width: Int, height: Int) {
+        if (childCount > 0)
+            throw UnsupportedOperationException(EmojiPickerConstants.ADD_VIEW_EXCEPTION_MESSAGE)
+        else super.addView(child, width, height)
+    }
+
+    /**
+     * The following functions disallow clients to remove view from the EmojiPickerView
+     * @throws UnsupportedOperationException
+     */
+    override fun removeAllViews() {
+        throw UnsupportedOperationException(EmojiPickerConstants.REMOVE_VIEW_EXCEPTION_MESSAGE)
+    }
+
+    /**
+     * @param child
+     * @throws UnsupportedOperationException
+     */
+    override fun removeView(child: View?) {
+        throw UnsupportedOperationException(EmojiPickerConstants.REMOVE_VIEW_EXCEPTION_MESSAGE)
+    }
+
+    /**
+     * @param index
+     * @throws UnsupportedOperationException
+     */
+    override fun removeViewAt(index: Int) {
+        throw UnsupportedOperationException(EmojiPickerConstants.REMOVE_VIEW_EXCEPTION_MESSAGE)
+    }
+
+    /**
+     * @param child
+     * @throws UnsupportedOperationException
+     */
+    override fun removeViewInLayout(child: View?) {
+        throw UnsupportedOperationException(EmojiPickerConstants.REMOVE_VIEW_EXCEPTION_MESSAGE)
+    }
+
+    /**
+     * @param start
+     * @param count
+     * @throws UnsupportedOperationException
+     */
+    override fun removeViews(start: Int, count: Int) {
+        throw UnsupportedOperationException(EmojiPickerConstants.REMOVE_VIEW_EXCEPTION_MESSAGE)
+    }
+
+    /**
+     * @param start
+     * @param count
+     * @throws UnsupportedOperationException
+     */
+    override fun removeViewsInLayout(start: Int, count: Int) {
+        throw UnsupportedOperationException(EmojiPickerConstants.REMOVE_VIEW_EXCEPTION_MESSAGE)
     }
 }
