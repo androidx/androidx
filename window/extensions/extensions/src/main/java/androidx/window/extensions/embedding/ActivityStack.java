@@ -17,11 +17,15 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.window.extensions.WindowExtensions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Description of a group of activities stacked on top of each other and shown as a single
@@ -33,9 +37,24 @@ public class ActivityStack {
 
     private final boolean mIsEmpty;
 
-    public ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
+    @NonNull
+    private final IBinder mToken;
+
+    /**
+     * The {@code ActivityStack} constructor
+     *
+     * @param activities {@link Activity Activities} in this application's process that
+     *                   belongs to this {@code ActivityStack}
+     * @param isEmpty Indicates whether there's any {@link Activity} running in this
+     *                {@code ActivityStack}
+     * @param token The token to identify this {@code ActivityStack}
+     */
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
+        Objects.requireNonNull(activities);
+        Objects.requireNonNull(token);
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
+        mToken = token;
     }
 
     /**
@@ -65,25 +84,40 @@ public class ActivityStack {
         return mIsEmpty;
     }
 
+    /**
+     * Returns a token uniquely identifying the container.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public IBinder getToken() {
+        return mToken;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ActivityStack)) return false;
         ActivityStack that = (ActivityStack) o;
         return mActivities.equals(that.mActivities)
-                && mIsEmpty == that.mIsEmpty;
+                && mIsEmpty == that.mIsEmpty
+                && mToken.equals(that.mToken);
     }
 
     @Override
     public int hashCode() {
         int result = (mIsEmpty ? 1 : 0);
-        return result * 31 + mActivities.hashCode();
+        result = result * 31 + mActivities.hashCode();
+        result = result * 31 + mToken.hashCode();
+        return result;
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ActivityStack{" + "mActivities=" + mActivities
-                + ", mIsEmpty=" + mIsEmpty + '}';
+                + ", mIsEmpty=" + mIsEmpty
+                + ", mToken=" + mToken
+                + '}';
     }
 }
