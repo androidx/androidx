@@ -18,8 +18,8 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMemberContainer
-import androidx.room.compiler.processing.javac.kotlin.KmType
-import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
+import androidx.room.compiler.processing.javac.kotlin.KmValueParameterContainer
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import javax.lang.model.element.VariableElement
 
@@ -27,7 +27,7 @@ internal class JavacMethodParameter(
     env: JavacProcessingEnv,
     override val enclosingElement: JavacExecutableElement,
     element: VariableElement,
-    kotlinMetadataFactory: () -> KmValueParameter?,
+    kotlinMetadataFactory: () -> KmValueParameterContainer?,
     val argIndex: Int
 ) : JavacVariableElement(env, element), XExecutableParameterElement {
 
@@ -38,7 +38,7 @@ internal class JavacMethodParameter(
             argIndex = argIndex
         )
 
-    override val kotlinType: KmType?
+    override val kotlinType: KmTypeContainer?
         get() = kotlinMetadata?.type
 
     override val hasDefaultValue: Boolean

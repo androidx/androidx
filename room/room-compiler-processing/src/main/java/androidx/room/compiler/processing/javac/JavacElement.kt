@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.javac.kotlin.KmElement
+import androidx.room.compiler.processing.javac.kotlin.KmFlags
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreElements.isAnnotationPresent
@@ -39,7 +39,7 @@ internal abstract class JavacElement(
     open val element: Element
 ) : XElement, XEquality, InternalXAnnotated, XHasModifiers {
 
-    abstract val kotlinMetadata: KmElement?
+    abstract val kotlinMetadata: KmFlags?
 
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,

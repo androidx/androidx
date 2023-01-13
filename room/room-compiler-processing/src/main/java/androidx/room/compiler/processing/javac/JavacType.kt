@@ -21,8 +21,8 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.javac.kotlin.KmType
-import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
+import androidx.room.compiler.processing.javac.kotlin.KmClassContainer
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
@@ -35,8 +35,8 @@ internal abstract class JavacType(
     open val typeMirror: TypeMirror,
     internal val maybeNullability: XNullability?,
 ) : XType, XEquality {
-    // Kotlin type information about the type if this type is driven from kotlin code.
-    abstract val kotlinType: KmType?
+    // Kotlin type information about the type if this type is driven from Kotlin code.
+    abstract val kotlinType: KmTypeContainer?
 
     override val rawType: XRawType by lazy {
         JavacRawType(env, this)
@@ -48,7 +48,7 @@ internal abstract class JavacType(
             val element = MoreTypes.asTypeElement(it)
             env.wrap<JavacType>(
                 typeMirror = it,
-                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                kotlinType = KmClassContainer.createFor(env, element)?.type,
                 elementNullability = element.nullability
             )
         }
