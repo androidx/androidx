@@ -591,6 +591,189 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testPopBackStack() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // first nav with arg filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13")
+        navController.navigate(deepLink)
+
+        // second nav with arg filled in
+        val deepLink2 = Uri.parse("android-app://androidx.navigation/second_test/18")
+        navController.navigate(deepLink2)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13", "second_test/18"]
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val popped = navController.popBackStack("second_test/{arg}", true)
+        assertThat(popped).isTrue()
+        // only last entry with "second_test/{arg}" has been popped
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // first nav with arg filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13")
+        navController.navigate(deepLink)
+
+        // second nav with arg filled in
+        val deepLink2 = Uri.parse("android-app://androidx.navigation/second_test/18")
+        navController.navigate(deepLink2)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13", "second_test/18"]
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val popped = navController.popBackStack("second_test/13", true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithExactRoute_multiArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/18")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/18"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val popped = navController.popBackStack("second_test/13/18", true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithPartialExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/{arg2}")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/{arg2}"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val popped = navController.popBackStack("second_test/13/{arg2}", true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithIncorrectExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/18")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/18"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val popped = navController.popBackStack("second_test/13/19", true)
+        assertThat(popped).isFalse()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithAdditionalPartialArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/{arg2}")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/{arg2}"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val popped = navController.popBackStack("second_test/13/18", true)
+        assertThat(popped).isFalse()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithMissingPartialArgs() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}/{arg2}") {
+                    argument("arg") { type = NavType.StringType }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13/18")
+        navController.navigate(deepLink)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13/18"]
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val popped = navController.popBackStack("second_test/13/{arg2}", true)
+        assertThat(popped).isFalse()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkDefaultArgs() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
