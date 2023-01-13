@@ -619,10 +619,16 @@ public class WorkDatabaseMigrationTest {
         database.insert("workspec", CONFLICT_FAIL, valuesTwo);
         mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_17, true,
                 Migration_16_17.INSTANCE);
-        Cursor workSpecs = database.query("SELECT id FROM WorkSpec");
-        assertThat(workSpecs.getCount(), is(1));
-        assertThat(workSpecs.moveToFirst(), is(true));
+        Cursor workSpecs = database.query("SELECT id, input_merger_class_name FROM WorkSpec");
+        assertThat(workSpecs.getCount(), is(2));
+        assertThat(workSpecs.moveToNext(), is(true));
+        assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(idOne));
+        assertThat(workSpecs.getString(workSpecs.getColumnIndex("input_merger_class_name")),
+                is(OverwritingInputMerger.class.getName()));
+        assertThat(workSpecs.moveToNext(), is(true));
         assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(idTwo));
+        assertThat(workSpecs.getString(workSpecs.getColumnIndex("input_merger_class_name")),
+                is(OverwritingInputMerger.class.getName()));
         database.close();
     }
 
