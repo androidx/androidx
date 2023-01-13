@@ -34,7 +34,6 @@
             android:layout_height="match_parent"
             android:background="@drawable/ripple_emoji_view"
             android:importantForAccessibility="yes"
-            android:textSize="30dp"
             android:layout_margin="1dp" />
     </FrameLayout>
     <ImageView

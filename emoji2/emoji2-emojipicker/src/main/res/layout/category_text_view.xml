@@ -31,6 +31,5 @@
         android:gravity="center_vertical|start"
         android:letterSpacing="0.1"
         android:importantForAccessibility="yes"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="12dp" />
+        android:textColor="?android:attr/textColorPrimary" />
 </FrameLayout>
