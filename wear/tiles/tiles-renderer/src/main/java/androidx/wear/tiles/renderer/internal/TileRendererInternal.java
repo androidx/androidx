@@ -68,6 +68,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
+import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.tiles.TileService;
 import androidx.wear.protolayout.proto.ActionProto.Action;
 import androidx.wear.protolayout.proto.ActionProto.AndroidActivity;
@@ -84,7 +85,7 @@ import androidx.wear.protolayout.proto.DimensionProto.SpProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
-import androidx.wear.protolayout.proto.LayoutElementProto.ArcAnchorTypeProp;
+import androidx.wear.protolayout.proto.AlignmentProto.ArcAnchorTypeProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcSpacer;
@@ -94,7 +95,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.ContentScaleMode;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontVariant;
-import androidx.wear.protolayout.proto.LayoutElementProto.HorizontalAlignmentProp;
+import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
@@ -106,9 +107,9 @@ import androidx.wear.protolayout.proto.LayoutElementProto.SpanText;
 import androidx.wear.protolayout.proto.LayoutElementProto.SpanVerticalAlignmentProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Spannable;
 import androidx.wear.protolayout.proto.LayoutElementProto.Text;
-import androidx.wear.protolayout.proto.LayoutElementProto.TextAlignmentProp;
+import androidx.wear.protolayout.proto.AlignmentProto.TextAlignmentProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.TextOverflowProp;
-import androidx.wear.protolayout.proto.LayoutElementProto.VerticalAlignmentProp;
+import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
 import androidx.wear.protolayout.proto.ModifiersProto.ArcModifiers;
 import androidx.wear.protolayout.proto.ModifiersProto.Background;
 import androidx.wear.protolayout.proto.ModifiersProto.Border;
@@ -680,7 +681,7 @@ public final class TileRendererInternal {
         }
 
         if (modifiers.hasSemantics()) {
-            applyAudibleParams(view, modifiers.getSemantics().getContentDescription());
+            applyAudibleParams(view, modifiers.getSemantics().getObsoleteContentDescription());
         }
 
         if (modifiers.hasPadding()) {
@@ -721,7 +722,7 @@ public final class TileRendererInternal {
         }
 
         if (modifiers.hasSemantics()) {
-            applyAudibleParams(view, modifiers.getSemantics().getContentDescription());
+            applyAudibleParams(view, modifiers.getSemantics().getObsoleteContentDescription());
         }
 
         return view;
@@ -751,6 +752,7 @@ public final class TileRendererInternal {
                 return null;
             case TEXT_OVERFLOW_ELLIPSIZE_END:
                 return TruncateAt.END;
+            case TEXT_OVERFLOW_MARQUEE:
             case TEXT_OVERFLOW_UNDEFINED:
             case UNRECOGNIZED:
                 return TEXT_OVERFLOW_DEFAULT;
@@ -1253,10 +1255,11 @@ public final class TileRendererInternal {
             Log.wtf(TAG, "Exception tinting image " + protoResId, ex);
         }
 
-        if (image.hasFilter()) {
-            if (image.getFilter().hasTint() && canImageBeTinted) {
+        if (image.hasColorFilter()) {
+            if (image.getColorFilter().hasTint() && canImageBeTinted) {
                 // Only allow tinting for Android images.
-                ColorStateList tint = ColorStateList.valueOf(image.getFilter().getTint().getArgb());
+                ColorStateList tint =
+                        ColorStateList.valueOf(image.getColorFilter().getTint().getArgb());
                 imageView.setImageTintList(tint);
 
                 // SRC_IN throws away the colours in the drawable that we're tinting. Effectively,

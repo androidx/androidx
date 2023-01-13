@@ -4,6 +4,7 @@ syntax = "proto3";
 package androidx.wear.protolayout.proto;
 
 import "state.proto";
+import "state_entry.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ActionProto";
@@ -72,10 +73,10 @@ message LaunchAction {
   AndroidActivity android_activity = 1;
 }
 
-// An action used to load (or reload) the tile contents.
+// An action used to load (or reload) the layout contents.
 message LoadAction {
-  // The state to load the next tile with. This will be included in the
-  // TileRequest sent after this action is invoked by a Clickable.
+  // The state to load the next layout with. This will be included in the
+  // layout request sent after this action is invoked by a Clickable.
   State request_state = 1;
 }
 
@@ -85,4 +86,20 @@ message Action {
     LaunchAction launch_action = 1;
     LoadAction load_action = 2;
   }
+}
+
+// An action that is handled internal to the current layout and won't cause a
+// layout refresh.
+message LocalAction {
+  oneof value {
+    SetStateAction set_state = 1;
+  }
+}
+
+// An action that sets a new value for a State
+message SetStateAction {
+  // The target key of the state item for this action.
+  string target_key = 1;
+  // The value to set the state item to, when this action is executed.
+  androidx.wear.protolayout.expression.proto.StateEntryValue value = 2;
 }

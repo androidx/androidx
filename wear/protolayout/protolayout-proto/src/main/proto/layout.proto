@@ -4,63 +4,15 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "alignment.proto";
 import "color.proto";
 import "dimension.proto";
+import "fingerprint.proto";
 import "modifiers.proto";
 import "types.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "LayoutElementProto";
-
-// The horizontal alignment of an element within its container.
-enum HorizontalAlignment {
-  // Horizontal alignment is undefined.
-  HORIZONTAL_ALIGN_UNDEFINED = 0;
-
-  // Horizontally align to the left.
-  HORIZONTAL_ALIGN_LEFT = 1;
-
-  // Horizontally align to center.
-  HORIZONTAL_ALIGN_CENTER = 2;
-
-  // Horizontally align to the right.
-  HORIZONTAL_ALIGN_RIGHT = 3;
-
-  // Horizontally align to the content start (left in LTR layouts, right in RTL
-  // layouts).
-  HORIZONTAL_ALIGN_START = 4;
-
-  // Horizontally align to the content end (right in LTR layouts, left in RTL
-  // layouts).
-  HORIZONTAL_ALIGN_END = 5;
-}
-
-// An extensible HorizontalAlignment property.
-message HorizontalAlignmentProp {
-  // The value
-  HorizontalAlignment value = 1;
-}
-
-// The vertical alignment of an element within its container.
-enum VerticalAlignment {
-  // Vertical alignment is undefined.
-  VERTICAL_ALIGN_UNDEFINED = 0;
-
-  // Vertically align to the top.
-  VERTICAL_ALIGN_TOP = 1;
-
-  // Vertically align to center.
-  VERTICAL_ALIGN_CENTER = 2;
-
-  // Vertically align to the bottom.
-  VERTICAL_ALIGN_BOTTOM = 3;
-}
-
-// An extensible VerticalAlignment property.
-message VerticalAlignmentProp {
-  // The value.
-  VerticalAlignment value = 1;
-}
 
 // The weight to be applied to the font.
 enum FontWeight {
@@ -159,29 +111,6 @@ message FontStyle {
   FontVariantProp variant = 7;
 }
 
-// Alignment of a text element.
-enum TextAlignment {
-  // Alignment is undefined.
-  TEXT_ALIGN_UNDEFINED = 0;
-
-  // Align to the "start" of the Text element (left in LTR layouts, right in
-  // RTL layouts).
-  TEXT_ALIGN_START = 1;
-
-  // Align to the center of the Text element.
-  TEXT_ALIGN_CENTER = 2;
-
-  // Align to the "end" of the Text element (right in LTR layouts, left in RTL
-  // layouts).
-  TEXT_ALIGN_END = 3;
-}
-
-// An extensible TextAlignment property.
-message TextAlignmentProp {
-  // The value.
-  TextAlignment value = 1;
-}
-
 // How text that will not fit inside the bounds of a Text element will be
 // handled.
 enum TextOverflow {
@@ -195,6 +124,13 @@ enum TextOverflow {
   // Truncate the text to fit in the Text element's bounds, but add an ellipsis
   // (i.e. ...) to the end of the text if it has been truncated.
   TEXT_OVERFLOW_ELLIPSIZE_END = 2;
+
+  // Enable marquee animation for texts that don't fit inside the Text element.
+  // This is only applicable for single line texts; if the text has multiple
+  // lines, the behavior is equivalent to TEXT_OVERFLOW_TRUNCATE.
+  //
+
+  TEXT_OVERFLOW_MARQUEE = 3;
 }
 
 // An extensible TextOverflow property.
@@ -203,50 +139,12 @@ message TextOverflowProp {
   TextOverflow value = 1;
 }
 
-// The anchor position of an Arc's elements. This is used to specify how
-// elements added to an Arc should be laid out with respect to anchor_angle.
-//
-// As an example, assume that the following diagrams are wrapped to an arc, and
-// each represents an Arc element containing a single Text element. The Text
-// element's anchor_angle is "0" for all cases.
-//
-// ```
-// ARC_ANCHOR_START:
-// -180                                0                                    180
-//                                     Hello World!
-//
-//
-// ARC_ANCHOR_CENTER:
-// -180                                0                                    180
-//                                Hello World!
-//
-// ARC_ANCHOR_END:
-// -180                                0                                    180
-//                          Hello World!
-// ```
-enum ArcAnchorType {
-  // Anchor position is undefined.
-  ARC_ANCHOR_UNDEFINED = 0;
-
-  // Anchor at the start of the elements. This will cause elements added to an
-  // arc to begin at the given anchor_angle, and sweep around to the right.
-  ARC_ANCHOR_START = 1;
-
-  // Anchor at the center of the elements. This will cause the center of the
-  // whole set of elements added to an arc to be pinned at the given
-  // anchor_angle.
-  ARC_ANCHOR_CENTER = 2;
-
-  // Anchor at the end of the elements. This will cause the set of elements
-  // inside the arc to end at the specified anchor_angle, i.e. all elements
-  // should be to the left of anchor_angle.
-  ARC_ANCHOR_END = 3;
-}
-
-// An extensible ArcAnchorType property.
-message ArcAnchorTypeProp {
-  // The value.
-  ArcAnchorType value = 1;
+// An Android platform specific text style configuration options for styling and
+// compatibility.
+message AndroidTextStyle {
+  // Whether the Text excludes extra top and bottom padding above the normal
+  // ascent and descent. The default is false.
+  bool exclude_font_padding = 1;
 }
 
 // A text string.
@@ -283,6 +181,10 @@ message Text {
   // vertical distance between subsequent baselines. If not specified, defaults
   // the font's recommended interline spacing.
   SpProp line_height = 7;
+
+  // An Android platform specific text style configuration options for styling
+  // and compatibility.
+  AndroidTextStyle android_text_style = 8;
 }
 
 // How content which does not match the dimensions of its bounds (e.g. an image
@@ -356,7 +258,7 @@ message Image {
 
   // Filtering parameters for this image. If not specified, defaults to no
   // filtering.
-  ColorFilter filter = 6;
+  ColorFilter color_filter = 6;
 }
 
 // A simple spacer, typically used to provide padding between adjacent elements.
@@ -413,6 +315,10 @@ message SpanText {
 
   // Modifiers for this element.
   SpanModifiers modifiers = 3;
+
+  // An Android platform specific text style configuration options for styling
+  // and compatibility.
+  AndroidTextStyle android_text_style = 4;
 }
 
 // An image which can be added to a Span.
@@ -445,11 +351,11 @@ message Span {
   }
 }
 
-// A container of Span elements. Currently, this only supports Text elements,
-// where each individual Span can have different styling applied to it but the
-// resulting text will flow naturally. This allows sections of a paragraph of
-// text to have different styling applied to it, for example, making one or two
-// words bold or italic.
+// A container of Span elements. Currently, this supports SpanImage and SpanText
+// elements, where each individual Span can have different styling applied to it
+// but the resulting text will flow naturally. This allows sections of a
+// paragraph of text to have different styling applied to it, for example,
+// making one or two words bold or italic.
 message Spannable {
   // The Span elements that form this Spannable.
   repeated Span spans = 1;
@@ -579,6 +485,12 @@ message Arc {
 
   // Modifiers for this element.
   Modifiers modifiers = 5;
+
+  // The target angle that will be used by the layout when expanding child
+  // elements. NB a value of zero is interpreted to mean 360 degrees. This
+  // target may not be achievable if other non-expandable elements bring us past
+  // this value.
+  DegreesProp max_angle = 6;
 }
 
 // A text element that can be used in an Arc.
@@ -607,6 +519,31 @@ message ArcLine {
 
   // Modifiers for this element.
   ArcModifiers modifiers = 4;
+
+  // The length of this line. If not defined, defaults to 0 degrees.
+  ArcLineLength angular_length = 5;
+
+  // The line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+  StrokeCapProp stroke_cap = 6;
+}
+
+// Styles to use for path endings
+enum StrokeCap {
+  // StrokeCap is undefined.
+  STROKE_CAP_UNDEFINED = 0;
+
+  // Begin and end contours with a flat edge and no extension.
+  STROKE_CAP_BUTT = 1;
+
+  // Begin and end contours with a semi-circle extension. The extension size is
+  // proportional to the thickness on the path.
+  STROKE_CAP_ROUND = 2;
+}
+
+// An extensible StrokeCap property.
+message StrokeCapProp {
+  // The value.
+  StrokeCap value = 1;
 }
 
 // A simple spacer used to provide padding between adjacent elements in an Arc.
@@ -619,6 +556,9 @@ message ArcSpacer {
 
   // Modifiers for this element.
   ArcModifiers modifiers = 3;
+
+  // The length of this spacer. If not defined, defaults to 0 degrees.
+  ArcSpacerLength angular_length = 4;
 }
 
 // A container that allows a standard LayoutElement to be added to an Arc.
@@ -664,6 +604,12 @@ message ArcLayoutElement {
 
 // A complete layout.
 message Layout {
+  // The layout message itself doesn't need a fingerprint. The "fingerprint"
+  // field below represents the tree defined by the "root" element.
+
   // The root element in the layout.
   LayoutElement root = 1;
+
+  // The fingerprint for the tree starting at "root".
+  TreeFingerprint fingerprint = 1000;
 }
