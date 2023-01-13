@@ -16,6 +16,8 @@
 
 package androidx.wear.watchface
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -35,8 +37,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Parcel
 import android.provider.Settings
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
@@ -55,6 +55,7 @@ import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
+import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.CountUpTimeReference
 import androidx.wear.watchface.complications.data.EmptyComplicationData
@@ -101,10 +102,12 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -558,8 +561,8 @@ public class WatchFaceServiceTest {
                     complication.id,
                     when (complication.defaultDataSourceType) {
                         ComplicationType.SHORT_TEXT ->
-                            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                                .setShortText(ComplicationText.plainText("Initial Short"))
+                            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(WireComplicationText.plainText("Initial Short"))
                                 .setTapAction(
                                     PendingIntent.getActivity(
                                         context, 0, Intent("ShortText"),
@@ -569,8 +572,8 @@ public class WatchFaceServiceTest {
                                 .build()
 
                         ComplicationType.LONG_TEXT ->
-                            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                                .setShortText(ComplicationText.plainText("Initial Long"))
+                            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(WireComplicationText.plainText("Initial Long"))
                                 .setTapAction(
                                     PendingIntent.getActivity(
                                         context, 0, Intent("LongText"),
@@ -580,7 +583,7 @@ public class WatchFaceServiceTest {
                                 .build()
 
                         ComplicationType.PHOTO_IMAGE ->
-                            ComplicationData.Builder(ComplicationData.TYPE_LARGE_IMAGE)
+                            WireComplicationData.Builder(WireComplicationData.TYPE_LARGE_IMAGE)
                                 .setLargeImage(Icon.createWithContentUri("someuri"))
                                 .setTapAction(
                                     PendingIntent.getActivity(
@@ -661,8 +664,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
-            engineWrapper.deferredValidation.await()
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            engineWrapper.deferredValidation.awaitWithTimeout()
         }
 
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
@@ -706,7 +709,7 @@ public class WatchFaceServiceTest {
 
     private fun setComplicationViaWallpaperCommand(
         complicationSlotId: Int,
-        complicationData: ComplicationData
+        complicationData: WireComplicationData
     ) {
         engineWrapper.onCommand(
             Constants.COMMAND_COMPLICATION_DATA,
@@ -1540,7 +1543,7 @@ public class WatchFaceServiceTest {
                             TimeDifferenceStyle.STOPWATCH,
                             CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
                         ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
-                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                        ComplicationText.EMPTY
                     ).build().asWireComplicationData()
                 )
             )
@@ -1584,7 +1587,7 @@ public class WatchFaceServiceTest {
                             TimeDifferenceStyle.STOPWATCH,
                             CountUpTimeReference(referenceInstant)
                         ).setMinimumTimeUnit(TimeUnit.HOURS).build(),
-                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                        ComplicationText.EMPTY
                     ).build().asWireComplicationData()
                 )
             )
@@ -1605,7 +1608,7 @@ public class WatchFaceServiceTest {
                             TimeDifferenceStyle.STOPWATCH,
                             CountUpTimeReference(referenceInstant)
                         ).setMinimumTimeUnit(TimeUnit.SECONDS).build(),
-                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                        ComplicationText.EMPTY
                     ).build().asWireComplicationData()
                 )
             )
@@ -1967,8 +1970,8 @@ public class WatchFaceServiceTest {
         // We're only sending one complication, the others should default to empty.
         setComplicationViaWallpaperCommand(
             rightComplication.id,
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText("Initial Short"))
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Initial Short"))
                 .build()
         )
 
@@ -2251,7 +2254,7 @@ public class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID,
             listOf(dataSource1, dataSource2),
             SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-            ComplicationData.TYPE_SHORT_TEXT
+            WireComplicationData.TYPE_SHORT_TEXT
         )
     }
 
@@ -2285,15 +2288,15 @@ public class WatchFaceServiceTest {
         runPostedTasksFor(0)
 
         verify(iWatchFaceService).setDefaultComplicationProvider(
-            LEFT_COMPLICATION_ID, dataSource2, ComplicationData.TYPE_SHORT_TEXT
+            LEFT_COMPLICATION_ID, dataSource2, WireComplicationData.TYPE_SHORT_TEXT
         )
         verify(iWatchFaceService).setDefaultComplicationProvider(
-            LEFT_COMPLICATION_ID, dataSource1, ComplicationData.TYPE_SHORT_TEXT
+            LEFT_COMPLICATION_ID, dataSource1, WireComplicationData.TYPE_SHORT_TEXT
         )
         verify(iWatchFaceService).setDefaultSystemComplicationProvider(
             LEFT_COMPLICATION_ID,
             SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-            ComplicationData.TYPE_SHORT_TEXT
+            WireComplicationData.TYPE_SHORT_TEXT
         )
     }
 
@@ -2382,11 +2385,11 @@ public class WatchFaceServiceTest {
         )
         assertThat(complicationDetails[0].complicationState.supportedTypes).isEqualTo(
             intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
+                WireComplicationData.TYPE_RANGED_VALUE,
+                WireComplicationData.TYPE_LONG_TEXT,
+                WireComplicationData.TYPE_SHORT_TEXT,
+                WireComplicationData.TYPE_ICON,
+                WireComplicationData.TYPE_SMALL_IMAGE
             )
         )
 
@@ -2399,11 +2402,11 @@ public class WatchFaceServiceTest {
         )
         assertThat(complicationDetails[1].complicationState.supportedTypes).isEqualTo(
             intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
+                WireComplicationData.TYPE_RANGED_VALUE,
+                WireComplicationData.TYPE_LONG_TEXT,
+                WireComplicationData.TYPE_SHORT_TEXT,
+                WireComplicationData.TYPE_ICON,
+                WireComplicationData.TYPE_SMALL_IMAGE
             )
         )
 
@@ -2415,7 +2418,7 @@ public class WatchFaceServiceTest {
             Rect(0, 0, 100, 100)
         )
         assertThat(complicationDetails[2].complicationState.supportedTypes).isEqualTo(
-            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
+            intArrayOf(WireComplicationData.TYPE_LARGE_IMAGE)
         )
     }
 
@@ -2441,7 +2444,7 @@ public class WatchFaceServiceTest {
             listOf(leftComplication, rightComplication),
             { _, currentUserStyleRepository, watchState ->
                 // Prevent initialization until initDeferred completes.
-                initDeferred.await()
+                initDeferred.awaitWithTimeout()
                 renderer = TestRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
@@ -2862,8 +2865,8 @@ public class WatchFaceServiceTest {
             )
         )
 
-        lateinit var leftComplicationData: ComplicationData
-        lateinit var rightComplicationData: ComplicationData
+        lateinit var leftComplicationData: WireComplicationData
+        lateinit var rightComplicationData: WireComplicationData
 
         val scope = CoroutineScope(Dispatchers.Main.immediate)
 
@@ -2883,21 +2886,21 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                    WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT")).build()
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
                 )
             )
         )
 
-        assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+        assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_LONG_TEXT)
         assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
             .isEqualTo("TYPE_LONG_TEXT")
-        assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+        assertThat(rightComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
         assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
             .isEqualTo("TYPE_SHORT_TEXT")
     }
@@ -2933,8 +2936,8 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
                         .setTapAction(
                             PendingIntent.getActivity(
                                 context, 0, Intent("LongText"),
@@ -2945,8 +2948,8 @@ public class WatchFaceServiceTest {
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
                 )
             )
         )
@@ -3008,7 +3011,7 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.await()
+            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
 
             // Check the ComplicationData was cached.
             val leftComplicationData =
@@ -3020,11 +3023,11 @@ public class WatchFaceServiceTest {
                     RIGHT_COMPLICATION_ID
                 ]!!.complicationData.value.asWireComplicationData()
 
-            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+            assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_LONG_TEXT)
             assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_LONG_TEXT")
             assertThat(leftComplicationData.tapActionLostDueToSerialization).isTrue()
-            assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(rightComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
             assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_SHORT_TEXT")
             assertThat(rightComplicationData.tapActionLostDueToSerialization).isFalse()
@@ -3058,8 +3061,8 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
                         .setTapAction(
                             PendingIntent.getActivity(
                                 context, 0, Intent("LongText"),
@@ -3071,8 +3074,8 @@ public class WatchFaceServiceTest {
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
                 )
             )
         )
@@ -3134,7 +3137,7 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.await()
+            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
 
             // Check only the right ComplicationData was cached.
             val leftComplicationData =
@@ -3146,8 +3149,8 @@ public class WatchFaceServiceTest {
                     RIGHT_COMPLICATION_ID
                 ]!!.complicationData.value.asWireComplicationData()
 
-            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_NO_DATA)
-            assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_NO_DATA)
+            assertThat(rightComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
             assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_SHORT_TEXT")
             assertThat(rightComplicationData.tapActionLostDueToSerialization).isFalse()
@@ -3180,11 +3183,11 @@ public class WatchFaceServiceTest {
         assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value.type)
             .isEqualTo(ComplicationType.NO_DATA)
 
-        val a = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("A"))
+        val a = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("A"))
             .build()
-        val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("B"))
+        val b = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("B"))
             .build()
         b.timelineStartEpochSecond = 1000
         b.timelineEndEpochSecond = Long.MAX_VALUE
@@ -3251,7 +3254,7 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.await()
+            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
 
             watchFaceImpl2.complicationSlotsManager.selectComplicationDataForInstant(
                 Instant.ofEpochSecond(999)
@@ -3263,7 +3266,7 @@ public class WatchFaceServiceTest {
                     LEFT_COMPLICATION_ID
                 ]!!.complicationData.value.asWireComplicationData()
 
-            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
             assertThat(leftComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("A")
 
@@ -3276,7 +3279,7 @@ public class WatchFaceServiceTest {
                     LEFT_COMPLICATION_ID
                 ]!!.complicationData.value.asWireComplicationData()
 
-            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(leftComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
             assertThat(leftComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("B")
         }
@@ -3358,7 +3361,7 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
         }
 
         assertThat(
@@ -3395,8 +3398,8 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
                         .build()
                 )
             )
@@ -3410,7 +3413,7 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build()
+                    WireComplicationData.Builder(WireComplicationData.TYPE_EMPTY).build()
                 )
             )
         )
@@ -3422,8 +3425,8 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
                         .setStartDateTimeMillis(1000000)
                         .setEndDateTimeMillis(2000000)
                         .build()
@@ -3464,8 +3467,8 @@ public class WatchFaceServiceTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT"))
                         .build()
                 )
             )
@@ -3760,8 +3763,8 @@ public class WatchFaceServiceTest {
 
         setComplicationViaWallpaperCommand(
             LEFT_COMPLICATION_ID,
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText("Override"))
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Override"))
                 .build()
         )
 
@@ -3797,8 +3800,8 @@ public class WatchFaceServiceTest {
                 listOf(
                     IdAndComplicationDataWireFormat(
                         LEFT_COMPLICATION_ID,
-                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
+                        WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(WireComplicationText.plainText("INITIAL_VALUE"))
                             .build()
                     )
                 ),
@@ -3809,8 +3812,8 @@ public class WatchFaceServiceTest {
         // This should be ignored because we're on the R flow.
         setComplicationViaWallpaperCommand(
             LEFT_COMPLICATION_ID,
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText("Override"))
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Override"))
                 .build()
         )
 
@@ -3949,8 +3952,8 @@ public class WatchFaceServiceTest {
                 listOf(
                     IdAndComplicationDataWireFormat(
                         LEFT_COMPLICATION_ID,
-                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
+                        WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(WireComplicationText.plainText("INITIAL_VALUE"))
                             .build()
                     )
                 ),
@@ -4032,8 +4035,8 @@ public class WatchFaceServiceTest {
                 listOf(
                     IdAndComplicationDataWireFormat(
                         LEFT_COMPLICATION_ID,
-                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
+                        WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(WireComplicationText.plainText("INITIAL_VALUE"))
                             .build()
                     )
                 ),
@@ -4136,7 +4139,7 @@ public class WatchFaceServiceTest {
         assertTrue(engineWrapper.deferredValidation.isCancelled)
         runBlocking {
             assertFailsWith<IllegalArgumentException> {
-                engineWrapper.deferredValidation.await()
+                engineWrapper.deferredValidation.awaitWithTimeout()
             }
         }
     }
@@ -4329,15 +4332,15 @@ public class WatchFaceServiceTest {
             mutableListOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("LEFT!"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("LEFT!"))
                         .setTapAction(leftPendingIntent)
                         .build()
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("RIGHT!"))
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText.plainText("RIGHT!"))
                         .setTapAction(rightPendingIntent)
                         .build()
                 )
@@ -4925,7 +4928,7 @@ public class WatchFaceServiceTest {
                     // Prevent initialization until initDeferred completes.
                     override suspend fun init() {
                         super.init()
-                        initDeferred.await()
+                        initDeferred.awaitWithTimeout()
                     }
 
                     override fun onDestroy() {
@@ -5270,17 +5273,17 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun selectComplicationDataForInstant_overlapping() {
-        val a = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("A"))
+        val a = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("A"))
             .build()
-        val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("B"))
+        val b = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("B"))
             .build()
         b.timelineStartEpochSecond = 1000
         b.timelineEndEpochSecond = 4000
 
-        val c = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("C"))
+        val c = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("C"))
             .build()
         c.timelineStartEpochSecond = 2000
         c.timelineEndEpochSecond = 3000
@@ -5325,17 +5328,17 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun selectComplicationDataForInstant_disjoint() {
-        val a = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("A"))
+        val a = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("A"))
             .build()
-        val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("B"))
+        val b = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("B"))
             .build()
         b.timelineStartEpochSecond = 1000
         b.timelineEndEpochSecond = 2000
 
-        val c = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("C"))
+        val c = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("C"))
             .build()
         c.timelineStartEpochSecond = 3000
         c.timelineEndEpochSecond = 4000
@@ -5380,27 +5383,25 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun selectComplicationDataForInstant_timeLineWithPlaceholder() {
-        val placeholderText =
-            androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER
         val timelineEntry =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(placeholderText.toWireComplicationText())
+                    WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(ComplicationText.PLACEHOLDER.toWireComplicationText())
                         .build()
                 )
                 .build()
         timelineEntry.timelineStartEpochSecond = 100
         timelineEntry.timelineEndEpochSecond = 1000
 
-        val wireLongTextComplication = ComplicationData.Builder(
+        val wireLongTextComplication = WireComplicationData.Builder(
             ComplicationType.LONG_TEXT.toWireComplicationType()
         )
             .setEndDateTimeMillis(1650988800000)
             .setDataSource(ComponentName("a", "b"))
-            .setLongText(ComplicationText.plainText("longText"))
-            .setSmallImageStyle(ComplicationData.IMAGE_STYLE_ICON)
-            .setContentDescription(ComplicationText.plainText("test"))
+            .setLongText(WireComplicationText.plainText("longText"))
+            .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_ICON)
+            .setContentDescription(WireComplicationText.plainText("test"))
             .build()
         wireLongTextComplication.setTimelineEntryCollection(listOf(timelineEntry))
 
@@ -5898,22 +5899,22 @@ public class WatchFaceServiceTest {
 
         val left1 = IdAndComplicationDataWireFormat(
             LEFT_COMPLICATION_ID,
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText("Left1"))
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Left1"))
                 .build()
         )
 
         val left2 = IdAndComplicationDataWireFormat(
             LEFT_COMPLICATION_ID,
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText("Left2"))
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Left2"))
                 .build()
         )
 
         val right = IdAndComplicationDataWireFormat(
             RIGHT_COMPLICATION_ID,
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText("Right"))
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Right"))
                 .build()
         )
 
@@ -5981,13 +5982,13 @@ public class WatchFaceServiceTest {
         val complicationList = listOf(
             IdAndComplicationDataWireFormat(
                 LEFT_COMPLICATION_ID,
-                ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                    .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                    .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT")).build()
             ),
             IdAndComplicationDataWireFormat(
                 RIGHT_COMPLICATION_ID,
-                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("TYPE_SHORT_TEXT")).build()
             )
         )
 
@@ -6449,7 +6450,7 @@ public class WatchFaceServiceTest {
 
         // This shouldn't crash.
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
         }
 
         engineWrapper.onDestroy()
@@ -6487,7 +6488,7 @@ public class WatchFaceServiceTest {
                             TimeDifferenceStyle.STOPWATCH,
                             CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
                         ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
-                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                        ComplicationText.EMPTY
                     )
                         .setDisplayPolicy(
                             ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED
@@ -6538,4 +6539,6 @@ public class WatchFaceServiceTest {
             WindowInsets.Type.systemBars(),
             Insets.of(Rect().apply { bottom = chinHeight })
         ).build()
+
+    private suspend fun <T> Deferred<T>.awaitWithTimeout(): T = withTimeout(1000) { await() }
 }
