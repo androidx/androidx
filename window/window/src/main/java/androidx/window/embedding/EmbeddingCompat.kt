@@ -92,7 +92,7 @@ internal class EmbeddingCompat constructor(
             throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
                 "on the device.")
         }
-        return embeddingExtension.setSplitAttributesCalculator(
+        embeddingExtension.setSplitAttributesCalculator(
             adapter.translateSplitAttributesCalculator(calculator)
         )
     }
@@ -102,11 +102,48 @@ internal class EmbeddingCompat constructor(
             throw UnsupportedOperationException("#clearSplitAttributesCalculator is not " +
                 "supported on the device.")
         }
-        return embeddingExtension.clearSplitAttributesCalculator()
+        embeddingExtension.clearSplitAttributesCalculator()
     }
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_2
+
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        if (!isFinishActivityStacksSupported()) {
+            throw UnsupportedOperationException("#finishActivityStacks is not " +
+                "supported on the device.")
+        }
+        val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
+        embeddingExtension.finishActivityStacks(stackTokens)
+    }
+
+    override fun isFinishActivityStacksSupported(): Boolean =
+        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3
+
+    override fun invalidateTopVisibleSplitAttributes() {
+        if (!areSplitAttributesUpdatesSupported()) {
+            throw UnsupportedOperationException("#invalidateTopVisibleSplitAttributes is not " +
+                "supported on the device.")
+        }
+        embeddingExtension.invalidateTopVisibleSplitAttributes()
+    }
+
+    override fun updateSplitAttributes(
+        splitInfo: SplitInfo,
+        splitAttributes: SplitAttributes
+    ) {
+        if (!areSplitAttributesUpdatesSupported()) {
+            throw UnsupportedOperationException("#updateSplitAttributes is not supported on the " +
+                "device.")
+        }
+        embeddingExtension.updateSplitAttributes(
+            splitInfo.token,
+            adapter.translateSplitAttributes(splitAttributes)
+        )
+    }
+
+    override fun areSplitAttributesUpdatesSupported(): Boolean =
+        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3
 
     override fun setLaunchingActivityStack(
         options: ActivityOptions,

@@ -26,9 +26,12 @@ import androidx.annotation.RestrictTo;
 import androidx.window.extensions.area.WindowAreaComponent;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.embedding.ActivityStack;
+import androidx.window.extensions.embedding.SplitAttributes;
 import androidx.window.extensions.embedding.SplitInfo;
 import androidx.window.extensions.embedding.SplitPlaceholderRule;
 import androidx.window.extensions.layout.WindowLayoutComponent;
+
+import java.util.Set;
 
 /**
  * A class to provide instances of different WindowManager Jetpack extension components. An OEM must
@@ -56,7 +59,7 @@ public interface WindowExtensions {
      * <ul>
      *     <li>{@link androidx.window.extensions.embedding.ActivityRule} APIs</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitPairRule} APIs</li>
-     *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule} APIs</li>
+     *     <li>{@link SplitPlaceholderRule} APIs</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitInfo} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.DisplayFeature} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.FoldingFeature} APIs</li>
@@ -97,6 +100,10 @@ public interface WindowExtensions {
      *     <li>{@link SplitInfo#getToken()}</li>
      *     <li>{@link ActivityEmbeddingComponent#setLaunchingActivityStack(ActivityOptions,
      *     IBinder)}</li>
+     *     <li>{@link ActivityEmbeddingComponent#invalidateTopVisibleSplitAttributes()}</li>
+     *     <li>{@link ActivityEmbeddingComponent#updateSplitAttributes(IBinder, SplitAttributes)}
+     *     </li>
+     *     <li>{@link ActivityEmbeddingComponent#finishActivityStacks(Set)}</li>
      * </ul>
      * </p>
      * @hide

@@ -25,6 +25,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.window.WindowProperties
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitController.Api31Impl.isSplitPropertyEnabled
 import androidx.window.layout.WindowMetrics
 import java.util.concurrent.Executor
@@ -176,6 +177,74 @@ class SplitController private constructor(private val applicationContext: Contex
     /** Returns whether [setSplitAttributesCalculator] is supported or not. */
     fun isSplitAttributesCalculatorSupported(): Boolean =
         embeddingBackend.isSplitAttributesCalculatorSupported()
+
+    /**
+     * Triggers a [SplitAttributes] update callback for the current topmost and visible split layout
+     * if there is one. This method can be used when a change to the split presentation originates
+     * from an application state change. Changes that are driven by parent window changes or new
+     * activity starts invoke the callback provided in [setSplitAttributesCalculator] automatically
+     * without the need to call this function.
+     *
+     * The top [SplitInfo] is usually the last element of [SplitInfo] list which was received from
+     * the callback registered in [SplitController.addSplitListener].
+     *
+     * The call will be ignored if there is no visible split.
+     *
+     * @throws UnsupportedOperationException if the device doesn't support this API.
+     */
+    @ExperimentalWindowApi
+    fun invalidateTopVisibleSplitAttributes() =
+        embeddingBackend.invalidateTopVisibleSplitAttributes()
+
+    /**
+     * Checks whether [invalidateTopVisibleSplitAttributes] is supported on the device.
+     *
+     * Invoking these APIs if the feature is not supported would trigger an
+     * [UnsupportedOperationException].
+     * @return `true` if the runtime APIs to update [SplitAttributes] are supported and can be
+     * called safely, `false` otherwise.
+     */
+    @ExperimentalWindowApi
+    fun isInvalidatingTopVisibleSplitAttributesSupported(): Boolean =
+        embeddingBackend.areSplitAttributesUpdatesSupported()
+
+    /**
+     * Updates the [SplitAttributes] of a split pair. This is an alternative to using
+     * a split attributes calculator callback set in [setSplitAttributesCalculator], useful when
+     * apps only need to update the splits in a few cases proactively but rely on the default split
+     * attributes most of the time otherwise.
+     *
+     * The provided split attributes will be used instead of the associated
+     * [SplitRule.defaultSplitAttributes].
+     *
+     * **Note** that the split attributes may be updated if split attributes calculator callback is
+     * registered and invoked. If [setSplitAttributesCalculator] is used, the callback will still be
+     * applied to each [SplitInfo] when there's either:
+     * - A new Activity being launched.
+     * - A window or device state updates (e,g. due to screen rotation or folding state update).
+     *
+     * In most cases it is suggested to use [invalidateTopVisibleSplitAttributes] if
+     * [SplitAttributes] calculator callback is used.
+     *
+     * @param splitInfo the split pair to update
+     * @param splitAttributes the [SplitAttributes] to be applied
+     * @throws UnsupportedOperationException if this device doesn't support this API
+     */
+    @ExperimentalWindowApi
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) =
+        embeddingBackend.updateSplitAttributes(splitInfo, splitAttributes)
+
+    /**
+     * Checks whether [updateSplitAttributes] is supported on the device.
+     *
+     * Invoking these APIs if the feature is not supported would trigger an
+     * [UnsupportedOperationException].
+     * @return `true` if the runtime APIs to update [SplitAttributes] are supported and can be
+     * called safely, `false` otherwise.
+     */
+    @ExperimentalWindowApi
+    fun isUpdatingSplitAttributesSupported(): Boolean =
+        embeddingBackend.areSplitAttributesUpdatesSupported()
 
     companion object {
         @Volatile
