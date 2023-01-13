@@ -6,24 +6,31 @@ This page covers Jetpack's usage of Semantic Versioning and pre-release cycles,
 including the expectations at each cycle and criteria for moving to the next
 cycle or SemVer revision.
 
-## Semantic versioning
+## Semantic versioning and binary compatibility {#semver}
 
 Artifacts follow strict [semantic versioning](http://semver.org) for binary
-compatibility with an added inter-version sequence of pre-release revisions. The
-version for a finalized release artifact will follow the format
+compatibility with an added inter-version sequence of pre-release revisions.
+Versions for finalized release artifacts, which are available on
+[Google Maven](https://maven.google.com) will follow the format
 `<major>.<minor>.<bugfix>` with an optional `-<alpha|beta|rc><nn>` suffix.
-Internal or nightly releases (via [androidx.dev](http://androidx.dev)) use the
-`-SNAPSHOT` suffix.
+Internal or nightly releases, which are available on
+[androidx.dev](http://androidx.dev), use the `-SNAPSHOT` suffix.
 
-### Source compatibility
+### Behavioral and source compatibility {#compat}
 
-Libraries are encouraged -- but not required -- to preserve source compatibility
-across minor versions. Strictly requiring source compatibility would require
-major version bumps when implementing quality-of-life improvements such as
-nullability annotations or generics, which would be
-[disruptive to the library ecosystem](#major-implications).
+Libraries are required to preserve *behavioral compatibility* -- APIs must
+behave as described in their documentation -- across minor versions. Special
+consideration must also be made for changes to undocumented behavior, as
+developers may have made their own assumptions about API contracts based on
+observed behavior.
 
-### Notation
+Libraries are strongly encouraged to preserve *source compatibility* across
+minor versions. Strictly requiring source compatibility would require major
+version bumps when implementing quality-of-life improvements such as nullability
+annotations or generics, which would be [disruptive](#major-implications) to the
+library ecosystem.
+
+### Notation {#notation}
 
 Major (`x.0.0`)
 :   An artifact's major version indicates a guaranteed forward-compatibility
@@ -33,7 +40,7 @@ Major (`x.0.0`)
 Minor (`1.x.0`)
 :   Minor indicates compatible public API changes. This number is incremented
     when APIs are added, including the addition of
-    [`@Deprecated` annotations](api_guidelines.md#deprecation-and-removal).
+    [`@Deprecated` annotations](/company/teams/androidx/api_guidelines/index.md#deprecation-and-removal).
     Binary compatibility must be preserved between minor version changes.
 
 Bugfix (`1.0.x`)
@@ -41,7 +48,7 @@ Bugfix (`1.0.x`)
     taken to ensure that existing clients are not broken, including clients that
     may have been working around long-standing broken behavior.
 
-#### Pre-release cycles
+#### Pre-release cycles {#prerelease}
 
 Alpha (`1.0.0-alphaXX`)
 :   Feature development and API stabilization phase.
@@ -231,8 +238,9 @@ Council review but are expected to have performed a minimum level of validation.
         `publish=true` or create an `api` directory) and remain enabled
     *   May add/remove APIs within `alpha` cycle, but deprecate/remove cycle is
         strongly recommended.
-    *   May use [experimental APIs](api_guidelines.md#experimental-api) across
-        same-version group boundaries
+    *   May use
+        [experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api)
+        across same-version group boundaries
 *   Testing
     *   All changes **should** be accompanied by a `Test:` stanza
     *   All pre-submit and post-submit tests are passing
@@ -264,13 +272,13 @@ additions of `@Experimental` APIs or changes to `@Experimental` APIs.
     *   All APIs from alpha undergoing deprecate/remove cycle must be removed
         *   The final removal of a `@Deprecated` API should occur in alpha, not
             in beta
-    *   Must not use [experimental APIs](api_guidelines.md#experimental-api)
+    *   Must not use
+        [experimental APIs](/company/teams/androidx/api_guidelines#experimental-api)
         across same-version group boundaries
 *   Testing
     *   All public APIs are tested
     *   All pre-submit and post-submit tests are enabled (e.g. all suppressions
         are removed) and passing
-    *   Your library passes `./gradlew library:checkReleaseReady`
 *   Use of experimental Kotlin features (e.g. `@OptIn`) must be audited for
     stability
 *   All dependencies are `beta`, `rc`, or stable
@@ -336,22 +344,19 @@ A few notes about version updates:
 -   The version of your library listed in `androidx-main` should *always* be
     higher than the version publically available on Google Maven. This allows us
     to do proper version tracking and API tracking.
-
 -   Version increments must be done before the CL cutoff date (aka the build cut
     date).
-
 -   **Increments to the next stability suffix** (like `alpha` to `beta`) should
-    be handled by the library owner, with the Jetpack TPM (nickanthony@) CC'd
+    be handled by the library owner, with the Jetpack TPM (natnaelbelay@) CC'd
     for API+1.
-
 -   Version increments in release branches will need to follow the guide
-    [How to update your version on a release branch](release_branches.md#update-your-version)
-
+    [How to update your version on a release branch](/company/teams/androidx/release_branches.md#update-your-version)
 -   When you're ready for `rc01`, the increment to `rc01` should be done in
     `androidx-main` and then your release branch should be snapped to that
-    build. See the guide [Snap your release branch](release_branches.md#snap) on
-    how to do this. After the release branch is snapped to that build, you will
-    need to update your version in `androidx-main` to `alpha01` of the next
+    build. See the guide
+    [Snap your release branch](/company/teams/androidx/release_branches.md#snap)
+    on how to do this. After the release branch is snapped to that build, you
+    will need to update your version in `androidx-main` to `alpha01` of the next
     minor (or major) version.
 
 ### How to update your version
@@ -369,9 +374,10 @@ An example of a version bump can be found here:
 
 ## `-ktx` Modules {#ktx}
 
-[Kotlin extension libraries](api_guidelines.md#module-ktx) (`-ktx`) follow the
-same versioning requirements as other libraries, but with one exception: they
-must match the version of the Java libraries that they extend.
+[Kotlin extension libraries](/company/teams/androidx/api_guidelines/index.md#module-ktx)
+(`-ktx`) follow the same versioning requirements as other libraries, but with
+one exception: they must match the version of the Java libraries that they
+extend.
 
 For example, let's say you are developing a Java library
 `androidx.foo:foo-bar:1.1.0-alpha01` and you want to add a Kotlin extension
@@ -389,10 +395,6 @@ For public releases, an alpha ships when the library lead believes it is ready.
 Generally, these occur during the batched bi-weekly (every 2 weeks) release
 because all tip-of-tree dependencies will need to be released too.
 
-### Are there restrictions on when or how often an alpha can ship?
-
-Nope.
-
 ### Can alpha work (ex. for the next Minor release) occur in the primary development branch during beta API lockdown?
 
 No. This is by design. Focus should be spent on improving the Beta version and
@@ -405,5 +407,5 @@ until API review is complete and addressed.
 
 ### How often can a beta release?
 
-As often as needed, however, releases outside of the bi-weekly (every 2 weeks)
+As often as needed; however, releases outside of the bi-weekly (every 2 weeks)
 release will need to get approval from the TPM (natnaelbelay@).
