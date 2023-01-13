@@ -1,4 +1,4 @@
-// The components of a tile that can be rendered by a tile renderer.
+// The schema version information of a layout.
 syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
@@ -7,7 +7,7 @@ option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "VersionProto";
 
 // Version information. This is used to encode the schema version of a payload
-// (e.g. inside of Tile).
+// (e.g. inside of a layout).
 message VersionInfo {
   // Major version. Incremented on breaking changes (i.e. compatibility is not
   // guaranteed across major versions).

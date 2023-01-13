@@ -1,7 +1,9 @@
-// State of a tile.
+// State of a layout.
 syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
+
+import "state_entry.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "StateProto";
@@ -10,4 +12,8 @@ option java_outer_classname = "StateProto";
 message State {
   // The ID of the clickable that was last clicked.
   string last_clickable_id = 1;
+
+  // Any shared state between the provider and renderer.
+  map<string, androidx.wear.protolayout.expression.proto.StateEntryValue>
+      id_to_value = 2;
 }

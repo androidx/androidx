@@ -3,13 +3,34 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "alignment.proto";
+import "dynamic.proto";
+import "types.proto";
+
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "DimensionProto";
 
 // A type for linear dimensions, measured in dp.
 message DpProp {
   // The value, in dp.
-  float value = 1;
+  optional float value = 1;
+
+  // The dynamic value, in dp.
+  androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
+
+  float value_for_layout = 3;
+
+  oneof align {
+    // Vertical alignment of the actual content within the space reserved by
+    // value_for_layout. Only valid when this DpProp is used for vertical
+    // sizing. If not specified, defaults to center alignment.
+    VerticalAlignment vertical_alignment_for_layout = 4;
+
+    // Horizontal alignment of the actual content within the space reserved by
+    // value_for_layout. Only valid when this DpProp is used for horizontal
+    // sizing. If not specified, defaults to center alignment.
+    HorizontalAlignment horizontal_alignment_for_layout = 5;
+  }
 }
 
 // A type for font sizes, measured in sp.
@@ -26,19 +47,62 @@ message EmProp {
   float value = 1;
 }
 
+// The length of an ArcLine.
+message ArcLineLength {
+  oneof inner {
+    DegreesProp degrees = 1;
+    ExpandedAngularDimensionProp expanded_angular_dimension = 2;
+  }
+}
+
+// The length of an ArcSpacer.
+message ArcSpacerLength {
+  oneof inner {
+    DegreesProp degrees = 1;
+    ExpandedAngularDimensionProp expanded_angular_dimension = 2;
+  }
+}
+
+// A type for an angular dimension that fills all the space it can
+// (i.e. MATCH_PARENT in Android parlance)
+message ExpandedAngularDimensionProp {
+  // The layout weight (a dimensionless scalar value) for this element. The
+  // angular dimension for this element will be layout_weight times the
+  // available space divided by the sum of the layout_weights. If not set this
+  // defaults to 1.
+  FloatProp layout_weight = 1;
+}
+
 // A type for angular dimensions, measured in degrees.
 message DegreesProp {
   // The value, in degrees.
-  float value = 1;
+  optional float value = 1;
+
+  // The dynamic value, in degrees.
+  androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
+
+  float value_for_layout = 3;
+  AngularAlignment angular_alignment_for_layout = 4;
 }
 
 // A type for a dimension that fills all the space it can (i.e. MATCH_PARENT in
 // Android parlance)
-message ExpandedDimensionProp {}
+message ExpandedDimensionProp {
+  // The layout weight (a dimensionless scalar value) for this element. This
+  // will only affect the width of children of a Row or the height of children
+  // of a Column. By default, all children have equal weight. Where applicable,
+  // the width or height of the element is proportional to the sum of the
+  // weights of its siblings.
+  FloatProp layout_weight = 1;
+}
 
 // A type for a dimension that sizes itself to the size of its children (i.e.
 // WRAP_CONTENT in Android parlance)
-message WrappedDimensionProp {}
+message WrappedDimensionProp {
+  // The minimum size of this dimension. If not set, then there is no minimum
+  // size.
+  DpProp minimum_size = 1;
+}
 
 // A type for a dimension that scales itself proportionally to another dimension
 // such that the aspect ratio defined by the given width and height values is
@@ -79,6 +143,5 @@ message ImageDimension {
 message SpacerDimension {
   oneof inner {
     DpProp linear_dimension = 1;
-    // TODO(b/169137847): Add ExpandedDimensionProp
   }
 }

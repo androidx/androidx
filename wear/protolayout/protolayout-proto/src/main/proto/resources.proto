@@ -3,6 +3,9 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "dynamic.proto";
+import "trigger.proto";
+
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ResourceProto";
 
@@ -44,6 +47,56 @@ message InlineImageResource {
   ImageFormat format = 4;
 }
 
+// An image to be loaded from a ContentProvider, by content URI.
+message AndroidImageResourceByContentUri {
+  // The content URI to use, on the format content://authority/resource.
+  string content_uri = 1;
+}
+
+// Format describing the contents of an animated image.
+enum AnimatedImageFormat {
+  // An undefined image format.
+  ANIMATED_IMAGE_FORMAT_UNDEFINED = 0;
+
+  // Android AnimatedVectorDrawable.
+  ANIMATED_IMAGE_FORMAT_AVD = 1;
+}
+
+// A non-seekable animated image resource that maps to an Android drawable by
+// resource ID. The animation is started with given trigger, fire and forget.
+message AndroidAnimatedImageResourceByResId {
+  // The format for the animated image.
+  AnimatedImageFormat format = 1;
+
+  // The Android resource ID, e.g. R.drawable.foo.
+  int32 resource_id = 2;
+
+  // The trigger to start the animation.
+  Trigger trigger = 3;
+}
+
+// A seekable animated image resource that maps to an Android drawable by
+// resource ID. The animation progress is bound to the provided dynamic float.
+message AndroidSeekableAnimatedImageResourceByResId {
+  // The format for the animated image.
+  AnimatedImageFormat format = 1;
+
+  // The Android resource ID, e.g. R.drawable.foo
+  int32 resource_id = 2;
+
+  // A dynamic float, normally transformed from certain states with the data
+  // binding pipeline, controls the progress of the animation. Its value is
+  // required to fall in the range of [0.0, 1.0], any values outside this range
+  // would be clamped.
+  //
+  // Typically, AnimatableFixedFloat or AnimatableDynamicFloat is used for this
+  // progress. With AnimatableFixedFloat, the animation is played from progress
+  // of its from_value to to_value; with AnimatableDynamicFloat, the animation
+  // is set from progress 0 to its first value once it is available, it then
+  // plays from current progress to the new value on subsequent updates.
+  androidx.wear.protolayout.expression.proto.DynamicFloat progress = 3;
+}
+
 // An image resource, which can be used by layouts. This holds multiple
 // underlying resource types, which the underlying runtime will pick according
 // to what it thinks is appropriate.
@@ -53,18 +106,30 @@ message ImageResource {
 
   // An image resource that contains the image data inline.
   InlineImageResource inline_resource = 2;
+
+  // An image which loads its drawable via an Android Content URI.
+  AndroidImageResourceByContentUri android_content_uri = 5;
+
+  // A non-seekable animated image resource that maps to an Android drawable by
+  // resource ID. The animation is started with given trigger, fire and forget.
+  AndroidAnimatedImageResourceByResId android_animated_resource_by_res_id = 6;
+
+  // A seekable animated image resource that maps to an Android drawable by
+  // resource ID. The animation progress is bound to the provided dynamic float.
+  AndroidSeekableAnimatedImageResourceByResId
+      android_seekable_animated_resource_by_res_id = 7;
 }
 
 // The resources for a layout.
 message Resources {
   // The version of this Resources instance.
   //
-  // Each tile specifies the version of resources it requires. After fetching a
-  // tile, the renderer will use the resources version specified by the tile
-  // to separately fetch the resources.
+  // Each layout specifies the version of resources it requires. After fetching
+  // a layout, the renderer will use the resources version specified by the
+  // layout to separately fetch the resources.
   //
-  // This value must match the version of the resources required by the tile
-  // for the tile to render successfully, and must match the resource version
+  // This value must match the version of the resources required by the layout
+  // for the layout to render successfully, and must match the resource version
   // specified in ResourcesRequest which triggered this request.
   string version = 1;
 

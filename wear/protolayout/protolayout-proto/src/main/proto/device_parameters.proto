@@ -1,12 +1,14 @@
-// Request messages used to fetch tiles and resources
+// Request messages used to fetch layouts and resources
 syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "version.proto";
+
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "DeviceParametersProto";
 
-// The platform of the device requesting a tile.
+// The platform of the device requesting a layout.
 enum DevicePlatform {
   // Device platform is undefined.
   DEVICE_PLATFORM_UNDEFINED = 0;
@@ -27,7 +29,7 @@ enum ScreenShape {
   SCREEN_SHAPE_RECT = 2;
 }
 
-// Parameters describing the device requesting a tile update. This contains
+// Parameters describing the device requesting a layout update. This contains
 // physical and logical characteristics about the device (e.g. screen size and
 // density, etc).
 message DeviceParameters {
@@ -41,9 +43,28 @@ message DeviceParameters {
   // Pixels (px = dp * density).
   float screen_density = 3;
 
+  // Current user preference for the scaling factor for fonts displayed on the
+  // display. This value is used to get from SP to DP (dp = sp * font_scale).
+  float font_scale = 7;
+
   // The platform of the device.
   DevicePlatform device_platform = 4;
 
   // The shape of the device's screen
   ScreenShape screen_shape = 5;
+
+  // The maximum schema version supported by the current renderer.
+  VersionInfo renderer_schema_version = 6;
+
+  // Renderer supported capabilities
+  Capabilities capabilities = 8;
+}
+
+// Capabilities describing the features that the renderer supports.
+message Capabilities {
+  // Current minimum freshness limit in milliseconds. This can change based on
+  // various factors. Any freshness request lower than the current limit will be
+  // replaced by that limit. A value of 0 here signifies that the minimum
+  // freshness limit in unknown.
+  uint64 minimum_freshness_limit_millis = 1;
 }

@@ -3,6 +3,9 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "alignment.proto";
+import "dynamic.proto";
+
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "TypesProto";
 
@@ -10,22 +13,42 @@ option java_outer_classname = "TypesProto";
 message Int32Prop {
   // The value.
   int32 value = 1;
+
+  // The dynamic value.
+  androidx.wear.protolayout.expression.proto.DynamicInt32 dynamic_value = 2;
 }
 
 // A string type.
 message StringProp {
   // The value.
   string value = 1;
+
+  // The dynamic value.
+  androidx.wear.protolayout.expression.proto.DynamicString dynamic_value = 2;
+
+  // When used as a layout-changing data bind, the string to measure, when
+  // considering how wide the element should be in the layout.
+  string value_for_layout = 3;
+
+  // Alignment alignment of the actual text within the space reserved by
+  // value_for_layout. If not specified, defaults to center alignment.
+  TextAlignment text_alignment_for_layout = 4;
 }
 
 // A float type.
 message FloatProp {
   // The value.
-  float value = 1;
+  optional float value = 1;
+
+  // The dynamic value.
+  androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
 }
 
 // A boolean type.
 message BoolProp {
   // The value.
   bool value = 1;
+
+  // The dynamic value.
+  androidx.wear.protolayout.expression.proto.DynamicBool dynamic_value = 2;
 }

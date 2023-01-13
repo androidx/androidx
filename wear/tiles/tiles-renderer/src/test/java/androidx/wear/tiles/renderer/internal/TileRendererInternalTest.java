@@ -67,8 +67,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto.ArcText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
-import androidx.wear.protolayout.proto.LayoutElementProto.HorizontalAlignment;
-import androidx.wear.protolayout.proto.LayoutElementProto.HorizontalAlignmentProp;
+import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
+import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
@@ -79,8 +79,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto.SpanImage;
 import androidx.wear.protolayout.proto.LayoutElementProto.SpanText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Spannable;
 import androidx.wear.protolayout.proto.LayoutElementProto.Text;
-import androidx.wear.protolayout.proto.LayoutElementProto.VerticalAlignment;
-import androidx.wear.protolayout.proto.LayoutElementProto.VerticalAlignmentProp;
+import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
+import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
 import androidx.wear.protolayout.proto.ModifiersProto.Border;
 import androidx.wear.protolayout.proto.ModifiersProto.Clickable;
 import androidx.wear.protolayout.proto.ModifiersProto.Modifiers;
@@ -176,8 +176,9 @@ public class TileRendererInternalTest {
                         .setText(StringProp.newBuilder().setValue(textContents))
                         .setModifiers(Modifiers.newBuilder()
                                 .setSemantics(Semantics.newBuilder()
-                                        .setContentDescription("Hello World Text Element"))))
-                        .build();
+                                        .setObsoleteContentDescription(
+                                                "Hello World Text Element"))))
+                .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
