@@ -18,12 +18,14 @@
 <resources>
 
     <style name="MyPinkTheme" parent="Theme.AppCompat.DayNight" >
-        <!-- The color for selected headers -->
+        <!-- The color for selected category icons -->
         <item name="colorAccent">#696969</item>
-        <!-- The color for unselected headers -->
+        <!-- The color for unselected category icons -->
         <item name="colorControlNormal">#FFC0CB</item>
         <!-- The color for all text -->
         <item name="android:textColorPrimary">#696969</item>
+        <!-- The text size for category text -->
+        <item name="android:textSize">12dp</item>
         <!-- The color for variant popup background -->
         <item name="colorButtonNormal">#FFC0CB</item>
     </style>
