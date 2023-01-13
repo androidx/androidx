@@ -149,6 +149,7 @@ class TabRowTest {
         rule.onNodeWithTag(firstTab).assertIsFocused()
     }
 
+    @OptIn(ExperimentalTvMaterial3Api::class)
     @Test
     fun tabRow_changeActiveTabOnClick() {
         val tabs = constructTabs(count = 2)
@@ -227,6 +228,7 @@ class TabRowTest {
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun TabRowSample(
     tabs: List<String>,
@@ -288,6 +290,7 @@ private fun TabRowSample(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun TabSample(
     selected: Boolean,

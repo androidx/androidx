@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabDefaults
@@ -45,6 +46,7 @@ import kotlinx.coroutines.delay
 /**
  * Tab row with a Pill indicator
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 @Sampled
 fun PillIndicatorTabRow() {
@@ -74,6 +76,7 @@ fun PillIndicatorTabRow() {
 /**
  * Tab row with an Underlined indicator
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 @Sampled
 fun UnderlinedIndicatorTabRow() {
@@ -109,6 +112,7 @@ fun UnderlinedIndicatorTabRow() {
 /**
  * Tab row with delay between tab changes
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 @Sampled
 fun TabRowWithDebounce() {
@@ -147,6 +151,7 @@ fun TabRowWithDebounce() {
 /**
  * Tab changes onClick instead of onFocus
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 @Sampled
 fun OnClickNavigation() {
