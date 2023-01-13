@@ -435,6 +435,17 @@ that are more lightweight, depending on your use case:
 
 ## Kotlin-specific guidelines {#kotlin}
 
+Generally speaking, Kotlin code should follow the compatibility guidelines
+outlined at:
+
+-   The official Android Developers
+    [Kotlin-Java interop guide](https://developer.android.com/kotlin/interop)
+-   Android API guidelines for
+    [Kotlin-Java interop](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#kotin-interop)
+-   Android API guidelines for
+    [asynchronous and non-blocking APIs](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/async.md)
+-   Library-specific guidance outlined below
+
 ### Nullability
 
 #### Annotations on new Java APIs
