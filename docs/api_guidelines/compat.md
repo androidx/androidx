@@ -245,21 +245,51 @@ if (BuildCompat.isAtLeastQ()) {
 }
 ```
 
-### Inter-process communication {#inter-process-communication}
+### Inter-process communication {#ipc}
 
 Protocols and data structures used for IPC must support interoperability between
-different versions of libraries and should be treated similarly to public API.
+different versions of libraries and should be treated similarly to public API;
+however, AndroidX does not currently implement compatibility tracking for IPC.
 
-#### Data structures
+We recommend the following, in order of preference:
 
-**Do not** use `Parcelable` for any class that may be used for IPC or otherwise
-exposed as public API. The wire format used by `Parcelable` does not provide any
-compatibility guarantees and will result in crashes if fields are added or
-removed between library versions.
+1.  Stable AIDL if (1) your project lives partially in the Android platform and
+    has access to Stable AIDL build rules and (2) you need to support Android's
+    `Parcelable` data types. The AndroidX workflow **does not** provide Stable
+    AIDL compilation or compatibility checks, so these would need to happen in
+    the platform build and the resulting `.java` files would need to be copied
+    out.
+2.  Protobuf if (1) your project needs to persist data to disk or (2) you need
+    interoperability with systems already using Protobuf. Similar to Stable
+    AIDL, the AndroidX workflow **does not** provide built-in support Protobuf
+    compilation or compatibility checks. It is possible to use a Proto plug-in,
+    but you will be responsible for bundling the runtime and maintaining
+    compatibility on your own.
+3.  Bundle if you have a very simple data model that is unlikely to change in
+    the future. Bundle has the weakest type safety and compatibility guarantees
+    of any recommendation, and it has many caveats that make it a poor choice.
+4.  `VersionedParcelable` if your project is already using Versioned Parcelable
+    and is aware of its compatibility constraints.
 
 **Do not** design your own serialization mechanism or wire format for disk
 storage or inter-process communication. Preserving and verifying compatibility
 is difficult and error-prone.
+
+In all cases, **do not** expose your serialization mechanism in your API
+surface. Neither Stable AIDL nor Protobuf generate stable language APIs.
+
+#### Parcelable {#ipc-parcelable}
+
+**Do not** implement `Parcelable` for any class that may be used for IPC or
+otherwise exposed as public API. By default, `Parcelable` does not provide any
+compatibility guarantees and will result in crashes if fields are added or
+removed between library versions. If you are using Stable AIDL, you *may* use
+AIDL-defined parcelables for IPC but not public API.
+
+NOTE As of 2022/12/16, we are working on experimental support for compiling and
+tracking Stable AIDL definitions within the AndroidX workflow.
+
+#### Protobuf {#ipc-protobuf}
 
 Developers **should** use protocol buffers for most cases. See
 [Protobuf](#dependencies-protobuf) for more information on using protocol
@@ -267,6 +297,14 @@ buffers in your library. **Do** use protocol buffers if your data structure is
 complex and likely to change over time. If your data includes `FileDescriptor`s,
 `Binder`s, or other platform-defined `Parcelable` data structures, they will
 need to be stored alongside the protobuf bytes in a `Bundle`.
+
+NOTE We are currently investigating the suitability of Square's
+[`wire` library](https://github.com/square/wire) for handling protocol buffers
+in Android libraries. If adopted, it will replace `proto` library dependencies.
+Libraries that expose their serialization mechanism in their API surface *will
+not be able to migrate*.
+
+#### Bundle {#ipc-bundle}
 
 Developers **may** use `Bundle` in simple cases that require sending `Binder`s,
 `FileDescriptor`s, or platform `Parcelable`s across IPC
@@ -290,19 +328,7 @@ Note that `Bundle` has several caveats:
     are responsible for providing their own system for guaranteeing wire format
     compatibility between versions.
 
-Developers **may** use `VersionedParcelable` in cases where they are already
-using the library and understand its limitations.
-
-In all cases, **do not** expose your serialization mechanism in your API
-surface.
-
-NOTE We are currently investigating the suitability of Square's
-[`wire` library](https://github.com/square/wire) for handling protocol buffers
-in Android libraries. If adopted, it will replace `proto` library dependencies.
-Libraries that expose their serialization mechanism in their API surface *will
-not be able to migrate*.
-
-#### Communication protocols
+#### Communication protocols {#ipc-protocol}
 
 Any communication prototcol, handshake, etc. must maintain compatibility
 consistent with SemVer guidelines. Consider how your protocol will handle

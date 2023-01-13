@@ -125,18 +125,23 @@ module from within Android Studio.
     library, e.g. `androidx.room:room-testing`
 *   `-core` for a low-level artifact that *may* contain public APIs but is
     primarily intended for use by other libraries in the group
-*   `-ktx` for an Kotlin artifact that exposes idiomatic Kotlin APIs as an
-    extension to a Java-only library (see
-    [additional -ktx guidance](#module-ktx))
+*   `-common` for a low-level, platform-agnostic Kotlin multi-platform artifact
+    intended for both client use and use by other libraries in the group
+*   `-ktx` for a Kotlin artifact that exposes idiomatic Kotlin APIs as an
+    extension to a Java-only library. Note that new modules should be written in
+    Kotlin rather than using `-ktx` artifacts.
 *   `-samples` for sample code which can be inlined in documentation (see
     [Sample code in Kotlin modules](#sample-code-in-kotlin-modules)
 *   `-<third-party>` for an artifact that integrates an optional third-party API
-    surface, e.g. `-proto` or `-rxjava2`. Note that a major version is included
-    in the sub-feature name for third-party API surfaces where the major version
-    indicates binary compatibility (only needed for post-1.x).
+    surface, e.g. `-proto`, `-guava`, or `-rxjava2`. This is common for Kotlin
+    libraries adapting their async APIs for Java clients. Note that a major
+    version is included in the sub-feature name (ex. `rxjava3`) for third-party
+    API surfaces where the major version indicates binary compatibility (only
+    needed for post-1.x).
 
 Artifacts **should not** use `-impl` or `-base` to indicate that a library is an
-implementation detail shared within the group. Instead, use `-core`.
+implementation detail shared within the group. Instead, use `-core` or `-common`
+as appropriate.
 
 #### Splitting existing modules
 
@@ -263,21 +268,24 @@ Note that this pattern is *not recommended* because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
 
-### Kotlin extension `-ktx` libraries {#module-ktx}
+### Extension libraries (`-ktx`, `-guava`, etc.) {#module-ktx}
 
 New libraries should prefer Kotlin sources with built-in Java compatibility via
-`@JvmName` and other affordances of the Kotlin language; however, existing Java
-sourced libraries may benefit from extending their API surface with
-Kotlin-friendly APIs in a `-ktx` library.
+`@JvmName` and other affordances of the Kotlin language. They may optionally
+expose framework- or language-specific extension libraries like `-guava` or
+`-rxjava3`.
 
-A Kotlin extension library **may only** provide extensions for a single base
-library's API surface and its name **must** match the base library exactly. For
-example, `work:work-ktx` may only provide extensions for APIs exposed by
-`work:work`.
+Existing Java-sourced libraries may benefit from extending their API surface
+with Kotlin-friendly APIs in a `-ktx` extension library.
+
+Extension libraries **may only** provide extensions for a single base library's
+API surface and its name **must** match the base library exactly. For example,
+`work:work-ktx` may only provide extensions for APIs exposed by `work:work`.
 
 Additionally, an extension library **must** specify an `api`-type dependency on
 the base library and **must** be versioned and released identically to the base
 library.
 
-Kotlin extension libraries *should not* expose new functionality; they should
-only provide Kotlin-friendly versions of existing Java-facing functionality.
+Extension libraries *should not* expose new functionality; they should only
+provide language- or framework-friendly versions of existing library
+functionality.

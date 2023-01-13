@@ -30,7 +30,7 @@ be distinguishable by their packages.
 
 NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
-[Testability](testability.md) guide.
+[Testability](/company/teams/androidx/testability.md) guide.
 
 ### What gets tested, and when {#affected-module-detector}
 
@@ -255,7 +255,7 @@ their library's public API surface. Test apps serve multiple purposes:
 *   Validation of API usability and developer experience, when paired with a use
     case or critical user journey
 *   Sample documentation, when embedded into API reference docs using the
-    [`@sample` and `@Sampled` annotations](api_guidelines.md#sample-usage)
+    [`@sample` and `@Sampled` annotations](/company/teams/androidx/api_guidelines/index.md#sample-usage)
 
 ### Legacy test apps {#testapps-legacy}
 
@@ -273,4 +273,4 @@ apps for new APIs, but they may be useful for manual regression testing.
 
 AndroidX supports benchmarking - locally with Studio/Gradle, and continuously in
 post-submit. For more information on how to create and run benchmarks, see
-[Benchmarking](benchmarking.md).
+[Benchmarking](/company/teams/androidx/benchmarking.md).
