@@ -561,6 +561,15 @@ public open class NavController(
             )
             return false
         }
+        return executePopOperations(popOperations, foundDestination, inclusive, saveState)
+    }
+
+    private fun executePopOperations(
+        popOperations: List<Navigator<*>>,
+        foundDestination: NavDestination,
+        inclusive: Boolean,
+        saveState: Boolean,
+    ): Boolean {
         var popped = false
         val savedState = ArrayDeque<NavBackStackEntryState>()
         for (navigator in popOperations) {
