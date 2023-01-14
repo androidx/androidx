@@ -29,7 +29,7 @@ import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactor
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
-import androidx.camera.camera2.pipe.compat.CameraMetadataProvider
+import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 import androidx.camera.camera2.pipe.compat.CameraOpener
 import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
@@ -60,7 +60,7 @@ internal abstract class Camera2Module {
     @Binds
     abstract fun bindCameraMetadataProvider(
         camera2MetadataCache: Camera2MetadataCache
-    ): CameraMetadataProvider
+    ): Camera2MetadataProvider
 
     @Binds
     abstract fun bindCameraAvailabilityMonitor(

@@ -63,10 +63,10 @@ internal class CameraPipeTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameras = cameraPipe.cameras()
-        val cameraList = cameras.ids()
+        val cameraList = cameras.getCameraIds()
 
         assertThat(cameraList).isNotNull()
-        assertThat(cameraList.size).isEqualTo(1)
+        assertThat(cameraList!!.size).isEqualTo(1)
         assertThat(cameraList).contains(fakeCameraId)
     }
 }

@@ -42,13 +42,11 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
         get() = synchronized(lock) { _cameraControllers.toList() }
 
     override val id: CameraBackendId
-        get() = FAKE_CAMERA_BACKEND
+        get() = FAKE_CAMERA_BACKEND_ID
 
-    override fun readCameraIdList(): List<CameraId> = fakeCameraIds
-    override fun readCameraMetadata(cameraId: CameraId): CameraMetadata =
-        checkNotNull(fakeCameras[cameraId]) {
-            "fakeCameras does not contain $cameraId. Available cameras are: $fakeCameras"
-        }
+    override fun awaitCameraIds(): List<CameraId> = fakeCameraIds
+
+    override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? = fakeCameras[cameraId]
 
     override fun disconnectAllAsync(): Deferred<Unit> {
         _cameraControllers.forEach {
@@ -83,6 +81,7 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
     }
 
     companion object {
-        private val FAKE_CAMERA_BACKEND = CameraBackendId("camerapipe.testing.fake_backend")
+        val FAKE_CAMERA_BACKEND_ID =
+            CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraBackend")
     }
 }

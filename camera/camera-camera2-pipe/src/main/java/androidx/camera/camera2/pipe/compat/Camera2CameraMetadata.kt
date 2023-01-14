@@ -39,7 +39,7 @@ internal class Camera2CameraMetadata constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,
-    private val metadataProvider: CameraMetadataProvider,
+    private val metadataProvider: Camera2MetadataProvider,
     private val metadata: Map<Metadata.Key<*>, Any?>,
     private val cacheBlocklist: Set<CameraCharacteristics.Key<*>>,
 ) : CameraMetadata {
@@ -106,14 +106,14 @@ internal class Camera2CameraMetadata constructor(
         check(physicalCameraIds.contains(cameraId)) {
             "$cameraId is not a valid physical camera on $this"
         }
-        return metadataProvider.getMetadata(cameraId)
+        return metadataProvider.getCameraMetadata(cameraId)
     }
 
     override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata {
         check(physicalCameraIds.contains(cameraId)) {
             "$cameraId is not a valid physical camera on $this"
         }
-        return metadataProvider.awaitMetadata(cameraId)
+        return metadataProvider.awaitCameraMetadata(cameraId)
     }
 
     private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =

@@ -40,18 +40,18 @@ internal class Camera2DeviceCache @Inject constructor(
     @GuardedBy("lock")
     private var openableCameras: List<CameraId>? = null
 
-    suspend fun getCameras(): List<CameraId> {
+    suspend fun getCameraIds(): List<CameraId>? {
         val cameras = synchronized(lock) { openableCameras }
-        if (cameras?.isNotEmpty() == true) {
+        if (!cameras.isNullOrEmpty()) {
             return cameras
         }
 
         // Suspend and query the list of Cameras on the ioDispatcher
         return withContext(threads.backgroundDispatcher) {
             Debug.trace("readCameraIds") {
-                val cameraIds = readCameraIdList()
+                val cameraIds = awaitCameraIds()
 
-                if (cameraIds.isNotEmpty()) {
+                if (!cameraIds.isNullOrEmpty()) {
                     synchronized(lock) {
                         openableCameras = cameraIds
                     }
@@ -69,9 +69,9 @@ internal class Camera2DeviceCache @Inject constructor(
         }
     }
 
-    private fun readCameraIdList(): List<CameraId> {
+    fun awaitCameraIds(): List<CameraId>? {
         val cameras = synchronized(lock) { openableCameras }
-        if (cameras?.isNotEmpty() == true) {
+        if (!cameras.isNullOrEmpty()) {
             return cameras
         }
 
@@ -82,12 +82,12 @@ internal class Camera2DeviceCache @Inject constructor(
             cameraManager.cameraIdList
         } catch (e: CameraAccessException) {
             Log.warn(e) { "Failed to query CameraManager#getCameraIdList!" }
-            null
+            return null
         }
-        if (cameraIdArray?.isEmpty() == true) {
+        if (cameraIdArray.isEmpty()) {
             Log.warn { "Failed to query CameraManager#getCameraIdList: No values returned." }
+            return emptyList()
         }
-
-        return cameraIdArray?.map { CameraId(it) } ?: listOf()
+        return cameraIdArray.map { CameraId(it) }
     }
 }
