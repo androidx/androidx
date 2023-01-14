@@ -4,7 +4,7 @@ package androidx.tv.foundation {
   @kotlin.RequiresOptIn(message="This tv-foundation API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvFoundationApi {
   }
 
-  public final class PivotOffsets {
+  @androidx.compose.runtime.Immutable public final class PivotOffsets {
     ctor public PivotOffsets(optional float parentFraction, optional float childFraction);
     method public float getChildFraction();
     method public float getParentFraction();
