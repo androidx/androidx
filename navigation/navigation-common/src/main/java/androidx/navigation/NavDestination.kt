@@ -424,17 +424,19 @@ public open class NavDestination(
      * @param [route] The route to match with the route of this destination
      *
      * @param [arguments] The [NavBackStackEntry.arguments] of the entry for this destination.
-     *
-     * @param [graph] The [NavGraph] of the backStack containing the entry for this destination.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun hasRoute(route: String, arguments: Bundle?, graph: NavGraph): Boolean {
+    public fun hasRoute(route: String, arguments: Bundle?): Boolean {
         // this matches based on routePattern
         if (this.route == route) return true
 
         // if no match based on routePattern, this means route contains filled in args.
         val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
-        val matchingDeepLink = graph.matchDeepLink(request)
+        val matchingDeepLink = if (this is NavGraph) {
+            matchDeepLinkExcludingChildren(request)
+        } else {
+            matchDeepLink(request)
+        }
 
         // If matchingDeepLink is null or it has no matching args, the route does not contain
         // filled in args. Since it didn't match with routePattern earlier, we just return false.
