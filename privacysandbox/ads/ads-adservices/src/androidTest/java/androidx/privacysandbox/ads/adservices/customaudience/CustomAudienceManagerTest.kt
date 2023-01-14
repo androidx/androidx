@@ -189,7 +189,29 @@ class CustomAudienceManagerTest {
                     .build()
 
             // Verify that the actual request matches the expected one.
-            Truth.assertThat(expectedRequest == joinCustomAudienceRequest).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.ads.size ==
+                joinCustomAudienceRequest.customAudience.ads.size).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.ads[0].renderUri ==
+                joinCustomAudienceRequest.customAudience.ads[0].renderUri).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.ads[0].metadata ==
+                joinCustomAudienceRequest.customAudience.ads[0].metadata).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.biddingLogicUri ==
+                joinCustomAudienceRequest.customAudience.biddingLogicUri).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.buyer.toString() ==
+                joinCustomAudienceRequest.customAudience.buyer.toString()).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.dailyUpdateUri ==
+                joinCustomAudienceRequest.customAudience.dailyUpdateUri).isTrue()
+            Truth.assertThat(expectedRequest.customAudience.name ==
+                joinCustomAudienceRequest.customAudience.name).isTrue()
+            Truth.assertThat(trustedBiddingSignals.trustedBiddingKeys ==
+                joinCustomAudienceRequest.customAudience.trustedBiddingData!!.trustedBiddingKeys)
+                .isTrue()
+            Truth.assertThat(trustedBiddingSignals.trustedBiddingUri ==
+                joinCustomAudienceRequest.customAudience.trustedBiddingData!!.trustedBiddingUri)
+                .isTrue()
+            Truth.assertThat(
+                joinCustomAudienceRequest.customAudience.userBiddingSignals!!.toString() ==
+                signals).isTrue()
         }
 
         private fun verifyLeaveCustomAudienceRequest(

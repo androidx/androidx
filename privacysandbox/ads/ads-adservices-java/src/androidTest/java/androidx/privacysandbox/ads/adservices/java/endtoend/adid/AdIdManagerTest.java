@@ -41,6 +41,7 @@ public class AdIdManagerTest {
     @Before
     public void setup() throws Exception {
         mTestUtil.overrideAdIdKillSwitch(true);
+        mTestUtil.overrideKillSwitches(true);
         mTestUtil.overrideConsentManagerDebugMode(true);
         mTestUtil.overrideAllowlists(true);
     }
@@ -48,6 +49,7 @@ public class AdIdManagerTest {
     @After
     public void teardown() {
         mTestUtil.overrideAdIdKillSwitch(false);
+        mTestUtil.overrideKillSwitches(false);
         mTestUtil.overrideConsentManagerDebugMode(false);
         mTestUtil.overrideAllowlists(false);
     }

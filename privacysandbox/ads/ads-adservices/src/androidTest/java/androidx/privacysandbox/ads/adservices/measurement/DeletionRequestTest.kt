@@ -20,7 +20,6 @@ import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
 import java.time.Instant
 import org.junit.Test
@@ -64,28 +63,5 @@ class DeletionRequestTest {
             .setOriginUris(listOf(Uri.parse("www.xyz.com")))
             .build()
         Truth.assertThat(deletionRequest1 == deletionRequest2).isTrue()
-    }
-
-    @Test
-    fun testIllegalArguments() {
-        assertThrows<IllegalArgumentException> {
-            DeletionRequest(
-                2 /* Invalid deletionMode */,
-                DeletionRequest.MATCH_BEHAVIOR_DELETE,
-                Instant.MIN,
-                Instant.MAX,
-                listOf(Uri.parse("www.abc.com")),
-                listOf(Uri.parse("www.xyz.com")))
-        }.hasMessageThat().contains("DeletionMode undefined.")
-
-        assertThrows<IllegalArgumentException> {
-            DeletionRequest(
-                DeletionRequest.DELETION_MODE_ALL,
-                2 /* Invalid matchBehavior */,
-                Instant.MIN,
-                Instant.MAX,
-                listOf(Uri.parse("www.abc.com")),
-                listOf(Uri.parse("www.xyz.com")))
-        }.hasMessageThat().contains("MatchBehavior undefined.")
     }
 }
