@@ -118,10 +118,10 @@ fun Carousel(
     var isAutoScrollActive by remember { mutableStateOf(false) }
 
     AutoScrollSideEffect(
-        timeToDisplaySlideMillis,
-        slideCount,
-        carouselState,
-        focusState,
+        timeToDisplaySlideMillis = timeToDisplaySlideMillis,
+        slideCount = slideCount,
+        carouselState = carouselState,
+        doAutoScroll = shouldPerformAutoScroll(focusState),
         onAutoScrollChange = { isAutoScrollActive = it })
 
     Box(modifier = modifier
@@ -159,6 +159,13 @@ fun Carousel(
     }
 }
 
+@Composable
+private fun shouldPerformAutoScroll(focusState: FocusState?): Boolean {
+    val carouselIsFocused = focusState?.isFocused ?: false
+    val carouselHasFocus = focusState?.hasFocus ?: false
+    return (carouselIsFocused || carouselHasFocus).not()
+}
+
 @Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalAnimationApi::class)
 private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspend () -> Unit) {
@@ -172,14 +179,11 @@ private fun AutoScrollSideEffect(
     timeToDisplaySlideMillis: Long,
     slideCount: Int,
     carouselState: CarouselState,
-    focusState: FocusState?,
+    doAutoScroll: Boolean,
     onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
     val currentTimeToDisplaySlideMillis by rememberUpdatedState(timeToDisplaySlideMillis)
     val currentSlideCount by rememberUpdatedState(slideCount)
-    val carouselIsFocused = focusState?.isFocused ?: false
-    val carouselHasFocus = focusState?.hasFocus ?: false
-    val doAutoScroll = (carouselIsFocused || carouselHasFocus).not()
 
     if (doAutoScroll) {
         LaunchedEffect(carouselState) {
