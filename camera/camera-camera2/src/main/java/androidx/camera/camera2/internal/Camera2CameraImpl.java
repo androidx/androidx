@@ -692,7 +692,7 @@ final class Camera2CameraImpl implements CameraInternal {
          * use count to recover the additional increment here.
          */
         mCameraControlInternal.incrementUseCount();
-        notifyStateAttachedToUseCases(new ArrayList<>(useCases));
+        notifyStateAttachedAndCameraControlReady(new ArrayList<>(useCases));
         List<UseCaseInfo> useCaseInfos = new ArrayList<>(toUseCaseInfos(useCases));
         try {
             mExecutor.execute(() -> {
@@ -798,7 +798,7 @@ final class Camera2CameraImpl implements CameraInternal {
         return mCameraConfig;
     }
 
-    private void notifyStateAttachedToUseCases(List<UseCase> useCases) {
+    private void notifyStateAttachedAndCameraControlReady(List<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             String useCaseId = getUseCaseId(useCase);
             if (mNotifyStateAttachedSet.contains(useCaseId)) {
@@ -807,6 +807,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             mNotifyStateAttachedSet.add(useCaseId);
             useCase.onStateAttached();
+            useCase.onCameraControlReady();
         }
     }
 
