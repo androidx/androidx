@@ -26,7 +26,10 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -34,6 +37,8 @@ import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Mass
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -86,6 +91,8 @@ class HealthConnectClientUpsideDownImplTest {
     @After
     fun tearDown() = runTest {
         healthConnectClient.deleteRecords(StepsRecord::class, TimeRangeFilter.none())
+        healthConnectClient.deleteRecords(HeartRateRecord::class, TimeRangeFilter.none())
+        healthConnectClient.deleteRecords(NutritionRecord::class, TimeRangeFilter.none())
     }
 
     @Test
@@ -269,39 +276,147 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun aggregateRecords_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
+    fun aggregateRecords() = runTest {
+        healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = ZoneOffset.UTC),
+                StepsRecord(
+                    count = 50,
+                    startTime = Instant.ofEpochMilli(12340L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(56780L),
+                    endZoneOffset = ZoneOffset.UTC),
+                HeartRateRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = ZoneOffset.UTC,
+                    samples =
+                        listOf(
+                            HeartRateRecord.Sample(Instant.ofEpochMilli(1234L), 57L),
+                            HeartRateRecord.Sample(Instant.ofEpochMilli(1235L), 120L))),
+                HeartRateRecord(
+                    startTime = Instant.ofEpochMilli(12340L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(56780L),
+                    endZoneOffset = ZoneOffset.UTC,
+                    samples =
+                        listOf(
+                            HeartRateRecord.Sample(Instant.ofEpochMilli(12340L), 47L),
+                            HeartRateRecord.Sample(Instant.ofEpochMilli(12350L), 48L))),
+                NutritionRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = ZoneOffset.UTC,
+                    energy = Energy.kilocalories(200.0))))
+
+        val aggregateResponse =
             healthConnectClient.aggregate(
                 AggregateRequest(
-                    setOf(StepsRecord.COUNT_TOTAL),
-                    TimeRangeFilter.between(
-                        Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))))
+                    setOf(
+                        StepsRecord.COUNT_TOTAL,
+                        HeartRateRecord.BPM_MIN,
+                        HeartRateRecord.BPM_MAX,
+                        NutritionRecord.ENERGY_TOTAL,
+                        NutritionRecord.CAFFEINE_TOTAL,
+                        WheelchairPushesRecord.COUNT_TOTAL,
+                    ),
+                    TimeRangeFilter.none()))
+
+        with(aggregateResponse) {
+            assertThat(this[StepsRecord.COUNT_TOTAL]).isEqualTo(150L)
+            assertThat(this[HeartRateRecord.BPM_MIN]).isEqualTo(47L)
+            assertThat(this[HeartRateRecord.BPM_MAX]).isEqualTo(120L)
+            assertThat(this[NutritionRecord.ENERGY_TOTAL]).isEqualTo(Energy.kilocalories(200.0))
+            assertThat(this[NutritionRecord.CAFFEINE_TOTAL]).isEqualTo(Mass.grams(0.0))
+
+            assertThat(contains(WheelchairPushesRecord.COUNT_TOTAL)).isFalse()
         }
     }
 
     @Test
-    fun aggregateRecordsGroupByDuration_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
+    fun aggregateRecordsGroupByDuration() = runTest {
+        healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1200L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(1240L),
+                    endZoneOffset = ZoneOffset.UTC),
+                StepsRecord(
+                    count = 200,
+                    startTime = Instant.ofEpochMilli(1300L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(1500L),
+                    endZoneOffset = ZoneOffset.UTC),
+                StepsRecord(
+                    count = 50,
+                    startTime = Instant.ofEpochMilli(2400L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(3500L),
+                    endZoneOffset = ZoneOffset.UTC)))
+
+        val aggregateResponse =
             healthConnectClient.aggregateGroupByDuration(
                 AggregateGroupByDurationRequest(
                     setOf(StepsRecord.COUNT_TOTAL),
                     TimeRangeFilter.between(
-                        Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L)),
-                    timeRangeSlicer = Duration.ofMillis(1)))
+                        Instant.ofEpochMilli(1000L), Instant.ofEpochMilli(3000L)),
+                    Duration.ofMillis(1000),
+                    setOf()))
+
+        with(aggregateResponse) {
+            assertThat(this).hasSize(2)
+            assertThat(this[0].result[StepsRecord.COUNT_TOTAL]).isEqualTo(300)
+            assertThat(this[1].result[StepsRecord.COUNT_TOTAL]).isEqualTo(50)
         }
     }
 
     @Test
-    fun aggregateRecordsGroupByPeriod_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
+    @Ignore("Blocked as period response from platform has a bug with inverted start/end timestamps")
+    fun aggregateRecordsGroupByPeriod() = runTest {
+        healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = LocalDateTime.of(2018, 10, 11, 7, 10).toInstant(ZoneOffset.UTC),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = LocalDateTime.of(2018, 10, 11, 7, 15).toInstant(ZoneOffset.UTC),
+                    endZoneOffset = ZoneOffset.UTC),
+                StepsRecord(
+                    count = 200,
+                    startTime = LocalDateTime.of(2018, 10, 11, 10, 10).toInstant(ZoneOffset.UTC),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = LocalDateTime.of(2018, 10, 11, 11, 0).toInstant(ZoneOffset.UTC),
+                    endZoneOffset = ZoneOffset.UTC),
+                StepsRecord(
+                    count = 50,
+                    startTime = LocalDateTime.of(2018, 10, 13, 7, 10).toInstant(ZoneOffset.UTC),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = LocalDateTime.of(2018, 10, 13, 8, 10).toInstant(ZoneOffset.UTC),
+                    endZoneOffset = ZoneOffset.UTC)))
+
+        val aggregateResponse =
             healthConnectClient.aggregateGroupByPeriod(
                 AggregateGroupByPeriodRequest(
                     setOf(StepsRecord.COUNT_TOTAL),
                     TimeRangeFilter.between(
-                        LocalDateTime.of(2018, 10, 11, 7, 10),
-                        LocalDateTime.of(2018, 10, 13, 7, 10),
+                        LocalDateTime.of(2018, 10, 11, 6, 10).toInstant(ZoneOffset.UTC),
+                        LocalDateTime.of(2018, 10, 12, 7, 15).toInstant(ZoneOffset.UTC),
                     ),
                     timeRangeSlicer = Period.ofDays(1)))
+
+        with(aggregateResponse) {
+            assertThat(this).hasSize(2)
+            assertThat(this[0].result[StepsRecord.COUNT_TOTAL]).isEqualTo(300)
+            assertThat(this[1].result[StepsRecord.COUNT_TOTAL]).isEqualTo(0)
         }
     }
 

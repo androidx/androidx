@@ -37,12 +37,12 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByDurati
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
-import androidx.health.connect.client.impl.platform.records.toPlatformChangeLogTokenRequest
-import androidx.health.connect.client.impl.platform.records.toPlatformReadRecordsRequestUsingFilters
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
+import androidx.health.connect.client.impl.platform.records.toPlatformRequest
 import androidx.health.connect.client.impl.platform.records.toPlatformTimeRangeFilter
 import androidx.health.connect.client.impl.platform.records.toSdkRecord
+import androidx.health.connect.client.impl.platform.records.toSdkResponse
 import androidx.health.connect.client.impl.platform.response.toKtResponse
 import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
 import androidx.health.connect.client.impl.platform.time.TimeSource
@@ -186,7 +186,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         val response = wrapPlatformException {
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(
-                    request.toPlatformReadRecordsRequestUsingFilters(timeSource),
+                    request.toPlatformRequest(timeSource),
                     Runnable::run,
                     continuation.asOutcomeReceiver())
             }
@@ -196,26 +196,52 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
-        throw UnsupportedOperationException("Method not supported yet")
+        return wrapPlatformException {
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.aggregate(
+                        request.toPlatformRequest(timeSource),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver())
+                }
+            }
+            .toSdkResponse(request.metrics)
     }
 
     override suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest
     ): List<AggregationResultGroupedByDuration> {
-        throw UnsupportedOperationException("Method not supported yet")
+        return wrapPlatformException {
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.aggregateGroupByDuration(
+                        request.toPlatformRequest(timeSource),
+                        request.timeRangeSlicer,
+                        Runnable::run,
+                        continuation.asOutcomeReceiver())
+                }
+            }
+            .map { it.toSdkResponse(request.metrics) }
     }
 
     override suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest
     ): List<AggregationResultGroupedByPeriod> {
-        throw UnsupportedOperationException("Method not supported yet")
+        return wrapPlatformException {
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.aggregateGroupByPeriod(
+                        request.toPlatformRequest(timeSource),
+                        request.timeRangeSlicer,
+                        Runnable::run,
+                        continuation.asOutcomeReceiver())
+                }
+            }
+            .map { it.toSdkResponse(request.metrics) }
     }
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
         return wrapPlatformException {
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.getChangeLogToken(
-                        request.toPlatformChangeLogTokenRequest(),
+                        request.toPlatformRequest(),
                         Runnable::run,
                         continuation.asOutcomeReceiver())
                 }

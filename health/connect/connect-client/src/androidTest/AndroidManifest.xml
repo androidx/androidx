@@ -89,6 +89,7 @@
 
     <!-- Write permissions for CYCLE_TRACKING. -->
     <uses-permission android:name="android.permission.health.WRITE_CERVICAL_MUCUS"/>
+    <uses-permission android:name="android.permission.health.WRITE_INTERMENSTRUAL_BLEEDING"/>
     <uses-permission android:name="android.permission.health.WRITE_MENSTRUATION"/>
     <uses-permission android:name="android.permission.health.WRITE_OVULATION_TEST"/>
     <uses-permission android:name="android.permission.health.WRITE_SEXUAL_ACTIVITY"/>
