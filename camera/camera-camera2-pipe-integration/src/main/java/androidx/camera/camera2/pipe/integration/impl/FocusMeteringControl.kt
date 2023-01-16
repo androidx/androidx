@@ -32,7 +32,9 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
+import androidx.lifecycle.Observer
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
 import dagger.Module
@@ -40,7 +42,10 @@ import dagger.multibindings.IntoSet
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -53,20 +58,37 @@ class FocusMeteringControl @Inject constructor(
     val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
     private var _useCaseCamera: UseCaseCamera? = null
+
+    private val useCaseObserver = Observer<Set<UseCase>> { useCases ->
+        // reset to null since preview use case may not be active in current runningUseCases
+        previewAspectRatio = null
+        useCases.forEach { useCase ->
+            if (useCase is Preview) {
+                useCase.attachedSurfaceResolution?.apply {
+                    previewAspectRatio = Rational(width, height)
+                }
+            }
+        }
+    }
+
     override var useCaseCamera: UseCaseCamera?
         get() = _useCaseCamera
         set(value) {
+            if (_useCaseCamera != value) {
+                previewAspectRatio = null
+                // withContext does not switch thread properly with scope.launch so async is used
+                threads.sequentialScope.async {
+                    withContext(Dispatchers.Main) {
+                        _useCaseCamera?.runningUseCasesLiveData?.removeObserver(useCaseObserver)
+                    }
+                }
+            }
+
             _useCaseCamera = value
 
-            // reset to null since preview ratio may not be applicable for current runningUseCases
-            previewAspectRatio = null
-            _useCaseCamera?.runningUseCasesLiveData?.observeForever { useCases ->
-                useCases.forEach { useCase ->
-                    if (useCase is Preview) {
-                        useCase.attachedSurfaceResolution?.apply {
-                            previewAspectRatio = Rational(width, height)
-                        }
-                    }
+            threads.sequentialScope.async {
+                withContext(Dispatchers.Main) {
+                    _useCaseCamera?.runningUseCasesLiveData?.observeForever(useCaseObserver)
                 }
             }
         }
@@ -75,6 +97,7 @@ class FocusMeteringControl @Inject constructor(
         cancelFocusAndMeteringAsync()
     }
 
+    @Volatile
     private var previewAspectRatio: Rational? = null
     private val sensorRect by lazy {
         // TODO("b/262225455"): use the actual crop sensor region like in camera-camera2
