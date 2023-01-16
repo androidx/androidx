@@ -616,7 +616,7 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    protected void onCameraControlReady() {
+    public void onCameraControlReady() {
         trySetFlashModeToCameraControl();
     }
 

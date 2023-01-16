@@ -564,7 +564,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onCameraControlReady() {
+    public void onCameraControlReady() {
     }
 
     /**
@@ -695,15 +695,11 @@ public abstract class UseCase {
      * session with the use case session config. The use case can receive the frame data from the
      * camera after the capture session is configured.
      *
-     * <p>The {@link CameraControlInternal} retrieved by {@link #getCameraControl()} is ready to
-     * use after this callback function is invoked.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @CallSuper
     public void onStateAttached() {
-        onCameraControlReady();
     }
 
     /**
