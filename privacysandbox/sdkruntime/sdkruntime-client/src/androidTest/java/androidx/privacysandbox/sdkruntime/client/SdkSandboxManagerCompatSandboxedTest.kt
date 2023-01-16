@@ -36,6 +36,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -45,6 +46,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
@@ -126,10 +128,58 @@ class SdkSandboxManagerCompatSandboxedTest {
         assertThat(result.loadSdkErrorCode).isEqualTo(loadSdkException.loadSdkErrorCode)
     }
 
+    @Test
+    fun getSandboxedSdks_whenLoadedSdkListNotAvailable_dontDelegateToSandbox() {
+        assumeFalse("Requires getSandboxedSdks API not available", isSdkListAvailable())
+
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        managerCompat.getSandboxedSdks()
+
+        verifyZeroInteractions(sdkSandboxManager)
+    }
+
+    @Test
+    fun getSandboxedSdks_whenLoadedSdkListNotAvailable_returnsEmptyList() {
+        assumeFalse("Requires getSandboxedSdks API not available", isSdkListAvailable())
+
+        // SdkSandboxManagerCompat.from require SandboxManager available for AdServices version >= 4
+        mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val sandboxedSdks = managerCompat.getSandboxedSdks()
+
+        assertThat(sandboxedSdks).isEmpty()
+    }
+
+    @Test
+    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    fun getSandboxedSdks_whenLoadedSdkListAvailable_returnResultFromPlatformGetSandboxedSdks() {
+        assumeTrue("Requires getSandboxedSdks API available", isSdkListAvailable())
+
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val sandboxedSdk = SandboxedSdk(Binder())
+        `when`(sdkSandboxManager.sandboxedSdks)
+            .thenReturn(listOf(sandboxedSdk))
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val sandboxedSdks = managerCompat.getSandboxedSdks()
+        assertThat(sandboxedSdks).hasSize(1)
+        val result = sandboxedSdks[0]
+
+        assertThat(result.getInterface())
+            .isEqualTo(sandboxedSdk.getInterface())
+    }
+
     companion object SandboxApi {
 
         private fun isSandboxApiAvailable() =
             AdServicesInfo.version() >= 4
+
+        private fun isSdkListAvailable() =
+            AdServicesInfo.isAtLeastV5()
 
         private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
             val sdkSandboxManager = Mockito.mock(SdkSandboxManager::class.java)

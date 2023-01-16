@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
@@ -131,16 +132,28 @@ class SdkSandboxManagerCompat private constructor(
         return platformApi.loadSdk(sdkName, params)
     }
 
+    /**
+     * Fetches information about Sdks that are loaded in the sandbox or locally.
+     *
+     * @return List of [SandboxedSdkCompat] containing all currently loaded sdks
+     *
+     * @see [SdkSandboxManager.getSandboxedSdks]
+     */
+    fun getSandboxedSdks(): List<SandboxedSdkCompat> = platformApi.getSandboxedSdks()
+
     private interface PlatformApi {
         @DoNotInline
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
+
+        @DoNotInline
+        fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
     }
 
     // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
     @SuppressLint("NewApi", "ClassVerificationFailure")
     @RequiresExtension(extension = AD_SERVICES, version = 4)
-    private class ApiAdServicesV4Impl(context: Context) : PlatformApi {
-        private val sdkSandboxManager = context.getSystemService(
+    private open class ApiAdServicesV4Impl(context: Context) : PlatformApi {
+        protected val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java
         )
 
@@ -172,6 +185,19 @@ class SdkSandboxManagerCompat private constructor(
         }
     }
 
+    // TODO(b/265295473): Replace @RequiresApi with correct @RequiresExtension
+    @RequiresApi(34)
+    private class ApiAdServicesV5Impl(
+        context: Context
+    ) : ApiAdServicesV4Impl(context) {
+        @DoNotInline
+        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+            return sdkSandboxManager
+                .sandboxedSdks
+                .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
+        }
+    }
+
     private class FailImpl : PlatformApi {
         @DoNotInline
         override suspend fun loadSdk(
@@ -200,16 +226,23 @@ class SdkSandboxManagerCompat private constructor(
                 if (instance == null) {
                     val configHolder = LocalSdkConfigsHolder.load(context)
                     val sdkLoader = SdkLoader.create(context)
-                    val platformApi =
-                        if (AdServicesInfo.version() >= 4) {
-                            ApiAdServicesV4Impl(context)
-                        } else {
-                            FailImpl()
-                        }
+                    val platformApi = PlatformApiFactory.create(context)
                     instance = SdkSandboxManagerCompat(platformApi, configHolder, sdkLoader)
                     sInstances[context] = instance
                 }
                 return instance
+            }
+        }
+    }
+
+    private object PlatformApiFactory {
+        fun create(context: Context): PlatformApi {
+            return if (AdServicesInfo.isAtLeastV5()) {
+                ApiAdServicesV5Impl(context)
+            } else if (AdServicesInfo.version() >= 4) {
+                ApiAdServicesV4Impl(context)
+            } else {
+                FailImpl()
             }
         }
     }

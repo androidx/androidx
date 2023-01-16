@@ -18,9 +18,11 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.os.Build
 import android.os.ext.SdkExtensions
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.core.os.BuildCompat
 
 /**
  * Temporary replacement for BuildCompat.AD_SERVICES_EXTENSION_INT.
@@ -37,6 +39,16 @@ object AdServicesInfo {
         } else {
             0
         }
+    }
+
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+    @ChecksSdkIntAtLeast(codename = "UpsideDownCake")
+    fun isAtLeastV5(): Boolean {
+        // Can't use only version check until SDK rollout (see b/260334264).
+        // Using only isAtLeastU() is correct, but make testing of V4 functionality complicated.
+        // Combination of 2 checks allows to test V4/V5 using different U builds.
+        // TODO (b/265295473): Remove BuildCompat.isAtLeastU() after SDK finalisation.
+        return BuildCompat.isAtLeastU() && version() >= 5
     }
 
     @RequiresApi(30)

@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.core
 
 import androidx.annotation.Keep
 import androidx.annotation.RestrictTo
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Store internal API version (for Client-Core communication).
@@ -39,5 +40,10 @@ object Versions {
     fun handShake(clientVersion: Int): Int {
         CLIENT_VERSION = clientVersion
         return API_VERSION
+    }
+
+    @TestOnly
+    internal fun resetClientVersion() {
+        CLIENT_VERSION = null
     }
 }
