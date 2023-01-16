@@ -60,9 +60,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
@@ -85,10 +87,12 @@ public final class CameraUseCaseAdapter implements Camera {
 
     private final CameraId mId;
 
-    // This includes app provided use cases and the extra placeholder use cases (mExtraUseCases)
-    // created by CameraX.
+    // UseCases from the app. This does not include internal UseCases created by CameraX.
     @GuardedBy("mLock")
-    private final List<UseCase> mUseCases = new ArrayList<>();
+    private final Set<UseCase> mUseCases = new HashSet<>();
+    // UseCases sent to the camera including internal UseCases created by CameraX.
+    @GuardedBy("mLock")
+    private final Set<UseCase> mCameraUseCases = new HashSet<>();
 
     @GuardedBy("mLock")
     @Nullable
@@ -114,9 +118,11 @@ public final class CameraUseCaseAdapter implements Camera {
     @GuardedBy("mLock")
     private Config mInteropConfig = null;
 
-    // The extra placeholder use cases created by CameraX to make sure the camera can work normally.
+    // The placeholder UseCase created to meet combination criteria for Extensions. e.g. When
+    // Extensions require both Preview and ImageCapture and app only provides one of them,
+    // CameraX will create the other and track it with this variable.
     @GuardedBy("mLock")
-    private List<UseCase> mExtraUseCases = new ArrayList<>();
+    private UseCase mPlaceholderForExtensions;
 
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
@@ -186,121 +192,107 @@ public final class CameraUseCaseAdapter implements Camera {
      * @throws CameraException Thrown if the combination of newly added UseCases and the
      *                         currently added UseCases exceed the capability of the camera.
      */
-    public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
+    public void addUseCases(@NonNull Collection<UseCase> appUseCasesToAdd) throws CameraException {
         synchronized (mLock) {
-            // TODO: merge UseCase for stream sharing. e.g. replace Preview and VideoCapture with a
-            //  StreamSharing UseCase.
-            List<UseCase> newUseCases = new ArrayList<>();
-            for (UseCase useCase : useCases) {
-                if (mUseCases.contains(useCase)) {
-                    Logger.d(TAG, "Attempting to attach already attached UseCase");
-                } else {
-                    newUseCases.add(useCase);
-                }
-            }
-
-            List<UseCase> allUseCases = new ArrayList<>(mUseCases);
-            List<UseCase> requiredExtraUseCases = emptyList();
-            List<UseCase> removedExtraUseCases = emptyList();
-
-            if (isCoexistingPreviewImageCaptureRequired()) {
-                // Collects all use cases that will be finally bound by the application
-                allUseCases.removeAll(mExtraUseCases);
-                allUseCases.addAll(newUseCases);
-
-                // Calculates the required extra use cases according to the use cases finally bound
-                // by the application and the existing extra use cases.
-                requiredExtraUseCases = calculateRequiredExtraUseCases(allUseCases,
-                        new ArrayList<>(mExtraUseCases));
-
-                // Calculates the new added extra use cases
-                List<UseCase> addedExtraUseCases = new ArrayList<>(requiredExtraUseCases);
-                addedExtraUseCases.removeAll(mExtraUseCases);
-
-                // Adds the new added extra use cases to the newUseCases list
-                newUseCases.addAll(addedExtraUseCases);
-
-                // Calculates the removed extra use cases
-                removedExtraUseCases = new ArrayList<>(mExtraUseCases);
-                removedExtraUseCases.removeAll(requiredExtraUseCases);
-            }
-
-            Map<UseCase, ConfigPair> configs = getConfigs(newUseCases,
-                    mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-
-            Map<UseCase, Size> suggestedResolutionsMap;
+            Set<UseCase> appUseCasesAfter = new HashSet<>(mUseCases);
+            appUseCasesAfter.addAll(appUseCasesToAdd);
             try {
-                // Removes the unnecessary extra use cases and then checks whether all uses cases
-                // including all the use cases finally bound by the application and the needed
-                // extra use cases can be supported by guaranteed supported configurations tables.
-                List<UseCase> boundUseCases = new ArrayList<>(mUseCases);
-                boundUseCases.removeAll(removedExtraUseCases);
-                suggestedResolutionsMap =
-                        calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
-                                newUseCases, boundUseCases, configs);
+                updateUseCases(appUseCasesAfter);
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e.getMessage());
             }
-            updateViewPort(suggestedResolutionsMap, useCases);
-            updateEffects(mEffects, useCases);
 
-            // Saves the updated extra use cases set after confirming the use case combination
-            // can be supported.
-            mExtraUseCases = requiredExtraUseCases;
-
-            // Detaches the unnecessary existing extra use cases
-            detachUnnecessaryUseCases(removedExtraUseCases);
-
-            // At this point the binding will succeed since all the calculations are done
-            // Do all attaching related work
-            for (UseCase useCase : newUseCases) {
-                ConfigPair configPair = configs.get(useCase);
-                useCase.bindToCamera(mCameraInternal, configPair.mExtendedConfig,
-                        configPair.mCameraConfig);
-                useCase.updateSuggestedResolution(
-                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
-            }
-
-            // The added use cases will include the app provided use cases and the new added extra
-            // use cases.
-            mUseCases.addAll(newUseCases);
-            if (mAttached) {
-                mCameraInternal.attachUseCases(newUseCases);
-            }
-
-            // Once all use cases are attached, they need to notify the CameraInternal of its state
-            for (UseCase useCase : newUseCases) {
-                useCase.notifyState();
-            }
         }
     }
 
     /**
      * Remove the specified collection of {@link UseCase} from the adapter.
      */
-    public void removeUseCases(@NonNull Collection<UseCase> useCases) {
+    public void removeUseCases(@NonNull Collection<UseCase> useCasesToRemove) {
         synchronized (mLock) {
-            detachUnnecessaryUseCases(new ArrayList<>(useCases));
-
-            // Calls addUseCases() function to calculate and add extra use cases if coexisting
-            // Preview and ImageCapture are required.
-            if (isCoexistingPreviewImageCaptureRequired()) {
-                // The useCases might include extra use cases when unbinding all use cases.
-                // Removes the unbound extra use cases from mExtraUseCases.
-                mExtraUseCases.removeAll(useCases);
-
-                try {
-                    // Calls addUseCases with empty list to add required extra fake use case.
-                    addUseCases(emptyList());
-                } catch (CameraException e) {
-                    // This should not happen because the extra fake use case should be only
-                    // added to replace the removed one which the use case combination can be
-                    // supported.
-                    throw new IllegalArgumentException("Failed to add extra fake Preview or "
-                            + "ImageCapture use case!");
-                }
-            }
+            Set<UseCase> appUseCasesAfter = new HashSet<>(mUseCases);
+            appUseCasesAfter.removeAll(useCasesToRemove);
+            updateUseCases(appUseCasesAfter);
         }
+    }
+
+    /**
+     * Updates the states based the new app UseCases.
+     *
+     * <p> This method calculates the new camera UseCases based on the input and the current state,
+     * attach/detach the camera UseCases, and save the updated state in following member variables:
+     * {@link #mCameraUseCases}, {@link #mUseCases} and {@link #mPlaceholderForExtensions}.
+     *
+     * @throws IllegalArgumentException if the UseCase combination is not supported. In that case,
+     *                                  it will not update the internal states.
+     */
+    void updateUseCases(@NonNull Set<UseCase> appUseCases) {
+        synchronized (mLock) {
+            // Calculate camera UseCases and keep the result in local variables in case they don't
+            // meet the stream combination rules.
+            UseCase placeholderForExtensions = calculatePlaceholderForExtensions(appUseCases);
+            Set<UseCase> cameraUseCases =
+                    calculateCameraUseCases(appUseCases, placeholderForExtensions);
+
+            // Calculate the action items.
+            Set<UseCase> cameraUseCasesToAttach = new HashSet<>(cameraUseCases);
+            cameraUseCasesToAttach.removeAll(mCameraUseCases);
+            Set<UseCase> cameraUseCasesToKeep = new HashSet<>(cameraUseCases);
+            cameraUseCasesToKeep.retainAll(mCameraUseCases);
+            Set<UseCase> cameraUseCasesToDetach = new HashSet<>(mCameraUseCases);
+            cameraUseCasesToDetach.removeAll(cameraUseCases);
+
+            // Calculate suggested resolutions. This step throws exception if the camera UseCases
+            // fails the supported stream combination rules.
+            Map<UseCase, ConfigPair> configs = getConfigs(cameraUseCasesToAttach,
+                    mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
+            Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
+                    mCameraInternal.getCameraInfoInternal(), cameraUseCasesToAttach,
+                    cameraUseCasesToKeep, configs);
+
+            // Update properties.
+            updateViewPort(suggestedResolutionsMap, cameraUseCases);
+            updateEffects(mEffects, appUseCases);
+
+            // Detach unused UseCases.
+            for (UseCase useCase : cameraUseCasesToDetach) {
+                useCase.unbindFromCamera(mCameraInternal);
+            }
+            mCameraInternal.detachUseCases(cameraUseCasesToDetach);
+
+            // Attach new UseCases.
+            for (UseCase useCase : cameraUseCasesToAttach) {
+                ConfigPair configPair = requireNonNull(configs.get(useCase));
+                useCase.bindToCamera(mCameraInternal, configPair.mExtendedConfig,
+                        configPair.mCameraConfig);
+                useCase.updateSuggestedResolution(
+                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
+            }
+            if (mAttached) {
+                mCameraInternal.attachUseCases(cameraUseCasesToAttach);
+            }
+
+            // Once UseCases are detached/attached, notify the camera.
+            for (UseCase useCase : cameraUseCasesToAttach) {
+                useCase.notifyState();
+            }
+
+            // The changes are successful. Update the states of this class.
+            mUseCases.clear();
+            mUseCases.addAll(appUseCases);
+            mCameraUseCases.clear();
+            mCameraUseCases.addAll(cameraUseCases);
+            mPlaceholderForExtensions = placeholderForExtensions;
+        }
+    }
+
+    static Set<UseCase> calculateCameraUseCases(@NonNull Set<UseCase> appUseCases,
+            @Nullable UseCase placeholderForExtensions) {
+        Set<UseCase> useCases = new HashSet<>(appUseCases);
+        if (placeholderForExtensions != null) {
+            useCases.add(placeholderForExtensions);
+        }
+        return useCases;
     }
 
     /**
@@ -313,6 +305,14 @@ public final class CameraUseCaseAdapter implements Camera {
     public List<UseCase> getUseCases() {
         synchronized (mLock) {
             return new ArrayList<>(mUseCases);
+        }
+    }
+
+    @VisibleForTesting
+    @NonNull
+    Set<UseCase> getCameraUseCases() {
+        synchronized (mLock) {
+            return new HashSet<>(mCameraUseCases);
         }
     }
 
@@ -395,8 +395,8 @@ public final class CameraUseCaseAdapter implements Camera {
 
     private Map<UseCase, Size> calculateSuggestedResolutions(
             @NonNull CameraInfoInternal cameraInfoInternal,
-            @NonNull List<UseCase> newUseCases,
-            @NonNull List<UseCase> currentUseCases,
+            @NonNull Collection<UseCase> newUseCases,
+            @NonNull Collection<UseCase> currentUseCases,
             @NonNull Map<UseCase, ConfigPair> configPairMap) {
         List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
@@ -533,7 +533,7 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     // Get a map of the configs for the use cases from the respective factories
-    private Map<UseCase, ConfigPair> getConfigs(List<UseCase> useCases,
+    private Map<UseCase, ConfigPair> getConfigs(Collection<UseCase> useCases,
             UseCaseConfigFactory extendedFactory, UseCaseConfigFactory cameraFactory) {
         Map<UseCase, ConfigPair> configs = new HashMap<>();
         for (UseCase useCase : useCases) {
@@ -658,64 +658,30 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
-     * Calculates the new required extra use cases according to the use cases bound by the
-     * application and the existing extra use cases.
+     * Calculate the internal created placeholder UseCase for Extensions.
      *
-     * @param boundUseCases The use cases bound by the application.
-     * @param extraUseCases The originally existing extra use cases.
-     * @return new required extra use cases
+     * @param appUseCases UseCase provided by the app.
      */
-    @NonNull
-    private List<UseCase> calculateRequiredExtraUseCases(@NonNull List<UseCase> boundUseCases,
-            @NonNull List<UseCase> extraUseCases) {
-        List<UseCase> requiredExtraUseCases = new ArrayList<>(extraUseCases);
-        boolean isExtraPreviewRequired = isExtraPreviewRequired(boundUseCases);
-        boolean isExtraImageCaptureRequired = isExtraImageCaptureRequired(
-                boundUseCases);
-        UseCase existingExtraPreview = null;
-        UseCase existingExtraImageCapture = null;
-
-        for (UseCase useCase : extraUseCases) {
-            if (isPreview(useCase)) {
-                existingExtraPreview = useCase;
-            } else if (isImageCapture(useCase)) {
-                existingExtraImageCapture = useCase;
-            }
-        }
-
-        if (isExtraPreviewRequired && existingExtraPreview == null) {
-            requiredExtraUseCases.add(createExtraPreview());
-        } else if (!isExtraPreviewRequired && existingExtraPreview != null) {
-            requiredExtraUseCases.remove(existingExtraPreview);
-        }
-
-        if (isExtraImageCaptureRequired && existingExtraImageCapture == null) {
-            requiredExtraUseCases.add(createExtraImageCapture());
-        } else if (!isExtraImageCaptureRequired && existingExtraImageCapture != null) {
-            requiredExtraUseCases.remove(existingExtraImageCapture);
-        }
-
-        return requiredExtraUseCases;
-    }
-
-    /**
-     * Detaches unnecessary use cases from camera.
-     */
-    private void detachUnnecessaryUseCases(@NonNull List<UseCase> unnecessaryUseCases) {
+    @Nullable
+    UseCase calculatePlaceholderForExtensions(@NonNull Set<UseCase> appUseCases) {
         synchronized (mLock) {
-            if (!unnecessaryUseCases.isEmpty()) {
-                mCameraInternal.detachUseCases(unnecessaryUseCases);
-
-                for (UseCase useCase : unnecessaryUseCases) {
-                    if (mUseCases.contains(useCase)) {
-                        useCase.unbindFromCamera(mCameraInternal);
+            UseCase placeholder = null;
+            if (isCoexistingPreviewImageCaptureRequired()) {
+                if (isExtraPreviewRequired(appUseCases)) {
+                    if (isPreview(mPlaceholderForExtensions)) {
+                        placeholder = mPlaceholderForExtensions;
                     } else {
-                        Logger.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
+                        placeholder = createExtraPreview();
+                    }
+                } else if (isExtraImageCaptureRequired(appUseCases)) {
+                    if (isImageCapture(mPlaceholderForExtensions)) {
+                        placeholder = mPlaceholderForExtensions;
+                    } else {
+                        placeholder = createExtraImageCapture();
                     }
                 }
-
-                mUseCases.removeAll(unnecessaryUseCases);
             }
+            return placeholder;
         }
     }
 
@@ -730,7 +696,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * Returns true if the input use case list contains a {@link ImageCapture} but does not
      * contain an {@link Preview}.
      */
-    private boolean isExtraPreviewRequired(@NonNull List<UseCase> useCases) {
+    private boolean isExtraPreviewRequired(@NonNull Collection<UseCase> useCases) {
         boolean hasPreview = false;
         boolean hasImageCapture = false;
 
@@ -749,7 +715,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * Returns true if the input use case list contains a {@link Preview} but does not contain an
      * {@link ImageCapture}.
      */
-    private boolean isExtraImageCaptureRequired(@NonNull List<UseCase> useCases) {
+    private boolean isExtraImageCaptureRequired(@NonNull Collection<UseCase> useCases) {
         boolean hasPreview = false;
         boolean hasImageCapture = false;
 

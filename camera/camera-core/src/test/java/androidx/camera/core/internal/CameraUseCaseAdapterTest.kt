@@ -445,7 +445,7 @@ class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.addUseCases(listOf(preview))
 
         // Checks whether an extra ImageCapture is added.
-        assertThat(containsImageCapture(cameraUseCaseAdapter.useCases)).isTrue()
+        assertThat(containsImageCapture(cameraUseCaseAdapter.cameraUseCases)).isTrue()
     }
 
     @Test
@@ -462,7 +462,7 @@ class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.addUseCases(listOf(preview))
 
         // Checks whether an extra ImageCapture is added.
-        assertThat(containsImageCapture(cameraUseCaseAdapter.useCases))
+        assertThat(containsImageCapture(cameraUseCaseAdapter.cameraUseCases))
         val imageCapture = ImageCapture.Builder().build()
 
         // Adds an ImageCapture
@@ -496,7 +496,7 @@ class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.removeUseCases(listOf(imageCapture))
 
         // Checks whether an extra ImageCapture is added.
-        assertThat(containsImageCapture(cameraUseCaseAdapter.useCases)).isTrue()
+        assertThat(containsImageCapture(cameraUseCaseAdapter.cameraUseCases)).isTrue()
     }
 
     @Test
@@ -513,7 +513,7 @@ class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
 
         // Checks whether an extra Preview is added.
-        assertThat(containsPreview(cameraUseCaseAdapter.useCases)).isTrue()
+        assertThat(containsPreview(cameraUseCaseAdapter.cameraUseCases)).isTrue()
     }
 
     @Test
@@ -530,7 +530,7 @@ class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
 
         // Checks whether an extra Preview is added.
-        assertThat(containsPreview(cameraUseCaseAdapter.useCases))
+        assertThat(containsPreview(cameraUseCaseAdapter.cameraUseCases))
         val preview = Preview.Builder().build()
 
         // Adds an Preview
@@ -563,7 +563,7 @@ class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.removeUseCases(listOf(preview))
 
         // Checks whether an extra Preview is added.
-        assertThat(containsPreview(cameraUseCaseAdapter.useCases)).isTrue()
+        assertThat(containsPreview(cameraUseCaseAdapter.cameraUseCases)).isTrue()
     }
 
     @Test
@@ -671,7 +671,7 @@ class CameraUseCaseAdapterTest {
         }
     }
 
-    private fun containsPreview(useCases: List<UseCase>): Boolean {
+    private fun containsPreview(useCases: Collection<UseCase>): Boolean {
         for (useCase in useCases) {
             if (useCase is Preview) {
                 return true
@@ -680,7 +680,7 @@ class CameraUseCaseAdapterTest {
         return false
     }
 
-    private fun containsImageCapture(useCases: List<UseCase>): Boolean {
+    private fun containsImageCapture(useCases: Collection<UseCase>): Boolean {
         for (useCase in useCases) {
             if (useCase is ImageCapture) {
                 return true
