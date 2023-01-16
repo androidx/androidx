@@ -110,14 +110,17 @@ class ScalingLazyListState constructor(
     private val incompleteScrollOffset = mutableStateOf<Int?>(null)
     private val incompleteScrollAnimated = mutableStateOf(false)
 
+    private val _centerItemIndex = derivedStateOf {
+        (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
+            if (it.initialized) it.centerItemIndex else null
+        } ?: initialCenterItemIndex
+    }
+
     /**
      * The index of the item positioned closest to the viewport center
      */
     public val centerItemIndex: Int
-        get() =
-            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
-                if (it.initialized) it.centerItemIndex else null
-            } ?: initialCenterItemIndex
+        get() = _centerItemIndex.value
 
     internal val topAutoCenteringItemSizePx: Int by derivedStateOf {
         if (extraPaddingPx.value == null || scalingParams.value == null ||
