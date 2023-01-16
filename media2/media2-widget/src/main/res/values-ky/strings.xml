@@ -35,7 +35,7 @@
     <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"Мурунку баскыч тизмесине кайтуу"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"Дагы баскычтарды көрүү"</string>
     <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"Ойнотуу көрсөткүчү"</string>
-    <string name="mcv2_settings_button_desc" msgid="811917224044739656">"Жөндөөлөр"</string>
+    <string name="mcv2_settings_button_desc" msgid="811917224044739656">"Параметрлер"</string>
     <string name="mcv2_cc_is_on" msgid="5427119422911561783">"Коштомо жазуу күйүк. Жашыруу үчүн чыкылдатыңыз."</string>
     <string name="mcv2_cc_is_off" msgid="2380791179816122456">"Коштомо жазуу өчүк. Аны көрсөтүү үчүн чыкылдатыңыз."</string>
     <string name="mcv2_replay_button_desc" msgid="3128622733570179596">"Кайрадан ойнотуу"</string>
