@@ -34,7 +34,7 @@ class WithoutRuntimeLibrarySdkTest {
 
         val result = compileWithPrivacySandboxKspCompiler(
             inputSources,
-            platformStubs = PlatformStubs.API_33,
+            addSdkRuntimeLibraryStubs = false,
             extraProcessorOptions = mapOf("skip_sdk_runtime_compat_library" to "true")
         )
         assertThat(result).succeeds()
