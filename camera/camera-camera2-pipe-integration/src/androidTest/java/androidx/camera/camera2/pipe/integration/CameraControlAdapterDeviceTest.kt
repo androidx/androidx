@@ -44,6 +44,7 @@ import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
@@ -59,6 +60,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -67,6 +70,7 @@ import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.After
+import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeThat
 import org.junit.Before
@@ -334,6 +338,20 @@ class CameraControlAdapterDeviceTest {
             },
             TIMEOUT
         )
+    }
+
+    @Test
+    fun setZoomRatio_operationCanceledExceptionIfNoUseCase() {
+        assertFutureFailedWithOperationCancellation(cameraControl.setZoomRatio(1.5f))
+    }
+
+    private fun <T> assertFutureFailedWithOperationCancellation(future: ListenableFuture<T>) {
+        Assert.assertThrows(ExecutionException::class.java) {
+            future[3, TimeUnit.SECONDS]
+        }.apply {
+            Truth.assertThat(cause)
+                .isInstanceOf(CameraControl.OperationCanceledException::class.java)
+        }
     }
 
     private fun CameraCharacteristics.getMaxRegionCount(
