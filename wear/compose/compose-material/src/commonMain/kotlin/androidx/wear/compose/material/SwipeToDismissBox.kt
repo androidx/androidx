@@ -40,6 +40,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -159,18 +160,13 @@ public fun SwipeToDismissBox(
                 Modifiers(
                     contentForeground = Modifier
                         .fillMaxSize()
-                        .graphicsLayer(
-                            translationX = translationX,
-                            scaleX = scale,
-                            scaleY = scale,
-                        )
-                        .then(
-                            if (isRound && translationX > 0) {
-                                Modifier.clip(CircleShape)
-                            } else {
-                                Modifier
-                            }
-                        )
+                        .graphicsLayer {
+                            this.translationX = translationX
+                            scaleX = scale
+                            scaleY = scale
+                            clip = isRound && translationX > 0
+                            shape = if (isRound) CircleShape else RectangleShape
+                        }
                         .background(backgroundScrimColor),
                     scrimForeground =
                     Modifier
