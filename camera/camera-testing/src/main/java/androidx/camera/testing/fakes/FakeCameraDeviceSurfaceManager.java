@@ -49,7 +49,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     private final Map<String, Map<Class<? extends UseCaseConfig<?>>, Size>> mDefinedResolutions =
             new HashMap<>();
 
-    private final Set<List<Integer>> mValidSurfaceCombos = createDefaultValidSurfaceCombos();
+    private Set<List<Integer>> mValidSurfaceCombos = createDefaultValidSurfaceCombos();
 
     /**
      * Sets the given suggested resolutions for the specified camera Id and use case type.
@@ -156,5 +156,9 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
         validCombos.add(asList(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
         return validCombos;
+    }
+
+    public void setValidSurfaceCombos(@NonNull Set<List<Integer>> validSurfaceCombos) {
+        mValidSurfaceCombos = validSurfaceCombos;
     }
 }

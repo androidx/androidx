@@ -16,6 +16,7 @@
 
 package androidx.camera.core.internal
 
+import android.graphics.ImageFormat.JPEG
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
@@ -23,6 +24,7 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -31,11 +33,14 @@ import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor
+import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakePreviewEffect
@@ -82,6 +87,11 @@ class CameraUseCaseAdapterTest {
     private lateinit var useCaseConfigFactory: UseCaseConfigFactory
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
     private val imageEffect = GrayscaleImageEffect()
+    private val preview = Preview.Builder().build()
+    private val video = createFakeVideoCapture()
+    private val image = ImageCapture.Builder().build()
+    private val analysis = ImageAnalysis.Builder().build()
+    private lateinit var adapter: CameraUseCaseAdapter
 
     @Before
     fun setUp() {
@@ -92,12 +102,153 @@ class CameraUseCaseAdapterTest {
         surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         executor = Executors.newSingleThreadExecutor()
         effects = listOf(FakePreviewEffect(executor, surfaceProcessor), imageEffect)
+        adapter = CameraUseCaseAdapter(
+            fakeCameraSet,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory
+        )
     }
 
     @After
     fun tearDown() {
         surfaceProcessor.cleanUp()
         executor.shutdown()
+    }
+
+    // TODO(b/264936606): test UseCases bind()/unbind() are called correctly.
+
+    @Test(expected = CameraException::class)
+    fun addStreamSharing_throwsException() {
+        // Arrange.
+        adapter.setStreamSharingEnabled(true)
+        val streamSharing = StreamSharing(fakeCamera, setOf(preview, video), useCaseConfigFactory)
+        // Act: add use cases that can only be supported with StreamSharing
+        adapter.addUseCases(setOf(streamSharing, video, image))
+    }
+
+    @Test
+    fun invalidUseCaseCombo_streamSharingOn() {
+        // Arrange.
+        adapter.setStreamSharingEnabled(true)
+        // Act: add use cases that can only be supported with StreamSharing
+        adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing is connected to camera.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+    }
+
+    @Test
+    fun validUseCaseCombo_streamSharingOff() {
+        // Arrange.
+        adapter.setStreamSharingEnabled(true)
+        // Act: add use cases that do not need StreamSharing
+        adapter.addUseCases(setOf(preview, video))
+        // Assert: the app UseCase are connected to camera.
+        adapter.cameraUseCases.hasExactTypes(
+            Preview::class.java,
+            FakeUseCase::class.java
+        )
+    }
+
+    @Test(expected = CameraException::class)
+    fun invalidUseCaseComboCantBeFixedByStreamSharing_throwsException() {
+        // Arrange: create a camera that only support one JPEG stream.
+        adapter.setStreamSharingEnabled(true)
+        fakeCameraDeviceSurfaceManager.setValidSurfaceCombos(setOf(listOf(JPEG)))
+        // Act: add PRIV and JPEG streams.
+        adapter.addUseCases(setOf(preview, image))
+    }
+
+    @Test
+    fun addChildThatRequiresStreamSharing_streamSharingOn() {
+        // Arrange.
+        adapter.setStreamSharingEnabled(true)
+        // Act: add UseCase that do not need StreamSharing
+        adapter.addUseCases(setOf(video, image))
+        // Assert.
+        adapter.cameraUseCases.hasExactTypes(
+            FakeUseCase::class.java,
+            ImageCapture::class.java
+        )
+        // Act: add a new UseCase that needs StreamSharing
+        adapter.addUseCases(setOf(preview))
+        // Assert: StreamSharing is created.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+    }
+
+    @Test
+    fun removeChildThatRequiresStreamSharing_streamSharingOff() {
+        // Arrange.
+        adapter.setStreamSharingEnabled(true)
+        // Act: add UseCases that need StreamSharing.
+        adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing exists
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        // Act: remove UseCase so that StreamSharing is no longer needed
+        adapter.removeUseCases(setOf(video))
+        // Assert: StreamSharing removed.
+        adapter.cameraUseCases.hasExactTypes(
+            Preview::class.java,
+            ImageCapture::class.java
+        )
+    }
+
+    @Test(expected = CameraException::class)
+    fun extensionEnabled_streamSharingOffAndThrowsException() {
+        // Arrange: enable extensions
+        adapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig())
+        adapter.setStreamSharingEnabled(true)
+        // Act: add UseCases that require StreamSharing
+        adapter.addUseCases(setOf(preview, video, image))
+    }
+
+    @Test
+    fun addAdditionalUseCase_streamSharingReused() {
+        // Arrange.
+        adapter.setStreamSharingEnabled(true)
+        // Act: add UseCases that require StreamSharing
+        adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing is used.
+        val streamSharing = adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        // Act: add another UseCase
+        adapter.addUseCases(setOf(analysis))
+        // Assert: the same StreamSharing instance is kept.
+        assertThat(
+            adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        ).isSameInstanceAs(streamSharing)
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java,
+            ImageAnalysis::class.java
+        )
+    }
+
+    private fun createFakeVideoCapture(): FakeUseCase {
+        val fakeUseCaseConfig = FakeUseCaseConfig.Builder()
+            .setBufferFormat(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+        return FakeUseCase(
+            fakeUseCaseConfig.useCaseConfig,
+            UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE
+        )
+    }
+
+    private fun Collection<UseCase>.hasExactTypes(vararg classTypes: Any) {
+        assertThat(classTypes.size).isEqualTo(size)
+        classTypes.forEach {
+            assertThat(filterIsInstance(it as Class<*>)).hasSize(1)
+        }
     }
 
     @Test

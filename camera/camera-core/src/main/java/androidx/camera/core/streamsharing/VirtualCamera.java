@@ -70,6 +70,11 @@ class VirtualCamera implements CameraInternal {
 
     // TODO(b/264936250): Add methods for interacting with the StreamSharing UseCase.
 
+    @NonNull
+    Set<UseCase> getChildren() {
+        return mChildren;
+    }
+
     // --- Handle children state change ---
 
     // TODO(b/264936250): Handle children state changes.
