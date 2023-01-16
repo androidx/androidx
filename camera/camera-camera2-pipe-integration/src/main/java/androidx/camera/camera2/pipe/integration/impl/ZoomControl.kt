@@ -21,7 +21,9 @@ import androidx.camera.camera2.pipe.integration.adapter.ZoomValue
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.CameraControl
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.common.util.concurrent.ListenableFuture
@@ -117,17 +119,21 @@ class ZoomControl @Inject constructor(
 
     fun setZoomRatioAsync(ratio: Float): ListenableFuture<Void> {
         // TODO: report IllegalArgumentException if ratio not in range
-        return threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        return Futures.nonCancellationPropagating(
             useCaseCamera?.let {
-                val zoomValue = ZoomValue(
-                    ratio,
-                    minZoom,
-                    maxZoom
-                )
-                setZoomState(zoomValue)
-                update()
-            }
-        }.asListenableFuture()
+                threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    val zoomValue = ZoomValue(
+                        ratio,
+                        minZoom,
+                        maxZoom
+                    )
+                    setZoomState(zoomValue)
+                    update()
+                }.asListenableFuture()
+            } ?: Futures.immediateFailedFuture(
+                CameraControl.OperationCanceledException("Camera is not active.")
+            )
+        )
     }
 
     private fun nearZero(num: Float): Boolean {
