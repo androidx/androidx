@@ -22,6 +22,8 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.graphics.Paint;
 import android.text.Spanned;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 
 import androidx.core.graphics.PaintCompat;
 import androidx.emoji2.bundled.util.EmojiMatcher;
@@ -133,6 +135,23 @@ public class AllEmojisTest {
         assertTrue("EmojiCompat should have emoji (deprecated API): " + mCodepoints
                         + "(" + mString + ")",
                 EmojiCompat.get().hasEmojiGlyph(mString, Integer.MAX_VALUE));
+    }
+
+    @Test
+    public void emoji_hasDesiredWidth() {
+        TextPaint tp = new TextPaint();
+        // spanned, test fails, width == 0
+        CharSequence processedText = EmojiCompat.get()
+                .process(
+                        mString,
+                        /* start= */ 0,
+                        /* end= */ mString.length(),
+                        /* maxEmojiCount= */ mString.length(),
+                        EmojiCompat.REPLACE_STRATEGY_ALL);
+        float emojiCompatWidth = StaticLayout.getDesiredWidth(processedText, tp);
+        assertTrue("emoji " + mString + " with codepoints " + mCodepoints + "has "
+                + "desired width " + emojiCompatWidth,
+                emojiCompatWidth > 0);
     }
 
     private void assertSpanCanRenderEmoji(final String str) {
