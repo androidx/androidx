@@ -18,6 +18,7 @@ package androidx.camera.testing.mocks;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,9 +48,12 @@ public class MockConsumer<T> implements Consumer<T> {
 
     private static final long NO_TIMEOUT = 0;
 
+    @GuardedBy("mLock")
     private CountDownLatch mLatch;
-
+    private final Object mLock = new Object();
     private final List<T> mEventList = new ArrayList<>();
+    @NonNull
+    private List<T> mVerifyingEventList = new ArrayList<>();
     private final Map<Integer, Boolean> mIsEventVerifiedByIndex = new HashMap<>();
     private int mIndexLastVerifiedInOrder = -1;
 
@@ -58,10 +62,14 @@ public class MockConsumer<T> implements Consumer<T> {
     private boolean mInOrder = false;
 
     private int getMatchingEventCount() {
+        return getMatchingEventCount(mVerifyingEventList);
+    }
+
+    private int getMatchingEventCount(@NonNull List<T> eventList) {
         int count = 0;
         int startIndex = mInOrder ? mIndexLastVerifiedInOrder + 1 : 0;
-        for (int i = startIndex; i < mEventList.size(); i++) {
-            if (mClassTypeToVerify.isInstance(mEventList.get(i))) {
+        for (int i = startIndex; i < eventList.size(); i++) {
+            if (mClassTypeToVerify.isInstance(eventList.get(i))) {
                 count++;
             }
         }
@@ -70,8 +78,8 @@ public class MockConsumer<T> implements Consumer<T> {
 
     private int getLastVerifiedEventInOrder() {
         int count = 0;
-        for (int i = mIndexLastVerifiedInOrder + 1; i < mEventList.size(); i++) {
-            if (mClassTypeToVerify.isInstance(mEventList.get(i))) {
+        for (int i = mIndexLastVerifiedInOrder + 1; i < mVerifyingEventList.size(); i++) {
+            if (mClassTypeToVerify.isInstance(mVerifyingEventList.get(i))) {
                 count++;
             }
 
@@ -88,15 +96,19 @@ public class MockConsumer<T> implements Consumer<T> {
             return;
         }
 
-        for (int i = 0; i < mEventList.size(); i++) {
-            if (mClassTypeToVerify.isInstance(mEventList.get(i))) {
+        for (int i = 0; i < mVerifyingEventList.size(); i++) {
+            if (mClassTypeToVerify.isInstance(mVerifyingEventList.get(i))) {
                 mIsEventVerifiedByIndex.put(i, true);
             }
         }
     }
 
     private boolean isVerified() {
-        return mCallTimes.isSatisfied(getMatchingEventCount());
+        return isVerified(mVerifyingEventList);
+    }
+
+    private boolean isVerified(@NonNull List<T> eventList) {
+        return mCallTimes.isSatisfied(getMatchingEventCount(eventList));
     }
 
     /**
@@ -171,20 +183,30 @@ public class MockConsumer<T> implements Consumer<T> {
         mClassTypeToVerify = classType;
         mCallTimes = callTimes;
         mInOrder = inOrder;
+        snapshotVerifyingEventList();
 
-        if (!isVerified()) {
-            if (timeoutInMillis != NO_TIMEOUT) {
-                mLatch = new CountDownLatch(1);
-                try {
-                    assertWithMessage(
-                            "Test failed for a timeout of " + timeoutInMillis + " ms"
-                    ).that(mLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS)).isTrue();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                mLatch = null;
+        CountDownLatch latch = null;
+        boolean isVerified;
+        synchronized (mLock) {
+            isVerified = isVerified();
+            if (!isVerified && timeoutInMillis != NO_TIMEOUT) {
+                latch = mLatch = new CountDownLatch(1);
             }
+        }
+        if (latch != null) {
+            try {
+                assertWithMessage("Test failed for a timeout of " + timeoutInMillis + " ms")
+                        .that(latch.await(timeoutInMillis, TimeUnit.MILLISECONDS)).isTrue();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } finally {
+                synchronized (mLock) {
+                    mLatch = null;
+                }
+            }
+        }
 
+        if (!isVerified) {
             assertWithMessage(
                     "accept() called " + getMatchingEventCount() + " time(s) with "
                             + classType.getSimpleName()
@@ -201,7 +223,7 @@ public class MockConsumer<T> implements Consumer<T> {
         }
 
         if (captor != null) {
-            captor.setArguments(mEventList);
+            captor.setArguments(new ArrayList<>(mVerifyingEventList));
         }
     }
 
@@ -212,16 +234,17 @@ public class MockConsumer<T> implements Consumer<T> {
      *                verification, {@code false} otherwise.
      */
     public void verifyNoMoreAcceptCalls(boolean inOrder) {
+        snapshotVerifyingEventList();
         if (inOrder) {
             assertWithMessage(
                     "There are extra accept() calls after the last in-order verification"
-            ).that(mIndexLastVerifiedInOrder).isEqualTo(mEventList.size() - 1);
+            ).that(mIndexLastVerifiedInOrder).isEqualTo(mVerifyingEventList.size() - 1);
         } else {
-            for (int i = 0; i < mEventList.size(); i++) {
+            for (int i = 0; i < mVerifyingEventList.size(); i++) {
                 assertWithMessage(
                         "There are extra accept() calls after the last verification"
                                 + "\nFirst such call is with "
-                                + mEventList.get(i).getClass().getSimpleName() + " event"
+                                + mVerifyingEventList.get(i).getClass().getSimpleName() + " event"
                 ).that(mIsEventVerifiedByIndex.get(i)).isTrue();
             }
         }
@@ -232,6 +255,7 @@ public class MockConsumer<T> implements Consumer<T> {
      */
     public void clearAcceptCalls() {
         mEventList.clear();
+        mVerifyingEventList.clear();
         mIsEventVerifiedByIndex.clear();
         mIndexLastVerifiedInOrder = -1;
     }
@@ -240,8 +264,16 @@ public class MockConsumer<T> implements Consumer<T> {
     public void accept(T event) {
         mEventList.add(event);
 
-        if (mLatch != null && isVerified()) {
-            mLatch.countDown();
+        synchronized (mLock) {
+            if (mLatch != null && isVerified(mEventList)) {
+                snapshotVerifyingEventList();
+                mLatch.countDown();
+                mLatch = null;
+            }
         }
+    }
+
+    private void snapshotVerifyingEventList() {
+        mVerifyingEventList = new ArrayList<>(mEventList);
     }
 }
