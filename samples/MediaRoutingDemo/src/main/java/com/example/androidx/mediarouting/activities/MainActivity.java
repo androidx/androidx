@@ -16,11 +16,14 @@
 
 package com.example.androidx.mediarouting.activities;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,6 +52,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.mediarouter.app.MediaRouteActionProvider;
@@ -66,6 +70,7 @@ import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.androidx.mediarouting.MyMediaRouteControllerDialog;
 import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.RoutesManager;
 import com.example.androidx.mediarouting.data.MediaItem;
 import com.example.androidx.mediarouting.data.PlaylistItem;
 import com.example.androidx.mediarouting.player.Player;
@@ -83,9 +88,11 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
+    private static final int POST_NOTIFICATIONS_PERMISSION_REQUEST_CODE = 5001;
     private static final boolean ENABLE_DEFAULT_CONTROL_CHECK_BOX = false;
 
     private MediaRouter mMediaRouter;
+    private RoutesManager mRoutesManager;
     private MediaRouteSelector mSelector;
     private PlaylistAdapter mPlayListItems;
     private TextView mInfoTextView;
@@ -96,14 +103,15 @@ public class MainActivity extends AppCompatActivity {
 
     final Handler mHandler = new Handler();
 
-    private final Runnable mUpdateSeekRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updateProgress();
-            // update Ui every 1 second
-            mHandler.postDelayed(this, 1000);
-        }
-    };
+    private final Runnable mUpdateSeekRunnable =
+            new Runnable() {
+                @Override
+                public void run() {
+                    updateProgress();
+                    // update Ui every 1 second
+                    mHandler.postDelayed(this, 1000);
+                }
+            };
 
     final SessionManager mSessionManager = new SessionManager("app");
     Player mPlayer;
@@ -204,20 +212,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        // Be sure to call the super class.
         super.onCreate(savedInstanceState);
 
-        // Need overlay permission for emulating remote display.
-        if (Build.VERSION.SDK_INT >= 23 && !Api23Impl.canDrawOverlays(this)) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 0);
-        }
+        requestRequiredPermissions();
 
-        // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
-
         mMediaRouter.setRouterParams(getRouterParams());
+
+        mRoutesManager = RoutesManager.getInstance(getApplicationContext());
+        mRoutesManager.reloadDialogType();
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
@@ -363,8 +366,12 @@ public class MainActivity extends AppCompatActivity {
                 SampleMediaButtonReceiver.class.getName());
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setComponent(mEventReceiver);
-        mMediaPendingIntent = PendingIntent.getBroadcast(this, /* requestCode = */0,
-                mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE);
+        mMediaPendingIntent =
+                PendingIntent.getBroadcast(
+                        this,
+                        /* requestCode= */ 0,
+                        mediaButtonIntent,
+                        PendingIntent.FLAG_IMMUTABLE);
 
         // Create and register the remote control client
         createMediaSession();
@@ -387,6 +394,40 @@ public class MainActivity extends AppCompatActivity {
         });
 
         updateUi();
+    }
+
+    private void requestRequiredPermissions() {
+        requestDisplayOverOtherAppsPermission();
+        requestPostNotificationsPermission();
+    }
+
+    private void requestDisplayOverOtherAppsPermission() {
+        // Need overlay permission for emulating remote display.
+        if (Build.VERSION.SDK_INT >= 23 && !Api23Impl.canDrawOverlays(this)) {
+            Intent intent =
+                    new Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 0);
+        }
+    }
+
+    private void requestPostNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(
+                            getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (!Api23Impl.shouldShowRequestPermissionRationale(
+                        this, Manifest.permission.POST_NOTIFICATIONS)) {
+                    Api23Impl.requestPermissions(
+                            /* activity= */ this,
+                            /* permissions= */ new String[] {
+                                Manifest.permission.POST_NOTIFICATIONS
+                            },
+                            /* requestCode= */ POST_NOTIFICATIONS_PERMISSION_REQUEST_CODE);
+                }
+            }
+        }
     }
 
     private void createMediaSession() {
@@ -707,6 +748,16 @@ public class MainActivity extends AppCompatActivity {
         @DoNotInline
         static boolean canDrawOverlays(Context context) {
             return Settings.canDrawOverlays(context);
+        }
+
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            return activity.shouldShowRequestPermissionRationale(permission);
+        }
+
+        @DoNotInline
+        static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
+            activity.requestPermissions(permissions, requestCode);
         }
     }
 }

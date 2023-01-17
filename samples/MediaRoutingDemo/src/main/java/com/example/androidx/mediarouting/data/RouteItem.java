@@ -53,6 +53,51 @@ public final class RouteItem {
         this.mGroupMemberIds = new ArrayList<>();
     }
 
+    public RouteItem(
+            @NonNull String id,
+            @NonNull String name,
+            @NonNull String description,
+            @NonNull ControlFilter controlFilter,
+            @NonNull PlaybackStream playbackStream,
+            @NonNull PlaybackType playbackType,
+            boolean canDisconnect,
+            @NonNull VolumeHandling volumeHandling,
+            int volume,
+            int volumeMax,
+            @NonNull DeviceType deviceType,
+            @NonNull List<String> groupMemberIds) {
+        mId = id;
+        mName = name;
+        mDescription = description;
+        mControlFilter = controlFilter;
+        mPlaybackStream = playbackStream;
+        mPlaybackType = playbackType;
+        mCanDisconnect = canDisconnect;
+        mVolumeHandling = volumeHandling;
+        mVolume = volume;
+        mVolumeMax = volumeMax;
+        mDeviceType = deviceType;
+        mGroupMemberIds = groupMemberIds;
+    }
+
+    /** Returns a deep copy of an existing {@link RouteItem}. */
+    @NonNull
+    public static RouteItem copyOf(@NonNull RouteItem routeItem) {
+        return new RouteItem(
+                routeItem.getId(),
+                routeItem.getName(),
+                routeItem.getDescription(),
+                routeItem.getControlFilter(),
+                routeItem.getPlaybackStream(),
+                routeItem.getPlaybackType(),
+                routeItem.isCanDisconnect(),
+                routeItem.getVolumeHandling(),
+                routeItem.getVolume(),
+                routeItem.getVolumeMax(),
+                routeItem.getDeviceType(),
+                routeItem.getGroupMemberIds());
+    }
+
     public enum ControlFilter {
         BASIC,
         QUEUE,

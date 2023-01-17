@@ -23,5 +23,6 @@
 
     <item android:id="@+id/settings_menu_item"
         android:title="@string/settings_menu_item"
-        app:showAsAction="withText" />
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="always" />
 </menu>
