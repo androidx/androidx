@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.tv.foundation {
 
-  public final class PivotOffsets {
+  @androidx.compose.runtime.Immutable public final class PivotOffsets {
     ctor public PivotOffsets(optional float parentFraction, optional float childFraction);
     method public float getChildFraction();
     method public float getParentFraction();
