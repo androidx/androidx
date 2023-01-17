@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_RELYING_PARTY
-import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.toCredentialDataBundle
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -59,8 +58,7 @@ class BeginCreatePublicKeyCredentialRequestPrivileged constructor(
     callingAppInfo: CallingAppInfo?,
 ) : BeginCreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toCredentialDataBundle(json, relyingParty, clientDataHash,
-        /*preferImmediatelyAvailableCredentials=*/ false),
+    toCandidateDataBundle(json, relyingParty, clientDataHash),
     callingAppInfo
 ) {
     init {
@@ -77,6 +75,24 @@ class BeginCreatePublicKeyCredentialRequestPrivileged constructor(
 
     @Suppress("AcronymName")
     companion object {
+        @JvmStatic
+        internal fun toCandidateDataBundle(
+            requestJson: String,
+            relyingParty: String,
+            clientDataHash: String
+        ): Bundle {
+            val bundle = Bundle()
+            bundle.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                CreatePublicKeyCredentialRequestPrivileged
+                    .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV
+            )
+            bundle.putString(CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON,
+                requestJson)
+            bundle.putString(BUNDLE_KEY_RELYING_PARTY, relyingParty)
+            bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
+            return bundle
+        }
 
         /** @hide */
         @JvmStatic
