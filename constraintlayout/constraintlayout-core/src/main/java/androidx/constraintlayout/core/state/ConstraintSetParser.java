@@ -67,8 +67,8 @@ public class ConstraintSetParser {
         }
 
         DesignElement(String id,
-                String type,
-                HashMap<String, String> params) {
+                      String type,
+                      HashMap<String, String> params) {
             mId = id;
             mType = type;
             mParams = params;
@@ -98,11 +98,11 @@ public class ConstraintSetParser {
         }
 
         void put(String elementName,
-                float from,
-                float to,
-                float step,
-                String prefix,
-                String postfix) {
+                 float from,
+                 float to,
+                 float step,
+                 String prefix,
+                 String postfix) {
             if (mGenerators.containsKey(elementName)) {
                 if (mGenerators.get(elementName) instanceof OverrideValue) {
                     return;
@@ -197,10 +197,10 @@ public class ConstraintSetParser {
         float mMax;
 
         FiniteGenerator(float from,
-                float to,
-                float step,
-                String prefix,
-                String postfix) {
+                        float to,
+                        float step,
+                        String prefix,
+                        String postfix) {
             mFrom = from;
             mTo = to;
             mStep = step;
@@ -343,7 +343,7 @@ public class ConstraintSetParser {
      * Parse ConstraintSets and populate MotionScene
      */
     static void parseConstraintSets(CoreMotionScene scene,
-            CLObject json) throws CLParsingException {
+                                    CLObject json) throws CLParsingException {
         ArrayList<String> constraintSetNames = json.names();
         if (constraintSetNames == null) {
             return;
@@ -383,7 +383,7 @@ public class ConstraintSetParser {
     }
 
     static void override(CLObject baseJson,
-            String name, CLObject overrideValue) throws CLParsingException {
+                         String name, CLObject overrideValue) throws CLParsingException {
         if (!baseJson.has(name)) {
             baseJson.put(name, overrideValue);
         } else {
@@ -590,8 +590,8 @@ public class ConstraintSetParser {
     }
 
     private static void parseVariables(State state,
-            LayoutVariables layoutVariables,
-            CLObject json) throws CLParsingException {
+                                       LayoutVariables layoutVariables,
+                                       CLObject json) throws CLParsingException {
         ArrayList<String> elements = json.names();
         if (elements == null) {
             return;
@@ -682,8 +682,8 @@ public class ConstraintSetParser {
     }
 
     static void parseHelpers(State state,
-            LayoutVariables layoutVariables,
-            CLArray element) throws CLParsingException {
+                             LayoutVariables layoutVariables,
+                             CLArray element) throws CLParsingException {
         for (int i = 0; i < element.size(); i++) {
             CLElement helper = element.get(i);
             if (helper instanceof CLArray) {
@@ -709,8 +709,8 @@ public class ConstraintSetParser {
     }
 
     static void parseGenerate(State state,
-            LayoutVariables layoutVariables,
-            CLObject json) throws CLParsingException {
+                              LayoutVariables layoutVariables,
+                              CLObject json) throws CLParsingException {
         ArrayList<String> elements = json.names();
         if (elements == null) {
             return;
@@ -727,7 +727,7 @@ public class ConstraintSetParser {
     }
 
     static void parseChain(int orientation, State state,
-            LayoutVariables margins, CLArray helper) throws CLParsingException {
+                           LayoutVariables margins, CLArray helper) throws CLParsingException {
         ChainReference chain = (orientation == ConstraintWidget.HORIZONTAL)
                 ? state.horizontalChain() : state.verticalChain();
         CLElement refs = helper.get(1);
@@ -804,10 +804,10 @@ public class ConstraintSetParser {
      * @throws CLParsingException
      */
     private static void parseChainType(String orientation,
-            State state,
-            String chainName,
-            LayoutVariables margins,
-            CLObject object) throws CLParsingException {
+                                       State state,
+                                       String chainName,
+                                       LayoutVariables margins,
+                                       CLObject object) throws CLParsingException {
 
         ChainReference chain = (orientation.charAt(0) == 'h')
                 ? state.horizontalChain() : state.verticalChain();
@@ -959,11 +959,15 @@ public class ConstraintSetParser {
                     break;
                 case "rows":
                     int rows = element.get(param).getInt();
-                    grid.setRowsSet(rows);
+                    if (rows > 0) {
+                        grid.setRowsSet(rows);
+                    }
                     break;
                 case "columns":
                     int columns = element.get(param).getInt();
-                    grid.setColumnsSet(columns);
+                    if (columns > 0) {
+                        grid.setColumnsSet(columns);
+                    }
                     break;
                 case "hGap":
                     float hGap = element.get(param).getFloat();
@@ -996,6 +1000,37 @@ public class ConstraintSetParser {
                     if (columnWeights != null && columnWeights.contains(",")) {
                         grid.setColumnWeights(columnWeights);
                     }
+                    break;
+                case "padding":
+                    CLElement paddingObject = element.get(param);
+                    int paddingLeft = 0;
+                    int paddingTop = 0;
+                    int paddingRight = 0;
+                    int paddingBottom = 0;
+                    if (paddingObject instanceof CLArray && ((CLArray) paddingObject).size() > 1) {
+                        paddingLeft = ((CLArray) paddingObject).getInt(0);
+                        paddingRight = paddingLeft;
+                        paddingTop = ((CLArray) paddingObject).getInt(1);
+                        paddingBottom = paddingTop;
+                        if (((CLArray) paddingObject).size() > 2) {
+                            paddingRight = ((CLArray) paddingObject).getInt(2);
+                            try {
+                                paddingBottom = ((CLArray) paddingObject).getInt(3);
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                paddingBottom = 0;
+                            }
+
+                        }
+                    } else {
+                        paddingLeft = paddingObject.getInt();
+                        paddingTop = paddingLeft;
+                        paddingRight = paddingLeft;
+                        paddingBottom = paddingLeft;
+                    }
+                    grid.setPaddingLeft(paddingLeft);
+                    grid.setPaddingTop(paddingTop);
+                    grid.setPaddingRight(paddingRight);
+                    grid.setPaddingBottom(paddingBottom);
                     break;
                 default:
                     ConstraintReference reference = state.constraints(name);
@@ -1035,10 +1070,10 @@ public class ConstraintSetParser {
      * @throws CLParsingException
      */
     private static void parseFlowType(String flowType,
-                                       State state,
-                                       String flowName,
-                                       LayoutVariables layoutVariables,
-                                       CLObject element) throws CLParsingException {
+                                      State state,
+                                      String flowName,
+                                      LayoutVariables layoutVariables,
+                                      CLObject element) throws CLParsingException {
         boolean isVertical = flowType.charAt(0) == 'v';
         FlowReference flow = state.getFlow(flowName, isVertical);
 
@@ -1094,31 +1129,16 @@ public class ConstraintSetParser {
                     flow.setWrapMode(State.Wrap.getValueByString(wrapValue));
                     break;
                 case "vGap":
-                    String vGapValue = element.get(param).content();
-                    try {
-                        int value = Integer.parseInt(vGapValue);
-                        flow.setVerticalGap(value);
-                    } catch(NumberFormatException e) {
-
-                    }
+                    int vGapValue = element.get(param).getInt();
+                    flow.setVerticalGap(vGapValue);
                     break;
                 case "hGap":
-                    String hGapValue = element.get(param).content();
-                    try {
-                        int value = Integer.parseInt(hGapValue);
-                        flow.setHorizontalGap(value);
-                    } catch(NumberFormatException e) {
-
-                    }
+                    int hGapValue = element.get(param).getInt();
+                    flow.setHorizontalGap(hGapValue);
                     break;
                 case "maxElement":
-                    String maxElementValue = element.get(param).content();
-                    try {
-                        int value = Integer.parseInt(maxElementValue);
-                        flow.setMaxElementsWrap(value);
-                    } catch(NumberFormatException e) {
-
-                    }
+                    int maxElementValue = element.get(param).getInt();
+                    flow.setMaxElementsWrap(maxElementValue);
                     break;
                 case "padding":
                     CLElement paddingObject = element.get(param);
@@ -1297,7 +1317,7 @@ public class ConstraintSetParser {
     }
 
     static void parseGuideline(int orientation,
-            State state, CLArray helper) throws CLParsingException {
+                               State state, CLArray helper) throws CLParsingException {
         CLElement params = helper.get(1);
         if (!(params instanceof CLObject)) {
             return;
@@ -1982,9 +2002,9 @@ public class ConstraintSetParser {
     }
 
     static Dimension parseDimension(CLObject element,
-            String constraintName,
-            State state,
-            CorePixelDp dpToPixels) throws CLParsingException {
+                                    String constraintName,
+                                    State state,
+                                    CorePixelDp dpToPixels) throws CLParsingException {
         CLElement dimensionElement = element.get(constraintName);
         Dimension dimension = Dimension.createFixed(0);
         if (dimensionElement instanceof CLString) {
