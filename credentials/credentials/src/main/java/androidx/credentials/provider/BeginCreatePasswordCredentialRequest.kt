@@ -26,7 +26,6 @@ import android.service.credentials.CallingAppInfo
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePasswordRequest
-import androidx.credentials.CreatePasswordRequest.Companion.BUNDLE_KEY_ID
 import androidx.credentials.CreatePasswordRequest.Companion.toCandidateDataBundle
 import androidx.credentials.PasswordCredential
 import androidx.credentials.internal.FrameworkClassParsingException
@@ -43,27 +42,18 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * complete [CreatePasswordRequest]. This request will contain all required parameters to
  * actually store the password.
  *
- * @property id the id of the password to be stored
- * @throws NullPointerException If [id] is null
- * @throws IllegalArgumentException If [id] is empty
- *
  * @see BeginCreateCredentialRequest
  *
  * @hide
  */
 @RequiresApi(34)
 class BeginCreatePasswordCredentialRequest internal constructor(
-    val id: String,
     callingAppInfo: CallingAppInfo
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     toCandidateDataBundle()
     ) {
-
-    init {
-        require(id.isNotEmpty()) { "id must not be empty" }
-    }
     override fun describeContents(): Int {
         return 0
     }
@@ -75,11 +65,11 @@ class BeginCreatePasswordCredentialRequest internal constructor(
     @Suppress("AcronymName")
     companion object CREATOR : Parcelable.Creator<BeginCreatePasswordCredentialRequest> {
         @JvmStatic
+	@Suppress("UNUSED_PARAMETER")
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
             BeginCreatePasswordCredentialRequest {
             try {
                 return BeginCreatePasswordCredentialRequest(
-                    data.getString(BUNDLE_KEY_ID)!!,
                     callingAppInfo
                 )
             } catch (e: Exception) {
