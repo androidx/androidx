@@ -76,24 +76,27 @@ fun CarouselItem(
     overlay: @Composable () -> Unit
 ) {
     val overlayVisible = remember { MutableTransitionState(initialState = false) }
-    var focusState: FocusState? by remember { mutableStateOf(null) }
+    var containerBoxFocusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
     var exitFocus by remember { mutableStateOf(false) }
 
     LaunchedEffect(overlayVisible) {
         overlayVisible.onAnimationCompletion {
             // slide has loaded completely.
-            if (focusState?.isFocused == true) { focusManager.moveFocus(FocusDirection.Enter) }
+            if (containerBoxFocusState?.isFocused == true) {
+                focusManager.moveFocus(FocusDirection.Enter)
+            }
         }
     }
 
+    // This box holds the focus until the overlay animation completes
     Box(modifier = modifier
         .onKeyEvent {
             exitFocus = it.key.nativeKeyCode == KeyEvent.KEYCODE_BACK && it.type == KeyDown
             false
         }
         .onFocusChanged {
-            focusState = it
+            containerBoxFocusState = it
             if (it.isFocused && exitFocus) {
                 focusManager.moveFocus(FocusDirection.Exit)
                 exitFocus = false
@@ -101,7 +104,8 @@ fun CarouselItem(
                 focusManager.moveFocus(FocusDirection.Enter)
             }
         }
-        .focusable()) {
+        .focusable()
+    ) {
         background()
 
         LaunchedEffect(overlayVisible) {
@@ -112,8 +116,7 @@ fun CarouselItem(
         }
 
         AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomStart),
+            modifier = Modifier.align(Alignment.BottomStart),
             visibleState = overlayVisible,
             enter = overlayEnterTransition,
             exit = overlayExitTransition
