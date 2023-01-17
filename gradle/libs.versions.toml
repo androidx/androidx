@@ -142,6 +142,7 @@ gson = { module = "com.google.code.gson:gson", version = "2.9.0" }
 guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
 guavaAndroid = { module = "com.google.guava:guava", version = "31.1-android" }
 guavaListenableFuture = { module = "com.google.guava:listenablefuture", version = "1.0" }
+guavaTestlib = { module = "com.google.guava:guava-testlib", version.ref = "guavaJre" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
 kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
