@@ -115,7 +115,7 @@ public class PlaceholderState internal constructor(
         coroutineScope {
             while (isActive) {
                 withInfiniteAnimationFrameMillis {
-                    frameMillis.value = it
+                    frameMillis.longValue = it
                 }
             }
         }
@@ -135,7 +135,7 @@ public class PlaceholderState internal constructor(
      * [PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS]
      */
     internal val placeholderWipeOffProgression: Float by derivedStateOf {
-        val absoluteProgression = ((frameMillis.value - startOfWipeOffAnimation).coerceAtMost(
+        val absoluteProgression = ((frameMillis.longValue - startOfWipeOffAnimation).coerceAtMost(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).toFloat() /
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
         val easedProgression = wipeOffInterpolator.transform(absoluteProgression)
@@ -156,7 +156,7 @@ public class PlaceholderState internal constructor(
      */
     @ExperimentalWearMaterialApi
     internal val placeholderWipeOffAlpha: Float by derivedStateOf {
-        val absoluteProgression = ((frameMillis.value - startOfWipeOffAnimation).coerceAtMost(
+        val absoluteProgression = ((frameMillis.longValue - startOfWipeOffAnimation).coerceAtMost(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).toFloat() /
             PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).coerceAtMost(1f)
 
@@ -174,8 +174,8 @@ public class PlaceholderState internal constructor(
     @ExperimentalWearMaterialApi
     public val placeholderProgression: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.value.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
-                PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
+            (frameMillis.longValue.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
+                .coerceAtMost(PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
                 PLACEHOLDER_SHIMMER_DURATION_MS)
         val easedProgression = progressionInterpolator.transform(absoluteProgression)
         lerp(-maxScreenDimension * 0.5f, maxScreenDimension * 1.5f, easedProgression)
@@ -189,8 +189,8 @@ public class PlaceholderState internal constructor(
     @ExperimentalWearMaterialApi
     internal val placeholderShimmerAlpha: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.value.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
-                PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
+            (frameMillis.longValue.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
+                .coerceAtMost(PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
                 PLACEHOLDER_SHIMMER_DURATION_MS)
 
         if (absoluteProgression <= 0.5f) {
@@ -236,13 +236,13 @@ public class PlaceholderState internal constructor(
             if (field != PlaceholderStage.ShowContent) {
                 // WipeOff
                 if (startOfWipeOffAnimation != 0L) {
-                    if ((frameMillis.value - startOfWipeOffAnimation) >=
+                    if ((frameMillis.longValue - startOfWipeOffAnimation) >=
                         PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS) {
                         field = PlaceholderStage.ShowContent
                     }
                     // Placeholder
                 } else if (isContentReady.value()) {
-                    startOfWipeOffAnimation = frameMillis.value
+                    startOfWipeOffAnimation = frameMillis.longValue
                     field = PlaceholderStage.WipeOff
                 }
             }

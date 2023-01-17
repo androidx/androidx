@@ -19,7 +19,6 @@ package androidx.compose.foundation.lazy
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -38,12 +37,12 @@ import kotlin.math.roundToInt
 
 internal class LazyItemScopeImpl : LazyItemScope {
 
-    private var maxWidthState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
-    private var maxHeightState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
+    private var maxWidthState = mutableStateOf(Int.MAX_VALUE)
+    private var maxHeightState = mutableStateOf(Int.MAX_VALUE)
 
     fun setMaxSize(width: Int, height: Int) {
-        maxWidthState.value = width
-        maxHeightState.value = height
+        maxWidthState.intValue = width
+        maxHeightState.intValue = height
     }
 
     override fun Modifier.fillParentMaxSize(fraction: Float) = then(

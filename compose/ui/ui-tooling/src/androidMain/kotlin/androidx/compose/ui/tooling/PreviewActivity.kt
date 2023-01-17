@@ -116,14 +116,16 @@ class PreviewActivity : ComponentActivity() {
                                 className,
                                 methodName,
                                 currentComposer,
-                                previewParameters[index.value]
+                                previewParameters[index.intValue]
                             )
                         }
                     },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
                             text = { Text("Next") },
-                            onClick = { index.value = (index.value + 1) % previewParameters.size }
+                            onClick = {
+                                index.intValue = (index.intValue + 1) % previewParameters.size
+                            }
                         )
                     }
                 )
