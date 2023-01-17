@@ -170,7 +170,7 @@ public final class RxRoom {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static <T> Single<T> createSingle(@NonNull final Callable<T> callable) {
+    public static <T> Single<T> createSingle(@NonNull final Callable<? extends T> callable) {
         return Single.create(emitter -> {
             try {
                 emitter.onSuccess(callable.call());

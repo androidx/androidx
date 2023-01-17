@@ -53,11 +53,11 @@ open class RxCallableDeleteOrUpdateMethodBinderProvider internal constructor(
 
     companion object {
         fun getAll(context: Context) = listOf(
-            RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_SINGLE),
-            RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_MAYBE),
+            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_SINGLE),
+            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_MAYBE),
             RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
-            RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_SINGLE),
-            RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_MAYBE),
+            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_SINGLE),
+            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_MAYBE),
             RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
         )
     }
@@ -87,4 +87,16 @@ private class RxCompletableDeleteOrUpdateMethodBinderProvider(
         }
         return declared.rawType.isAssignableFrom(completableType!!)
     }
+}
+
+private class RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(
+    context: Context,
+    rxType: RxType
+) : RxCallableDeleteOrUpdateMethodBinderProvider(context, rxType) {
+
+    /**
+     * Since Maybe can have null values, the Callable returned must allow for null values.
+     */
+    override fun extractTypeArg(declared: XType): XType =
+        declared.typeArguments.first().makeNullable()
 }
