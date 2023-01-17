@@ -160,9 +160,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
         val loadType = if (startIndex > index) LoadType.PREPEND else LoadType.APPEND
         when (loadType) {
             LoadType.PREPEND -> prependScrollTo(index, startIndex, scrollBehavior)
-            LoadType.APPEND -> {
-                // TODO
-            }
+            LoadType.APPEND -> appendScrollTo(index, startIndex, scrollBehavior)
         }
     }
 
@@ -181,9 +179,23 @@ public class SnapshotLoader<Value : Any> internal constructor(
         }
     }
 
+    private suspend fun appendScrollTo(
+        index: Int,
+        startIndex: Int,
+        scrollBehavior: ScrollBehavior
+    ) {
+        val scrollCount = index - startIndex
+        when (scrollBehavior) {
+            ScrollBehavior.WaitForPlaceholdersToLoad -> awaitScrollTo(LoadType.APPEND, scrollCount)
+            ScrollBehavior.ScrollIntoPlaceholders -> {
+                // TODO
+            }
+        }
+    }
+
     private suspend fun awaitScrollTo(loadType: LoadType, scrollCount: Int) {
         repeat(scrollCount) {
-            awaitNextItem(loadType)
+            awaitNextItem(loadType) ?: return
         }
     }
 
