@@ -19,12 +19,10 @@ package androidx.camera.video
 import android.Manifest
 import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
@@ -242,13 +240,14 @@ class VideoRecordingFrameDropTest(
             droppedFrameFlow.asSharedFlow().collect { droppedFrames.add(it) }
         }
 
-        val camInfo = cameraSelector.filter(cameraProvider.availableCameraInfos).first()
-            .let { Camera2CameraInfo.from(it) }
         val aspectRatio = AspectRatio.RATIO_16_9
 
         // Create video capture with a recorder
-        val videoCapture = VideoCapture.withOutput(Recorder.Builder().setQualitySelector(
-            QualitySelector.from(Quality.HIGHEST)).build())
+        val videoCapture = VideoCapture.withOutput(
+            Recorder.Builder().setQualitySelector(
+                QualitySelector.from(Quality.HIGHEST)
+            ).build()
+        )
 
         // Add Preview to ensure the preview stream does not drop frames during/after recordings
         val preview = Preview.Builder()
@@ -256,31 +255,10 @@ class VideoRecordingFrameDropTest(
             .apply { Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback) }
             .build()
 
-        val useCaseGroup = UseCaseGroup.Builder()
-            .addUseCase(videoCapture)
-            .addUseCase(preview)
-            .apply {
-                val hardwareLevel =
-                    camInfo.getCameraCharacteristic(
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-                    )
-
-                if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY ||
-                    isSpecificDeviceOnlySupport2UseCases()
-                ) {
-                    Logger.d(
-                        TAG, "Skipping ImageCapture use case, because this device" +
-                            " doesn't support 3 use case combination" +
-                            " (Preview, Video, ImageCapture)."
-                    )
-                } else {
-                    val imageCapture = ImageCapture.Builder()
-                        .setTargetAspectRatio(aspectRatio)
-                        .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
-                        .build()
-                    addUseCase(imageCapture)
-                }
-            }.build()
+        val imageCapture = ImageCapture.Builder()
+            .setTargetAspectRatio(aspectRatio)
+            .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .build()
 
         withContext(Dispatchers.Main) {
             val lifecycleOwner = FakeLifecycleOwner()
@@ -288,6 +266,28 @@ class VideoRecordingFrameDropTest(
             preview.setSurfaceProvider(
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
             )
+            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector)
+
+            val isImageCaptureSupportedAs3rdUseCase = camera.isUseCasesCombinationSupported(
+                preview,
+                videoCapture,
+                imageCapture
+            )
+            val useCaseGroup = UseCaseGroup.Builder()
+                .addUseCase(videoCapture)
+                .addUseCase(preview)
+                .apply {
+                    if (isImageCaptureSupportedAs3rdUseCase) {
+                        addUseCase(imageCapture)
+                    } else {
+                        Logger.d(
+                            TAG, "Skipping ImageCapture use case, because this device" +
+                                " doesn't support 3 use case combination" +
+                                " (Preview, Video, ImageCapture)."
+                        )
+                    }
+                }.build()
+
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
 
             val files = mutableListOf<File>()
@@ -403,11 +403,5 @@ class VideoRecordingFrameDropTest(
 
         val recording = start(CameraXExecutors.directExecutor(), eventListener)
         recording.use { it.apply { block(eventFlow) } }
-    }
-
-    private fun isSpecificDeviceOnlySupport2UseCases(): Boolean {
-        // skip for b/263431891
-        return Build.BRAND.equals("samsung", true) &&
-            Build.MODEL.equals("SM-G930T", true)
     }
 }
