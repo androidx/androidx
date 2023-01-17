@@ -93,7 +93,7 @@ import kotlinx.coroutines.launch
 @ExperimentalMotionApi
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Motion(
+private fun Motion(
     modifier: Modifier = Modifier,
     content: @Composable MotionScope.() -> Unit
 ) {
@@ -125,7 +125,7 @@ fun Motion(
 }
 
 @DslMarker
-annotation class MotionDslScope
+private annotation class MotionDslScope
 
 /**
  * Scope for the [Motion] Composable.
@@ -136,7 +136,7 @@ annotation class MotionDslScope
 @ExperimentalMotionApi
 @MotionDslScope
 @OptIn(ExperimentalComposeUiApi::class)
-class MotionScope(
+private class MotionScope(
     lookaheadLayoutScope: LookaheadLayoutScope
 ) : LookaheadLayoutScope by lookaheadLayoutScope {
     private var nextId: Int = 1000
@@ -360,7 +360,7 @@ class MotionScope(
  */
 @ExperimentalMotionApi
 @Composable
-fun rememberMotionContent(content: @Composable MotionScope.() -> Unit):
+private fun rememberMotionContent(content: @Composable MotionScope.() -> Unit):
     @Composable MotionScope.() -> Unit {
     return remember {
         movableContentOf(content)
@@ -376,7 +376,7 @@ fun rememberMotionContent(content: @Composable MotionScope.() -> Unit):
  */
 @ExperimentalMotionApi
 @Composable
-fun rememberMotionListItems(
+private fun rememberMotionListItems(
     count: Int,
     content: @Composable MotionScope.(index: Int) -> Unit
 ): List<@Composable MotionScope.(index: Int) -> Unit> {

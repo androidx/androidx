@@ -528,9 +528,6 @@ package androidx.constraintlayout.compose {
     method public androidx.constraintlayout.compose.MotionDragState onDragEnd(long velocity);
   }
 
-  @kotlin.DslMarker public @interface MotionDslScope {
-  }
-
   public interface MotionItemsProvider {
     method public int count();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent(int index);
