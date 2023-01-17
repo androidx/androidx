@@ -18,6 +18,7 @@ package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
 import android.os.Build
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import java.time.Instant
 
@@ -57,25 +58,13 @@ import java.time.Instant
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class DeletionRequest(
-    val deletionMode: Int,
-    val matchBehavior: Int,
+    @DeletionMode val deletionMode: Int,
+    @MatchBehavior val matchBehavior: Int,
     val start: Instant = Instant.MIN,
     val end: Instant = Instant.MAX,
     val domainUris: List<Uri> = emptyList(),
     val originUris: List<Uri> = emptyList(),
 ) {
-
-    init {
-        require(deletionMode == DELETION_MODE_ALL ||
-            deletionMode == DELETION_MODE_EXCLUDE_INTERNAL_DATA) {
-            "DeletionMode undefined."
-        }
-
-        require(matchBehavior == MATCH_BEHAVIOR_DELETE ||
-            matchBehavior == MATCH_BEHAVIOR_PRESERVE) {
-            "MatchBehavior undefined."
-        }
-    }
 
     override fun hashCode(): Int {
         var hash = deletionMode.hashCode()
@@ -118,6 +107,14 @@ class DeletionRequest(
          */
         public const val DELETION_MODE_EXCLUDE_INTERNAL_DATA = 1
 
+        /** @hide */
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(
+            DELETION_MODE_ALL,
+            DELETION_MODE_EXCLUDE_INTERNAL_DATA
+        )
+        annotation class DeletionMode
+
         /** Match behavior option to delete the supplied params (Origin/Domains).  */
         public const val MATCH_BEHAVIOR_DELETE = 0
 
@@ -126,6 +123,14 @@ class DeletionRequest(
          * everything else.
          */
         public const val MATCH_BEHAVIOR_PRESERVE = 1
+
+        /** @hide */
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(
+            MATCH_BEHAVIOR_DELETE,
+            MATCH_BEHAVIOR_PRESERVE
+        )
+        annotation class MatchBehavior
     }
 
     /**
@@ -145,8 +150,8 @@ class DeletionRequest(
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder constructor(
-        private val deletionMode: Int,
-        private val matchBehavior: Int
+        @DeletionMode private val deletionMode: Int,
+        @MatchBehavior private val matchBehavior: Int
     ) {
         private var start: Instant = Instant.MIN
         private var end: Instant = Instant.MAX
