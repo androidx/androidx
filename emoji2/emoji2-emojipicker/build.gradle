@@ -60,6 +60,7 @@ android {
 androidx {
     name = "androidx.emoji2:emoji2-emojipicker"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.EMOJI2_QUARANTINE
     inceptionYear = "2022"
     description = "This library provides the latest emoji support and emoji picker UI to input " +
             "emoji in current and older devices"
