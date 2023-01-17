@@ -506,7 +506,12 @@ public open class NavController(
         route: String,
         inclusive: Boolean,
         saveState: Boolean = false
-    ): Boolean = popBackStack(createRoute(route).hashCode(), inclusive, saveState)
+    ): Boolean {
+        val popped = popBackStackInternal(route, inclusive, saveState)
+        // Only return true if the pop succeeded and we've dispatched
+        // the change to a new destination
+        return popped && dispatchOnDestinationChanged()
+    }
 
     /**
      * Attempts to pop the controller's back stack back to a specific destination. This does
@@ -557,6 +562,55 @@ public open class NavController(
             Log.i(
                 TAG,
                 "Ignoring popBackStack to destination $destinationName as it was not found " +
+                    "on the current back stack"
+            )
+            return false
+        }
+        return executePopOperations(popOperations, foundDestination, inclusive, saveState)
+    }
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination. This does
+     * **not** handle calling [dispatchOnDestinationChanged]
+     *
+     * @param route The topmost destination with this route to retain
+     * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the destination with [route] should be saved for later to be
+     * restored via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the [NavDestination.id] of the destination with this route (note: this matching ID
+     * is true whether [inclusive] is true or false).
+     *
+     * @return true if the stack was popped at least once, false otherwise
+     */
+    private fun popBackStackInternal(
+        route: String,
+        inclusive: Boolean,
+        saveState: Boolean,
+    ): Boolean {
+        if (backQueue.isEmpty()) {
+            // Nothing to pop if the back stack is empty
+            return false
+        }
+
+        val popOperations = mutableListOf<Navigator<*>>()
+        val foundDestination = backQueue.lastOrNull { entry ->
+            val hasRoute = entry.destination.hasRoute(route, entry.arguments)
+            if (inclusive || !hasRoute) {
+                val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
+                    entry.destination.navigatorName
+                )
+                popOperations.add(navigator)
+            }
+            hasRoute
+        }?.destination
+
+        if (foundDestination == null) {
+            // We were passed a route that doesn't exist on our back stack.
+            // Better to ignore the popBackStack than accidentally popping the entire stack
+            Log.i(
+                TAG,
+                "Ignoring popBackStack to route $route as it was not found " +
                     "on the current back stack"
             )
             return false
