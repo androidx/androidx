@@ -30,6 +30,11 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-expression"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
+
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
 }
 
 android {
