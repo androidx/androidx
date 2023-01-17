@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.material
+package androidx.tv.material3
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,13 +61,6 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.tv.material3.Carousel
-import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselItem
-import androidx.tv.material3.CarouselItemDefaults
-import androidx.tv.material3.CarouselState
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.ScrollPauseHandle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -572,6 +565,58 @@ class CarouselTest {
     }
 
     @Test
+    fun carousel_manualScrolling_fastMultipleKeyPresses() {
+        val carouselState = CarouselState()
+        val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+
+        rule.setContent {
+            var selectedTabIndex by remember { mutableStateOf(0) }
+
+            Column {
+                TabRow(selectedTabIndex = selectedTabIndex) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onFocus = { selectedTabIndex = index },
+                        ) {
+                            Text(text = tab)
+                        }
+                    }
+                }
+
+                SampleCarousel(carouselState = carouselState, slideCount = 20) {
+                    SampleCarouselSlide(modifier = Modifier.testTag("slide-$it"), index = it)
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("pager").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.waitForIdle()
+
+        val slideProgression = listOf(6, 3, -4, 3, -6, 5, 3)
+
+        slideProgression.forEach {
+            if (it < 0) {
+                performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, it * -1)
+            } else {
+                performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, it)
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime)
+
+        val finalSlide = slideProgression.sum()
+        rule.onNodeWithText("Play $finalSlide").assertIsFocused()
+
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
+
+        rule.mainClock.advanceTimeBy((animationTime + overlayRenderWaitTime) * 3)
+
+        rule.onNodeWithText("Play ${finalSlide + 3}").assertIsFocused()
+    }
+
+    @Test
     fun carousel_manualScrolling_ltr() {
         rule.setContent {
             SampleCarousel { index ->
@@ -679,7 +724,7 @@ private fun SampleCarousel(
         modifier = Modifier
             .padding(5.dp)
             .fillMaxWidth()
-            .height(50.dp)
+            .height(200.dp)
             .testTag("pager"),
         carouselState = carouselState,
         slideCount = slideCount,
@@ -702,10 +747,13 @@ private fun SampleCarousel(
 @Composable
 private fun SampleCarouselSlide(
     index: Int,
+    modifier: Modifier = Modifier,
     overlayRenderWaitTime: Long = CarouselItemDefaults.OverlayEnterTransitionStartDelayMillis,
     content: (@Composable () -> Unit) = { SampleButton("Play $index") },
 ) {
+
     CarouselItem(
+        modifier = modifier,
         overlayEnterTransitionStartDelayMillis = overlayRenderWaitTime,
         background = {
             Box(
@@ -748,10 +796,11 @@ private fun checkNodeCompletelyVisible(
         itemRect.bottom <= rootRect.bottom
 }
 
-private fun performKeyPress(keyCode: Int, count: Int = 1) {
+private fun performKeyPress(keyCode: Int, count: Int = 1, afterEachPress: () -> Unit = { }) {
     repeat(count) {
         InstrumentationRegistry
             .getInstrumentation()
             .sendKeyDownUpSync(keyCode)
+        afterEachPress()
     }
 }

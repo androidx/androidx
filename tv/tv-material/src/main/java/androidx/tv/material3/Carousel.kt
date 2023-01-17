@@ -17,6 +17,8 @@
 package androidx.tv.material3
 
 import android.view.KeyEvent.KEYCODE_BACK
+import android.view.KeyEvent.KEYCODE_DPAD_LEFT
+import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
@@ -41,20 +43,19 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
@@ -86,7 +87,6 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current slide among all slides.
  * @param content defines the slides for a given index.
  */
-
 @Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @ExperimentalTvMaterial3Api
@@ -127,27 +127,31 @@ fun Carousel(
     Box(modifier = modifier
         .bringIntoViewIfChildrenAreFocused()
         .focusRequester(carouselOuterBoxFocusRequester)
-        .onKeyEvent {
-            if (it.key.nativeKeyCode == KEYCODE_BACK && it.type == KeyDown) {
-                focusManager.moveFocus(FocusDirection.Exit)
-            }
-            false
-        }
         .onFocusChanged {
             focusState = it
+
+            // When the carousel gains focus for the first time
             if (it.isFocused && isAutoScrollActive) {
                 focusManager.moveFocus(FocusDirection.Enter)
             }
         }
-        .manualScrolling(carouselState, slideCount, isLtr)
-        .focusable()) {
+        .handleKeyEvents(
+            carouselState = carouselState,
+            outerBoxFocusRequester = carouselOuterBoxFocusRequester,
+            focusManager = focusManager,
+            slideCount = slideCount,
+            isLtr = isLtr,
+        )
+        .focusable()
+    ) {
         AnimatedContent(
             targetState = carouselState.activeSlideIndex,
             transitionSpec = { enterTransition.with(exitTransition) }
         ) {
             LaunchedEffect(Unit) {
                 this@AnimatedContent.onAnimationCompletion {
-                    if (isAutoScrollActive.not()) {
+                    // Outer box is focused
+                    if (!isAutoScrollActive && focusState?.isFocused == true) {
                         carouselOuterBoxFocusRequester.requestFocus()
                         focusManager.moveFocus(FocusDirection.Enter)
                     }
@@ -163,7 +167,7 @@ fun Carousel(
 private fun shouldPerformAutoScroll(focusState: FocusState?): Boolean {
     val carouselIsFocused = focusState?.isFocused ?: false
     val carouselHasFocus = focusState?.hasFocus ?: false
-    return (carouselIsFocused || carouselHasFocus).not()
+    return !(carouselIsFocused || carouselHasFocus)
 }
 
 @Suppress("IllegalExperimentalApiUsage")
@@ -182,19 +186,16 @@ private fun AutoScrollSideEffect(
     doAutoScroll: Boolean,
     onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
-    val currentTimeToDisplaySlideMillis by rememberUpdatedState(timeToDisplaySlideMillis)
-    val currentSlideCount by rememberUpdatedState(slideCount)
-
     if (doAutoScroll) {
         LaunchedEffect(carouselState) {
             while (true) {
                 yield()
-                delay(currentTimeToDisplaySlideMillis)
+                delay(timeToDisplaySlideMillis)
                 if (carouselState.activePauseHandlesCount > 0) {
                     snapshotFlow { carouselState.activePauseHandlesCount }
                         .first { pauseHandleCount -> pauseHandleCount == 0 }
                 }
-                carouselState.moveToNextSlide(currentSlideCount)
+                carouselState.moveToNextSlide(slideCount)
             }
         }
     }
@@ -203,50 +204,58 @@ private fun AutoScrollSideEffect(
 
 @Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
-private fun Modifier.manualScrolling(
+private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,
+    outerBoxFocusRequester: FocusRequester,
+    focusManager: FocusManager,
     slideCount: Int,
     isLtr: Boolean
-): Modifier =
-    this.focusProperties {
-        exit = {
-            val showPreviousSlideAndGetFocusRequester = {
-                if (carouselState.isFirstSlide().not()) {
-                    carouselState.moveToPreviousSlide(slideCount)
-                    FocusRequester.Cancel
-                } else {
-                    FocusRequester.Default
-                }
-            }
-            val showNextSlideAndGetFocusRequester = {
-                if (carouselState.isLastSlide(slideCount).not()) {
-                    carouselState.moveToNextSlide(slideCount)
-                    FocusRequester.Cancel
-                } else {
-                    FocusRequester.Default
-                }
-            }
-            when (it) {
-                FocusDirection.Left -> {
-                    if (isLtr) {
-                        showPreviousSlideAndGetFocusRequester()
-                    } else {
-                        showNextSlideAndGetFocusRequester()
-                    }
-                }
+): Modifier = onKeyEvent {
+    // Ignore KeyUp action type
+    if (it.type == KeyUp) {
+        return@onKeyEvent KeyEventPropagation.ContinuePropagation
+    }
 
-                FocusDirection.Right -> {
-                    if (isLtr) {
-                        showNextSlideAndGetFocusRequester()
-                    } else {
-                        showPreviousSlideAndGetFocusRequester()
-                    }
-                }
-
-                else -> FocusRequester.Default
-            }
+    val showPreviousSlideAndGetKeyEventPropagation = {
+        if (carouselState.isFirstSlide()) {
+            KeyEventPropagation.ContinuePropagation
+        } else {
+            carouselState.moveToPreviousSlide(slideCount)
+            outerBoxFocusRequester.requestFocus()
+            KeyEventPropagation.StopPropagation
         }
     }
+    val showNextSlideAndGetKeyEventPropagation = {
+        if (carouselState.isLastSlide(slideCount)) {
+            KeyEventPropagation.ContinuePropagation
+        } else {
+            carouselState.moveToNextSlide(slideCount)
+            outerBoxFocusRequester.requestFocus()
+            KeyEventPropagation.StopPropagation
+        }
+    }
+
+    when (it.key.nativeKeyCode) {
+        KEYCODE_BACK -> {
+            focusManager.moveFocus(FocusDirection.Exit)
+            KeyEventPropagation.ContinuePropagation
+        }
+
+        KEYCODE_DPAD_LEFT -> if (isLtr) {
+            showPreviousSlideAndGetKeyEventPropagation()
+        } else {
+            showNextSlideAndGetKeyEventPropagation()
+        }
+
+        KEYCODE_DPAD_RIGHT -> if (isLtr) {
+            showNextSlideAndGetKeyEventPropagation()
+        } else {
+            showPreviousSlideAndGetKeyEventPropagation()
+        }
+
+        else -> KeyEventPropagation.ContinuePropagation
+    }
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -332,9 +341,11 @@ internal object NoOpScrollPauseHandle : ScrollPauseHandle {
 @OptIn(ExperimentalTvMaterial3Api::class)
 internal class ScrollPauseHandleImpl(private val carouselState: CarouselState) : ScrollPauseHandle {
     private var active by mutableStateOf(true)
+
     init {
         carouselState.activePauseHandlesCount += 1
     }
+
     /**
      * Resumes the auto-scroll behaviour if there are no other active [ScrollPauseHandle]s.
      */
