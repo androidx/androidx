@@ -17,6 +17,8 @@
 package androidx.wear.watchface.complications.data
 
 import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.icu.util.ULocale
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
@@ -118,6 +120,22 @@ class ComplicationDataExpressionEvaluator(
             unevaluatedData.rangedValueExpression?.buildReceiver { setRangedValue(it) }
                 ?.let { receivers += it }
         }
+        if (unevaluatedData.hasLongText()) {
+            unevaluatedData.longText?.buildReceiver { setLongText(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasLongTitle()) {
+            unevaluatedData.longTitle?.buildReceiver { setLongTitle(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasShortText()) {
+            unevaluatedData.shortText?.buildReceiver { setShortText(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasShortTitle()) {
+            unevaluatedData.shortTitle?.buildReceiver { setShortTitle(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasContentDescription()) {
+            unevaluatedData.contentDescription?.buildReceiver { setContentDescription(it) }
+                ?.let { receivers += it }
+        }
 
         state.value = State(unevaluatedData, receivers)
     }
@@ -128,6 +146,17 @@ class ComplicationDataExpressionEvaluator(
         setter,
         binder = { receiver -> evaluator.bind(this@buildReceiver, receiver) },
     )
+
+    private fun WireComplicationText.buildReceiver(
+        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder
+    ) = stringExpression?.let { stringExpression ->
+        ComplicationEvaluationResultReceiver<String>(
+            setter = { setter(WireComplicationText(it, stringExpression)) },
+            binder = { receiver ->
+                evaluator.bind(stringExpression, ULocale.getDefault(), receiver)
+            },
+        )
+    }
 
     /** Initializes the internal [DynamicTypeEvaluator] if there are pending receivers. */
     private fun initEvaluator() {

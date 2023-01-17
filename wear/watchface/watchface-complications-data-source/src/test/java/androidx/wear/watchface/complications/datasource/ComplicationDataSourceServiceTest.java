@@ -18,11 +18,13 @@ package androidx.wear.watchface.complications.datasource;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.shadows.ShadowLooper.runUiThreadTasks;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -188,7 +190,8 @@ public class ComplicationDataSourceServiceTest {
                 ArgumentCaptor.forClass(
                         android.support.wearable.complications.ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
-        assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo("hello");
+        assertThat(data.getValue().getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo(
+                "hello");
     }
 
     @Test
@@ -240,14 +243,9 @@ public class ComplicationDataSourceServiceTest {
         runUiThreadTasksWhileAwaitingDataLatch(1000);
         verify(mRemoteManager).updateComplicationData(
                 eq(123),
-                eq(new LongTextComplicationData.Builder(
-                        // TODO(b/260065006): new PlainComplicationText.Builder("hello world")
-                        new ComplicationTextExpression(
-                                DynamicString.constant("hello").concat(
-                                        DynamicString.constant(" world"))),
-                        ComplicationText.EMPTY)
-                        .build()
-                        .asWireComplicationData()));
+                argThat(data ->
+                        data.getLongText().getTextAt(Resources.getSystem(), 0)
+                                .equals("hello world")));
     }
 
     @Test
@@ -298,7 +296,7 @@ public class ComplicationDataSourceServiceTest {
 
         assertThat(mProvider.getComplicationPreviewData(
                 ComplicationType.LONG_TEXT.toWireComplicationType()
-        ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
+        ).getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo("hello preview");
     }
 
     @Test
@@ -347,7 +345,7 @@ public class ComplicationDataSourceServiceTest {
                 ArgumentCaptor.forClass(
                         android.support.wearable.complications.ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
-        assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
+        assertThat(data.getValue().getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo(
                 "default"
         );
         List<android.support.wearable.complications.ComplicationData> timeLineEntries =
@@ -356,13 +354,15 @@ public class ComplicationDataSourceServiceTest {
         assertThat(timeLineEntries.size()).isEqualTo(2);
         assertThat(timeLineEntries.get(0).getTimelineStartEpochSecond()).isEqualTo(1000);
         assertThat(timeLineEntries.get(0).getTimelineEndEpochSecond()).isEqualTo(4000);
-        assertThat(timeLineEntries.get(0).getLongText().getTextAt(null, 0)).isEqualTo(
+        assertThat(timeLineEntries.get(0).getLongText().getTextAt(Resources.getSystem(),
+                0)).isEqualTo(
                 "A"
         );
 
         assertThat(timeLineEntries.get(1).getTimelineStartEpochSecond()).isEqualTo(6000);
         assertThat(timeLineEntries.get(1).getTimelineEndEpochSecond()).isEqualTo(8000);
-        assertThat(timeLineEntries.get(1).getLongText().getTextAt(null, 0)).isEqualTo(
+        assertThat(timeLineEntries.get(1).getLongText().getTextAt(Resources.getSystem(),
+                0)).isEqualTo(
                 "B"
         );
     }
@@ -397,7 +397,8 @@ public class ComplicationDataSourceServiceTest {
             );
 
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
-            assertThat(response.get().getLongText().getTextAt(null, 0)).isEqualTo("hello");
+            assertThat(response.get().getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo(
+                    "hello");
         } finally {
             thread.quitSafely();
         }

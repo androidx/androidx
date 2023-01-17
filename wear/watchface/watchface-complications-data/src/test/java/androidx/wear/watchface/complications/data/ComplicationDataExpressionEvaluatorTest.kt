@@ -17,10 +17,12 @@
 package androidx.wear.watchface.complications.data
 
 import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -70,6 +72,8 @@ class ComplicationDataExpressionEvaluatorTest {
      *
      * Each scenario describes how to set the expression in the [WireComplicationData] and how to
      * set the evaluated value.
+     *
+     * Note that evaluated data retains the expression.
      */
     enum class StaticExpressionScenario(
         val expressed: WireComplicationData.Builder.() -> WireComplicationData.Builder,
@@ -79,6 +83,40 @@ class ComplicationDataExpressionEvaluatorTest {
             expressed = { setRangedValueExpression(DynamicFloat.constant(10f)) },
             evaluated = {
                 setRangedValue(10f).setRangedValueExpression(DynamicFloat.constant(10f))
+            },
+        ),
+        LONG_TEXT(
+            expressed = { setLongText(WireComplicationText(DynamicString.constant("hello"))) },
+            evaluated = {
+                setLongText(WireComplicationText("hello", DynamicString.constant("hello")))
+            },
+        ),
+        LONG_TITLE(
+            expressed = { setLongTitle(WireComplicationText(DynamicString.constant("hello"))) },
+            evaluated = {
+                setLongTitle(WireComplicationText("hello", DynamicString.constant("hello")))
+            },
+        ),
+        SHORT_TEXT(
+            expressed = { setShortText(WireComplicationText(DynamicString.constant("hello"))) },
+            evaluated = {
+                setShortText(WireComplicationText("hello", DynamicString.constant("hello")))
+            },
+        ),
+        SHORT_TITLE(
+            expressed = { setShortTitle(WireComplicationText(DynamicString.constant("hello"))) },
+            evaluated = {
+                setShortTitle(WireComplicationText("hello", DynamicString.constant("hello")))
+            },
+        ),
+        CONTENT_DESCRIPTION(
+            expressed = {
+                setContentDescription(WireComplicationText(DynamicString.constant("hello")))
+            },
+            evaluated = {
+                setContentDescription(
+                    WireComplicationText("hello", DynamicString.constant("hello"))
+                )
             },
         ),
     }
