@@ -46,6 +46,69 @@ public final class DynamicBuilders {
   private DynamicBuilders() {}
 
   /**
+   * The type of arithmetic operation used in {@link ArithmeticInt32Op} and {@link
+   * ArithmeticFloatOp}.
+   *
+   * @hide
+   * @since 1.2
+   */
+  @RestrictTo(RestrictTo.Scope.LIBRARY)
+  @IntDef({
+      ARITHMETIC_OP_TYPE_UNDEFINED,
+      ARITHMETIC_OP_TYPE_ADD,
+      ARITHMETIC_OP_TYPE_SUBTRACT,
+      ARITHMETIC_OP_TYPE_MULTIPLY,
+      ARITHMETIC_OP_TYPE_DIVIDE,
+      ARITHMETIC_OP_TYPE_MODULO
+  })
+  @Retention(RetentionPolicy.SOURCE)
+  @interface ArithmeticOpType {
+
+  }
+
+  /**
+   * Undefined operation type.
+   *
+   * @since 1.2
+   */
+  static final int ARITHMETIC_OP_TYPE_UNDEFINED = 0;
+
+  /**
+   * Addition.
+   *
+   * @since 1.2
+   */
+  static final int ARITHMETIC_OP_TYPE_ADD = 1;
+
+  /**
+   * Subtraction.
+   *
+   * @since 1.2
+   */
+  static final int ARITHMETIC_OP_TYPE_SUBTRACT = 2;
+
+  /**
+   * Multiplication.
+   *
+   * @since 1.2
+   */
+  static final int ARITHMETIC_OP_TYPE_MULTIPLY = 3;
+
+  /**
+   * Division.
+   *
+   * @since 1.2
+   */
+  static final int ARITHMETIC_OP_TYPE_DIVIDE = 4;
+
+  /**
+   * Modulus.
+   *
+   * @since 1.2
+   */
+  static final int ARITHMETIC_OP_TYPE_MODULO = 5;
+
+  /**
    * Rounding mode to use when converting a float to an int32.
    *
    * @since 1.2
@@ -92,13 +155,13 @@ public final class DynamicBuilders {
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
-    COMPARISON_OP_TYPE_UNDEFINED,
-    COMPARISON_OP_TYPE_EQUALS,
-    COMPARISON_OP_TYPE_NOT_EQUALS,
-    COMPARISON_OP_TYPE_LESS_THAN,
-    COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO,
-    COMPARISON_OP_TYPE_GREATER_THAN,
-    COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO
+      COMPARISON_OP_TYPE_UNDEFINED,
+      COMPARISON_OP_TYPE_EQUALS,
+      COMPARISON_OP_TYPE_NOT_EQUALS,
+      COMPARISON_OP_TYPE_LESS_THAN,
+      COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO,
+      COMPARISON_OP_TYPE_GREATER_THAN,
+      COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO
   })
   @Retention(RetentionPolicy.SOURCE)
   @interface ComparisonOpType {}
@@ -186,6 +249,150 @@ public final class DynamicBuilders {
   static final int LOGICAL_OP_TYPE_OR = 2;
 
   /**
+   * An arithmetic operation, operating on two Int32 instances. This implements simple binary
+   * operations of the form "result = LHS <op> RHS", where the available operation types are
+   * described in {@code ArithmeticOpType}.
+   *
+   * @since 1.2
+   */
+  static final class ArithmeticInt32Op implements DynamicInt32 {
+
+    private final DynamicProto.ArithmeticInt32Op mImpl;
+    @Nullable
+    private final Fingerprint mFingerprint;
+
+    ArithmeticInt32Op(DynamicProto.ArithmeticInt32Op impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets left hand side of the arithmetic operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getInputLhs() {
+      if (mImpl.hasInputLhs()) {
+        return DynamicBuilders.dynamicInt32FromProto(mImpl.getInputLhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets right hand side of the arithmetic operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getInputRhs() {
+      if (mImpl.hasInputRhs()) {
+        return DynamicBuilders.dynamicInt32FromProto(mImpl.getInputRhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the type of operation to carry out.
+     *
+     * @since 1.2
+     */
+    @ArithmeticOpType
+    public int getOperationType() {
+      return mImpl.getOperationType().getNumber();
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static ArithmeticInt32Op fromProto(@NonNull DynamicProto.ArithmeticInt32Op proto) {
+      return new ArithmeticInt32Op(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.ArithmeticInt32Op toProto() {
+      return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setArithmeticOperation(mImpl).build();
+    }
+
+    /**
+     * Builder for {@link ArithmeticInt32Op}.
+     */
+    public static final class Builder implements DynamicInt32.Builder {
+
+      private final DynamicProto.ArithmeticInt32Op.Builder mImpl =
+          DynamicProto.ArithmeticInt32Op.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-2012727925);
+
+      public Builder() {
+      }
+
+      /**
+       * Sets left hand side of the arithmetic operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputLhs(@NonNull DynamicInt32 inputLhs) {
+        mImpl.setInputLhs(inputLhs.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(inputLhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets right hand side of the arithmetic operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputRhs(@NonNull DynamicInt32 inputRhs) {
+        mImpl.setInputRhs(inputRhs.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(inputRhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the type of operation to carry out.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setOperationType(@ArithmeticOpType int operationType) {
+        mImpl.setOperationType(DynamicProto.ArithmeticOpType.forNumber(operationType));
+        mFingerprint.recordPropertyUpdate(3, operationType);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public ArithmeticInt32Op build() {
+        return new ArithmeticInt32Op(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
    * A dynamic Int32 which sources its data from the tile's state.
    *
    * @since 1.2
@@ -200,7 +407,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the key in the state to bind to. Intended for testing purposes only.
+     * Gets the key in the state to bind to.
      *
      * @since 1.2
      */
@@ -270,6 +477,302 @@ public final class DynamicBuilders {
   }
 
   /**
+   * A conditional operator which yields an integer depending on the boolean operand. This
+   * implements "int result = condition ? value_if_true : value_if_false".
+   *
+   * @since 1.2
+   */
+  static final class ConditionalInt32Op implements DynamicInt32 {
+
+    private final DynamicProto.ConditionalInt32Op mImpl;
+    @Nullable
+    private final Fingerprint mFingerprint;
+
+    ConditionalInt32Op(DynamicProto.ConditionalInt32Op impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the condition to use.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicBool getCondition() {
+      if (mImpl.hasCondition()) {
+        return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the integer to yield if condition is true.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getValueIfTrue() {
+      if (mImpl.hasValueIfTrue()) {
+        return DynamicBuilders.dynamicInt32FromProto(mImpl.getValueIfTrue());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the integer to yield if condition is false.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getValueIfFalse() {
+      if (mImpl.hasValueIfFalse()) {
+        return DynamicBuilders.dynamicInt32FromProto(mImpl.getValueIfFalse());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static ConditionalInt32Op fromProto(@NonNull DynamicProto.ConditionalInt32Op proto) {
+      return new ConditionalInt32Op(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.ConditionalInt32Op toProto() {
+      return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setConditionalOp(mImpl).build();
+    }
+
+    /**
+     * Builder for {@link ConditionalInt32Op}.
+     */
+    public static final class Builder implements DynamicInt32.Builder {
+
+      private final DynamicProto.ConditionalInt32Op.Builder mImpl =
+          DynamicProto.ConditionalInt32Op.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(1444834226);
+
+      public Builder() {
+      }
+
+      /**
+       * Sets the condition to use.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setCondition(@NonNull DynamicBool condition) {
+        mImpl.setCondition(condition.toDynamicBoolProto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the integer to yield if condition is true.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValueIfTrue(@NonNull DynamicInt32 valueIfTrue) {
+        mImpl.setValueIfTrue(valueIfTrue.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(valueIfTrue.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the integer to yield if condition is false.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValueIfFalse(@NonNull DynamicInt32 valueIfFalse) {
+        mImpl.setValueIfFalse(valueIfFalse.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+            3, checkNotNull(valueIfFalse.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public ConditionalInt32Op build() {
+        return new ConditionalInt32Op(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A conditional operator which yields a float depending on the boolean operand. This implements
+   * "float result = condition ? value_if_true : value_if_false".
+   *
+   * @since 1.2
+   */
+  static final class ConditionalFloatOp implements DynamicFloat {
+
+    private final DynamicProto.ConditionalFloatOp mImpl;
+    @Nullable
+    private final Fingerprint mFingerprint;
+
+    ConditionalFloatOp(DynamicProto.ConditionalFloatOp impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the condition to use.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicBool getCondition() {
+      if (mImpl.hasCondition()) {
+        return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the float to yield if condition is true.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicFloat getValueIfTrue() {
+      if (mImpl.hasValueIfTrue()) {
+        return DynamicBuilders.dynamicFloatFromProto(mImpl.getValueIfTrue());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the float to yield if condition is false.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicFloat getValueIfFalse() {
+      if (mImpl.hasValueIfFalse()) {
+        return DynamicBuilders.dynamicFloatFromProto(mImpl.getValueIfFalse());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static ConditionalFloatOp fromProto(@NonNull DynamicProto.ConditionalFloatOp proto) {
+      return new ConditionalFloatOp(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.ConditionalFloatOp toProto() {
+      return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicFloat toDynamicFloatProto() {
+      return DynamicProto.DynamicFloat.newBuilder().setConditionalOp(mImpl).build();
+    }
+
+    /**
+     * Builder for {@link ConditionalFloatOp}.
+     */
+    public static final class Builder implements DynamicFloat.Builder {
+
+      private final DynamicProto.ConditionalFloatOp.Builder mImpl =
+          DynamicProto.ConditionalFloatOp.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(1968171153);
+
+      public Builder() {
+      }
+
+      /**
+       * Sets the condition to use.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setCondition(@NonNull DynamicBool condition) {
+        mImpl.setCondition(condition.toDynamicBoolProto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the float to yield if condition is true.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValueIfTrue(@NonNull DynamicFloat valueIfTrue) {
+        mImpl.setValueIfTrue(valueIfTrue.toDynamicFloatProto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(valueIfTrue.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the float to yield if condition is false.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValueIfFalse(@NonNull DynamicFloat valueIfFalse) {
+        mImpl.setValueIfFalse(valueIfFalse.toDynamicFloatProto());
+        mFingerprint.recordPropertyUpdate(
+            3, checkNotNull(valueIfFalse.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public ConditionalFloatOp build() {
+        return new ConditionalFloatOp(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
    * Converts a Float to an Int32, with a customizable rounding mode.
    *
    * @since 1.2
@@ -284,7 +787,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the float to round. Intended for testing purposes only.
+     * Gets the float to round.
      *
      * @since 1.2
      */
@@ -298,8 +801,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the rounding mode to use. Defaults to ROUND_MODE_FLOOR if not specified. Intended for
-     * testing purposes only.
+     * Gets the rounding mode to use. Defaults to ROUND_MODE_FLOOR if not specified.
      *
      * @since 1.2
      */
@@ -384,6 +886,26 @@ public final class DynamicBuilders {
   /**
    * Interface defining a dynamic int32 type.
    *
+   * <p>It offers a set of helper methods for creating arithmetic and logical expressions, e.g.
+   * {@link #plus(int)}, {@link #times(int)}, {@link #eq(int)}, etc. These helper methods produce
+   * expression trees based on the order in which they were called in an expression. Thus, no
+   * operator precedence rules are applied.
+   *
+   * <p>For example the following expression is equivalent to {@code result = ((a + b)*c)/d }:
+   *
+   * <pre>
+   * a.plus(b).times(c).div(d);
+   * </pre>
+   *
+   * More complex expressions can be created by nesting expressions. For example the following
+   * expression is equivalent to {@code result = (a + b)*(c - d) }:
+   *
+   * <pre>
+   * (a.plus(b)).times(c.minus(d));
+   * </pre>
+   *
+   * .
+   *
    * @since 1.2
    */
   public interface DynamicInt32 extends DynamicType {
@@ -438,6 +960,670 @@ public final class DynamicBuilders {
     @NonNull
     default DynamicFloat asFloat() {
       return new Int32ToFloatOp.Builder().setInput(this).build();
+    }
+
+    /**
+     * Bind the value of this {@link DynamicInt32} to the result of a conditional expression. This
+     * will use the value given in either {@link ConditionScope#use} or {@link
+     * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code condition}.
+     */
+    @NonNull
+    static ConditionScope<DynamicInt32, Integer> onCondition(@NonNull DynamicBool condition) {
+      return new ConditionScopes.ConditionScope<>(
+          (trueValue, falseValue) ->
+              new ConditionalInt32Op.Builder()
+                  .setCondition(condition)
+                  .setValueIfTrue(trueValue)
+                  .setValueIfFalse(falseValue)
+                  .build(),
+          DynamicInt32::constant);
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of adding another {@link DynamicInt32}
+     * to this {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicInt32.constant(13)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).plus(DynamicInt32.constant(6));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 plus(@NonNull DynamicInt32 other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFlaot} containing the result of adding a {@link DynamicFloat} to this
+     * {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(13.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).plus(DynamicFloat.constant(6.5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat plus(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of adding an integer to this {@link
+     * DynamicInt32}; As an example, the following is equal to {@code DynamicInt32.constant(13)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).plus(6);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 plus(int other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFlaot} containing the result of adding a float to this {@link
+     * DynamicInt32}; As an example, the following is equal to {@code DynamicFloat.constant(13.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).plus(6.5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat plus(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(DynamicFloat.constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of subtracting another {@link
+     * DynamicInt32} from this {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicInt32.constant(2)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).minus(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 minus(@NonNull DynamicInt32 other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of subtracting a {@link DynamicFloat}
+     * from this {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(1.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).minus(DynamicFloat.constant(5.5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat minus(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of subtracting an integer from this
+     * {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicInt32.constant(2)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).minus(5);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 minus(int other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of subtracting a float from this {@link
+     * DynamicInt32}; As an example, the following is equal to {@code DynamicFloat.constant(1.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).minus(5.5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat minus(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(DynamicFloat.constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of multiplying this {@link DynamicInt32}
+     * by another {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicInt32.constant(35)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).times(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 times(@NonNull DynamicInt32 other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of multiplying this {@link DynamicInt32}
+     * by a {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(38.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).times(DynamicFloat.constant(5.5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat times(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of multiplying this {@link DynamicInt32}
+     * by an integer; As an example, the following is equal to {@code DynamicInt32.constant(35)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).times(5);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 times(int other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of multiplying this {@link DynamicInt32}
+     * by a float; As an example, the following is equal to {@code DynamicFloat.constant(38.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).times(5.5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat times(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(DynamicFloat.constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of dividing this {@link DynamicInt32} by
+     * another {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicInt32.constant(1)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).div(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 div(@NonNull DynamicInt32 other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of dividing this {@link DynamicInt32} by
+     * a {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(1.4f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).div(DynamicFloat.constant(5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat div(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the result of dividing this {@link DynamicInt32} by
+     * an integer; As an example, the following is equal to {@code DynamicInt32.constant(1)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).div(5);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 div(int other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of dividing this {@link DynamicInt32} by
+     * a float; As an example, the following is equal to {@code DynamicFloat.constant(1.4f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).div(5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat div(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(DynamicFloat.constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the reminder of dividing this {@link DynamicInt32}
+     * by another {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicInt32.constant(2)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).rem(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 rem(@NonNull DynamicInt32 other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicInt32}
+     * by a {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(1.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).rem(DynamicInt32.constant(5.5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat rem(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this.asFloat())
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the reminder of dividing this {@link DynamicInt32}
+     * by an integer; As an example, the following is equal to {@code DynamicInt32.constant(2)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).rem(5);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicInt32} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicInt32 rem(int other) {
+      return new ArithmeticInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} containing the reminder of dividing this {@link DynamicInt32}
+     * by a float; As an example, the following is equal to {@code DynamicFloat.constant(1.5f)}
+     *
+     * <pre>
+     *   DynamicInt32.constant(7).rem(5.5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat rem(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs( this.asFloat())
+          .setInputRhs(DynamicFloat.constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
+     * {@code other} are equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool eq(@NonNull DynamicInt32 other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
+     * {@code other} are equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool eq(int other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
+     * {@code other} are not equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool ne(@NonNull DynamicInt32 other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_NOT_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
+     * {@code other} are not equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool ne(int other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_NOT_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is less
+     * than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lt(@NonNull DynamicInt32 other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is less
+     * than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lt(int other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is less
+     * than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lte(@NonNull DynamicInt32 other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is less
+     * than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lte(int other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
+     * greater than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gt(@NonNull DynamicInt32 other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
+     * greater than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gt(int other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
+     * greater than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gte(@NonNull DynamicInt32 other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
+     * greater than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gte(int other) {
+      return new ComparisonInt32Op.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO)
+          .build();
     }
 
     /**
@@ -543,8 +1729,14 @@ public final class DynamicBuilders {
     if (proto.hasFixed()) {
       return FixedInt32.fromProto(proto.getFixed());
     }
+    if (proto.hasArithmeticOperation()) {
+      return ArithmeticInt32Op.fromProto(proto.getArithmeticOperation());
+    }
     if (proto.hasStateSource()) {
       return StateInt32Source.fromProto(proto.getStateSource());
+    }
+    if (proto.hasConditionalOp()) {
+      return ConditionalInt32Op.fromProto(proto.getConditionalOp());
     }
     if (proto.hasFloatToInt()) {
       return FloatToInt32Op.fromProto(proto.getFloatToInt());
@@ -567,7 +1759,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the source of Int32 data to convert to a string. Intended for testing purposes only.
+     * Gets the source of Int32 data to convert to a string.
      *
      * @since 1.2
      */
@@ -583,8 +1775,7 @@ public final class DynamicBuilders {
     /**
      * Gets minimum integer digits. Sign and grouping characters are not considered when applying
      * minIntegerDigits constraint. If not defined, defaults to one. For example,in the English
-     * locale, applying minIntegerDigit=4 to 12 would yield "0012". Intended for testing purposes
-     * only.
+     * locale, applying minIntegerDigit=4 to 12 would yield "0012".
      *
      * @since 1.2
      */
@@ -596,7 +1787,7 @@ public final class DynamicBuilders {
     /**
      * Gets digit grouping used. Grouping size and grouping character depend on the current locale.
      * If not defined, defaults to false. For example, in the English locale, using grouping with
-     * 1234 would yield "1,234". Intended for testing purposes only.
+     * 1234 would yield "1,234".
      *
      * @since 1.2
      */
@@ -716,7 +1907,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the key in the state to bind to. Intended for testing purposes only.
+     * Gets the key in the state to bind to.
      *
      * @since 1.2
      */
@@ -801,7 +1992,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the condition to use. Intended for testing purposes only.
+     * Gets the condition to use.
      *
      * @since 1.2
      */
@@ -815,7 +2006,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the string to yield if condition is true. Intended for testing purposes only.
+     * Gets the string to yield if condition is true.
      *
      * @since 1.2
      */
@@ -829,7 +2020,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the string to yield if condition is false. Intended for testing purposes only.
+     * Gets the string to yield if condition is false.
      *
      * @since 1.2
      */
@@ -942,6 +2133,7 @@ public final class DynamicBuilders {
    * @since 1.2
    */
   static final class ConcatStringOp implements DynamicString {
+
     private final DynamicProto.ConcatStringOp mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -951,7 +2143,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets left hand side of the concatenation operation. Intended for testing purposes only.
+     * Gets left hand side of the concatenation operation.
      *
      * @since 1.2
      */
@@ -965,7 +2157,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets right hand side of the concatenation operation. Intended for testing purposes only.
+     * Gets right hand side of the concatenation operation.
      *
      * @since 1.2
      */
@@ -1067,7 +2259,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the source of Float data to convert to a string. Intended for testing purposes only.
+     * Gets the source of Float data to convert to a string.
      *
      * @since 1.2
      */
@@ -1084,7 +2276,7 @@ public final class DynamicBuilders {
      * Gets maximum fraction digits. Rounding will be applied if maxFractionDigits is smaller than
      * number of fraction digits. If not defined, defaults to three. minimumFractionDigits must be
      * <= maximumFractionDigits. If the condition is not satisfied, then minimumFractionDigits will
-     * be used for both fields. Intended for testing purposes only.
+     * be used for both fields.
      *
      * @since 1.2
      */
@@ -1097,7 +2289,6 @@ public final class DynamicBuilders {
      * Gets minimum fraction digits. Zeros will be appended to the end to satisfy this constraint.
      * If not defined, defaults to zero. minimumFractionDigits must be <= maximumFractionDigits. If
      * the condition is not satisfied, then minimumFractionDigits will be used for both fields.
-     * Intended for testing purposes only.
      *
      * @since 1.2
      */
@@ -1109,8 +2300,7 @@ public final class DynamicBuilders {
     /**
      * Gets minimum integer digits. Sign and grouping characters are not considered when applying
      * minIntegerDigits constraint. If not defined, defaults to one. For example, in the English
-     * locale, applying minIntegerDigit=4 to 12.34 would yield "0012.34". Intended for testing
-     * purposes only.
+     * locale, applying minIntegerDigit=4 to 12.34 would yield "0012.34".
      *
      * @since 1.2
      */
@@ -1122,7 +2312,7 @@ public final class DynamicBuilders {
     /**
      * Gets digit grouping used. Grouping size and grouping character depend on the current locale.
      * If not defined, defaults to false. For example, in the English locale, using grouping with
-     * 1234.56 would yield "1,234.56". Intended for testing purposes only.
+     * 1234.56 would yield "1,234.56".
      *
      * @since 1.2
      */
@@ -1400,6 +2590,150 @@ public final class DynamicBuilders {
   }
 
   /**
+   * An arithmetic operation, operating on two Float instances. This implements simple binary
+   * operations of the form "result = LHS <op> RHS", where the available operation types are
+   * described in {@code ArithmeticOpType}.
+   *
+   * @since 1.2
+   */
+  static final class ArithmeticFloatOp implements DynamicFloat {
+
+    private final DynamicProto.ArithmeticFloatOp mImpl;
+    @Nullable
+    private final Fingerprint mFingerprint;
+
+    ArithmeticFloatOp(DynamicProto.ArithmeticFloatOp impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets left hand side of the arithmetic operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicFloat getInputLhs() {
+      if (mImpl.hasInputLhs()) {
+        return DynamicBuilders.dynamicFloatFromProto(mImpl.getInputLhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets right hand side of the arithmetic operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicFloat getInputRhs() {
+      if (mImpl.hasInputRhs()) {
+        return DynamicBuilders.dynamicFloatFromProto(mImpl.getInputRhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the type of operation to carry out.
+     *
+     * @since 1.2
+     */
+    @ArithmeticOpType
+    public int getOperationType() {
+      return mImpl.getOperationType().getNumber();
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static ArithmeticFloatOp fromProto(@NonNull DynamicProto.ArithmeticFloatOp proto) {
+      return new ArithmeticFloatOp(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.ArithmeticFloatOp toProto() {
+      return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicFloat toDynamicFloatProto() {
+      return DynamicProto.DynamicFloat.newBuilder().setArithmeticOperation(mImpl).build();
+    }
+
+    /**
+     * Builder for {@link ArithmeticFloatOp}.
+     */
+    public static final class Builder implements DynamicFloat.Builder {
+
+      private final DynamicProto.ArithmeticFloatOp.Builder mImpl =
+          DynamicProto.ArithmeticFloatOp.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1818249334);
+
+      public Builder() {
+      }
+
+      /**
+       * Sets left hand side of the arithmetic operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputLhs(@NonNull DynamicFloat inputLhs) {
+        mImpl.setInputLhs(inputLhs.toDynamicFloatProto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(inputLhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets right hand side of the arithmetic operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputRhs(@NonNull DynamicFloat inputRhs) {
+        mImpl.setInputRhs(inputRhs.toDynamicFloatProto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(inputRhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the type of operation to carry out.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setOperationType(@ArithmeticOpType int operationType) {
+        mImpl.setOperationType(DynamicProto.ArithmeticOpType.forNumber(operationType));
+        mFingerprint.recordPropertyUpdate(3, operationType);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public ArithmeticFloatOp build() {
+        return new ArithmeticFloatOp(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
    * A dynamic Float which sources its data from the tile's state.
    *
    * @since 1.2
@@ -1414,7 +2748,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the key in the state to bind to. Intended for testing purposes only.
+     * Gets the key in the state to bind to.
      *
      * @since 1.2
      */
@@ -1498,7 +2832,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the input Int32 to convert to a Float. Intended for testing purposes only.
+     * Gets the input Int32 to convert to a Float.
      *
      * @since 1.2
      */
@@ -1588,7 +2922,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the number to start animating from. Intended for testing purposes only.
+     * Gets the number to start animating from.
      *
      * @since 1.2
      */
@@ -1597,7 +2931,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the number to animate to. Intended for testing purposes only.
+     * Gets the number to animate to.
      *
      * @since 1.2
      */
@@ -1606,7 +2940,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the animation parameters for duration, delay, etc. Intended for testing purposes only.
+     * Gets the animation parameters for duration, delay, etc.
      *
      * @since 1.2
      */
@@ -1733,7 +3067,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the value to watch, and animate when it changes. Intended for testing purposes only.
+     * Gets the value to watch, and animate when it changes.
      *
      * @since 1.2
      */
@@ -1747,7 +3081,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the animation parameters for duration, delay, etc. Intended for testing purposes only.
+     * Gets the animation parameters for duration, delay, etc.
      *
      * @since 1.2
      */
@@ -1836,6 +3170,26 @@ public final class DynamicBuilders {
 
   /**
    * Interface defining a dynamic float type.
+   *
+   * <p>It offers a set of helper methods for creating arithmetic and logical expressions, e.g.
+   * {@link #plus(float)}, {@link #times(float)}, {@link #eq(float)}, etc. These helper methods
+   * produce expression trees based on the order in which they were called in an expression. Thus,
+   * no operator precedence rules are applied.
+   *
+   * <p>For example the following expression is equivalent to {@code result = ((a + b)*c)/d }:
+   *
+   * <pre>
+   * a.plus(b).times(c).div(d);
+   * </pre>
+   *
+   * More complex expressions can be created by nesting expressions. For example the following
+   * expression is equivalent to {@code result = (a + b)*(c - d) }:
+   *
+   * <pre>
+   * (a.plus(b)).times(c.minus(d));
+   * </pre>
+   *
+   * .
    *
    * @since 1.2
    */
@@ -1979,6 +3333,551 @@ public final class DynamicBuilders {
     }
 
     /**
+     * Creates a {@link DynamicFloat} containing the result of adding another {@link DynamicFloat}
+     * to this {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(13f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).plus(DynamicFloat.constant(5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat plus(@NonNull DynamicFloat other) {
+
+      // overloaded operators.
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of adding a float to this {@link
+     * DynamicFloat}; As an example, the following is equal to {@code DynamicFloat.constant(13f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).plus(5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat plus(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of adding a {@link DynamicInt32} to this
+     * {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(13f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).plus(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat plus(@NonNull DynamicInt32 other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other.asFloat())
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_ADD)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of subtracting another {@link
+     * DynamicFloat} from this {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(2f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).minus(DynamicFloat.constant(5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat minus(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of subtracting a flaot from this {@link
+     * DynamicFloat}; As an example, the following is equal to {@code DynamicFloat.constant(2f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).minus(5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat minus(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of subtracting a {@link DynamicInt32}
+     * from this {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(2f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).minus(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat minus(@NonNull DynamicInt32 other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other.asFloat())
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_SUBTRACT)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of multiplying this {@link DynamicFloat}
+     * by another {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(35f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).times(DynamicFloat.constant(5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat times(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of multiplying this {@link DynamicFloat}
+     * by a flaot; As an example, the following is equal to {@code DynamicFloat.constant(35f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).times(5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat times(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of multiplying this {@link DynamicFloat}
+     * by a {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(35f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).times(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat times(@NonNull DynamicInt32 other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other.asFloat())
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MULTIPLY)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of dividing this {@link DynamicFloat} by
+     * another {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(1.4f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).div(DynamicFloat.constant(5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat div(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of dividing this {@link DynamicFloat} by
+     * a float; As an example, the following is equal to {@code DynamicFloat.constant(1.4f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).div(5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat div(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the result of dividing this {@link DynamicFloat} by
+     * a {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(1.4f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).div(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat div(@NonNull DynamicInt32 other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other.asFloat())
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_DIVIDE)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * by another {@link DynamicFloat}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(1.5f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).rem(DynamicFloat.constant(5.5f));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat rem(@NonNull DynamicFloat other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * reates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * by a float; As an example, the following is equal to {@code DynamicFloat.constant(1.5f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).rem(5.5f);
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat rem(float other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * reates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * by a {@link DynamicInt32}; As an example, the following is equal to {@code
+     * DynamicFloat.constant(2f)}
+     *
+     * <pre>
+     *   DynamicFloat.constant(7f).rem(DynamicInt32.constant(5));
+     * </pre>
+     *
+     * The operation's evaluation order depends only on its position in the expression; no operator
+     * precedence rules are applied. See {@link DynamicFloat} for more information on operation
+     * evaluation order.
+     *
+     * @return a new instance of {@link DynamicFloat} containing the result of the operation.
+     */
+    @SuppressWarnings("KotlinOperator")
+    @NonNull
+    default DynamicFloat rem(@NonNull DynamicInt32 other) {
+      return new ArithmeticFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other.asFloat())
+          .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} and
+     * {@code other} are equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool eq(@NonNull DynamicFloat other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} and
+     * {@code other} are equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool eq(float other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} and
+     * {@code other} are not equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool ne(@NonNull DynamicFloat other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_NOT_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} and
+     * {@code other} are not equal, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool ne(float other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_NOT_EQUALS)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is less
+     * than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lt(@NonNull DynamicFloat other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is less
+     * than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lt(float other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is less
+     * than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lte(@NonNull DynamicFloat other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is less
+     * than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool lte(float other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is
+     * greater than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gt(@NonNull DynamicFloat other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is
+     * greater than {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gt(float other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is
+     * greater than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gte(@NonNull DynamicFloat other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicFloat} is
+     * greater than or equal to {@code other}, otherwise it's false.
+     */
+    @NonNull
+    default DynamicBool gte(float other) {
+      return new ComparisonFloatOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(constant(other))
+          .setOperationType(DynamicBuilders.COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO)
+          .build();
+    }
+
+    /**
+     * Bind the value of this {@link DynamicFloat} to the result of a conditional expression. This
+     * will use the value given in either {@link ConditionScope#use} or {@link
+     * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code condition}.
+     */
+    @NonNull
+    static ConditionScope<DynamicFloat, Float> onCondition(@NonNull DynamicBool condition) {
+      return new ConditionScopes.ConditionScope<>(
+          (trueValue, falseValue) ->
+              new ConditionalFloatOp.Builder()
+                  .setCondition(condition)
+                  .setValueIfTrue(trueValue)
+                  .setValueIfFalse(falseValue)
+                  .build(),
+          DynamicFloat::constant);
+    }
+
+    /**
      * Returns a {@link DynamicString} that contains the formatted value of this {@link
      * DynamicFloat} (with default formatting parameters). As an example, in the English locale, the
      * following is equal to {@code DynamicString.constant("12.346")}
@@ -2103,11 +4002,17 @@ public final class DynamicBuilders {
     if (proto.hasFixed()) {
       return FixedFloat.fromProto(proto.getFixed());
     }
+    if (proto.hasArithmeticOperation()) {
+      return ArithmeticFloatOp.fromProto(proto.getArithmeticOperation());
+    }
     if (proto.hasInt32ToFloatOperation()) {
       return Int32ToFloatOp.fromProto(proto.getInt32ToFloatOperation());
     }
     if (proto.hasStateSource()) {
       return StateFloatSource.fromProto(proto.getStateSource());
+    }
+    if (proto.hasConditionalOp()) {
+      return ConditionalFloatOp.fromProto(proto.getConditionalOp());
     }
     if (proto.hasAnimatableFixed()) {
       return AnimatableFixedFloat.fromProto(proto.getAnimatableFixed());
@@ -2133,7 +4038,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the key in the state to bind to. Intended for testing purposes only.
+     * Gets the key in the state to bind to.
      *
      * @since 1.2
      */
@@ -2176,6 +4081,7 @@ public final class DynamicBuilders {
 
     /** Builder for {@link StateBoolSource}. */
     public static final class Builder implements DynamicBool.Builder {
+
       private final DynamicProto.StateBoolSource.Builder mImpl =
           DynamicProto.StateBoolSource.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(1818702779);
@@ -2203,6 +4109,294 @@ public final class DynamicBuilders {
   }
 
   /**
+   * A comparison operation, operating on two Int32 instances. This implements various comparison
+   * operations of the form "boolean result = LHS <op> RHS", where the available operation types are
+   * described in {@code ComparisonOpType}.
+   *
+   * @since 1.2
+   */
+  static final class ComparisonInt32Op implements DynamicBool {
+
+    private final DynamicProto.ComparisonInt32Op mImpl;
+    @Nullable
+    private final Fingerprint mFingerprint;
+
+    ComparisonInt32Op(DynamicProto.ComparisonInt32Op impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the left hand side of the comparison operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getInputLhs() {
+      if (mImpl.hasInputLhs()) {
+        return DynamicBuilders.dynamicInt32FromProto(mImpl.getInputLhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the right hand side of the comparison operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getInputRhs() {
+      if (mImpl.hasInputRhs()) {
+        return DynamicBuilders.dynamicInt32FromProto(mImpl.getInputRhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the type of the operation.
+     *
+     * @since 1.2
+     */
+    @ComparisonOpType
+    public int getOperationType() {
+      return mImpl.getOperationType().getNumber();
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static ComparisonInt32Op fromProto(@NonNull DynamicProto.ComparisonInt32Op proto) {
+      return new ComparisonInt32Op(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.ComparisonInt32Op toProto() {
+      return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicBool toDynamicBoolProto() {
+      return DynamicProto.DynamicBool.newBuilder().setInt32Comparison(mImpl).build();
+    }
+
+    /**
+     * Builder for {@link ComparisonInt32Op}.
+     */
+    public static final class Builder implements DynamicBool.Builder {
+
+      private final DynamicProto.ComparisonInt32Op.Builder mImpl =
+          DynamicProto.ComparisonInt32Op.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1112207999);
+
+      public Builder() {
+      }
+
+      /**
+       * Sets the left hand side of the comparison operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputLhs(@NonNull DynamicInt32 inputLhs) {
+        mImpl.setInputLhs(inputLhs.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(inputLhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the right hand side of the comparison operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputRhs(@NonNull DynamicInt32 inputRhs) {
+        mImpl.setInputRhs(inputRhs.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(inputRhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the type of the operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setOperationType(@ComparisonOpType int operationType) {
+        mImpl.setOperationType(DynamicProto.ComparisonOpType.forNumber(operationType));
+        mFingerprint.recordPropertyUpdate(3, operationType);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public ComparisonInt32Op build() {
+        return new ComparisonInt32Op(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A comparison operation, operating on two Float instances. This implements various comparison
+   * operations of the form "boolean result = LHS <op> RHS", where the available operation types are
+   * described in {@code ComparisonOpType}.
+   *
+   * @since 1.2
+   */
+  static final class ComparisonFloatOp implements DynamicBool {
+
+    private final DynamicProto.ComparisonFloatOp mImpl;
+    @Nullable
+    private final Fingerprint mFingerprint;
+
+    ComparisonFloatOp(DynamicProto.ComparisonFloatOp impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the left hand side of the comparison operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicFloat getInputLhs() {
+      if (mImpl.hasInputLhs()) {
+        return DynamicBuilders.dynamicFloatFromProto(mImpl.getInputLhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the right hand side of the comparison operation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicFloat getInputRhs() {
+      if (mImpl.hasInputRhs()) {
+        return DynamicBuilders.dynamicFloatFromProto(mImpl.getInputRhs());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the type of the operation.
+     *
+     * @since 1.2
+     */
+    @ComparisonOpType
+    public int getOperationType() {
+      return mImpl.getOperationType().getNumber();
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static ComparisonFloatOp fromProto(@NonNull DynamicProto.ComparisonFloatOp proto) {
+      return new ComparisonFloatOp(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.ComparisonFloatOp toProto() {
+      return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicBool toDynamicBoolProto() {
+      return DynamicProto.DynamicBool.newBuilder().setFloatComparison(mImpl).build();
+    }
+
+    /**
+     * Builder for {@link ComparisonFloatOp}.
+     */
+    public static final class Builder implements DynamicBool.Builder {
+
+      private final DynamicProto.ComparisonFloatOp.Builder mImpl =
+          DynamicProto.ComparisonFloatOp.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1679565270);
+
+      public Builder() {
+      }
+
+      /**
+       * Sets the left hand side of the comparison operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputLhs(@NonNull DynamicFloat inputLhs) {
+        mImpl.setInputLhs(inputLhs.toDynamicFloatProto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(inputLhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the right hand side of the comparison operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInputRhs(@NonNull DynamicFloat inputRhs) {
+        mImpl.setInputRhs(inputRhs.toDynamicFloatProto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(inputRhs.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the type of the operation.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setOperationType(@ComparisonOpType int operationType) {
+        mImpl.setOperationType(DynamicProto.ComparisonOpType.forNumber(operationType));
+        mFingerprint.recordPropertyUpdate(3, operationType);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public ComparisonFloatOp build() {
+        return new ComparisonFloatOp(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
    * A boolean operation which implements a "NOT" operator, i.e. "boolean result = !input".
    *
    * @since 1.2
@@ -2217,7 +4411,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the input, whose value to negate. Intended for testing purposes only.
+     * Gets the input, whose value to negate.
      *
      * @since 1.2
      */
@@ -2306,7 +4500,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the left hand side of the logical operation. Intended for testing purposes only.
+     * Gets the left hand side of the logical operation.
      *
      * @since 1.2
      */
@@ -2320,7 +4514,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the right hand side of the logical operation. Intended for testing purposes only.
+     * Gets the right hand side of the logical operation.
      *
      * @since 1.2
      */
@@ -2334,7 +4528,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the operation type to apply to LHS/RHS. Intended for testing purposes only.
+     * Gets the operation type to apply to LHS/RHS.
      *
      * @since 1.2
      */
@@ -2572,11 +4766,17 @@ public final class DynamicBuilders {
     if (proto.hasStateSource()) {
       return StateBoolSource.fromProto(proto.getStateSource());
     }
+    if (proto.hasInt32Comparison()) {
+      return ComparisonInt32Op.fromProto(proto.getInt32Comparison());
+    }
     if (proto.hasNotOp()) {
       return NotBoolOp.fromProto(proto.getNotOp());
     }
     if (proto.hasLogicalOp()) {
       return LogicalBoolOp.fromProto(proto.getLogicalOp());
+    }
+    if (proto.hasFloatComparison()) {
+      return ComparisonFloatOp.fromProto(proto.getFloatComparison());
     }
     throw new IllegalStateException("Proto was not a recognised instance of DynamicBool");
   }
@@ -2596,7 +4796,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the key in the state to bind to. Intended for testing purposes only.
+     * Gets the key in the state to bind to.
      *
      * @since 1.2
      */
@@ -2681,8 +4881,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the color value (in ARGB format) to start animating from. Intended for testing purposes
-     * only.
+     * Gets the color value (in ARGB format) to start animating from.
      *
      * @since 1.2
      */
@@ -2692,7 +4891,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the color value (in ARGB format) to animate to. Intended for testing purposes only.
+     * Gets the color value (in ARGB format) to animate to.
      *
      * @since 1.2
      */
@@ -2702,7 +4901,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the animation parameters for duration, delay, etc. Intended for testing purposes only.
+     * Gets the animation parameters for duration, delay, etc.
      *
      * @since 1.2
      */
@@ -2829,7 +5028,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the value to watch, and animate when it changes. Intended for testing purposes only.
+     * Gets the value to watch, and animate when it changes.
      *
      * @since 1.2
      */
@@ -2843,7 +5042,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * Gets the animation parameters for duration, delay, etc. Intended for testing purposes only.
+     * Gets the animation parameters for duration, delay, etc.
      *
      * @since 1.2
      */
