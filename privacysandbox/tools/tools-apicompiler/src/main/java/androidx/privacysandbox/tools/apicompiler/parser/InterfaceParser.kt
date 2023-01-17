@@ -23,13 +23,18 @@ import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 
-internal class InterfaceParser(private val logger: KSPLogger, private val typeParser: TypeParser) {
+internal class InterfaceParser(
+    private val logger: KSPLogger,
+    private val typeParser: TypeParser,
+    private val resolver: Resolver,
+) {
     private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
     private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
 
@@ -68,6 +73,17 @@ internal class InterfaceParser(private val logger: KSPLogger, private val typePa
                 "Error in $name: annotated interfaces cannot declare type parameters (${
                     interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }
                         .sorted().joinToString(limit = 3)
+                })."
+            )
+        }
+        if (interfaceDeclaration.superTypes.singleOrNull()?.resolve()
+            != resolver.builtIns.anyType
+        ) {
+            logger.error(
+                "Error in $name: annotated interface inherits prohibited types (${
+                    interfaceDeclaration.superTypes.map {
+                        it.resolve().declaration.simpleName.getShortName()
+                    }.sorted().joinToString(limit = 3)
                 })."
             )
         }

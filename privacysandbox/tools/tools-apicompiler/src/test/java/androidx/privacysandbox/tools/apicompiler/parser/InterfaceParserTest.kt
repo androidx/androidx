@@ -202,6 +202,49 @@ class InterfaceParserTest {
     }
 
     @Test
+    fun interfaceInheritance_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+
+                    interface FooInterface {}
+
+                    @PrivacySandboxService
+                    interface MySdk : FooInterface {
+                        suspend fun foo(): Int
+                    }"""
+        )
+        checkSourceFails(source).containsExactlyErrors(
+            "Error in com.mysdk.MySdk: annotated interface inherits prohibited types (" +
+                "FooInterface)."
+        )
+    }
+
+    @Test
+    fun interfaceInheritsManyInterfaces_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+
+                    interface A {}
+                    interface B {}
+                    interface C {}
+                    interface D {}
+
+                    @PrivacySandboxService
+                    interface MySdk : B, C, D, A {
+                        suspend fun foo(): Int
+                    }"""
+        )
+        checkSourceFails(source).containsExactlyErrors(
+            "Error in com.mysdk.MySdk: annotated interface inherits prohibited types (A, B, C, " +
+                "...)."
+        )
+    }
+
+    @Test
     fun methodWithImplementation_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(): Int = 1")).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: method cannot have default implementation."
@@ -223,7 +266,7 @@ class InterfaceParserTest {
     }
 
     @Test
-    fun parameterWitDefaultValue_fails() {
+    fun parameterWithDefaultValue_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)")).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: parameters cannot have default values."
         )
