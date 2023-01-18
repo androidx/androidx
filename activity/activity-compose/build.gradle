@@ -30,6 +30,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.runtime:runtime-saveable:1.0.1")
     api(projectOrArtifact(":activity:activity-ktx"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     api("androidx.compose.ui:ui:1.0.1")
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.

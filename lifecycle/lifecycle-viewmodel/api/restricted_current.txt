@@ -83,12 +83,12 @@ package androidx.lifecycle {
   }
 
   public final class ViewTreeViewModelKt {
-    method public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View);
+    method @Deprecated public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View view);
   }
 
-  public class ViewTreeViewModelStoreOwner {
+  public final class ViewTreeViewModelStoreOwner {
     method public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
-    method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner?);
+    method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
   }
 
 }

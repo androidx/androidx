@@ -22,7 +22,7 @@ import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -57,7 +57,7 @@ class DialogFragmentViewTreeTest {
                 .that(decorView.findViewTreeLifecycleOwner())
                 .isNotNull()
             assertWithMessage("DialogFragment dialog should have a ViewTreeViewModelStoreOwner")
-                .that(ViewTreeViewModelStoreOwner.get(decorView))
+                .that(decorView.findViewTreeViewModelStoreOwner())
                 .isNotNull()
             assertWithMessage("DialogFragment dialog should have a ViewTreeSavedStateRegistryOwner")
                 .that(decorView.findViewTreeSavedStateRegistryOwner())

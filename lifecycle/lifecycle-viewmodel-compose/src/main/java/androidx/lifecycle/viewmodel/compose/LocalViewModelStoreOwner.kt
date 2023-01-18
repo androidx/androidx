@@ -22,7 +22,7 @@ import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 
 /**
  * The CompositionLocal containing the current [ViewModelStoreOwner].
@@ -33,13 +33,13 @@ public object LocalViewModelStoreOwner {
 
     /**
      * Returns current composition local value for the owner or `null` if one has not
-     * been provided nor is one available via [ViewTreeViewModelStoreOwner.get] on the
+     * been provided nor is one available via [findViewTreeViewModelStoreOwner] on the
      * current [LocalView].
      */
     public val current: ViewModelStoreOwner?
         @Composable
         get() = LocalViewModelStoreOwner.current
-            ?: ViewTreeViewModelStoreOwner.get(LocalView.current)
+            ?: LocalView.current.findViewTreeViewModelStoreOwner()
 
     /**
      * Associates a [LocalViewModelStoreOwner] key to a value in a call to
