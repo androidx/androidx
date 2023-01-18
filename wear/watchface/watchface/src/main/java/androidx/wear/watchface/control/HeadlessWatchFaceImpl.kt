@@ -55,7 +55,7 @@ internal class HeadlessWatchFaceImpl(
             indentingPrintWriter.decreaseIndent()
         }
 
-        private val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
+        internal val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
     }
 
     init {

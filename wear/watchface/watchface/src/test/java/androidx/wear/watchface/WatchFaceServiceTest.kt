@@ -18,6 +18,7 @@ package androidx.wear.watchface
 
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -67,6 +68,7 @@ import androidx.wear.watchface.complications.data.TimeDifferenceComplicationText
 import androidx.wear.watchface.complications.data.TimeDifferenceStyle
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.IWatchfaceListener
@@ -6511,6 +6513,42 @@ public class WatchFaceServiceTest {
             .isInstanceOf(ShortTextComplicationData::class.java)
     }
 
+    @SuppressLint("NewApi")
+    @Test
+    public fun createHeadlessSessionDelegate_onDestroy() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val componentName = ComponentName(context, TestNopCanvasWatchFaceService::class.java)
+        lateinit var delegate: WatchFace.EditorDelegate
+
+        // Allows us to programmatically control tasks.
+        TestNopCanvasWatchFaceService.handler = this.handler
+
+        CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
+            delegate = WatchFace.createHeadlessSessionDelegate(
+                componentName,
+                HeadlessWatchFaceInstanceParams(
+                    componentName,
+                    DeviceConfig(false, false, 100, 200),
+                    100,
+                    100,
+                    null
+                ),
+                context
+            )
+        }
+
+        // Run all pending tasks.
+        while (pendingTasks.isNotEmpty()) {
+            pendingTasks.remove().runnable.run()
+        }
+
+        assertThat(HeadlessWatchFaceImpl.headlessInstances).isNotEmpty()
+        delegate.onDestroy()
+
+        // The headlessInstances should become empty, otherwise there's a leak.
+        assertThat(HeadlessWatchFaceImpl.headlessInstances).isEmpty()
+    }
+
     private fun getLeftShortTextComplicationDataText(): CharSequence {
         val complication = complicationSlotsManager[
             LEFT_COMPLICATION_ID
@@ -6541,4 +6579,51 @@ public class WatchFaceServiceTest {
         ).build()
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(): T = withTimeout(1000) { await() }
+}
+
+class TestNopCanvasWatchFaceService : WatchFaceService() {
+    companion object {
+        lateinit var handler: Handler
+    }
+
+    override fun getUiThreadHandlerImpl() = handler
+
+    // To make unit tests simpler and non-flaky we run background tasks and ui tasks on the same
+    // handler.
+    override fun getBackgroundThreadHandlerImpl() = handler
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        @Suppress("deprecation")
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                // Intentionally empty.
+            }
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+                // Intentionally empty.
+            }
+        }
+    )
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = 123456789L
+
+        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+    }
 }
