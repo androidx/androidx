@@ -432,7 +432,6 @@ public class UserStyleData(
 public class UserStyleSchema constructor(
     userStyleSettings: List<UserStyleSetting>
 ) {
-
     public val userStyleSettings = userStyleSettings
         @Deprecated("use rootUserStyleSettings instead")
         get
@@ -503,7 +502,11 @@ public class UserStyleSchema constructor(
     init {
         var complicationSlotsUserStyleSettingCount = 0
         var customValueUserStyleSettingCount = 0
+        var displayNameIndex = 1
         for (setting in userStyleSettings) {
+            // Provide the ordinal used by fallback descriptions for each setting.
+            setting.setDisplayNameIndex(displayNameIndex++)
+
             when (setting) {
                 is UserStyleSetting.ComplicationSlotsUserStyleSetting ->
                     complicationSlotsUserStyleSettingCount++

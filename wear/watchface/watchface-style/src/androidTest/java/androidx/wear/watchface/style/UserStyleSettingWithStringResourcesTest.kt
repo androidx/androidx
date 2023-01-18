@@ -241,6 +241,56 @@ public class UserStyleSettingWithStringResourcesTest {
     }
 
     @Test
+    public fun complicationSettingsWithIndices() {
+        val one = UserStyleSetting.Id("one")
+        val two = UserStyleSetting.Id("two")
+        val schema = UserStyleSchema(
+            listOf(
+                ListUserStyleSetting(
+                    one,
+                    context.resources,
+                    R.string.ith_style,
+                    R.string.ith_style_screen_reader_name,
+                    icon = null,
+                    options = listOf(
+                        ListOption(
+                            UserStyleSetting.Option.Id("one"),
+                            context.resources,
+                            R.string.ith_option,
+                            R.string.ith_option_screen_reader_name,
+                            icon = null
+                        )
+                    ),
+                    listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+                ),
+                ComplicationSlotsUserStyleSetting(
+                    two,
+                    context.resources,
+                    R.string.ith_style,
+                    R.string.ith_style_screen_reader_name,
+                    icon = null,
+                    complicationConfig = listOf(
+                        ComplicationSlotsOption(
+                            UserStyleSetting.Option.Id("one"),
+                            context.resources,
+                            R.string.ith_option,
+                            R.string.ith_option_screen_reader_name,
+                            icon = null,
+                            emptyList()
+                        )
+                    ),
+                    listOf(WatchFaceLayer.COMPLICATIONS)
+                )
+            )
+        )
+
+        Truth.assertThat(schema[one]!!.displayName).isEqualTo("1st style")
+        Truth.assertThat(schema[one]!!.description).isEqualTo("1st style setting")
+        Truth.assertThat(schema[two]!!.displayName).isEqualTo("2nd style")
+        Truth.assertThat(schema[two]!!.description).isEqualTo("2nd style setting")
+    }
+
+    @Test
     @Suppress("deprecation")
     public fun
     complicationsUserStyleSettingWireFormatRoundTrip_noScreenReaderName_filledByDisplayName() {
