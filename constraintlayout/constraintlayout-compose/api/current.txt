@@ -411,9 +411,6 @@ package androidx.constraintlayout.compose {
   public final class MotionDragHandlerKt {
   }
 
-  @kotlin.DslMarker public @interface MotionDslScope {
-  }
-
   public interface MotionItemsProvider {
     method public int count();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent(int index);
