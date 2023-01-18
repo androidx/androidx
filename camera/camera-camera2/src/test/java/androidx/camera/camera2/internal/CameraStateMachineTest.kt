@@ -171,10 +171,8 @@ internal class CameraStateMachineTest {
         private val states = mutableListOf<CameraState>()
         private var index = 0
 
-        override fun onChanged(state: CameraState?) {
-            if (state != null) {
-                states.add(state)
-            }
+        override fun onChanged(value: CameraState) {
+            states.add(value)
         }
 
         fun assertHasState(expectedState: CameraState): StateObserver {

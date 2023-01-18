@@ -954,7 +954,7 @@ public class LiveDataTest {
 
     private class FailReentranceObserver<T> implements Observer<T> {
         @Override
-        public void onChanged(@Nullable T t) {
+        public void onChanged(@Nullable T value) {
             assertThat(mInObserver, is(false));
         }
     }

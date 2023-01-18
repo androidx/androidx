@@ -238,7 +238,7 @@ public class TransformationsTest {
         int mTimesUpdated;
 
         @Override
-        public void onChanged(@Nullable T t) {
+        public void onChanged(@Nullable T value) {
             ++mTimesUpdated;
         }
     }

@@ -126,59 +126,60 @@ public abstract class AbstractProgressFragment : Fragment {
     private inner class StateObserver constructor(private val monitor: DynamicInstallMonitor) :
         Observer<SplitInstallSessionState> {
 
-        override fun onChanged(sessionState: SplitInstallSessionState?) {
-            if (sessionState != null) {
-                if (sessionState.hasTerminalStatus()) {
-                    monitor.status.removeObserver(this)
+        override fun onChanged(
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+            sessionState: SplitInstallSessionState
+        ) {
+            if (sessionState.hasTerminalStatus()) {
+                monitor.status.removeObserver(this)
+            }
+            when (sessionState.status()) {
+                SplitInstallSessionStatus.INSTALLED -> {
+                    onInstalled()
+                    navigate()
                 }
-                when (sessionState.status()) {
-                    SplitInstallSessionStatus.INSTALLED -> {
-                        onInstalled()
-                        navigate()
-                    }
-                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION ->
-                        try {
-                            val splitInstallManager = monitor.splitInstallManager
-                            if (splitInstallManager == null) {
-                                onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
-                                return
-                            }
-                            splitInstallManager.startConfirmationDialogForResult(
-                                sessionState,
-                                IntentSenderForResultStarter { intent,
-                                    _,
-                                    fillInIntent,
-                                    flagsMask,
-                                    flagsValues,
-                                    _,
-                                    _ ->
-                                    intentSenderLauncher.launch(
-                                        IntentSenderRequest.Builder(intent)
-                                            .setFillInIntent(fillInIntent)
-                                            .setFlags(flagsValues, flagsMask)
-                                            .build()
-                                    )
-                                },
-                                INSTALL_REQUEST_CODE
-                            )
-                        } catch (e: IntentSender.SendIntentException) {
+                SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION ->
+                    try {
+                        val splitInstallManager = monitor.splitInstallManager
+                        if (splitInstallManager == null) {
                             onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                            return
                         }
-                    SplitInstallSessionStatus.CANCELED -> onCancelled()
-                    SplitInstallSessionStatus.FAILED -> onFailed(sessionState.errorCode())
-                    SplitInstallSessionStatus.UNKNOWN ->
-                        onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
-                    SplitInstallSessionStatus.CANCELING,
-                    SplitInstallSessionStatus.DOWNLOADED,
-                    SplitInstallSessionStatus.DOWNLOADING,
-                    SplitInstallSessionStatus.INSTALLING,
-                    SplitInstallSessionStatus.PENDING -> {
-                        onProgress(
-                            sessionState.status(),
-                            sessionState.bytesDownloaded(),
-                            sessionState.totalBytesToDownload()
+                        splitInstallManager.startConfirmationDialogForResult(
+                            sessionState,
+                            IntentSenderForResultStarter { intent,
+                                _,
+                                fillInIntent,
+                                flagsMask,
+                                flagsValues,
+                                _,
+                                _ ->
+                                intentSenderLauncher.launch(
+                                    IntentSenderRequest.Builder(intent)
+                                        .setFillInIntent(fillInIntent)
+                                        .setFlags(flagsValues, flagsMask)
+                                        .build()
+                                )
+                            },
+                            INSTALL_REQUEST_CODE
                         )
+                    } catch (e: IntentSender.SendIntentException) {
+                        onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
                     }
+                SplitInstallSessionStatus.CANCELED -> onCancelled()
+                SplitInstallSessionStatus.FAILED -> onFailed(sessionState.errorCode())
+                SplitInstallSessionStatus.UNKNOWN ->
+                    onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                SplitInstallSessionStatus.CANCELING,
+                SplitInstallSessionStatus.DOWNLOADED,
+                SplitInstallSessionStatus.DOWNLOADING,
+                SplitInstallSessionStatus.INSTALLING,
+                SplitInstallSessionStatus.PENDING -> {
+                    onProgress(
+                        sessionState.status(),
+                        sessionState.bytesDownloaded(),
+                        sessionState.totalBytesToDownload()
+                    )
                 }
             }
         }

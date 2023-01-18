@@ -75,7 +75,7 @@ private class LiveDataPublisher<T>(
         val subscriber: Subscriber<in T>,
         val lifecycle: LifecycleOwner,
         val liveData: LiveData<T>
-    ) : Subscription, Observer<T> {
+    ) : Subscription, Observer<T?> {
         @Volatile
         var canceled = false
 
@@ -86,18 +86,18 @@ private class LiveDataPublisher<T>(
         // used on main thread only
         var latest: T? = null
 
-        override fun onChanged(t: T?) {
+        override fun onChanged(value: T?) {
             if (canceled) {
                 return
             }
             if (requested > 0) {
                 latest = null
-                subscriber.onNext(t)
+                subscriber.onNext(value)
                 if (requested != Long.MAX_VALUE) {
                     requested--
                 }
             } else {
-                latest = t
+                latest = value
             }
         }
 
