@@ -48,6 +48,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.5.1", {
 	    // Needed to ensure that the same version of lifecycle-runtime-ktx
 	    // is pulled into main and androidTest configurations. Otherwise,
