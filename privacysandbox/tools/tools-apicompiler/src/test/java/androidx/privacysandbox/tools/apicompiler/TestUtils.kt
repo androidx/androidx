@@ -28,7 +28,7 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationResult
  */
 fun compileWithPrivacySandboxKspCompiler(
     sources: List<Source>,
-    addSdkRuntimeLibraryStubs: Boolean = true,
+    addLibraryStubs: Boolean = true,
     extraProcessorOptions: Map<String, String> = mapOf(),
 ): TestCompilationResult {
     val provider = PrivacySandboxKspCompiler.Provider()
@@ -41,7 +41,8 @@ fun compileWithPrivacySandboxKspCompiler(
     }
 
     return CompilationTestHelper.compileAll(
-        if (addSdkRuntimeLibraryStubs) sources + syntheticSdkRuntimeLibraryStubs else sources,
+        if (addLibraryStubs) sources + syntheticSdkRuntimeLibraryStubs + syntheticUiLibraryStubs
+        else sources,
         symbolProcessorProviders = listOf(provider),
         processorOptions = processorOptions,
     )
@@ -88,5 +89,57 @@ private val syntheticSdkRuntimeLibraryStubs = listOf(
         |   ): View
         |}
         |""".trimMargin()
-    )
+    ),
+)
+
+private val syntheticUiLibraryStubs = listOf(
+    Source.kotlin(
+        "androidx/privacysandbox/ui/core/SandboxedUiAdapter.kt", """
+        |package androidx.privacysandbox.ui.core
+        |
+        |import android.content.Context
+        |import android.view.View
+        |import java.util.concurrent.Executor
+        |
+        |interface SandboxedUiAdapter {
+        |  fun openSession(
+        |      context: Context,
+        |      initialWidth: Int,
+        |      initialHeight: Int,
+        |      isZOrderOnTop: Boolean,
+        |      clientExecutor: Executor,
+        |      client: SessionClient
+        |  )
+        |
+        |
+        |  interface Session {
+        |    fun close()
+        |    val view: View
+        |  }
+        |
+        |  interface SessionClient {
+        |    fun onSessionError(throwable: Throwable);
+        |    fun onSessionOpened(session: Session);
+        |  }
+        |}
+        |""".trimMargin()
+    ),
+    Source.kotlin(
+        "androidx/privacysandbox/ui/core/SdkRuntimeUiLibVersions.kt", """
+        |package androidx.privacysandbox.ui.core
+        |
+        |import androidx.annotation.RestrictTo
+        |
+        |object SdkRuntimeUiLibVersions {
+        |    var clientVersion: Int = -1
+        |        /**
+        |         * @hide
+        |         */
+        |        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        |        set
+        |
+        |    const val apiVersion: Int = 1
+        |}
+        |""".trimMargin()
+    ),
 )
