@@ -241,16 +241,30 @@ private fun Modifier.handleKeyEvents(
             KeyEventPropagation.ContinuePropagation
         }
 
-        KEYCODE_DPAD_LEFT -> if (isLtr) {
-            showPreviousSlideAndGetKeyEventPropagation()
-        } else {
-            showNextSlideAndGetKeyEventPropagation()
+        KEYCODE_DPAD_LEFT -> {
+            // Ignore long press key event for manual scrolling
+            if (it.nativeKeyEvent.repeatCount > 0) {
+                return@onKeyEvent KeyEventPropagation.StopPropagation
+            }
+
+            if (isLtr) {
+                showPreviousSlideAndGetKeyEventPropagation()
+            } else {
+                showNextSlideAndGetKeyEventPropagation()
+            }
         }
 
-        KEYCODE_DPAD_RIGHT -> if (isLtr) {
-            showNextSlideAndGetKeyEventPropagation()
-        } else {
-            showPreviousSlideAndGetKeyEventPropagation()
+        KEYCODE_DPAD_RIGHT -> {
+            // Ignore long press key event for manual scrolling
+            if (it.nativeKeyEvent.repeatCount > 0) {
+                return@onKeyEvent KeyEventPropagation.StopPropagation
+            }
+
+            if (isLtr) {
+                showNextSlideAndGetKeyEventPropagation()
+            } else {
+                showPreviousSlideAndGetKeyEventPropagation()
+            }
         }
 
         else -> KeyEventPropagation.ContinuePropagation

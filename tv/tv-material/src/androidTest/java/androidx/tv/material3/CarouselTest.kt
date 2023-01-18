@@ -16,6 +16,8 @@
 
 package androidx.tv.material3
 
+import android.os.SystemClock
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -57,6 +59,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -616,6 +619,50 @@ class CarouselTest {
         rule.onNodeWithText("Play ${finalSlide + 3}").assertIsFocused()
     }
 
+    fun carousel_manualScrolling_onDpadLongPress() {
+        rule.setContent {
+            SampleCarousel(slideCount = 6) { index ->
+                SampleButton("Button ${index + 1}")
+            }
+        }
+
+        // Request focus for Carousel on start
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag("pager")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+
+        // Trigger recomposition after requesting focus
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Assert that Button 1 from first slide is focused
+        rule.onNodeWithText("Button 1").assertIsFocused()
+
+        // Trigger dpad right key long press
+        performLongKeyPress(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+
+        // Advance time and trigger recomposition to switch to next slide
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(delayBetweenSlides, false)
+        rule.waitForIdle()
+
+        // Assert that Button 2 from second slide is focused
+        rule.onNodeWithText("Button 2").assertIsFocused()
+
+        // Trigger dpad left key long press
+        performLongKeyPress(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)
+
+        // Advance time and trigger recomposition to switch to previous slide
+        rule.mainClock.advanceTimeBy(delayBetweenSlides, false)
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Assert that Button 1 from first slide is focused
+        rule.onNodeWithText("Button 1").assertIsFocused()
+    }
+
     @Test
     fun carousel_manualScrolling_ltr() {
         rule.setContent {
@@ -802,5 +849,37 @@ private fun performKeyPress(keyCode: Int, count: Int = 1, afterEachPress: () -> 
             .getInstrumentation()
             .sendKeyDownUpSync(keyCode)
         afterEachPress()
+    }
+}
+
+private fun performLongKeyPress(
+    rule: ComposeContentTestRule,
+    keyCode: Int,
+    count: Int = 1
+) {
+    repeat(count) {
+        // Trigger the first key down event to simulate key press
+        val firstKeyDownEvent = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN, keyCode, 0, 0, 0, 0
+        )
+        rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(firstKeyDownEvent))
+        rule.waitForIdle()
+
+        // Trigger multiple key down events with repeat count (>0) to simulate key long press
+        val repeatedKeyDownEvent = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN, keyCode, 5, 0, 0, 0
+        )
+        rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(repeatedKeyDownEvent))
+        rule.waitForIdle()
+
+        // Trigger the final key up event to simulate key release
+        val keyUpEvent = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_UP, keyCode, 0, 0, 0, 0
+        )
+        rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyUpEvent))
+        rule.waitForIdle()
     }
 }
