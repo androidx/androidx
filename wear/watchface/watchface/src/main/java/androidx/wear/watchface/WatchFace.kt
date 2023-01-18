@@ -44,6 +44,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
+import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -207,8 +208,8 @@ public class WatchFace(
                 watchFaceService.setContext(context)
                 val engine = watchFaceService.createHeadlessEngine() as
                     WatchFaceService.EngineWrapper
-                engine.createHeadlessInstance(params)
-                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()
+                val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
+                return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
             }
         }
     }
@@ -727,7 +728,10 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         if (!watchState.isHeadless) {
-            WatchFace.registerEditorDelegate(componentName, WFEditorDelegate())
+            WatchFace.registerEditorDelegate(
+                componentName,
+                WFEditorDelegate(headlessWatchFaceImpl = null)
+            )
             registerReceivers()
         }
 
@@ -778,7 +782,9 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
+    internal inner class WFEditorDelegate(
+        private val headlessWatchFaceImpl: HeadlessWatchFaceImpl?
+    ) : WatchFace.EditorDelegate {
         override val userStyleSchema
             get() = currentUserStyleRepository.schema
 
@@ -849,8 +855,10 @@ public class WatchFaceImpl @UiThread constructor(
             complicationSlotsManager.configExtrasChangeCallback = callback
         }
 
+        @SuppressLint("NewApi") // release
         override fun onDestroy(): Unit = TraceEvent("WFEditorDelegate.onDestroy").use {
             if (watchState.isHeadless) {
+                headlessWatchFaceImpl!!.release()
                 this@WatchFaceImpl.onDestroy()
             }
         }
