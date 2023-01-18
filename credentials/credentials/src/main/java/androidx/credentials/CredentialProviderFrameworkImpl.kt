@@ -64,7 +64,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
                 callback.onError(GetCredentialUnknownException(error.message))
             }
         }
-        credentialManager.executeGetCredential(
+        credentialManager.getCredential(
             convertGetRequestToFrameworkClass(request),
             activity,
             cancellationSignal,
@@ -97,7 +97,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             }
         }
 
-        credentialManager.executeCreateCredential(
+        credentialManager.createCredential(
             android.credentials.CreateCredentialRequest(
                 request.type,
                 request.credentialData,
@@ -124,8 +124,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     internal fun convertGetResponseToJetpackClass(
         response: android.credentials.GetCredentialResponse
     ): GetCredentialResponse {
-        // TODO("Look into the response credential being non null")
-        val credential = response.credential!!
+        val credential = response.credential
         return GetCredentialResponse(Credential.createFrom(
             credential.type, credential.data))
     }
