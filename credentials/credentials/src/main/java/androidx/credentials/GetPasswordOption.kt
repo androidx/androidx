@@ -23,7 +23,7 @@ class GetPasswordOption : GetCredentialOption(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     requestData = Bundle(),
     candidateQueryData = Bundle(),
-    requireSystemProvider = false,
+    isSystemProviderRequired = false,
 ) {
     /** @hide */
     companion object {

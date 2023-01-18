@@ -41,7 +41,7 @@ abstract class CreateCredentialRequest internal constructor(
     open val candidateQueryData: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val requireSystemProvider: Boolean
+    open val isSystemProviderRequired: Boolean
 ) {
     /** @hide */
     companion object {

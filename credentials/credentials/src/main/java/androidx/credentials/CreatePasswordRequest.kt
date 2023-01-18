@@ -36,7 +36,7 @@ class CreatePasswordRequest constructor(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     credentialData = toCredentialDataBundle(id, password),
     candidateQueryData = toCandidateDataBundle(),
-    requireSystemProvider = false,
+    isSystemProviderRequired = false,
 ) {
 
     init {

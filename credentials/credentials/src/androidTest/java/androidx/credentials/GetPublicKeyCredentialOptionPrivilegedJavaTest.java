@@ -152,7 +152,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
-        assertThat(option.getRequireSystemProvider()).isFalse();
+        assertThat(option.isSystemProviderRequired()).isFalse();
     }
 
     @Test
@@ -162,7 +162,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
 
         GetCredentialOption convertedOption = GetCredentialOption.createFrom(
                 option.getType(), option.getRequestData(),
-                option.getCandidateQueryData(), option.getRequireSystemProvider());
+                option.getCandidateQueryData(), option.isSystemProviderRequired());
 
         assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOptionPrivileged.class);
         GetPublicKeyCredentialOptionPrivileged convertedSubclassOption =

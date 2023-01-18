@@ -73,6 +73,6 @@ public class CreateCustomCredentialRequestJavaTest {
                 .isTrue();
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
-        assertThat(option.requireSystemProvider()).isEqualTo(expectedSystemProvider);
+        assertThat(option.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
     }
 }

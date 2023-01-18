@@ -164,7 +164,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(request.credentialData, expectedData)).isTrue()
         assertThat(equals(request.candidateQueryData, expectedData)).isTrue()
-        assertThat(request.requireSystemProvider).isFalse()
+        assertThat(request.isSystemProviderRequired).isFalse()
     }
 
     @Test
@@ -175,7 +175,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
 
         val convertedRequest = createFrom(
             request.type, request.credentialData,
-            request.candidateQueryData, request.requireSystemProvider
+            request.candidateQueryData, request.isSystemProviderRequired
         )
 
         assertThat(convertedRequest).isInstanceOf(

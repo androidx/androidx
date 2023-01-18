@@ -62,7 +62,7 @@ class CreatePasswordRequestTest {
         assertThat(request.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertThat(equals(request.credentialData, expectedData)).isTrue()
         assertThat(equals(request.candidateQueryData, Bundle.EMPTY)).isTrue()
-        assertThat(request.requireSystemProvider).isFalse()
+        assertThat(request.isSystemProviderRequired).isFalse()
     }
 
     @Test
@@ -71,7 +71,7 @@ class CreatePasswordRequestTest {
 
         val convertedRequest = createFrom(
             request.type, request.credentialData,
-            request.candidateQueryData, request.requireSystemProvider
+            request.candidateQueryData, request.isSystemProviderRequired
         )
 
         assertThat(convertedRequest).isInstanceOf(

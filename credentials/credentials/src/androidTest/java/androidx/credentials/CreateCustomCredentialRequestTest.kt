@@ -66,6 +66,6 @@ class CreateCustomCredentialRequestTest {
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
-        assertThat(option.requireSystemProvider).isEqualTo(expectedSystemProvider)
+        assertThat(option.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
     }
 }
