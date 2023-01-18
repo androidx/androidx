@@ -376,12 +376,31 @@ public class WindowInsetsControllerCompatActivityTest {
     }
 
     @Test
-    // minSdkVersion = 21 due to b/189492236
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 29) // Flag deprecated in 30+
-    public fun systemBarsBehavior_swipe() {
+    @SdkSuppress(minSdkVersion = 31) // Older APIs does not support getSystemBarsBehavior
+    fun systemBarsBehavior() {
         scenario.onActivity {
             windowInsetsController.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE
+                WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            assertEquals(
+                WindowInsetsControllerCompat.BEHAVIOR_DEFAULT,
+                windowInsetsController.systemBarsBehavior
+            )
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            assertEquals(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE,
+                windowInsetsController.systemBarsBehavior
+            )
+        }
+    }
+
+    @Test
+    // minSdkVersion = 21 due to b/189492236
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 29) // Flag deprecated in 30+
+    public fun systemBarsBehavior_default() {
+        scenario.onActivity {
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
         }
         val decorView = scenario.withActivity { window.decorView }
         val sysUiVis = decorView.systemUiVisibility
@@ -407,23 +426,6 @@ public class WindowInsetsControllerCompatActivityTest {
             sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         )
         assertEquals(0, sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE)
-    }
-
-    @Test
-    public fun systemBarsBehavior_touch() {
-        scenario.onActivity {
-            windowInsetsController.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH
-        }
-        val decorView = scenario.withActivity { window.decorView }
-        val sysUiVis = decorView.systemUiVisibility
-        assertEquals(
-            0,
-            sysUiVis and (
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                )
-        )
     }
 
     private fun assumeNotCuttlefish() {
