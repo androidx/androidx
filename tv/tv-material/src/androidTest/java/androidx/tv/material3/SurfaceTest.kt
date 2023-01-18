@@ -14,57 +14,72 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTvMaterial3Api::class)
-
 package androidx.tv.material3
 
 import android.os.Build
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.assertPixels
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.click
-import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+private fun assertFloatPrecision(a: Float, b: Float) =
+    Truth.assertThat(abs(a - b)).isLessThan(0.0001f)
+
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalTestApi::class,
+    ExperimentalTvMaterial3Api::class
+)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SurfaceTest {
@@ -72,233 +87,85 @@ class SurfaceTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private fun Int.toDp(): Dp = with(rule.density) { toDp() }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun noTonalElevationColorIsSetOnNonElevatedSurfaceColor() {
-        var absoluteTonalElevation: Dp = 0.dp
-        var surfaceColor: Color = Color.Unspecified
-        rule.setMaterialContent(lightColorScheme()) {
-            surfaceColor = MaterialTheme.colorScheme.surface
+    fun originalOrderingWhenTheDefaultElevationIsUsed() {
+        rule.setContent {
             Box(
                 Modifier
-                    .size(10.dp, 10.dp)
+                    .size(10.toDp())
                     .semantics(mergeDescendants = true) {}
                     .testTag("box")
             ) {
                 Surface(
-                    color = surfaceColor,
-                    tonalElevation = 0.dp,
-                    selected = false,
-                    onClick = {}
+                    onClick = {},
+                    shape = RectangleShape,
+                    color = Color.Yellow
                 ) {
-                    absoluteTonalElevation = LocalAbsoluteTonalElevation.current
+                    Box(Modifier.fillMaxSize())
+                }
+                Surface(
+                    onClick = {},
+                    shape = RectangleShape,
+                    color = Color.Green
+                ) {
                     Box(Modifier.fillMaxSize())
                 }
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(absoluteTonalElevation).isEqualTo(0.dp)
-        }
-
-        rule.onNodeWithTag("box")
-            .captureToImage()
-            .assertShape(
-                density = rule.density,
-                shape = RectangleShape,
-                shapeColor = surfaceColor,
-                backgroundColor = Color.White
-            )
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun tonalElevationColorIsSetOnElevatedSurfaceColor() {
-        var absoluteTonalElevation: Dp = 0.dp
-        var surfaceTonalColor: Color = Color.Unspecified
-        var surfaceColor: Color
-        rule.setMaterialContent(lightColorScheme()) {
-            surfaceColor = MaterialTheme.colorScheme.surface
-            Box(
-                Modifier
-                    .size(10.dp, 10.dp)
-                    .semantics(mergeDescendants = true) {}
-                    .testTag("box")
-            ) {
-                Surface(
-                    color = surfaceColor,
-                    tonalElevation = 2.dp,
-                    selected = false,
-                    onClick = {}
-                ) {
-                    absoluteTonalElevation = LocalAbsoluteTonalElevation.current
-                    Box(Modifier.fillMaxSize())
-                }
-                surfaceTonalColor =
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(absoluteTonalElevation)
-            }
-        }
-
-        rule.runOnIdle {
-            Truth.assertThat(absoluteTonalElevation).isEqualTo(2.dp)
-        }
-
-        rule.onNodeWithTag("box")
-            .captureToImage()
-            .assertShape(
-                density = rule.density,
-                shape = RectangleShape,
-                shapeColor = surfaceTonalColor,
-                backgroundColor = Color.White
-            )
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun tonalElevationColorIsNotSetOnNonSurfaceColor() {
-        var absoluteTonalElevation: Dp = 0.dp
-        rule.setMaterialContent(lightColorScheme()) {
-            Box(
-                Modifier
-                    .size(10.dp, 10.dp)
-                    .semantics(mergeDescendants = true) {}
-                    .testTag("box")
-            ) {
-                Surface(
-                    color = Color.Green,
-                    tonalElevation = 2.dp,
-                    selected = false,
-                    onClick = {}
-                ) {
-                    Box(Modifier.fillMaxSize())
-                    absoluteTonalElevation = LocalAbsoluteTonalElevation.current
-                }
-            }
-        }
-
-        rule.runOnIdle {
-            Truth.assertThat(absoluteTonalElevation).isEqualTo(2.dp)
-        }
-
-        rule.onNodeWithTag("box")
-            .captureToImage()
-            .assertShape(
-                density = rule.density,
-                shape = RectangleShape,
-                shapeColor = Color.Green,
-                backgroundColor = Color.White
-            )
+        rule.onNodeWithTag("box").captureToImage().assertShape(
+            density = rule.density,
+            shape = RectangleShape,
+            shapeColor = Color.Green,
+            backgroundColor = Color.White
+        )
     }
 
     @Test
     fun absoluteElevationCompositionLocalIsSet() {
         var outerElevation: Dp? = null
         var innerElevation: Dp? = null
-        rule.setMaterialContent(lightColorScheme()) {
-            Surface(
-                tonalElevation = 2.dp,
-                selected = false,
-                onClick = {}
-            ) {
+        rule.setContent {
+            Surface(onClick = {}, tonalElevation = 2.toDp()) {
                 outerElevation = LocalAbsoluteTonalElevation.current
-                Surface(
-                    tonalElevation = 4.dp,
-                    selected = false,
-                    onClick = {}
-                ) {
+                Surface(onClick = {}, tonalElevation = 4.toDp()) {
                     innerElevation = LocalAbsoluteTonalElevation.current
                 }
             }
         }
 
         rule.runOnIdle {
-            Truth.assertThat(outerElevation).isEqualTo(2.dp)
-            Truth.assertThat(innerElevation).isEqualTo(6.dp)
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun absoluteElevationIsNotUsedForShadows() {
-        rule.setMaterialContent(lightColorScheme()) {
-            Column {
-                Box(
-                    Modifier
-                        .padding(10.dp)
-                        .size(10.dp, 10.dp)
-                        .semantics(mergeDescendants = true) {}
-                        .testTag("top level")
-                ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(0.dp),
-                        tonalElevation = 2.dp,
-                        shadowElevation = 2.dp,
-                        color = Color.Blue,
-                        content = {},
-                        selected = false,
-                        onClick = {}
-                    )
-                }
-
-                // Set LocalAbsoluteTonalElevation to increase the absolute elevation
-                CompositionLocalProvider(
-                    LocalAbsoluteTonalElevation provides 2.dp
-                ) {
-                    Box(
-                        Modifier
-                            .padding(10.dp)
-                            .size(10.dp, 10.dp)
-                            .semantics(mergeDescendants = true) {}
-                            .testTag("nested")
-                    ) {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(0.dp),
-                            tonalElevation = 0.dp,
-                            shadowElevation = 2.dp,
-                            color = Color.Blue,
-                            content = {},
-                            selected = false,
-                            onClick = {}
-                        )
-                    }
-                }
+            innerElevation?.let { nnInnerElevation ->
+                assertFloatPrecision(nnInnerElevation.value, 6.toDp().value)
             }
-        }
-
-        val topLevelSurfaceBitmap = rule.onNodeWithTag("top level").captureToImage()
-        val nestedSurfaceBitmap = rule.onNodeWithTag("nested").captureToImage()
-            .asAndroidBitmap()
-
-        topLevelSurfaceBitmap.assertPixels {
-            Color(nestedSurfaceBitmap.getPixel(it.x, it.y))
+            outerElevation?.let { nnOuterElevation ->
+                assertFloatPrecision(nnOuterElevation.value, 2.toDp().value)
+            }
         }
     }
 
     /**
-     * Tests that composed modifiers applied to Surface are applied within the changes to
+     * Tests that composed modifiers applied to TvSurface are applied within the changes to
      * [LocalContentColor], so they can consume the updated values.
      */
     @Test
     fun contentColorSetBeforeModifier() {
         var contentColor: Color = Color.Unspecified
         val expectedColor = Color.Blue
-        rule.setMaterialContent(lightColorScheme()) {
+        rule.setContent {
             CompositionLocalProvider(LocalContentColor provides Color.Red) {
                 Surface(
                     modifier = Modifier.composed {
                         contentColor = LocalContentColor.current
                         Modifier
                     },
-                    tonalElevation = 2.dp,
-                    contentColor = expectedColor,
-                    content = {},
-                    selected = false,
-                    onClick = {}
-                )
+                    onClick = {},
+                    tonalElevation = 2.toDp(),
+                    contentColor = expectedColor
+                ) {}
             }
         }
 
@@ -308,145 +175,217 @@ class SurfaceTest {
     }
 
     @Test
-    fun surface_blockClicksBehind() {
-        val state = mutableStateOf(0)
+    fun tvClickableOverload_semantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("tvSurface"),
+                onClick = { count.value += 1 }
+            ) {
+                Text("${count.value}")
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("tvSurface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertHasClickAction()
+            .assertIsEnabled()
+            // since we merge descendants we should have text on the same node
+            .assertTextEquals("0")
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("1")
+    }
+
+    @Test
+    fun tvClickableOverload_customSemantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("tvSurface"),
+                onClick = { count.value += 1 },
+                role = Role.Checkbox
+            ) {
+                Text("${count.value}")
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("tvSurface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
+            .assertIsEnabled()
+            // since we merge descendants we should have text on the same node
+            .assertTextEquals("0")
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("1")
+    }
+
+    @Test
+    fun tvClickableOverload_clickAction() {
+        val count = mutableStateOf(0)
+
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("tvSurface"),
+                onClick = { count.value += 1 }
+            ) {
+                Spacer(modifier = Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("tvSurface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag("tvSurface").performKeyInput { pressKey(Key.DirectionCenter) }
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun tvSurface_onDisable_clickFails() {
+        val count = mutableStateOf(0f)
+        val enabled = mutableStateOf(true)
+
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("tvSurface"),
+                onClick = { count.value += 1 },
+                enabled = enabled.value
+            ) {
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("tvSurface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertIsEnabled()
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+
+        Truth.assertThat(count.value).isEqualTo(1)
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.onNodeWithTag("tvSurface")
+            .assertIsNotEnabled()
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(1)
+    }
+
+    @Test
+    fun tvClickableOverload_interactionSource() {
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Surface(
+                modifier = Modifier
+                    .testTag("tvSurface"),
+                onClick = {},
+                interactionSource = interactionSource
+            ) {
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("tvSurface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { keyDown(Key.DirectionCenter) }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(2)
+            Truth.assertThat(interactions[1]).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        rule.onNodeWithTag("tvSurface").performKeyInput { keyUp(Key.DirectionCenter) }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(3)
+            Truth.assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            Truth.assertThat(interactions[1]).isInstanceOf(PressInteraction.Press::class.java)
+            Truth.assertThat(interactions[2]).isInstanceOf(PressInteraction.Release::class.java)
+            Truth.assertThat((interactions[2] as PressInteraction.Release).press)
+                .isEqualTo(interactions[1])
+        }
+    }
+
+    @Test
+    fun tvSurface_allowsFinalPassChildren() {
+        val hitTested = mutableStateOf(false)
+
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("clickable")
-                        .clickable { state.value += 1 },
-                ) { Text("button fullscreen") }
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .testTag("surface"),
-                    onClick = {},
-                    selected = false
-                ) {}
+                        .testTag("tvSurface"),
+                    onClick = {}
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("pressable")
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    hitTested.value = true
+                                    val event = awaitPointerEvent(PointerEventPass.Final)
+                                    Truth
+                                        .assertThat(event.changes[0].isConsumed)
+                                        .isFalse()
+                                }
+                            }
+                    )
+                }
             }
         }
-        rule.onNodeWithTag("clickable").assertHasClickAction().performClick()
-        // still 0
-        Truth.assertThat(state.value).isEqualTo(0)
+        rule.onNodeWithTag("tvSurface").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("pressable", true)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(hitTested.value).isTrue()
     }
 
+    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
     @Test
-    fun selectable_semantics() {
-        val selected = mutableStateOf(false)
-        rule.setMaterialContent(lightColorScheme()) {
-            Surface(
-                selected = selected.value,
-                onClick = { selected.value = !selected.value },
-                modifier = Modifier.testTag("surface"),
-            ) {
-                Text("${selected.value}")
-                Spacer(Modifier.size(30.dp))
-            }
-        }
-        rule.onNodeWithTag("surface")
-            .assertHasClickAction()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
-            .assertIsEnabled()
-            // since we merge descendants we should have text on the same node
-            .assertTextEquals("false")
-            .performClick()
-            .assertTextEquals("true")
-    }
+    fun tvSurface_reactsToStateChange() {
+        val interactionSource = MutableInteractionSource()
+        var isPressed by mutableStateOf(false)
 
-    @Test
-    fun selectable_customSemantics() {
-        val selected = mutableStateOf(false)
-        rule.setMaterialContent(lightColorScheme()) {
+        rule.setContent {
+            isPressed = interactionSource.collectIsPressedAsState().value
             Surface(
-                selected = selected.value,
-                onClick = { selected.value = !selected.value },
                 modifier = Modifier
-                    .semantics { role = Role.Switch }
-                    .testTag("surface"),
-            ) {
-                Text("${selected.value}")
-                Spacer(Modifier.size(30.dp))
-            }
+                    .testTag("tvSurface")
+                    .size(100.toDp()),
+                onClick = {},
+                interactionSource = interactionSource
+            ) {}
         }
-        rule.onNodeWithTag("surface")
-            .assertHasClickAction()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
-            .assertIsEnabled()
-            // since we merge descendants we should have text on the same node
-            .assertTextEquals("false")
-            .performClick()
-            .assertTextEquals("true")
-    }
 
-    @Test
-    fun selectable_clickAction() {
-        val selected = mutableStateOf(false)
-        rule.setMaterialContent(lightColorScheme()) {
-            Surface(
-                selected = selected.value,
-                onClick = { selected.value = !selected.value },
-                modifier = Modifier.testTag("surface")
-            ) { Spacer(Modifier.size(30.dp)) }
+        with(rule.onNodeWithTag("tvSurface")) {
+            performSemanticsAction(SemanticsActions.RequestFocus)
+            assertIsFocused()
+            performKeyInput { keyDown(Key.DirectionCenter) }
         }
-        rule.onNodeWithTag("surface").performClick()
-        Truth.assertThat(selected.value).isTrue()
 
-        rule.onNodeWithTag("surface").performClick()
-        Truth.assertThat(selected.value).isFalse()
-    }
+        rule.waitUntil(condition = { isPressed })
 
-    @Test
-    fun selectable_clickOutsideShapeBounds() {
-        val selected = mutableStateOf(false)
-        rule.setMaterialContent(lightColorScheme()) {
-            Surface(
-                selected = selected.value,
-                onClick = { selected.value = !selected.value },
-                modifier = Modifier.testTag("surface"),
-                shape = CircleShape
-            ) { Spacer(Modifier.size(100.dp)) }
-        }
-        // Click inside the circular shape bounds. Expecting a selection change.
-        rule.onNodeWithTag("surface").performClick()
-        Truth.assertThat(selected.value).isTrue()
-
-        // Click outside the circular shape bounds. Expecting a selection to stay as it.
-        rule.onNodeWithTag("surface").performTouchInput { click(Offset(10f, 10f)) }
-        Truth.assertThat(selected.value).isTrue()
-    }
-
-    @Test
-    fun selectable_smallTouchTarget_clickOutsideShapeBounds() {
-        val selected = mutableStateOf(false)
-        rule.setMaterialContent(lightColorScheme()) {
-            Surface(
-                selected = selected.value,
-                onClick = { selected.value = !selected.value },
-                modifier = Modifier.testTag("surface"),
-                shape = CircleShape
-            ) { Spacer(Modifier.size(40.dp)) }
-        }
-        // Click inside the circular shape bounds. Expecting a selection change.
-        rule.onNodeWithTag("surface").performClick()
-        Truth.assertThat(selected.value).isTrue()
-
-        // Click outside the circular shape bounds. Still expecting a selection change, as the
-        // touch target has a minimum size of 48dp.
-        rule.onNodeWithTag("surface").performTouchInput { click(Offset(2f, 2f)) }
-        Truth.assertThat(selected.value).isFalse()
-    }
-
-    private fun ComposeContentTestRule.setMaterialContent(
-        colorScheme: ColorScheme = lightColorScheme(),
-        content: @Composable () -> Unit
-    ) {
-        setContent {
-            MaterialTheme(
-                colorScheme = colorScheme,
-                content = content
-            )
-        }
+        Truth.assertThat(isPressed).isTrue()
     }
 }
