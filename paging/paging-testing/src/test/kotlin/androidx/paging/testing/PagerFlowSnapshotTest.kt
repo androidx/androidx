@@ -19,6 +19,7 @@ package androidx.paging.testing
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import androidx.paging.testing.SnapshotLoader.ScrollBehavior
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -61,6 +63,26 @@ class PagerFlowSnapshotTest {
             // first page + prefetched page
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+        }
+    }
+
+    @Test
+    fun initialRefresh_withSeparators() {
+        val dataFlow = flowOf(List(30) { it })
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
+        ).flow.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, after: Int? ->
+                if (before != null && after != null) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {}
+            // loads 8[initial 5 + prefetch 3] items total, including separators
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, "sep", 1, "sep", 2, "sep", 3, "sep", 4)
             )
         }
     }
@@ -197,6 +219,56 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
+    fun appendWhile_withDrops() {
+        val dataFlow = flowOf(List(30) { it })
+        val pager = Pager(
+            config = CONFIG_WITH_DROPS,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                appendScrollWhile { item ->
+                    item < 14
+                }
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                // dropped [0-10]
+                listOf(11, 12, 13, 14, 15, 16, 17, 18, 19)
+            )
+        }
+    }
+
+    @Test
+    fun appendWhile_withSeparators() {
+        val dataFlow = flowOf(List(30) { it })
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, _ ->
+                if (before == 9 || before == 12) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                appendScrollWhile { item ->
+                    item !is Int || item < 14
+                }
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                // initial load [0-4]
+                // prefetched [5-7]
+                // appended [8-16]
+                // prefetched [17-19]
+                listOf(
+                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "sep", 10, 11, 12, "sep", 13, 14, 15,
+                    16, 17, 18, 19
+                )
+            )
+        }
+    }
+
+    @Test
     fun appendWhile_withoutPrefetch() {
         val dataFlow = flowOf(List(50) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
@@ -263,6 +335,58 @@ class PagerFlowSnapshotTest {
             // prefetched [11-13]
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
+            )
+        }
+    }
+
+    @Test
+    fun prependWhile_withDrops() {
+        val dataFlow = flowOf(List(30) { it })
+        val pager = Pager(
+            config = CONFIG_WITH_DROPS,
+            initialKey = 20,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > 14
+                }
+            }
+            // dropped [20-27]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(11, 12, 13, 14, 15, 16, 17, 18, 19)
+            )
+        }
+    }
+
+    @Test
+    fun prependWhile_withSeparators() {
+        val dataFlow = flowOf(List(30) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 20,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, _ ->
+                if (before == 14 || before == 18) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                prependScrollWhile { item ->
+                    item !is Int || item > 14
+                }
+            }
+            // initial load [20-24]
+            // prefetched [17-19], no append prefetch because separator fulfilled prefetchDistance
+            // prepended [14-16]
+            // prefetched [11-13]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    11, 12, 13, 14, "sep", 15, 16, 17, 18, "sep", 19, 20, 21, 22, 23,
+                    24, 25, 26, 27
+                )
             )
         }
     }
@@ -783,6 +907,54 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
+    fun prependToAwait_withDrops() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_WITH_DROPS,
+            initialKey = 50,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                scrollTo(42, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // dropped [47-57]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(38, 39, 40, 41, 42, 43, 44, 45, 46)
+            )
+        }
+    }
+
+    @Test
+    fun prependToAwait_withSeparators() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, _ ->
+                if (before == 42 || before == 49) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                scrollTo(42, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [41-46]
+            // prefetched [38-40]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    38, 39, 40, 41, 42, "sep", 43, 44, 45, 46, 47, 48, 49, "sep", 50, 51, 52,
+                    53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
     fun consecutivePrependToAwait() {
         val dataFlow = flowOf(List(100) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
@@ -1076,6 +1248,49 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
+    fun appendToAwait_withDrops() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_WITH_DROPS,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                scrollTo(12, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // dropped [0-7]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(8, 9, 10, 11, 12, 13, 14, 15, 16)
+            )
+        }
+    }
+
+    @Test
+    fun appendToAwait_withSeparators() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, _ ->
+                if (before == 0 || before == 14) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                scrollTo(12, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // initial load [0-4]
+            // prefetched [5-7]
+            // appended [8-13]
+            // prefetched [14-16]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, "sep", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, "sep", 15, 16)
+            )
+        }
+    }
+
+    @Test
     fun consecutiveAppendToAwait() {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
@@ -1260,9 +1475,52 @@ class PagerFlowSnapshotTest {
         }
     }
 
+    @Test
+    fun scrollTo_indexAccountsForSeparators() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow
+        val pagerWithSeparator = pager.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, _ ->
+                if (before == 6) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                scrollTo(8, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // initial load [0-4]
+            // prefetched [5-7]
+            // appended [8-10]
+            // prefetched [11-13]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+            )
+
+            val snapshotWithSeparator = pagerWithSeparator.asSnapshot(this) {
+                scrollTo(8, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // initial load [0-4]
+            // prefetched [5-7]
+            // appended [8-10]
+            // no prefetch on [11-13] because separator fulfilled prefetchDistance
+            assertThat(snapshotWithSeparator).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, "sep", 7, 8, 9, 10)
+            )
+        }
+    }
+
     val CONFIG = PagingConfig(
         pageSize = 3,
         initialLoadSize = 5,
+    )
+
+    val CONFIG_WITH_DROPS = PagingConfig(
+        pageSize = 3,
+        initialLoadSize = 5,
+        maxSize = 9
     )
 
     val CONFIG_NO_PLACEHOLDERS = PagingConfig(
