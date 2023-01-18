@@ -16,24 +16,15 @@
 
 package androidx.test.uiautomator.testapp;
 
-import static android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN;
-import static android.content.Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT;
-import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
-import static androidx.test.uiautomator.testapp.SplitScreenTestActivity.WINDOW_ID;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.content.Intent;
 import android.graphics.Rect;
 import android.os.SystemClock;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.Configurator;
@@ -42,9 +33,6 @@ import androidx.test.uiautomator.Until;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 /** Integration tests for multi-window support. */
 @LargeTest
@@ -99,16 +87,10 @@ public class MultiWindowTest extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    @SdkSuppress(minSdkVersion = 32)
     public void testMultiWindow_splitScreen() {
         // Launch two split-screen activities with different IDs.
-        launchTestActivity(SplitScreenTestActivity.class,
-                new Intent().setFlags(DEFAULT_FLAGS).putExtra(WINDOW_ID, "first"));
-        InstrumentationRegistry.getInstrumentation().getUiAutomation()
-                .performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);
-        launchTestActivity(SplitScreenTestActivity.class,
-                new Intent().setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_LAUNCH_ADJACENT
-                        | FLAG_ACTIVITY_MULTIPLE_TASK).putExtra(WINDOW_ID, "second"));
+        launchTestActivity(SplitScreenTestActivity.class);
         SystemClock.sleep(TRANSITION_DELAY_MS); // Wait for the windows to settle.
 
         // Both split screen windows are present and searchable.
@@ -117,38 +99,12 @@ public class MultiWindowTest extends BaseTest {
         UiObject2 secondWindow = mDevice.findObject(By.res(TEST_APP, "window_id").text("second"));
         assertNotNull(secondWindow);
 
-        // Window IDs are centered in each window (bounds correctly calculated; order independent).
-        int width = mDevice.getDisplayWidth();
-        int height = mDevice.getDisplayHeight();
-        List<UiObject2> windows = Arrays.asList(firstWindow, secondWindow);
-        assertTrue(windows.stream().anyMatch(
-                w -> w.getVisibleBounds().contains(width / 2, height / 4)));
-        assertTrue(windows.stream().anyMatch(
-                w -> w.getVisibleBounds().contains(width / 2, 3 * height / 4)));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    public void testMultiWindow_click() {
-        // Launch two split-screen activities with buttons.
-        launchTestActivity(UiDeviceTestClickActivity.class);
-        InstrumentationRegistry.getInstrumentation().getUiAutomation()
-                .performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);
-        launchTestActivity(UiDeviceTestClickActivity.class,
-                new Intent().setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_LAUNCH_ADJACENT
-                        | FLAG_ACTIVITY_MULTIPLE_TASK));
-        SystemClock.sleep(TRANSITION_DELAY_MS); // Wait for the windows to settle.
-
-        // Click a button in the middle of each activity.
+        // Operations (clicks) and coordinates are valid in both split screen windows.
         int width = mDevice.getDisplayWidth();
         int height = mDevice.getDisplayHeight();
         mDevice.click(width / 2, height / 4);
         mDevice.click(width / 2, 3 * height / 4);
-
-        // Verify that both buttons were clicked.
-        List<UiObject2> buttons = mDevice.findObjects(By.res(TEST_APP, "button"));
-        assertEquals(2, buttons.size());
-        assertEquals("I've been clicked!", buttons.get(0).getText());
-        assertEquals("I've been clicked!", buttons.get(1).getText());
+        assertEquals("I've been clicked!", firstWindow.getText());
+        assertEquals("I've been clicked!", secondWindow.getText());
     }
 }

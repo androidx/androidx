@@ -56,13 +56,8 @@ public abstract class BaseTest {
     }
 
     protected void launchTestActivity(@NonNull Class<? extends Activity> activity) {
-        launchTestActivity(activity, new Intent().setFlags(DEFAULT_FLAGS));
-    }
-
-    protected void launchTestActivity(@NonNull Class<? extends Activity> activity,
-            @NonNull Intent intent) {
         Context context = ApplicationProvider.getApplicationContext();
-        context.startActivity(new Intent(intent).setClass(context, activity));
+        context.startActivity(new Intent().setFlags(DEFAULT_FLAGS).setClass(context, activity));
         assertTrue("Test app not visible after launching activity",
                 mDevice.wait(Until.hasObject(By.pkg(TEST_APP)), TIMEOUT_MS));
     }
