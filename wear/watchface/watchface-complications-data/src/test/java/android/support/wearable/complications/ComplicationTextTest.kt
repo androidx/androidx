@@ -812,7 +812,6 @@ public class ComplicationTextTest {
     public fun getTextAt_ignoresStringExpressionIfSurroundingStringPresent() {
         val text = ComplicationText(
             "hello" as CharSequence,
-            /* timeDependentText = */ null,
             StringExpression(byteArrayOf(1, 2, 3))
         )
 
