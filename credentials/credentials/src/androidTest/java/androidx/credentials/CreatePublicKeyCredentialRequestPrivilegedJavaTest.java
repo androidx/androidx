@@ -152,7 +152,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedData)).isTrue();
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedData)).isTrue();
-        assertThat(request.getRequireSystemProvider()).isFalse();
+        assertThat(request.isSystemProviderRequired()).isFalse();
     }
 
     @Test
@@ -163,7 +163,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
                 request.getType(), request.getCredentialData(),
-                request.getCandidateQueryData(), request.getRequireSystemProvider()
+                request.getCandidateQueryData(), request.isSystemProviderRequired()
         );
 
         assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequestPrivileged.class);

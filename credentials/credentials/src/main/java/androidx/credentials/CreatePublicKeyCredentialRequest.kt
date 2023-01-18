@@ -41,7 +41,7 @@ class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
     credentialData = toCredentialDataBundle(requestJson, preferImmediatelyAvailableCredentials),
     // The whole request data should be passed during the query phase.
     candidateQueryData = toCredentialDataBundle(requestJson, preferImmediatelyAvailableCredentials),
-    requireSystemProvider = false,
+    isSystemProviderRequired = false,
 ) {
 
     init {

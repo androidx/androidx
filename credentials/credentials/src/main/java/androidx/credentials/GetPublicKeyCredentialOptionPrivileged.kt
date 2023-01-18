@@ -58,7 +58,7 @@ class GetPublicKeyCredentialOptionPrivileged @JvmOverloads constructor(
         clientDataHash,
         preferImmediatelyAvailableCredentials
     ),
-    requireSystemProvider = false,
+    isSystemProviderRequired = false,
 ) {
 
     init {

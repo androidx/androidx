@@ -102,7 +102,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
                 request.type,
                 request.credentialData,
                 request.candidateQueryData,
-                request.requireSystemProvider),
+                request.isSystemProviderRequired),
             activity,
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
@@ -115,7 +115,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         request.getCredentialOptions.forEach {
             builder.addGetCredentialOption(
                 android.credentials.GetCredentialOption(
-                    it.type, it.requestData, it.candidateQueryData, it.requireSystemProvider
+                    it.type, it.requestData, it.candidateQueryData, it.isSystemProviderRequired
                 ))
         }
         return builder.build()

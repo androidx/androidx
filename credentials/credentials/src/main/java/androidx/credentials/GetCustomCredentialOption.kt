@@ -27,7 +27,7 @@ import android.os.Bundle
  * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
  * the provider during the initial candidate query stage, which should not contain sensitive user
  * information
- * @property requireSystemProvider true if must only be fulfilled by a system provider and false
+ * @property isSystemProviderRequired true if must only be fulfilled by a system provider and false
  * otherwise
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [requestData] or [type] is null
@@ -36,13 +36,12 @@ open class GetCustomCredentialOption(
     final override val type: String,
     final override val requestData: Bundle,
     final override val candidateQueryData: Bundle,
-    @get:JvmName("requireSystemProvider")
-    final override val requireSystemProvider: Boolean
+    final override val isSystemProviderRequired: Boolean
 ) : GetCredentialOption(
     type,
     requestData,
     candidateQueryData,
-    requireSystemProvider
+    isSystemProviderRequired
 ) {
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

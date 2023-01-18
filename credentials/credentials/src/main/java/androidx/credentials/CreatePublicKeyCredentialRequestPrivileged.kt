@@ -56,7 +56,7 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
     candidateQueryData = toCredentialDataBundle(
         requestJson, relyingParty, clientDataHash, preferImmediatelyAvailableCredentials
     ),
-    requireSystemProvider = false,
+    isSystemProviderRequired = false,
 ) {
 
     init {
