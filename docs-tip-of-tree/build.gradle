@@ -249,6 +249,8 @@ dependencies {
     docs(project(":preference:preference"))
     docs(project(":preference:preference-ktx"))
     docs(project(":print:print"))
+    docs(project(":privacysandbox:ads:ads-adservices"))
+    docs(project(":privacysandbox:ads:ads-adservices-java"))
     docs(project(":privacysandbox:sdkruntime:sdkruntime-client"))
     docs(project(":privacysandbox:sdkruntime:sdkruntime-core"))
     docs(project(":privacysandbox:tools:tools"))
