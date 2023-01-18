@@ -129,6 +129,19 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * general, scrolling to a smaller index triggers [PREPEND] while scrolling to a larger
      * index triggers [APPEND].
      *
+     * When [PagingConfig.enablePlaceholders] is false, the [index] is scoped within currently
+     * loaded items. For example, in a list of items(0-20) with currently loaded items(10-15),
+     * index[2] = item(12). However, this function does supports an [index] beyond
+     * currently loaded items. For prepends, this means it supports negative indices for as long
+     * as there are still available data to load from. Note that in the case of prepend, each call
+     * to [scrollTo] will anchor the last prepended item to index[0]. For example, in a list of
+     * items(0-20) with currently loaded items(10-15), index[0] = item(10). The first `scrollTo(-2)`
+     * will scroll to item(8) and update index[0] = item(8). The next `scrollTo(-2)` will scroll
+     * to item(6) with index[0] = item(6). This example does not account for prefetches.
+     *
+     * For both append/prepend, this function stops loading prior to fulfilling requested scroll
+     * distance if there are no more data to load from.
+     *
      * @param [index] The target index to scroll to
      *
      * @param [scrollBehavior] The default scroll behavior is
@@ -169,8 +182,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
         startIndex: Int,
         scrollBehavior: ScrollBehavior
     ) {
-        val endIndex = maxOf(0, index)
-        val scrollCount = startIndex - endIndex
+        val scrollCount = startIndex - index
         when (scrollBehavior) {
             ScrollBehavior.WaitForPlaceholdersToLoad -> awaitScrollTo(LoadType.PREPEND, scrollCount)
             ScrollBehavior.ScrollIntoPlaceholders -> {
