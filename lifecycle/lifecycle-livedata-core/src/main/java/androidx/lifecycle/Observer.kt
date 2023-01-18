@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.lifecycle;
+package androidx.lifecycle
 
 /**
- * A simple callback that can receive from {@link LiveData}.
- *
- * @param <T> The type of the parameter
+ * A simple callback that can receive from [LiveData].
  *
  * @see LiveData LiveData - for a usage description.
- */
-public interface Observer<T> {
+*/
+fun interface Observer<T> {
+
     /**
-     * Called when the data is changed.
-     * @param t  The new data
+     * Called when the data is changed is changed to [value].
      */
-    void onChanged(T t);
+    fun onChanged(value: T)
 }

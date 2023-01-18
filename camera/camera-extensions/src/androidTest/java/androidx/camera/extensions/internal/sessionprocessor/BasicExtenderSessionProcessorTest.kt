@@ -299,8 +299,8 @@ class BasicExtenderSessionProcessorTest(
         val cameraClosedLatch = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             camera.cameraInfo.cameraState.observeForever(object : Observer<CameraState?> {
-                override fun onChanged(cameraState: CameraState?) {
-                    if (cameraState?.type == CameraState.Type.CLOSED) {
+                override fun onChanged(value: CameraState?) {
+                    if (value?.type == CameraState.Type.CLOSED) {
                         cameraClosedLatch.countDown()
                         camera.cameraInfo.cameraState.removeObserver(this)
                     }
