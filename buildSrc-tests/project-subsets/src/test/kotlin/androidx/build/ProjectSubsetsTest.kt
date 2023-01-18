@@ -79,6 +79,10 @@ public class ProjectSubsetsTest {
         validateSubset("native")
     }
 
+    @Test
+    fun testSubsetWindow() {
+        validateSubset("window")
+    }
     /**
      * Validates a specific project subset
      */

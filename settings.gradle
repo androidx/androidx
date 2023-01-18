@@ -194,7 +194,8 @@ enum BuildType {
     TOOLS,
     KMP,
     CAMERA,
-    NATIVE
+    NATIVE,
+    WINDOW,
 }
 
 private String getRequestedProjectSubsetName() {
@@ -255,6 +256,9 @@ private Set<BuildType> createRequestedFilter() {
             case "NATIVE":
                 filter.add(BuildType.NATIVE)
                 break
+            case "WINDOW":
+                filter.add(BuildType.WINDOW)
+                break
             case "ALL":
                 // Return null so that no filtering is done
                 return null
@@ -270,6 +274,7 @@ private Set<BuildType> createRequestedFilter() {
                         "MEDIA   - media, media2, and mediarouter projects\n" +
                         "WEAR    - Wear OS projects\n" +
                         "NATIVE  - native projects\n" +
+                        "WINDOW  - window projects\n" +
                         "GLANCE  - glance projects")
         }
     }
@@ -965,17 +970,17 @@ includeProject(":wear:watchface:watchface-style-old-api-test-service", "wear/wat
 includeProject(":wear:watchface:watchface-style-old-api-test-stub", "wear/watchface/watchface-style/old-api-test-stub", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":webkit:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", [BuildType.MAIN])
-includeProject(":window:window", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:extensions:extensions", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:extensions:core:core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:integration-tests:configuration-change-tests", [BuildType.MAIN])
-includeProject(":window:sidecar:sidecar", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:window-java", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:window-core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:window-rxjava2", [BuildType.MAIN])
-includeProject(":window:window-rxjava3", [BuildType.MAIN])
-includeProject(":window:window-samples", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:window-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
+includeProject(":window:window", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:extensions:extensions", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:extensions:core:core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:integration-tests:configuration-change-tests", [BuildType.MAIN, BuildType.WINDOW])
+includeProject(":window:sidecar:sidecar", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:window-java", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:window-core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:window-rxjava2", [BuildType.MAIN, BuildType.WINDOW])
+includeProject(":window:window-rxjava3", [BuildType.MAIN, BuildType.WINDOW])
+includeProject(":window:window-samples", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:window-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
 includeProject(":work:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":work:work-benchmark", [BuildType.MAIN])
 includeProject(":work:work-gcm", [BuildType.MAIN])
