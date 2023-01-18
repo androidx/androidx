@@ -17,10 +17,16 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.lifecycle.Observer
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
@@ -39,10 +45,25 @@ class State3AControl @Inject constructor(
     override var useCaseCamera: UseCaseCamera?
         get() = _useCaseCamera
         set(value) {
+            val previousUseCaseCamera = _useCaseCamera
             _useCaseCamera = value
-            invalidate() // Always apply the settings to the camera.
+            CameraXExecutors.mainThreadExecutor().execute {
+                previousUseCaseCamera?.runningUseCasesLiveData?.removeObserver(
+                    useCaseChangeObserver
+                )
+                value?.let {
+                    it.runningUseCasesLiveData.observeForever(useCaseChangeObserver)
+                    invalidate() // Always apply the settings to the camera.
+                }
+            }
         }
 
+    private val useCaseChangeObserver =
+        Observer<Set<UseCase>> { useCases -> useCases.updateTemplate() }
+    private val afModes = cameraProperties.metadata.getOrDefault(
+        CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
+        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+    ).asList()
     private val aeModes = cameraProperties.metadata.getOrDefault(
         CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
         intArrayOf(CaptureRequest.CONTROL_AE_MODE_OFF)
@@ -54,12 +75,16 @@ class State3AControl @Inject constructor(
 
     var updateSignal: Deferred<Unit>? = null
         private set
-    var flashMode by updateOnPropertyChange(ImageCapture.FLASH_MODE_OFF)
+    var flashMode by updateOnPropertyChange(DEFAULT_FLASH_MODE)
+    var template by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
     var preferredAeMode: Int? by updateOnPropertyChange(null)
+    var preferredFocusMode: Int? by updateOnPropertyChange(null)
 
     override fun reset() {
         preferredAeMode = null
-        flashMode = ImageCapture.FLASH_MODE_OFF
+        preferredFocusMode = null
+        flashMode = DEFAULT_FLASH_MODE
+        template = DEFAULT_REQUEST_TEMPLATE
     }
 
     private fun <T> updateOnPropertyChange(
@@ -84,14 +109,44 @@ class State3AControl @Inject constructor(
             else -> CaptureRequest.CONTROL_AE_MODE_ON
         }
 
+        val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
+
         updateSignal = useCaseCamera?.requestControl?.addParametersAsync(
             values = mapOf(
                 CaptureRequest.CONTROL_AE_MODE to getSupportedAeMode(preferAeMode),
+                CaptureRequest.CONTROL_AF_MODE to getSupportedAfMode(preferAfMode),
                 CaptureRequest.CONTROL_AWB_MODE to getSupportedAwbMode(
                     CaptureRequest.CONTROL_AWB_MODE_AUTO
                 ),
             )
         ) ?: CompletableDeferred(null)
+    }
+
+    private fun getDefaultAfMode(): Int = when (template) {
+        CameraDevice.TEMPLATE_RECORD -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO
+        CameraDevice.TEMPLATE_PREVIEW -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+        else -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+    }
+
+    /**
+     * If preferredMode not available, priority is CONTINUOUS_PICTURE > AUTO > OFF
+     */
+    private fun getSupportedAfMode(preferredMode: Int) = when {
+        afModes.contains(preferredMode) -> {
+            preferredMode
+        }
+
+        afModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) -> {
+            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+        }
+
+        afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO) -> {
+            CaptureRequest.CONTROL_AF_MODE_AUTO
+        }
+
+        else -> {
+            CaptureRequest.CONTROL_AF_MODE_OFF
+        }
     }
 
     /**
@@ -125,6 +180,17 @@ class State3AControl @Inject constructor(
 
         else -> {
             CaptureRequest.CONTROL_AWB_MODE_OFF
+        }
+    }
+
+    private fun Collection<UseCase>.updateTemplate() {
+        SessionConfigAdapter(this).getValidSessionConfigOrNull()?.let {
+            val templateType = it.repeatingCaptureConfig.templateType
+            template = if (templateType != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                templateType
+            } else {
+                DEFAULT_REQUEST_TEMPLATE
+            }
         }
     }
 

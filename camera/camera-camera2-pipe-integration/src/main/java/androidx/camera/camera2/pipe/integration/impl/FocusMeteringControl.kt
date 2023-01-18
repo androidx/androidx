@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.graphics.PointF
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Rational
@@ -54,8 +55,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 @CameraScope
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl @Inject constructor(
-    val cameraProperties: CameraProperties,
-    val threads: UseCaseThreads,
+    private val cameraProperties: CameraProperties,
+    private val state3AControl: State3AControl,
+    private val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
     private var _useCaseCamera: UseCaseCamera? = null
 
@@ -154,6 +156,9 @@ class FocusMeteringControl @Inject constructor(
                         )
                     )
                     return@launch
+                }
+                if (afRectangles.isNotEmpty()) {
+                    state3AControl.preferredFocusMode = CaptureRequest.CONTROL_AF_MODE_AUTO
                 }
                 val (isCancelEnabled, timeout) = if (action.isAutoCancelEnabled &&
                     action.autoCancelDurationInMillis < autoFocusTimeoutMs
@@ -259,6 +264,7 @@ class FocusMeteringControl @Inject constructor(
         signalToCancel: CompletableDeferred<FocusMeteringResult>?,
     ): Result3A {
         signalToCancel?.setCancelException("Cancelled by cancelFocusAndMetering()")
+        state3AControl.preferredFocusMode = null
         return useCaseCamera.requestControl.cancelFocusAndMeteringAsync().await()
     }
 

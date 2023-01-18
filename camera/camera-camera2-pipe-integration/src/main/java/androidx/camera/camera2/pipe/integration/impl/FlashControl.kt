@@ -29,7 +29,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 
-private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
+internal const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 
 /**
  * Implementation of Flash control exposed by [CameraControlInternal].

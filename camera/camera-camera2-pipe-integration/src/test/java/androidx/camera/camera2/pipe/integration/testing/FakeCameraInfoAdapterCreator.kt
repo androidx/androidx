@@ -97,6 +97,7 @@ object FakeCameraInfoAdapterCreator {
             CameraCallbackMap(),
             FocusMeteringControl(
                 cameraProperties,
+                state3AControl,
                 useCaseThreads
             ).apply {
                 useCaseCamera = fakeUseCaseCamera

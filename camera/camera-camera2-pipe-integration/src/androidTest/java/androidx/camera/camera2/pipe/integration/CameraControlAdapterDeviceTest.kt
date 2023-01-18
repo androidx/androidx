@@ -17,16 +17,25 @@
 package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES
+import android.hardware.camera2.CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH
+import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_AUTO
+import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO
+import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_OFF
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_REGIONS
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_REGIONS
 import android.hardware.camera2.CaptureRequest.CONTROL_AWB_REGIONS
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
@@ -36,6 +45,7 @@ import android.hardware.camera2.CaptureRequest.FLASH_MODE
 import android.hardware.camera2.CaptureRequest.FLASH_MODE_TORCH
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.os.Build
+import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -49,11 +59,15 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.UseCase
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -188,7 +202,7 @@ class CameraControlAdapterDeviceTest {
 
         waitForResult(captureCount = 60).verify(
             { requestMeta: RequestMetadata, _ ->
-                requestMeta.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH
+                requestMeta.isAeMode(CONTROL_AE_MODE_ON_AUTO_FLASH)
             },
             TIMEOUT
         )
@@ -203,7 +217,7 @@ class CameraControlAdapterDeviceTest {
 
         waitForResult(captureCount = 60).verify(
             { requestMeta: RequestMetadata, _ ->
-                requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON
+                requestMeta.isAeMode(CONTROL_AE_MODE_ON)
             },
             TIMEOUT
         )
@@ -218,7 +232,7 @@ class CameraControlAdapterDeviceTest {
 
         waitForResult(captureCount = 60).verify(
             { requestMeta: RequestMetadata, _ ->
-                requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                requestMeta.isAeMode(CONTROL_AE_MODE_ON_ALWAYS_FLASH)
             },
             TIMEOUT
         )
@@ -234,7 +248,7 @@ class CameraControlAdapterDeviceTest {
         waitForResult(captureCount = 30).verify(
             { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
                 frameInfo.requestMetadata[FLASH_MODE] == FLASH_MODE_TORCH &&
-                    requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON
+                    requestMeta.isAeMode(CONTROL_AE_MODE_ON)
             },
             TIMEOUT
         )
@@ -250,7 +264,7 @@ class CameraControlAdapterDeviceTest {
         waitForResult(captureCount = 30).verify(
             { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
                 frameInfo.requestMetadata[FLASH_MODE] != FLASH_MODE_TORCH &&
-                    requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH
+                    requestMeta.isAeMode(CONTROL_AE_MODE_ON_AUTO_FLASH)
             },
             TIMEOUT
         )
@@ -335,6 +349,32 @@ class CameraControlAdapterDeviceTest {
                 ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
 
                 isDefaultAfRegion && isDefaultAeRegion && isDefaultAwbRegion
+            },
+            TIMEOUT
+        )
+    }
+
+    @Test
+    fun setTemplatePreview_afModeToContinuousPicture() = runBlocking {
+        bindUseCase(createPreview())
+
+        // Assert. Verify the afMode.
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+                requestMeta.isAfMode(CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            },
+            TIMEOUT
+        )
+    }
+
+    @Test
+    fun setTemplateRecord_afModeToContinuousVideo() = runBlocking {
+        bindUseCase(createVideoCapture())
+
+        // Assert. Verify the afMode.
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+                requestMeta.isAfMode(CONTROL_AF_MODE_CONTINUOUS_VIDEO)
             },
             TIMEOUT
         )
@@ -436,4 +476,70 @@ class CameraControlAdapterDeviceTest {
         )
         cameraControl = camera.cameraControl as CameraControlAdapter
     }
+
+    private fun createVideoCapture(): VideoCapture<Recorder> {
+        return VideoCapture.withOutput(Recorder.Builder().build())
+    }
+
+    private suspend fun createPreview(): Preview =
+        Preview.Builder().build().also { preview ->
+            withContext(Dispatchers.Main) {
+                preview.setSurfaceProvider(getSurfaceProvider())
+            }
+        }
+
+    private fun getSurfaceProvider(): Preview.SurfaceProvider {
+        return SurfaceTextureProvider.createSurfaceTextureProvider(
+            object : SurfaceTextureProvider.SurfaceTextureCallback {
+                override fun onSurfaceTextureReady(
+                    surfaceTexture: SurfaceTexture,
+                    resolution: Size
+                ) {
+                    // No-op
+                }
+
+                override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                    surfaceTexture.release()
+                }
+            }
+        )
+    }
+
+    private fun RequestMetadata.isAfMode(afMode: Int): Boolean {
+        return if (characteristics.isAfModeSupported(afMode)) {
+            getOrDefault(CONTROL_AF_MODE, null) == afMode
+        } else {
+            val fallbackMode =
+                if (characteristics.isAfModeSupported(CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
+                    CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                } else if (characteristics.isAfModeSupported(CONTROL_AF_MODE_AUTO)) {
+                    CONTROL_AF_MODE_AUTO
+                } else {
+                    CONTROL_AF_MODE_OFF
+                }
+            getOrDefault(CONTROL_AF_MODE, null) == fallbackMode
+        }
+    }
+
+    private fun RequestMetadata.isAeMode(aeMode: Int): Boolean {
+        return if (characteristics.isAeModeSupported(aeMode)) {
+            getOrDefault(CONTROL_AE_MODE, null) == aeMode
+        } else {
+            val fallbackMode =
+                if (characteristics.isAeModeSupported(CONTROL_AE_MODE_ON)) {
+                    CONTROL_AE_MODE_ON
+                } else {
+                    CONTROL_AE_MODE_OFF
+                }
+            getOrDefault(CONTROL_AE_MODE, null) == fallbackMode
+        }
+    }
+
+    private fun CameraCharacteristics.isAfModeSupported(
+        afMode: Int
+    ) = (get(CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(afMode)
+
+    private fun CameraCharacteristics.isAeModeSupported(
+        aeMode: Int
+    ) = (get(CONTROL_AE_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(aeMode)
 }
