@@ -103,7 +103,7 @@ class CredentialManager private constructor(private val context: Context) {
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
     // TODO(helenqin): support failure flow.
-    suspend fun executeGetCredential(
+    suspend fun getCredential(
         request: GetCredentialRequest,
         activity: Activity,
     ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
@@ -123,7 +123,7 @@ class CredentialManager private constructor(private val context: Context) {
             }
         }
 
-        executeGetCredentialAsync(
+        getCredentialAsync(
             request,
             activity,
             canceller,
@@ -144,7 +144,7 @@ class CredentialManager private constructor(private val context: Context) {
      * @param activity the activity used to potentially launch any UI needed
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
-    suspend fun executeCreateCredential(
+    suspend fun createCredential(
         request: CreateCredentialRequest,
         activity: Activity,
     ): CreateCredentialResponse = suspendCancellableCoroutine { continuation ->
@@ -164,7 +164,7 @@ class CredentialManager private constructor(private val context: Context) {
             }
         }
 
-        executeCreateCredentialAsync(
+        createCredentialAsync(
             request,
             activity,
             canceller,
@@ -228,7 +228,7 @@ class CredentialManager private constructor(private val context: Context) {
      * @param callback the callback invoked when the request succeeds or fails
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
-    fun executeGetCredentialAsync(
+    fun getCredentialAsync(
         request: GetCredentialRequest,
         activity: Activity,
         cancellationSignal: CancellationSignal?,
@@ -241,7 +241,7 @@ class CredentialManager private constructor(private val context: Context) {
             // TODO (Update with the right error code when ready)
             callback.onError(
                 GetCredentialProviderConfigurationException(
-                    "executeGetCredentialAsync no provider dependencies found - please ensure " +
+                    "getCredentialAsync no provider dependencies found - please ensure " +
                         "the desired provider dependencies are added")
             )
             return
@@ -263,7 +263,7 @@ class CredentialManager private constructor(private val context: Context) {
      * @param callback the callback invoked when the request succeeds or fails
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
-    fun executeCreateCredentialAsync(
+    fun createCredentialAsync(
         request: CreateCredentialRequest,
         activity: Activity,
         cancellationSignal: CancellationSignal?,
@@ -275,7 +275,7 @@ class CredentialManager private constructor(private val context: Context) {
         if (provider == null) {
             // TODO (Update with the right error code when ready)
             callback.onError(CreateCredentialProviderConfigurationException(
-                "executeCreateCredentialAsync no provider dependencies found - please ensure the " +
+                "createCredentialAsync no provider dependencies found - please ensure the " +
                     "desired provider dependencies are added"))
             return
         }

@@ -54,7 +54,7 @@ class CredentialManagerTest {
             Looper.prepare()
         }
         assertThrows<CreateCredentialProviderConfigurationException> {
-            credentialManager.executeCreateCredential(
+            credentialManager.createCredential(
                 CreatePasswordRequest("test-user-id", "test-password"),
                 Activity()
             )
@@ -71,7 +71,7 @@ class CredentialManagerTest {
             .addGetCredentialOption(GetPasswordOption())
             .build()
         assertThrows<GetCredentialProviderConfigurationException> {
-            credentialManager.executeGetCredential(request, Activity())
+            credentialManager.getCredential(request, Activity())
         }
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
@@ -93,7 +93,7 @@ class CredentialManagerTest {
             Looper.prepare()
         }
         val loadedResult: AtomicReference<CreateCredentialException> = AtomicReference()
-        credentialManager.executeCreateCredentialAsync(
+        credentialManager.createCredentialAsync(
             request = CreatePasswordRequest("test-user-id", "test-password"),
             activity = Activity(),
             cancellationSignal = null,
@@ -116,7 +116,7 @@ class CredentialManagerTest {
             Looper.prepare()
         }
         val loadedResult: AtomicReference<GetCredentialException> = AtomicReference()
-        credentialManager.executeGetCredentialAsync(
+        credentialManager.getCredentialAsync(
             request = GetCredentialRequest.Builder()
                 .addGetCredentialOption(GetPasswordOption())
                 .build(),

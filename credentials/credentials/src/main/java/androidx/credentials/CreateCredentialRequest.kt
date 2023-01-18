@@ -25,7 +25,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
 /**
  * Base request class for registering a credential.
  *
- * An application can construct a subtype request and call [CredentialManager.executeCreateCredential] to
+ * An application can construct a subtype request and call [CredentialManager.createCredential] to
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
  */

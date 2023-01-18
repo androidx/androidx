@@ -58,7 +58,7 @@ public class CredentialManagerJavaTest {
             Looper.prepare();
         }
         AtomicReference<CreateCredentialException> loadedResult = new AtomicReference<>();
-        mCredentialManager.executeCreateCredentialAsync(
+        mCredentialManager.createCredentialAsync(
                 new CreatePasswordRequest("test-user-id", "test-password"),
                 new Activity(),
                 null,
@@ -83,7 +83,7 @@ public class CredentialManagerJavaTest {
             Looper.prepare();
         }
         AtomicReference<GetCredentialException> loadedResult = new AtomicReference<>();
-        mCredentialManager.executeGetCredentialAsync(
+        mCredentialManager.getCredentialAsync(
                 new GetCredentialRequest.Builder()
                         .addGetCredentialOption(new GetPasswordOption())
                         .build(),
