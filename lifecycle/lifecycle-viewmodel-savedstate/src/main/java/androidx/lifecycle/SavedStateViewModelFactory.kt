@@ -156,12 +156,11 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
      */
     fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
         // empty constructor was called.
-        if (lifecycle == null) {
-            throw UnsupportedOperationException(
+        val lifecycle = lifecycle
+            ?: throw UnsupportedOperationException(
                 "SavedStateViewModelFactory constructed with empty constructor supports only " +
                     "calls to create(modelClass: Class<T>, extras: CreationExtras)."
             )
-        }
         val isAndroidViewModel = AndroidViewModel::class.java.isAssignableFrom(modelClass)
         val constructor: Constructor<T>? = if (isAndroidViewModel && application != null) {
             findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE)
@@ -169,14 +168,13 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
             findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE)
         }
         // doesn't need SavedStateHandle
-        if (constructor == null) {
-            // If you are using a stateful constructor and no application is available, we
+        constructor
+            ?: // If you are using a stateful constructor and no application is available, we
             // use an instance factory instead.
             return if (application != null) factory.create(modelClass)
-                else instance.create(modelClass)
-        }
+            else instance.create(modelClass)
         val controller = LegacySavedStateHandleController.create(
-            savedStateRegistry, lifecycle, key, defaultArgs
+            savedStateRegistry!!, lifecycle, key, defaultArgs
         )
         val viewModel: T = if (isAndroidViewModel && application != null) {
             newInstance(modelClass, constructor, application!!, controller.handle)
@@ -212,8 +210,8 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
         if (lifecycle != null) {
             LegacySavedStateHandleController.attachHandleIfNeeded(
                 viewModel,
-                savedStateRegistry,
-                lifecycle
+                savedStateRegistry!!,
+                lifecycle!!
             )
         }
     }

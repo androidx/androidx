@@ -93,7 +93,7 @@ public abstract class AbstractSavedStateViewModelFactory :
 
     private fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
         val controller = LegacySavedStateHandleController
-            .create(savedStateRegistry, lifecycle, key, defaultArgs)
+            .create(savedStateRegistry!!, lifecycle!!, key, defaultArgs)
         val viewModel = create(key, modelClass, controller.handle)
         viewModel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
         return viewModel
@@ -148,7 +148,7 @@ public abstract class AbstractSavedStateViewModelFactory :
     override fun onRequery(viewModel: ViewModel) {
         // is need only for legacy path
         if (savedStateRegistry != null) {
-            attachHandleIfNeeded(viewModel, savedStateRegistry, lifecycle)
+            attachHandleIfNeeded(viewModel, savedStateRegistry!!, lifecycle!!)
         }
     }
 
