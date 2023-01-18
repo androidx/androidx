@@ -177,6 +177,16 @@ public sealed class UserStyleSetting private constructor(
         }
     }
 
+    internal fun setDisplayNameIndex(index: Int) {
+        if (displayNameInternal is DisplayText.ResourceDisplayTextWithIndex) {
+            displayNameInternal.setIndex(index)
+        }
+
+        if (descriptionInternal is DisplayText.ResourceDisplayTextWithIndex) {
+            descriptionInternal.setIndex(index)
+        }
+    }
+
     /**
      * Optional data for an on watch face editor (not the companion editor).
      *
@@ -788,8 +798,8 @@ public sealed class UserStyleSetting private constructor(
             watchFaceEditorData: WatchFaceEditorData? = null
         ) : super(
             id,
-            DisplayText.ResourceDisplayText(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             icon,
             watchFaceEditorData,
             listOf(BooleanOption.TRUE, BooleanOption.FALSE),
@@ -1351,8 +1361,8 @@ public sealed class UserStyleSetting private constructor(
             watchFaceEditorData: WatchFaceEditorData? = null
         ) : this(
             id,
-            DisplayText.ResourceDisplayText(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             icon,
             watchFaceEditorData,
             complicationConfig,
@@ -1952,8 +1962,8 @@ public sealed class UserStyleSetting private constructor(
             watchFaceEditorData: WatchFaceEditorData? = null
         ) : super(
             id,
-            DisplayText.ResourceDisplayText(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             icon,
             watchFaceEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
@@ -2155,8 +2165,8 @@ public sealed class UserStyleSetting private constructor(
             watchFaceEditorData: WatchFaceEditorData? = null
         ) : super(
             id,
-            DisplayText.ResourceDisplayText(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             icon,
             watchFaceEditorData,
             options,
@@ -2739,8 +2749,8 @@ public sealed class UserStyleSetting private constructor(
             watchFaceEditorData: WatchFaceEditorData? = null
         ) : super(
             id,
-            DisplayText.ResourceDisplayText(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             icon,
             watchFaceEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),

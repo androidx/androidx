@@ -36,6 +36,9 @@
     <string name="ith_option" translatable="false">%1$s option</string>
     <string name="ith_option_screen_reader_name" translatable="false">%1$s list option</string>
 
+    <string name="ith_style" translatable="false">%1$s style</string>
+    <string name="ith_style_screen_reader_name" translatable="false">%1$s style setting</string>
+
     <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
     <string name="colors_style_red">Red</string>
 
