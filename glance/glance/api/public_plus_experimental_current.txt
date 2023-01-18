@@ -21,6 +21,14 @@ package androidx.glance {
     method @androidx.compose.runtime.Composable public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines);
   }
 
+  public final class ColorFilter {
+    field public static final androidx.glance.ColorFilter.Companion Companion;
+  }
+
+  public static final class ColorFilter.Companion {
+    method public androidx.glance.ColorFilter tint(androidx.glance.unit.ColorProvider colorProvider);
+  }
+
   public final class CombinedGlanceModifier implements androidx.glance.GlanceModifier {
     ctor public CombinedGlanceModifier(androidx.glance.GlanceModifier outer, androidx.glance.GlanceModifier inner);
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
@@ -85,7 +93,7 @@ package androidx.glance {
   }
 
   public final class ImageKt {
-    method @androidx.compose.runtime.Composable public static void Image(androidx.glance.ImageProvider provider, String? contentDescription, optional androidx.glance.GlanceModifier modifier, optional int contentScale);
+    method @androidx.compose.runtime.Composable public static void Image(androidx.glance.ImageProvider provider, String? contentDescription, optional androidx.glance.GlanceModifier modifier, optional int contentScale, optional androidx.glance.ColorFilter? colorFilter);
     method public static androidx.glance.ImageProvider ImageProvider(@DrawableRes int resId);
     method public static androidx.glance.ImageProvider ImageProvider(android.graphics.Bitmap bitmap);
     method @RequiresApi(android.os.Build.VERSION_CODES.M) public static androidx.glance.ImageProvider ImageProvider(android.graphics.drawable.Icon icon);

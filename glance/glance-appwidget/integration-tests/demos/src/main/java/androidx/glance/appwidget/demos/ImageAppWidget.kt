@@ -24,21 +24,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.session.GlanceSessionManager
+import androidx.glance.text.Text
 
 /**
  * Sample AppWidget that showcase the [ContentScale] options for [Image]
@@ -52,6 +58,8 @@ class ImageAppWidget : GlanceAppWidget() {
     override fun Content() {
         var type by remember { mutableStateOf(ContentScale.Fit) }
         Column(modifier = GlanceModifier.fillMaxSize().padding(8.dp)) {
+            Header()
+            Spacer(GlanceModifier.size(4.dp))
             Button(
                 text = "Content Scale: ${type.asString()}",
                 modifier = GlanceModifier.fillMaxWidth(),
@@ -69,6 +77,28 @@ class ImageAppWidget : GlanceAppWidget() {
                 contentDescription = "Content Scale image sample (value: ${type.asString()})",
                 contentScale = type,
                 modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)
+            )
+        }
+    }
+
+    @Composable
+    private fun Header() {
+        val context = LocalContext.current
+        Row(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = GlanceModifier.fillMaxWidth().background(Color.White)
+        ) {
+            Image(
+                provider = ImageProvider(R.drawable.ic_android),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(
+                    ColorProvider(day = Color.Green, night = Color.Blue)
+                ),
+            )
+            Text(
+                text = context.getString(R.string.image_widget_name),
+                modifier = GlanceModifier.padding(8.dp),
             )
         }
     }
