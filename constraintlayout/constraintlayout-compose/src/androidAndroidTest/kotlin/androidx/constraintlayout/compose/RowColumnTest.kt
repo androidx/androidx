@@ -57,13 +57,13 @@ class RowColumnTest {
     }
 
     @Test
-    fun testRows() {
+    fun testColumns() {
         val rootSize = 200.dp
         val boxesCount = 4
         rule.setContent {
             RowColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                type = "'row'",
+                type = "'column'",
                 width = "'parent'",
                 height = "'parent'",
                 boxesCount = boxesCount,
@@ -95,13 +95,13 @@ class RowColumnTest {
     }
 
     @Test
-    fun testColumns() {
+    fun testRows() {
         val rootSize = 200.dp
         val boxesCount = 4
         rule.setContent {
             RowColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                type = "'column'",
+                type = "'row'",
                 width = "'parent'",
                 height = "'parent'",
                 boxesCount = boxesCount,
