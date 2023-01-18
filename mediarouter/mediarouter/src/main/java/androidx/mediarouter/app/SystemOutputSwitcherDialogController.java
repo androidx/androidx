@@ -63,6 +63,10 @@ public final class SystemOutputSwitcherDialogController {
     /**
      * Shows the system output switcher dialog.
      *
+     * <p>See
+     * <a href="https://developer.android.com/guide/topics/media/media-routing#output-switcher">
+     * Output Switcher documentation</a> for more details.
+     *
      * @param context Android context
      * @return {@code true} if the dialog was shown successfully and {@code false} otherwise
      */
