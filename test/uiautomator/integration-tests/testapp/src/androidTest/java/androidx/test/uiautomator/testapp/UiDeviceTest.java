@@ -246,22 +246,12 @@ public class UiDeviceTest extends BaseTest {
 
     @Test
     public void testPressRecentApps() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
+        launchTestActivity(MainActivity.class);
 
-        // No app name when the app is running.
-        assertFalse(mDevice.wait(Until.hasObject(By.text(APP_NAME)), TIMEOUT_MS));
-
+        // Test app appears in the "Recent Apps" screen after pressing button.
+        assertFalse(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), TIMEOUT_MS));
         mDevice.pressRecentApps();
-
-        Pattern iconResIdPattern = Pattern.compile(".*launcher.*icon");
-        // For API 28 and above, click on the app icon to make the name visible.
-        if (mDevice.wait(Until.hasObject(By.res(iconResIdPattern)), TIMEOUT_MS)) {
-            UiObject2 icon = mDevice.findObject(By.res(iconResIdPattern));
-            icon.click();
-        }
-
-        // App name appears when on Recent screen.
-        assertTrue(mDevice.wait(Until.hasObject(By.text(APP_NAME)), TIMEOUT_MS));
+        assertTrue(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), TIMEOUT_MS));
     }
 
     @Test
