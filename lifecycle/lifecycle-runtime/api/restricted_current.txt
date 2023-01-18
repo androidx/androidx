@@ -26,13 +26,27 @@ package androidx.lifecycle {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ReportFragment extends android.app.Fragment {
     ctor public ReportFragment();
-    method public static void injectIfNeededIn(android.app.Activity!);
-    method public void onActivityCreated(android.os.Bundle!);
+    method public static final androidx.lifecycle.ReportFragment get(android.app.Activity);
+    method public static final void injectIfNeededIn(android.app.Activity activity);
+    method public void onActivityCreated(android.os.Bundle? savedInstanceState);
     method public void onDestroy();
     method public void onPause();
     method public void onResume();
     method public void onStart();
     method public void onStop();
+    method public final void setProcessListener(androidx.lifecycle.ReportFragment.ActivityInitializationListener? processListener);
+    field public static final androidx.lifecycle.ReportFragment.Companion Companion;
+  }
+
+  public static interface ReportFragment.ActivityInitializationListener {
+    method public void onCreate();
+    method public void onResume();
+    method public void onStart();
+  }
+
+  public static final class ReportFragment.Companion {
+    method public androidx.lifecycle.ReportFragment get(android.app.Activity);
+    method public void injectIfNeededIn(android.app.Activity activity);
   }
 
   public final class ViewTreeLifecycleOwner {
