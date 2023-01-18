@@ -66,8 +66,6 @@ interface UseCaseCameraRequestControl {
     enum class Type {
         SESSION_CONFIG,
         DEFAULT,
-        FLASH,
-        TORCH,
         CAMERA2_CAMERA_CONTROL,
     }
 

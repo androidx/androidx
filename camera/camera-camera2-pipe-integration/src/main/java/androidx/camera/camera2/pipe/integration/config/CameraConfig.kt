@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -67,6 +68,7 @@ annotation class CameraScope
         EvCompControl.Bindings::class,
         FlashControl.Bindings::class,
         FocusMeteringControl.Bindings::class,
+        State3AControl.Bindings::class,
         TorchControl.Bindings::class,
         Camera2CameraControlCompat.Bindings::class,
     ],

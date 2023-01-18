@@ -29,10 +29,10 @@ import androidx.lifecycle.MutableLiveData
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Implementation of Torch control exposed by [CameraControlInternal].
@@ -41,6 +41,7 @@ import javax.inject.Inject
 @CameraScope
 class TorchControl @Inject constructor(
     cameraProperties: CameraProperties,
+    private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
 
@@ -94,20 +95,10 @@ class TorchControl @Inject constructor(
                 // TODO(b/209757083), handle the failed result of the setTorchAsync().
                 useCaseCamera.requestControl.setTorchAsync(torch).join()
 
-                if (torch) {
-                    // Hold the internal AE mode to ON while the torch is turned ON.
-                    useCaseCamera.requestControl.addParametersAsync(
-                        type = UseCaseCameraRequestControl.Type.TORCH,
-                        values = mapOf(
-                            CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON,
-                        )
-                    )
-                } else {
-                    // Restore the AE mode after the torch control has been used.
-                    useCaseCamera.requestControl.setConfigAsync(
-                        type = UseCaseCameraRequestControl.Type.TORCH,
-                    )
-                }.join()
+                // Hold the internal AE mode to ON while the torch is turned ON.
+                state3AControl.preferredAeMode =
+                    if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
+                state3AControl.updateSignal?.join()
 
                 signal.complete(Unit)
             }

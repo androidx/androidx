@@ -177,15 +177,21 @@ class CapturePipelineTest {
 
     @Before
     fun setUp() {
+        val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
+        val fakeCameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
+            )
+        )
+
         torchControl = TorchControl(
-            FakeCameraProperties(
-                FakeCameraMetadata(
-                    mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
-                )
-            ),
+            fakeCameraProperties,
+            State3AControl(fakeCameraProperties).apply {
+                useCaseCamera = fakeUseCaseCamera
+            },
             fakeUseCaseThreads,
         ).also {
-            it.useCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
+            it.useCaseCamera = fakeUseCaseCamera
 
             // Ensure the control is updated after the UseCaseCamera been set.
             assertThat(
