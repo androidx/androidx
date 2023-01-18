@@ -33,7 +33,7 @@ import java.util.Collections
 
 /**
  * An entry to be shown on the selector during a create flow initiated when an app calls
- * [CredentialManager.executeCreateCredential]
+ * [CredentialManager.createCredential]
  *
  * A [CreateEntry] points to a location such as an account, or a group where the credential can be
  * registered. When user selects this entry, the corresponding [PendingIntent] is fired, and the

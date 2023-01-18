@@ -31,7 +31,7 @@ import java.util.Collections
 
 /**
  * An entry to be shown on the selector during a create flow initiated when an app calls
- * [CredentialManager.executeCreateCredential].
+ * [CredentialManager.createCredential].
  *
  * A [RemoteCreateEntry] implies that the credential will be created on
  * a different device.

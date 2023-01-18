@@ -20,7 +20,7 @@ package androidx.credentials
  * Encapsulates a request to get a user credential.
  *
  * An application can construct such a request by adding one or more types of [GetCredentialOption],
- * and then call [CredentialManager.executeGetCredential] to launch framework UI flows to allow the user
+ * and then call [CredentialManager.getCredential] to launch framework UI flows to allow the user
  * to consent to using a previously saved credential for the given application.
  *
  * @property getCredentialOptions the list of [GetCredentialOption] from which the user can choose

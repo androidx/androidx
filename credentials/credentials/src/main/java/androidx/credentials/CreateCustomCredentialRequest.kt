@@ -22,7 +22,7 @@ import android.os.Bundle
  * Base custom create request class for registering a credential.
  *
  * An application can construct a subtype custom request and call
- * [CredentialManager.executeCreateCredential] to launch framework UI flows to collect consent and
+ * [CredentialManager.createCredential] to launch framework UI flows to collect consent and
  * any other metadata needed from the user to register a new user credential.
  *
  * @property type the credential type determined by the credential-type-specific subclass for custom
