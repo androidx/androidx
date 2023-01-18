@@ -508,6 +508,12 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
+
+        if (searchSpec.getJoinSpec() != null) {
+            throw new IllegalArgumentException("JoinSpec not allowed in removeByQuery, but "
+                    + "JoinSpec was provided.");
+        }
+
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         ListenableFuture<Void> future = execute(() -> {
             RemoveStats.Builder removeStatsBuilder = null;
