@@ -586,9 +586,6 @@ package androidx.constraintlayout.compose {
   public final class MotionDragHandlerKt {
   }
 
-  @kotlin.DslMarker public @interface MotionDslScope {
-  }
-
   public interface MotionItemsProvider {
     method public int count();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent(int index);
@@ -597,9 +594,6 @@ package androidx.constraintlayout.compose {
   }
 
   public final class MotionKt {
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static void Motion(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionScope,kotlin.Unit> rememberMotionContent(kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static java.util.List<kotlin.jvm.functions.Function2<androidx.constraintlayout.compose.MotionScope,java.lang.Integer,kotlin.Unit>> rememberMotionListItems(int count, kotlin.jvm.functions.Function2<? super androidx.constraintlayout.compose.MotionScope,? super java.lang.Integer,kotlin.Unit> content);
   }
 
   public enum MotionLayoutDebugFlags {
@@ -732,12 +726,6 @@ package androidx.constraintlayout.compose {
 
   public final class MotionSceneScopeKt {
     method @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionSceneScope,kotlin.Unit> motionSceneContent);
-  }
-
-  @androidx.constraintlayout.compose.ExperimentalMotionApi @androidx.constraintlayout.compose.MotionDslScope public final class MotionScope implements androidx.compose.ui.layout.LookaheadLayoutScope {
-    ctor public MotionScope(androidx.compose.ui.layout.LookaheadLayoutScope lookaheadLayoutScope);
-    method @androidx.compose.runtime.Composable public void emit(java.util.List<? extends kotlin.jvm.functions.Function2<? super androidx.constraintlayout.compose.MotionScope,? super java.lang.Integer,kotlin.Unit>>);
-    method public androidx.compose.ui.Modifier motion(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional boolean ignoreAxisChanges, optional kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionModifierScope,kotlin.Unit> motionDescription);
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public final class OnSwipe {
