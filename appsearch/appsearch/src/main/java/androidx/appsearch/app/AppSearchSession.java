@@ -312,6 +312,9 @@ public interface AppSearchSession extends Closeable {
      *                        indicates how document will be removed. All specific about how to
      *                        scoring, ordering, snippeting and resulting will be ignored.
      * @return The pending result of performing this operation.
+     * @throws IllegalArgumentException if the {@link SearchSpec} contains a {@link JoinSpec}.
+     * {@link JoinSpec} lets you join docs that are not owned by the caller, so the semantics of
+     * failures from this method would be complex.
      */
     @NonNull
     ListenableFuture<Void> removeAsync(@NonNull String queryExpression,
