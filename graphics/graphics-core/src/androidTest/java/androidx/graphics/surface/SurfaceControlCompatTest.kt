@@ -100,6 +100,42 @@ class SurfaceControlCompatTest {
     }
 
     @Test
+    fun testSurfaceControlCompatBuilder_parentSurfaceControl() {
+        val callbackLatch = CountDownLatch(1)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+
+        try {
+            scenario.onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val parentSc = SurfaceControlCompat.Builder()
+                            .setParent(it.mSurfaceView)
+                            .setName("ParentSurfaceControl")
+                            .build()
+
+                        SurfaceControlCompat.Builder()
+                            .setParent(parentSc)
+                            .setName("ChildSurfaceControl")
+                            .build()
+
+                        callbackLatch.countDown()
+                    }
+                }
+
+                it.addSurface(it.getSurfaceView(), callback)
+            }
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
+        } catch (e: java.lang.IllegalArgumentException) {
+            fail()
+        } finally {
+            // ensure activity is destroyed after any failures
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
     fun testSurfaceTransactionCreate() {
         try {
             SurfaceControlCompat.Transaction()

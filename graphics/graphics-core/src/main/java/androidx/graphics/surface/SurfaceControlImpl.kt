@@ -67,6 +67,15 @@ internal interface SurfaceControlImpl {
         fun setParent(surfaceView: SurfaceView): Builder
 
         /**
+         * Set a parent [SurfaceControlCompat] for the new [SurfaceControlCompat] instance.
+         * Furthermore they stack relatively in Z order, and inherit the transformation of the
+         * parent.
+         * @param surfaceControl Target [SurfaceControlCompat] used as the parent for the newly
+         * created [SurfaceControlCompat] instance
+         */
+        fun setParent(surfaceControl: SurfaceControlCompat): Builder
+
+        /**
          * Set a debugging-name for the [SurfaceControlImpl].
          * @param name Debugging name configured on the [SurfaceControlCompat] instance.
          */

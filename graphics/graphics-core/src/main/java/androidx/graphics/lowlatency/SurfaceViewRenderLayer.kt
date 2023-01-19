@@ -64,8 +64,8 @@ internal class SurfaceViewRenderLayer<T>(
                 inverse = mBufferTransform.invertBufferTransform(transformHint)
                 mBufferTransform.computeTransform(width, height, inverse)
                 mParentSurfaceControl?.release()
-                mLayerCallback?.onSizeChanged(width, height)
                 mParentSurfaceControl = createDoubleBufferedSurfaceControl()
+                mLayerCallback?.onSizeChanged(width, height)
             }
 
             override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -90,7 +90,9 @@ internal class SurfaceViewRenderLayer<T>(
     }
 
     override fun setParent(builder: SurfaceControlCompat.Builder) {
-        builder.setParent(surfaceView)
+        mParentSurfaceControl?.let { parentSurfaceControl ->
+            builder.setParent(parentSurfaceControl)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
