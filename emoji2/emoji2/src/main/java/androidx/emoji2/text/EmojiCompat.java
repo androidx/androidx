@@ -1189,13 +1189,14 @@ public class EmojiCompat {
         /**
          * Create EmojiSpan instance.
          *
-         * @param metadata EmojiMetadata instance, which can draw the emoji onto a Canvas.
+         * @param rasterizer TypefaceEmojiRasterizer instance, which can draw the emoji onto a
+         *                   Canvas.
          *
-         * @return EmojiSpan instance that can use EmojiMetadata to draw emoji.
+         * @return EmojiSpan instance that can use TypefaceEmojiRasterizer to draw emoji.
          */
         @RequiresApi(19)
         @NonNull
-        EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer metadata);
+        EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer rasterizer);
     }
 
 
@@ -1208,15 +1209,16 @@ public class EmojiCompat {
         /**
          * Returns a TypefaceEmojiSpan.
          *
-         * @param metadata EmojiMetadata instance, which can draw the emoji onto a Canvas.
+         * @param rasterizer TypefaceEmojiRasterizer instance, which can draw the emoji onto a
+         *                   Canvas.
          *
          * @return {@link TypefaceEmojiSpan}
          */
         @RequiresApi(19)
         @NonNull
         @Override
-        public EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer metadata) {
-            return new TypefaceEmojiSpan(metadata);
+        public EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer rasterizer) {
+            return new TypefaceEmojiSpan(rasterizer);
         }
     }
 

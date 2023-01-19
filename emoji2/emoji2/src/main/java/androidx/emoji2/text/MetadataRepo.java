@@ -50,8 +50,9 @@ public final class MetadataRepo {
     private final @NonNull MetadataList mMetadataList;
 
     /**
-     * char presentation of all EmojiMetadata's in a single array. All emojis we have are mapped to
-     * Private Use Area A, in the range U+F0000..U+FFFFD. Therefore each emoji takes 2 chars.
+     * char presentation of all TypefaceEmojiRasterizer's in a single array. All emojis we have are
+     * mapped to Private Use Area A, in the range U+F0000..U+FFFFD. Therefore each emoji takes 2
+     * chars.
      */
     private final @NonNull char[] mEmojiCharArray;
 
@@ -213,7 +214,7 @@ public final class MetadataRepo {
     }
 
     /**
-     * Add an EmojiMetadata to the index.
+     * Add a TypefaceEmojiRasterizer to the index.
      *
      * @hide
      */
@@ -228,8 +229,9 @@ public final class MetadataRepo {
     }
 
     /**
-     * Trie node that holds mapping from emoji codepoint(s) to EmojiMetadata. A single codepoint
-     * emoji is represented by a child of the root node.
+     * Trie node that holds mapping from emoji codepoint(s) to TypefaceEmojiRasterizer.
+     *
+     * A single codepoint emoji is represented by a child of the root node.
      *
      * @hide
      */
