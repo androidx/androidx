@@ -127,5 +127,5 @@ fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
 }
 
 fun PlatformDataOrigin.toSdkDataOrigin(): DataOrigin {
-    return DataOrigin(packageName ?: "")
+    return DataOrigin(packageName)
 }

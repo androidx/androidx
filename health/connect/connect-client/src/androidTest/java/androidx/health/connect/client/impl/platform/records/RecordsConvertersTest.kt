@@ -97,10 +97,4 @@ class RecordsConvertersTest {
             }
         }
     }
-
-    @Test
-    fun dataOrigin_convertFromPlatformToSdk_nullableConvertsToEmptyString() {
-        val platformDataOrigin = DataOrigin.Builder().setPackageName(null).build()
-        assertThat(platformDataOrigin.toSdkDataOrigin()).isEqualTo(SdkDataOrigin(""))
-    }
 }

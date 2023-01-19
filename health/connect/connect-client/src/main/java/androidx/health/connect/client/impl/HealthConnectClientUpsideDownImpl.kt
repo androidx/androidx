@@ -122,16 +122,15 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     buildList {
                         recordIdsList.forEach {
                             add(
-                                RecordIdFilter.Builder(recordType.toPlatformRecordClass())
-                                    .setId(it)
-                                    .build()
+                                RecordIdFilter.fromId(recordType.toPlatformRecordClass(), it)
                             )
                         }
                         clientRecordIdsList.forEach {
                             add(
-                                RecordIdFilter.Builder(recordType.toPlatformRecordClass())
-                                    .setClientRecordId(it)
-                                    .build()
+                                RecordIdFilter.fromClientRecordId(
+                                    recordType.toPlatformRecordClass(),
+                                    it
+                                )
                             )
                         }
                     },
@@ -222,7 +221,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     continuation.asOutcomeReceiver()
                 )
             }
-        }
+        }.token
     }
 
     override suspend fun registerForDataNotifications(
@@ -272,7 +271,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     for (i in it.requestedPermissions.indices) {
                         if (
                             it.requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
-                                it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0
+                            it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0
                         ) {
                             add(it.requestedPermissions[i])
                         }
