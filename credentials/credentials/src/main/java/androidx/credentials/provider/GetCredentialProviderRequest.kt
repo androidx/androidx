@@ -51,7 +51,7 @@ class GetCredentialProviderRequest internal constructor(
                 request.getCredentialOption.type,
                 request.getCredentialOption.candidateQueryData,
                 request.getCredentialOption.credentialRetrievalData,
-                request.getCredentialOption.requireSystemProvider()))
+                request.getCredentialOption.isSystemProviderRequired()))
             return GetCredentialProviderRequest(
                 GetCredentialRequest.Builder()
                     .setGetCredentialOptions(options)
