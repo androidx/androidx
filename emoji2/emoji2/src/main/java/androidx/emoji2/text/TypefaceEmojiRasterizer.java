@@ -89,7 +89,7 @@ public class TypefaceEmojiRasterizer {
     private static final ThreadLocal<MetadataItem> sMetadataItem = new ThreadLocal<>();
 
     /**
-     * Index of the EmojiMetadata in {@link MetadataList}.
+     * Index of the TypefaceEmojiRasterizer in {@link MetadataList}.
      */
     private final int mIndex;
 
@@ -148,7 +148,7 @@ public class TypefaceEmojiRasterizer {
     }
 
     /**
-     * @return a ThreadLocal instance of MetadataItem for this EmojiMetadata
+     * @return a ThreadLocal instance of MetadataItem for this TypefaceEmojiRasterizer
      */
     private MetadataItem getMetadataItem() {
         MetadataItem result = sMetadataItem.get();
@@ -159,10 +159,11 @@ public class TypefaceEmojiRasterizer {
         // MetadataList is a wrapper around the metadata ByteBuffer. MetadataItem is a wrapper with
         // an index (pointer) on this ByteBuffer that represents a single emoji. Both are FlatBuffer
         // classes that wraps a ByteBuffer and gives access to the information in it. In order not
-        // to create a wrapper class for each EmojiMetadata, we use mIndex as the index of the
-        // MetadataItem in the ByteBuffer. We need to reiniitalize the current thread local instance
-        // by executing the statement below. All the statement does is to set an int index in
-        // MetadataItem. the same instance is used by all EmojiMetadata classes in the same thread.
+        // to create a wrapper class for each TypefaceEmojiRasterizer, we use mIndex as the index
+        // of the MetadataItem in the ByteBuffer. We need to reiniitalize the current thread
+        // local instance by executing the statement below. All the statement does is to set an
+        // int index in MetadataItem. the same instance is used by all TypefaceEmojiRasterizer
+        // classes in the same thread.
         mMetadataRepo.getMetadataList().list(result, mIndex);
         return result;
     }

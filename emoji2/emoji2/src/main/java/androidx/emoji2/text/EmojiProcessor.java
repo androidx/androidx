@@ -580,20 +580,20 @@ final class EmojiProcessor {
      * @param charSequence the CharSequence that the emoji is in
      * @param start start index of the emoji in the CharSequence
      * @param end end index of the emoji in the CharSequence
-     * @param metadata EmojiMetadata instance for the emoji
+     * @param rasterizer TypefaceEmojiRasterizer instance for the emoji
      *
      * @return {@code true} if the OS can render emoji, {@code false} otherwise
      */
     private boolean hasGlyph(final CharSequence charSequence, int start, final int end,
-            final TypefaceEmojiRasterizer metadata) {
+            final TypefaceEmojiRasterizer rasterizer) {
         // if the existence is not calculated yet
-        if (metadata.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_UNKNOWN) {
+        if (rasterizer.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_UNKNOWN) {
             final boolean hasGlyph = mGlyphChecker.hasGlyph(charSequence, start, end,
-                    metadata.getSdkAdded());
-            metadata.setHasGlyph(hasGlyph);
+                    rasterizer.getSdkAdded());
+            rasterizer.setHasGlyph(hasGlyph);
         }
 
-        return metadata.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_EXISTS;
+        return rasterizer.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_EXISTS;
     }
 
     /**
