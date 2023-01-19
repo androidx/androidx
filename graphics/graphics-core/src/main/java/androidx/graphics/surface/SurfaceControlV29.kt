@@ -68,6 +68,14 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
+         * See [SurfaceControlWrapper.Builder.setParent]
+         */
+        override fun setParent(surfaceControl: SurfaceControlCompat): SurfaceControlImpl.Builder {
+            builder.setParent(surfaceControl.scImpl.asWrapperSurfaceControl())
+            return this
+        }
+
+        /**
          * See [SurfaceControlWrapper.Builder.setDebugName]
          */
         override fun setName(name: String): SurfaceControlImpl.Builder {
@@ -371,13 +379,6 @@ internal class SurfaceControlV29 internal constructor(
             )
         }
 
-        private fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
-            if (this is SurfaceControlV29) {
-                surfaceControl
-            } else {
-                throw IllegalArgumentException("Parent implementation is only for Android T+.")
-            }
-
         private fun SyncFenceImpl.asSyncFenceCompat(): SyncFence =
             if (this is SyncFenceV19) {
                 mSyncFence
@@ -386,6 +387,16 @@ internal class SurfaceControlV29 internal constructor(
                     "Expected SyncFenceCompat implementation " +
                         "for API level 19"
                 )
+            }
+    }
+
+    private companion object {
+
+        fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
+            if (this is SurfaceControlV29) {
+                surfaceControl
+            } else {
+                throw IllegalArgumentException("Parent implementation is only for Android T+.")
             }
     }
 }
