@@ -372,8 +372,10 @@ class NavGraphAndroidTest {
                 setStartDestination(DESTINATION_ROUTE)
                 addDestination(destination)
             }
+        // even though id was set after route, it should still be able to find the destination
+        // based on route
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
-            "label=$GRAPH_LABEL startDestination=$DESTINATION_ROUTE"
+            "label=$GRAPH_LABEL startDestination={$destination}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 }
