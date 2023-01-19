@@ -137,6 +137,9 @@ class CameraUseCaseAdapterTest {
             StreamSharing::class.java,
             ImageCapture::class.java
         )
+        // Assert: StreamSharing children are bound
+        assertThat(preview.camera).isNotNull()
+        assertThat(video.camera).isNotNull()
     }
 
     @Test
@@ -179,6 +182,10 @@ class CameraUseCaseAdapterTest {
             StreamSharing::class.java,
             ImageCapture::class.java
         )
+        // Assert: StreamSharing children are bound
+        assertThat(preview.camera).isNotNull()
+        assertThat(video.camera).isNotNull()
+        assertThat(image.camera).isNotNull()
     }
 
     @Test
@@ -187,18 +194,22 @@ class CameraUseCaseAdapterTest {
         adapter.setStreamSharingEnabled(true)
         // Act: add UseCases that need StreamSharing.
         adapter.addUseCases(setOf(preview, video, image))
-        // Assert: StreamSharing exists
+        // Assert: StreamSharing exists and bound.
         adapter.cameraUseCases.hasExactTypes(
             StreamSharing::class.java,
             ImageCapture::class.java
         )
+        val streamSharing =
+            adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+        assertThat(streamSharing.camera).isNotNull()
         // Act: remove UseCase so that StreamSharing is no longer needed
         adapter.removeUseCases(setOf(video))
-        // Assert: StreamSharing removed.
+        // Assert: StreamSharing removed and unbound.
         adapter.cameraUseCases.hasExactTypes(
             Preview::class.java,
             ImageCapture::class.java
         )
+        assertThat(streamSharing.camera).isNull()
     }
 
     @Test(expected = CameraException::class)

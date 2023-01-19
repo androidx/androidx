@@ -17,7 +17,6 @@
 package androidx.camera.core.streamsharing
 
 import android.os.Build
-import androidx.camera.core.Preview
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
@@ -41,14 +40,51 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class StreamSharingTest {
 
     private val parentCamera = FakeCamera()
-    private val preview = Preview.Builder().build()
-    private val video = FakeUseCase()
+    private val child1 = FakeUseCase()
+    private val child2 = FakeUseCase()
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
+    private val camera = FakeCamera()
     private lateinit var streamSharing: StreamSharing
 
     @Before
     fun setUp() {
-        streamSharing = StreamSharing(parentCamera, setOf(preview, video), useCaseConfigFactory)
+        streamSharing = StreamSharing(parentCamera, setOf(child1, child2), useCaseConfigFactory)
+    }
+
+    @Test
+    fun bindAndUnbindParent_propagatesToChildren() {
+        // Assert: children not bound to camera by default.
+        assertThat(child1.camera).isNull()
+        assertThat(child2.camera).isNull()
+        // Act: bind to camera.
+        streamSharing.bindToCamera(camera, null, null)
+        // Assert: children bound to the virtual camera.
+        assertThat(child1.camera).isInstanceOf(VirtualCamera::class.java)
+        assertThat(child1.mergedConfigRetrieved).isTrue()
+        assertThat(child2.camera).isInstanceOf(VirtualCamera::class.java)
+        assertThat(child2.mergedConfigRetrieved).isTrue()
+        // Act: unbind.
+        streamSharing.unbindFromCamera(camera)
+        // Assert: children not bound.
+        assertThat(child1.camera).isNull()
+        assertThat(child2.camera).isNull()
+    }
+
+    @Test
+    fun attachAndDetachParent_propagatesToChildren() {
+        // Assert: children not attached by default.
+        assertThat(child1.stateAttachedCount).isEqualTo(0)
+        assertThat(child2.stateAttachedCount).isEqualTo(0)
+        // Act: attach.
+        streamSharing.onStateAttached()
+        // Assert: children attached.
+        assertThat(child1.stateAttachedCount).isEqualTo(1)
+        assertThat(child2.stateAttachedCount).isEqualTo(1)
+        // Act: detach.
+        streamSharing.onStateDetached()
+        // Assert: children not attached.
+        assertThat(child1.stateAttachedCount).isEqualTo(0)
+        assertThat(child2.stateAttachedCount).isEqualTo(0)
     }
 
     @Test
