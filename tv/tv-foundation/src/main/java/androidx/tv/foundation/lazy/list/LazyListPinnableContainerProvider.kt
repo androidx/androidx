@@ -56,7 +56,7 @@ private class LazyListPinnableItem(
 
     /**
      * It is a valid use case when users of this class call [pin] multiple times individually,
-     * so we want to do the unpinning only when all of the users called [unpin].
+     * so we want to do the unpinning only when all of the users called [release].
      */
     private var pinsCount by mutableStateOf(0)
 
@@ -77,7 +77,7 @@ private class LazyListPinnableItem(
                 if (value !== previous) {
                     _parentPinnableContainer = value
                     if (pinsCount > 0) {
-                        parentHandle?.unpin()
+                        parentHandle?.release()
                         parentHandle = value?.pin()
                     }
                 }
@@ -93,19 +93,19 @@ private class LazyListPinnableItem(
         return this
     }
 
-    override fun unpin() {
-        check(pinsCount > 0) { "Unpin should only be called once" }
+    override fun release() {
+        check(pinsCount > 0) { "Release should only be called once" }
         pinsCount--
         if (pinsCount == 0) {
             state.pinnedItems.remove(this)
-            parentHandle?.unpin()
+            parentHandle?.release()
             parentHandle = null
         }
     }
 
     fun onDisposed() {
         repeat(pinsCount) {
-            unpin()
+            release()
         }
     }
 }
