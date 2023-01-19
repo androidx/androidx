@@ -337,6 +337,23 @@ public open class NavDestination(
     }
 
     /**
+     * Determines if this NavDestination has a deep link of this route.
+     *
+     * @param [route] The route to match against this [NavDestination.route]
+     * @return The matching [DeepLinkMatch], or null if no match was found.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLink(route: String): DeepLinkMatch? {
+        val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
+        val matchingDeepLink = if (this is NavGraph) {
+            matchDeepLinkExcludingChildren(request)
+        } else {
+            matchDeepLink(request)
+        }
+        return matchingDeepLink
+    }
+
+    /**
      * Determines if this NavDestination has a deep link matching the given Uri.
      * @param navDeepLinkRequest The request to match against all deep links added in
      * [addDeepLink]
@@ -431,12 +448,7 @@ public open class NavDestination(
         if (this.route == route) return true
 
         // if no match based on routePattern, this means route contains filled in args.
-        val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
-        val matchingDeepLink = if (this is NavGraph) {
-            matchDeepLinkExcludingChildren(request)
-        } else {
-            matchDeepLink(request)
-        }
+        val matchingDeepLink = matchDeepLink(route)
 
         // If matchingDeepLink is null or it has no matching args, the route does not contain
         // filled in args. Since it didn't match with routePattern earlier, we just return false.
