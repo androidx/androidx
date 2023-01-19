@@ -1866,6 +1866,15 @@ public open class NavController(
         val backStackState = backStackStates.remove(backStackId)
         // Now restore the back stack from its saved state
         val entries = instantiateBackStack(backStackState)
+        return executeRestoreState(entries, args, navOptions, navigatorExtras)
+    }
+
+    private fun executeRestoreState(
+        entries: List<NavBackStackEntry>,
+        args: Bundle?,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ): Boolean {
         // Split up the entries by Navigator so we can restore them as an atomic operation
         val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
         entries.filterNot { entry ->
