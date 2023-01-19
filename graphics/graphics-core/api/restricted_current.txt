@@ -271,6 +271,7 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat build();
     method public androidx.graphics.surface.SurfaceControlCompat.Builder setName(String name);
     method public androidx.graphics.surface.SurfaceControlCompat.Builder setParent(android.view.SurfaceView surfaceView);
+    method public androidx.graphics.surface.SurfaceControlCompat.Builder setParent(androidx.graphics.surface.SurfaceControlCompat surfaceControl);
   }
 
   public static final class SurfaceControlCompat.Companion {

@@ -134,6 +134,19 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
+         * Set a parent [SurfaceControlCompat] for the new [SurfaceControlCompat] instance.
+         * Furthermore they stack relatively in Z order, and inherit the transformation of the
+         * parent.
+         * @param surfaceControl Target [SurfaceControlCompat] used as the parent for the newly
+         * created [SurfaceControlCompat] instance
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setParent(surfaceControl: SurfaceControlCompat): Builder {
+            mBuilderImpl.setParent(surfaceControl)
+            return this
+        }
+
+        /**
          * Set a debugging-name for the [SurfaceControlCompat].
          * @param name Debugging name configured on the [SurfaceControlCompat] instance.
          */

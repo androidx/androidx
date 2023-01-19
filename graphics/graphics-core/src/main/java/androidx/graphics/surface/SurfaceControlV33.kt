@@ -65,6 +65,14 @@ internal class SurfaceControlV33 internal constructor(
         }
 
         /**
+         * See [SurfaceControlImpl.Builder.setParent]
+         */
+        override fun setParent(surfaceControl: SurfaceControlCompat): SurfaceControlImpl.Builder {
+            builder.setParent(surfaceControl.scImpl.asFrameworkSurfaceControl())
+            return this
+        }
+
+        /**
          * See [SurfaceControlImpl.Builder.setName]
          */
         override fun setName(name: String): Builder {
@@ -271,19 +279,21 @@ internal class SurfaceControlV33 internal constructor(
             attachedSurfaceControl.applyTransactionOnDraw(mTransaction)
         }
 
-        private fun SurfaceControlImpl.asFrameworkSurfaceControl(): SurfaceControl =
-            if (this is SurfaceControlV33) {
-                surfaceControl
-            } else {
-                throw IllegalArgumentException("Parent implementation is not for Android T")
-            }
-
         private fun SyncFenceImpl.asSyncFence(): SyncFence =
             if (this is SyncFenceV33) {
                 mSyncFence
             } else {
                 throw
                 IllegalArgumentException("Expected SyncFenceCompat implementation for API level 33")
+            }
+    }
+
+    private companion object {
+        fun SurfaceControlImpl.asFrameworkSurfaceControl(): SurfaceControl =
+            if (this is SurfaceControlV33) {
+                surfaceControl
+            } else {
+                throw IllegalArgumentException("Parent implementation is not for Android T")
             }
     }
 }
