@@ -264,10 +264,10 @@ public final class Preview extends UseCase {
                 PREVIEW,
                 resolution,
                 new Matrix(),
-                /*hasCameraTransform=*/true,
+                getHasCameraTransform(),
                 requireNonNull(getCropRect(resolution)),
                 getRelativeRotation(camera),
-                /*mirroring=*/isFrontCamera(camera));
+                shouldMirror());
         mCameraEdge.addOnInvalidatedListener(this::notifyReset);
         SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
         SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
@@ -300,9 +300,13 @@ public final class Preview extends UseCase {
         }
     }
 
-    private static boolean isFrontCamera(@NonNull CameraInternal camera) {
-        Integer lensFacing = camera.getCameraInfoInternal().getLensFacing();
-        return lensFacing != null && lensFacing == CameraSelector.LENS_FACING_FRONT;
+    private boolean shouldMirror() {
+        boolean isFrontCamera = requireNonNull(getCamera()).getCameraInfoInternal().getLensFacing()
+                == CameraSelector.LENS_FACING_FRONT;
+        // Since PreviewView cannot mirror, we will always mirror preview stream during buffer
+        // copy. If there has been a buffer copy, it means it's already mirrored. Otherwise,
+        // mirror it for the front camera.
+        return getHasCameraTransform() && isFrontCamera;
     }
 
     /**
@@ -424,7 +428,7 @@ public final class Preview extends UseCase {
                         cropRect,
                         getRelativeRotation(cameraInternal),
                         getAppTargetRotation(),
-                        /*hasCameraTransform=*/true));
+                        getHasCameraTransform()));
             } else {
                 mCameraEdge.setRotationDegrees(getRelativeRotation(cameraInternal));
             }

@@ -141,6 +141,33 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun setNoCameraTransform_propagatesToCameraEdge() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val processor = createFakeSurfaceProcessor()
+        val videoCapture = createVideoCapture(createVideoOutput(), processor = processor)
+        // Act.
+        videoCapture.setHasCameraTransform(false)
+        addAndAttachUseCases(videoCapture)
+        // Assert.
+        assertThat(videoCapture.cameraEdge!!.hasCameraTransform()).isFalse()
+    }
+
+    @Test
+    fun cameraEdgeHasTransformByDefault() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val processor = createFakeSurfaceProcessor()
+        val videoCapture = createVideoCapture(createVideoOutput(), processor = processor)
+        // Act.
+        addAndAttachUseCases(videoCapture)
+        // Assert.
+        assertThat(videoCapture.cameraEdge!!.hasCameraTransform()).isTrue()
+    }
+
+    @Test
     fun setTargetResolution_throwsException() {
         assertThrows(UnsupportedOperationException::class.java) {
             createVideoCapture(targetResolution = ANY_SIZE)
@@ -963,6 +990,7 @@ class VideoCaptureTest {
 
     private fun createVideoCapture(
         videoOutput: VideoOutput = createVideoOutput(),
+        hasCameraTransform: Boolean = true,
         targetRotation: Int? = null,
         targetResolution: Size? = null,
         processor: SurfaceProcessorInternal? = null,
@@ -976,6 +1004,7 @@ class VideoCaptureTest {
             setVideoEncoderInfoFinder(videoEncoderInfoFinder)
         }.build().apply {
             setProcessor(processor)
+            setHasCameraTransform(hasCameraTransform)
         }
 
     private fun createFakeSurfaceProcessor() = FakeSurfaceProcessorInternal(mainThreadExecutor())
