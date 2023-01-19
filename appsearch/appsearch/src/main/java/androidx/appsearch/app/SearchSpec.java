@@ -1039,9 +1039,11 @@ public final class SearchSpec {
          *                            weight to set for that property.
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
+        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        // @exportToFramework:endStrip()
         @NonNull
         public SearchSpec.Builder setPropertyWeights(@NonNull String schemaType,
                 @NonNull Map<String, Double> propertyPathWeights) {
@@ -1113,9 +1115,11 @@ public final class SearchSpec {
          *                            weight to set for that property.
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
+        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        // @exportToFramework:endStrip()
         @NonNull
         public SearchSpec.Builder setPropertyWeightPaths(@NonNull String schemaType,
                 @NonNull Map<PropertyPath, Double> propertyPathWeights) {
