@@ -79,25 +79,33 @@ private fun getPendingIntentForAction(
     when (action) {
         is StartActivityAction -> {
             val params = editParams(action.parameters)
-            val intent = getStartActivityIntent(action, translationContext, params)
-            val finalIntent = if (action !is StartActivityIntentAction && !params.isEmpty()) {
-                intent.applyTrampolineIntent(
-                    translationContext,
-                    viewId,
-                    ActionTrampolineType.ACTIVITY,
-                )
-            } else {
-                intent
-            }
             return PendingIntent.getActivity(
                 translationContext.context,
                 0,
-                finalIntent,
+                getStartActivityIntent(action, translationContext, params).apply {
+                    // If there is no data URI set already, add a unique URI to ensure we get a
+                    // distinct PendingIntent.
+                    if (data == null) {
+                        data = createUniqueUri(
+                            translationContext,
+                            viewId,
+                            ActionTrampolineType.CALLBACK,
+                        )
+                    }
+                },
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
         is StartServiceAction -> {
-            val intent = getServiceIntent(action, translationContext)
+            val intent = getServiceIntent(action, translationContext).apply {
+                if (data == null) {
+                    data = createUniqueUri(
+                        translationContext,
+                        viewId,
+                        ActionTrampolineType.CALLBACK,
+                    )
+                }
+            }
             return if (action.isForegroundService &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
             ) {
@@ -118,7 +126,15 @@ private fun getPendingIntentForAction(
             return PendingIntent.getBroadcast(
                 translationContext.context,
                 0,
-                getBroadcastReceiverIntent(action, translationContext),
+                getBroadcastReceiverIntent(action, translationContext).apply {
+                    if (data == null) {
+                        data = createUniqueUri(
+                            translationContext,
+                            viewId,
+                            ActionTrampolineType.CALLBACK,
+                        )
+                    }
+                },
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }

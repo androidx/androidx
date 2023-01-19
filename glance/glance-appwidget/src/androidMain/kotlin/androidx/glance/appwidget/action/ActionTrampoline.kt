@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.StrictMode
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
@@ -98,22 +99,39 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
     val type = requireNotNull(intent.getStringExtra(ActionTypeKey)) {
         "List adapter activity trampoline invoked without trampoline type"
     }
-    when (ActionTrampolineType.valueOf(type)) {
-        ActionTrampolineType.ACTIVITY -> startActivity(actionIntent)
-        ActionTrampolineType.BROADCAST, ActionTrampolineType.CALLBACK -> sendBroadcast(actionIntent)
-        ActionTrampolineType.SERVICE -> startService(actionIntent)
-        ActionTrampolineType.FOREGROUND_SERVICE -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ListAdapterTrampolineApi26Impl.startForegroundService(
-                    context = this,
-                    intent = actionIntent
-                )
-            } else {
-                startService(actionIntent)
+    allowUnsafeIntentLaunch {
+        when (ActionTrampolineType.valueOf(type)) {
+            ActionTrampolineType.ACTIVITY -> startActivity(actionIntent)
+            ActionTrampolineType.BROADCAST, ActionTrampolineType.CALLBACK ->
+                sendBroadcast(actionIntent)
+            ActionTrampolineType.SERVICE -> startService(actionIntent)
+            ActionTrampolineType.FOREGROUND_SERVICE -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ListAdapterTrampolineApi26Impl.startForegroundService(
+                        context = this,
+                        intent = actionIntent
+                    )
+                } else {
+                    startService(actionIntent)
+                }
             }
         }
     }
     finish()
+}
+
+internal fun allowUnsafeIntentLaunch(block: () -> Unit) {
+    val previous = StrictMode.getVmPolicy()
+    val newPolicy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        StrictModeVmPolicyApi31Impl.permitUnsafeIntentLaunch(
+            StrictMode.VmPolicy.Builder(previous)
+        ).build()
+    } else {
+        StrictMode.VmPolicy.Builder().build()
+    }
+    StrictMode.setVmPolicy(newPolicy)
+    block()
+    StrictMode.setVmPolicy(previous)
 }
 
 private const val ActionTypeKey = "ACTION_TYPE"
@@ -125,4 +143,11 @@ private object ListAdapterTrampolineApi26Impl {
     fun startForegroundService(context: Context, intent: Intent) {
         context.startForegroundService(intent)
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object StrictModeVmPolicyApi31Impl {
+    @DoNotInline
+    fun permitUnsafeIntentLaunch(builder: StrictMode.VmPolicy.Builder) =
+        builder.permitUnsafeIntentLaunch()
 }

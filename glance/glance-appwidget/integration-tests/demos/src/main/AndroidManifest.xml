@@ -20,6 +20,7 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/demos_label"
+        android:name=".DemoApplication"
         android:supportsRtl="true">
 
         <activity
