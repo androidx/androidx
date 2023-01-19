@@ -24,6 +24,7 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import java.util.concurrent.Executor
+import java.util.function.Consumer
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -39,7 +40,7 @@ import org.robolectric.shadows.ShadowLog
 @RunWith(SharedRobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class ComplicationDataExpressionEvaluatorTest {
-    private val listener = mock<(WireComplicationData) -> Unit>()
+    private val listener = mock<Consumer<WireComplicationData>>()
 
     @Before
     fun setup() {
@@ -73,7 +74,7 @@ class ComplicationDataExpressionEvaluatorTest {
         evaluator.addListener(coroutineContext.asExecutor(), listener)
         advanceUntilIdle()
 
-        verify(listener, never()).invoke(any())
+        verify(listener, never()).accept(any())
     }
 
     @Test
@@ -84,7 +85,7 @@ class ComplicationDataExpressionEvaluatorTest {
         evaluator.addListener(coroutineContext.asExecutor(), listener)
         advanceUntilIdle()
 
-        verify(listener, times(1)).invoke(UNEVALUATED_DATA)
+        verify(listener, times(1)).accept(UNEVALUATED_DATA)
     }
 
     @Test
@@ -96,7 +97,7 @@ class ComplicationDataExpressionEvaluatorTest {
         evaluator.init() // Should trigger a second call with UNEVALUATED_DATA.
         advanceUntilIdle()
 
-        verify(listener, never()).invoke(any())
+        verify(listener, never()).accept(any())
     }
 
     private companion object {

@@ -19,6 +19,7 @@ package androidx.wear.watchface.complications.data
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
+import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
@@ -65,7 +66,7 @@ class ComplicationDataExpressionEvaluator(
             listeners[listener] = CoroutineScope(executor.asCoroutineDispatcher()).apply {
                 launch {
                     data.collect {
-                        if (it != null) listener(it)
+                        if (it != null) listener.accept(it)
                     }
                 }
             }
@@ -90,4 +91,4 @@ class ComplicationDataExpressionEvaluator(
     }
 }
 
-private typealias Listener = (WireComplicationData) -> Unit
+private typealias Listener = Consumer<WireComplicationData>
