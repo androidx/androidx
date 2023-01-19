@@ -21,10 +21,8 @@ package androidx.build.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintTask
-import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-
 import org.junit.Test
 
 class TargetApiAnnotationUsageDetectorTest : LintDetectorTest() {
@@ -152,7 +150,6 @@ Fix for src/androidx/sample/SampleClass.kt line 7: Replace with `@RequiresApi`:
         /* ktlint-enable max-line-length */
 
         checkTask(input)
-            .skipTestModes(TestMode.IMPORT_ALIAS) // b/266104033
             .run()
             .expect(expected)
             .expectFixDiffs(expectFixDiffs)
