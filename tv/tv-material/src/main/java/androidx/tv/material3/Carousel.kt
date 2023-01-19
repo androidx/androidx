@@ -21,8 +21,7 @@ import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -81,10 +80,13 @@ import kotlinx.coroutines.yield
  * @param modifier Modifier applied to the Carousel.
  * @param slideCount total number of slides present in the carousel.
  * @param carouselState state associated with this carousel.
- * @param timeToDisplaySlideMillis duration for which slide should be visible before moving to
+ * @param autoScrollDurationMillis duration for which slide should be visible before moving to
  * the next slide.
- * @param enterTransition transition used to bring a slide into view.
- * @param exitTransition transition used to remove a slide from view.
+ * @param contentTransformForward animation transform applied when we are moving forward in the
+ * carousel while scrolling
+ * @param contentTransformBackward animation transform applied when we are moving backward in the
+ * carousel while scrolling
+ * in the next slide
  * @param carouselIndicator indicator showing the position of the current slide among all slides.
  * @param content defines the slides for a given index.
  */
@@ -96,9 +98,9 @@ fun Carousel(
     slideCount: Int,
     modifier: Modifier = Modifier,
     carouselState: CarouselState = remember { CarouselState() },
-    timeToDisplaySlideMillis: Long = CarouselDefaults.TimeToDisplaySlideMillis,
-    enterTransition: EnterTransition = CarouselDefaults.EnterTransition,
-    exitTransition: ExitTransition = CarouselDefaults.ExitTransition,
+    autoScrollDurationMillis: Long = CarouselDefaults.TimeToDisplaySlideMillis,
+    contentTransformForward: ContentTransform = CarouselDefaults.contentTransform,
+    contentTransformBackward: ContentTransform = CarouselDefaults.contentTransform,
     carouselIndicator:
     @Composable BoxScope.() -> Unit = {
         CarouselDefaults.IndicatorRow(
@@ -109,7 +111,7 @@ fun Carousel(
                 .padding(16.dp),
         )
     },
-    content: @Composable (index: Int) -> Unit
+    content: @Composable CarouselScope.(index: Int) -> Unit
 ) {
     CarouselStateUpdater(carouselState, slideCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
@@ -119,7 +121,7 @@ fun Carousel(
     var isAutoScrollActive by remember { mutableStateOf(false) }
 
     AutoScrollSideEffect(
-        timeToDisplaySlideMillis = timeToDisplaySlideMillis,
+        autoScrollDurationMillis = autoScrollDurationMillis,
         slideCount = slideCount,
         carouselState = carouselState,
         doAutoScroll = shouldPerformAutoScroll(focusState),
@@ -147,8 +149,14 @@ fun Carousel(
     ) {
         AnimatedContent(
             targetState = carouselState.activeSlideIndex,
-            transitionSpec = { enterTransition.with(exitTransition) }
-        ) { slideIndex ->
+            transitionSpec = {
+                if (carouselState.isMovingBackward) {
+                    contentTransformBackward
+                } else {
+                    contentTransformForward
+                }
+            }
+        ) { activeSlideIndex ->
             LaunchedEffect(Unit) {
                 this@AnimatedContent.onAnimationCompletion {
                     // Outer box is focused
@@ -163,7 +171,8 @@ fun Carousel(
             // IndexOutOfBoundsException. Guarding against this by checking against slideCount
             // before invoking.
             if (slideCount > 0) {
-                content.invoke(if (slideIndex < slideCount) slideIndex else 0)
+                CarouselScope(carouselState = carouselState)
+                    .content(if (activeSlideIndex < slideCount) activeSlideIndex else 0)
             }
         }
         this.carouselIndicator()
@@ -187,7 +196,7 @@ private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspen
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun AutoScrollSideEffect(
-    timeToDisplaySlideMillis: Long,
+    autoScrollDurationMillis: Long,
     slideCount: Int,
     carouselState: CarouselState,
     doAutoScroll: Boolean,
@@ -199,7 +208,7 @@ private fun AutoScrollSideEffect(
         LaunchedEffect(carouselState) {
             while (true) {
                 yield()
-                delay(timeToDisplaySlideMillis)
+                delay(autoScrollDurationMillis)
                 if (carouselState.activePauseHandlesCount > 0) {
                     snapshotFlow { carouselState.activePauseHandlesCount }
                         .first { pauseHandleCount -> pauseHandleCount == 0 }
@@ -310,6 +319,13 @@ class CarouselState(initialActiveSlideIndex: Int = 0) {
         internal set
 
     /**
+     * Tracks whether we are scrolling backward in the Carousel. By default, we are moving forward
+     * because of auto-scroll
+     */
+    internal var isMovingBackward = false
+        private set
+
+    /**
      * Pauses the auto-scrolling behaviour of Carousel.
      * The pause request is ignored if [slideIndex] is not the current slide that is visible.
      * Returns a [ScrollPauseHandle] that can be used to resume
@@ -329,6 +345,8 @@ class CarouselState(initialActiveSlideIndex: Int = 0) {
         // No slides available for carousel
         if (slideCount == 0) return
 
+        isMovingBackward = true
+
         // Go to previous slide
         activeSlideIndex = floorMod(activeSlideIndex - 1, slideCount)
     }
@@ -336,6 +354,8 @@ class CarouselState(initialActiveSlideIndex: Int = 0) {
     internal fun moveToNextSlide(slideCount: Int) {
         // No slides available for carousel
         if (slideCount == 0) return
+
+        isMovingBackward = false
 
         // Go to next slide
         activeSlideIndex = floorMod(activeSlideIndex + 1, slideCount)
@@ -388,14 +408,13 @@ object CarouselDefaults {
     const val TimeToDisplaySlideMillis: Long = 5000
 
     /**
-     * Default transition used to bring the slide into view
+     * Transition applied when bringing it into view and removing it from the view
      */
-    val EnterTransition: EnterTransition = fadeIn(animationSpec = tween(100))
-
-    /**
-     * Default transition used to remove the slide from view
-     */
-    val ExitTransition: ExitTransition = fadeOut(animationSpec = tween(100))
+    @OptIn(ExperimentalAnimationApi::class)
+    val contentTransform: ContentTransform
+    @Composable get() =
+        fadeIn(animationSpec = tween(100))
+            .with(fadeOut(animationSpec = tween(100)))
 
     /**
      * An indicator showing the position of the current active slide among the slides of the
@@ -416,7 +435,7 @@ object CarouselDefaults {
         spacing: Dp = 8.dp,
         indicator: @Composable (isActive: Boolean) -> Unit = { isActive ->
             val activeColor = Color.White
-            val inactiveColor = activeColor.copy(alpha = 0.5f)
+            val inactiveColor = activeColor.copy(alpha = 0.3f)
             Box(
                 modifier = Modifier
                     .size(8.dp)

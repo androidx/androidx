@@ -16,6 +16,7 @@
 
 package androidx.tv.material3
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -43,90 +44,57 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 
-class CarouselItemTest {
+const val sampleButtonTag = "sample-button"
+
+class CarouselScopeTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalTvMaterial3Api::class)
-    @Test
-    fun carouselItem_overlayVisibleAfterRenderTime() {
-        val overlayEnterTransitionStartDelay: Long = 2000
-        val overlayTag = "overlay"
-        val backgroundTag = "background"
-        rule.setContent {
-            CarouselItem(
-                overlayEnterTransitionStartDelayMillis = overlayEnterTransitionStartDelay,
-                background = {
-                    Box(
-                        Modifier
-                            .testTag(backgroundTag)
-                            .size(200.dp)
-                            .background(Color.Blue)) }) {
-                Box(
-                    Modifier
-                        .testTag(overlayTag)
-                        .size(50.dp)
-                        .background(Color.Red))
-            }
-        }
-
-        // only background is visible
-        rule.onNodeWithTag(backgroundTag).assertExists()
-        rule.onNodeWithTag(overlayTag).assertDoesNotExist()
-
-        // advance clock by `overlayEnterTransitionStartDelay`
-        rule.mainClock.advanceTimeBy(overlayEnterTransitionStartDelay)
-
-        rule.onNodeWithTag(backgroundTag).assertExists()
-        rule.onNodeWithTag(overlayTag).assertExists()
-    }
-
-    @OptIn(ExperimentalTvMaterial3Api::class)
+    @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Test
     fun carouselItem_parentContainerGainsFocused_onBackPress() {
+        val containerBoxTag = "container-box"
+        val carouselItemTag = "carousel-item"
+
         rule.setContent {
-            Box(modifier = Modifier
-                .testTag("box-container")
-                .fillMaxSize()
-                .focusable()) {
-                CarouselItem(
-                    overlayEnterTransitionStartDelayMillis = 0,
-                    modifier = Modifier.testTag("carousel-item"),
-                    background = { Box(Modifier.size(300.dp).background(Color.Cyan)) }
-                ) {
-                    SampleButton()
-                }
+            val carouselState = remember { CarouselState() }
+            var isContainerBoxFocused by remember { mutableStateOf(false) }
+            Box(
+                modifier = Modifier
+                    .testTag(containerBoxTag)
+                    .fillMaxSize()
+                    .onFocusChanged { isContainerBoxFocused = it.isFocused }
+                    .border(10.dp, if (isContainerBoxFocused) Color.Green else Color.Transparent)
+                    .focusable()
+            ) {
+                CarouselScope(carouselState = carouselState)
+                    .CarouselItem(
+                        modifier = Modifier.testTag(carouselItemTag),
+                        background = {
+                            Box(
+                                modifier = Modifier
+                                    .size(300.dp)
+                                    .background(Color.Cyan))
+                        },
+                        content = { SampleButton() },
+                    )
             }
         }
 
         // Request focus for Carousel Item on start
-        rule.onNodeWithTag("carousel-item")
+        rule.onNodeWithTag(carouselItemTag)
             .performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
 
         // Check if overlay button in carousel item is focused
-        rule.onNodeWithTag("sample-button").assertIsFocused()
+        rule.onNodeWithTag(sampleButtonTag).assertIsFocused()
 
         // Trigger back press
         performKeyPress(NativeKeyEvent.KEYCODE_BACK)
         rule.waitForIdle()
 
         // Check if carousel item loses focus and parent container gains focus
-        rule.onNodeWithTag("box-container").assertIsFocused()
-    }
-
-    @Composable
-    private fun SampleButton(text: String = "sample-button") {
-        var isFocused by remember { mutableStateOf(false) }
-        BasicText(
-            text = text,
-            modifier = Modifier.testTag(text)
-                .size(100.dp, 20.dp)
-                .background(Color.Yellow)
-                .onFocusChanged { isFocused = it.isFocused }
-                .border(2.dp, if (isFocused) Color.Green else Color.Transparent)
-                .focusable()
-        )
+        rule.onNodeWithTag(containerBoxTag).assertIsFocused()
     }
 
     private fun performKeyPress(keyCode: Int, count: Int = 1) {
@@ -134,4 +102,19 @@ class CarouselItemTest {
             InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode)
         }
     }
+}
+
+@Composable
+private fun SampleButton(text: String = sampleButtonTag) {
+    var isFocused by remember { mutableStateOf(false) }
+    BasicText(
+        text = text,
+        modifier = Modifier
+            .testTag(text)
+            .size(100.dp, 20.dp)
+            .background(Color.Yellow)
+            .onFocusChanged { isFocused = it.isFocused }
+            .border(2.dp, if (isFocused) Color.Green else Color.Transparent)
+            .focusable()
+    )
 }
