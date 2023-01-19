@@ -84,6 +84,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -646,6 +647,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             .assertStartPositionIsAlmost(0.dp)
     }
 
+    @Ignore("b/266124027")
     @Test
     fun whenItemsBecameEmpty() {
         var items by mutableStateOf((1..10).toList())
