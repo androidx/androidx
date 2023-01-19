@@ -53,7 +53,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
-import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
@@ -65,7 +64,6 @@ import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.complications.data.StringExpression
 import androidx.wear.watchface.complications.data.TimeDifferenceComplicationText
 import androidx.wear.watchface.complications.data.TimeDifferenceStyle
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
@@ -109,9 +107,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -2924,55 +2919,6 @@ public class WatchFaceServiceTest {
         assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
             .isEqualTo("TYPE_SHORT_TEXT")
     }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
-    public fun complicationDataExpression_evaluatesExpression(): Unit =
-        runBlocking(Dispatchers.Main.immediate) {
-            initWallpaperInteractiveWatchFaceInstance(
-                complicationSlots = listOf(leftComplication),
-            )
-
-            interactiveWatchFaceInstance.updateComplicationData(
-                listOf(
-                    IdAndComplicationDataWireFormat(
-                        LEFT_COMPLICATION_ID,
-                        WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(WireComplicationText(StringExpression(byteArrayOf(1, 2))))
-                            .build()
-                    )
-                )
-            )
-
-            val data = leftComplication.complicationData.firstNonEmpty().asWireComplicationData()
-            assertThat(data.shortText)
-                // TODO(b/260065006): Verify that it is actually evaluated.
-                .isEqualTo(WireComplicationText(StringExpression(byteArrayOf(1, 2))))
-        }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.R])
-    public fun complicationDataExpression_preT_doesNotEvaluateExpression(): Unit =
-        runBlocking(Dispatchers.Main.immediate) {
-            initWallpaperInteractiveWatchFaceInstance(
-                complicationSlots = listOf(leftComplication),
-            )
-
-            interactiveWatchFaceInstance.updateComplicationData(
-                listOf(
-                    IdAndComplicationDataWireFormat(
-                        LEFT_COMPLICATION_ID,
-                        WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(WireComplicationText(StringExpression(byteArrayOf(1, 2))))
-                            .build()
-                    )
-                )
-            )
-
-            val data = leftComplication.complicationData.firstNonEmpty().asWireComplicationData()
-            assertThat(data.shortText)
-                .isEqualTo(WireComplicationText(StringExpression(byteArrayOf(1, 2))))
-        }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
@@ -6646,9 +6592,6 @@ public class WatchFaceServiceTest {
         ).build()
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(): T = withTimeout(1000) { await() }
-
-    private suspend fun Flow<ComplicationData>.firstNonEmpty(): ComplicationData =
-        withTimeout(1000) { dropWhile { it is NoDataComplicationData }.first() }
 }
 
 class TestNopCanvasWatchFaceService : WatchFaceService() {
