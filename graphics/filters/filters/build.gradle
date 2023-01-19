@@ -26,19 +26,21 @@ dependencies {
     def media3Version = '1.0.0-beta03'
 
     api(libs.kotlinStdlib)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation("androidx.test:core:1.4.0@aar")
 
     // Add dependencies here
+    implementation("androidx.annotation:annotation:1.1.0")
     implementation('androidx.media3:media3-effect:' + media3Version)
     implementation('androidx.media3:media3-common:' + media3Version)
     implementation('androidx.media3:media3-ui:' + media3Version)
     implementation('androidx.media3:media3-exoplayer:' + media3Version)
     implementation('androidx.media3:media3-transformer:' + media3Version)
 
+    // Test dependencies
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation("androidx.test:core:1.4.0@aar")
 }
 
 android {
@@ -47,16 +49,6 @@ android {
     }
 
     namespace "androidx.graphics.filters"
-    buildFeatures {
-        viewBinding true
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 androidx {
