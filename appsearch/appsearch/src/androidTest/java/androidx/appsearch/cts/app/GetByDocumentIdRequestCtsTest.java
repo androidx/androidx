@@ -42,7 +42,7 @@ public class GetByDocumentIdRequestCtsTest {
                         .addIds("uri1", "uri2")
                         .addIds(Arrays.asList("uri3", "uri4"))
                         .addProjection("schemaType1", expectedPropertyPaths1)
-                        .addProjection("schemaType2", expectedPropertyPaths2)
+                        .addProjectionPaths("schemaType2", expectedPropertyPathObjects2)
                         .build();
 
         assertThat(getByDocumentIdRequest.getIds()).containsExactly(
