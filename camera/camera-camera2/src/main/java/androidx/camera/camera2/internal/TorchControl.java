@@ -79,7 +79,7 @@ final class TorchControl {
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
 
-        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics);
+        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics::get);
         mTorchState = new MutableLiveData<>(DEFAULT_TORCH_STATE);
         Camera2CameraControlImpl.CaptureResultListener captureResultListener = captureResult -> {
             if (mEnableTorchCompleter != null) {

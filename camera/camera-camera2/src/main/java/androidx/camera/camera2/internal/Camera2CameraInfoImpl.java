@@ -267,7 +267,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat);
+        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat::get);
     }
 
     @NonNull
