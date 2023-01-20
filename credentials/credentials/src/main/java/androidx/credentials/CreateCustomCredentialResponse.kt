@@ -27,6 +27,9 @@ import android.os.Bundle
  * you have any other library at interest that supports this custom [type] of credential response,
  * and if so use its parsing utilities to resolve to a type-safe class within that library.
  *
+ * Note: The Bundle keys for [data] should not be in the form of androidx.credentials.*` as they
+ * are reserved for internal use by this androidx library.
+ *
  * @property type the credential type determined by the credential-type-specific subclass for custom
  * use cases
  * @property data the response data in the [Bundle] format for custom use cases

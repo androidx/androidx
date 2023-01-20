@@ -29,6 +29,7 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.internal.FrameworkImplHelper
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -39,7 +40,7 @@ import java.util.concurrent.Executors
  * @hide
  */
 @RequiresApi(34)
-class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
+internal class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     private val credentialManager: CredentialManager =
         context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager
 
@@ -58,6 +59,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
                 Log.i(TAG, "GetCredentialResponse returned from framework")
                 callback.onResult(convertGetResponseToJetpackClass(response))
             }
+
             override fun onError(error: android.credentials.GetCredentialException) {
                 Log.i(TAG, "GetCredentialResponse error returned from framework")
                 // TODO("Covert to the appropriate exception")
@@ -69,7 +71,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             activity,
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
-            outcome)
+            outcome
+        )
     }
 
     override fun onCreateCredential(
@@ -86,8 +89,11 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             android.credentials.CreateCredentialException> {
             override fun onResult(response: android.credentials.CreateCredentialResponse) {
                 Log.i(TAG, "Create Result returned from framework: ")
-                callback.onResult(CreateCredentialResponse.createFrom(
-                    request.type, response.data))
+                callback.onResult(
+                    CreateCredentialResponse.createFrom(
+                        request.type, response.data
+                    )
+                )
             }
 
             override fun onError(error: android.credentials.CreateCredentialException) {
@@ -100,13 +106,15 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         credentialManager.createCredential(
             android.credentials.CreateCredentialRequest(
                 request.type,
-                request.credentialData,
+                FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
                 request.candidateQueryData,
-                request.isSystemProviderRequired),
+                request.isSystemProviderRequired
+            ),
             activity,
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
-            outcome)
+            outcome
+        )
     }
 
     private fun convertGetRequestToFrameworkClass(request: GetCredentialRequest):
@@ -116,7 +124,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             builder.addGetCredentialOption(
                 android.credentials.GetCredentialOption(
                     it.type, it.requestData, it.candidateQueryData, it.isSystemProviderRequired
-                ))
+                )
+            )
         }
         return builder.build()
     }
@@ -125,8 +134,11 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         response: android.credentials.GetCredentialResponse
     ): GetCredentialResponse {
         val credential = response.credential
-        return GetCredentialResponse(Credential.createFrom(
-            credential.type, credential.data))
+        return GetCredentialResponse(
+            Credential.createFrom(
+                credential.type, credential.data
+            )
+        )
     }
 
     override fun isAvailableOnDevice(): Boolean {
@@ -143,6 +155,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         // TODO("Not yet implemented")
     }
 
+    /** @hide */
     companion object {
         private const val TAG = "CredManProvService"
     }
