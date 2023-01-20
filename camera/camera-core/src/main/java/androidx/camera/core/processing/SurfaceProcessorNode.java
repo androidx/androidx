@@ -163,7 +163,6 @@ public class SurfaceProcessorNode implements
         setUpRotationUpdates(
                 surfaceRequest,
                 outputs,
-                input.getMirroring(),
                 input.getRotationDegrees());
         try {
             mSurfaceProcessor.onInputSurface(surfaceRequest);
@@ -226,23 +225,23 @@ public class SurfaceProcessorNode implements
      *
      * @param inputSurfaceRequest {@link SurfaceRequest} of the input edge.
      * @param outputs             the output edges.
-     * @param mirrored            whether the node mirrors the buffer.
      * @param rotatedDegrees      how much the node rotates the buffer.
      */
     void setUpRotationUpdates(
             @NonNull SurfaceRequest inputSurfaceRequest,
             @NonNull Collection<SurfaceEdge> outputs,
-            boolean mirrored,
             int rotatedDegrees) {
         inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
-            // To obtain the rotation degrees delta, the rotation performed by the node must be
-            // eliminated.
-            int rotationDegrees = info.getRotationDegrees() - rotatedDegrees;
-            if (mirrored) {
-                rotationDegrees = -rotationDegrees;
-            }
-            rotationDegrees = within360(rotationDegrees);
             for (SurfaceEdge output : outputs) {
+                // To obtain the rotation degrees delta, the rotation performed by the node must be
+                // eliminated.
+                int rotationDegrees = info.getRotationDegrees() - rotatedDegrees;
+                if (output.getMirroring()) {
+                    // The order of transformation is cropping -> rotation -> mirroring. To
+                    // change the rotation, one must consider the mirroring.
+                    rotationDegrees = -rotationDegrees;
+                }
+                rotationDegrees = within360(rotationDegrees);
                 output.setRotationDegrees(rotationDegrees);
             }
         });
