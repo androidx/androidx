@@ -18,7 +18,6 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKaptTest
@@ -157,7 +156,7 @@ class DefaultsInDaoTest(
                 ).filterIsInstance<XTypeElement>()
                 .forEach { dao ->
                     val db = invocation.context.processingEnv
-                        .requireTypeElement(ROOM_DB.toJavaPoet())
+                        .requireTypeElement(ROOM_DB)
                     val dbType = db.type
                     val parser = DaoProcessor(
                         baseContext = invocation.context,
@@ -170,7 +169,7 @@ class DefaultsInDaoTest(
                         .write(invocation.processingEnv)
                     invocation.assertCompilationResult {
                         val relativePath =
-                            parsedDao.implTypeName.toJavaPoet().simpleName() + ".java"
+                            parsedDao.implTypeName.canonicalName + ".java"
                         handler(generatedSourceFileWithPath(relativePath))
                     }
                 }

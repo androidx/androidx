@@ -33,12 +33,6 @@ import com.squareup.javapoet.ClassName
 import java.util.concurrent.Callable
 import kotlin.reflect.KClass
 
-val L = "\$L"
-val T = "\$T"
-val N = "\$N"
-val S = "\$S"
-val W = "\$W"
-
 val KClass<*>.typeName: ClassName
     get() = ClassName.get(this.java)
 val KClass<*>.arrayTypeName: ArrayTypeName

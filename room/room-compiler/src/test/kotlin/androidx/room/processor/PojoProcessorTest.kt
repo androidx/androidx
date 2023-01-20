@@ -18,7 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Embedded
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -43,7 +43,6 @@ import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import java.io.File
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -213,8 +212,8 @@ class PojoProcessorTest {
             assertThat(parent.prefix, `is`(""))
             assertThat(parent.field.name, `is`("myPoint"))
             assertThat(
-                parent.pojo.typeName.toJavaPoet(),
-                `is`(ClassName.get("foo.bar.MyPojo", "Point") as TypeName)
+                parent.pojo.typeName,
+                `is`(XClassName.get("foo.bar.MyPojo", "Point"))
             )
         }
     }
@@ -316,8 +315,8 @@ class PojoProcessorTest {
             )
             val pointField = pojo.embeddedFields.first { it.field.name == "genericField" }
             assertThat(
-                pointField.pojo.typeName.toJavaPoet(),
-                `is`(ClassName.get("foo.bar", "Point") as TypeName)
+                pointField.pojo.typeName,
+                `is`(XClassName.get("foo.bar", "Point"))
             )
         }
     }

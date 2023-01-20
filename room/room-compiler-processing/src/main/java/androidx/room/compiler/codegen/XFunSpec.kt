@@ -36,7 +36,9 @@ interface XFunSpec : TargetLanguage {
 
         val name: String
 
-        fun addAnnotation(annotation: XAnnotationSpec)
+        fun addAnnotation(annotation: XAnnotationSpec): Builder
+
+        fun addAbstractModifier(): Builder
 
         // TODO(b/247247442): Maybe make a XParameterSpec ?
         fun addParameter(

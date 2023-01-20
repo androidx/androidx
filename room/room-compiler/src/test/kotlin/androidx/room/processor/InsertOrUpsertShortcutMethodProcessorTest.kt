@@ -23,7 +23,6 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -647,7 +646,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = USERNAME_TYPE_NAME.toJavaPoet().toString(),
+                        partialEntityName = USERNAME_TYPE_NAME.toString(CodeLanguage.JAVA),
                         missingColumnNames = listOf("ageColumn")
                     )
                 )
