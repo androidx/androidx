@@ -15,6 +15,7 @@ package androidx.profileinstaller {
     method @WorkerThread public static void writeProfile(android.content.Context, java.util.concurrent.Executor, androidx.profileinstaller.ProfileInstaller.DiagnosticsCallback);
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST = 2; // 0x2
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 1; // 0x1
+    field public static final int DIAGNOSTIC_PROFILE_IS_COMPRESSED = 5; // 0x5
     field public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 4; // 0x4
     field public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 3; // 0x3
     field public static final int RESULT_ALREADY_INSTALLED = 2; // 0x2
