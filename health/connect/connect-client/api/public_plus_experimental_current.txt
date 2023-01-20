@@ -9,12 +9,12 @@ package androidx.health.connect.client {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
-    method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
+    method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public androidx.health.connect.client.PermissionController getPermissionController();
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.InsertRecordsResponse>);
     method public default static boolean isApiSupported();
-    method public default static boolean isProviderAvailable(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
+    method public default static boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
     method public default static boolean isProviderAvailable(android.content.Context context);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecord(kotlin.reflect.KClass<T> recordType, String recordId, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
@@ -24,10 +24,10 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectClient.Companion {
-    method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
+    method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public boolean isApiSupported();
-    method public boolean isProviderAvailable(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
+    method public boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
     method public boolean isProviderAvailable(android.content.Context context);
   }
 

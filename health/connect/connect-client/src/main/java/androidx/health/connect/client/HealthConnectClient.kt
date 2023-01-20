@@ -359,6 +359,9 @@ interface HealthConnectClient {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 35000
+
         @RestrictTo(RestrictTo.Scope.LIBRARY) // To be released after testing
         const val HEALTH_CONNECT_SETTING_INTENT_ACTION =
             "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
@@ -382,27 +385,29 @@ interface HealthConnectClient {
          *
          * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
          *
-         * @param providerPackageNames optional package provider to choose implementation from
+         * @param context the context
+         * @param providerPackageName optional package provider to choose for backend implementation
          * @return whether the api is available
          */
         @JvmOverloads
         @JvmStatic
         public fun isProviderAvailable(
             context: Context,
-            providerPackageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Boolean {
             if (!isApiSupported()) {
                 return false
             }
-            return providerPackageNames.any { isPackageInstalled(context.packageManager, it) }
+            return isPackageInstalled(context.packageManager, providerPackageName)
         }
 
         /**
          * Retrieves an IPC-backed [HealthConnectClient] instance binding to an available
          * implementation.
          *
-         * @param providerPackageNames optional alternative package provider to choose
-         * implementation from
+         * @param context the context
+         * @param providerPackageName optional alternative package provider to choose for backend
+         * implementation
          * @return instance of [HealthConnectClient] ready for issuing requests
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          * @throws IllegalStateException if service not available due to not installed
@@ -413,19 +418,16 @@ interface HealthConnectClient {
         @JvmStatic
         public fun getOrCreate(
             context: Context,
-            providerPackageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): HealthConnectClient {
             if (!isApiSupported()) {
                 throw UnsupportedOperationException("SDK version too low")
             }
-            if (!isProviderAvailable(context, providerPackageNames)) {
+            if (!isProviderAvailable(context, providerPackageName)) {
                 throw IllegalStateException("Service not available")
             }
-            val enabledPackage =
-                providerPackageNames.first { isPackageInstalled(context.packageManager, it) }
             return HealthConnectClientImpl(
-                enabledPackage,
-                HealthDataService.getClient(context, enabledPackage)
+                HealthDataService.getClient(context, providerPackageName)
             )
         }
 
@@ -444,7 +446,9 @@ interface HealthConnectClient {
                     return false
                 }
             return packageInfo.applicationInfo.enabled &&
-                PackageInfoCompat.getLongVersionCode(packageInfo) > 35000 &&
+                (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
+                    PackageInfoCompat.getLongVersionCode(packageInfo) >=
+                    DEFAULT_PROVIDER_MIN_VERSION_CODE) &&
                 hasBindableService(packageManager, packageName)
         }
 

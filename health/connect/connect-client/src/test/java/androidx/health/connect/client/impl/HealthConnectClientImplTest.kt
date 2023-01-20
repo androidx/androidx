@@ -143,7 +143,6 @@ class HealthConnectClientImplTest {
 
         healthConnectClient =
             HealthConnectClientImpl(
-                PROVIDER_PACKAGE_NAME,
                 ServiceBackedHealthDataClient(
                     ApplicationProvider.getApplicationContext(),
                     clientConfig,
