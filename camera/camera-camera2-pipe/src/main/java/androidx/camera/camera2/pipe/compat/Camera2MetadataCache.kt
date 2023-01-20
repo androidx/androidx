@@ -50,11 +50,11 @@ internal class Camera2MetadataCache @Inject constructor(
     private val permissions: Permissions,
     private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
     private val timeSource: TimeSource
-) : CameraMetadataProvider {
+) : Camera2MetadataProvider {
     @GuardedBy("cache")
     private val cache = ArrayMap<String, CameraMetadata>()
 
-    override suspend fun getMetadata(cameraId: CameraId): CameraMetadata {
+    override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
             val existing = cache[cameraId.value]
             if (existing != null) {
@@ -64,11 +64,11 @@ internal class Camera2MetadataCache @Inject constructor(
 
         // Suspend and query CameraMetadata on a background thread.
         return withContext(threads.backgroundDispatcher) {
-            awaitMetadata(cameraId)
+            awaitCameraMetadata(cameraId)
         }
     }
 
-    override fun awaitMetadata(cameraId: CameraId): CameraMetadata {
+    override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
         return Debug.trace("Camera-${cameraId.value}#awaitMetadata") {
             synchronized(cache) {
                 val existing = cache[cameraId.value]
@@ -82,10 +82,6 @@ internal class Camera2MetadataCache @Inject constructor(
             }
             return@trace createCameraMetadata(cameraId, true)
         }
-    }
-
-    fun readCameraMetadata(cameraId: CameraId): CameraMetadata {
-        return createCameraMetadata(cameraId, isMetadataRedacted())
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {

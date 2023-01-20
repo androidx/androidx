@@ -160,7 +160,7 @@ internal data class OpenCameraResult(
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class CameraStateOpener @Inject constructor(
     private val cameraOpener: CameraOpener,
-    private val cameraMetadataProvider: CameraMetadataProvider,
+    private val camera2MetadataProvider: Camera2MetadataProvider,
     private val timeSource: TimeSource,
     private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
@@ -169,7 +169,7 @@ internal class CameraStateOpener @Inject constructor(
         attempts: Int,
         requestTimestamp: TimestampNs,
     ): OpenCameraResult {
-        val metadata = cameraMetadataProvider.getMetadata(cameraId)
+        val metadata = camera2MetadataProvider.getCameraMetadata(cameraId)
         val cameraState = AndroidCameraState(
             cameraId,
             metadata,

@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
-import androidx.camera.camera2.pipe.compat.Camera2CameraDevices
+import androidx.camera.camera2.pipe.internal.CameraDevicesImpl
 import androidx.camera.camera2.pipe.compat.DevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
@@ -88,7 +88,7 @@ internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
 @Module
 internal abstract class CameraPipeModules {
     @Binds
-    abstract fun bindCameras(impl: Camera2CameraDevices): CameraDevices
+    abstract fun bindCameras(impl: CameraDevicesImpl): CameraDevices
 
     @Binds
     abstract fun bindTimeSource(timeSource: SystemTimeSource): TimeSource

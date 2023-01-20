@@ -67,8 +67,8 @@ internal class Camera2MetadataCacheTest {
             SystemTimeSource()
         )
 
-        val metadata0 = cache.awaitMetadata(camera0)
-        val metadata1 = cache.awaitMetadata(camera1)
+        val metadata0 = cache.awaitCameraMetadata(camera0)
+        val metadata1 = cache.awaitCameraMetadata(camera1)
 
         // Check to make sure that metadata is not null, and that various properties do not crash
         // on older OS versions when accessed.
