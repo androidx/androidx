@@ -18,68 +18,81 @@ package androidx.wear.protolayout.expression;
 
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_AND;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_OR;
-
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
-
 @RunWith(RobolectricTestRunner.class)
 public final class DynamicBoolTest {
-    private static final String STATE_KEY = "state-key";
+  private static final String STATE_KEY = "state-key";
 
-    @Test
-    public void constantBool() {
-        DynamicBool falseBool = DynamicBool.constant(false);
-        DynamicBool trueBool = DynamicBool.constant(true);
+  @Test
+  public void constantBool() {
+    DynamicBool falseBool = DynamicBool.constant(false);
+    DynamicBool trueBool = DynamicBool.constant(true);
 
-        assertThat(falseBool.toDynamicBoolProto().getFixed().getValue()).isFalse();
-        assertThat(trueBool.toDynamicBoolProto().getFixed().getValue()).isTrue();
-    }
+    assertThat(falseBool.toDynamicBoolProto().getFixed().getValue()).isFalse();
+    assertThat(trueBool.toDynamicBoolProto().getFixed().getValue()).isTrue();
+  }
 
-    public void stateEntryValueBool() {
-        DynamicBool stateBool = DynamicBool.fromState(STATE_KEY);
+  @Test
+  public void stateEntryValueBool() {
+    DynamicBool stateBool = DynamicBool.fromState(STATE_KEY);
 
-        assertThat(stateBool.toDynamicBoolProto().getStateSource().getSourceKey()).isEqualTo(
-                STATE_KEY);
-    }
+    assertThat(stateBool.toDynamicBoolProto().getStateSource().getSourceKey()).isEqualTo(STATE_KEY);
+  }
 
-    @Test
-    public void andOpBool() {
-        DynamicBool firstBool = DynamicBool.constant(false);
-        DynamicBool secondBool = DynamicBool.constant(true);
+  @Test
+  public void andOpBool() {
+    DynamicBool firstBool = DynamicBool.constant(false);
+    DynamicBool secondBool = DynamicBool.constant(true);
 
-        DynamicBool result = firstBool.and(secondBool);
-        assertThat(result.toDynamicBoolProto().getLogicalOp().getOperationType())
-                .isEqualTo(LOGICAL_OP_TYPE_AND);
-        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputLhs())
-                .isEqualTo(firstBool.toDynamicBoolProto());
-        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputRhs())
-                .isEqualTo(secondBool.toDynamicBoolProto());
-    }
+    DynamicBool result = firstBool.and(secondBool);
+    assertThat(result.toDynamicBoolProto().getLogicalOp().getOperationType())
+        .isEqualTo(LOGICAL_OP_TYPE_AND);
+    assertThat(result.toDynamicBoolProto().getLogicalOp().getInputLhs())
+        .isEqualTo(firstBool.toDynamicBoolProto());
+    assertThat(result.toDynamicBoolProto().getLogicalOp().getInputRhs())
+        .isEqualTo(secondBool.toDynamicBoolProto());
+  }
 
-    @Test
-    public void orOpBool() {
-        DynamicBool firstBool = DynamicBool.constant(false);
-        DynamicBool secondBool = DynamicBool.constant(true);
+  @Test
+  public void orOpBool() {
+    DynamicBool firstBool = DynamicBool.constant(false);
+    DynamicBool secondBool = DynamicBool.constant(true);
 
-        DynamicBool result = firstBool.or(secondBool);
-        assertThat(result.toDynamicBoolProto().getLogicalOp().getOperationType())
-                .isEqualTo(LOGICAL_OP_TYPE_OR);
-        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputLhs())
-                .isEqualTo(firstBool.toDynamicBoolProto());
-        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputRhs())
-                .isEqualTo(secondBool.toDynamicBoolProto());
-    }
+    DynamicBool result = firstBool.or(secondBool);
+    assertThat(result.toDynamicBoolProto().getLogicalOp().getOperationType())
+        .isEqualTo(LOGICAL_OP_TYPE_OR);
+    assertThat(result.toDynamicBoolProto().getLogicalOp().getInputLhs())
+        .isEqualTo(firstBool.toDynamicBoolProto());
+    assertThat(result.toDynamicBoolProto().getLogicalOp().getInputRhs())
+        .isEqualTo(secondBool.toDynamicBoolProto());
+  }
 
-    public void negateOpBool() {
-        DynamicBool firstBool = DynamicBool.constant(true);
+  @Test
+  public void negateOpBool() {
+    DynamicBool firstBool = DynamicBool.constant(true);
 
-        assertThat(firstBool.isTrue().toDynamicBoolProto()).isEqualTo(firstBool);
-        assertThat(firstBool.toDynamicBoolProto().getNotOp().getInput())
-                .isEqualTo(firstBool);
-    }
+    assertThat(firstBool.isTrue().toDynamicBoolProto()).isEqualTo(firstBool.toDynamicBoolProto());
+    assertThat(firstBool.isFalse().toDynamicBoolProto().getNotOp().getInput())
+        .isEqualTo(firstBool.toDynamicBoolProto());
+  }
+
+  @Test
+  public void validProto() {
+    DynamicBool from = DynamicBool.constant(true);
+    DynamicBool to = DynamicBool.fromByteArray(from.toDynamicBoolByteArray());
+
+    assertThat(to.toDynamicBoolProto().getFixed().getValue()).isTrue();
+  }
+
+  @Test
+  public void invalidProto() {
+    assertThrows(IllegalArgumentException.class, () -> DynamicBool.fromByteArray(new byte[] {1}));
+  }
 }

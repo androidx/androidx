@@ -26,8 +26,9 @@ import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto;
 import androidx.wear.protolayout.expression.proto.StateEntryProto;
 
-/** Builders for fixed value primitive types that can be used in dynamic expressions and in for
- * state state valuess
+/**
+ * Builders for fixed value primitive types that can be used in dynamic expressions and in for state
+ * state values.
  */
 final class FixedValueBuilders {
   private FixedValueBuilders() {}
