@@ -41,41 +41,34 @@ import kotlinx.atomicfu.atomic
 internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
 
     /**
-     * @see [CameraCaptureSession.getDevice]
-     *
      * @return The [CameraDeviceWrapper] that created this CameraCaptureSession
+     * @see [CameraCaptureSession.getDevice]
      */
     val device: CameraDeviceWrapper
 
     /**
+     * @return True if the application can submit reprocess capture requests with this camera
+     *   capture session. false otherwise.
      * @see [CameraCaptureSession.isReprocessable].
-     *
-     * @return True if the application can submit reprocess capture requests with this camera capture
-     * session. false otherwise.
      */
     val isReprocessable: Boolean
 
     /**
-     * @see [CameraCaptureSession.getInputSurface]
-     *
      * @return The Surface where reprocessing capture requests get the input images from.
+     * @see [CameraCaptureSession.getInputSurface]
      */
     val inputSurface: Surface?
 
-    /**
-     * @see [CameraCaptureSession.abortCaptures].
-     */
-    @Throws(ObjectUnavailableException::class)
-    fun abortCaptures()
+    /** @see [CameraCaptureSession.abortCaptures]. */
+    @Throws(ObjectUnavailableException::class) fun abortCaptures()
 
     /**
-     * @see [CameraCaptureSession.capture].
-     *
      * @param request The settings for this exposure
      * @param listener The callback object to notify once this request has been processed.
      * @param handler The handler on which the listener should be invoked, or null to use the
-     * current thread's looper.
+     *   current thread's looper.
      * @return An unique capture sequence id.
+     * @see [CameraCaptureSession.capture].
      */
     @Throws(ObjectUnavailableException::class)
     fun capture(
@@ -85,14 +78,13 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     ): Int
 
     /**
-     * @see [CameraCaptureSession.captureBurst].
-     *
      * @param requests A list of CaptureRequest(s) for this sequence of exposures
-     * @param listener A callback object to notify each time one of the requests in the burst has been
-     * processed.
-     * @param handler The handler on which the listener should be invoked, or null to use the current
-     * thread's looper.
+     * @param listener A callback object to notify each time one of the requests in the burst has
+     *   been processed.
+     * @param handler The handler on which the listener should be invoked, or null to use the
+     *   current thread's looper.
      * @return An unique capture sequence id.
+     * @see [CameraCaptureSession.captureBurst].
      */
     @Throws(ObjectUnavailableException::class)
     fun captureBurst(
@@ -102,14 +94,13 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     ): Int
 
     /**
-     * @see [CameraCaptureSession.setRepeatingBurst]
-     *
      * @param requests A list of settings to cycle through indefinitely.
      * @param listener A callback object to notify each time one of the requests in the repeating
-     * bursts has finished processing.
-     * @param handler The handler on which the listener should be invoked, or null to use the current
-     * thread's looper.
+     *   bursts has finished processing.
+     * @param handler The handler on which the listener should be invoked, or null to use the
+     *   current thread's looper.
      * @return An unique capture sequence ID.
+     * @see [CameraCaptureSession.setRepeatingBurst]
      */
     @Throws(ObjectUnavailableException::class)
     fun setRepeatingBurst(
@@ -119,13 +110,12 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     ): Int
 
     /**
-     * @see [CameraCaptureSession.setRepeatingRequest].
-     *
      * @param request The request to repeat indefinitely.
      * @param listener The callback object to notify every time the request finishes processing.
-     * @param handler The handler on which the listener should be invoked, or null to use the current
-     * thread's looper.
+     * @param handler The handler on which the listener should be invoked, or null to use the
+     *   current thread's looper.
      * @return An unique capture sequence ID.
+     * @see [CameraCaptureSession.setRepeatingRequest].
      */
     @Throws(ObjectUnavailableException::class)
     fun setRepeatingRequest(
@@ -134,13 +124,10 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
         handler: Handler?
     ): Int
 
-    /**
-     * @see [CameraCaptureSession.stopRepeating].
-     */
-    @Throws(ObjectUnavailableException::class)
-    fun stopRepeating()
+    /** @see [CameraCaptureSession.stopRepeating]. */
+    @Throws(ObjectUnavailableException::class) fun stopRepeating()
 
-    /** Forwards to CameraCaptureSession#finalizeOutputConfigurations  */
+    /** Forwards to CameraCaptureSession#finalizeOutputConfigurations */
     @Throws(ObjectUnavailableException::class)
     fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>)
 
@@ -165,10 +152,10 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
         fun onCaptureQueueEmpty(session: CameraCaptureSessionWrapper)
 
         /**
-         * Artificial event indicating the session is no longer in use and may be called
-         * several times. [onClosed] and [onConfigureFailed] will call this method directly. This
-         * method should also be called whenever the underlying camera devices is closed, and
-         * whenever a subsequent capture session is configured on the same camera device.
+         * Artificial event indicating the session is no longer in use and may be called several
+         * times. [onClosed] and [onConfigureFailed] will call this method directly. This method
+         * should also be called whenever the underlying camera devices is closed, and whenever a
+         * subsequent capture session is configured on the same camera device.
          *
          * See b/249258992 for more details.
          */
@@ -255,8 +242,7 @@ internal class AndroidCaptureSessionStateCallback(
         // this happens, several methods are not allowed, the behavior is different, and interacting
         // with the session requires several behavior changes for these interactions to work well.
         return if (Build.VERSION.SDK_INT >= 23 &&
-            session is CameraConstrainedHighSpeedCaptureSession
-        ) {
+            session is CameraConstrainedHighSpeedCaptureSession) {
             AndroidCameraConstrainedHighSpeedCaptureSession(device, session)
         } else {
             AndroidCameraCaptureSession(device, session)
@@ -271,9 +257,7 @@ internal class AndroidCaptureSessionStateCallback(
     private fun finalizeLastSession() {
         // Clear out the reference to the previous session, if one was set.
         val previousSession = _lastStateCallback.getAndSet(null)
-        previousSession?.let {
-            previousSession.onSessionFinalized()
-        }
+        previousSession?.let { previousSession.onSessionFinalized() }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -295,9 +279,7 @@ internal open class AndroidCameraCaptureSession(
     private val cameraCaptureSession: CameraCaptureSession
 ) : CameraCaptureSessionWrapper {
     override fun abortCaptures() {
-        rethrowCamera2Exceptions {
-            cameraCaptureSession.abortCaptures()
-        }
+        rethrowCamera2Exceptions { cameraCaptureSession.abortCaptures() }
     }
 
     override fun capture(
@@ -305,9 +287,7 @@ internal open class AndroidCameraCaptureSession(
         listener: CameraCaptureSession.CaptureCallback,
         handler: Handler?
     ): Int {
-        return rethrowCamera2Exceptions {
-            cameraCaptureSession.capture(request, listener, handler)
-        }
+        return rethrowCamera2Exceptions { cameraCaptureSession.capture(request, listener, handler) }
     }
 
     override fun captureBurst(
@@ -326,10 +306,7 @@ internal open class AndroidCameraCaptureSession(
         handler: Handler?
     ): Int {
         return rethrowCamera2Exceptions {
-            cameraCaptureSession.setRepeatingBurst(
-                requests, listener,
-                handler
-            )
+            cameraCaptureSession.setRepeatingBurst(requests, listener, handler)
         }
     }
 
@@ -344,9 +321,7 @@ internal open class AndroidCameraCaptureSession(
     }
 
     override fun stopRepeating() {
-        rethrowCamera2Exceptions {
-            cameraCaptureSession.stopRepeating()
-        }
+        rethrowCamera2Exceptions { cameraCaptureSession.stopRepeating() }
     }
 
     override val isReprocessable: Boolean
@@ -378,17 +353,16 @@ internal open class AndroidCameraCaptureSession(
 
         rethrowCamera2Exceptions {
             Api26Compat.finalizeOutputConfigurations(
-                cameraCaptureSession,
-                outputConfigs.map { it.unwrapAs(OutputConfiguration::class) }
-            )
+                cameraCaptureSession, outputConfigs.map { it.unwrapAs(OutputConfiguration::class) })
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        CameraCaptureSession::class -> cameraCaptureSession as T?
-        else -> null
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CameraCaptureSession::class -> cameraCaptureSession as T?
+            else -> null
+        }
 
     override fun close() {
         return cameraCaptureSession.close()
@@ -396,11 +370,12 @@ internal open class AndroidCameraCaptureSession(
 }
 
 /**
- * An implementation of [CameraConstrainedHighSpeedCaptureSessionWrapper] forwards calls to a
- * real [CameraConstrainedHighSpeedCaptureSession].
+ * An implementation of [CameraConstrainedHighSpeedCaptureSessionWrapper] forwards calls to a real
+ * [CameraConstrainedHighSpeedCaptureSession].
  */
 @RequiresApi(23)
-internal class AndroidCameraConstrainedHighSpeedCaptureSession internal constructor(
+internal class AndroidCameraConstrainedHighSpeedCaptureSession
+internal constructor(
     device: CameraDeviceWrapper,
     private val session: CameraConstrainedHighSpeedCaptureSession
 ) : AndroidCameraCaptureSession(device, session), CameraConstrainedHighSpeedCaptureSessionWrapper {
@@ -433,8 +408,9 @@ internal class AndroidCameraConstrainedHighSpeedCaptureSession internal construc
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        CameraConstrainedHighSpeedCaptureSession::class -> session as T?
-        else -> super.unwrapAs(type)
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CameraConstrainedHighSpeedCaptureSession::class -> session as T?
+            else -> super.unwrapAs(type)
+        }
 }

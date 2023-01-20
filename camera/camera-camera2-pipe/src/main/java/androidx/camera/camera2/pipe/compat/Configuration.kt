@@ -51,7 +51,6 @@ internal data class SessionConfigData(
     val outputConfigurations: List<OutputConfigurationWrapper>,
     val executor: Executor,
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
-
     val sessionTemplateId: Int,
     val sessionParameters: Map<*, Any?>
 ) {
@@ -67,11 +66,7 @@ internal data class SessionConfigData(
  * that a real instance can be constructed when creating a
  * [android.hardware.camera2.CameraCaptureSession] on newer versions of the OS.
  */
-internal data class InputConfigData(
-    val width: Int,
-    val height: Int,
-    val format: Int
-)
+internal data class InputConfigData(val width: Int, val height: Int, val format: Int)
 
 /**
  * An interface for [OutputConfiguration] with minor modifications.
@@ -84,8 +79,8 @@ internal data class InputConfigData(
  */
 internal interface OutputConfigurationWrapper : UnsafeWrapper {
     /**
-     * This method will return null if the output configuration was created without a Surface,
-     * and until addSurface is called for the first time.
+     * This method will return null if the output configuration was created without a Surface, and
+     * until addSurface is called for the first time.
      *
      * @see OutputConfiguration.getSurface
      */
@@ -93,8 +88,8 @@ internal interface OutputConfigurationWrapper : UnsafeWrapper {
 
     /**
      * This method returns the current list of surfaces for this [OutputConfiguration]. Since the
-     * [OutputConfiguration] is stateful, this value may change as a result of calling addSurface
-     * or removeSurface.
+     * [OutputConfiguration] is stateful, this value may change as a result of calling addSurface or
+     * removeSurface.
      *
      * @see OutputConfiguration.getSurfaces
      */
@@ -163,11 +158,12 @@ internal class AndroidOutputConfiguration(
                 // Because there's no way to cleanly synchronize and check the value, we catch the
                 // exception for these cases.
                 try {
-                    configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
-                        OutputConfiguration(surfaceGroupId, surface)
-                    } else {
-                        OutputConfiguration(surface)
-                    }
+                    configuration =
+                        if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
+                            OutputConfiguration(surfaceGroupId, surface)
+                        } else {
+                            OutputConfiguration(surface)
+                        }
                 } catch (e: Throwable) {
                     Log.warn(e) { "Failed to create an OutputConfiguration for $surface!" }
                     return null
@@ -176,20 +172,19 @@ internal class AndroidOutputConfiguration(
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     throw IllegalStateException(
                         "Deferred OutputConfigurations are not supported on API " +
-                            "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})"
-                    )
+                            "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})")
                 }
 
                 check(size != null) {
                     "Size must defined when creating a deferred OutputConfiguration."
                 }
-                val outputKlass = when (outputType) {
-                    OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
-                    OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
-                    OutputType.SURFACE -> throw IllegalStateException(
-                        "Unsupported OutputType: $outputType"
-                    )
-                }
+                val outputKlass =
+                    when (outputType) {
+                        OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
+                        OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
+                        OutputType.SURFACE ->
+                            throw IllegalStateException("Unsupported OutputType: $outputType")
+                    }
                 configuration = Api26Compat.newOutputConfiguration(size, outputKlass)
             }
 
@@ -208,9 +203,10 @@ internal class AndroidOutputConfiguration(
                     Api33Compat.setMirrorMode(configuration, mirrorMode.value)
                 } else {
                     if (mirrorMode != MirrorMode.MIRROR_MODE_AUTO) {
-                        Log.warn { "Cannot set mirrorMode to a non-default value on API " +
-                            "${Build.VERSION.SDK_INT}. This may result in unexpected behavior. " +
-                            "Requested $mirrorMode"
+                        Log.warn {
+                            "Cannot set mirrorMode to a non-default value on " +
+                                "API ${Build.VERSION.SDK_INT}. This may result in unexpected " +
+                                "behavior. Requested $mirrorMode"
                         }
                     }
                 }
@@ -221,10 +217,12 @@ internal class AndroidOutputConfiguration(
                     Api33Compat.setTimestampBase(configuration, timestampBase.value)
                 } else {
                     if (timestampBase != TimestampBase.TIMESTAMP_BASE_DEFAULT) {
-                        Log.info { "The timestamp base on API ${Build.VERSION.SDK_INT} will " +
-                            "default to TIMESTAMP_BASE_DEFAULT, with which the camera device" +
-                            " adjusts timestamps based on the output target. " +
-                            "Requested $timestampBase" }
+                        Log.info {
+                            "The timestamp base on API ${Build.VERSION.SDK_INT} will " +
+                                "default to TIMESTAMP_BASE_DEFAULT, with which the camera device" +
+                                " adjusts timestamps based on the output target. " +
+                                "Requested $timestampBase"
+                        }
                     }
                 }
             }
@@ -258,8 +256,7 @@ internal class AndroidOutputConfiguration(
                 } else {
                     1
                 },
-                physicalCameraId
-            )
+                physicalCameraId)
         }
 
         private fun OutputConfiguration.enableSurfaceSharingCompat() {
@@ -308,10 +305,11 @@ internal class AndroidOutputConfiguration(
         get() = output.surfaceGroupId
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        OutputConfiguration::class -> output as T
-        else -> null
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            OutputConfiguration::class -> output as T
+            else -> null
+        }
 
     override fun toString(): String = output.toString()
 }

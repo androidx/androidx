@@ -44,15 +44,16 @@ import kotlinx.coroutines.withContext
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-internal class Camera2MetadataCache @Inject constructor(
+internal class Camera2MetadataCache
+@Inject
+constructor(
     @CameraPipeContext private val cameraPipeContext: Context,
     private val threads: Threads,
     private val permissions: Permissions,
     private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
     private val timeSource: TimeSource
 ) : Camera2MetadataProvider {
-    @GuardedBy("cache")
-    private val cache = ArrayMap<String, CameraMetadata>()
+    @GuardedBy("cache") private val cache = ArrayMap<String, CameraMetadata>()
 
     override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
@@ -63,9 +64,7 @@ internal class Camera2MetadataCache @Inject constructor(
         }
 
         // Suspend and query CameraMetadata on a background thread.
-        return withContext(threads.backgroundDispatcher) {
-            awaitCameraMetadata(cameraId)
-        }
+        return withContext(threads.backgroundDispatcher) { awaitCameraMetadata(cameraId) }
     }
 
     override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
@@ -91,8 +90,7 @@ internal class Camera2MetadataCache @Inject constructor(
             try {
                 val cameraManager =
                     cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                val characteristics =
-                    cameraManager.getCameraCharacteristics(cameraId.value)
+                val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
 
                 // This technically shouldn't be null per documentation, but we suspect it could be
                 // under certain devices in certain situations.
@@ -104,28 +102,24 @@ internal class Camera2MetadataCache @Inject constructor(
                 // Merge the camera specific and global cache blocklists together.
                 // this will prevent these values from being cached after first access.
                 val cameraBlocklist = cameraMetadataConfig.cameraCacheBlocklist[cameraId]
-                val cacheBlocklist = if (cameraBlocklist == null) {
-                    cameraMetadataConfig.cacheBlocklist
-                } else {
-                    cameraMetadataConfig.cacheBlocklist + cameraBlocklist
-                }
+                val cacheBlocklist =
+                    if (cameraBlocklist == null) {
+                        cameraMetadataConfig.cacheBlocklist
+                    } else {
+                        cameraMetadataConfig.cacheBlocklist + cameraBlocklist
+                    }
 
                 val cameraMetadata =
                     Camera2CameraMetadata(
-                        cameraId,
-                        redacted,
-                        characteristics,
-                        this,
-                        emptyMap(),
-                        cacheBlocklist
-                    )
+                        cameraId, redacted, characteristics, this, emptyMap(), cacheBlocklist)
 
                 Log.info {
                     val duration = Timestamps.now(timeSource) - start
-                    val redactedString = when (redacted) {
-                        false -> ""
-                        true -> " (redacted)"
-                    }
+                    val redactedString =
+                        when (redacted) {
+                            false -> ""
+                            true -> " (redacted)"
+                        }
                     "Loaded metadata for $cameraId in ${duration.formatMs()}$redactedString"
                 }
 

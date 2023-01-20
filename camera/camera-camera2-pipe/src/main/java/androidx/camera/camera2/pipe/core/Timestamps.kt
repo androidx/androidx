@@ -24,9 +24,7 @@ import androidx.annotation.RequiresApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * A nanosecond timestamp
- */
+/** A nanosecond timestamp */
 @JvmInline
 public value class TimestampNs constructor(public val value: Long) {
     public inline operator fun minus(other: TimestampNs): DurationNs =
@@ -41,8 +39,7 @@ public value class DurationNs(public val value: Long) {
     public inline operator fun minus(other: DurationNs): DurationNs =
         DurationNs(value - other.value)
 
-    public inline operator fun plus(other: DurationNs): DurationNs =
-        DurationNs(value + other.value)
+    public inline operator fun plus(other: DurationNs): DurationNs = DurationNs(value + other.value)
 
     public inline operator fun plus(other: TimestampNs): TimestampNs =
         TimestampNs(value + other.value)

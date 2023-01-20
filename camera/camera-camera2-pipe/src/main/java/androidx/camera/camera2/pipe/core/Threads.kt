@@ -29,16 +29,12 @@ import kotlinx.coroutines.CoroutineScope
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Threads(
     val globalScope: CoroutineScope,
-
     val blockingExecutor: Executor,
     val blockingDispatcher: CoroutineDispatcher,
-
     val backgroundExecutor: Executor,
     val backgroundDispatcher: CoroutineDispatcher,
-
     val lightweightExecutor: Executor,
     val lightweightDispatcher: CoroutineDispatcher,
-
     camera2Handler: () -> Handler,
     camera2Executor: () -> Executor
 ) {

@@ -45,9 +45,8 @@ class SurfaceGraphTest {
     private val streamMap = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
     private val controller = FakeCameraController()
     private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
-    private val cameraSurfaceManager = CameraSurfaceManager().also {
-        it.addListener(fakeSurfaceListener)
-    }
+    private val cameraSurfaceManager =
+        CameraSurfaceManager().also { it.addListener(fakeSurfaceListener) }
     private val surfaceGraph = SurfaceGraph(streamMap, controller, cameraSurfaceManager)
 
     private val stream1 = streamMap[config.streamConfig1]!!
@@ -232,8 +231,6 @@ class SurfaceGraphTest {
     @Test
     fun surfaceGraphDoesNotAllowDuplicateSurfaces() {
         surfaceGraph[stream1.id] = fakeSurface1
-        assertThrows<Exception> {
-            surfaceGraph[stream2.id] = fakeSurface1
-        }
+        assertThrows<Exception> { surfaceGraph[stream2.id] = fakeSurface1 }
     }
 }

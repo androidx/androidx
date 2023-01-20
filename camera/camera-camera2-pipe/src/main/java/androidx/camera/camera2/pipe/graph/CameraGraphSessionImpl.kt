@@ -89,8 +89,7 @@ internal class CameraGraphSessionImpl(
             awbMode = awbMode,
             aeRegions = aeRegions,
             afRegions = afRegions,
-            awbRegions = awbRegions
-        )
+            awbRegions = awbRegions)
     }
 
     override suspend fun submit3A(
@@ -139,8 +138,7 @@ internal class CameraGraphSessionImpl(
             awbLockBehavior,
             afTriggerStartAeMode,
             frameLimit,
-            timeLimitNs
-        )
+            timeLimitNs)
     }
 
     override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
@@ -148,10 +146,7 @@ internal class CameraGraphSessionImpl(
         return controller3A.unlock3A(ae, af, awb)
     }
 
-    override suspend fun lock3AForCapture(
-        frameLimit: Int,
-        timeLimitNs: Long
-    ): Deferred<Result3A> {
+    override suspend fun lock3AForCapture(frameLimit: Int, timeLimitNs: Long): Deferred<Result3A> {
         check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
         return controller3A.lock3AForCapture(frameLimit, timeLimitNs)
     }

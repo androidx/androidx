@@ -26,12 +26,11 @@ import androidx.annotation.RequiresApi
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].
  *
- * Applications should, in most situations, prefer using this interface to using the
- * unwrapping and using the underlying [CameraCharacteristics] object directly. Implementation(s) of
- * this interface provide compatibility guarantees and performance improvements over using
- * [CameraCharacteristics] directly. This allows code to get reasonable behavior for all properties
- * across all OS levels and makes behavior that depends on [CameraMetadata] easier to test and
- * reason about.
+ * Applications should, in most situations, prefer using this interface to using the unwrapping and
+ * using the underlying [CameraCharacteristics] object directly. Implementation(s) of this interface
+ * provide compatibility guarantees and performance improvements over using [CameraCharacteristics]
+ * directly. This allows code to get reasonable behavior for all properties across all OS levels and
+ * makes behavior that depends on [CameraMetadata] easier to test and reason about.
  */
 public interface CameraMetadata : Metadata, UnsafeWrapper {
     public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?

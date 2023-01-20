@@ -51,39 +51,37 @@ internal val cameraPipeIds = atomic(0)
  */
 public class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
-    private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
-        .cameraPipeConfigModule(CameraPipeConfigModule(config))
-        .threadConfigModule(ThreadConfigModule(config.threadConfig))
-        .build()
+    private val component: CameraPipeComponent =
+        DaggerCameraPipeComponent.builder()
+            .cameraPipeConfigModule(CameraPipeConfigModule(config))
+            .threadConfigModule(ThreadConfigModule(config.threadConfig))
+            .build()
 
     /**
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
     public fun create(config: CameraGraph.Config): CameraGraph {
-        return component.cameraGraphComponentBuilder()
+        return component
+            .cameraGraphComponentBuilder()
             .cameraGraphConfigModule(CameraGraphConfigModule(config))
             .build()
             .cameraGraph()
     }
 
-    /**
-     * This provides access to information about the available cameras on the device.
-     */
+    /** This provides access to information about the available cameras on the device. */
     public fun cameras(): CameraDevices {
         return component.cameras()
     }
 
-    /**
-     * This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe.
-     */
+    /** This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe. */
     public fun cameraSurfaceManager(): CameraSurfaceManager {
         return component.cameraSurfaceManager()
     }
 
     /**
-     * Application level configuration for [CameraPipe]. Nullable values are optional and
-     * reasonable defaults will be provided if values are not specified.
+     * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable
+     * defaults will be provided if values are not specified.
      */
     public data class Config(
         val appContext: Context,
@@ -94,8 +92,8 @@ public class CameraPipe(config: Config) {
     )
 
     /**
-     * Application level configuration for Camera2Interop callbacks. If set, these callbacks
-     * will be triggered at the appropriate places in Camera-Pipe.
+     * Application level configuration for Camera2Interop callbacks. If set, these callbacks will be
+     * triggered at the appropriate places in Camera-Pipe.
      */
     public data class CameraInteropConfig(
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
@@ -105,7 +103,6 @@ public class CameraPipe(config: Config) {
     /**
      * Application level configuration for default thread and executors. If set, these executors
      * will be used to run asynchronous background work across [CameraPipe].
-     *
      * - [defaultLightweightExecutor] is used to run fast, non-blocking, lightweight tasks.
      * - [defaultBackgroundExecutor] is used to run blocking and/or io bound tasks.
      * - [defaultCameraExecutor] is used on newer API versions to interact with CameraAPIs. This is
@@ -144,8 +141,8 @@ public class CameraPipe(config: Config) {
     /**
      * Configure the default and available [CameraBackend] instances that are available.
      *
-     * @param internalBackend will override the default camera backend defined by [CameraPipe].
-     *   This may be used to mock and replace all interactions with camera2.
+     * @param internalBackend will override the default camera backend defined by [CameraPipe]. This
+     *   may be used to mock and replace all interactions with camera2.
      * @param defaultBackend defines which camera backend instance should be used by default. If
      *   this value is specified, it must appear in the list of [cameraBackends]. If no value is
      *   specified, the [internalBackend] instance will be used. If [internalBackend] is null, the
@@ -169,28 +166,25 @@ public class CameraPipe(config: Config) {
     override fun toString(): String = "CameraPipe-$debugId"
 
     /**
-     * External may be used if the underlying implementation needs to delegate to another library
-     * or system.
+     * External may be used if the underlying implementation needs to delegate to another library or
+     * system.
      */
     @Deprecated(
-        "CameraPipe.External is deprecated, use customCameraBackend on " +
-            "GraphConfig instead."
-    )
+        "CameraPipe.External is deprecated, use customCameraBackend on " + "GraphConfig instead.")
     class External(threadConfig: ThreadConfig = ThreadConfig()) {
-        private val component: ExternalCameraPipeComponent = DaggerExternalCameraPipeComponent
-            .builder()
-            .threadConfigModule(ThreadConfigModule(threadConfig))
-            .build()
+        private val component: ExternalCameraPipeComponent =
+            DaggerExternalCameraPipeComponent.builder()
+                .threadConfigModule(ThreadConfigModule(threadConfig))
+                .build()
 
         /**
-         * This creates a new [CameraGraph] instance that is configured to use an externally
-         * defined [RequestProcessor].
+         * This creates a new [CameraGraph] instance that is configured to use an externally defined
+         * [RequestProcessor].
          */
         @Suppress("DEPRECATION")
         @Deprecated(
             "CameraPipe.External is deprecated, use customCameraBackend on " +
-                "GraphConfig instead."
-        )
+                "GraphConfig instead.")
         public fun create(
             config: CameraGraph.Config,
             cameraMetadata: CameraMetadata,
@@ -200,14 +194,11 @@ public class CameraPipe(config: Config) {
                 "Invalid camera config: ${config.camera} does not match ${cameraMetadata.camera}"
             }
             val componentBuilder = component.cameraGraphBuilder()
-            val component: ExternalCameraGraphComponent = componentBuilder
-                .externalCameraGraphConfigModule(
-                    ExternalCameraGraphConfigModule(
-                        config,
-                        cameraMetadata,
-                        requestProcessor
-                    )
-                ).build()
+            val component: ExternalCameraGraphComponent =
+                componentBuilder
+                    .externalCameraGraphConfigModule(
+                        ExternalCameraGraphConfigModule(config, cameraMetadata, requestProcessor))
+                    .build()
             return component.cameraGraph()
         }
     }

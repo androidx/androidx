@@ -24,23 +24,22 @@ public interface CaptureSequenceProcessor<
      * Build a [CaptureSequence] instance.
      *
      * @param isRepeating determines if this CaptureSequence should repeat until replaced by another
-     * repeating CaptureSequence, or closed, or stopRepeating is invoked.
+     *   repeating CaptureSequence, or closed, or stopRepeating is invoked.
      * @param requests the list of [Request] to use when constructing this [CaptureSequence]
      * @param defaultParameters are the parameters to start with when building an individual
-     * [TCaptureRequest] object. Parameters not specified on a [Request] will use these parameters
-     * by default.
+     *   [TCaptureRequest] object. Parameters not specified on a [Request] will use these parameters
+     *   by default.
      * @param requiredParameters are parameters that will override all [defaultParameters] *and*
-     * parameters that are defined on the [Request].
+     *   parameters that are defined on the [Request].
      * @param listeners are global and internal [Request.Listener]s that should be invoked every
-     * time the listeners on the [Request] are invoked. Since these often track and update internal
-     * state they should be invoked before listeners on the individual [Request].
+     *   time the listeners on the [Request] are invoked. Since these often track and update
+     *   internal state they should be invoked before listeners on the individual [Request].
      * @param sequenceListener is an extra listener that should be invoked whenever a specific
-     * [CaptureSequence] should no longer receive any additional events.
-     *
+     *   [CaptureSequence] should no longer receive any additional events.
      * @return a [TCaptureSequence] instance that can be used to capture images using the underlying
-     * camera by passing this [submit]. This method will return null if the underlying camera has
-     * been closed or disconnected, and will throw unchecked exceptions if invalid values are passed
-     * to the [build] call.
+     *   camera by passing this [submit]. This method will return null if the underlying camera has
+     *   been closed or disconnected, and will throw unchecked exceptions if invalid values are
+     *   passed to the [build] call.
      */
     fun build(
         isRepeating: Boolean,

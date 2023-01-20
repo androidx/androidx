@@ -40,8 +40,8 @@ import kotlinx.atomicfu.atomic
  * After all outstanding tokens have been closed, the listeners receive
  * SurfaceListener.onSurfaceInactive] for that surface.
  *
- * If the same [Surface] is used in a subsequent [CameraGraph], it will be issued a different
- * token. Essentially each token means a single use on a [Surface].
+ * If the same [Surface] is used in a subsequent [CameraGraph], it will be issued a different token.
+ * Essentially each token means a single use on a [Surface].
  */
 @Singleton
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -49,20 +49,15 @@ public class CameraSurfaceManager @Inject constructor() {
 
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
+    @GuardedBy("lock") private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
 
-    @GuardedBy("lock")
-    private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
+    @GuardedBy("lock") private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
 
     /**
-     * A new [SurfaceToken] is issued when a [Surface] is registered in CameraSurfaceManager.
-     * When all [SurfaceToken]s issued for a [Surface] is closed, the [Surface] is considered
-     * "inactive".
+     * A new [SurfaceToken] is issued when a [Surface] is registered in CameraSurfaceManager. When
+     * all [SurfaceToken]s issued for a [Surface] is closed, the [Surface] is considered "inactive".
      */
-    inner class SurfaceToken(
-        internal val surface: Surface
-    ) : AutoCloseable {
+    inner class SurfaceToken(internal val surface: Surface) : AutoCloseable {
         private val closed = atomic(false)
         override fun close() {
             if (closed.compareAndSet(expect = false, update = true)) {
@@ -85,36 +80,32 @@ public class CameraSurfaceManager @Inject constructor() {
         /**
          * Called when a [Surface] is considered "inactive" and no longer in use by [CameraGraph].
          * This can happen under a few different scenarios:
-         *
-         *   1. A [Surface] is unset or replaced in a [CameraGraph].
-         *   2. A CaptureSession is closed or fails to configure and the [CameraGraph] has been
-         *      closed.
-         *   3. [CameraGraph] is closed, and the [Surface] isn't not in use by some other
-         *      camera subsystem.
+         * 1. A [Surface] is unset or replaced in a [CameraGraph].
+         * 2. A CaptureSession is closed or fails to configure and the [CameraGraph] has been
+         *    closed.
+         * 3. [CameraGraph] is closed, and the [Surface] isn't not in use by some other camera
+         *    subsystem.
          */
         fun onSurfaceInactive(surface: Surface)
     }
 
     /**
-     * Adds a [SurfaceListener] to receive [Surface] lifetime updates. When a listener is added,
-     * it will receive [SurfaceListener.onSurfaceActive] for all active Surfaces.
+     * Adds a [SurfaceListener] to receive [Surface] lifetime updates. When a listener is added, it
+     * will receive [SurfaceListener.onSurfaceActive] for all active Surfaces.
      */
     public fun addListener(listener: SurfaceListener) {
-        val activeSurfaces = synchronized(lock) {
-            listeners.add(listener)
-            useCountMap.filter { it.value > 0 }.keys
-        }
+        val activeSurfaces =
+            synchronized(lock) {
+                listeners.add(listener)
+                useCountMap.filter { it.value > 0 }.keys
+            }
 
         activeSurfaces.forEach { listener.onSurfaceActive(it) }
     }
 
-    /**
-     * Removes a [SurfaceListener] to stop receiving [Surface] lifetime updates.
-     */
+    /** Removes a [SurfaceListener] to stop receiving [Surface] lifetime updates. */
     public fun removeListener(listener: SurfaceListener) {
-        synchronized(lock) {
-            listeners.remove(listener)
-        }
+        synchronized(lock) { listeners.remove(listener) }
     }
 
     internal fun registerSurface(surface: Surface): AutoCloseable {

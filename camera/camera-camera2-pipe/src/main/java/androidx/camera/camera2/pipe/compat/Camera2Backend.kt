@@ -34,11 +34,11 @@ import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
-/**
- * This is the default [CameraBackend] implementation for CameraPipe based on Camera2.
- */
+/** This is the default [CameraBackend] implementation for CameraPipe based on Camera2. */
 @RequiresApi(21)
-internal class Camera2Backend @Inject constructor(
+internal class Camera2Backend
+@Inject
+constructor(
     private val threads: Threads,
     private val camera2DeviceCache: Camera2DeviceCache,
     private val camera2MetadataCache: Camera2MetadataCache,
@@ -79,14 +79,12 @@ internal class Camera2Backend @Inject constructor(
         streamGraph: StreamGraph
     ): CameraController {
         // Use Dagger to create the camera2 controller component, then create the CameraController.
-        val cameraControllerComponent = camera2CameraControllerComponent.camera2ControllerConfig(
-            Camera2ControllerConfig(
-                this,
-                graphConfig,
-                graphListener,
-                streamGraph as StreamGraphImpl
-            )
-        ).build()
+        val cameraControllerComponent =
+            camera2CameraControllerComponent
+                .camera2ControllerConfig(
+                    Camera2ControllerConfig(
+                        this, graphConfig, graphListener, streamGraph as StreamGraphImpl))
+                .build()
 
         // Create and return a Camera2 CameraController object.
         return cameraControllerComponent.cameraController()

@@ -31,14 +31,15 @@ import kotlinx.coroutines.withContext
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-internal class Camera2DeviceCache @Inject constructor(
+internal class Camera2DeviceCache
+@Inject
+constructor(
     private val cameraManager: Provider<CameraManager>,
     private val threads: Threads,
 ) {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var openableCameras: List<CameraId>? = null
+    @GuardedBy("lock") private var openableCameras: List<CameraId>? = null
 
     suspend fun getCameraIds(): List<CameraId>? {
         val cameras = synchronized(lock) { openableCameras }
@@ -52,9 +53,7 @@ internal class Camera2DeviceCache @Inject constructor(
                 val cameraIds = awaitCameraIds()
 
                 if (!cameraIds.isNullOrEmpty()) {
-                    synchronized(lock) {
-                        openableCameras = cameraIds
-                    }
+                    synchronized(lock) { openableCameras = cameraIds }
                     return@trace cameraIds
                 }
 
@@ -76,14 +75,16 @@ internal class Camera2DeviceCache @Inject constructor(
         }
 
         val cameraManager = cameraManager.get()
-        val cameraIdArray = try {
-            // WARNING: This method can, at times, return an empty list of cameras on devices that
-            //  will normally return a valid list of cameras (b/159052778)
-            cameraManager.cameraIdList
-        } catch (e: CameraAccessException) {
-            Log.warn(e) { "Failed to query CameraManager#getCameraIdList!" }
-            return null
-        }
+        val cameraIdArray =
+            try {
+                // WARNING: This method can, at times, return an empty list of cameras on devices
+                // that
+                //  will normally return a valid list of cameras (b/159052778)
+                cameraManager.cameraIdList
+            } catch (e: CameraAccessException) {
+                Log.warn(e) { "Failed to query CameraManager#getCameraIdList!" }
+                return null
+            }
         if (cameraIdArray.isEmpty()) {
             Log.warn { "Failed to query CameraManager#getCameraIdList: No values returned." }
             return emptyList()

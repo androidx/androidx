@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.compat.Api33Compat
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
- *
  * - Each [CameraStream] must have a surface associated with it in the [CameraGraph]. This surface
  *   may be changed, although this may cause the camera to stall and reconfigure.
  * - [CameraStream]'s may be added to [Request]'s that are sent to the [CameraGraph]. This causes
@@ -36,18 +35,20 @@ import androidx.camera.camera2.pipe.compat.Api33Compat
  * [CameraStream] may only represent a single surface that is sent to Camera2, and that each
  * [CameraStream] must produce one or more distinct outputs.
  *
- * There are three main components that will be wired together, the [CameraStream], the
- * Camera2 [OutputConfiguration], and the [OutputStream]'s. In each of these examples a
- * [CameraStream] is associated with a distinct surface that may be sent to camera2 to produce 1
- * or more distinct outputs defined in the list of [OutputStream]'s.
+ * There are three main components that will be wired together, the [CameraStream], the Camera2
+ * [OutputConfiguration], and the [OutputStream]'s. In each of these examples a [CameraStream] is
+ * associated with a distinct surface that may be sent to camera2 to produce 1 or more distinct
+ * outputs defined in the list of [OutputStream]'s.
  *
  * Simple 1:1 configuration
+ *
  *   ```
  *   CameraStream-1 -> OutputConfig-1 -> OutputStream-1
  *   CameraStream-2 -> OutputConfig-2 -> OutputStream-2
  *   ```
  *
  * Stream sharing (Multiple surfaces use the same OutputConfig object)
+ *
  *   ```
  *   CameraStream-1 --------------------> OutputStream-1
  *                  >- OutputConfig-1 -<
@@ -55,21 +56,18 @@ import androidx.camera.camera2.pipe.compat.Api33Compat
  *   ```
  *
  * Multi-Output / External OutputConfiguration (Camera2 may produce one or more of the outputs)
+ *
  *   ```
  *   CameraStream-1 -> OutputConfig-1 -> OutputStream-1
  *                 \-> OutputConfig-2 -> OutputStream-2
  *   ```
  */
-public class CameraStream internal constructor(
-    public val id: StreamId,
-    public val outputs: List<OutputStream>
-) {
+public class CameraStream
+internal constructor(public val id: StreamId, public val outputs: List<OutputStream>) {
     override fun toString(): String = id.toString()
 
     /** Configuration that may be used to define a [CameraStream] on a [CameraGraph] */
-    public class Config internal constructor(
-        val outputs: List<OutputStream.Config>
-    ) {
+    public class Config internal constructor(val outputs: List<OutputStream.Config>) {
         companion object {
             /** Create a simple [CameraStream] to [OutputStream] configuration */
             fun create(
@@ -81,22 +79,22 @@ public class CameraStream internal constructor(
                 timestampBase: OutputStream.TimestampBase? = null,
                 dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
                 streamUseCase: OutputStream.StreamUseCase? = null,
-            ): Config = create(
-                OutputStream.Config.create(
-                    size,
-                    format,
-                    camera,
-                    outputType,
-                    mirrorMode,
-                    timestampBase,
-                    dynamicRangeProfile,
-                    streamUseCase,
-                )
-            )
+            ): Config =
+                create(
+                    OutputStream.Config.create(
+                        size,
+                        format,
+                        camera,
+                        outputType,
+                        mirrorMode,
+                        timestampBase,
+                        dynamicRangeProfile,
+                        streamUseCase,
+                    ))
 
             /**
-             * Create a simple [CameraStream] using a previously defined [OutputStream.Config].
-             * This allows multiple [CameraStream]s to share the same [OutputConfiguration].
+             * Create a simple [CameraStream] using a previously defined [OutputStream.Config]. This
+             * allows multiple [CameraStream]s to share the same [OutputConfiguration].
              */
             fun create(output: OutputStream.Config) = Config(listOf(output))
 
@@ -121,8 +119,8 @@ public value class StreamId(public val value: Int) {
 /**
  * A [OutputStream] represents one of the possible outputs that may be produced from a
  * [CameraStream]. Because some sensors are capable of producing images at different resolutions,
- * the underlying HAL on the device may produce different sized images for the same request.
- * This represents one of those potential outputs.
+ * the underlying HAL on the device may produce different sized images for the same request. This
+ * represents one of those potential outputs.
  */
 public interface OutputStream {
     // Every output comes from one, and exactly one, CameraStream
@@ -139,7 +137,8 @@ public interface OutputStream {
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
-     * Configuration object that provides the parameters for a specific input / output stream on Camera.
+     * Configuration object that provides the parameters for a specific input / output stream on
+     * Camera.
      */
     sealed class Config(
         public val size: Size,
@@ -161,10 +160,8 @@ public interface OutputStream {
                 dynamicRangeProfile: DynamicRangeProfile? = null,
                 streamUseCase: StreamUseCase? = null,
             ): Config =
-                if (
-                    outputType == OutputType.SURFACE_TEXTURE ||
-                    outputType == OutputType.SURFACE_VIEW
-                ) {
+                if (outputType == OutputType.SURFACE_TEXTURE ||
+                    outputType == OutputType.SURFACE_VIEW) {
                     LazyOutputConfig(
                         size,
                         format,
@@ -173,8 +170,7 @@ public interface OutputStream {
                         mirrorMode,
                         timestampBase,
                         dynamicRangeProfile,
-                        streamUseCase
-                    )
+                        streamUseCase)
                 } else {
                     check(outputType == OutputType.SURFACE)
                     SimpleOutputConfig(
@@ -200,9 +196,7 @@ public interface OutputStream {
             }
         }
 
-        /**
-         * Most outputs only need to define size, format, and cameraId.
-         */
+        /** Most outputs only need to define size, format, and cameraId. */
         internal class SimpleOutputConfig(
             size: Size,
             format: StreamFormat,
@@ -211,18 +205,19 @@ public interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
-        ) : Config(
+        ) :
+            Config(
                 size,
                 format,
                 camera,
                 mirrorMode,
                 timestampBase,
                 dynamicRangeProfile,
-                streamUseCase
-            )
+                streamUseCase)
 
         /**
-         * Used to configure an output with a surface that may be provided after the camera is running.
+         * Used to configure an output with a surface that may be provided after the camera is
+         * running.
          *
          * This behavior is allowed on newer versions of the OS and allows the camera to start
          * running before the UI is fully available. This configuration mode is only allowed for
@@ -238,7 +233,8 @@ public interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
-        ) : Config(
+        ) :
+            Config(
                 size,
                 format,
                 camera,
@@ -249,12 +245,14 @@ public interface OutputStream {
             )
 
         /**
-         * Used to define an output that comes from an externally managed OutputConfiguration object.
+         * Used to define an output that comes from an externally managed OutputConfiguration
+         * object.
          *
          * The configuration logic has the following behavior:
          * - Assumes [OutputConfiguration] has a valid surface
          * - Assumes [OutputConfiguration] surfaces will not be added / removed / changed.
-         * - If the CameraCaptureSession must be recreated, the [OutputConfiguration] will be reused.
+         * - If the CameraCaptureSession must be recreated, the [OutputConfiguration] will be
+         *   reused.
          */
         @RequiresApi(33)
         internal class ExternalOutputConfig(
@@ -262,7 +260,8 @@ public interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-        ) : Config(
+        ) :
+            Config(
                 size,
                 format,
                 camera,
@@ -280,10 +279,10 @@ public interface OutputStream {
     }
 
     /**
-     * Adds the ability to define the mirrorMode of the OutputStream.
-     * [MIRROR_MODE_AUTO] is the default mirroring mode for the camera device.
-     * With this mode, the camera output is mirrored horizontally for front-facing cameras,
-     * and there is no mirroring for rear-facing and external cameras.
+     * Adds the ability to define the mirrorMode of the OutputStream. [MIRROR_MODE_AUTO] is the
+     * default mirroring mode for the camera device. With this mode, the camera output is mirrored
+     * horizontally for front-facing cameras, and there is no mirroring for rear-facing and external
+     * cameras.
      *
      * See the documentation on [OutputConfiguration.setMirrorMode] for more details.
      */
@@ -298,9 +297,9 @@ public interface OutputStream {
     }
 
     /**
-     * Adds the ability to define the timestamp base of the OutputStream.
-     * [TIMESTAMP_BASE_DEFAULT] is the default timestamp base, with which the
-     * camera device adjusts timestamps based on the output target.
+     * Adds the ability to define the timestamp base of the OutputStream. [TIMESTAMP_BASE_DEFAULT]
+     * is the default timestamp base, with which the camera device adjusts timestamps based on the
+     * output target.
      *
      * See the documentation on [OutputConfiguration.setTimestampBase] for more details.
      */
@@ -316,9 +315,9 @@ public interface OutputStream {
     }
 
     /**
-     * Adds the ability to define the dynamic range profile of the OutputStream.
-     * [STANDARD] is the default dynamic range profile for the camera device, with which
-     * the camera device uses an 8-bit standard profile.
+     * Adds the ability to define the dynamic range profile of the OutputStream. [STANDARD] is the
+     * default dynamic range profile for the camera device, with which the camera device uses an
+     * 8-bit standard profile.
      *
      * See the documentation on [OutputConfiguration.setDynamicRangeProfile] for more details.
      */
@@ -342,10 +341,10 @@ public interface OutputStream {
     }
 
     /**
-     * Adds the ability to define the stream specific use case of the OutputStream.
-     * [DEFAULT] is the default stream use case, with which
-     * the camera device uses the properties of the output target, such as format, dataSpace,
-     * or surface class type, to optimize the image processing pipeline.
+     * Adds the ability to define the stream specific use case of the OutputStream. [DEFAULT] is the
+     * default stream use case, with which the camera device uses the properties of the output
+     * target, such as format, dataSpace, or surface class type, to optimize the image processing
+     * pipeline.
      *
      * See the documentation on [OutputConfiguration.setStreamUseCase] for more details.
      */
@@ -362,18 +361,13 @@ public interface OutputStream {
     }
 }
 
-/**
- * This identifies a single output.
- */
+/** This identifies a single output. */
 @JvmInline
 public value class OutputId(public val value: Int) {
     override fun toString(): String = "Output-$value"
 }
 
-/**
- * Configuration for defining the properties of a Camera2 InputStream for reprocessing
- * requests.
- */
+/** Configuration for defining the properties of a Camera2 InputStream for reprocessing requests. */
 public interface InputStream {
     public val id: InputId
     public val format: StreamFormat
@@ -382,9 +376,7 @@ public interface InputStream {
     public class Config(val stream: CameraStream.Config)
 }
 
-/**
- * This identifies a single input.
- */
+/** This identifies a single input. */
 @JvmInline
 public value class InputId(public val value: Int) {
     override fun toString(): String = "Input-$value"
