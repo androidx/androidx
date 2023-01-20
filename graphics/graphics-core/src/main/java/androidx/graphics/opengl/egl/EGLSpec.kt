@@ -24,7 +24,7 @@ import android.opengl.EGLSurface
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.hardware.SyncFence
+import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLExt.Companion.EGLClientWaitResult
 import androidx.opengl.EGLExt.Companion.EGLSyncAttribute
@@ -321,19 +321,19 @@ interface EGLSpec {
      * See:
      * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
      *
-     * @param sync The [EGLSyncKHR] to fetch the [SyncFence] from
-     * @return A [SyncFence] representing the native fence.
-     *  If [sync] is not a valid sync object for display, an invalid [SyncFence]
+     * @param sync The [EGLSyncKHR] to fetch the [SyncFenceCompat] from
+     * @return A [SyncFenceCompat] representing the native fence.
+     *  If [sync] is not a valid sync object for display, an invalid [SyncFenceCompat]
      *  instance is returned and an EGL_BAD_PARAMETER error is generated.
      *  If the EGL_SYNC_NATIVE_FENCE_FD_ANDROID attribute of [sync] is
-     *  EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFence] is
+     *  EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFenceCompat] is
      *  returned and an EGL_BAD_PARAMETER error is generated.
      *  If the display does not match the display passed to [eglCreateSyncKHR]
      *  when [sync] was created, the behavior is undefined.
      */
     @Suppress("AcronymName")
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun eglDupNativeFenceFDANDROID(sync: EGLSyncKHR): SyncFence
+    fun eglDupNativeFenceFDANDROID(sync: EGLSyncKHR): SyncFenceCompat
 
     /**
      * Blocks the calling thread until the specified sync object is signalled or until
@@ -534,7 +534,7 @@ interface EGLSpec {
             override fun eglGetError(): Int = EGL14.eglGetError()
 
             @RequiresApi(Build.VERSION_CODES.KITKAT)
-            override fun eglDupNativeFenceFDANDROID(sync: EGLSyncKHR): SyncFence =
+            override fun eglDupNativeFenceFDANDROID(sync: EGLSyncKHR): SyncFenceCompat =
                 EGLExt.eglDupNativeFenceFDANDROID(getDefaultDisplay(), sync)
 
             override fun eglClientWaitSyncKHR(

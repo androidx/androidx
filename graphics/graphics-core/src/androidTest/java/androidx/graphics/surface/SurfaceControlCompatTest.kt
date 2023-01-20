@@ -24,7 +24,7 @@ import android.opengl.EGL14
 import android.os.Build
 import android.os.SystemClock
 import android.view.SurfaceHolder
-import androidx.graphics.lowlatency.SyncFenceCompat
+import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec

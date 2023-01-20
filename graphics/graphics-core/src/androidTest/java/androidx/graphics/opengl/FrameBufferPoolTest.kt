@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.graphics.opengl
 
 import android.hardware.HardwareBuffer
 import android.os.Build

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.hardware
 
 import android.opengl.EGL14
 import android.opengl.EGL15
@@ -22,7 +22,6 @@ import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLSpec
-import androidx.hardware.SyncFence
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLSyncKHR
 import androidx.graphics.surface.SurfaceControlCompat
@@ -34,7 +33,7 @@ import androidx.graphics.surface.SurfaceControlCompat
  *
  * [SyncFenceCompat] is a presentation fence used in combination with
  * [SurfaceControlCompat.Transaction.setBuffer]. Note that depending on API level, this will
- * utilize either [android.hardware.SyncFence] or [SyncFence].
+ * utilize either [android.hardware.SyncFence] or a compatibility implementation.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class SyncFenceCompat : AutoCloseable {
@@ -57,7 +56,7 @@ class SyncFenceCompat : AutoCloseable {
                     egl.eglCreateSyncKHR(EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                         ?: throw IllegalArgumentException("Unable to create sync object")
                 GLES20.glFlush()
-                val syncFenceCompat = SyncFenceCompat(egl.eglDupNativeFenceFDANDROID(eglSync))
+                val syncFenceCompat = egl.eglDupNativeFenceFDANDROID(eglSync)
                 egl.eglDestroySyncKHR(eglSync)
 
                 syncFenceCompat
@@ -78,8 +77,8 @@ class SyncFenceCompat : AutoCloseable {
         const val SIGNAL_TIME_PENDING: Long = Long.MAX_VALUE
     }
 
-    internal constructor(syncFence: SyncFence) {
-        mImpl = SyncFenceV19(syncFence)
+    internal constructor(syncFence: SyncFenceV19) {
+        mImpl = syncFence
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -110,8 +109,8 @@ class SyncFenceCompat : AutoCloseable {
 
     /**
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns an instant, [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
-     * if the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
+     * This returns an instant, [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
+     * if the fence hasn't yet signaled, then [SyncFenceCompat.SIGNAL_TIME_PENDING] is returned.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun getSignalTimeNanos(): Long {

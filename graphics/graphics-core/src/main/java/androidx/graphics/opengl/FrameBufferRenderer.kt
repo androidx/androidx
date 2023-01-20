@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.graphics.opengl
 
 import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
@@ -25,7 +25,8 @@ import android.os.Build
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.GLRenderer
+import androidx.hardware.SyncFenceCompat
+import androidx.hardware.createNativeSyncFence
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.opengl.EGLExt
@@ -36,6 +37,47 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
 /**
  * [GLRenderer.RenderCallback] implementation that renders content into a frame buffer object
  * backed by a [HardwareBuffer] object
+ *
+ * @param frameBufferRendererCallbacks Callbacks to provide a [FrameBuffer] instance to render into,
+ * draw method to render into the [FrameBuffer] as well as a subsequent callback to consume the
+ * contents of the [FrameBuffer]
+ * @param syncStrategy [SyncStrategy] used to determine when a fence is to be created to gate on
+ * consumption of the [FrameBuffer] instance. This determines if a [SyncFenceCompat] instance is
+ * provided in the [RenderCallback.onDrawComplete] depending on the use case.
+ * For example for front buffered rendering scenarios, it is possible that no [SyncFenceCompat] is
+ * provided in order to reduce latency within the rendering pipeline.
+ *
+ * This API can be used to render content into a [HardwareBuffer] directly and convert that to a
+ * bitmap with the following code snippet:
+ *
+ * val glRenderer = GLRenderer().apply { start() }
+ * val callbacks = object : FrameBufferRenderer.RenderCallback {
+ *
+ *   override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer =
+ *      FrameBuffer(
+ *          egl,
+ *          HardwareBuffer.create(
+ *              width,
+ *              height,
+ *              HardwareBuffer.RGBA_8888,
+ *              1,
+ *              HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+ *          )
+ *      )
+ *
+ *   override fun onDraw(eglManager: EGLManager) {
+ *       // GL code
+ *   }
+ *   
+ *   override fun onDrawComplete(frameBuffer: FrameBuffer, syncFenceCompat: SyncFenceCompat?) {
+ *       syncFenceCompat?.awaitForever()
+ *       val bitmap = Bitmap.wrapHardwareBuffer(frameBuffer.hardwareBuffer,
+ *              ColorSpace.get(ColorSpace.Named.LINEAR_SRGB))
+ *       // bitmap operations
+ *   }
+ * }
+ *
+ * glRenderer.createRenderTarget(width,height, FrameBufferRenderer(callbacks)).requestRender()
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class FrameBufferRenderer(
@@ -121,7 +163,7 @@ class FrameBufferRenderer(
         /**
          * Obtain a [FrameBuffer] to render content into. The [FrameBuffer] obtained here
          * is expected to be managed by the consumer of [FrameBufferRenderer]. That is
-         * callers of this API are expected to be maintaining a reference to the returned
+         * implementations of this API are expected to be maintaining a reference to the returned
          * [FrameBuffer] here and calling [FrameBuffer.close] where appropriate as the instance
          * will not be released by [FrameBufferRenderer].
          *
@@ -131,7 +173,8 @@ class FrameBufferRenderer(
         fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer
 
         /**
-         * Draw contents into the [HardwareBuffer]
+         * Draw contents into the [HardwareBuffer]. Before this method is invoked the [FrameBuffer]
+         * instance returned in [obtainFrameBuffer] is made current
          */
         fun onDraw(eglManager: EGLManager)
 
@@ -141,6 +184,7 @@ class FrameBufferRenderer(
          *
          * @param frameBuffer [FrameBuffer] that content is rendered into. The frameBuffer
          * should not be consumed unless the syncFenceCompat is signalled or the fence is null.
+         * This is the same [FrameBuffer] instance returned in [obtainFrameBuffer]
          * @param syncFenceCompat [SyncFenceCompat] is used to determine when rendering
          * is done in [onDraw] and reflected within the given frameBuffer.
          */
@@ -177,61 +221,6 @@ interface SyncStrategy {
             override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
                 return eglSpec.createNativeSyncFence()
             }
-        }
-    }
-}
-
-/**
- * [SyncStrategy] implementation that optimizes for front buffered rendering use cases.
- * More specifically this attempts to avoid unnecessary synchronization overhead
- * wherever possible.
- *
- * This will always provide a fence if the corresponding layer transitions from
- * an invisible to a visible state. If the layer is already visible and front
- * buffer usage flags are support on the device, then no fence is provided. If this
- * flag is not supported, then a fence is created to ensure contents
- * are flushed to the single buffer.
- *
- * @param usageFlags usage flags that describe the [HardwareBuffer] that is used as the destination
- * for rendering content within [FrameBufferRenderer]. The usage flags can be obtained via
- * [HardwareBuffer.getUsage] or by passing in the same flags from [HardwareBuffer.create]
- */
-class FrontBufferSyncStrategy(
-    usageFlags: Long
-) : SyncStrategy {
-    private val supportsFrontBufferUsage = (usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER) != 0L
-    private var mFrontBufferVisible: Boolean = false
-
-    /**
-     * Tells whether the corresponding front buffer layer is visible in its current state or not.
-     * Utilize this to dictate when a [SyncFenceCompat] will be created when using
-     * [createSyncFence].
-     */
-    var isVisible
-        get() = mFrontBufferVisible
-        set(visibility) {
-            mFrontBufferVisible = visibility
-        }
-
-    /**
-     * Creates a [SyncFenceCompat] based on various conditions.
-     * If the layer is changing from invisible to visible, a fence is provided.
-     * If the layer is already visible and front buffer usage flag is supported on the device, then
-     * no fence is provided.
-     * If front buffer usage is not supported, then a fence is created and destroyed to flush
-     * contents to screen.
-     */
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
-        return if (!isVisible) {
-            eglSpec.createNativeSyncFence()
-        } else if (supportsFrontBufferUsage) {
-            GLES20.glFlush()
-            return null
-        } else {
-            val fence = eglSpec.createNativeSyncFence()
-            fence.close()
-            return null
         }
     }
 }
