@@ -376,6 +376,41 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
+     * Requests to render to the double buffered layer. This schedules a call to
+     * [Callback.onDrawDoubleBufferedLayer] with the parameters provided. If the front buffered
+     * layer is visible, this will hide this layer after rendering to the double buffered layer
+     * is complete. This is equivalent to calling [GLFrontBufferedRenderer.renderFrontBufferedLayer]
+     * for each parameter provided in the collection followed by a single call to
+     * [GLFrontBufferedRenderer.commit]. This is useful for re-rendering the double buffered
+     * scene when the corresponding Activity is being resumed from the background in which the
+     * contents should be re-drawn. Additionally this allows for applications to decide to
+     * dynamically render to either front or double buffered layers.
+     *
+     * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns 'false',
+     * this call is ignored.
+     *
+     * @param params Parameters that to be consumed when rendering to the double buffered layer.
+     * These parameters will be provided in the corresponding call to
+     * [Callback.onDrawDoubleBufferedLayer]
+     */
+    fun renderDoubleBufferedLayer(params: Collection<T>) {
+        if (isValid()) {
+            val segment = if (params is MutableCollection<T>) {
+                params
+            } else {
+                ArrayList<T>().apply { addAll(params) }
+            }
+            mSegments.add(segment)
+            mDoubleBufferedLayerRenderTarget?.requestRender()
+        } else {
+            Log.w(
+                TAG, "Attempt to render to the double buffered layer when " +
+                    "GLFrontBufferedRenderer has been released"
+            )
+        }
+    }
+
+    /**
      * Clears the contents of both the front and double buffered layers. This triggers a call to
      * [Callback.onDoubleBufferedLayerRenderComplete] and hides the front buffered layer.
      */
@@ -387,8 +422,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Requests to render the entire scene to the double buffered layer and schedules a call to
-     * [Callback.onDoubleBufferedLayerRenderComplete]. The parameters provided to
-     * [Callback.onDoubleBufferedLayerRenderComplete] will include each argument provided to every
+     * [Callback.onDrawDoubleBufferedLayer]. The parameters provided to
+     * [Callback.onDrawDoubleBufferedLayer] will include each argument provided to every
      * [renderFrontBufferedLayer] call since the last call to [commit] has been made.
      *
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
