@@ -39,6 +39,7 @@ package androidx.graphics.lowlatency {
     method public boolean isValid();
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
+    method public void renderDoubleBufferedLayer(java.util.Collection<? extends T> params);
     method public void renderFrontBufferedLayer(T? param);
     field public static final androidx.graphics.lowlatency.GLFrontBufferedRenderer.Companion Companion;
   }
