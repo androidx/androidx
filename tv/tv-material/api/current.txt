@@ -65,6 +65,11 @@ package androidx.tv.material3 {
   public final class ShapesKt {
   }
 
+  public final class SurfaceKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
+  }
+
   public final class TabKt {
   }
 
