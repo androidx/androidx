@@ -48,11 +48,22 @@ public final class DynamicColorTest {
   }
 
   @Test
+  public void constantToString() {
+    assertThat(DynamicColor.constant(0x00000001).toString()).isEqualTo("FixedColor{argb=1}");
+  }
+
+  @Test
   public void stateEntryValueColor() {
     DynamicColor stateColor = DynamicColor.fromState(STATE_KEY);
 
     assertThat(stateColor.toDynamicColorProto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
+  }
+
+  @Test
+  public void stateToString() {
+    assertThat(DynamicColor.fromState("key").toString())
+        .isEqualTo("StateColorSource{sourceKey=key}");
   }
 
   @Test
@@ -73,6 +84,20 @@ public final class DynamicColorTest {
   }
 
   @Test
+  public void rangeAnimatedToString() {
+    assertThat(
+            DynamicColor.animate(
+                    /* start= */ 0x00000001,
+                    /* end= */ 0x00000002,
+                    new AnimationSpec.Builder().setDelayMillis(0).build())
+                .toString())
+        .isEqualTo(
+            "AnimatableFixedColor{"
+                + "fromArgb=1, toArgb=2, spec=AnimationSpec{"
+                + "durationMillis=0, delayMillis=0, easing=null, repeatable=null}}");
+  }
+
+  @Test
   public void stateAnimatedColor() {
     DynamicColor stateColor = DynamicColor.fromState(STATE_KEY);
 
@@ -86,6 +111,18 @@ public final class DynamicColorTest {
         .isEqualTo(SPEC.toProto());
     assertThat(animatedColor.toDynamicColorProto())
         .isEqualTo(stateColor.animate().toDynamicColorProto());
+  }
+
+  @Test
+  public void stateAnimatedToString() {
+    assertThat(
+            DynamicColor.animate(
+                    /* stateKey= */ "key", new AnimationSpec.Builder().setDelayMillis(1).build())
+                .toString())
+        .isEqualTo(
+            "AnimatableDynamicColor{"
+                + "input=StateColorSource{sourceKey=key}, spec=AnimationSpec{"
+                + "durationMillis=0, delayMillis=1, easing=null, repeatable=null}}");
   }
 
   @Test

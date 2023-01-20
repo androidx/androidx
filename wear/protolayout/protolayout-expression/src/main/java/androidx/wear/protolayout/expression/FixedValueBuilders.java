@@ -91,6 +91,12 @@ final class FixedValueBuilders {
       return StateEntryProto.StateEntryValue.newBuilder().setInt32Val(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedInt32{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link FixedInt32}. */
     public static final class Builder
         implements DynamicBuilders.DynamicInt32.Builder,
@@ -177,6 +183,12 @@ final class FixedValueBuilders {
     @NonNull
     public StateEntryProto.StateEntryValue toStateEntryValueProto() {
       return StateEntryProto.StateEntryValue.newBuilder().setStringVal(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedString{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link FixedString}. */
@@ -266,6 +278,12 @@ final class FixedValueBuilders {
       return StateEntryProto.StateEntryValue.newBuilder().setFloatVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedFloat{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link FixedFloat}. */
     public static final class Builder
         implements DynamicBuilders.DynamicFloat.Builder,
@@ -351,6 +369,12 @@ final class FixedValueBuilders {
     @NonNull
     public StateEntryProto.StateEntryValue toStateEntryValueProto() {
       return StateEntryProto.StateEntryValue.newBuilder().setBoolVal(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedBool{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link FixedBool}. */
@@ -439,6 +463,12 @@ final class FixedValueBuilders {
     @NonNull
     public StateEntryProto.StateEntryValue toStateEntryValueProto() {
       return StateEntryProto.StateEntryValue.newBuilder().setColorVal(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedColor{" + "argb=" + getArgb() + "}";
     }
 
     /** Builder for {@link FixedColor}. */
