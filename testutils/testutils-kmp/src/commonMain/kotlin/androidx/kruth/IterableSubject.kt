@@ -226,8 +226,24 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
      * on the object returned by this method. The expected elements must appear in the given order
      * within the actual elements, but they are not required to be consecutive.
      */
-    fun containsAtLeastElementsIn(expected: Array<Any?>?): Ordered =
+    fun containsAtLeastElementsIn(expected: Array<out Any?>?): Ordered =
         containsAtLeastElementsIn(expected?.asList())
+
+    /**
+     * Checks that a subject contains exactly the provided objects or fails.
+     *
+     * Multiplicity is respected. For example, an object duplicated exactly 3 times in the
+     * parameters asserts that the object must likewise be duplicated exactly 3 times in the subject.
+     *
+     * To also test that the contents appear in the given order, make a call to [Ordered.inOrder]
+     * on the object returned by this method.
+     *
+     * To test that the iterable contains the same elements as an array, prefer
+     * [containsExactlyElementsIn]. It makes clear that the given array is a list of elements, not
+     * an element itself. This helps human readers and avoids a compiler warning.
+     */
+    fun containsExactly(vararg expected: Any?): Ordered =
+        containsExactlyElementsIn(expected.asList())
 
     /**
      * Checks that the subject contains exactly the provided objects or fails.
@@ -364,5 +380,143 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         // If neither iterator has elements, we reached the end and the elements were in
         // order, so inOrder() can just succeed.
         return NoopOrdered
+    }
+
+    /**
+     * Checks that a subject contains exactly the [expected] objects or fails.
+     *
+     *
+     * Multiplicity is respected. For example, an object duplicated exactly 3 times in the array
+     * parameter asserts that the object must likewise be duplicated exactly 3 times in the subject.
+     *
+     *
+     * To also test that the contents appear in the given order, make a call to `inOrder()`
+     * on the object returned by this method.
+     */
+    fun containsExactlyElementsIn(expected: Array<out Any?>?): Ordered =
+        containsExactlyElementsIn(expected?.asList())
+
+    /**
+     * Checks that a actual iterable contains none of the excluded objects or fails. (Duplicates are
+     * irrelevant to this test, which fails if any of the actual elements equal any of the excluded)
+     */
+    fun containsNoneOf(
+        firstExcluded: Any?,
+        secondExcluded: Any?,
+        vararg restOfExcluded: Any?,
+    ) {
+        containsNoneIn(listOf(firstExcluded, secondExcluded, *restOfExcluded))
+    }
+
+    /**
+     * Checks that the actual iterable contains none of the elements contained in the [excluded]
+     * iterable or fails. (Duplicates are irrelevant to this test, which fails if any of the actual
+     * elements equal any of the excluded)
+     */
+    fun containsNoneIn(excluded: Iterable<*>?) {
+        requireNonNull(excluded)
+        val actual = requireNonNull(actual).toSet()
+        val present = excluded.intersect(actual)
+
+        if (present.isNotEmpty()) {
+            fail(
+                """
+                    Expected not to contain any of $excluded but contained $present.
+                    Actual: $actual.
+                """.trimIndent()
+            )
+        }
+    }
+
+    /**
+     * Checks that the actual iterable contains none of the elements contained in the [excluded]
+     * array or fails. (Duplicates are irrelevant to this test, which fails if any of the actual
+     * elements equal any of the excluded)
+     */
+    fun containsNoneIn(excluded: Array<Any?>?) {
+        containsNoneIn(excluded?.asList())
+    }
+
+    /**
+     * Fails if the iterable is not strictly ordered, according to the natural ordering of its
+     * elements. Strictly ordered means that each element in the iterable is <i>strictly</i> greater
+     * than the element that preceded it.
+     *
+     * @throws ClassCastException if any pair of elements is not mutually Comparable
+     * @throws NullPointerException if any element is null
+     */
+    fun isInStrictOrder() {
+        isInStrictOrder(compareBy<Comparable<Any>> { it })
+    }
+
+    /**
+     * Fails if the iterable is not strictly ordered, according to the given [comparator]. Strictly
+     * ordered means that each element in the iterable is *strictly* greater than the element
+     * that preceded it.
+     *
+     * Note: star-projection in `Comparator<*>` is for compatibility with Truth.
+     *
+     * @throws ClassCastException if any pair of elements is not mutually Comparable
+     */
+    fun isInStrictOrder(comparator: Comparator<*>?) {
+        @Suppress("UNCHECKED_CAST")
+        val cmp = requireNonNull(comparator) as Comparator<in Any?>
+
+        verifyInOrder(
+            predicate = { a, b -> cmp.compare(a, b) < 0 },
+            message = { a, b ->
+                """
+                    Expected to be in strict order but contained $a followed by $b.
+                    Actual: $actual.
+                """.trimIndent()
+            }
+        )
+    }
+
+    /**
+     * Fails if the iterable is not ordered, according to the natural ordering of its elements.
+     * Ordered means that each element in the iterable is greater than or equal to the element that
+     * preceded it.
+     *
+     * @throws ClassCastException if any pair of elements is not mutually Comparable
+     * @throws NullPointerException if any element is null
+     */
+    fun isInOrder() {
+        isInOrder(compareBy<Comparable<Any>> { it })
+    }
+
+    /**
+     * Fails if the iterable is not ordered, according to the given [comparator]. Ordered means that
+     * each element in the iterable is greater than or equal to the element that preceded it.
+     *
+     * @throws ClassCastException if any pair of elements is not mutually Comparable
+     */
+    fun isInOrder(comparator: Comparator<*>?) {
+        @Suppress("UNCHECKED_CAST")
+        val cmp = requireNonNull(comparator) as Comparator<in Any?>
+
+        verifyInOrder(
+            predicate = { a, b -> cmp.compare(a, b) <= 0 },
+            message = { a, b ->
+                """
+                    Expected to be in order but contained $a followed by $b.
+                    Actual: $actual.
+                """.trimIndent()
+            }
+        )
+    }
+
+    private inline fun verifyInOrder(
+        predicate: (a: Any?, b: Any?) -> Boolean,
+        message: (a: Any?, b: Any?) -> String,
+    ) {
+        requireNonNull(actual)
+            .asSequence()
+            .zipWithNext(::Pair)
+            .forEach { (a, b) ->
+                if (!predicate(a, b)) {
+                    fail(message(a, b))
+                }
+            }
     }
 }
