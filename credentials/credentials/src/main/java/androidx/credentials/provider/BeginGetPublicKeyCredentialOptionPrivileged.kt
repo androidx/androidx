@@ -34,8 +34,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the privileged request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
- * @property allowHybrid defines whether hybrid credentials are allowed to fulfill this request,
- * true by default, with hybrid credentials defined
+ * @property preferImmediatelyAvailableCredentials true if it is preferred to return
+ * immediately when there is no available credential instead of falling back to discovering remote
+ * credentials, and false (default) otherwise
  * [here](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
  * @property relyingParty the expected true RP ID which will override the one in the [requestJson],
  * where relyingParty is defined [here](https://w3c.github.io/webauthn/#rp-id) in more detail
@@ -44,20 +45,18 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * is null
  * @throws IllegalArgumentException If any of [requestJson], [relyingParty], or [clientDataHash]
  * is empty
- *
- * @hide
  */
 @RequiresApi(34)
 class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constructor(
+    candidateQueryData: Bundle,
     val requestJson: String,
     val relyingParty: String,
     val clientDataHash: String,
-    val data: Bundle,
-    @get:JvmName("allowHybrid")
-    val allowHybrid: Boolean = true
+    @get:JvmName("preferImmediatelyAvailableCredentials")
+    val preferImmediatelyAvailableCredentials: Boolean = true
 ) : BeginGetCredentialOption(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    data
+    candidateQueryData
 ) {
 
     init {
@@ -75,7 +74,7 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginGetPublicKeyCredentialOptionPrivileged> {
+    companion object {
 
         /** @hide */
         @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
@@ -93,10 +92,10 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
                     GetPublicKeyCredentialOptionPrivileged
                         .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return BeginGetPublicKeyCredentialOptionPrivileged(
+                    data,
                     requestJson!!,
                     rp!!,
                     clientDataHash!!,
-                    data,
                     (allowHybrid!!) as Boolean,
                 )
             } catch (e: Exception) {
@@ -104,14 +103,18 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOptionPrivileged {
-            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-            return createFrom(baseOption.candidateQueryData)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<BeginGetPublicKeyCredentialOptionPrivileged> =
+            object : Parcelable.Creator<BeginGetPublicKeyCredentialOptionPrivileged> {
+            override fun createFromParcel(p0: Parcel?):
+                BeginGetPublicKeyCredentialOptionPrivileged {
+                val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+                return createFrom(baseOption.candidateQueryData)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginGetPublicKeyCredentialOptionPrivileged?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<BeginGetPublicKeyCredentialOptionPrivileged?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

@@ -34,29 +34,22 @@ import java.util.Collections
  * Base class for a generic credential entry that is displayed on the account selector UI.
  * Each entry corresponds to an account that can provide a credential.
  *
- * @property title the username of the account holding the credential
- * @property subTitle the displayName of the account holding the credential
- * @property lastUsedTime the last used time of this entry
- * @property icon the icon to be displayed with this entry on the selector
- * @param pendingIntent the [PendingIntent] to be invoked when this entry
+ * @property title the title shown with this entry on the selector UI
+ * @property subTitle the subTitle shown with this entry on the selector UI
+ * @property lastUsedTime the last used time the credential underlying this entry was
+ * used by the user
+ * @property icon the icon to be displayed with this entry on the selector UI
+ * @property pendingIntent the [PendingIntent] to be invoked when this entry
  * is selected by the user
- * @param type the type of the credential e.g.
- * [androidx.credentials.PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
- * or [androidx.credentials.PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
  * @property typeDisplayName the friendly name to be displayed on the UI for
- * the type of the credential.
+ * the type of the credential
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
- * to true does not guarantee this behavior. The developer must als set this
- * to true, and the framework must determine that it is safe to auto select.
- *
- * @throws IllegalArgumentException If [title] is empty
- * @throws NullPointerException If [title] is null
- *
- * @hide
+ * to true does not guarantee this behavior. The developer must also set this
+ * to true, and the framework must determine that only one entry is present.
  */
 @RequiresApi(34)
-class CustomCredentialEntry constructor(
+class CustomCredentialEntry internal constructor(
     type: String,
     val title: CharSequence,
     val subTitle: CharSequence?,
@@ -92,7 +85,7 @@ class CustomCredentialEntry constructor(
 
     @Suppress("AcronymName")
     @RequiresApi(34)
-    companion object CREATOR : Parcelable.Creator<CustomCredentialEntry> {
+    companion object {
         private const val TAG = "CredentialEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
@@ -169,6 +162,8 @@ class CustomCredentialEntry constructor(
          * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -214,15 +209,18 @@ class CustomCredentialEntry constructor(
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): CustomCredentialEntry? {
-            val baseEntry =
-                android.service.credentials.CredentialEntry.CREATOR.createFromParcel(p0)
-            return fromSlice(baseEntry.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<CustomCredentialEntry> = object :
+            Parcelable.Creator<CustomCredentialEntry> {
+            override fun createFromParcel(p0: Parcel?): CustomCredentialEntry? {
+                val baseEntry =
+                    android.service.credentials.CredentialEntry.CREATOR.createFromParcel(p0)
+                return fromSlice(baseEntry.slice)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<CustomCredentialEntry?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<CustomCredentialEntry?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

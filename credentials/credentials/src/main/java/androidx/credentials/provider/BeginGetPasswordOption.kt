@@ -32,13 +32,13 @@ import androidx.credentials.PasswordCredential
  * Providers must use the parameters in this option to retrieve the corresponding credentials,
  * and then return them in the form of a list of [PasswordCredentialEntry]
  * set on the [BeginGetCredentialResponse.createWithResponseContent].
- *
- * @hide
  */
 @RequiresApi(34)
-class BeginGetPasswordOption(val data: Bundle) : BeginGetCredentialOption(
+class BeginGetPasswordOption internal constructor(
+    candidateQueryData: Bundle
+) : BeginGetCredentialOption(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    data
+    candidateQueryData
 ) {
 
     override fun describeContents(): Int {
@@ -50,22 +50,24 @@ class BeginGetPasswordOption(val data: Bundle) : BeginGetCredentialOption(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginGetPasswordOption> {
-
+    companion object {
         /** @hide */
         @JvmStatic
         internal fun createFrom(data: Bundle): BeginGetPasswordOption {
             return BeginGetPasswordOption(data)
         }
 
-        override fun createFromParcel(p0: Parcel?): BeginGetPasswordOption {
-            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-            return createFrom(baseOption.candidateQueryData)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<BeginGetPasswordOption> = object :
+            Parcelable.Creator<BeginGetPasswordOption> {
+            override fun createFromParcel(p0: Parcel?): BeginGetPasswordOption {
+                val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+                return createFrom(baseOption.candidateQueryData)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginGetPasswordOption?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<BeginGetPasswordOption?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

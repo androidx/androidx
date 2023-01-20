@@ -31,17 +31,15 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
- * Credential Provider base service to be extended by provider services.
+ * Main service to be extended by provider services.
  *
- * This class extends from the framework [CredentialProviderService], and is
- * called by the framework on credential get and create requests. The framework
- * requests are converted to structured jetpack requests, and sent to
- * provider services that extend from this service.
- *
- * @hide
+ * Services that extend this class will be bound to by the framework, and receive
+ * [androidx.credentials.CredentialManager] credential retrieval and creation API calls.
  */
 @RequiresApi(34)
-abstract class CredentialProviderBaseService : CredentialProviderService() {
+abstract class CredentialProviderService : CredentialProviderService() {
+
+    /** @hide **/
     final override fun onBeginGetCredential(
         request: BeginGetCredentialRequest,
         cancellationSignal: CancellationSignal,
@@ -67,6 +65,7 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
         this.onBeginGetCredentialRequest(structuredRequest, cancellationSignal, outcome)
     }
 
+    /** @hide **/
     final override fun onBeginCreateCredential(
         request: BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
@@ -98,19 +97,17 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
     /**
      * Called by the Credential Manager Jetpack library to get credentials stored with a provider
      * service. Provider services must extend this in order to handle a
-     * [GetCredentialProviderRequest] request.
+     * [ProviderGetCredentialRequest] request.
      *
      * Provider service must call one of the [callback] methods to notify the result of the
      * request.
      *
-     * @param [request] the [GetCredentialProviderRequest] to handle
+     * @param [request] the [ProviderGetCredentialRequest] to handle
      * See [BeginGetCredentialResponse] for the response to be returned
      * @param cancellationSignal signal for observing cancellation requests. The system will
      * use this to notify you that the result is no longer needed and you should stop
      * handling it in order to save your resources
      * @param callback the callback object to be used to notify the response or error
-     *
-     * @hide
      */
     abstract fun onBeginGetCredentialRequest(
         request: BeginGetCredentialRequest,
@@ -133,8 +130,6 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
      * use this to notify you that the result is no longer needed and you should stop
      * handling it in order to save your resources
      * @param callback the callback object to be used to notify the response or error
-     *
-     * @hide
      */
     abstract fun onBeginCreateCredentialRequest(
         request: BeginCreateCredentialRequest,
@@ -143,6 +138,7 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
             CreateCredentialException>
     )
 
+    /** @hide **/
     companion object {
         private const val TAG = "BaseService"
     }

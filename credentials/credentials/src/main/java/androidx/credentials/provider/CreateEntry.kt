@@ -29,6 +29,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialManager
+import androidx.credentials.PasswordCredential
+import androidx.credentials.PublicKeyCredential
 import java.util.Collections
 
 /**
@@ -39,16 +41,7 @@ import java.util.Collections
  * registered. When user selects this entry, the corresponding [PendingIntent] is fired, and the
  * credential creation can be completed.
  *
- * @property accountName the name of the account where the credential
- * will be registered
- * @property lastUsedTimeMillis the last used time of the account/group underlying this entry
- * @property credentialCountInformationList a list of count information per credential type
- * @param pendingIntent the [PendingIntent] to be fired when this
- * [CreateEntry] is selected
- *
  * @throws IllegalArgumentException If [accountName] is empty
- *
- * @hide
  */
 @RequiresApi(34)
 class CreateEntry internal constructor(
@@ -56,18 +49,41 @@ class CreateEntry internal constructor(
     val pendingIntent: PendingIntent,
     val icon: Icon?,
     val lastUsedTimeMillis: Long,
-    val credentialCountInformationList: List<CredentialCountInformation>
+    private val credentialCountInformationMap: Map<String, Int>
     ) : android.service.credentials.CreateEntry(
     toSlice(
         accountName,
         icon,
         lastUsedTimeMillis,
-        credentialCountInformationList,
+        credentialCountInformationMap,
         pendingIntent)
 ) {
 
     init {
         require(accountName.isNotEmpty()) { "accountName must not be empty" }
+    }
+
+    /** Returns the no. of password type credentials that the provider with this entry has. */
+    @Suppress("AutoBoxing")
+    fun getPasswordCredentialCount(): Int? {
+        return credentialCountInformationMap[PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
+    }
+
+    /** Returns the no. of public key type credentials that the provider with this entry has. */
+    @Suppress("AutoBoxing")
+    fun getPublicKeyCredentialCount(): Int? {
+        return credentialCountInformationMap[PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
+    }
+
+    /** Returns the no. of total credentials that the provider with this entry has.
+     *
+     * This total count is not necessarily equal to the sum of [getPasswordCredentialCount]
+     * and [getPublicKeyCredentialCount].
+     *
+     */
+    @Suppress("AutoBoxing")
+    fun getTotalCredentialCount(): Int? {
+        return credentialCountInformationMap[TYPE_TOTAL_CREDENTIAL]
     }
 
     override fun describeContents(): Int {
@@ -81,44 +97,53 @@ class CreateEntry internal constructor(
     /**
      * A builder for [CreateEntry]
      *
-     * @property accountName the name of the account where the credential will be registered
-     * @property pendingIntent the [PendingIntent] that will be fired when the user selects
+     * @param accountName the name of the account where the credential will be registered
+     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
      * this entry
-     *
-     * @hide
      */
     class Builder constructor(
         private val accountName: CharSequence,
         private val pendingIntent: PendingIntent
     ) {
 
-        private var credentialCountInformationList: MutableList<CredentialCountInformation> =
-            mutableListOf()
+        private var credentialCountInformationMap: MutableMap<String, Int> =
+            mutableMapOf()
         private var icon: Icon? = null
         private var lastUsedTimeMillis: Long = 0
 
-        /** Adds a [CredentialCountInformation] denoting a given credential
-         * type and the count of credentials that the provider has stored for that
-         * credential type.
+        /** Sets the password credential count, denoting how many credentials of type
+         * [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] does the provider have stored.
          *
          * This information will be displayed on the [CreateEntry] to help the user
          * make a choice.
          */
-        @Suppress("MissingGetterMatchingBuilder")
-        fun addCredentialCountInformation(info: CredentialCountInformation): Builder {
-            credentialCountInformationList.add(info)
+        fun setPasswordCredentialCount(count: Int): Builder {
+            credentialCountInformationMap[PasswordCredential.TYPE_PASSWORD_CREDENTIAL] = count
             return this
         }
 
-        /** Sets a list of [CredentialCountInformation]. Each item in the list denotes a given
-         * credential type and the count of credentials that the provider has stored of that
-         * credential type.
+        /** Sets the password credential count, denoting how many credentials of type
+         * [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] does the provider have stored.
          *
          * This information will be displayed on the [CreateEntry] to help the user
          * make a choice.
          */
-        fun setCredentialCountInformationList(infoList: List<CredentialCountInformation>): Builder {
-            credentialCountInformationList = infoList as MutableList<CredentialCountInformation>
+        fun setPublicKeyCredentialCount(count: Int): Builder {
+            credentialCountInformationMap[PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] = count
+            return this
+        }
+
+        /** Sets the total credential count, denoting how many credentials in total
+         * does the provider have stored.
+         *
+         * This total count no. does not need to be a total of the counts set through
+         * [setPasswordCredentialCount] and [setPublicKeyCredentialCount].
+         *
+         * This information will be displayed on the [CreateEntry] to help the user
+         * make a choice.
+         */
+        fun setTotalCredentialCount(count: Int): Builder {
+            credentialCountInformationMap[TYPE_TOTAL_CREDENTIAL] = count
             return this
         }
 
@@ -142,14 +167,16 @@ class CreateEntry internal constructor(
         fun build(): CreateEntry {
             return CreateEntry(
                 accountName, pendingIntent, icon, lastUsedTimeMillis,
-                credentialCountInformationList
+                credentialCountInformationMap
             )
         }
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<CreateEntry> {
+    companion object {
         private const val TAG = "CreateEntry"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ACCOUNT_NAME =
             "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
@@ -170,12 +197,13 @@ class CreateEntry internal constructor(
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
+        /** @hide **/
         @JvmStatic
         fun toSlice(
             accountName: CharSequence,
             icon: Icon?,
             lastUsedTimeMillis: Long,
-            credentialCountInformationList: List<CredentialCountInformation>,
+            credentialCountInformationMap: Map<String, Int>,
             pendingIntent: PendingIntent
         ): Slice {
             // TODO("Use the right type and revision")
@@ -196,12 +224,12 @@ class CreateEntry internal constructor(
                 )
             }
             val credentialCountBundle = convertCredentialCountInfoToBundle(
-                credentialCountInformationList
+                credentialCountInformationMap
             )
             if (credentialCountBundle != null) {
                 sliceBuilder.addBundle(
                     convertCredentialCountInfoToBundle(
-                        credentialCountInformationList
+                        credentialCountInformationMap
                     ), null, listOf(
                         SLICE_HINT_CREDENTIAL_COUNT_INFORMATION
                     )
@@ -221,6 +249,8 @@ class CreateEntry internal constructor(
          * Returns an instance of [CreateEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -229,7 +259,7 @@ class CreateEntry internal constructor(
             var accountName: CharSequence = ""
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
-            var credentialCountInfo: List<CredentialCountInformation> = listOf()
+            var credentialCountInfo: Map<String, Int> = mapOf()
             var lastUsedTimeMillis: Long = 0
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
@@ -255,47 +285,51 @@ class CreateEntry internal constructor(
             }
         }
 
+        /** @hide **/
         @JvmStatic
         internal fun convertBundleToCredentialCountInfo(bundle: Bundle?):
-            List<CredentialCountInformation> {
-            val credentialCountList = ArrayList<CredentialCountInformation>()
+            Map<String, Int> {
+            val credentialCountMap = HashMap<String, Int>()
             if (bundle == null) {
-                return credentialCountList
+                return credentialCountMap
             }
             bundle.keySet().forEach {
                 try {
-                    credentialCountList.add(
-                        CredentialCountInformation(it, bundle.getInt(it))
-                    )
+                    credentialCountMap[it] = bundle.getInt(it)
                 } catch (e: Exception) {
                     Log.i(TAG, "Issue unpacking credential count info bundle: " + e.message)
                 }
             }
-            return credentialCountList
+            return credentialCountMap
         }
 
+        /** @hide **/
         @JvmStatic
         internal fun convertCredentialCountInfoToBundle(
-            credentialCountInformationList: List<CredentialCountInformation>
+            credentialCountInformationMap: Map<String, Int>
         ): Bundle? {
-            if (credentialCountInformationList.isEmpty()) {
+            if (credentialCountInformationMap.isEmpty()) {
                 return null
             }
             val bundle = Bundle()
-            credentialCountInformationList.forEach {
-                bundle.putInt(it.type, it.count)
+            credentialCountInformationMap.forEach {
+                bundle.putInt(it.key, it.value)
             }
             return bundle
         }
 
-        override fun createFromParcel(p0: Parcel?): CreateEntry? {
-            val createEntry = android.service.credentials.CreateEntry.CREATOR.createFromParcel(p0)
-            return fromSlice(createEntry.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<CreateEntry> =
+            object : Parcelable.Creator<CreateEntry> {
+                override fun createFromParcel(p0: Parcel?): CreateEntry? {
+                    val createEntry = android.service.credentials.CreateEntry
+                        .CREATOR.createFromParcel(p0)
+                    return fromSlice(createEntry.slice)
+                }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<CreateEntry?> {
-            return arrayOfNulls(size)
-        }
+                @Suppress("ArrayReturn")
+                override fun newArray(size: Int): Array<CreateEntry?> {
+                    return arrayOfNulls(size)
+                }
+            }
     }
     }

@@ -29,16 +29,14 @@ import androidx.annotation.RequiresApi
  * Providers must use [BeginGetCredentialOption.getType] to determine the credential type
  * of this custom option parameters, in order to populate a list of [CustomCredentialEntry] to be
  * set on the [android.service.credentials.BeginGetCredentialResponse].
- *
- * @hide
  */
 @RequiresApi(34)
 class BeginGetCustomCredentialOption internal constructor(
     type: String,
-    val data: Bundle,
+    candidateQueryData: Bundle,
 ) : BeginGetCredentialOption(
     type,
-    data
+    candidateQueryData
 ) {
 
     override fun describeContents(): Int {
@@ -49,15 +47,19 @@ class BeginGetCustomCredentialOption internal constructor(
         super.writeToParcel(dest, flags)
     }
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginGetCustomCredentialOption> {
-        override fun createFromParcel(p0: Parcel?): BeginGetCustomCredentialOption {
-            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-            return BeginGetCustomCredentialOption(baseOption.type, baseOption.candidateQueryData)
-        }
+    companion object {
+        @JvmField val CREATOR: Parcelable.Creator<BeginGetCustomCredentialOption> = object :
+            Parcelable.Creator<BeginGetCustomCredentialOption> {
+            override fun createFromParcel(p0: Parcel?): BeginGetCustomCredentialOption {
+                val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+                return BeginGetCustomCredentialOption(baseOption.type,
+                    baseOption.candidateQueryData)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginGetCustomCredentialOption?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<BeginGetCustomCredentialOption?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

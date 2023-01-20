@@ -36,9 +36,14 @@ import java.time.Instant
 import java.util.Collections
 
 /**
- * A public key credential entry that is displayed on the account selector UI.
- * This entry denotes that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
- * is available for the user.
+ * A public key credential entry that is displayed on the account selector UI. This
+ * entry denotes that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
+ * is available for the user to select.
+ *
+ * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
+ * can then show any activity they wish to. Before finishing the activity, provider must
+ * set the final [androidx.credentials.GetCredentialResponse] through the
+ * [PendingIntentHandler.setGetCredentialResponse] helper API.
  *
  * @property username the username of the account holding the public key credential
  * @property displayName the displayName of the account holding the public key credential
@@ -52,8 +57,6 @@ import java.util.Collections
  * to true, and the framework must determine that it is safe to auto select.
  *
  * @throws IllegalArgumentException if [username] is empty
- *
- * @hide
  */
 @RequiresApi(34)
 class PublicKeyCredentialEntry internal constructor(
@@ -87,7 +90,7 @@ class PublicKeyCredentialEntry internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<PublicKeyCredentialEntry> {
+    companion object CREATOR {
 
         private const val TAG = "PublicKeyCredEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -167,6 +170,8 @@ class PublicKeyCredentialEntry internal constructor(
          * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -215,14 +220,17 @@ class PublicKeyCredentialEntry internal constructor(
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): PublicKeyCredentialEntry? {
-            val credentialEntry = CredentialEntry.CREATOR.createFromParcel(p0)
-            return fromSlice(credentialEntry.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<PublicKeyCredentialEntry> = object :
+            Parcelable.Creator<PublicKeyCredentialEntry> {
+            override fun createFromParcel(p0: Parcel?): PublicKeyCredentialEntry? {
+                val credentialEntry = CredentialEntry.CREATOR.createFromParcel(p0)
+                return fromSlice(credentialEntry.slice)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<PublicKeyCredentialEntry?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<PublicKeyCredentialEntry?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 

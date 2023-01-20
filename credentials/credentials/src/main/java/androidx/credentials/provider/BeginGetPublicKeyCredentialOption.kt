@@ -31,23 +31,22 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the privileged request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
- * @property allowHybrid defines whether hybrid credentials are allowed to fulfill this request,
- * true by default. For definition of hybrid credentials,
+ * @property preferImmediatelyAvailableCredentials true if it is preferred to return
+ * immediately when there is no available credential instead of falling back to discovering remote
+ * credentials, and false (default) otherwise
  * [see](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
- *
- * @hide
  */
 @RequiresApi(34)
 class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
-    val data: Bundle,
+    candidateQueryData: Bundle,
     val requestJson: String,
-    @get:JvmName("allowHybrid")
-    val allowHybrid: Boolean = true,
+    @get:JvmName("preferImmediatelyAvailableCredentials")
+    val preferImmediatelyAvailableCredentials: Boolean = true,
 ) : BeginGetCredentialOption(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    data
+    candidateQueryData
 ) {
     init {
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
@@ -62,7 +61,7 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginGetPublicKeyCredentialOption> {
+    companion object {
         /** @hide */
         @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
                                          // boolean value from being returned.
@@ -81,14 +80,17 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOption {
-            val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-            return createFrom(baseOption.candidateQueryData)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<BeginGetPublicKeyCredentialOption> = object :
+            Parcelable.Creator<BeginGetPublicKeyCredentialOption> {
+            override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOption {
+                val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
+                return createFrom(baseOption.candidateQueryData)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginGetPublicKeyCredentialOption?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<BeginGetPublicKeyCredentialOption?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

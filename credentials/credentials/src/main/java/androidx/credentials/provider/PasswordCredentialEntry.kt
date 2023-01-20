@@ -38,24 +38,27 @@ import java.util.Collections
 /**
  * A password credential entry that is displayed on the account selector UI. This
  * entry denotes that a credential of type [PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
- * is available for the user.
+ * is available for the user to select.
+ *
+ * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
+ * can then show any activity they wish to. Before finishing the activity, provider must
+ * set the final [androidx.credentials.GetCredentialResponse] through the
+ * [PendingIntentHandler.setGetCredentialResponse] helper API.
  *
  * @property username the username of the account holding the password credential
  * @property displayName the displayName of the account holding the password credential
  * @property lastUsedTime the last used time of this entry
  * @property icon the icon to be displayed with this entry on the selector
- * @param pendingIntent the [PendingIntent] to be invoked when user selects
+ * @property pendingIntent the [PendingIntent] to be invoked when user selects
  * this entry
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
- * to true does not guarantee this behavior. The developer must als set this
- * to true, and the framework must determine that it is safe to auto select.
+ * to true does not guarantee this behavior. The developer must also set this
+ * to true, and the framework must determine that this is the only entry available for the user.
  *
  * @throws IllegalArgumentException if [username] is empty
  *
  * @see CustomCredentialEntry
- *
- * @hide
  */
 @RequiresApi(34)
 class PasswordCredentialEntry internal constructor(
@@ -89,31 +92,40 @@ class PasswordCredentialEntry internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<PasswordCredentialEntry> {
+    companion object CREATOR {
         private const val TAG = "PasswordCredentialEntry"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_USER_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ICON =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_PROFILE_ICON"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_PENDING_INTENT"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.passwordCredentialEntry.SLICE_HINT_AUTO_ALLOWED"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
 
@@ -137,30 +149,45 @@ class PasswordCredentialEntry internal constructor(
             }
             val sliceBuilder = Slice.Builder(
                 Uri.EMPTY, SliceSpec(
-                type, 1)
+                    type, 1
+                )
             )
-                .addText(typeDisplayName, /*subType=*/null,
-                    listOf(SLICE_HINT_TYPE_DISPLAY_NAME))
-                .addText(title, /*subType=*/null,
-                    listOf(SLICE_HINT_TITLE))
-                .addText(subTitle, /*subType=*/null,
-                    listOf(SLICE_HINT_SUBTITLE))
-                .addText(autoSelectAllowed, /*subType=*/null,
-                    listOf(SLICE_HINT_AUTO_ALLOWED))
+                .addText(
+                    typeDisplayName, /*subType=*/null,
+                    listOf(SLICE_HINT_TYPE_DISPLAY_NAME)
+                )
+                .addText(
+                    title, /*subType=*/null,
+                    listOf(SLICE_HINT_TITLE)
+                )
+                .addText(
+                    subTitle, /*subType=*/null,
+                    listOf(SLICE_HINT_SUBTITLE)
+                )
+                .addText(
+                    autoSelectAllowed, /*subType=*/null,
+                    listOf(SLICE_HINT_AUTO_ALLOWED)
+                )
             if (lastUsedTime != null) {
-                sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
+                sliceBuilder.addLong(
+                    lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
+                )
             }
             if (icon != null) {
-                sliceBuilder.addIcon(icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON))
+                sliceBuilder.addIcon(
+                    icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON)
+                )
             }
-            sliceBuilder.addAction(pendingIntent,
+            sliceBuilder.addAction(
+                pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/null)
+                /*subType=*/null
+            )
             return sliceBuilder.build()
         }
 
@@ -168,6 +195,8 @@ class PasswordCredentialEntry internal constructor(
          * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -209,32 +238,28 @@ class PasswordCredentialEntry internal constructor(
                     pendingIntent!!,
                     lastUsedTime,
                     icon!!,
-                    autoSelectAllowed)
+                    autoSelectAllowed
+                )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): PasswordCredentialEntry? {
-            val credentialEntry = CredentialEntry.CREATOR.createFromParcel(p0)
-            return fromSlice(credentialEntry.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<PasswordCredentialEntry> = object :
+            Parcelable.Creator<PasswordCredentialEntry> {
+            override fun createFromParcel(p0: Parcel?): PasswordCredentialEntry? {
+                val credentialEntry = CredentialEntry.CREATOR.createFromParcel(p0)
+                return fromSlice(credentialEntry.slice)
+            }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<PasswordCredentialEntry?> {
-            return arrayOfNulls(size)
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<PasswordCredentialEntry?> {
+                return arrayOfNulls(size)
+            }
         }
     }
-
-    /**
-     * Builder for [PasswordCredentialEntry]
-     *
-     * @property displayName the display name of the account holding the credential
-     * @property pendingIntent the [PendingIntent] to be invoked when the user selects this entry
-     * @property lastUsedTime the last used time of this entry
-     * @property icon the icon to be displayed with this entry on the selector
-     */
+    /** Builder for [PasswordCredentialEntry] */
     class Builder(
         private val context: Context,
         private val username: CharSequence,
@@ -258,9 +283,8 @@ class PasswordCredentialEntry internal constructor(
         }
 
         /**
-         * Sets the last used time of this account
-         *
-         * This information will be used to sort the entries on the selector.
+         * Sets the last used time of this account. This information will be used to sort the
+         * entries on the selector.
          */
         fun setLastUsedTime(lastUsedTime: Instant?): Builder {
             this.lastUsedTime = lastUsedTime

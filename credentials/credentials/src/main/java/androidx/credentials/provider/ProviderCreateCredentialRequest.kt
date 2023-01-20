@@ -34,11 +34,9 @@ import androidx.credentials.CreateCredentialRequest
  *
  * @throws NullPointerException If [callingRequest] is null
  * @throws NullPointerException If [callingAppInfo] is null
- *
- * @hide
  */
 @RequiresApi(34)
-class CreateCredentialProviderRequest internal constructor(
+class ProviderCreateCredentialRequest internal constructor(
     val callingRequest: CreateCredentialRequest,
     val callingAppInfo: CallingAppInfo
 )

@@ -38,12 +38,10 @@ import java.util.Collections
  * When the user selects this entry, the corresponding [PendingIntent] is fired,
  * and the credential creation can be completed.
  *
- * @param pendingIntent the [PendingIntent] to be fired when this
+ * @property pendingIntent the [PendingIntent] to be fired when this
  * [RemoteCreateEntry] is selected
  *
  * @throws NullPointerException If [pendingIntent] is empty
- *
- * @hide
  */
 @RequiresApi(34)
 class RemoteCreateEntry constructor(
@@ -61,28 +59,13 @@ class RemoteCreateEntry constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<RemoteCreateEntry> {
-        private const val TAG = "CreateEntry"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_ACCOUNT_NAME =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_ICON =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
-
+    companion object {
+        private const val TAG = "RemoteCreateEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
+        /** @hide **/
         @JvmStatic
         fun toSlice(
             pendingIntent: PendingIntent
@@ -103,6 +86,8 @@ class RemoteCreateEntry constructor(
          * Returns an instance of [RemoteCreateEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
+         *
+         * @hide
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -122,14 +107,18 @@ class RemoteCreateEntry constructor(
             }
         }
 
-        override fun createFromParcel(p0: Parcel?): RemoteCreateEntry? {
-            val createEntry = android.service.credentials.CreateEntry.CREATOR.createFromParcel(p0)
-            return fromSlice(createEntry.slice)
-        }
+        @JvmField val CREATOR: Parcelable.Creator<RemoteCreateEntry> =
+            object : Parcelable.Creator<RemoteCreateEntry> {
+                override fun createFromParcel(p0: Parcel?): RemoteCreateEntry? {
+                    val createEntry = android.service.credentials.CreateEntry
+                        .CREATOR.createFromParcel(p0)
+                    return fromSlice(createEntry.slice)
+                }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<RemoteCreateEntry?> {
-            return arrayOfNulls(size)
-        }
+                @Suppress("ArrayReturn")
+                override fun newArray(size: Int): Array<RemoteCreateEntry?> {
+                    return arrayOfNulls(size)
+                }
+            }
     }
     }

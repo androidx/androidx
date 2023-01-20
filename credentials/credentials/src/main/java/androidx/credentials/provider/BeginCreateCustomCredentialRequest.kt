@@ -39,11 +39,7 @@ import androidx.credentials.CreateCustomCredentialRequest
  * the complete [CreateCustomCredentialRequest]. This request will contain all required
  * parameters to actually store the credential.
  *
- * @param type the type of this custom credential type
- *
  * @see BeginCreateCredentialRequest
- *
- * @hide
  */
 @RequiresApi(34)
 class BeginCreateCustomCredentialRequest internal constructor(
@@ -64,18 +60,22 @@ class BeginCreateCustomCredentialRequest internal constructor(
         super.writeToParcel(dest, flags)
     }
     @Suppress("AcronymName")
-    companion object CREATOR : Parcelable.Creator<BeginCreateCustomCredentialRequest> {
-        override fun createFromParcel(p0: Parcel?): BeginCreateCustomCredentialRequest {
-            val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
-            return BeginCreateCustomCredentialRequest(
-                baseRequest.type,
-                baseRequest.data,
-                baseRequest.callingAppInfo)
-        }
+    companion object {
+        @JvmField val CREATOR: Parcelable.Creator<BeginCreateCustomCredentialRequest> =
+            object : Parcelable.Creator<BeginCreateCustomCredentialRequest> {
+                override fun createFromParcel(p0: Parcel?): BeginCreateCustomCredentialRequest {
+                    val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
+                    return BeginCreateCustomCredentialRequest(
+                        baseRequest.type,
+                        baseRequest.data,
+                        baseRequest.callingAppInfo
+                    )
+                }
 
-        @Suppress("ArrayReturn")
-        override fun newArray(size: Int): Array<BeginCreateCustomCredentialRequest?> {
-            return arrayOfNulls(size)
-        }
+                @Suppress("ArrayReturn")
+                override fun newArray(size: Int): Array<BeginCreateCustomCredentialRequest?> {
+                    return arrayOfNulls(size)
+                }
+            }
     }
 }
