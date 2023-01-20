@@ -572,6 +572,10 @@ class SurfaceControlCompatTest {
     @Ignore("b/262903415")
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_singleReleaseCallback() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         val releaseLatch = CountDownLatch(1)
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(
@@ -633,6 +637,10 @@ class SurfaceControlCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_multipleReleaseCallbacksAndOverwriteWithSingleSC() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         val releaseLatch = CountDownLatch(1)
         val releaseLatch2 = CountDownLatch(1)
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)

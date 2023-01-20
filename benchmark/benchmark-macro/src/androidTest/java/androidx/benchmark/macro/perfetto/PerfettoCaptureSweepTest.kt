@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
@@ -64,12 +65,24 @@ class PerfettoCaptureSweepTest(
     @Ignore("b/258216025")
     @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED, maxSdkVersion = 33)
     @Test
-    fun captureAndValidateTrace_bundled() = captureAndValidateTrace(unbundled = false)
+    fun captureAndValidateTrace_bundled() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
+        captureAndValidateTrace(unbundled = false)
+    }
 
     @Ignore("b/258216025")
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
+    fun captureAndValidateTrace_unbundled() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
+        captureAndValidateTrace(unbundled = true)
+    }
 
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())

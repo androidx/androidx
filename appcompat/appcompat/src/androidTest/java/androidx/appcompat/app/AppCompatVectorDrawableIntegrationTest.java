@@ -70,6 +70,10 @@ public class AppCompatVectorDrawableIntegrationTest {
     @UiThreadTest
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testVectorDrawableAutoMirrored() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Activity activity = mActivityTestRule.getActivity();
         ImageView view1 = (ImageView) activity.findViewById(R.id.view_vector_1);
         Drawable vectorDrawable = view1.getDrawable();
