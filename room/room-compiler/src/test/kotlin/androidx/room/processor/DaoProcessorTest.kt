@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -227,7 +226,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -275,7 +274,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             if (!dao.isTypeElement()) {
                 error("Expected DAO to be a type")
             }
-            val dbType = invocation.context.processingEnv.requireType(ROOM_DB.toJavaPoet())
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao, dbType, null)
             Truth.assertThat(daoProcessor.context.logger.suppressedWarnings)
@@ -296,7 +295,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(
@@ -460,7 +459,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         """.trimIndent())
         runProcessorTest(sources = listOf(source)) { invocation ->
             val dao = invocation.processingEnv.requireTypeElement("MyDao")
-            val dbType = invocation.context.processingEnv.requireType(ROOM_DB.toJavaPoet())
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
             DaoProcessor(
                 baseContext = invocation.context,
                 element = dao,
@@ -779,7 +778,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 null
             }
             val dbType = invocation.context.processingEnv
-                .requireType(ROOM_DB.toJavaPoet())
+                .requireType(ROOM_DB)
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, dbVerifier

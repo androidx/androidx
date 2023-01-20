@@ -29,15 +29,20 @@ internal class KotlinFunSpec(
     override val name: String,
     internal val actual: FunSpec
 ) : KotlinLang(), XFunSpec {
+    override fun toString() = actual.toString()
 
     internal class Builder(
         override val name: String,
         internal val actual: FunSpec.Builder
     ) : KotlinLang(), XFunSpec.Builder {
 
-        override fun addAnnotation(annotation: XAnnotationSpec) {
+        override fun addAnnotation(annotation: XAnnotationSpec) = apply {
             require(annotation is KotlinAnnotationSpec)
             actual.addAnnotation(annotation.actual)
+        }
+
+        override fun addAbstractModifier() = apply {
+            actual.addModifiers(KModifier.ABSTRACT)
         }
 
         override fun addCode(code: XCodeBlock) = apply {
