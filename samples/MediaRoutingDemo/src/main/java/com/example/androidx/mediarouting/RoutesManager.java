@@ -28,6 +28,8 @@ import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.androidx.mediarouting.data.RouteItem;
 
@@ -44,6 +46,7 @@ public final class RoutesManager {
     private static final int VOLUME_DEFAULT = 5;
 
     private boolean mDynamicRoutingEnabled;
+    private DialogType mDialogType;
 
     private Context mContext;
     private final Map<String, RouteItem> mRouteItems;
@@ -52,6 +55,7 @@ public final class RoutesManager {
     private RoutesManager(Context context) {
         mContext = context;
         mDynamicRoutingEnabled = true;
+        mDialogType = DialogType.OUTPUT_SWITCHER;
         mRouteItems = new HashMap<>();
         initTestRoutes();
     }
@@ -80,6 +84,10 @@ public final class RoutesManager {
         this.mDynamicRoutingEnabled = dynamicRoutingEnabled;
     }
 
+    public void setDialogType(@NonNull DialogType dialogType) {
+        this.mDialogType = dialogType;
+    }
+
     /**
      * Deletes the route with the passed id.
      *
@@ -101,8 +109,31 @@ public final class RoutesManager {
     }
 
     /** Adds the given route to the manager, replacing any existing route with a matching id. */
-    public void addOrUpdateRoute(@NonNull RouteItem routeItem) {
+    public void addRoute(@NonNull RouteItem routeItem) {
         mRouteItems.put(routeItem.getId(), routeItem);
+    }
+
+    /** Changes the media router dialog type with the type stored in {@link RoutesManager} */
+    public void reloadDialogType() {
+        MediaRouter mediaRouter = MediaRouter.getInstance(mContext.getApplicationContext());
+        MediaRouterParams.Builder builder =
+                new MediaRouterParams.Builder(mediaRouter.getRouterParams());
+        switch (mDialogType) {
+            case DEFAULT:
+                builder.setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                        .setOutputSwitcherEnabled(false);
+                mediaRouter.setRouterParams(builder.build());
+                break;
+            case DYNAMIC_GROUP:
+                builder.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP)
+                        .setOutputSwitcherEnabled(false);
+                mediaRouter.setRouterParams(builder.build());
+                break;
+            case OUTPUT_SWITCHER:
+                builder.setOutputSwitcherEnabled(true);
+                mediaRouter.setRouterParams(builder.build());
+                break;
+        }
     }
 
     private void initTestRoutes() {
@@ -164,5 +195,11 @@ public final class RoutesManager {
         mRouteItems.put(r2.getId(), r2);
         mRouteItems.put(r3.getId(), r3);
         mRouteItems.put(r4.getId(), r4);
+    }
+
+    public enum DialogType {
+        DEFAULT,
+        DYNAMIC_GROUP,
+        OUTPUT_SWITCHER
     }
 }

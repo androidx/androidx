@@ -16,13 +16,16 @@
 <!-- Layout for list item in routes list view. Displays ImageButtons
      instead to the right of the item for edit and delete. -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="16dp"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -33,18 +36,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_margin="8dp"
+            android:layout_marginVertical="2dp"
             android:gravity="left"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/description_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_margin="8dp"
+            android:layout_marginVertical="2dp"
             android:gravity="left"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 
@@ -61,6 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            android:background="@android:color/transparent"
             app:srcCompat="@drawable/ic_edit" />
 
         <ImageButton
@@ -68,8 +72,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            android:background="@android:color/transparent"
             app:srcCompat="@drawable/ic_delete" />
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
