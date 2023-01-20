@@ -3326,7 +3326,10 @@ public class AppSearchImplTest {
     @Test
     public void testRemoveByQuery_withJoinSpec_throwsException() {
         Exception e = assertThrows(IllegalArgumentException.class,
-                () -> mAppSearchImpl.removeByQuery("", "", "",
+                () -> mAppSearchImpl.removeByQuery(
+                        /*packageName=*/"",
+                        /*databaseName=*/"",
+                        /*queryExpression=*/"",
                         new SearchSpec.Builder()
                                 .setJoinSpec(new JoinSpec.Builder("childProp").build())
                                 .build(),
