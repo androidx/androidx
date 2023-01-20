@@ -954,6 +954,8 @@ public sealed class Renderer @WorkerThread constructor(
      * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      * default this is empty.
+     * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+     * default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
      * @throws [GlesException] If any GL calls fail during initialization.
      */
     @Deprecated(message = "GlesRenderer is deprecated", ReplaceWith("GlesRenderer2"))
@@ -968,7 +970,8 @@ public sealed class Renderer @WorkerThread constructor(
         @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
         private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+        private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+        private val eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
     ) : Renderer(
         surfaceHolder,
         currentUserStyleRepository,
@@ -1213,7 +1216,7 @@ public sealed class Renderer @WorkerThread constructor(
                         eglDisplay,
                         eglConfig,
                         EGL14.EGL_NO_CONTEXT,
-                        EGL_CONTEXT_ATTRIB_LIST,
+                        eglContextAttribList,
                         0
                     )
                     if (sharedAssetsHolder.eglBackgroundThreadContext == EGL14.EGL_NO_CONTEXT) {
@@ -1566,6 +1569,8 @@ public sealed class Renderer @WorkerThread constructor(
      * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      * default this is empty.
+     * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+     * default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
      * @throws [Renderer.GlesException] If any GL calls fail during initialization.
      */
     public abstract class GlesRenderer2<SharedAssetsT>
@@ -1579,14 +1584,16 @@ public sealed class Renderer @WorkerThread constructor(
         @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
         eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+        eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+        eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
     ) : GlesRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
         interactiveDrawModeUpdateDelayMillis,
         eglConfigAttribList,
-        eglSurfaceAttribList
+        eglSurfaceAttribList,
+        eglContextAttribList
     ) where SharedAssetsT : SharedAssets {
         /**
          * When editing multiple [WatchFaceService] instances and hence Renderers can exist
