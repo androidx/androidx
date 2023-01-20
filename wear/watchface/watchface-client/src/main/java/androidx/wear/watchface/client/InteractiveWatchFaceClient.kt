@@ -26,6 +26,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy
 import androidx.wear.watchface.complications.data.toApiComplicationText
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.ComplicationSlot
@@ -338,6 +339,14 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @OptIn(WatchFaceExperimental::class)
     @WatchFaceClientExperimental
     public fun removeOnWatchFaceColorsListener(listener: Consumer<WatchFaceColors?>) {}
+
+    /**
+     * Whether or not the watch face supports [ComplicationDisplayPolicy]. If it doesn't then the
+     * client is responsible for emulating it by observing the state of the keyguard and sending
+     * NoData complications when the device becomes locked and subsequently restoring them when it
+     * becomes unlocked for affected complications.
+     */
+    public fun isComplicationDisplayPolicySupported() = false
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -692,4 +701,6 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             }?.key
         }
     }
+
+    override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 7
 }

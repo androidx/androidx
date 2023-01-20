@@ -28,6 +28,7 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -53,6 +54,7 @@ import androidx.wear.watchface.client.DisconnectReason
 import androidx.wear.watchface.client.DisconnectReasons
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
+import androidx.wear.watchface.client.InteractiveWatchFaceClientImpl
 import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
@@ -69,6 +71,7 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.BLUE_STYLE
@@ -114,6 +117,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
@@ -941,6 +946,36 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     @Test
     fun hasComplicationCache_currentApi() {
         assertTrue(service.hasComplicationDataCache())
+    }
+
+    @Test
+    public fun isComplicationDisplayPolicySupported() {
+        val wallpaperService = TestWatchfaceOverlayStyleWatchFaceService(
+            context,
+            surfaceHolder,
+            WatchFace.OverlayStyle(Color.valueOf(Color.RED), Color.valueOf(Color.BLACK))
+        )
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+
+        assertThat(interactiveInstance.isComplicationDisplayPolicySupported()).isTrue()
+
+        interactiveInstance.close()
+    }
+
+    @Test
+    public fun isComplicationDisplayPolicySupported_oldApi() {
+        val mockIInteractiveWatchFace = mock(IInteractiveWatchFace::class.java)
+        val mockIBinder = mock(IBinder::class.java)
+        `when`(mockIInteractiveWatchFace.asBinder()).thenReturn(mockIBinder)
+        `when`(mockIInteractiveWatchFace.apiVersion).thenReturn(6)
+
+        val interactiveInstance = InteractiveWatchFaceClientImpl(
+            mockIInteractiveWatchFace,
+            previewImageUpdateRequestedExecutor = null,
+            previewImageUpdateRequestedListener = null
+        )
+
+        assertThat(interactiveInstance.isComplicationDisplayPolicySupported()).isFalse()
     }
 
     @Test
