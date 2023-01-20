@@ -55,11 +55,11 @@ import org.robolectric.annotation.Config
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class RetryingCameraStateOpenerTest {
     private val cameraId0 = CameraId("0")
-    private val cameraMetadataProvider = object : CameraMetadataProvider {
-        override suspend fun getMetadata(cameraId: CameraId): CameraMetadata =
+    private val camera2MetadataProvider = object : Camera2MetadataProvider {
+        override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata =
             FakeCameraMetadata(cameraId = cameraId)
 
-        override fun awaitMetadata(cameraId: CameraId): CameraMetadata =
+        override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata =
             FakeCameraMetadata(cameraId = cameraId)
     }
 
@@ -79,7 +79,7 @@ class RetryingCameraStateOpenerTest {
     private val fakeTimeSource = FakeTimeSource()
 
     private val cameraStateOpener =
-        CameraStateOpener(cameraOpener, cameraMetadataProvider, fakeTimeSource, null)
+        CameraStateOpener(cameraOpener, camera2MetadataProvider, fakeTimeSource, null)
 
     private val cameraAvailabilityMonitor = object : CameraAvailabilityMonitor {
         override suspend fun awaitAvailableCamera(

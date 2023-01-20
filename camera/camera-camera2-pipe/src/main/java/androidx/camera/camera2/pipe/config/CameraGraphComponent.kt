@@ -154,7 +154,9 @@ internal abstract class InternalCameraGraphModules {
         ): CameraMetadata {
             // TODO: It might be a good idea to cache and go through caches for some of these calls
             //   instead of reading it directly from the backend.
-            return cameraBackend.readCameraMetadata(graphConfig.camera)
+            return checkNotNull(
+                cameraBackend.awaitCameraMetadata(graphConfig.camera)
+            ) { "Failed to load metadata for ${graphConfig.camera}!" }
         }
 
         @CameraGraphScope

@@ -68,13 +68,10 @@ import java.util.Collections
 // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SupportedSurfaceCombination(
     context: Context,
-    cameraMetadata: CameraMetadata,
-    cameraId: String,
-    camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
+    private val cameraMetadata: CameraMetadata,
+    private val camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
 ) {
-    private val cameraMetadata = cameraMetadata
-    private val cameraId = cameraId
-    private val camcorderProfileProviderAdapter = camcorderProfileProviderAdapter
+    private val cameraId = cameraMetadata.camera.value
     private val hardwareLevel =
         cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
             ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY

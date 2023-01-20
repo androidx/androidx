@@ -113,7 +113,7 @@ abstract class CameraModule {
 
         @Provides
         fun provideCameraMetadata(cameraPipe: CameraPipe, config: CameraConfig): CameraMetadata =
-            cameraPipe.cameras().awaitMetadata(config.cameraId)
+            checkNotNull(cameraPipe.cameras().awaitCameraMetadata(config.cameraId))
     }
 
     @Binds

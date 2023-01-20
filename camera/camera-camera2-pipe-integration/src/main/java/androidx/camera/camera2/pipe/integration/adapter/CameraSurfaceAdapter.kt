@@ -29,8 +29,6 @@ import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
-import androidx.core.util.Preconditions
-import kotlinx.coroutines.runBlocking
 
 /**
  * Adapt the [CameraDeviceSurfaceManager] interface to [CameraPipe].
@@ -59,13 +57,13 @@ class CameraSurfaceAdapter(
         context: Context,
         availableCameraIds: Set<String>
     ) {
-        Preconditions.checkNotNull(context)
         for (cameraId in availableCameraIds) {
+            val cameraMetadata =
+                component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))
             supportedSurfaceCombinationMap[cameraId] =
                 SupportedSurfaceCombination(
                     context,
-                    runBlocking { component.getCameraDevices().awaitMetadata(CameraId(cameraId)) },
-                    cameraId,
+                    checkNotNull(cameraMetadata),
                     CamcorderProfileProviderAdapter(cameraId)
                 )
         }
