@@ -452,12 +452,13 @@ public class SearchSpecCtsTest {
         assertThat(e.getMessage()).isEqualTo("Attempting to rank based on joined documents, but"
                 + " no JoinSpec provided");
 
+        JoinSpec joinSpec = new JoinSpec.Builder("childProp")
+                .setAggregationScoringStrategy(
+                        JoinSpec.AGGREGATION_SCORING_SUM_RANKING_SIGNAL)
+                .build();
         e = assertThrows(IllegalStateException.class, () -> new SearchSpec.Builder()
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
-                .setJoinSpec(new JoinSpec.Builder("childProp")
-                        .setAggregationScoringStrategy(
-                                JoinSpec.AGGREGATION_SCORING_SUM_RANKING_SIGNAL)
-                        .build())
+                .setJoinSpec(joinSpec)
                 .build());
         assertThat(e.getMessage()).isEqualTo("Aggregate scoring strategy has been set in the "
                 + "nested JoinSpec, but ranking strategy is not "
