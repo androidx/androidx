@@ -1130,4 +1130,18 @@ object ProcessorErrors {
 
     val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
         "class represents a placeholder type that is uninstantiable and 'null' is always returned."
+
+    fun nullableCollectionOrArrayReturnTypeInDaoMethod(
+        typeName: String,
+        returnType: String
+    ): String {
+        return "The nullable `$returnType` ($typeName) return type in a DAO method is " +
+        "meaningless because Room will instead return an empty `$returnType` if no rows are " +
+        "returned from the query."
+    }
+
+    fun nullableComponentInDaoMethodReturnType(typeName: String): String {
+        return "The DAO method return type ($typeName) with the nullable type argument " +
+        "is meaningless because for now Room will never put a null value in a result."
+    }
 }

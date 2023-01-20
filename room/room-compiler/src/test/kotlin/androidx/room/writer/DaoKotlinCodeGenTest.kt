@@ -1200,15 +1200,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun queryOfList(): List<MyEntity>
-
-              @Query("SELECT * FROM MyEntity")
-              fun queryOfNullableList(): List<MyEntity>?
-
-              @Query("SELECT * FROM MyEntity")
-              fun queryOfNullableEntityList(): List<MyNullableEntity?>
-
-              @Query("SELECT * FROM MyEntity")
-              fun queryOfNullableListWithNullableEntity(): List<MyNullableEntity>?
             }
 
             @Entity
@@ -1255,14 +1246,8 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Query("SELECT * FROM MyEntity")
               fun queryOfArray(): Array<MyEntity>
 
-              @Query("SELECT * FROM MyEntity")
-              fun queryOfNullableEntityArray(): Array<MyEntity?>
-
               @Query("SELECT pk FROM MyEntity")
               fun queryOfArrayWithLong(): Array<Long>
-
-              @Query("SELECT pk FROM MyEntity")
-              fun queryOfArrayWithNullLong(): Array<Long?>
 
               @Query("SELECT * FROM MyEntity")
               fun queryOfLongArray(): LongArray
@@ -1381,9 +1366,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun queryOfList(): ImmutableList<MyEntity>
-
-              @Query("SELECT * FROM MyEntity")
-              fun queryOfNullableEntityList(): ImmutableList<MyEntity?>
             }
 
             @Entity
@@ -1894,9 +1876,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 suspend fun getSuspendList(vararg arg: String?): List<MyEntity>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                suspend fun getNullableSuspendList(vararg arg: String?): List<MyEntity?>
             }
 
             @Entity
