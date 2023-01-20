@@ -30,6 +30,12 @@ within the same cycle, e.g. added in `alpha01` and deprecated in `alpha06`,
 [must be removed](/company/teams/androidx/versioning.md#beta-checklist) before
 moving to `beta01`.
 
+NOTE While some APIs can safely be removed without a deprecation cycle, a full
+cycle of deprecate (with replacement) and release prior to removal is *strongly
+recommended* for APIs that are likely to have clients, including APIs referenced
+by the Android platform build and `@RequiresOptIn` APIs that have shipped
+in a public beta.
+
 ### Soft removal (`@removed` or `DeprecationLevel.HIDDEN`)
 
 Soft removal preserves binary compatibility while preventing source code from
