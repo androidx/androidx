@@ -271,6 +271,11 @@ We recommend the following, in order of preference:
 4.  `VersionedParcelable` if your project is already using Versioned Parcelable
     and is aware of its compatibility constraints.
 
+We are currently evaluating Square's [Wire](https://github.com/square/wire) and
+Google's [gRPC](https://grpc.io/) libraries for recommendation. If either of
+these libraries meets your team's needs based on your own research, feel free to
+use them.
+
 **Do not** design your own serialization mechanism or wire format for disk
 storage or inter-process communication. Preserving and verifying compatibility
 is difficult and error-prone.

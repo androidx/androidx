@@ -224,7 +224,18 @@ Potential drawbacks include:
 
 There is one exception to the same-version policy: newly-added libraries within
 an atomic group may be "quarantined" from other libraries to allow for rapid
-iteration until they are API-stable.
+iteration until they are API-stable. For example:
+
+```groovy
+androidx {
+    name = "androidx.emoji2:emoji2-emojipicker"
+    mavenVersion = LibraryVersions.EMOJI2_QUARANTINE
+}
+```
+
+```groovy
+EMOJI2_QUARANTINE = "1.0.0-alpha01"
+```
 
 A quarantined library must stay within the `1.0.0-alphaXX` cycle until it is
 ready to conform to the same-version policy. While in quarantime, a library is
