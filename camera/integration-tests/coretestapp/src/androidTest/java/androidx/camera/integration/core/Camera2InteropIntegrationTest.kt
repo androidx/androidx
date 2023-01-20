@@ -34,6 +34,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ExtendableBuilder
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.core.util.CameraPipeUtil
@@ -105,9 +106,6 @@ class Camera2InteropIntegrationTest(
 
     @Test
     fun cameraDeviceListener_receivesClose_afterUnbindAll(): Unit = runBlocking {
-        // Skips CameraPipe part now and will open this when camera-pipe-integration can support
-        Assume.assumeTrue(implName != CameraPipeConfig::class.simpleName)
-
         val previewBuilder = Preview.Builder()
         val deviceStateFlow = previewBuilder.createDeviceStateFlow()
 
@@ -131,12 +129,44 @@ class Camera2InteropIntegrationTest(
                     unbindAllCalled = true
                     true // Filter out this state from the downstream flow
                 }
+
                 else -> false // Forward to the downstream flow
             }
         }.first()
 
         assertThat(unbindAllCalled).isTrue()
         assertThat(lastState).isEqualTo(DeviceState.Closed)
+    }
+
+    @Test
+    fun cameraSessionListener_receivesClose_afterUnbindAll(): Unit = runBlocking {
+        val imageCaptureBuilder = ImageCapture.Builder()
+        val sessionStateFlow = imageCaptureBuilder.createSessionStateFlow()
+        withContext(Dispatchers.Main) {
+            processCameraProvider!!.bindToLifecycle(
+                TestLifecycleOwner(Lifecycle.State.RESUMED),
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                imageCaptureBuilder.build()
+            )
+        }
+
+        var unbindAllCalled = false
+        val lastState = sessionStateFlow.dropWhile { state ->
+            when (state) {
+                // Filter out this state from the downstream flow
+                is SessionState.Unknown -> true
+                is SessionState.Configured -> {
+                    withContext(Dispatchers.Main) { processCameraProvider!!.unbindAll() }
+                    unbindAllCalled = true
+                    true // Filter out this state from the downstream flow
+                }
+
+                else -> false // Forward to the downstream flow
+            }
+        }.first()
+
+        assertThat(unbindAllCalled).isTrue()
+        assertThat(lastState).isEqualTo(SessionState.Ready)
     }
 
     @Test
@@ -290,6 +320,15 @@ class Camera2InteropIntegrationTest(
         data class Error(val errorCode: Int) : DeviceState()
     }
 
+    // Sealed class for converting CameraDevice.StateCallback into a StateFlow
+    sealed class SessionState {
+        object Unknown : SessionState()
+        object Ready : SessionState()
+        object Configured : SessionState()
+        object ConfigureFailed : SessionState()
+        object Closed : SessionState()
+    }
+
     /**
      * Returns a [StateFlow] which will signal the states of the camera defined in [DeviceState].
      */
@@ -316,6 +355,35 @@ class Camera2InteropIntegrationTest(
             CameraPipeUtil.setDeviceStateCallback(
                 implName,
                 this@createDeviceStateFlow,
+                stateCallback
+            )
+        }.asStateFlow()
+
+    /**
+     * Returns a [StateFlow] which will signal the states of the camera defined in [SessionState].
+     */
+    private fun <T> ExtendableBuilder<T>.createSessionStateFlow(): StateFlow<SessionState> =
+        MutableStateFlow<SessionState>(SessionState.Unknown).apply {
+            val stateCallback = object : CameraCaptureSession.StateCallback() {
+                override fun onReady(session: CameraCaptureSession) {
+                    tryEmit(SessionState.Ready)
+                }
+
+                override fun onConfigured(session: CameraCaptureSession) {
+                    tryEmit(SessionState.Configured)
+                }
+
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                    tryEmit(SessionState.ConfigureFailed)
+                }
+
+                override fun onClosed(session: CameraCaptureSession) {
+                    tryEmit(SessionState.Closed)
+                }
+            }
+            CameraPipeUtil.setSessionStateCallback(
+                implName,
+                this@createSessionStateFlow,
                 stateCallback
             )
         }.asStateFlow()
