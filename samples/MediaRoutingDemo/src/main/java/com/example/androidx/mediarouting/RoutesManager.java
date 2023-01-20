@@ -45,12 +45,12 @@ public final class RoutesManager {
     private static final int VOLUME_MAX = 25;
     private static final int VOLUME_DEFAULT = 5;
 
+    private static RoutesManager sInstance;
+
+    private final Context mContext;
+    private final Map<String, RouteItem> mRouteItems;
     private boolean mDynamicRoutingEnabled;
     private DialogType mDialogType;
-
-    private Context mContext;
-    private final Map<String, RouteItem> mRouteItems;
-    private static RoutesManager sInstance;
 
     private RoutesManager(Context context) {
         mContext = context;
