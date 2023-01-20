@@ -40,14 +40,15 @@ import java.util.Set;
  *                  {@link BufferUnderflowException} is thrown. This is an undocumented exception
  *                  on the {@link CameraCharacteristics#get(CameraCharacteristics.Key)} method,
  *                  so this violates the API contract.
- *     Device(s): LEMFO LEMP (a.k.a. Spreadtrum LEMP)
+ *     Device(s): Spreadtrum devices including LEMFO LEMP and DM20C
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FlashAvailabilityBufferUnderflowQuirk implements Quirk {
     private static final Set<Pair<String, String>> KNOWN_AFFECTED_MODELS = new HashSet<>(
             Arrays.asList(
                     // Devices enumerated as Pair(Build.MANUFACTURER, Build.MODEL)
-                    new Pair<>("sprd", "lemp")
+                    new Pair<>("sprd", "lemp"),
+                    new Pair<>("sprd", "DM20C")
             ));
 
     static boolean load() {
