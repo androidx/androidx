@@ -188,6 +188,12 @@ package androidx.tv.material3 {
   public final class ShapesKt {
   }
 
+  public final class SurfaceKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional float tonalElevation, optional float shadowElevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
+  }
+
   @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabColors {
   }
 
