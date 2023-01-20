@@ -19,51 +19,48 @@ package androidx.wear.protolayout.expression;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public final class StateEntryValueTest {
-    private static final String STATE_KEY = "state-key";
+  @Test
+  public void boolStateEntryValue() {
+    StateEntryValue boolStateEntryValue = StateEntryValue.fromBool(true);
 
-    @Test
-    public void boolStateEntryValue() {
-        StateEntryValue boolStateEntryValue = StateEntryValue.fromBool(true);
+    assertThat(boolStateEntryValue.toStateEntryValueProto().getBoolVal().getValue()).isTrue();
+  }
 
-        assertThat(boolStateEntryValue.toStateEntryValueProto().getBoolVal().getValue()).isTrue();
-    }
+  @Test
+  public void colorStateEntryValue() {
+    StateEntryValue colorStateEntryValue = StateEntryValue.fromColor(0xff00ff00);
 
-    @Test
-    public void colorStateEntryValue() {
-        StateEntryValue colorStateEntryValue = StateEntryValue.fromColor(0xff00ff00);
+    assertThat(colorStateEntryValue.toStateEntryValueProto().getColorVal().getArgb())
+        .isEqualTo(0xff00ff00);
+  }
 
-        assertThat(colorStateEntryValue.toStateEntryValueProto().getColorVal().getArgb())
-                .isEqualTo(0xff00ff00);
-    }
+  @Test
+  public void floatStateEntryValue() {
+    StateEntryValue floatStateEntryValue = StateEntryValue.fromFloat(42.42f);
 
-    @Test
-    public void floatStateEntryValue() {
-        StateEntryValue floatStateEntryValue = StateEntryValue.fromFloat(42.42f);
+    assertThat(floatStateEntryValue.toStateEntryValueProto().getFloatVal().getValue())
+        .isWithin(0.0001f)
+        .of(42.42f);
+  }
 
-        assertThat(floatStateEntryValue.toStateEntryValueProto().getFloatVal().getValue())
-                .isWithin(0.0001f).of(42.42f);
-    }
+  @Test
+  public void intStateEntryValue() {
+    StateEntryValue intStateEntryValue = StateEntryValue.fromInt(42);
 
-    @Test
-    public void intStateEntryValue() {
-        StateEntryValue intStateEntryValue = StateEntryValue.fromInt(42);
+    assertThat(intStateEntryValue.toStateEntryValueProto().getInt32Val().getValue()).isEqualTo(42);
+  }
 
-        assertThat(intStateEntryValue.toStateEntryValueProto().getInt32Val().getValue())
-                .isEqualTo(42);
-    }
+  @Test
+  public void stringStateEntryValue() {
+    StateEntryValue stringStateEntryValue = StateEntryValue.fromString("constant-value");
 
-    @Test
-    public void stringStateEntryValue() {
-        StateEntryValue stringStateEntryValue = StateEntryValue.fromString("constant-value");
-
-        assertThat(stringStateEntryValue.toStateEntryValueProto().getStringVal().getValue())
-                .isEqualTo("constant-value");
-    }
+    assertThat(stringStateEntryValue.toStateEntryValueProto().getStringVal().getValue())
+        .isEqualTo("constant-value");
+  }
 }
