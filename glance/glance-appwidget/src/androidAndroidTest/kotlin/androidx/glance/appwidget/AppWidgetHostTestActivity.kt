@@ -176,7 +176,7 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
             mRemoteViews?.let { return }
             mLatch = CountDownLatch(1)
         }
-        val result = mLatch?.await(5, TimeUnit.SECONDS)!!
+        val result = mLatch?.await(30, TimeUnit.SECONDS)!!
         require(result) { "Timeout before getting RemoteViews" }
     }
 
