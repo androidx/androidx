@@ -142,7 +142,9 @@ internal class AndroidOutputConfiguration(
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
-            physicalCameraId: CameraId? = null
+            physicalCameraId: CameraId? = null,
+            cameraId: CameraId? = null,
+            camera2MetadataProvider: Camera2MetadataProvider? = null,
         ): OutputConfigurationWrapper? {
             check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 
@@ -172,7 +174,8 @@ internal class AndroidOutputConfiguration(
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     throw IllegalStateException(
                         "Deferred OutputConfigurations are not supported on API " +
-                            "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})")
+                            "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})"
+                    )
                 }
 
                 check(size != null) {
@@ -241,9 +244,14 @@ internal class AndroidOutputConfiguration(
                 }
             }
 
-            if (streamUseCase != null) {
+            if (streamUseCase != null && cameraId != null && camera2MetadataProvider != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
+                    val cameraMetadata = camera2MetadataProvider.awaitCameraMetadata(cameraId)
+                    val availableStreamUseCases =
+                        Api33Compat.getAvailableStreamUseCases(cameraMetadata)
+                    if (availableStreamUseCases?.contains(streamUseCase.value) == true) {
+                        Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
+                    }
                 }
             }
 
@@ -256,7 +264,8 @@ internal class AndroidOutputConfiguration(
                 } else {
                     1
                 },
-                physicalCameraId)
+                physicalCameraId
+            )
         }
 
         private fun OutputConfiguration.enableSurfaceSharingCompat() {
