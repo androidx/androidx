@@ -21,10 +21,9 @@ import android.opengl.EGL15
 import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EGLSpec
 import androidx.opengl.EGLExt
-import androidx.opengl.EGLSyncKHR
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.opengl.EGLSyncKHR
 
 /**
  * A synchronization primitive which signals when hardware units have completed work on a
@@ -43,21 +42,22 @@ class SyncFenceCompat : AutoCloseable {
         /**
          * Creates a native synchronization fence from an EGLSync object.
          *
-         * @param egl an [EGLSpec] object to dictate the version of EGL and make EGL calls.
-         *
-         * @throws IllegalArgumentException if sync object creation fails.
+         * @throws IllegalStateException if EGL dependencies cannot be resolved
          */
         @JvmStatic
-        fun createNativeSyncFence(egl: EGLSpec): SyncFenceCompat {
+        fun createNativeSyncFence(): SyncFenceCompat {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 SyncFenceCompatVerificationHelper.createSyncFenceCompatV33()
             } else {
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                    ?: throw IllegalStateException("No EGL Display available")
                 val eglSync: EGLSyncKHR =
-                    egl.eglCreateSyncKHR(EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
-                        ?: throw IllegalArgumentException("Unable to create sync object")
+                    EGLExt.eglCreateSyncKHR(display, EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                        ?: throw IllegalStateException("Unable to create sync object")
                 GLES20.glFlush()
-                val syncFenceCompat = egl.eglDupNativeFenceFDANDROID(eglSync)
-                egl.eglDestroySyncKHR(eglSync)
+
+                val syncFenceCompat = EGLExt.eglDupNativeFenceFDANDROID(display, eglSync)
+                EGLExt.eglDestroySyncKHR(display, eglSync)
 
                 syncFenceCompat
             }
@@ -123,15 +123,6 @@ class SyncFenceCompat : AutoCloseable {
      */
     fun isValid() = mImpl.isValid()
 }
-
-/**
- * Creates a native synchronization fence from an EGLSync object.
- *
- * @throws IllegalArgumentException if sync object creation fails.
- */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
-@JvmSynthetic
-fun EGLSpec.createNativeSyncFence(): SyncFenceCompat = SyncFenceCompat.createNativeSyncFence(this)
 
 /**
  * Helper class to avoid class verification failures

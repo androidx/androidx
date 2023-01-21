@@ -24,7 +24,6 @@ import androidx.graphics.opengl.FrameBufferRenderer
 import androidx.graphics.opengl.SyncStrategy
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.hardware.SyncFenceCompat
-import androidx.hardware.createNativeSyncFence
 
 /**
  * [SyncStrategy] implementation that optimizes for front buffered rendering use cases.
@@ -69,12 +68,12 @@ class FrontBufferSyncStrategy(
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
         return if (!isVisible) {
-            eglSpec.createNativeSyncFence()
+            SyncFenceCompat.createNativeSyncFence()
         } else if (supportsFrontBufferUsage) {
             GLES20.glFlush()
             return null
         } else {
-            val fence = eglSpec.createNativeSyncFence()
+            val fence = SyncFenceCompat.createNativeSyncFence()
             fence.close()
             return null
         }

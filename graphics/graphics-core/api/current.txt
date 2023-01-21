@@ -104,7 +104,7 @@ package androidx.graphics.opengl {
   }
 
   public interface SyncStrategy {
-    method public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
     field public static final androidx.graphics.opengl.SyncStrategy ALWAYS;
     field public static final androidx.graphics.opengl.SyncStrategy.Companion Companion;
   }
@@ -191,7 +191,6 @@ package androidx.graphics.opengl.egl {
     method public boolean eglDestroyImageKHR(androidx.opengl.EGLImageKHR image);
     method public boolean eglDestroySurface(android.opengl.EGLSurface surface);
     method public boolean eglDestroySyncKHR(androidx.opengl.EGLSyncKHR sync);
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(androidx.opengl.EGLSyncKHR sync);
     method public android.opengl.EGLSurface eglGetCurrentDrawSurface();
     method public android.opengl.EGLSurface eglGetCurrentReadSurface();
     method public int eglGetError();
@@ -291,7 +290,7 @@ package androidx.hardware {
     method public boolean await(long timeoutNanos);
     method public boolean awaitForever();
     method public void close();
-    method public static androidx.hardware.SyncFenceCompat createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec egl);
+    method public static androidx.hardware.SyncFenceCompat createNativeSyncFence();
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public long getSignalTimeNanos();
     method public boolean isValid();
     field public static final androidx.hardware.SyncFenceCompat.Companion Companion;
@@ -300,11 +299,7 @@ package androidx.hardware {
   }
 
   public static final class SyncFenceCompat.Companion {
-    method public androidx.hardware.SyncFenceCompat createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec egl);
-  }
-
-  public final class SyncFenceCompatKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @kotlin.jvm.JvmSynthetic public static androidx.hardware.SyncFenceCompat createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec);
+    method public androidx.hardware.SyncFenceCompat createNativeSyncFence();
   }
 
 }
@@ -317,7 +312,6 @@ package androidx.opengl {
     method public static androidx.opengl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, androidx.graphics.opengl.egl.EGLConfigAttributes? attributes);
     method public static boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLImageKHR image);
     method public static boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR eglSync);
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.opengl.EGLSyncKHR sync);
     method public static boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public static void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
     method public static java.util.Set<java.lang.String> parseExtensions(String queryString);
@@ -362,7 +356,6 @@ package androidx.opengl {
     method public androidx.opengl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, androidx.graphics.opengl.egl.EGLConfigAttributes? attributes);
     method public boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLImageKHR image);
     method public boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR eglSync);
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.opengl.EGLSyncKHR sync);
     method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
     method public java.util.Set<java.lang.String> parseExtensions(String queryString);

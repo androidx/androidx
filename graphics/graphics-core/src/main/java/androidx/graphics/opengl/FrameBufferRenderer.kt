@@ -26,7 +26,6 @@ import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.hardware.SyncFenceCompat
-import androidx.hardware.createNativeSyncFence
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.opengl.EGLExt
@@ -68,7 +67,7 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
  *   override fun onDraw(eglManager: EGLManager) {
  *       // GL code
  *   }
- *   
+ *
  *   override fun onDrawComplete(frameBuffer: FrameBuffer, syncFenceCompat: SyncFenceCompat?) {
  *       syncFenceCompat?.awaitForever()
  *       val bitmap = Bitmap.wrapHardwareBuffer(frameBuffer.hardwareBuffer,
@@ -210,6 +209,7 @@ interface SyncStrategy {
      *
      * @param eglSpec an [EGLSpec] object to dictate the version of EGL and make EGL calls.
      */
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat?
 
     companion object {
@@ -218,8 +218,9 @@ interface SyncStrategy {
          */
         @JvmField
         val ALWAYS = object : SyncStrategy {
+            @RequiresApi(Build.VERSION_CODES.KITKAT)
             override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
-                return eglSpec.createNativeSyncFence()
+                return SyncFenceCompat.createNativeSyncFence()
             }
         }
     }

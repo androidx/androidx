@@ -20,8 +20,8 @@ import android.opengl.EGLDisplay
 import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLConfigAttributes
+import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV19
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
@@ -575,7 +575,10 @@ class EGLExt private constructor() {
         @JvmStatic
         @Suppress("AcronymName")
         @RequiresApi(Build.VERSION_CODES.KITKAT)
-        fun eglDupNativeFenceFDANDROID(display: EGLDisplay, sync: EGLSyncKHR): SyncFenceCompat {
+        internal fun eglDupNativeFenceFDANDROID(
+            display: EGLDisplay,
+            sync: EGLSyncKHR
+        ): SyncFenceCompat {
             val fd = EGLBindings.nDupNativeFenceFDANDROID(
                 display.obtainNativeHandle(),
                 sync.nativeHandle

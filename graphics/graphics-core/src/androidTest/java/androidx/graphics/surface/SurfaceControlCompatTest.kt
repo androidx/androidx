@@ -495,7 +495,7 @@ class SurfaceControlCompatTest {
                         assertNotNull(buffer)
 
                         val fence = if (manager.supportsNativeAndroidFence()) {
-                            SyncFenceCompat.createNativeSyncFence(manager.eglSpec)
+                            SyncFenceCompat.createNativeSyncFence()
                         } else {
                             null
                         }
