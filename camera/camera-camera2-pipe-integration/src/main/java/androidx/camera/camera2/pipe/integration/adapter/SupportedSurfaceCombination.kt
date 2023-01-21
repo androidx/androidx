@@ -37,6 +37,7 @@ import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CamcorderProfileProxy
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceSizeDefinition
@@ -120,20 +121,19 @@ class SupportedSurfaceCombination(
     }
 
     /**
-     * Finds the suggested resolutions of the newly added UseCaseConfig.
+     * Finds the suggested stream specification of the newly added UseCaseConfig.
      *
      * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigs newly added UseCaseConfig.
-     * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
-     * resolution.
+     * @return the suggested stream specs, which is a mapping from UseCaseConfig to the suggested
+     * stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
-     * found. This may be due to no available output size or no
-     * available surface combination.
+     * found. This may be due to no available output size or no available surface combination.
      */
-    fun getSuggestedResolutions(
+    fun getSuggestedStreamSpecifications(
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>
-    ): Map<UseCaseConfig<*>, Size> {
+    ): Map<UseCaseConfig<*>, StreamSpec> {
         refreshPreviewSize()
         val surfaceConfigs: MutableList<SurfaceConfig> = ArrayList()
         for (scc in existingSurfaces) {
@@ -176,7 +176,7 @@ class SupportedSurfaceCombination(
             supportedOutputSizesList
         )
 
-        var suggestedResolutionsMap: Map<UseCaseConfig<*>, Size>? = null
+        var suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec>? = null
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (possibleSizeList in allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
@@ -200,19 +200,19 @@ class SupportedSurfaceCombination(
 
             // Check whether the SurfaceConfig combination can be supported
             if (checkSupported(surfaceConfigList)) {
-                suggestedResolutionsMap = HashMap()
+                suggestedStreamSpecMap = HashMap()
                 for (useCaseConfig in newUseCaseConfigs) {
-                    suggestedResolutionsMap.put(
+                    suggestedStreamSpecMap.put(
                         useCaseConfig,
-                        possibleSizeList[useCasesPriorityOrder.indexOf(
+                        StreamSpec.builder(possibleSizeList[useCasesPriorityOrder.indexOf(
                             newUseCaseConfigs.indexOf(useCaseConfig)
-                        )]
+                        )]).build()
                     )
                 }
                 break
             }
         }
-        if (suggestedResolutionsMap == null) {
+        if (suggestedStreamSpecMap == null) {
             throw java.lang.IllegalArgumentException(
                 "No supported surface combination is found for camera device - Id : " +
                     cameraId + " and Hardware level: " + hardwareLevel +
@@ -221,7 +221,7 @@ class SupportedSurfaceCombination(
                     " New configs: " + newUseCaseConfigs
             )
         }
-        return suggestedResolutionsMap
+        return suggestedStreamSpecMap
     }
 
     // Utility classes and methods:
