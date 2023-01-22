@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.util.Log;
 
@@ -177,10 +176,10 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
         return new MediaRouteDescriptor.Builder(routeItem.getId(), routeItem.getName())
                 .setDescription(routeItem.getDescription())
                 .addControlFilters(getControlFilters(routeItem.getControlFilter()))
-                .setPlaybackStream(getPlaybackStream(routeItem.getPlaybackStream()))
-                .setPlaybackType(getPlaybackType(routeItem.getPlaybackType()))
-                .setVolumeHandling(getVolumeHandling(routeItem.getVolumeHandling()))
-                .setDeviceType(getDeviceType(routeItem.getDeviceType()))
+                .setPlaybackStream(routeItem.getPlaybackStream().mIntConstant)
+                .setPlaybackType(routeItem.getPlaybackType().mIntConstant)
+                .setVolumeHandling(routeItem.getVolumeHandling().mIntConstant)
+                .setDeviceType(routeItem.getDeviceType().mIntConstant)
                 .setVolumeMax(routeItem.getVolumeMax())
                 .setVolume(routeItem.getVolume())
                 .setCanDisconnect(routeItem.isCanDisconnect())
@@ -188,49 +187,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
                 .build();
     }
 
-    private int getPlaybackStream(RouteItem.PlaybackStream playBackStream) {
-        switch (playBackStream) {
-            case ACCESSIBILITY:
-                return AudioManager.STREAM_ACCESSIBILITY;
-            case ALARM:
-                return AudioManager.STREAM_ALARM;
-            case DTMF:
-                return AudioManager.STREAM_DTMF;
-            case MUSIC:
-                return AudioManager.STREAM_MUSIC;
-            case NOTIFICATION:
-                return AudioManager.STREAM_NOTIFICATION;
-            case RING:
-                return AudioManager.STREAM_RING;
-            case SYSTEM:
-                return AudioManager.STREAM_SYSTEM;
-            case VOICE_CALL:
-                return AudioManager.STREAM_VOICE_CALL;
-        }
-        return AudioManager.STREAM_MUSIC;
-    }
-
-    private int getPlaybackType(RouteItem.PlaybackType playBackType) {
-        switch (playBackType) {
-            case LOCAL:
-                return MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL;
-            case REMOTE:
-                return MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE;
-        }
-        return MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL;
-    }
-
-    private int getVolumeHandling(RouteItem.VolumeHandling volumeHandling) {
-        switch (volumeHandling) {
-            case FIXED:
-                return MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED;
-            case VARIABLE:
-                return MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
-        }
-        return MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED;
-    }
-
-    private List<IntentFilter> getControlFilters(RouteItem.ControlFilter controlFilter) {
+    private static List<IntentFilter> getControlFilters(RouteItem.ControlFilter controlFilter) {
         switch (controlFilter) {
             case BASIC:
                 return CONTROL_FILTERS_BASIC;
@@ -240,20 +197,6 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
                 return CONTROL_FILTERS_SESSION;
         }
         return new ArrayList<>();
-    }
-
-    private int getDeviceType(RouteItem.DeviceType deviceType) {
-        switch (deviceType) {
-            case SPEAKER:
-                return MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
-            case BLUETOOTH:
-                return MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH;
-            case TV:
-                return MediaRouter.RouteInfo.DEVICE_TYPE_TV;
-            case UNKNOWN:
-                return MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
-        }
-        return MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
     }
 
     final class SampleDynamicGroupRouteController
