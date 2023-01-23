@@ -55,6 +55,9 @@ import kotlin.math.roundToInt
  * Step value is calculated as the difference between min and max values divided by [steps]+1.
  * Stepper itself doesn't show the current value but can be displayed via the content slot or
  * [PositionIndicator] if required.
+ * If [value] is not equal to any step value, then it will be coerced to the closest step value.
+ * However, the [value] itself will not be changed and [onValueChange] in this case will
+ * not be triggered.
  *
  * @sample androidx.wear.compose.material.samples.StepperSample
  *
@@ -162,6 +165,10 @@ public fun Stepper(
  * If [valueProgression] range is not equally divisible by [valueProgression].step,
  * then [valueProgression].last will be adjusted to the closest divisible value in the range.
  * For example, 1..13 range and a step = 5, steps will be 1(first) , 6 , 11(last)
+ *
+ * If [value] is not equal to any step value, then it will be coerced to the closest step value.
+ * However, the [value] itself will not be changed and [onValueChange] in this case will
+ * not be triggered.
  *
  * @param value Current value of the Stepper. If outside of [valueProgression] provided, value will be
  * coerced to this range.
