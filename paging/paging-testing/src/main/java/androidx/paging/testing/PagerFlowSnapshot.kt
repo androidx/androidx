@@ -16,6 +16,7 @@
 
 package androidx.paging.testing
 
+import androidx.paging.CombinedLoadStates
 import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
@@ -31,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
@@ -109,7 +111,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
      *
      * The collection job is cancelled automatically after [loadOperations] completes.
       */
-    val job = coroutineScope.launch {
+    val collectPagingData = coroutineScope.launch {
         this@asSnapshot.collectLatest {
             incrementGeneration(loader)
             differ.collectFrom(it)
@@ -130,7 +132,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
         loader.loadOperations()
         differ.awaitNotLoading()
 
-        job.cancelAndJoin()
+        collectPagingData.cancelAndJoin()
 
         differ.snapshot().items
     }
@@ -140,11 +142,22 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
  * Awaits until both source and mediator states are NotLoading. We do not care about the state of
  * endOfPaginationReached. Source and mediator states need to be checked individually because
  * the aggregated LoadStates can reflect `NotLoading` when source states are `Loading`.
+ *
+ * We debounce(1ms) to prevent returning too early if this collected a `NotLoading` from the
+ * previous load. Without a way to determine whether the `NotLoading` it collected was from
+ * a previous operation or current operation, we debounce 1ms to allow collection on a potential
+ * incoming `Loading` state.
  */
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 internal suspend fun <Value : Any> PagingDataDiffer<Value>.awaitNotLoading() {
-    loadStateFlow.filterNotNull().filter {
-        it.source.isIdle() && it.mediator?.isIdle() ?: true
+    loadStateFlow.filterNotNull().debounce(1).filter {
+        it.isIdle()
     }.firstOrNull()
+}
+
+private fun CombinedLoadStates?.isIdle(): Boolean {
+    if (this == null) return false
+    return source.isIdle() && mediator?.isIdle() ?: true
 }
 
 private fun LoadStates.isIdle(): Boolean {

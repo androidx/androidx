@@ -260,6 +260,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private suspend fun awaitLoad(index: Int): Pair<Value, Int> {
         differ[index]
+        differ.awaitNotLoading()
         var offsetIndex = index
 
         // awaits for the item to be loaded

@@ -18,12 +18,15 @@ package androidx.paging.testing
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.testing.SnapshotLoader.ScrollBehavior
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
@@ -36,13 +39,27 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
-class PagerFlowSnapshotTest {
+@RunWith(Parameterized::class)
+class PagerFlowSnapshotTest(
+    private val loadDelay: Long
+) {
+    companion object {
+        @Parameterized.Parameters
+        @JvmStatic
+        fun withLoadDelay(): Array<Long> {
+            return arrayOf(0, 10000)
+        }
+    }
 
     private val testScope = TestScope(UnconfinedTestDispatcher())
+
+    private fun createFactory(dataFlow: Flow<List<Int>>) = WrappedPagingSourceFactory(
+        dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        loadDelay
+    )
 
     @Before
     fun init() {
@@ -52,11 +69,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun initialRefresh() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
-
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {}
@@ -72,7 +87,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(30) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
+            pagingSourceFactory = createFactory(dataFlow)
         ).flow.map { pagingData ->
             pagingData.insertSeparators { before: Int?, after: Int? ->
                 if (before != null && after != null) "sep" else null
@@ -90,10 +105,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun initialRefresh_withoutPrefetch() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {}
@@ -107,11 +121,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun initialRefresh_withInitialKey() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 10,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {}
@@ -125,11 +138,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun initialRefresh_withInitialKey_withoutPrefetch() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 10,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {}
@@ -143,10 +155,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun emptyInitialRefresh() {
         val dataFlow = emptyFlow<List<Int>>()
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {}
@@ -160,10 +171,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun manualRefresh() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         ).flow.cachedIn(testScope.backgroundScope)
 
         testScope.runTest {
@@ -179,10 +189,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun manualEmptyRefresh() {
         val dataFlow = emptyFlow<List<Int>>()
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = factory
+            pagingSourceFactory = createFactory(dataFlow)
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -197,10 +206,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -223,7 +231,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(30) { it })
         val pager = Pager(
             config = CONFIG_WITH_DROPS,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -243,7 +251,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(30) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.map { pagingData ->
             pagingData.insertSeparators { before: Int?, _ ->
                 if (before == 9 || before == 12) "sep" else null
@@ -271,10 +279,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile_withoutPrefetch() {
         val dataFlow = flowOf(List(50) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -293,10 +300,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile_withoutPlaceholders() {
         val dataFlow = flowOf(List(50) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -317,11 +323,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependWhile() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 20,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -345,7 +350,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG_WITH_DROPS,
             initialKey = 20,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -366,7 +371,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG,
             initialKey = 20,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.map { pagingData ->
             pagingData.insertSeparators { before: Int?, _ ->
                 if (before == 14 || before == 18) "sep" else null
@@ -394,11 +399,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependWhile_withoutPrefetch() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 20,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -417,11 +421,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependWhile_withoutPlaceholders() {
         val dataFlow = flowOf(List(50) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
             initialKey = 30,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -444,11 +447,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile_withInitialKey() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 10,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -469,11 +471,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile_withInitialKey_withoutPlaceholders() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
             initialKey = 10,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -494,11 +495,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile_withInitialKey_withoutPrefetch() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 10,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -517,10 +517,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependWhile_withoutInitialKey() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -539,10 +538,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun consecutiveAppendWhile() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot1 = pager.asSnapshot(this) {
@@ -572,11 +570,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun consecutivePrependWhile() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 20,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot1 = pager.asSnapshot(this) {
@@ -601,10 +598,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhile_outOfBounds_returnsCurrentlyLoadedItems() {
         val dataFlow = flowOf(List(10) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -624,11 +620,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependWhile_outOfBounds_returnsCurrentlyLoadedItems() {
         val dataFlow = flowOf(List(20) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 10,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -650,10 +645,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun refreshAndAppendWhile() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -671,11 +665,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun refreshAndPrependWhile() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 20,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -703,10 +696,9 @@ class PagerFlowSnapshotTest {
     @Test
     fun appendWhileAndRefresh() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -727,11 +719,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependWhileAndRefresh() {
         val dataFlow = flowOf(List(30) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 15,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -750,11 +741,50 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun consecutiveGenerations_fromSharedFlow() {
+    fun consecutiveGenerations_fromFlow() {
+        val loadDelay = 500 + loadDelay
+        // wait for 500 + loadDelay between each emission
+        val dataFlow = flow {
+            emit(emptyList())
+            delay(loadDelay)
+
+            emit(List(30) { it })
+            delay(loadDelay)
+
+            emit(List(30) { it + 30 })
+        }
+        val pager = Pager(
+            config = CONFIG_NO_PREFETCH,
+            pagingSourceFactory = createFactory(dataFlow)
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot1 = pager.asSnapshot(this) { }
+            assertThat(snapshot1).containsExactlyElementsIn(
+                emptyList<Int>()
+            )
+
+            delay(500)
+
+            val snapshot2 = pager.asSnapshot(this) { }
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4)
+            )
+
+            delay(500)
+
+            val snapshot3 = pager.asSnapshot(this) { }
+            assertThat(snapshot3).containsExactlyElementsIn(
+                listOf(30, 31, 32, 33, 34)
+            )
+        }
+    }
+
+    @Test
+    fun consecutiveGenerations_fromSharedFlow_emitAfterRefresh() {
         val dataFlow = MutableSharedFlow<List<Int>>()
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
+            pagingSourceFactory = createFactory(dataFlow)
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot1 = pager.asSnapshot(this) { }
@@ -779,37 +809,27 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun consecutiveGenerations_fromFlow() {
-        val dataFlow = flow {
-            // first gen
-            emit(emptyList())
-            delay(500)
-            // second gen
-            emit(List(30) { it })
-            delay(500)
-            // third gen
-            emit(List(30) { it + 30 })
-        }
+    fun consecutiveGenerations_fromSharedFlow_emitBeforeRefresh() {
+        val dataFlow = MutableSharedFlow<List<Int>>()
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
+            pagingSourceFactory = createFactory(dataFlow)
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
+            dataFlow.emit(emptyList())
             val snapshot1 = pager.asSnapshot(this) { }
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
-                delay(500)
-            }
+            dataFlow.emit(List(30) { it })
+            val snapshot2 = pager.asSnapshot(this) { }
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
 
-            val snapshot3 = pager.asSnapshot(this) {
-                delay(500)
-            }
+            dataFlow.emit(List(30) { it + 30 })
+            val snapshot3 = pager.asSnapshot(this) { }
             assertThat(snapshot3).containsExactlyElementsIn(
                 listOf(30, 31, 32, 33, 34)
             )
@@ -817,18 +837,55 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun consecutiveGenerations_withInitialKey_nullRefreshKey() {
+    fun consecutiveGenerations_nonNullRefreshKey() {
+        val loadDelay = 500 + loadDelay
         val dataFlow = flow {
             // first gen
             emit(List(20) { it })
-            delay(500)
+            // wait for refresh + append
+            delay(loadDelay * 2)
+            // second gen
+            emit(List(20) { it })
+        }
+        val pager = Pager(
+            config = CONFIG_NO_PREFETCH,
+            pagingSourceFactory = createFactory(dataFlow)
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot1 = pager.asSnapshot(this) {
+                // we scroll to register a non-null anchorPos
+                appendScrollWhile { item: Int ->
+                    item < 5
+                }
+            }
+            assertThat(snapshot1).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+
+            delay(1000)
+            val snapshot2 = pager.asSnapshot(this) { }
+            // anchorPos = 5, refreshKey = 3
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(3, 4, 5, 6, 7)
+            )
+        }
+    }
+
+    @Test
+    fun consecutiveGenerations_withInitialKey_nullRefreshKey() {
+        val loadDelay = 500 + loadDelay
+        // wait for 500 + loadDelay between each emission
+        val dataFlow = flow {
+            // first gen
+            emit(List(20) { it })
+            delay(loadDelay)
             // second gen
             emit(List(20) { it })
         }
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 10,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
+            pagingSourceFactory = createFactory(dataFlow)
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot1 = pager.asSnapshot(this) { }
@@ -836,10 +893,8 @@ class PagerFlowSnapshotTest {
                 listOf(10, 11, 12, 13, 14)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
-                // wait for second gen to complete
-                delay(500)
-            }
+            delay(500)
+            val snapshot2 = pager.asSnapshot(this) { }
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
@@ -848,17 +903,19 @@ class PagerFlowSnapshotTest {
 
     @Test
     fun consecutiveGenerations_withInitialKey_nonNullRefreshKey() {
+        val loadDelay = 500 + loadDelay
         val dataFlow = flow {
             // first gen
             emit(List(20) { it })
-            delay(500)
+            // wait for refresh + append
+            delay(loadDelay * 2)
             // second gen
             emit(List(20) { it })
         }
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 10,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
+            pagingSourceFactory = createFactory(dataFlow)
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot1 = pager.asSnapshot(this) {
@@ -871,9 +928,8 @@ class PagerFlowSnapshotTest {
                 listOf(10, 11, 12, 13, 14, 15, 16, 17)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
-                delay(500)
-            }
+            delay(1000)
+            val snapshot2 = pager.asSnapshot(this) { }
             // anchorPos = 15, refreshKey = 13
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(13, 14, 15, 16, 17)
@@ -884,11 +940,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependToAwait() {
         val dataFlow = flowOf(List(100) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 50,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -912,7 +967,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG_WITH_DROPS,
             initialKey = 50,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -931,7 +986,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG,
             initialKey = 50,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.map { pagingData ->
             pagingData.insertSeparators { before: Int?, _ ->
                 if (before == 42 || before == 49) "sep" else null
@@ -957,11 +1012,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun consecutivePrependToAwait() {
         val dataFlow = flowOf(List(100) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG,
             initialKey = 50,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -987,7 +1041,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG,
             initialKey = 50,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1022,7 +1076,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG,
             initialKey = 5,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1044,7 +1098,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG,
             initialKey = 50,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1063,11 +1117,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependToAwait_withoutPrefetch() {
         val dataFlow = flowOf(List(100) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
             initialKey = 50,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1084,11 +1137,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependToAwait_withoutPlaceholders() {
         val dataFlow = flowOf(List(100) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
             initialKey = 50,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1111,11 +1163,10 @@ class PagerFlowSnapshotTest {
     @Test
     fun consecutivePrependToAwait_withoutPlaceholders() {
         val dataFlow = flowOf(List(100) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
             initialKey = 50,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1145,7 +1196,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
             initialKey = 50,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1181,7 +1232,7 @@ class PagerFlowSnapshotTest {
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
             initialKey = 5,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1200,7 +1251,6 @@ class PagerFlowSnapshotTest {
     @Test
     fun prependToAwait_withoutPlaceholders_noPrefetchTriggered() {
         val dataFlow = flowOf(List(100) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
             config = PagingConfig(
                 pageSize = 4,
@@ -1210,7 +1260,7 @@ class PagerFlowSnapshotTest {
                 prefetchDistance = 1
             ),
             initialKey = 50,
-            pagingSourceFactory = factory,
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1231,7 +1281,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1252,7 +1302,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG_WITH_DROPS,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1270,7 +1320,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.map { pagingData ->
             pagingData.insertSeparators { before: Int?, _ ->
                 if (before == 0 || before == 14) "sep" else null
@@ -1295,7 +1345,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1318,7 +1368,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1350,7 +1400,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(15) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1371,7 +1421,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1393,7 +1443,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG_NO_PREFETCH,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
             val snapshot = pager.flow.asSnapshot(this) {
@@ -1412,7 +1462,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1435,7 +1485,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1459,7 +1509,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(20) { it })
         val pager = Pager(
             config = CONFIG_NO_PLACEHOLDERS,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
@@ -1480,7 +1530,7 @@ class PagerFlowSnapshotTest {
         val dataFlow = flowOf(List(100) { it })
         val pager = Pager(
             config = CONFIG,
-            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+            pagingSourceFactory = createFactory(dataFlow),
         ).flow
         val pagerWithSeparator = pager.map { pagingData ->
             pagingData.insertSeparators { before: Int?, _ ->
@@ -1535,4 +1585,30 @@ class PagerFlowSnapshotTest {
         initialLoadSize = 5,
         prefetchDistance = 0
     )
+}
+
+private class WrappedPagingSourceFactory(
+    private val factory: () -> PagingSource<Int, Int>,
+    private val loadDelay: Long,
+) : () -> PagingSource<Int, Int> {
+    override fun invoke(): PagingSource<Int, Int> = TestPagingSource(factory(), loadDelay)
+}
+
+private class TestPagingSource(
+    private val originalSource: PagingSource<Int, Int>,
+    private val loadDelay: Long,
+) : PagingSource<Int, Int>() {
+    init {
+        originalSource.registerInvalidatedCallback {
+            invalidate()
+        }
+    }
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+        delay(loadDelay)
+        return originalSource.load(params)
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, Int>) = originalSource.getRefreshKey(state)
+
+    override val jumpingSupported: Boolean = originalSource.jumpingSupported
 }
