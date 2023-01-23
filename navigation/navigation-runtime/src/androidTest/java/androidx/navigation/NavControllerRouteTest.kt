@@ -774,6 +774,69 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testFindDestinationWithRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // first nav with arg filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13")
+        navController.navigate(deepLink)
+
+        // second nav with arg filled in
+        val deepLink2 = Uri.parse("android-app://androidx.navigation/second_test/18")
+        navController.navigate(deepLink2)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13", "second_test/18"]
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val foundDest = navController.findDestination("second_test/{arg}")
+        assertThat(foundDest).isNotNull()
+        // since we matching based on general route, should match both destinations
+        assertThat(foundDest).isEqualTo(navigator.backStack[1].destination)
+        assertThat(foundDest).isEqualTo(navigator.backStack[2].destination)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testFindDestinationWithExactRoute() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "nav_root", startDestination = "start_test") {
+                test("start_test")
+                test("second_test/{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // first nav with arg filed in
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test/13")
+        navController.navigate(deepLink)
+
+        // second nav with arg filled in
+        val deepLink2 = Uri.parse("android-app://androidx.navigation/second_test/18")
+        navController.navigate(deepLink2)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // ["start_test", "second_test/13", "second_test/18"]
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val foundDest = navController.findDestination("second_test/13")
+        assertThat(foundDest).isNotNull()
+        // Even though NavDestinations doesn't store filled in args, an exact route should
+        // still be matched with the correct NavDestination with the same general pattern
+        assertThat(foundDest).isEqualTo(navigator.backStack[1].destination)
+        assertThat(foundDest).isEqualTo(navigator.backStack[2].destination)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkDefaultArgs() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph

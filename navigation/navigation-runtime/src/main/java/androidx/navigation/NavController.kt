@@ -1493,16 +1493,17 @@ public open class NavController(
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findDestination(destinationRoute: String): NavDestination? {
+    public fun findDestination(route: String): NavDestination? {
         if (_graph == null) {
             return null
         }
-        if (_graph!!.route == destinationRoute) {
+        // if not matched by routePattern, try matching with route args
+        if (_graph!!.route == route || _graph!!.matchDeepLink(route) != null) {
             return _graph
         }
         val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
         val currentGraph = if (currentNode is NavGraph) currentNode else currentNode.parent!!
-        return currentGraph.findNode(destinationRoute)
+        return currentGraph.findNode(route)
     }
 
     /**
