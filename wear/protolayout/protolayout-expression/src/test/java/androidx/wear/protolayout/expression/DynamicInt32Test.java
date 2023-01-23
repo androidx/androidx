@@ -39,11 +39,22 @@ public final class DynamicInt32Test {
   }
 
   @Test
+  public void constantToString() {
+    assertThat(DynamicInt32.constant(1).toString()).isEqualTo("FixedInt32{value=1}");
+  }
+
+  @Test
   public void stateEntryValueInt32() {
     DynamicInt32 stateInt32 = DynamicInt32.fromState(STATE_KEY);
 
     assertThat(stateInt32.toDynamicInt32Proto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
+  }
+
+  @Test
+  public void stateToString() {
+    assertThat(DynamicInt32.fromState("key").toString())
+        .isEqualTo("StateInt32Source{sourceKey=key}");
   }
 
   @Test
@@ -60,6 +71,12 @@ public final class DynamicInt32Test {
                 .getFixed()
                 .getValue())
         .isEqualTo(CONSTANT_VALUE);
+  }
+
+  @Test
+  public void constantInt32_asFloatToString() {
+    assertThat(DynamicInt32.constant(1).asFloat().toString())
+        .isEqualTo("Int32ToFloatOp{input=FixedInt32{value=1}}");
   }
 
   @Test
@@ -92,6 +109,16 @@ public final class DynamicInt32Test {
     assertThat(int32FormatOp.getInput()).isEqualTo(constantInt32.toDynamicInt32Proto());
     assertThat(int32FormatOp.getGroupingUsed()).isEqualTo(groupingUsed);
     assertThat(int32FormatOp.getMinIntegerDigits()).isEqualTo(minIntegerDigits);
+  }
+
+  @Test
+  public void formatToString() {
+    assertThat(
+            DynamicInt32.constant(1)
+                .format(DynamicInt32.IntFormatter.with().minIntegerDigits(2).groupingUsed(true))
+                .toString())
+        .isEqualTo(
+            "Int32FormatOp{input=FixedInt32{value=1}, minIntegerDigits=2, groupingUsed=true}");
   }
 
   @Test

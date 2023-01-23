@@ -235,6 +235,12 @@ public final class DynamicBuilders {
       return DynamicProto.DynamicInt32.newBuilder().setStateSource(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "StateInt32Source{" + "sourceKey=" + getSourceKey() + "}";
+    }
+
     /** Builder for {@link StateInt32Source}. */
     public static final class Builder implements DynamicInt32.Builder {
       private final DynamicProto.StateInt32Source.Builder mImpl =
@@ -326,6 +332,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
       return DynamicProto.DynamicInt32.newBuilder().setFloatToInt(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FloatToInt32Op{" + "input=" + getInput() + ", roundMode=" + getRoundMode() + "}";
     }
 
     /** Builder for {@link FloatToInt32Op}. */
@@ -618,6 +630,19 @@ public final class DynamicBuilders {
       return DynamicProto.DynamicString.newBuilder().setInt32FormatOp(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "Int32FormatOp{"
+          + "input="
+          + getInput()
+          + ", minIntegerDigits="
+          + getMinIntegerDigits()
+          + ", groupingUsed="
+          + getGroupingUsed()
+          + "}";
+    }
+
     /** Builder for {@link Int32FormatOp}. */
     public static final class Builder implements DynamicString.Builder {
       private final DynamicProto.Int32FormatOp.Builder mImpl =
@@ -724,6 +749,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicString toDynamicStringProto() {
       return DynamicProto.DynamicString.newBuilder().setStateSource(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "StateStringSource{" + "sourceKey=" + getSourceKey() + "}";
     }
 
     /** Builder for {@link StateStringSource}. */
@@ -835,6 +866,19 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicString toDynamicStringProto() {
       return DynamicProto.DynamicString.newBuilder().setConditionalOp(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "ConditionalStringOp{"
+          + "condition="
+          + getCondition()
+          + ", valueIfTrue="
+          + getValueIfTrue()
+          + ", valueIfFalse="
+          + getValueIfFalse()
+          + "}";
     }
 
     /** Builder for {@link ConditionalStringOp}. */
@@ -958,6 +1002,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicString toDynamicStringProto() {
       return DynamicProto.DynamicString.newBuilder().setConcatOp(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "ConcatStringOp{" + "inputLhs=" + getInputLhs() + ", inputRhs=" + getInputRhs() + "}";
     }
 
     /** Builder for {@link ConcatStringOp}. */
@@ -1104,6 +1154,23 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicString toDynamicStringProto() {
       return DynamicProto.DynamicString.newBuilder().setFloatFormatOp(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FloatFormatOp{"
+          + "input="
+          + getInput()
+          + ", maxFractionDigits="
+          + getMaxFractionDigits()
+          + ", minFractionDigits="
+          + getMinFractionDigits()
+          + ", minIntegerDigits="
+          + getMinIntegerDigits()
+          + ", groupingUsed="
+          + getGroupingUsed()
+          + "}";
     }
 
     /** Builder for {@link FloatFormatOp}. */
@@ -1382,6 +1449,12 @@ public final class DynamicBuilders {
       return DynamicProto.DynamicFloat.newBuilder().setStateSource(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "StateFloatSource{" + "sourceKey=" + getSourceKey() + "}";
+    }
+
     /** Builder for {@link StateFloatSource}. */
     public static final class Builder implements DynamicFloat.Builder {
       private final DynamicProto.StateFloatSource.Builder mImpl =
@@ -1462,6 +1535,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicFloat toDynamicFloatProto() {
       return DynamicProto.DynamicFloat.newBuilder().setInt32ToFloatOperation(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "Int32ToFloatOp{" + "input=" + getInput() + "}";
     }
 
     /** Builder for {@link Int32ToFloatOp}. */
@@ -1564,6 +1643,19 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicFloat toDynamicFloatProto() {
       return DynamicProto.DynamicFloat.newBuilder().setAnimatableFixed(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimatableFixedFloat{"
+          + "fromValue="
+          + getFromValue()
+          + ", toValue="
+          + getToValue()
+          + ", spec="
+          + getSpec()
+          + "}";
     }
 
     /** Builder for {@link AnimatableFixedFloat}. */
@@ -1692,6 +1784,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicFloat toDynamicFloatProto() {
       return DynamicProto.DynamicFloat.newBuilder().setAnimatableDynamic(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimatableDynamicFloat{" + "input=" + getInput() + ", spec=" + getSpec() + "}";
     }
 
     /** Builder for {@link AnimatableDynamicFloat}. */
@@ -2070,6 +2168,12 @@ public final class DynamicBuilders {
       return DynamicProto.DynamicBool.newBuilder().setStateSource(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "StateBoolSource{" + "sourceKey=" + getSourceKey() + "}";
+    }
+
     /** Builder for {@link StateBoolSource}. */
     public static final class Builder implements DynamicBool.Builder {
       private final DynamicProto.StateBoolSource.Builder mImpl =
@@ -2150,6 +2254,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicBool toDynamicBoolProto() {
       return DynamicProto.DynamicBool.newBuilder().setNotOp(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "NotBoolOp{" + "input=" + getInput() + "}";
     }
 
     /** Builder for {@link NotBoolOp}. */
@@ -2257,6 +2367,19 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicBool toDynamicBoolProto() {
       return DynamicProto.DynamicBool.newBuilder().setLogicalOp(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "LogicalBoolOp{"
+          + "inputLhs="
+          + getInputLhs()
+          + ", inputRhs="
+          + getInputRhs()
+          + ", operationType="
+          + getOperationType()
+          + "}";
     }
 
     /** Builder for {@link LogicalBoolOp}. */
@@ -2508,6 +2631,12 @@ public final class DynamicBuilders {
       return DynamicProto.DynamicColor.newBuilder().setStateSource(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "StateColorSource{" + "sourceKey=" + getSourceKey() + "}";
+    }
+
     /** Builder for {@link StateColorSource}. */
     public static final class Builder implements DynamicColor.Builder {
       private final DynamicProto.StateColorSource.Builder mImpl =
@@ -2610,6 +2739,19 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicColor toDynamicColorProto() {
       return DynamicProto.DynamicColor.newBuilder().setAnimatableFixed(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimatableFixedColor{"
+          + "fromArgb="
+          + getFromArgb()
+          + ", toArgb="
+          + getToArgb()
+          + ", spec="
+          + getSpec()
+          + "}";
     }
 
     /** Builder for {@link AnimatableFixedColor}. */
@@ -2738,6 +2880,12 @@ public final class DynamicBuilders {
     @NonNull
     public DynamicProto.DynamicColor toDynamicColorProto() {
       return DynamicProto.DynamicColor.newBuilder().setAnimatableDynamic(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimatableDynamicColor{" + "input=" + getInput() + ", spec=" + getSpec() + "}";
     }
 
     /** Builder for {@link AnimatableDynamicColor}. */

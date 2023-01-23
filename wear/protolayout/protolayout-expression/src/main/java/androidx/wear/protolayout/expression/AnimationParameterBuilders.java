@@ -142,7 +142,7 @@ public final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the easing to be used for adjusting an animation’s fraction.
+     * Gets the easing to be used for adjusting an animation's fraction.
      *
      * @since 1.2
      */
@@ -204,6 +204,21 @@ public final class AnimationParameterBuilders {
       return mImpl;
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimationSpec{"
+          + "durationMillis="
+          + getDurationMillis()
+          + ", delayMillis="
+          + getDelayMillis()
+          + ", easing="
+          + getEasing()
+          + ", repeatable="
+          + getRepeatable()
+          + "}";
+    }
+
     /** Builder for {@link AnimationSpec} */
     public static final class Builder {
       private final AnimationParameterProto.AnimationSpec.Builder mImpl =
@@ -237,7 +252,7 @@ public final class AnimationParameterBuilders {
       }
 
       /**
-       * Sets the easing to be used for adjusting an animation’s fraction. If not set, defaults to
+       * Sets the easing to be used for adjusting an animation's fraction. If not set, defaults to
        * Linear Interpolator.
        *
        * @since 1.2
@@ -282,7 +297,7 @@ public final class AnimationParameterBuilders {
   }
 
   /**
-   * Interface defining the easing to be used for adjusting an animation’s fraction. This allows
+   * Interface defining the easing to be used for adjusting an animation's fraction. This allows
    * animation to speed up and slow down, rather than moving at a constant rate. If not set,
    * defaults to Linear Interpolator.
    *
@@ -429,6 +444,21 @@ public final class AnimationParameterBuilders {
       return AnimationParameterProto.Easing.newBuilder().setCubicBezier(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "CubicBezierEasing{"
+          + "x1="
+          + getX1()
+          + ", y1="
+          + getY1()
+          + ", x2="
+          + getX2()
+          + ", y2="
+          + getY2()
+          + "}";
+    }
+
     /** Builder for {@link CubicBezierEasing}. */
     public static final class Builder implements Easing.Builder {
       private final AnimationParameterProto.CubicBezierEasing.Builder mImpl =
@@ -561,6 +591,17 @@ public final class AnimationParameterBuilders {
 
     static boolean isInfiniteIteration(int iteration){
       return iteration < 1;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "Repeatable{"
+          + "iterations="
+          + getIterations()
+          + ", repeatMode="
+          + getRepeatMode()
+          + "}";
     }
 
     /** Builder for {@link Repeatable} */

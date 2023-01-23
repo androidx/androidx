@@ -40,11 +40,22 @@ public final class DynamicStringTest {
   }
 
   @Test
+  public void constantToString() {
+    assertThat(DynamicString.constant("a").toString()).isEqualTo("FixedString{value=a}");
+  }
+
+  @Test
   public void stateEntryValueString() {
     DynamicString stateString = DynamicString.fromState(STATE_KEY);
 
     assertThat(stateString.toDynamicStringProto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
+  }
+
+  @Test
+  public void stateToString() {
+    assertThat(DynamicString.fromState("key").toString())
+        .isEqualTo("StateStringSource{sourceKey=key}");
   }
 
   @Test
@@ -57,6 +68,12 @@ public final class DynamicStringTest {
     DynamicProto.ConcatStringOp concatOp = resultString.toDynamicStringProto().getConcatOp();
     assertThat(concatOp.getInputLhs()).isEqualTo(firstString.toDynamicStringProto());
     assertThat(concatOp.getInputRhs()).isEqualTo(secondString.toDynamicStringProto());
+  }
+
+  @Test
+  public void concatToString() {
+    assertThat(DynamicString.constant("a").concat(DynamicString.constant("b")).toString())
+        .isEqualTo("ConcatStringOp{inputLhs=FixedString{value=a}, inputRhs=FixedString{value=b}}");
   }
 
   @Test
@@ -89,6 +106,17 @@ public final class DynamicStringTest {
     assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
     assertThat(conditionalOp.getValueIfTrue().getFixed().getValue()).isEqualTo(firstString);
     assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
+  }
+
+  @Test
+  public void conditionalToString() {
+    assertThat(
+            DynamicString.onCondition(DynamicBool.constant(true)).use("a").elseUse("b").toString())
+        .isEqualTo(
+            "ConditionalStringOp{"
+                + "condition=FixedBool{value=true}, "
+                + "valueIfTrue=FixedString{value=a}, "
+                + "valueIfFalse=FixedString{value=b}}");
   }
 
   @Test
