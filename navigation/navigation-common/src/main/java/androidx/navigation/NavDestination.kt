@@ -109,6 +109,35 @@ public open class NavDestination(
             }
             return mimeTypeMatchLevel - other.mimeTypeMatchLevel
         }
+
+        /**
+         * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
+         * the [arguments].
+         *
+         * This returns true even if the [arguments] contain more args
+         * than [DeepLinkMatch.matchingArgs].
+         *
+         * @param [arguments] The arguments to match with the matchingArgs stored in this
+         * DeepLinkMatch.
+         */
+        public fun hasMatchingArgs(arguments: Bundle?): Boolean {
+            if (arguments == null || matchingArgs == null || matchingArgs.isEmpty) return false
+
+            matchingArgs.keySet().forEach { key ->
+                // the arguments must at least contain every argument stored in this deep link
+                if (!arguments.containsKey(key)) return false
+
+                val type = destination.arguments[key]?.type
+                val matchingArgValue = type?.get(matchingArgs, key)
+                val entryArgValue = type?.get(arguments, key)
+                if (matchingArgValue == null || entryArgValue == null ||
+                    matchingArgValue != entryArgValue
+                ) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 
     /**
@@ -440,7 +469,8 @@ public open class NavDestination(
      *
      * @param [route] The route to match with the route of this destination
      *
-     * @param [arguments] The [NavBackStackEntry.arguments] of the entry for this destination.
+     * @param [arguments] The [NavBackStackEntry.arguments] that was used to navigate
+     * to this destination
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun hasRoute(route: String, arguments: Bundle?): Boolean {
@@ -451,25 +481,11 @@ public open class NavDestination(
         val matchingDeepLink = matchDeepLink(route)
 
         // If matchingDeepLink is null or it has no matching args, the route does not contain
-        // filled in args. Since it didn't match with routePattern earlier, we just return false.
-        val matchingArgs = matchingDeepLink?.matchingArgs
-        if (matchingArgs == null || matchingArgs.isEmpty) return false
-
-        // any args (partially or completely filled in) must exactly match between
+        // filled in args, we would return false since it didn't pattern-match earlier either.
+        // Any args (partially or completely filled in) must exactly match between
         // the route and entry's route
-        matchingArgs.keySet().forEach { key ->
-            if (this != matchingDeepLink.destination || arguments == null ||
-                !arguments.containsKey(key)
-            ) {
-                return false
-            }
-            val type = matchingDeepLink.destination.arguments[key]?.type
-            val routeArgValue = type?.get(matchingArgs, key)
-            val entryArgValue = type?.get(arguments, key)
-            if (routeArgValue == null || entryArgValue == null || routeArgValue != entryArgValue)
-                return false
-        }
-        return true
+        if (this != matchingDeepLink?.destination) return false
+        return matchingDeepLink.hasMatchingArgs(arguments)
     }
 
     /**
