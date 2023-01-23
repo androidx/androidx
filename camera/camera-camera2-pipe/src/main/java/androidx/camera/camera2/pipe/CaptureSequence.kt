@@ -38,9 +38,7 @@ public interface CaptureSequence<out TCaptureRequest> {
     }
 }
 
-/**
- * Utility functions for interacting with [CaptureSequence] callbacks and listeners.
- */
+/** Utility functions for interacting with [CaptureSequence] callbacks and listeners. */
 object CaptureSequences {
     /**
      * Efficient, inlined utility function for invoking a call on each of the listeners defined on a

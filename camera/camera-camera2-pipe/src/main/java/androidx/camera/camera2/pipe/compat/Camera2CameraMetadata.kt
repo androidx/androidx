@@ -31,11 +31,12 @@ import kotlin.reflect.KClass
 
 /**
  * This implementation provides access to [CameraCharacteristics] and lazy caching of properties
- * that are either expensive to create and access, or that only exist on newer versions of the
- * OS. This allows all fields to be accessed and return reasonable values on all OS versions.
+ * that are either expensive to create and access, or that only exist on newer versions of the OS.
+ * This allows all fields to be accessed and return reasonable values on all OS versions.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Camera2CameraMetadata constructor(
+internal class Camera2CameraMetadata
+constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,
@@ -43,11 +44,9 @@ internal class Camera2CameraMetadata constructor(
     private val metadata: Map<Metadata.Key<*>, Any?>,
     private val cacheBlocklist: Set<CameraCharacteristics.Key<*>>,
 ) : CameraMetadata {
-    @GuardedBy("values")
-    private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
+    @GuardedBy("values") private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+    @Suppress("UNCHECKED_CAST") override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T =
@@ -72,14 +71,11 @@ internal class Camera2CameraMetadata constructor(
         // 3. Duplicate non-null values are expected to be identical (even if the object instance
         //    is different), and so it does not matter which value is cached if two calls from
         //    different threads try to read the value simultaneously.
-        @Suppress("UNCHECKED_CAST")
-        var result = synchronized(values) { values[key] } as T?
+        @Suppress("UNCHECKED_CAST") var result = synchronized(values) { values[key] } as T?
         if (result == null) {
             result = characteristics.get(key)
             if (result != null) {
-                synchronized(values) {
-                    values[key] = result
-                }
+                synchronized(values) { values[key] = result }
             }
         }
         return result
@@ -89,16 +85,22 @@ internal class Camera2CameraMetadata constructor(
         get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        CameraCharacteristics::class -> characteristics as T
-        else -> null
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CameraCharacteristics::class -> characteristics as T
+            else -> null
+        }
 
-    override val keys: Set<CameraCharacteristics.Key<*>> get() = _keys.value
-    override val requestKeys: Set<CaptureRequest.Key<*>> get() = _requestKeys.value
-    override val resultKeys: Set<CaptureResult.Key<*>> get() = _resultKeys.value
-    override val sessionKeys: Set<CaptureRequest.Key<*>> get() = _sessionKeys.value
-    override val physicalCameraIds: Set<CameraId> get() = _physicalCameraIds.value
+    override val keys: Set<CameraCharacteristics.Key<*>>
+        get() = _keys.value
+    override val requestKeys: Set<CaptureRequest.Key<*>>
+        get() = _requestKeys.value
+    override val resultKeys: Set<CaptureResult.Key<*>>
+        get() = _resultKeys.value
+    override val sessionKeys: Set<CaptureRequest.Key<*>>
+        get() = _sessionKeys.value
+    override val physicalCameraIds: Set<CameraId>
+        get() = _physicalCameraIds.value
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>>
         get() = _physicalRequestKeys.value
 
@@ -120,8 +122,7 @@ internal class Camera2CameraMetadata constructor(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#keys") {
-                    @Suppress("UselessCallOnNotNull")
-                    characteristics.keys.orEmpty().toSet()
+                    @Suppress("UselessCallOnNotNull") characteristics.keys.orEmpty().toSet()
                 }
             } catch (ignored: AssertionError) {
                 emptySet()

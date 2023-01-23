@@ -39,7 +39,9 @@ internal val cameraGraphIds = atomic(0)
 
 @RequiresApi(21)
 @CameraGraphScope
-internal class CameraGraphImpl @Inject constructor(
+internal class CameraGraphImpl
+@Inject
+constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
@@ -59,29 +61,35 @@ internal class CameraGraphImpl @Inject constructor(
 
     init {
         // Log out the configuration of the camera graph when it is created.
-        Log.info {
-            Debug.formatCameraGraphProperties(metadata, graphConfig, this)
-        }
+        Log.info { Debug.formatCameraGraphProperties(metadata, graphConfig, this) }
 
         // Enforce preview and video stream use cases for high speed sessions
         if (graphConfig.sessionMode == CameraGraph.OperatingMode.HIGH_SPEED) {
             require(streamGraph.outputs.isNotEmpty()) {
-                "Cannot create a HIGH_SPEED CameraGraph without outputs." }
+                "Cannot create a HIGH_SPEED CameraGraph without outputs."
+            }
             require(streamGraph.outputs.size <= 2) {
                 "Cannot create a HIGH_SPEED CameraGraph with more than two outputs. " +
-                    "Configured outputs are ${streamGraph.outputs}" }
-            val containsPreviewStream = this.streamGraph.outputs.any {
-                it.streamUseCase == OutputStream.StreamUseCase.PREVIEW }
-            val containsVideoStream = this.streamGraph.outputs.any {
-                it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD }
+                    "Configured outputs are ${streamGraph.outputs}"
+            }
+            val containsPreviewStream =
+                this.streamGraph.outputs.any {
+                    it.streamUseCase == OutputStream.StreamUseCase.PREVIEW
+                }
+            val containsVideoStream =
+                this.streamGraph.outputs.any {
+                    it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD
+                }
             if (streamGraph.outputs.size == 2) {
                 require(containsPreviewStream) {
                     "Cannot create a HIGH_SPEED CameraGraph without setting the Preview " +
-                        "Video stream. Configured outputs are ${streamGraph.outputs}" }
+                        "Video stream. Configured outputs are ${streamGraph.outputs}"
+                }
             } else {
                 require(containsPreviewStream || containsVideoStream) {
                     "Cannot create a HIGH_SPEED CameraGraph without having a Preview or Video " +
-                        "stream. Configured outputs are ${streamGraph.outputs}" }
+                        "stream. Configured outputs are ${streamGraph.outputs}"
+                }
             }
         }
     }

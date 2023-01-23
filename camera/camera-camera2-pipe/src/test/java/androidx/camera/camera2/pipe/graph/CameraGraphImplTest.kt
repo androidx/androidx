@@ -57,81 +57,65 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class CameraGraphImplTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
-    private val metadata = FakeCameraMetadata(
-        mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
-    )
+    private val metadata =
+        FakeCameraMetadata(
+            mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
+        )
     private val fakeGraphProcessor = FakeGraphProcessor()
     private val imageReader1 = ImageReader.newInstance(1280, 720, ImageFormat.YUV_420_888, 4)
     private val imageReader2 = ImageReader.newInstance(1920, 1080, ImageFormat.YUV_420_888, 4)
     private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
     private val cameraSurfaceManager = CameraSurfaceManager()
 
-    private val stream1Config = CameraStream.Config.create(
-        Size(1280, 720),
-        StreamFormat.YUV_420_888
-    )
-    private val stream2Config = CameraStream.Config.create(
-        Size(1920, 1080),
-        StreamFormat.YUV_420_888
-    )
+    private val stream1Config =
+        CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+    private val stream2Config =
+        CameraStream.Config.create(Size(1920, 1080), StreamFormat.YUV_420_888)
 
     private lateinit var cameraController: CameraControllerSimulator
     private lateinit var stream1: CameraStream
     private lateinit var stream2: CameraStream
 
     private fun initializeCameraGraphImpl(scope: TestScope): CameraGraphImpl {
-        val graphConfig = CameraGraph.Config(
-            camera = metadata.camera,
-            streams = listOf(
-                stream1Config,
-                stream2Config
-            ),
-        )
+        val graphConfig =
+            CameraGraph.Config(
+                camera = metadata.camera,
+                streams = listOf(stream1Config, stream2Config),
+            )
         val threads = FakeThreads.fromTestScope(scope)
-        val backend = FakeCameraBackend(
-            fakeCameras = mapOf(metadata.camera to metadata)
-        )
-        val backends = CameraBackendsImpl(
-            defaultBackendId = backend.id,
-            cameraBackends = mapOf(backend.id to CameraBackendFactory { backend }),
-            context,
-            threads
-        )
-        val cameraContext = CameraBackendsImpl.CameraBackendContext(
-            context,
-            threads,
-            backends
-        )
-        val streamGraph = StreamGraphImpl(
-            metadata,
-            graphConfig
-        )
-        cameraController = CameraControllerSimulator(
-            cameraContext,
-            graphConfig,
-            fakeGraphProcessor,
-            streamGraph
-        )
+        val backend = FakeCameraBackend(fakeCameras = mapOf(metadata.camera to metadata))
+        val backends =
+            CameraBackendsImpl(
+                defaultBackendId = backend.id,
+                cameraBackends = mapOf(backend.id to CameraBackendFactory { backend }),
+                context,
+                threads)
+        val cameraContext = CameraBackendsImpl.CameraBackendContext(context, threads, backends)
+        val streamGraph = StreamGraphImpl(metadata, graphConfig)
+        cameraController =
+            CameraControllerSimulator(cameraContext, graphConfig, fakeGraphProcessor, streamGraph)
         cameraSurfaceManager.addListener(fakeSurfaceListener)
         val surfaceGraph = SurfaceGraph(streamGraph, cameraController, cameraSurfaceManager)
-        val graph = CameraGraphImpl(
-            graphConfig,
-            metadata,
-            fakeGraphProcessor,
-            fakeGraphProcessor,
-            streamGraph,
-            surfaceGraph,
-            cameraController,
-            GraphState3A(),
-            Listener3A()
-        )
-        stream1 = checkNotNull(graph.streams[stream1Config]) {
-            "Failed to find stream for $stream1Config!"
-        }
+        val graph =
+            CameraGraphImpl(
+                graphConfig,
+                metadata,
+                fakeGraphProcessor,
+                fakeGraphProcessor,
+                streamGraph,
+                surfaceGraph,
+                cameraController,
+                GraphState3A(),
+                Listener3A())
+        stream1 =
+            checkNotNull(graph.streams[stream1Config]) {
+                "Failed to find stream for $stream1Config!"
+            }
 
-        stream2 = checkNotNull(graph.streams[stream2Config]) {
-            "Failed to find stream for $stream2Config!"
-        }
+        stream2 =
+            checkNotNull(graph.streams[stream2Config]) {
+                "Failed to find stream for $stream2Config!"
+            }
         return graph
     }
 

@@ -43,23 +43,20 @@ import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 
-@Scope
-internal annotation class CameraGraphScope
+@Scope internal annotation class CameraGraphScope
 
-@Qualifier
-internal annotation class ForCameraGraph
+@Qualifier internal annotation class ForCameraGraph
 
-@Qualifier
-internal annotation class CameraGraphContext
+@Qualifier internal annotation class CameraGraphContext
 
 @CameraGraphScope
 @Subcomponent(
-    modules = [
-        SharedCameraGraphModules::class,
-        InternalCameraGraphModules::class,
-        CameraGraphConfigModule::class,
-    ]
-)
+    modules =
+        [
+            SharedCameraGraphModules::class,
+            InternalCameraGraphModules::class,
+            CameraGraphConfigModule::class,
+        ])
 internal interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
@@ -71,23 +68,17 @@ internal interface CameraGraphComponent {
 }
 
 @Module
-internal class CameraGraphConfigModule(
-    private val config: CameraGraph.Config
-) {
-    @Provides
-    fun provideCameraGraphConfig(): CameraGraph.Config = config
+internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
+    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
 
 @Module
 internal abstract class SharedCameraGraphModules {
-    @Binds
-    abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
+    @Binds abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
 
-    @Binds
-    abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
+    @Binds abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
 
-    @Binds
-    abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
+    @Binds abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
 
     @Binds
     @CameraGraphContext
@@ -98,9 +89,7 @@ internal abstract class SharedCameraGraphModules {
         @Provides
         @ForCameraGraph
         fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-            return CoroutineScope(
-                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph"))
-            )
+            return CoroutineScope(threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph")))
         }
 
         @CameraGraphScope
@@ -154,9 +143,9 @@ internal abstract class InternalCameraGraphModules {
         ): CameraMetadata {
             // TODO: It might be a good idea to cache and go through caches for some of these calls
             //   instead of reading it directly from the backend.
-            return checkNotNull(
-                cameraBackend.awaitCameraMetadata(graphConfig.camera)
-            ) { "Failed to load metadata for ${graphConfig.camera}!" }
+            return checkNotNull(cameraBackend.awaitCameraMetadata(graphConfig.camera)) {
+                "Failed to load metadata for ${graphConfig.camera}!"
+            }
         }
 
         @CameraGraphScope
@@ -169,11 +158,7 @@ internal abstract class InternalCameraGraphModules {
             streamGraph: StreamGraphImpl,
         ): CameraController {
             return cameraBackend.createCameraController(
-                cameraContext,
-                graphConfig,
-                graphProcessor,
-                streamGraph
-            )
+                cameraContext, graphConfig, graphProcessor, streamGraph)
         }
     }
 }

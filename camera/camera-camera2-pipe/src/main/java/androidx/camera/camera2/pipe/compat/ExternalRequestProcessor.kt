@@ -46,9 +46,8 @@ class ExternalCameraController(
     private val requestProcessor: RequestProcessor
 ) : CameraController {
     private val sequenceProcessor = ExternalCaptureSequenceProcessor(graphConfig, requestProcessor)
-    private val graphProcessor: GraphRequestProcessor = GraphRequestProcessor.from(
-        sequenceProcessor
-    )
+    private val graphProcessor: GraphRequestProcessor =
+        GraphRequestProcessor.from(sequenceProcessor)
     private var started = atomic(false)
 
     override fun start() {
@@ -103,18 +102,18 @@ internal class ExternalCaptureSequenceProcessor(
             Log.warn { "Cannot create an ExternalCaptureSequence until Surfaces are available!" }
             return null
         }
-        val metadata = requests.map { request ->
-            val parameters = defaultParameters + request.parameters + requiredParameters
+        val metadata =
+            requests.map { request ->
+                val parameters = defaultParameters + request.parameters + requiredParameters
 
-            ExternalRequestMetadata(
-                graphConfig.defaultTemplate,
-                streamToSurfaceMap,
-                parameters,
-                isRepeating,
-                request,
-                RequestNumber(internalRequestNumbers.incrementAndGet())
-            )
-        }
+                ExternalRequestMetadata(
+                    graphConfig.defaultTemplate,
+                    streamToSurfaceMap,
+                    parameters,
+                    isRepeating,
+                    request,
+                    RequestNumber(internalRequestNumbers.incrementAndGet()))
+            }
 
         return ExternalCaptureSequence(
             graphConfig.camera,
@@ -124,8 +123,7 @@ internal class ExternalCaptureSequenceProcessor(
             defaultParameters,
             requiredParameters,
             listeners,
-            sequenceListener
-        )
+            sequenceListener)
     }
 
     override fun submit(captureSequence: ExternalCaptureSequence): Int {
@@ -138,23 +136,20 @@ internal class ExternalCaptureSequenceProcessor(
                 captureSequence.captureRequestList.single(),
                 captureSequence.defaultParameters,
                 captureSequence.requiredParameters,
-                captureSequence.listeners
-            )
+                captureSequence.listeners)
         } else {
             if (captureSequence.captureRequestList.size == 1) {
                 processor.submit(
                     captureSequence.captureRequestList.single(),
                     captureSequence.defaultParameters,
                     captureSequence.requiredParameters,
-                    captureSequence.listeners
-                )
+                    captureSequence.listeners)
             } else {
                 processor.submit(
                     captureSequence.captureRequestList,
                     captureSequence.defaultParameters,
                     captureSequence.requiredParameters,
-                    captureSequence.listeners
-                )
+                    captureSequence.listeners)
             }
         }
         return internalSequenceNumbers.incrementAndGet()
@@ -184,8 +179,7 @@ internal class ExternalCaptureSequenceProcessor(
         override val listeners: List<Request.Listener>,
         override val sequenceListener: CaptureSequence.CaptureSequenceListener,
     ) : CaptureSequence<Request> {
-        @Volatile
-        private var _sequenceNumber: Int? = null
+        @Volatile private var _sequenceNumber: Int? = null
         override var sequenceNumber: Int
             get() {
                 if (_sequenceNumber == null) {
