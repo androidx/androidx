@@ -3971,7 +3971,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
 
         // A full example of how join might be used
-        AppSearchSchema actionSchema = new AppSearchSchema.Builder("BookmarkAction")
+        AppSearchSchema actionSchema = new AppSearchSchema.Builder("ViewAction")
                 .addProperty(new StringPropertyConfig.Builder("entityId")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
@@ -4015,18 +4015,29 @@ public abstract class AppSearchSessionCtsTestBase {
 
         String qualifiedId = DocumentIdUtil.createQualifiedId(mContext.getPackageName(), DB_NAME_1,
                 "namespace", "id1");
-        GenericDocument join = new GenericDocument.Builder<>("NS", "id3", "BookmarkAction")
+        GenericDocument viewAction1 = new GenericDocument.Builder<>("NS", "id3", "ViewAction")
+                .setScore(1)
                 .setPropertyString("entityId", qualifiedId)
-                .setPropertyString("note", "Hi this is a joined doc").build();
+                .setPropertyString("note", "Viewed email on Monday").build();
+        GenericDocument viewAction2 = new GenericDocument.Builder<>("NS", "id4", "ViewAction")
+                .setScore(2)
+                .setPropertyString("entityId", qualifiedId)
+                .setPropertyString("note", "Viewed email on Tuesday").build();
         checkIsBatchResultSuccess(mDb1.putAsync(
-                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail, inEmail2, join)
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail, inEmail2,
+                                viewAction1, viewAction2)
                         .build()));
 
-        SearchSpec nestedSearchSpec = new SearchSpec.Builder().build();
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_ASCENDING)
+                        .build();
 
         JoinSpec js = new JoinSpec.Builder("entityId")
                 .setNestedSearch("", nestedSearchSpec)
                 .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .setMaxJoinedResultCount(1)
                 .build();
 
         SearchResults searchResults = mDb1.search("body email", new SearchSpec.Builder()
@@ -4042,7 +4053,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("id1");
         assertThat(sr.get(0).getJoinedResults()).hasSize(1);
-        assertThat(sr.get(0).getJoinedResults().get(0).getGenericDocument()).isEqualTo(join);
+        assertThat(sr.get(0).getJoinedResults().get(0).getGenericDocument()).isEqualTo(viewAction1);
         assertThat(sr.get(0).getRankingSignal()).isEqualTo(1.0);
 
         assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("id2");
@@ -4051,22 +4062,20 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    public void testJoinWithoutSupport() throws Exception {
+    public void testJoin_unsupportedFeature_throwsException() throws Exception {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
 
         SearchSpec nestedSearchSpec = new SearchSpec.Builder().build();
         JoinSpec js = new JoinSpec.Builder("entityId").setNestedSearch("", nestedSearchSpec)
                 .build();
-        SearchResults searchResults = mDb1.search("", new SearchSpec.Builder()
-                .setJoinSpec(js)
-                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .build());
-
-        Exception e = assertThrows(UnsupportedOperationException.class, () ->
-                searchResults.getNextPageAsync().get());
-        assertThat(e).isInstanceOf(UnsupportedOperationException.class);
-        assertThat(e.getMessage()).isEqualTo("Searching with a SearchSpec containing a JoinSpec "
-                + "is not supported on this AppSearch implementation.");
+        Exception e = assertThrows(UnsupportedOperationException.class, () -> mDb1.search(
+                /*queryExpression */ "",
+                new SearchSpec.Builder()
+                        .setJoinSpec(js)
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build()));
+        assertThat(e.getMessage()).isEqualTo("JoinSpec is not available on this AppSearch "
+                + "implementation.");
     }
 
     @Test

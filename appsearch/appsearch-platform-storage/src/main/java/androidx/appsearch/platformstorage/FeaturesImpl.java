@@ -15,6 +15,9 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
 import androidx.core.os.BuildCompat;
@@ -26,7 +29,8 @@ import androidx.core.os.BuildCompat;
 final class FeaturesImpl implements Features {
 
     @Override
-    // TODO(b/201316758): Remove once BuildCompat.isAtLeastT is removed
+    // TODO(b/265311462): Remove these two lines once BuildCompat.isAtLeastU() is removed
+    @SuppressLint("NewApi")
     @BuildCompat.PrereleaseSdkCheck
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
@@ -40,10 +44,11 @@ final class FeaturesImpl implements Features {
             case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
-                // fall through
-                return BuildCompat.isAtLeastT();
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 
             // Android U Features
+            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
+                return BuildCompat.isAtLeastU();
             case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
                 // TODO(b/203700301) : Update to reflect support in Android U+ once this feature is
                 // synced over into service-appsearch.
@@ -59,10 +64,6 @@ final class FeaturesImpl implements Features {
             case SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
                 // TODO(b/261474063) : Update to reflect support in Android U+ once advanced
                 //  ranking becomes available.
-                // fall through
-            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
-                // TODO(b/256022027) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
                 // fall through
             case Features.VERBATIM_SEARCH:
                 // TODO(b/204333391) : Update to reflect support in Android U+ once this feature is

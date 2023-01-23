@@ -19,16 +19,18 @@ package androidx.appsearch.platformstorage.converter;
 import android.annotation.SuppressLint;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
 
 /**
- * Translates a jetpack {@link androidx.appsearch.app.AppSearchSchema} into a platform
+ * Translates a jetpack {@link AppSearchSchema} into a platform
  * {@link android.app.appsearch.AppSearchSchema}.
  * @hide
  */
@@ -38,9 +40,12 @@ public final class SchemaToPlatformConverter {
     private SchemaToPlatformConverter() {}
 
     /**
-     * Translates a jetpack {@link androidx.appsearch.app.AppSearchSchema} into a platform
+     * Translates a jetpack {@link AppSearchSchema} into a platform
      * {@link android.app.appsearch.AppSearchSchema}.
      */
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once
+    //  toPlatformProperty() doesn't have it either.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.AppSearchSchema toPlatformSchema(
             @NonNull AppSearchSchema jetpackSchema) {
@@ -58,8 +63,11 @@ public final class SchemaToPlatformConverter {
 
     /**
      * Translates a platform {@link android.app.appsearch.AppSearchSchema} to a jetpack
-     * {@link androidx.appsearch.app.AppSearchSchema}.
+     * {@link AppSearchSchema}.
      */
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static AppSearchSchema toJetpackSchema(
             @NonNull android.app.appsearch.AppSearchSchema platformSchema) {
@@ -78,6 +86,9 @@ public final class SchemaToPlatformConverter {
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static android.app.appsearch.AppSearchSchema.PropertyConfig toPlatformProperty(
             @NonNull AppSearchSchema.PropertyConfig jetpackProperty) {
@@ -85,20 +96,24 @@ public final class SchemaToPlatformConverter {
         if (jetpackProperty instanceof AppSearchSchema.StringPropertyConfig) {
             AppSearchSchema.StringPropertyConfig stringProperty =
                     (AppSearchSchema.StringPropertyConfig) jetpackProperty;
-            // TODO(b/256022027): add isAtLeastU check to allow JOINABLE_VALUE_TYPE_QUALIFIED_ID
-            //   after Android U, and set joinable value type to PropertyConfig.
-            if (stringProperty.getJoinableValueType()
-                    == AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
-                throw new UnsupportedOperationException(
-                        "StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID is not supported on "
-                                + "this AppSearch implementation.");
-            }
-            return new android.app.appsearch.AppSearchSchema.StringPropertyConfig.Builder(
+            android.app.appsearch.AppSearchSchema.StringPropertyConfig.Builder platformBuilder =
+                    new android.app.appsearch.AppSearchSchema.StringPropertyConfig.Builder(
                     stringProperty.getName())
                     .setCardinality(stringProperty.getCardinality())
                     .setIndexingType(stringProperty.getIndexingType())
-                    .setTokenizerType(stringProperty.getTokenizerType())
-                    .build();
+                    .setTokenizerType(stringProperty.getTokenizerType());
+
+            if (stringProperty.getJoinableValueType()
+                    == AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
+                if (!BuildCompat.isAtLeastU()) {
+                    throw new UnsupportedOperationException(
+                        "StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID is not supported"
+                                + " on this AppSearch implementation.");
+                }
+                ApiHelperForU.setJoinableValueType(platformBuilder,
+                        stringProperty.getJoinableValueType());
+            }
+            return platformBuilder.build();
         } else if (jetpackProperty instanceof AppSearchSchema.LongPropertyConfig) {
             AppSearchSchema.LongPropertyConfig longProperty =
                     (AppSearchSchema.LongPropertyConfig) jetpackProperty;
@@ -145,6 +160,9 @@ public final class SchemaToPlatformConverter {
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static AppSearchSchema.PropertyConfig toJetpackProperty(
             @NonNull android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty) {
@@ -153,11 +171,16 @@ public final class SchemaToPlatformConverter {
                 instanceof android.app.appsearch.AppSearchSchema.StringPropertyConfig) {
             android.app.appsearch.AppSearchSchema.StringPropertyConfig stringProperty =
                     (android.app.appsearch.AppSearchSchema.StringPropertyConfig) platformProperty;
-            return new AppSearchSchema.StringPropertyConfig.Builder(stringProperty.getName())
-                    .setCardinality(stringProperty.getCardinality())
-                    .setIndexingType(stringProperty.getIndexingType())
-                    .setTokenizerType(stringProperty.getTokenizerType())
-                    .build();
+            AppSearchSchema.StringPropertyConfig.Builder jetpackBuilder =
+                    new AppSearchSchema.StringPropertyConfig.Builder(stringProperty.getName())
+                            .setCardinality(stringProperty.getCardinality())
+                            .setIndexingType(stringProperty.getIndexingType())
+                            .setTokenizerType(stringProperty.getTokenizerType());
+            if (BuildCompat.isAtLeastU()) {
+                jetpackBuilder.setJoinableValueType(
+                        ApiHelperForU.getJoinableValueType(stringProperty));
+            }
+            return jetpackBuilder.build();
         } else if (platformProperty
                 instanceof android.app.appsearch.AppSearchSchema.LongPropertyConfig) {
             return new AppSearchSchema.LongPropertyConfig.Builder(platformProperty.getName())
@@ -192,6 +215,32 @@ public final class SchemaToPlatformConverter {
             throw new IllegalArgumentException(
                     "Invalid property type " + platformProperty.getClass()
                             + ": " + platformProperty);
+        }
+    }
+
+    // TODO(b/265311462): Replace literal '34' with Build.VERSION_CODES.UPSIDE_DOWN_CAKE when the
+    // SDK_INT is finalized.
+    @RequiresApi(34)
+    private static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setJoinableValueType(
+                android.app.appsearch.AppSearchSchema.StringPropertyConfig.Builder builder,
+                @AppSearchSchema.StringPropertyConfig.JoinableValueType int joinableValueType) {
+            builder.setJoinableValueType(joinableValueType);
+        }
+
+        // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
+        // defined as returning the same constants as the corresponding setter expects, but they do
+        @SuppressLint("WrongConstant")
+        @DoNotInline
+        @AppSearchSchema.StringPropertyConfig.JoinableValueType
+        static int getJoinableValueType(
+                android.app.appsearch.AppSearchSchema.StringPropertyConfig stringPropertyConfig) {
+            return stringPropertyConfig.getJoinableValueType();
         }
     }
 }

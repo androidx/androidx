@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -76,9 +77,11 @@ class SearchSessionImpl implements AppSearchSession {
         mFeatures = Preconditions.checkNotNull(features);
     }
 
+    // TODO(b/265311462): Remove these two lines once BuildCompat.isAtLeastU() is removed
+    @SuppressLint("NewApi")
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
@@ -93,9 +96,11 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.getSchema(
@@ -146,6 +151,9 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public SearchResults search(
@@ -195,9 +203,11 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<Void> removeAsync(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
@@ -209,7 +219,8 @@ class SearchSessionImpl implements AppSearchSession {
                     + "JoinSpec was provided.");
         }
 
-        if (!BuildCompat.isAtLeastT() && !searchSpec.getFilterNamespaces().isEmpty()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                && !searchSpec.getFilterNamespaces().isEmpty()) {
             // This is a patch for b/197361770, framework-appsearch in Android S will
             // disable the given namespace filter if it is not empty and none of given namespaces
             // exist.

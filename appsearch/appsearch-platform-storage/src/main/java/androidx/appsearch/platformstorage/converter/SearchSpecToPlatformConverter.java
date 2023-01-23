@@ -19,11 +19,14 @@ package androidx.appsearch.platformstorage.converter;
 import android.annotation.SuppressLint;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -44,6 +47,9 @@ public final class SearchSpecToPlatformConverter {
     // Most jetpackSearchSpec.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SearchSpec toPlatformSearchSpec(
             @NonNull SearchSpec jetpackSearchSpec) {
@@ -87,6 +93,31 @@ public final class SearchSpecToPlatformConverter {
                     "Property weights are not supported with this backend/Android API level "
                             + "combination.");
         }
+
+        if (jetpackSearchSpec.getJoinSpec() != null) {
+            if (!BuildCompat.isAtLeastU()) {
+                throw new UnsupportedOperationException("JoinSpec is not available on this "
+                        + "AppSearch implementation.");
+            }
+            ApiHelperForU.setJoinSpec(platformBuilder, jetpackSearchSpec.getJoinSpec());
+        }
         return platformBuilder.build();
+    }
+
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed. Also, replace literal '34' with
+    //  Build.VERSION_CODES.UPSIDE_DOWN_CAKE once the SDK_INT is finalized.
+    @BuildCompat.PrereleaseSdkCheck
+    @RequiresApi(34)
+    private static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setJoinSpec(@NonNull android.app.appsearch.SearchSpec.Builder builder,
+                JoinSpec jetpackJoinSpec) {
+            builder.setJoinSpec(JoinSpecToPlatformConverter.toPlatformJoinSpec(jetpackJoinSpec));
+        }
     }
 }
