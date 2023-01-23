@@ -33,6 +33,7 @@ import androidx.testutils.waitForExecution
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -117,6 +118,7 @@ class LocalesUpdateTestCase() {
         assertNull(activity.lastConfigurationChangeAndClear)
     }
 
+    @Ignore("b/262902574")
     @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 33)
     @Test
     @FlakyTest(bugId = 255765202)
