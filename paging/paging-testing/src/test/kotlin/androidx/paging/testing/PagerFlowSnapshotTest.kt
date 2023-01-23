@@ -845,6 +845,50 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
+    fun prependToAwait_indexOutOfBounds() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 5,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                scrollTo(-5, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // ensure index is capped when no more data to load
+            // initial load [5-9]
+            // prefetched [2-4], [10-12]
+            // scrollTo prepended [0-1]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+            )
+        }
+    }
+
+    @Test
+    fun prependToAwait_accessBoundaryIndex() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                scrollTo(47, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // ensure SnapshotLoader waited for the last prefetch before returning
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // scrollTo prepended [44-46]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+            )
+        }
+    }
+
+    @Test
     fun prependToAwait_withoutPrefetch() {
         val dataFlow = flowOf(List(100) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
@@ -877,13 +921,17 @@ class PagerFlowSnapshotTest {
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
                 // Without placeholders, first loaded page always starts at index[0]
-                scrollTo(0, ScrollBehavior.WaitForPlaceholdersToLoad)
+                scrollTo(-4, ScrollBehavior.WaitForPlaceholdersToLoad)
             }
             // initial load [50-54]
             // prefetched [47-49], [55-57]
-            // scrollTo prepended [44-46]
+            // scrollTo prepended [41-46]
+            // prefetched [38-40]
             assertThat(snapshot).containsExactlyElementsIn(
-                listOf(44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+                listOf(
+                    38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+                    55, 56, 57
+                )
             )
         }
     }
@@ -900,16 +948,21 @@ class PagerFlowSnapshotTest {
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
                 // Without placeholders, first loaded page always starts at index[0]
-                scrollTo(0, ScrollBehavior.WaitForPlaceholdersToLoad)
+                scrollTo(-1, ScrollBehavior.WaitForPlaceholdersToLoad)
                 // Without placeholders, first loaded page always starts at index[0]
-                scrollTo(0, ScrollBehavior.WaitForPlaceholdersToLoad)
+                scrollTo(-5, ScrollBehavior.WaitForPlaceholdersToLoad)
             }
             // initial load [50-54]
             // prefetched [47-49], [55-57]
-            // first scrollTo(0) prepended [44-46]
-            // second scrollTo(0) prepended [41-43]
+            // first scrollTo prepended [41-46]
+            // index[0] is now anchored to [41]
+            // second scrollTo prepended [35-40]
+            // prefetched [32-34]
             assertThat(snapshot).containsExactlyElementsIn(
-                listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+                listOf(
+                    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                    50, 51, 52, 53, 54, 55, 56, 57
+                )
             )
         }
     }
@@ -925,22 +978,49 @@ class PagerFlowSnapshotTest {
         testScope.runTest {
             val snapshot = pager.asSnapshot(this) {
                 // Without placeholders, first loaded page always starts at index[0]
-                scrollTo(0, ScrollBehavior.WaitForPlaceholdersToLoad)
+                scrollTo(-1, ScrollBehavior.WaitForPlaceholdersToLoad)
             }
             // initial load [50-54]
             // prefetched [47-49], [55-57]
             // scrollTo prepended [44-46]
+            // prefetched [41-43]
             assertThat(snapshot).containsExactlyElementsIn(
-                listOf(44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+                listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
             )
 
             val snapshot2 = pager.asSnapshot(this) {
                 // Without placeholders, first loaded page always starts at index[0]
-                scrollTo(0, ScrollBehavior.WaitForPlaceholdersToLoad)
+                scrollTo(-5, ScrollBehavior.WaitForPlaceholdersToLoad)
             }
-            // scrollTo prepended [41-43]
+            // scrollTo prepended [35-40]
+            // prefetched [32-34]
             assertThat(snapshot2).containsExactlyElementsIn(
-                listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+                listOf(
+                    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                    50, 51, 52, 53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun prependToAwait_withoutPlaceholders_indexOutOfBounds() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 5,
+            pagingSourceFactory = dataFlow.asPagingSourceFactory(testScope.backgroundScope),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                scrollTo(-5, ScrollBehavior.WaitForPlaceholdersToLoad)
+            }
+            // ensure index is capped when no more data to load
+            // initial load [5-9]
+            // prefetched [2-4], [10-12]
+            // scrollTo prepended [0-1]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
             )
         }
     }
