@@ -28,8 +28,8 @@ import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
-import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
+import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.CameraOpener
 import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
@@ -44,18 +44,13 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@Module(
-    subcomponents = [
-        Camera2ControllerComponent::class
-    ]
-)
+@Module(subcomponents = [Camera2ControllerComponent::class])
 internal abstract class Camera2Module {
     @Binds
     @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
 
-    @Binds
-    abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
+    @Binds abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
 
     @Binds
     abstract fun bindCameraMetadataProvider(
@@ -68,18 +63,16 @@ internal abstract class Camera2Module {
     ): CameraAvailabilityMonitor
 }
 
-@Scope
-internal annotation class Camera2ControllerScope
+@Scope internal annotation class Camera2ControllerScope
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Camera2ControllerScope
 @Subcomponent(
-    modules = [
-        Camera2ControllerConfig::class,
-        Camera2ControllerModule::class,
-        Camera2CaptureSessionsModule::class
-    ]
-)
+    modules =
+        [
+            Camera2ControllerConfig::class,
+            Camera2ControllerModule::class,
+            Camera2CaptureSessionsModule::class])
 internal interface Camera2ControllerComponent {
     fun cameraController(): CameraController
 
@@ -97,17 +90,13 @@ internal class Camera2ControllerConfig(
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph,
 ) {
-    @Provides
-    fun provideCameraGraphConfig() = graphConfig
+    @Provides fun provideCameraGraphConfig() = graphConfig
 
-    @Provides
-    fun provideCameraBackend() = cameraBackend
+    @Provides fun provideCameraBackend() = cameraBackend
 
-    @Provides
-    fun provideStreamGraph() = streamGraph as StreamGraphImpl
+    @Provides fun provideStreamGraph() = streamGraph as StreamGraphImpl
 
-    @Provides
-    fun provideGraphListener() = graphListener
+    @Provides fun provideGraphListener() = graphListener
 }
 
 @Module
@@ -127,8 +116,7 @@ internal abstract class Camera2ControllerModule {
         @Provides
         fun provideCoroutineScope(threads: Threads): CoroutineScope {
             return CoroutineScope(
-                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller"))
-            )
+                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller")))
         }
     }
 }

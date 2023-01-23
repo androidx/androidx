@@ -98,34 +98,28 @@ internal class CaptureSessionFactoryTest {
         val stream1Output = stream1.outputs.first()
 
         val surfaceTexture = SurfaceTexture(0)
-        surfaceTexture.setDefaultBufferSize(
-            stream1Output.size.width,
-            stream1Output.size.height
-        )
+        surfaceTexture.setDefaultBufferSize(stream1Output.size.width, stream1Output.size.height)
         val surface = Surface(surfaceTexture)
 
-        val pendingOutputs = sessionFactory.create(
-            AndroidCameraDevice(
-                testCamera.metadata,
-                testCamera.cameraDevice,
-                testCamera.cameraId
-            ),
-            mapOf(stream1.id to surface),
-            captureSessionState = CaptureSessionState(
-                FakeGraphProcessor(),
-                sessionFactory,
-                object : Camera2CaptureSequenceProcessorFactory {
-                    override fun create(
-                        session: CameraCaptureSessionWrapper,
-                        surfaceMap: Map<StreamId, Surface>
-                    ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
-                        FakeCaptureSequenceProcessor()
-                },
-                CameraSurfaceManager(),
-                SystemTimeSource(),
-                this
-            )
-        )
+        val pendingOutputs =
+            sessionFactory.create(
+                AndroidCameraDevice(
+                    testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId),
+                mapOf(stream1.id to surface),
+                captureSessionState =
+                    CaptureSessionState(
+                        FakeGraphProcessor(),
+                        sessionFactory,
+                        object : Camera2CaptureSequenceProcessorFactory {
+                            override fun create(
+                                session: CameraCaptureSessionWrapper,
+                                surfaceMap: Map<StreamId, Surface>
+                            ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
+                                FakeCaptureSequenceProcessor()
+                        },
+                        CameraSurfaceManager(),
+                        SystemTimeSource(),
+                        this))
 
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
@@ -137,32 +131,26 @@ internal class CaptureSessionFactoryTest {
 @CameraGraphScope
 @Camera2ControllerScope
 @Component(
-    modules = [
-        FakeCameraGraphModule::class,
-        FakeCameraPipeModule::class,
-        Camera2CaptureSessionsModule::class
-    ]
-)
+    modules =
+        [
+            FakeCameraGraphModule::class,
+            FakeCameraPipeModule::class,
+            Camera2CaptureSessionsModule::class])
 internal interface Camera2CaptureSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
     fun sessionFactory(): CaptureSessionFactory
     fun streamMap(): StreamGraphImpl
 }
 
-/**
- * Utility module for testing the Dagger generated graph with a a reasonable default config.
- */
+/** Utility module for testing the Dagger generated graph with a a reasonable default config. */
 @Module(includes = [ThreadConfigModule::class, CameraPipeModules::class])
 class FakeCameraPipeModule(
     private val context: Context,
     private val fakeCamera: RobolectricCameras.FakeCamera
 ) {
-    @Provides
-    fun provideFakeCamera() = fakeCamera
+    @Provides fun provideFakeCamera() = fakeCamera
 
-    @Provides
-    @Singleton
-    fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+    @Provides @Singleton fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
 }
 
 @Module(includes = [SharedCameraGraphModules::class])
@@ -174,10 +162,7 @@ class FakeCameraGraphModule {
     @Provides
     @CameraGraphScope
     fun provideFakeGraphConfig(fakeCamera: RobolectricCameras.FakeCamera): CameraGraph.Config {
-        val stream = CameraStream.Config.create(
-            Size(640, 480),
-            StreamFormat.YUV_420_888
-        )
+        val stream = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
         return CameraGraph.Config(
             camera = fakeCamera.cameraId,
             streams = listOf(stream),

@@ -20,9 +20,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 
-/**
- * Utility class for providing fake metadata for tests.
- */
+/** Utility class for providing fake metadata for tests. */
 class FakeCameraMetadataProvider(
     private val fakeMetadata: Map<CameraId, CameraMetadata> = emptyMap()
 ) : Camera2MetadataProvider {

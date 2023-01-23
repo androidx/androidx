@@ -23,9 +23,7 @@ import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-/**
- * Methods for querying, iterating, and selecting the Cameras that are available on the device.
- */
+/** Methods for querying, iterating, and selecting the Cameras that are available on the device. */
 public interface CameraDevices {
     /**
      * Read the list of currently openable CameraIds from the provided CameraBackend, suspending if
@@ -66,8 +64,7 @@ public interface CameraDevices {
     @Deprecated(
         message = "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     public fun findAll(): List<CameraId>
 
     /**
@@ -77,20 +74,18 @@ public interface CameraDevices {
     @Deprecated(
         message = "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     public suspend fun ids(): List<CameraId>
 
     /**
-     * Load CameraMetadata for a specific CameraId. Loading CameraMetadata can take a
-     * non-zero amount of time to execute. If CameraMetadata is not already cached this function
-     * will suspend until CameraMetadata can be loaded.
+     * Load CameraMetadata for a specific CameraId. Loading CameraMetadata can take a non-zero
+     * amount of time to execute. If CameraMetadata is not already cached this function will suspend
+     * until CameraMetadata can be loaded.
      */
     @Deprecated(
         message = "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     public suspend fun getMetadata(camera: CameraId): CameraMetadata
 
     /**
@@ -100,8 +95,7 @@ public interface CameraDevices {
     @Deprecated(
         message = "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     public fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
@@ -129,36 +123,33 @@ public value class CameraId(public val value: String) {
 public fun CameraDevices.find(
     cameraBackendId: CameraBackendId? = null,
     includePhysicalCameraMetadata: Boolean = false
-): Flow<CameraMetadata> =
-    flow {
-        val cameraIds = this@find.getCameraIds() ?: return@flow
+): Flow<CameraMetadata> = flow {
+    val cameraIds = this@find.getCameraIds() ?: return@flow
 
-        val visited = mutableSetOf<CameraId>()
-        val emitted = mutableSetOf<CameraMetadata>()
-        for (cameraId in cameraIds) {
-            if (visited.add(cameraId)) {
-                val metadata = this@find.getCameraMetadata(cameraId, cameraBackendId)
-                if (metadata != null) {
-                    emitted.add(metadata)
-                    emit(metadata)
-                }
+    val visited = mutableSetOf<CameraId>()
+    val emitted = mutableSetOf<CameraMetadata>()
+    for (cameraId in cameraIds) {
+        if (visited.add(cameraId)) {
+            val metadata = this@find.getCameraMetadata(cameraId, cameraBackendId)
+            if (metadata != null) {
+                emitted.add(metadata)
+                emit(metadata)
             }
         }
+    }
 
-        if (includePhysicalCameraMetadata) {
-            for (metadata in emitted) {
-                for (physicalId in metadata.physicalCameraIds) {
-                    if (!visited.contains(physicalId)) {
-                        val physicalMetadata =
-                            this@find.getCameraMetadata(physicalId, cameraBackendId)
-                        if (physicalMetadata != null &&
-                            physicalMetadata.camera == physicalId &&
-                            visited.add(physicalId)
-                        ) {
-                            emit(physicalMetadata)
-                        }
+    if (includePhysicalCameraMetadata) {
+        for (metadata in emitted) {
+            for (physicalId in metadata.physicalCameraIds) {
+                if (!visited.contains(physicalId)) {
+                    val physicalMetadata = this@find.getCameraMetadata(physicalId, cameraBackendId)
+                    if (physicalMetadata != null &&
+                        physicalMetadata.camera == physicalId &&
+                        visited.add(physicalId)) {
+                        emit(physicalMetadata)
                     }
                 }
             }
         }
     }
+}

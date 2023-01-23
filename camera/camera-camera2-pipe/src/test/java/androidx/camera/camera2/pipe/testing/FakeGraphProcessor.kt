@@ -32,9 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-/**
- * Fake implementation of a [GraphProcessor] for tests.
- */
+/** Fake implementation of a [GraphProcessor] for tests. */
 internal class FakeGraphProcessor(
     val graphState3A: GraphState3A = GraphState3A(),
     val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
@@ -85,13 +83,13 @@ internal class FakeGraphProcessor(
 
         return when {
             currProcessor == null || currRepeatingRequest == null -> false
-            else -> currProcessor.submit(
-                isRepeating = false,
-                requests = listOf(currRepeatingRequest),
-                defaultParameters = defaultParameters,
-                requiredParameters = requiredParameters,
-                listeners = defaultListeners
-            )
+            else ->
+                currProcessor.submit(
+                    isRepeating = false,
+                    requests = listOf(currRepeatingRequest),
+                    defaultParameters = defaultParameters,
+                    requiredParameters = requiredParameters,
+                    listeners = defaultListeners)
         }
     }
 
@@ -165,7 +163,6 @@ internal class FakeGraphProcessor(
             requests = listOf(currRepeatingRequest),
             defaultParameters = defaultParameters,
             requiredParameters = requiredParameters,
-            listeners = defaultListeners
-        )
+            listeners = defaultListeners)
     }
 }

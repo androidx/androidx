@@ -21,9 +21,9 @@ import androidx.annotation.RequiresApi
 /**
  * Platform-independent Android ImageFormats and their associated values.
  *
- * Using this inline class prevents missing values on platforms where the format is not present
- * or not listed.
- * // TODO: Consider adding data-space as a separate property, or finding a way to work it in.
+ * Using this inline class prevents missing values on platforms where the format is not present or
+ * not listed. // TODO: Consider adding data-space as a separate property, or finding a way to work
+ * it in.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @JvmInline
@@ -64,8 +64,8 @@ public value class StreamFormat(public val value: Int) {
     /**
      * This function returns the number of bits per pixel for a given stream format.
      *
-     * @return the number of bits per pixel or -1 if the format does not have a well defined
-     * number of bits per pixel.
+     * @return the number of bits per pixel or -1 if the format does not have a well defined number
+     *   of bits per pixel.
      */
     public val bitsPerPixel: Int
         get() {
@@ -103,7 +103,6 @@ public value class StreamFormat(public val value: Int) {
             when (this) {
                 UNKNOWN -> return "UNKNOWN"
                 PRIVATE -> return "PRIVATE"
-
                 DEPTH16 -> return "DEPTH16"
                 DEPTH_JPEG -> return "DEPTH_JPEG"
                 DEPTH_POINT_CLOUD -> return "DEPTH_POINT_CLOUD"

@@ -28,42 +28,35 @@ import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Provides utilities for querying cameras and accessing metadata about those cameras.
- */
+/** Provides utilities for querying cameras and accessing metadata about those cameras. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-internal class CameraDevicesImpl @Inject constructor(
-    private val cameraBackends: CameraBackends
-) : CameraDevices {
+internal class CameraDevicesImpl @Inject constructor(private val cameraBackends: CameraBackends) :
+    CameraDevices {
 
     @Deprecated(
         "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     override fun findAll(): List<CameraId> = awaitCameraIds() ?: emptyList()
 
     @Deprecated(
         "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     override suspend fun ids(): List<CameraId> = getCameraIds() ?: emptyList()
 
     @Deprecated(
         "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     override suspend fun getMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(getCameraMetadata(camera))
 
     @Deprecated(
         "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING
-    )
+        level = DeprecationLevel.WARNING)
     override fun awaitMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(awaitCameraMetadata(camera))
 

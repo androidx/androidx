@@ -34,15 +34,16 @@ internal class CameraSurfaceManagerTest {
     private val surfaceManager = CameraSurfaceManager()
     private var activeInvokeCount = 0
     private var inactiveInvokeCount = 0
-    private val listener = object : CameraSurfaceManager.SurfaceListener {
-        override fun onSurfaceActive(surface: Surface) {
-            activeInvokeCount++
-        }
+    private val listener =
+        object : CameraSurfaceManager.SurfaceListener {
+            override fun onSurfaceActive(surface: Surface) {
+                activeInvokeCount++
+            }
 
-        override fun onSurfaceInactive(surface: Surface) {
-            inactiveInvokeCount++
+            override fun onSurfaceInactive(surface: Surface) {
+                inactiveInvokeCount++
+            }
         }
-    }
     private val imageReader1 = ImageReader.newInstance(1280, 720, ImageFormat.YUV_420_888, 4)
     private val imageReader2 = ImageReader.newInstance(1920, 1080, ImageFormat.YUV_420_888, 4)
 
@@ -84,15 +85,16 @@ internal class CameraSurfaceManagerTest {
 
     @Test
     fun testRemoveListenerDuringSurfaceListener() {
-        surfaceManager.addListener(object : CameraSurfaceManager.SurfaceListener {
-            override fun onSurfaceActive(surface: Surface) {
-                // No-op
-            }
+        surfaceManager.addListener(
+            object : CameraSurfaceManager.SurfaceListener {
+                override fun onSurfaceActive(surface: Surface) {
+                    // No-op
+                }
 
-            override fun onSurfaceInactive(surface: Surface) {
-                surfaceManager.removeListener(this)
-            }
-        })
+                override fun onSurfaceInactive(surface: Surface) {
+                    surfaceManager.removeListener(this)
+                }
+            })
         surfaceManager.registerSurface(imageReader1.surface).close()
     }
 
