@@ -414,7 +414,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             } else {
                 surfaceRequest.updateTransformationInfo(
                         SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
-                                targetRotation, /*hasCameraTransform=*/true));
+                                targetRotation, getHasCameraTransform()));
             }
         }
     }
@@ -481,7 +481,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     VIDEO_CAPTURE,
                     resolution,
                     getSensorToBufferTransformMatrix(),
-                    /*hasCameraTransform=*/true,
+                    getHasCameraTransform(),
                     mCropRect,
                     getRelativeRotation(camera),
                     /*mirroring=*/false);
@@ -585,6 +585,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             updateSessionConfig(mSessionConfigBuilder.build());
             notifyReset();
         }
+    }
+
+    /**
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(Scope.TESTS)
+    SurfaceEdge getCameraEdge() {
+        return mCameraEdge;
     }
 
     /**
