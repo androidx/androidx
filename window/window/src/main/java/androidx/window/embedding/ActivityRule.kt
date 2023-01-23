@@ -21,6 +21,7 @@ package androidx.window.embedding
  * [SplitPairRule].
  */
 class ActivityRule internal constructor(
+    tag: String?,
     /**
      * Filters used to choose when to apply this rule. The rule will be applied if any one of the
      * provided filters matches.
@@ -32,7 +33,7 @@ class ActivityRule internal constructor(
      * activity that blocks all user interactions, such as a warning dialog.
      */
     val alwaysExpand: Boolean = false
-) : EmbeddingRule() {
+) : EmbeddingRule(tag) {
 
     /**
      * Builder for [ActivityRule].
@@ -40,8 +41,9 @@ class ActivityRule internal constructor(
      * @param filters See [ActivityRule.filters].
      */
     class Builder(
-        private val filters: Set<ActivityFilter>
+        private val filters: Set<ActivityFilter>,
     ) {
+        private var tag: String? = null
         private var alwaysExpand: Boolean = false
 
         /**
@@ -53,7 +55,11 @@ class ActivityRule internal constructor(
         fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
             apply { this.alwaysExpand = alwaysExpand }
 
-        fun build() = ActivityRule(filters, alwaysExpand)
+        /** @see ActivityRule.tag */
+        fun setTag(tag: String): Builder =
+            apply { this.tag = tag }
+
+        fun build() = ActivityRule(tag, filters, alwaysExpand)
     }
 
     /**
@@ -61,16 +67,14 @@ class ActivityRule internal constructor(
      * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): ActivityRule {
-        return ActivityRule(
-            filters + filter,
-            alwaysExpand
-        )
+        return ActivityRule(tag, filters + filter, alwaysExpand)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ActivityRule) return false
 
+        if (!super.equals(other)) return false
         if (filters != other.filters) return false
         if (alwaysExpand != other.alwaysExpand) return false
 
@@ -78,8 +82,16 @@ class ActivityRule internal constructor(
     }
 
     override fun hashCode(): Int {
-        var result = filters.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + filters.hashCode()
         result = 31 * result + alwaysExpand.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "ActivityRule:{" +
+            "tag={$tag}," +
+            "filters={$filters}, " +
+            "alwaysExpand={$alwaysExpand}}"
     }
 }

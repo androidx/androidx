@@ -73,6 +73,18 @@ public class SidecarWindowBackendUnitTest {
     }
 
     @Test
+    public fun testRegisterLayoutChangeCallback_withContext() {
+        val backend = SidecarWindowBackend.getInstance(context)
+        backend.windowExtension = mock()
+
+        // Check registering the layout change callback
+        val consumer = mock<Consumer<WindowLayoutInfo>>()
+        val context = mock<Context>()
+        backend.registerLayoutChangeCallback(context, { obj: Runnable -> obj.run() }, consumer)
+        verify(consumer).accept(any())
+    }
+
+    @Test
     public fun testRegisterLayoutChangeCallback_noExtension() {
         val backend = SidecarWindowBackend.getInstance(context)
         backend.windowExtension = null

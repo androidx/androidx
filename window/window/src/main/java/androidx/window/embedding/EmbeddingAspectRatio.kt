@@ -19,7 +19,7 @@ package androidx.window.embedding
 import androidx.annotation.FloatRange
 
 /**
- * The aspect ratio of the parent window bounds to allow embedding with the rule.
+ * The aspect ratio of the parent window bound to allow embedding with the rule.
  *
  * @see SplitRule.maxAspectRatioInPortrait
  * @see SplitRule.maxAspectRatioInLandscape

@@ -17,17 +17,15 @@
 package androidx.window.embedding
 
 import android.content.Intent
-import android.util.LayoutDirection.LOCALE
-import android.util.LayoutDirection.LTR
-import android.util.LayoutDirection.RTL
-import androidx.annotation.FloatRange
-import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
+import androidx.window.extensions.WindowExtensions
 
 /**
  * Configuration rules for split placeholders.
@@ -65,39 +63,30 @@ class SplitPlaceholderRule : SplitRule {
     val isSticky: Boolean
 
     /**
-     * Defines whether a container should be finished together when the associated placeholder
-     * activity is being finished based on current presentation mode.
-     */
-    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(FINISH_ALWAYS, FINISH_ADJACENT)
-    internal annotation class SplitPlaceholderFinishBehavior
-
-    /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated placeholder container.
      *
-     * @see SplitRule.FINISH_ALWAYS
-     * @see SplitRule.FINISH_ADJACENT
+     * @see SplitRule.FinishBehavior.ALWAYS
+     * @see SplitRule.FinishBehavior.ADJACENT
      */
-    @SplitPlaceholderFinishBehavior
-    val finishPrimaryWithPlaceholder: Int
+    val finishPrimaryWithPlaceholder: FinishBehavior
 
     internal constructor(
+        tag: String? = null,
         filters: Set<ActivityFilter>,
         placeholderIntent: Intent,
         isSticky: Boolean,
-        @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
+        finishPrimaryWithPlaceholder: FinishBehavior = ALWAYS,
         @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
         @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
         maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
         maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = SPLIT_RATIO_DEFAULT,
-        @LayoutDirection layoutDirection: Int = LOCALE
-    ) : super(minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait, maxAspectRatioInLandscape,
-        splitRatio, layoutDirection) {
-        checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
-            "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
+        defaultSplitAttributes: SplitAttributes,
+    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, maxAspectRatioInPortrait,
+        maxAspectRatioInLandscape, defaultSplitAttributes) {
+        checkArgument(finishPrimaryWithPlaceholder != NEVER,
+            "NEVER is not a valid configuration for SplitPlaceholderRule. " +
                 "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
         this.filters = filters.toSet()
         this.placeholderIntent = placeholderIntent
@@ -114,21 +103,20 @@ class SplitPlaceholderRule : SplitRule {
      */
     class Builder(
         private val filters: Set<ActivityFilter>,
-        private val placeholderIntent: Intent,
+        private val placeholderIntent: Intent
     ) {
+        private var tag: String? = null
         @IntRange(from = 0)
         private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
+        @IntRange(from = 0)
+        private var minHeightDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0)
         private var minSmallestWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         private var maxAspectRatioInPortrait = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
         private var maxAspectRatioInLandscape = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
-        @SplitPlaceholderFinishBehavior
-        private var finishPrimaryWithPlaceholder = FINISH_ALWAYS
+        private var finishPrimaryWithPlaceholder = ALWAYS
         private var isSticky = false
-        @FloatRange(from = 0.0, to = 1.0)
-        private var splitRatio = SPLIT_RATIO_DEFAULT
-        @LayoutDirection
-        private var layoutDirection = LOCALE
+        private var defaultSplitAttributes = SplitAttributes.Builder().build()
 
         /**
          * Sets the smallest value of width of the parent window when the split should be used, in
@@ -142,6 +130,24 @@ class SplitPlaceholderRule : SplitRule {
          */
         fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
             apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * Sets the smallest value of height of the parent task window when the split should be
+         * used, in DP. When the window size is smaller than requested here, activities in the
+         * secondary container will be stacked on top of the activities in the primary one,
+         * completely overlapping them.
+         *
+         * It is useful if it's necessary to split the parent window horizontally for this
+         * [SplitPlaceholderRule].
+         *
+         * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+         * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
+         *
+         * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
+         * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
+         */
+        fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder =
+            apply { this.minHeightDp = minHeightDp }
 
         /**
          * Sets the smallest value of the smallest possible width of the parent window in any
@@ -196,15 +202,19 @@ class SplitPlaceholderRule : SplitRule {
          * Sets the behavior of the primary container when all activities are finished in the
          * associated placeholder container.
          *
-         * @see SplitRule.FINISH_ALWAYS
-         * @see SplitRule.FINISH_ADJACENT
+         * @see SplitRule.FinishBehavior.ALWAYS
+         * @see SplitRule.FinishBehavior.ADJACENT
          */
-        fun setFinishPrimaryWithPlaceholder(
-            @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int
-        ): Builder =
+        fun setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder: FinishBehavior): Builder =
             apply {
                this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
             }
+
+        /**
+         * @see SplitPlaceholderRule#getTag
+         * since [WindowExtensions.VENDOR_API_LEVEL_2]
+         */
+        fun setTag(tag: String?): Builder = apply { this.tag = tag }
 
         /**
          * Sets whether the placeholder will show on top in a smaller window size after it first
@@ -214,29 +224,26 @@ class SplitPlaceholderRule : SplitRule {
             apply { this.isSticky = isSticky }
 
         /**
-         * Sets what part of the width should be given to the primary activity.
-         *
-         * The default is `0.5` if the app doesn't set, which is to split with equal width.
+         * Sets the default [SplitAttributes] to apply on the activity containers pair when the host
+         * task bounds satisfy [minWidthDp], [minHeightDp], [minSmallestWidthDp],
+         * [maxAspectRatioInPortrait] and [maxAspectRatioInLandscape] requirements.
          */
-        fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
-            apply { this.splitRatio = splitRatio }
+        fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
+            apply { this.defaultSplitAttributes = defaultSplitAttributes }
 
-        /**
-         * Sets the layout direction for the split. The value must be one of [LTR], [RTL] or
-         * [LOCALE].
-         * - [LTR]: It splits the task bounds vertically, and put the primary container on the left
-         *   portion, and the secondary container on the right portion.
-         * - [RTL]: It splits the task bounds vertically, and put the primary container on the right
-         *   portion, and the secondary container on the left portion.
-         * - [LOCALE]: It splits the task bounds vertically, and the direction is deduced from the
-         *   default language script of locale. The direction can be either [LTR] or [RTL].
-         */
-        fun setLayoutDirection(@LayoutDirection layoutDirection: Int): Builder =
-            apply { this.layoutDirection = layoutDirection }
-
-        fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
-            finishPrimaryWithPlaceholder, minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait,
-            maxAspectRatioInLandscape, splitRatio, layoutDirection)
+        fun build() = SplitPlaceholderRule(
+            tag,
+            filters,
+            placeholderIntent,
+            isSticky,
+            finishPrimaryWithPlaceholder,
+            minWidthDp,
+            minHeightDp,
+            minSmallestWidthDp,
+            maxAspectRatioInPortrait,
+            maxAspectRatioInLandscape,
+            defaultSplitAttributes,
+        )
     }
 
     /**
@@ -248,14 +255,15 @@ class SplitPlaceholderRule : SplitRule {
         newSet.addAll(filters)
         newSet.add(filter)
         return Builder(newSet.toSet(), placeholderIntent)
+            .setTag(tag)
             .setMinWidthDp(minWidthDp)
+            .setMinHeightDp(minHeightDp)
             .setMinSmallestWidthDp(minSmallestWidthDp)
             .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
             .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
             .setSticky(isSticky)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
-            .setSplitRatio(splitRatio)
-            .setLayoutDirection(layoutDirection)
+            .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
     }
 
@@ -282,16 +290,17 @@ class SplitPlaceholderRule : SplitRule {
     }
 
     override fun toString(): String =
-        "SplitPlaceholderRule{" +
-            " splitRatio=$splitRatio" +
-            ", layoutDirection=$layoutDirection" +
-            ", minWidthDp=$minWidthDp" +
-            ", minSmallestWidthDp=$minSmallestWidthDp" +
-            ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
-            ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
-            ", placeholderIntent=$placeholderIntent" +
-            ", isSticky=$isSticky" +
-            ", finishPrimaryWithPlaceholder=$finishPrimaryWithPlaceholder" +
-            ", filters=$filters" +
-            "}"
+         "SplitPlaceholderRule{" +
+             "tag=$tag" +
+             ", defaultSplitAttributes=$defaultSplitAttributes" +
+             ", minWidthDp=$minWidthDp" +
+             ", minHeightDp=$minHeightDp" +
+             ", minSmallestWidthDp=$minSmallestWidthDp" +
+             ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
+             ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
+             ", placeholderIntent=$placeholderIntent" +
+             ", isSticky=$isSticky" +
+             ", finishPrimaryWithPlaceholder=$finishPrimaryWithPlaceholder" +
+             ", filters=$filters" +
+             "}"
 }

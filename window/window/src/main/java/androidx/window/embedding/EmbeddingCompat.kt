@@ -21,8 +21,12 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExtensionsUtil
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.WindowExtensionsProvider
+import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.lang.reflect.Proxy
 
@@ -38,24 +42,69 @@ internal class EmbeddingCompat constructor(
 ) : EmbeddingInterfaceCompat {
 
     override fun setRules(rules: Set<EmbeddingRule>) {
+        var hasSplitRule = false
+        for (rule in rules) {
+            if (rule is SplitRule) {
+                hasSplitRule = true
+                break
+            }
+        }
+        if (hasSplitRule && !SplitController.getInstance(applicationContext).isSplitSupported()) {
+            Log.e(
+                TAG, "Cannot set SplitRule because ActivityEmbedding Split is not supported" +
+                    " or PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED is not set."
+            )
+            return
+        }
+
         val r = adapter.translate(applicationContext, rules)
         embeddingExtension.setEmbeddingRules(r)
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        consumerAdapter.addConsumer(
-            embeddingExtension,
-            List::class,
-            "setSplitInfoCallback"
-        ) { values ->
-            val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
-            embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+        if (ExtensionsUtil.safeVendorApiLevel < VENDOR_API_LEVEL_2) {
+            consumerAdapter.addConsumer(
+                embeddingExtension,
+                List::class,
+                "setSplitInfoCallback"
+            ) { values ->
+                val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
+                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+            }
+        } else {
+            val callback = Consumer<List<OEMSplitInfo>> { splitInfoList ->
+                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+            }
+            embeddingExtension.setSplitInfoCallback(callback)
         }
     }
 
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension.isActivityEmbedded(activity)
     }
+
+    override fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ) {
+        if (!isSplitAttributesCalculatorSupported()) {
+            throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
+                "on the device.")
+        }
+        return embeddingExtension.setSplitAttributesCalculator(
+            adapter.translateSplitAttributesCalculator(calculator)
+        )
+    }
+
+    override fun clearSplitAttributesCalculator() {
+        if (!isSplitAttributesCalculatorSupported()) {
+            throw UnsupportedOperationException("#clearSplitAttributesCalculator is not " +
+                "supported on the device.")
+        }
+        return embeddingExtension.clearSplitAttributesCalculator()
+    }
+
+    override fun isSplitAttributesCalculatorSupported(): Boolean =
+        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
 
     companion object {
         const val DEBUG = true

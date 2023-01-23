@@ -16,20 +16,18 @@
 
 package androidx.window.embedding
 
-import android.util.LayoutDirection.LOCALE
-import android.util.LayoutDirection.LTR
-import android.util.LayoutDirection.RTL
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 
 /**
- * Split configuration rules for activity pairs. Define when activities that were launched on top of
- * each other should be shown side-by-side, and the visual properties of such splits. Can be set
- * either via [RuleController.setRules] or via [RuleController.addRule]. The rules are always
+ * Split configuration rules for activity pairs. Define when activities that were launched on top
+ * should be placed adjacent to the one below, and the visual properties of such splits. Can be set
+ * either by [RuleController.setRules] or [RuleController.addRule]. The rules are always
  * applied only to activities that will be started after the rules were set.
  */
 class SplitPairRule : SplitRule {
@@ -44,23 +42,21 @@ class SplitPairRule : SplitRule {
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary container.
      *
-     * @see SplitRule.FINISH_NEVER
-     * @see SplitRule.FINISH_ALWAYS
-     * @see SplitRule.FINISH_ADJACENT
+     * @see SplitRule.FinishBehavior.NEVER
+     * @see SplitRule.FinishBehavior.ALWAYS
+     * @see SplitRule.FinishBehavior.ADJACENT
      */
-    @SplitFinishBehavior
-    val finishPrimaryWithSecondary: Int
+    val finishPrimaryWithSecondary: FinishBehavior
 
     /**
      * Determines what happens with the secondary container when all activities are finished in the
      * associated primary container.
      *
-     * @see SplitRule.FINISH_NEVER
-     * @see SplitRule.FINISH_ALWAYS
-     * @see SplitRule.FINISH_ADJACENT
+     * @see SplitRule.FinishBehavior.NEVER
+     * @see SplitRule.FinishBehavior.ALWAYS
+     * @see SplitRule.FinishBehavior.ADJACENT
      */
-    @SplitFinishBehavior
-    val finishSecondaryWithPrimary: Int
+    val finishSecondaryWithPrimary: FinishBehavior
 
     /**
      * If there is an existing split with the same primary container, indicates whether the
@@ -70,18 +66,19 @@ class SplitPairRule : SplitRule {
     val clearTop: Boolean
 
     internal constructor(
+        tag: String? = null,
         filters: Set<SplitPairFilter>,
-        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
-        @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
+        finishPrimaryWithSecondary: FinishBehavior = NEVER,
+        finishSecondaryWithPrimary: FinishBehavior = ALWAYS,
         clearTop: Boolean = false,
         @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
         @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
         maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
         maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = SPLIT_RATIO_DEFAULT,
-        @LayoutDirection layoutDirection: Int = LOCALE
-    ) : super(minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait, maxAspectRatioInLandscape,
-        splitRatio, layoutDirection) {
+        defaultSplitAttributes: SplitAttributes,
+    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, maxAspectRatioInPortrait,
+        maxAspectRatioInLandscape, defaultSplitAttributes) {
         this.filters = filters.toSet()
         this.clearTop = clearTop
         this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
@@ -95,23 +92,21 @@ class SplitPairRule : SplitRule {
      * one of the provided filters matches.
      */
     class Builder(
-        private val filters: Set<SplitPairFilter>,
+        private val filters: Set<SplitPairFilter>
     ) {
+        private var tag: String? = null
         @IntRange(from = 0)
         private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
+        @IntRange(from = 0)
+        private var minHeightDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0)
         private var minSmallestWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         private var maxAspectRatioInPortrait = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
         private var maxAspectRatioInLandscape = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
-        @SplitFinishBehavior
-        private var finishPrimaryWithSecondary = FINISH_NEVER
-        @SplitFinishBehavior
-        private var finishSecondaryWithPrimary = FINISH_ALWAYS
+        private var finishPrimaryWithSecondary = NEVER
+        private var finishSecondaryWithPrimary = ALWAYS
         private var clearTop = false
-        @FloatRange(from = 0.0, to = 1.0)
-        private var splitRatio = SPLIT_RATIO_DEFAULT
-        @LayoutDirection
-        private var layoutDirection = LOCALE
+        private var defaultSplitAttributes = SplitAttributes.Builder().build()
 
         /**
          * Sets the smallest value of width of the parent window when the split should be used, in
@@ -125,6 +120,24 @@ class SplitPairRule : SplitRule {
          */
         fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
             apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * Sets the smallest value of height of the parent task window when the split should be
+         * used, in DP. When the window size is smaller than requested here, activities in the
+         * secondary container will be stacked on top of the activities in the primary one,
+         * completely overlapping them.
+         *
+         * It is useful if it's necessary to split the parent window horizontally for this
+         * [SplitPairRule].
+         *
+         * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+         * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
+         *
+         * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
+         * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
+         */
+        fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder =
+            apply { this.minHeightDp = minHeightDp }
 
         /**
          * Sets the smallest value of the smallest possible width of the parent window in any
@@ -179,12 +192,12 @@ class SplitPairRule : SplitRule {
          * Sets the behavior of the primary container when all activities are finished in the
          * associated secondary container.
          *
-         * @see SplitRule.FINISH_NEVER
-         * @see SplitRule.FINISH_ALWAYS
-         * @see SplitRule.FINISH_ADJACENT
+         * @see SplitRule.FinishBehavior.NEVER
+         * @see SplitRule.FinishBehavior.ALWAYS
+         * @see SplitRule.FinishBehavior.ADJACENT
          */
         fun setFinishPrimaryWithSecondary(
-            @SplitFinishBehavior finishPrimaryWithSecondary: Int
+            finishPrimaryWithSecondary: FinishBehavior
         ): Builder =
             apply { this.finishPrimaryWithSecondary = finishPrimaryWithSecondary }
 
@@ -192,12 +205,12 @@ class SplitPairRule : SplitRule {
          * Sets the behavior of the secondary container when all activities are finished in the
          * associated primary container.
          *
-         * @see SplitRule.FINISH_NEVER
-         * @see SplitRule.FINISH_ALWAYS
-         * @see SplitRule.FINISH_ADJACENT
+         * @see SplitRule.FinishBehavior.NEVER
+         * @see SplitRule.FinishBehavior.ALWAYS
+         * @see SplitRule.FinishBehavior.ADJACENT
          */
         fun setFinishSecondaryWithPrimary(
-            @SplitFinishBehavior finishSecondaryWithPrimary: Int
+            finishSecondaryWithPrimary: FinishBehavior
         ): Builder =
             apply { this.finishSecondaryWithPrimary = finishSecondaryWithPrimary }
 
@@ -211,29 +224,34 @@ class SplitPairRule : SplitRule {
             apply { this.clearTop = clearTop }
 
         /**
-         * Sets what part of the width should be given to the primary activity.
-         *
-         * The default is `0.5` if the app doesn't set, which is to split with equal width.
+         * Sets the default [SplitAttributes] to apply on the activity containers pair when the host
+         * task bounds satisfy [minWidthDp], [minHeightDp], [minSmallestWidthDp],
+         * [maxAspectRatioInPortrait] and [maxAspectRatioInLandscape] requirements.
          */
-        fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
-            apply { this.splitRatio = splitRatio }
+        fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
+            apply { this.defaultSplitAttributes = defaultSplitAttributes }
 
         /**
-         * Sets the layout direction for the split. The value must be one of [LTR], [RTL] or
-         * [LOCALE].
-         * - [LTR]: It splits the task bounds vertically, and put the primary container on the left
-         *   portion, and the secondary container on the right portion.
-         * - [RTL]: It splits the task bounds vertically, and put the primary container on the right
-         *   portion, and the secondary container on the left portion.
-         * - [LOCALE]: It splits the task bounds vertically, and the direction is deduced from the
-         *   default language script of locale. The direction can be either [LTR] or [RTL].
+         * Sets a unique string to identify this [SplitPairRule], which defaults to `null`.
+         * The suggested usage is to set the tag to be able to differentiate between different rules
+         * in the [SplitAttributesCalculatorParams.splitRuleTag].
          */
-        fun setLayoutDirection(@LayoutDirection layoutDirection: Int): Builder =
-            apply { this.layoutDirection = layoutDirection }
+        fun setTag(tag: String?): Builder =
+            apply { this.tag = tag }
 
-        fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
-            clearTop, minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait,
-            maxAspectRatioInLandscape, splitRatio, layoutDirection)
+        fun build() = SplitPairRule(
+            tag,
+            filters,
+            finishPrimaryWithSecondary,
+            finishSecondaryWithPrimary,
+            clearTop,
+            minWidthDp,
+            minHeightDp,
+            minSmallestWidthDp,
+            maxAspectRatioInPortrait,
+            maxAspectRatioInLandscape,
+            defaultSplitAttributes,
+        )
     }
 
     /**
@@ -245,15 +263,16 @@ class SplitPairRule : SplitRule {
         newSet.addAll(filters)
         newSet.add(filter)
         return Builder(newSet.toSet())
+            .setTag(tag)
             .setMinWidthDp(minWidthDp)
+            .setMinHeightDp(minHeightDp)
             .setMinSmallestWidthDp(minSmallestWidthDp)
             .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
             .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
             .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
-            .setSplitRatio(splitRatio)
-            .setLayoutDirection(layoutDirection)
+            .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
     }
 
@@ -281,9 +300,10 @@ class SplitPairRule : SplitRule {
 
     override fun toString(): String =
         "${SplitPairRule::class.java.simpleName}{" +
-            " splitRatio=$splitRatio" +
-            ", layoutDirection=$layoutDirection" +
+            "tag=$tag" +
+            ", defaultSplitAttributes=$defaultSplitAttributes" +
             ", minWidthDp=$minWidthDp" +
+            ", minHeightDp=$minHeightDp" +
             ", minSmallestWidthDp=$minSmallestWidthDp" +
             ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
             ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
