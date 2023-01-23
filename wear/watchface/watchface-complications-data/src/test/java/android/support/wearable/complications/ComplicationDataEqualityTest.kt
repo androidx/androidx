@@ -358,7 +358,6 @@ class ComplicationDataEqualityTest {
                 setShortTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(1, 2))
                     )
                 )
@@ -367,7 +366,6 @@ class ComplicationDataEqualityTest {
                 setShortTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(3, 4))
                     )
                 )
@@ -384,7 +382,6 @@ class ComplicationDataEqualityTest {
                 setShortText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(1, 2))
                     )
                 )
@@ -393,7 +390,6 @@ class ComplicationDataEqualityTest {
                 setShortText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(3, 4))
                     )
                 )
@@ -410,7 +406,6 @@ class ComplicationDataEqualityTest {
                 setLongTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(1, 2))
                     )
                 )
@@ -419,7 +414,6 @@ class ComplicationDataEqualityTest {
                 setLongTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(3, 4))
                     )
                 )
@@ -436,7 +430,6 @@ class ComplicationDataEqualityTest {
                 setLongText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(1, 2))
                     )
                 )
@@ -445,7 +438,6 @@ class ComplicationDataEqualityTest {
                 setLongText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(3, 4))
                     )
                 )
@@ -462,7 +454,6 @@ class ComplicationDataEqualityTest {
                 setContentDescription(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(1, 2))
                     )
                 )
@@ -471,7 +462,6 @@ class ComplicationDataEqualityTest {
                 setContentDescription(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
                         StringExpression(byteArrayOf(3, 4))
                     )
                 )
@@ -490,7 +480,6 @@ class ComplicationDataEqualityTest {
                         .setShortText(
                             ComplicationText(
                                 Random.nextInt().toString(), // Ignored when there's an expression.
-                                /* timeDependentText = */ null,
                                 StringExpression(byteArrayOf(1, 2))
                             )
                         )
@@ -503,7 +492,6 @@ class ComplicationDataEqualityTest {
                         .setShortText(
                             ComplicationText(
                                 Random.nextInt().toString(), // Ignored when there's an expression.
-                                /* timeDependentText = */ null,
                                 StringExpression(byteArrayOf(3, 4))
                             )
                         )
