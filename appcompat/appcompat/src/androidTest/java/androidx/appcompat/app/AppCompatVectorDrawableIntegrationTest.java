@@ -34,6 +34,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +65,7 @@ public class AppCompatVectorDrawableIntegrationTest {
         mCanvas = new Canvas(mBitmap);
     }
 
+    @Ignore("b/266237884")
     @Test
     @UiThreadTest
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
