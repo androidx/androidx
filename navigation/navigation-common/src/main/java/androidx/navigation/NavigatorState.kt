@@ -174,6 +174,29 @@ public abstract class NavigatorState {
     }
 
     /**
+     * Informational callback indicating that the given [backStackEntry] has been
+     * affected by a [NavOptions.shouldLaunchSingleTop] operation. This also adds the given and
+     * previous entry to the [set of in progress transitions][transitionsInProgress].
+     * Added entries have their [Lifecycle] capped at [Lifecycle.State.STARTED] until an entry is
+     * passed into the [markTransitionComplete] callback, when they are allowed to go to
+     * [Lifecycle.State.RESUMED] while previous entries have their [Lifecycle] held at
+     * [Lifecycle.State.CREATED] until an entry is passed into the [markTransitionComplete]
+     * callback, when they are allowed to go to  [Lifecycle.State.DESTROYED] and have their state
+     * cleared.
+     *
+     * Replaces the topmost entry with same id with the new [backStackEntry][NavBackStackEntry]
+     *
+     * @param [backStackEntry] the [NavBackStackEntry] to replace the old Entry
+     * within the [backStack]
+     */
+    @CallSuper
+    public open fun onLaunchSingleTopWithTransition(backStackEntry: NavBackStackEntry) {
+        val oldEntry = backStack.value.last { it.id == backStackEntry.id }
+        _transitionsInProgress.value = _transitionsInProgress.value + oldEntry + backStackEntry
+        onLaunchSingleTop(backStackEntry)
+    }
+
+    /**
      * This removes the given [NavBackStackEntry] from the [set of the transitions in
      * progress][transitionsInProgress]. This should be called in conjunction with
      * [pushWithTransition] and [popWithTransition] as those call are responsible for adding
