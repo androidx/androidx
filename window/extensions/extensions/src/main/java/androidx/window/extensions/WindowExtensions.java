@@ -28,7 +28,6 @@ import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.embedding.ActivityStack;
 import androidx.window.extensions.embedding.SplitAttributes;
 import androidx.window.extensions.embedding.SplitInfo;
-import androidx.window.extensions.embedding.SplitPlaceholderRule;
 import androidx.window.extensions.layout.WindowLayoutComponent;
 
 import java.util.Set;
@@ -59,7 +58,7 @@ public interface WindowExtensions {
      * <ul>
      *     <li>{@link androidx.window.extensions.embedding.ActivityRule} APIs</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitPairRule} APIs</li>
-     *     <li>{@link SplitPlaceholderRule} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule} APIs</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitInfo} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.DisplayFeature} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.FoldingFeature} APIs</li>
@@ -76,15 +75,13 @@ public interface WindowExtensions {
     /**
      * A vendor API level constant. It helps to unify the format of documenting {@code @since}
      * block.
-     * <p>
      * The added APIs for Vendor API level 2 are:
      * <ul>
-     *     <li>{@link SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
-     *     <li>{@link androidx.window.extensions.embedding.SplitAttributes} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitAttributes}</li>
      *     <li>{@link ActivityEmbeddingComponent#setSplitAttributesCalculator(
-     *         androidx.window.extensions.core.util.function.Function)}</li>
+     *      androidx.window.extensions.core.util.function.Function)}</li>
      * </ul>
-     * </p>
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)

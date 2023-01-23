@@ -25,8 +25,8 @@ import android.util.Log
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
-import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_3
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
@@ -118,7 +118,7 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun isFinishActivityStacksSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3
 
     override fun invalidateTopVisibleSplitAttributes() {
         if (!areSplitAttributesUpdatesSupported()) {
@@ -143,7 +143,7 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun areSplitAttributesUpdatesSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3
 
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
