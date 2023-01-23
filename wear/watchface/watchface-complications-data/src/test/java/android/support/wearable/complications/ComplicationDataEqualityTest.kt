@@ -265,19 +265,39 @@ class ComplicationDataEqualityTest {
             { setElementBackgroundColor(1) },
             { setElementBackgroundColor(2) },
         ),
+        TIMELINE_START_TIME(
+            { build().apply { timelineStartEpochSecond = 100 } },
+            { build().apply { timelineStartEpochSecond = 200 } },
+        ),
+        TIMELINE_END_TIME(
+            { build().apply { timelineEndEpochSecond = 100 } },
+            { build().apply { timelineEndEpochSecond = 200 } },
+        ),
+        TIMELINE_ENTRIES(
+            {
+                build().apply {
+                    setTimelineEntryCollection(
+                        listOf(ComplicationData.Builder(this).setRangedValue(1f).build())
+                    )
+                }
+            },
+            {
+                build().apply {
+                    setTimelineEntryCollection(
+                        listOf(ComplicationData.Builder(this).setRangedValue(2f).build())
+                    )
+                }
+            },
+        ),
         ;
 
+        private val base = ComplicationData.TYPE_NO_DATA
+
         /** Builds a [ComplicationData] with the first variation. */
-        fun buildOne() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterOne(this) }
-                .build()
+        fun buildOne() = ComplicationData.Builder(base).apply { setterOne(this) }.build()
 
         /** Builds a [ComplicationData] with the second variation. */
-        fun buildTwo() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterTwo(this) }
-                .build()
+        fun buildTwo() = ComplicationData.Builder(base).apply { setterTwo(this) }.build()
     }
 
     @Test
@@ -519,17 +539,13 @@ class ComplicationDataEqualityTest {
         ),
         ;
 
+        private val base = ComplicationData.TYPE_NO_DATA
+
         /** Builds a [ComplicationData] with the first variation. */
-        fun buildOne() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterOne(this) }
-                .build()
+        fun buildOne() = ComplicationData.Builder(base).apply { setterOne(this) }.build()
 
         /** Builds a [ComplicationData] with the second variation. */
-        fun buildTwo() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterTwo(this) }
-                .build()
+        fun buildTwo() = ComplicationData.Builder(base).apply { setterTwo(this) }.build()
     }
 
     @Test
