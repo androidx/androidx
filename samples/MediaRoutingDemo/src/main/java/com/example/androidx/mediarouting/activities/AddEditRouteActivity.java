@@ -108,7 +108,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
 
         setUpEnumBasedSpinner(
                 /* context= */ this,
-                RouteItem.ControlFilter.values(),
                 findViewById(R.id.control_filters_spinner),
                 mRouteItem.getControlFilter(),
                 newControlFilter ->
@@ -116,7 +115,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
 
         setUpEnumBasedSpinner(
                 /* context= */ this,
-                RouteItem.PlaybackStream.values(),
                 findViewById(R.id.playback_stream_spinner),
                 mRouteItem.getPlaybackStream(),
                 newPlaybackStream ->
@@ -124,7 +122,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
 
         setUpEnumBasedSpinner(
                 /* context= */ this,
-                RouteItem.PlaybackType.values(),
                 findViewById(R.id.playback_type_spinner),
                 mRouteItem.getPlaybackType(),
                 newPlaybackType ->
@@ -132,14 +129,12 @@ public class AddEditRouteActivity extends AppCompatActivity {
 
         setUpEnumBasedSpinner(
                 /* context= */ this,
-                RouteItem.DeviceType.values(),
                 findViewById(R.id.device_type_spinner),
                 mRouteItem.getDeviceType(),
                 newDeviceType -> mRouteItem.setDeviceType((RouteItem.DeviceType) newDeviceType));
 
         setUpEnumBasedSpinner(
                 /* context= */ this,
-                RouteItem.VolumeHandling.values(),
                 findViewById(R.id.volume_handling_spinner),
                 mRouteItem.getVolumeHandling(),
                 mewVolumeHandling ->
@@ -201,12 +196,12 @@ public class AddEditRouteActivity extends AppCompatActivity {
 
     private static void setUpEnumBasedSpinner(
             Context context,
-            Enum<?>[] values,
             Spinner spinner,
             Enum<?> anEnum,
             RoutePropertySetter<Enum<?>> routePropertySetter) {
+        Enum<?>[] enumValues = anEnum.getDeclaringClass().getEnumConstants();
         ArrayAdapter<Enum<?>> adapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, values);
+                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, enumValues);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setSelection(anEnum.ordinal());
