@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
@@ -44,6 +45,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -123,6 +125,17 @@ public abstract class UseCase {
     private Rect mViewPortCropRect;
 
     /**
+     * Whether the producer writes camera transform to the {@link Surface}.
+     *
+     * <p> Camera2 writes the camera transform to the {@link Surface}, which can be used to
+     * correct the output. However, if the producer is not the camera, for example, a OpenGL
+     * renderer in {@link StreamSharing}, then this field will be false.
+     *
+     * @see SurfaceTexture#getTransformMatrix
+     */
+    private boolean mHasCameraTransform = true;
+
+    /**
      * The sensor to image buffer transform matrix.
      */
     @NonNull
@@ -155,7 +168,7 @@ public abstract class UseCase {
      * Retrieve the default {@link UseCaseConfig} for the UseCase.
      *
      * @param applyDefaultConfig true if this is the base config applied to a UseCase.
-     * @param factory the factory that contains the default UseCases.
+     * @param factory            the factory that contains the default UseCases.
      * @return The UseCaseConfig or null if there is no default Config.
      * @hide
      */
@@ -181,9 +194,8 @@ public abstract class UseCase {
      * @param extendedConfig      configs that take priority over the UseCase's default config
      * @param cameraDefaultConfig configs that have lower priority than the UseCase's default.
      *                            This Config comes from the camera implementation.
-     *
      * @throws IllegalArgumentException if there exists conflicts in the merged config that can
-     * not be resolved
+     *                                  not be resolved
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -205,7 +217,7 @@ public abstract class UseCase {
         // over all options.
         for (Option<?> opt : mUseCaseConfig.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
-                    Option<Object> objectOpt = (Option<Object>) opt;
+            Option<Object> objectOpt = (Option<Object>) opt;
 
             mergedConfig.insertOption(objectOpt,
                     mUseCaseConfig.getOptionPriority(opt),
@@ -217,7 +229,7 @@ public abstract class UseCase {
             // just copy over all options.
             for (Option<?> opt : extendedConfig.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
-                        Option<Object> objectOpt = (Option<Object>) opt;
+                Option<Object> objectOpt = (Option<Object>) opt;
                 if (objectOpt.getId().equals(TargetConfig.OPTION_TARGET_NAME.getId())) {
                     continue;
                 }
@@ -257,7 +269,7 @@ public abstract class UseCase {
      *                   resolution
      * @return the conflict resolved config
      * @throws IllegalArgumentException if there exists conflicts in the merged config that can
-     * not be resolved
+     *                                  not be resolved
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -743,6 +755,30 @@ public abstract class UseCase {
     }
 
     /**
+     * Sets whether the producer writes camera transform to the {@link Surface}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @CallSuper
+    public void setHasCameraTransform(boolean hasCameraTransform) {
+        mHasCameraTransform = hasCameraTransform;
+    }
+
+    /**
+     * Gets whether the producer writes camera transform to the {@link Surface}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @CallSuper
+    public boolean getHasCameraTransform() {
+        return mHasCameraTransform;
+    }
+
+
+
+    /**
      * Gets the view port crop rect.
      *
      * @hide
@@ -795,7 +831,7 @@ public abstract class UseCase {
      *
      * @return the resolution information if the use case has been bound by the
      * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     *, CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)

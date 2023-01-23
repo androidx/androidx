@@ -354,6 +354,39 @@ class PreviewTest {
     }
 
     @Test
+    fun setNoCameraTransform_propagatesToCameraEdge() {
+        // Act: create preview with hasCameraTransform == false
+        val preview = createPreview(
+            FakeSurfaceProcessorInternal(mainThreadExecutor()),
+            hasCameraTransform = false
+        )
+        // Assert
+        assertThat(preview.cameraEdge.hasCameraTransform()).isFalse()
+        assertThat(preview.cameraEdge.mirroring).isFalse()
+    }
+
+    @Test
+    fun frontCameraWithoutCameraTransform_noMirroring() {
+        // Act: create preview with hasCameraTransform == false
+        val preview = createPreview(
+            FakeSurfaceProcessorInternal(mainThreadExecutor()),
+            frontCamera,
+            hasCameraTransform = false
+        )
+        // Assert
+        assertThat(preview.cameraEdge.mirroring).isFalse()
+    }
+
+    @Test
+    fun cameraEdgeHasTransformByDefault() {
+        assertThat(
+            createPreview(
+                FakeSurfaceProcessorInternal(mainThreadExecutor())
+            ).cameraEdge.hasCameraTransform()
+        ).isTrue()
+    }
+
+    @Test
     fun bindAndUnbindPreview_surfacesPropagated() {
         // Arrange.
         val processor = FakeSurfaceProcessorInternal(
@@ -605,11 +638,13 @@ class PreviewTest {
 
     private fun createPreview(
         surfaceProcessor: SurfaceProcessorInternal? = null,
-        camera: FakeCamera = backCamera
+        camera: FakeCamera = backCamera,
+        hasCameraTransform: Boolean = true
     ): Preview {
         previewToDetach = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .build()
+        previewToDetach.setHasCameraTransform(hasCameraTransform)
         previewToDetach.processor = surfaceProcessor
         previewToDetach.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(
