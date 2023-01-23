@@ -16,6 +16,8 @@
 
 package androidx.camera.core.streamsharing;
 
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -25,7 +27,10 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.ImageFormatConstants;
+import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
@@ -40,8 +45,14 @@ public class StreamSharing extends UseCase {
     @SuppressWarnings("UnusedVariable")
     private final VirtualCamera mVirtualCamera;
 
-    private static final StreamSharingConfig DEFAULT_CONFIG =
-            new StreamSharingBuilder().getUseCaseConfig();
+    private static final StreamSharingConfig DEFAULT_CONFIG;
+
+    static {
+        MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
+        mutableConfig.insertOption(OPTION_INPUT_FORMAT,
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+        DEFAULT_CONFIG = new StreamSharingConfig(OptionsBundle.from(mutableConfig));
+    }
 
     /**
      * Constructs a {@link StreamSharing} with a parent {@link CameraInternal}, children
@@ -79,5 +90,10 @@ public class StreamSharing extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return new StreamSharingBuilder(MutableOptionsBundle.from(config));
+    }
+
+    @NonNull
+    public Set<UseCase> getChildren() {
+        return mVirtualCamera.getChildren();
     }
 }
