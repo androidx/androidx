@@ -211,7 +211,7 @@ class SurfaceProcessorNodeTest {
         provideSurfaces(nodeOutput)
         shadowOf(getMainLooper()).idle()
 
-        // Act.
+        // Act: update rotation degrees
         inputSurface.rotationDegrees = 270
         shadowOf(getMainLooper()).idle()
 
@@ -229,6 +229,13 @@ class SurfaceProcessorNodeTest {
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(180)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
         assertThat(videoSurfaceOutput.mirroring).isTrue()
+
+        // Act: update rotation degrees
+        inputSurface.rotationDegrees = 180
+        shadowOf(getMainLooper()).idle()
+        // Assert: video rotation degrees is opposite of preview because it's not mirrored.
+        assertThat(previewTransformInfo.rotationDegrees).isEqualTo(90)
+        assertThat(videoTransformInfo.rotationDegrees).isEqualTo(270)
     }
 
     @Test
