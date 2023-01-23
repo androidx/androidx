@@ -287,13 +287,28 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
     private CharSequence mDependentTextCache;
 
-    public ComplicationText(@Nullable CharSequence surroundingText,
+    private ComplicationText(
+            @Nullable CharSequence surroundingText,
             @Nullable TimeDependentText timeDependentText,
             @Nullable StringExpression stringExpression) {
         mSurroundingText = surroundingText;
         mTimeDependentText = timeDependentText;
         mStringExpression = stringExpression;
         checkFields();
+    }
+
+    public ComplicationText(@NonNull CharSequence surroundingText) {
+        this(surroundingText, /* timeDependentText = */ null, /* stringExpression = */ null);
+    }
+
+    public ComplicationText(
+            @NonNull CharSequence surroundingText, @NonNull TimeDependentText timeDependentText) {
+        this(surroundingText, timeDependentText, /* stringExpression = */ null);
+    }
+
+    public ComplicationText(
+            @NonNull CharSequence surroundingText, @NonNull StringExpression stringExpression) {
+        this(surroundingText, /* timeDependentText = */ null, stringExpression);
     }
 
     public ComplicationText(@NonNull StringExpression stringExpression) {
@@ -375,6 +390,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
             }
         }
 
+        @SuppressLint("SyntheticAccessor")
         Object readResolve() {
             return new ComplicationText(mSurroundingText, mTimeDependentText, mStringExpression);
         }
@@ -585,8 +601,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      */
     @NonNull
     public static ComplicationText plainText(@NonNull CharSequence text) {
-        return new ComplicationText(
-                text, /* timeDependentText= */ null, /* stringExpression= */ null);
+        return new ComplicationText(text);
     }
 
     /**
@@ -767,8 +782,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
                             mReferencePeriodEndMillis,
                             mStyle,
                             showNowText,
-                            mMinimumUnit),
-                    /* stringExpression= */ null);
+                            mMinimumUnit));
         }
 
         /** Returns the default value for the 'show now text' option for the given {@code style}. */
@@ -856,8 +870,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         @SuppressLint("SyntheticAccessor")
         public ComplicationText build() {
             return new ComplicationText(
-                    mSurroundingText, new TimeFormatText(mFormat, mStyle, mTimeZone),
-                    /* stringExpression= */ null);
+                    mSurroundingText, new TimeFormatText(mFormat, mStyle, mTimeZone));
         }
     }
 }
