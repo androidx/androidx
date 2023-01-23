@@ -31,9 +31,9 @@ public class GridReference extends HelperReference {
     public GridReference(@NonNull State state, @NonNull State.Helper type) {
         super(state, type);
         if (type == State.Helper.ROW) {
-            this.mColumnsSet = 1;
-        } else if (type == State.Helper.COLUMN) {
             this.mRowsSet = 1;
+        } else if (type == State.Helper.COLUMN) {
+            this.mColumnsSet = 1;
         }
     }
 
