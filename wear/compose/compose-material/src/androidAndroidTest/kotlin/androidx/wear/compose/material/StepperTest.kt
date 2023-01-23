@@ -74,7 +74,7 @@ public class StepperTest {
         steps = 4,
         initialValue = 4f,
         newValue = 20f,
-        expectedValue = 10f
+        expectedFinalValue = 10f
     )
 
     @Test
@@ -83,34 +83,8 @@ public class StepperTest {
         steps = 4,
         initialValue = 4f,
         newValue = -20f,
-        expectedValue = 0f
+        expectedFinalValue = 0f
     )
-
-    @Test
-    public fun coerces_value_top_limit_and_doesnt_change_state() {
-        val state = mutableStateOf(4f)
-        val valueRange = 0f..10f
-
-        rule.initDefaultStepper(state, valueRange, 4)
-
-        rule.runOnIdle {
-            state.value = 20f
-        }
-        assertEquals(20f, state.value)
-    }
-
-    @Test
-    public fun coerces_value_lower_limit_and_doesnt_change_state() {
-        val state = mutableStateOf(4f)
-        val valueRange = 0f..10f
-
-        rule.initDefaultStepper(state, valueRange, 4)
-
-        rule.runOnIdle {
-            state.value = -20f
-        }
-        assertEquals(-20f, state.value)
-    }
 
     @Test(expected = IllegalArgumentException::class)
     public fun throws_when_steps_negative() {
@@ -126,47 +100,34 @@ public class StepperTest {
     }
 
     @Test
-    public fun snaps_value_exactly() = rule.setNewValueAndCheck(
+    public fun coerce_value_exactly() = rule.setNewValueAndCheck(
         range = 0f..1f,
         steps = 4,
         initialValue = 0f,
         // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
         newValue = 0.6f,
-        expectedValue = 0.6f
+        expectedFinalValue = 0.6f
     )
 
     @Test
-    public fun snaps_value_to_previous() = rule.setNewValueAndCheck(
+    public fun coerce_value_to_previous() = rule.setNewValueAndCheck(
         range = 0f..1f,
         steps = 4,
         initialValue = 0f,
         // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
         newValue = 0.65f,
-        expectedValue = 0.6f
+        expectedFinalValue = 0.6f
     )
 
     @Test
-    public fun snaps_value_to_next() = rule.setNewValueAndCheck(
+    public fun coerce_value_to_next() = rule.setNewValueAndCheck(
         range = 0f..1f,
         steps = 4,
         initialValue = 0f,
         // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
         newValue = 0.55f,
-        expectedValue = 0.6f
+        expectedFinalValue = 0.6f
     )
-
-    @Test
-    public fun snaps_value_to_next_and_does_not_change_state() {
-        val state = mutableStateOf(0f)
-        val valueRange = 0f..1f
-
-        rule.initDefaultStepper(state, valueRange, 4)
-
-        rule.runOnIdle {
-            state.value = 0.55f
-        }
-        assertEquals(0.55f, state.value)
-    }
 
     @Test
     public fun decreases_value_by_clicking_bottom() {
@@ -474,7 +435,7 @@ public class IntegerStepperTest {
         progression = 0..10,
         initialValue = 4,
         newValue = 20,
-        expectedValue = 10
+        expectedFinalValue = 10
     )
 
     @Test
@@ -482,57 +443,31 @@ public class IntegerStepperTest {
         progression = 0..10,
         initialValue = 4,
         newValue = -20,
-        expectedValue = 0
+        expectedFinalValue = 0
     )
 
     @Test
-    public fun coerces_value_top_limit_and_doesnt_change_state() {
-        val state = mutableStateOf(4)
-        val valueProgression = 0..10
-
-        rule.initDefaultStepper(state, valueProgression)
-
-        rule.runOnIdle {
-            state.value = 20
-        }
-        assertEquals(20, state.value)
-    }
-
-    @Test
-    public fun coerces_value_lower_limit_and_doesnt_change_state() {
-        val state = mutableStateOf(4)
-        val valueProgression = 0..10
-
-        rule.initDefaultStepper(state, valueProgression)
-
-        rule.runOnIdle {
-            state.value = -20
-        }
-        assertEquals(-20, state.value)
-    }
-
-    @Test
-    public fun snaps_value_exactly() = rule.setNewValueAndCheck(
+    public fun coerce_value_exactly() = rule.setNewValueAndCheck(
         progression = IntProgression.fromClosedRange(0, 12, 3),
         initialValue = 0,
         newValue = 3,
-        expectedValue = 3
+        expectedFinalValue = 3
     )
 
     @Test
-    public fun snaps_value_to_previous() = rule.setNewValueAndCheck(
+    public fun coerce_value_to_previous() = rule.setNewValueAndCheck(
         progression = IntProgression.fromClosedRange(0, 12, 3),
         initialValue = 0,
         newValue = 4,
-        expectedValue = 3
+        expectedFinalValue = 3
     )
 
     @Test
-    public fun snaps_value_to_next() = rule.setNewValueAndCheck(
+    public fun coerce_value_to_next() = rule.setNewValueAndCheck(
         progression = IntProgression.fromClosedRange(0, 12, 3),
         initialValue = 0,
         newValue = 5,
-        expectedValue = 6
+        expectedFinalValue = 6
     )
 }
 
@@ -541,7 +476,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     steps: Int,
     initialValue: Float,
     newValue: Float,
-    expectedValue: Float
+    expectedFinalValue: Float
 ) {
     val state = mutableStateOf(initialValue)
 
@@ -549,7 +484,12 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
 
     runOnIdle { state.value = newValue }
     onNodeWithTag(TEST_TAG)
-        .assertRangeInfoEquals(ProgressBarRangeInfo(expectedValue, range, steps))
+        .assertRangeInfoEquals(ProgressBarRangeInfo(expectedFinalValue, range, steps))
+
+    // State value is not coerced to expectedValue - thus we expect it to be equal to
+    // the last set value, which is newValue
+    waitForIdle()
+    assertEquals(newValue, state.value)
 }
 
 private fun ComposeContentTestRule.initDefaultStepper(
@@ -574,7 +514,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     progression: IntProgression,
     initialValue: Int,
     newValue: Int,
-    expectedValue: Int
+    expectedFinalValue: Int
 ) {
     val state = mutableStateOf(initialValue)
 
@@ -584,11 +524,16 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     onNodeWithTag(TEST_TAG)
         .assertRangeInfoEquals(
             ProgressBarRangeInfo(
-                expectedValue.toFloat(),
+                expectedFinalValue.toFloat(),
                 progression.first.toFloat()..progression.last.toFloat(),
                 progression.stepsNumber()
             )
         )
+
+    // State value is not coerced to expectedValue - thus we expect it to be equal to
+    // the last set value, which is newValue
+    waitForIdle()
+    assertEquals(newValue, state.value)
 }
 
 private fun ComposeContentTestRule.initDefaultStepper(
