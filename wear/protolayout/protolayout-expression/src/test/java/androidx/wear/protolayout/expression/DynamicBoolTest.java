@@ -40,10 +40,20 @@ public final class DynamicBoolTest {
   }
 
   @Test
+  public void constantToString() {
+    assertThat(DynamicBool.constant(true).toString()).isEqualTo("FixedBool{value=true}");
+  }
+
+  @Test
   public void stateEntryValueBool() {
     DynamicBool stateBool = DynamicBool.fromState(STATE_KEY);
 
     assertThat(stateBool.toDynamicBoolProto().getStateSource().getSourceKey()).isEqualTo(STATE_KEY);
+  }
+
+  @Test
+  public void stateToString() {
+    assertThat(DynamicBool.fromState("key").toString()).isEqualTo("StateBoolSource{sourceKey=key}");
   }
 
   @Test
@@ -75,12 +85,28 @@ public final class DynamicBoolTest {
   }
 
   @Test
+  public void logicalOpToString() {
+    assertThat(DynamicBool.constant(true).and(DynamicBool.constant(false)).toString())
+        .isEqualTo(
+            "LogicalBoolOp{"
+                + "inputLhs=FixedBool{value=true}, "
+                + "inputRhs=FixedBool{value=false}, "
+                + "operationType=1}");
+  }
+
+  @Test
   public void negateOpBool() {
     DynamicBool firstBool = DynamicBool.constant(true);
 
     assertThat(firstBool.isTrue().toDynamicBoolProto()).isEqualTo(firstBool.toDynamicBoolProto());
     assertThat(firstBool.isFalse().toDynamicBoolProto().getNotOp().getInput())
         .isEqualTo(firstBool.toDynamicBoolProto());
+  }
+
+  @Test
+  public void logicalToString() {
+    assertThat(DynamicBool.constant(true).isFalse().toString())
+        .isEqualTo("NotBoolOp{input=FixedBool{value=true}}");
   }
 
   @Test

@@ -54,11 +54,22 @@ public final class DynamicFloatTest {
   }
 
   @Test
+  public void constantToString() {
+    assertThat(DynamicFloat.constant(1f).toString()).isEqualTo("FixedFloat{value=1.0}");
+  }
+
+  @Test
   public void stateEntryValueFloat() {
     DynamicFloat stateFloat = DynamicFloat.fromState(STATE_KEY);
 
     assertThat(stateFloat.toDynamicFloatProto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
+  }
+
+  @Test
+  public void stateToString() {
+    assertThat(DynamicFloat.fromState("key").toString())
+        .isEqualTo("StateFloatSource{sourceKey=key}");
   }
 
   @Test
@@ -70,6 +81,12 @@ public final class DynamicFloatTest {
     assertThat(dynamicInt32.toDynamicInt32Proto().getFloatToInt().getInput().getFixed().getValue())
         .isWithin(0.0001f)
         .of(CONSTANT_VALUE);
+  }
+
+  @Test
+  public void constantFloat_asIntToString() {
+    assertThat(DynamicFloat.constant(1f).asInt().toString())
+        .isEqualTo("FloatToInt32Op{input=FixedFloat{value=1.0}, roundMode=1}");
   }
 
   @Test
@@ -113,6 +130,22 @@ public final class DynamicFloatTest {
   }
 
   @Test
+  public void formatToString() {
+    assertThat(
+            DynamicFloat.constant(1f)
+                .format(
+                    DynamicFloat.FloatFormatter.with()
+                        .maxFractionDigits(2)
+                        .minFractionDigits(3)
+                        .minIntegerDigits(4)
+                        .groupingUsed(true))
+                .toString())
+        .isEqualTo(
+            "FloatFormatOp{input=FixedFloat{value=1.0}, maxFractionDigits=2, "
+                + "minFractionDigits=3, minIntegerDigits=4, groupingUsed=true}");
+  }
+
+  @Test
   public void rangeAnimatedFloat() {
     float startFloat = 100f;
     float endFloat = 200f;
@@ -130,6 +163,19 @@ public final class DynamicFloatTest {
   }
 
   @Test
+  public void rangeAnimatedToString() {
+    assertThat(
+            DynamicFloat.animate(
+                    /* start= */ 1f,
+                    /* end= */ 2f,
+                    new AnimationSpec.Builder().setDelayMillis(0).build())
+                .toString())
+        .isEqualTo(
+            "AnimatableFixedFloat{fromValue=1.0, toValue=2.0, spec=AnimationSpec{"
+                + "durationMillis=0, delayMillis=0, easing=null, repeatable=null}}");
+  }
+
+  @Test
   public void stateAnimatedFloat() {
     DynamicFloat stateFloat = DynamicFloat.fromState(STATE_KEY);
 
@@ -143,6 +189,18 @@ public final class DynamicFloatTest {
         .isEqualTo(SPEC.toProto());
     assertThat(animatedFloat.toDynamicFloatProto())
         .isEqualTo(stateFloat.animate().toDynamicFloatProto());
+  }
+
+  @Test
+  public void stateAnimatedToString() {
+    assertThat(
+            DynamicFloat.animate(
+                    /* stateKey= */ "key", new AnimationSpec.Builder().setDelayMillis(1).build())
+                .toString())
+        .isEqualTo(
+            "AnimatableDynamicFloat{"
+                + "input=StateFloatSource{sourceKey=key}, spec=AnimationSpec{"
+                + "durationMillis=0, delayMillis=1, easing=null, repeatable=null}}");
   }
 
   @Test
