@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.UiAutomation;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.widget.TextView;
@@ -445,6 +446,10 @@ public class UiDeviceTest extends BaseTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testWaitForWindowUpdate() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         launchTestActivity(WaitTestActivity.class);
 
         // Returns false when the current window doesn't have the specified package name.

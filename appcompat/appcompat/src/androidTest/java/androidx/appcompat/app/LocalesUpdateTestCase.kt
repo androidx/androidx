@@ -16,6 +16,7 @@
 
 package androidx.appcompat.app
 
+import android.os.Build
 import android.util.LayoutDirection.RTL
 import android.webkit.WebView
 import androidx.appcompat.testutils.LocalesActivityTestRule
@@ -123,6 +124,10 @@ class LocalesUpdateTestCase() {
     @Test
     @FlakyTest(bugId = 255765202)
     fun testLayoutDirectionAfterRecreating() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         setLocalesAndWaitForRecreate(rule, getRTLLocaleList())
 
         // Now assert that the layoutDirection of decorView is RTL
