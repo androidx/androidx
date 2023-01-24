@@ -221,6 +221,24 @@ public abstract class FragmentManager implements FragmentResultOwner {
          */
         @MainThread
         void onBackStackChanged();
+
+        /**
+         * Called whenever the contents of the back stack are starting to be changed.
+         *
+         * @param fragment that is affected by the starting back stack change
+         * @param pop whether this back stack change is a pop
+         */
+        @MainThread
+        default void onBackStackChangeStarted(@NonNull Fragment fragment, boolean pop) { }
+
+        /**
+         * Called whenever the contents of a back stack change is committed.
+         *
+         * @param fragment that is affected by the committed back stack change
+         * @param pop whether this back stack change is a pop
+         */
+        @MainThread
+        default void onBackStackChangeCommitted(@NonNull Fragment fragment, boolean pop) { }
     }
 
     /**
@@ -1922,6 +1940,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         if (addToBackStack) {
             reportBackStackChanged();
+            if (mBackStackChangeListeners != null) {
+                // we dispatch callbacks based on each record
+                for (BackStackRecord record : records) {
+                    for (Fragment fragment : fragmentsFromRecord(record)) {
+                        // We give all fragment the back stack changed started signal first
+                        for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
+                            mBackStackChangeListeners.get(i).onBackStackChangeStarted(fragment,
+                                    isPop);
+                        }
+                        // Then we give them all the committed signal
+                        for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
+                            mBackStackChangeListeners.get(i).onBackStackChangeCommitted(fragment,
+                                    isPop);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -2089,6 +2124,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mBackStackChangeListeners.get(i).onBackStackChanged();
             }
         }
+    }
+
+    private Set<Fragment> fragmentsFromRecord(@NonNull BackStackRecord record) {
+        Set<Fragment> fragments = new HashSet<>();
+        for (int i = 0; i < record.mOps.size(); i++) {
+            Fragment f = record.mOps.get(i).mFragment;
+            if (f != null) {
+                fragments.add(f);
+            }
+        }
+        return fragments;
     }
 
     void addBackStackState(BackStackRecord state) {
