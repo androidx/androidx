@@ -502,6 +502,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                             it.value.asWireComplicationData()
                         )
                     },
+                    null,
                     null
                 ),
                 object : IPendingInteractiveWatchFace.Stub() {
