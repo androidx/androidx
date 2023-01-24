@@ -367,6 +367,18 @@ class GLRendererTest {
     }
 
     @Test
+    fun testExecute() {
+        val countDownLatch = CountDownLatch(1)
+        GLRenderer().apply {
+            start()
+            execute {
+                countDownLatch.countDown()
+            }
+        }
+        assertTrue(countDownLatch.await(3000, TimeUnit.MILLISECONDS))
+    }
+
+    @Test
     fun testNonStartedGLRendererIsNotRunning() {
         assertFalse(GLRenderer().isRunning())
     }
