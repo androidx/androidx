@@ -788,6 +788,10 @@ public class WorkManagerImpl extends WorkManager {
     public void setReschedulePendingResult(
             @NonNull BroadcastReceiver.PendingResult rescheduleReceiverResult) {
         synchronized (sLock) {
+            // if we have two broadcast in the row, finish old one and use new one
+            if (mRescheduleReceiverResult != null) {
+                mRescheduleReceiverResult.finish();
+            }
             mRescheduleReceiverResult = rescheduleReceiverResult;
             if (mForceStopRunnableCompleted) {
                 mRescheduleReceiverResult.finish();
