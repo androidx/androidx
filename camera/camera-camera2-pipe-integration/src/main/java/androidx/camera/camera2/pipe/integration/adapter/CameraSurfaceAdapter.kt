@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 
@@ -120,25 +121,24 @@ class CameraSurfaceAdapter(
     }
 
     /**
-     * Retrieves a map of suggested resolutions for the given list of use cases.
+     * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
      *                          resolutions for these surface can not change.
      * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested resolution
-     * @return map of suggested resolutions for given use cases
+     *                          suggested stream specification
+     * @return map of suggested stream specifications for given use cases
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
      *                                  available, or if the {@code cameraId}
      *                                  is not a valid id.
      */
-    override fun getSuggestedResolutions(
+    override fun getSuggestedStreamSpecs(
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>
-    ): Map<UseCaseConfig<*>, Size> {
-        checkIfSupportedCombinationExist(cameraId)
+    ): Map<UseCaseConfig<*>, StreamSpec> {
 
         if (!checkIfSupportedCombinationExist(cameraId)) {
             throw IllegalArgumentException(
@@ -146,7 +146,7 @@ class CameraSurfaceAdapter(
             )
         }
 
-        return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedResolutions(
+        return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
             existingSurfaces,
             newUseCaseConfigs
         )

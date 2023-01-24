@@ -32,6 +32,7 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -655,7 +656,8 @@ class PreviewTest {
         )
         previewToDetach.bindToCamera(camera, null, previewConfig)
 
-        previewToDetach.onSuggestedResolutionUpdated(Size(640, 480))
+        val streamSpec = StreamSpec.builder(Size(640, 480)).build()
+        previewToDetach.onSuggestedStreamSpecUpdated(streamSpec)
         return previewToDetach
     }
 }

@@ -78,6 +78,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -647,11 +648,11 @@ public final class Preview extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        mSurfaceSize = suggestedResolution;
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        mSurfaceSize = suggestedStreamSpec.getResolution();
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
                 mSurfaceSize);
-        return suggestedResolution;
+        return suggestedStreamSpec;
     }
 
     /**

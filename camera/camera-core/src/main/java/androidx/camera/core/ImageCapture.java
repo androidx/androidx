@@ -105,6 +105,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
@@ -370,10 +371,10 @@ public final class ImageCapture extends UseCase {
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId,
-            @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
+            @NonNull ImageCaptureConfig config, @NonNull StreamSpec streamSpec) {
         checkMainThread();
         if (isNodeEnabled()) {
-            return createPipelineWithNode(cameraId, config, resolution);
+            return createPipelineWithNode(cameraId, config, streamSpec);
         }
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
@@ -382,6 +383,7 @@ public final class ImageCapture extends UseCase {
         }
 
         // Setup the ImageReader to do processing
+        Size resolution = streamSpec.getResolution();
         if (config.getImageReaderProxyProvider() != null) {
             mImageReader =
                     new SafeCloseImageReaderProxy(
@@ -450,7 +452,7 @@ public final class ImageCapture extends UseCase {
             //  to this use case so we don't need to do this check.
             if (isCurrentCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
-                mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+                mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
 
                 if (mImageCaptureRequestProcessor != null) {
                     // Restore the unfinished requests to the created pipeline
@@ -1527,16 +1529,16 @@ public final class ImageCapture extends UseCase {
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
         mSessionConfigBuilder = createPipeline(getCameraId(),
-                (ImageCaptureConfig) getCurrentConfig(), suggestedResolution);
+                (ImageCaptureConfig) getCurrentConfig(), suggestedStreamSpec);
 
         updateSessionConfig(mSessionConfigBuilder.build());
 
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
-        return suggestedResolution;
+        return suggestedStreamSpec;
     }
 
     /**
@@ -1655,10 +1657,11 @@ public final class ImageCapture extends UseCase {
     @OptIn(markerClass = ExperimentalZeroShutterLag.class)
     @MainThread
     private SessionConfig.Builder createPipelineWithNode(@NonNull String cameraId,
-            @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
+            @NonNull ImageCaptureConfig config, @NonNull StreamSpec streamSpec) {
         checkMainThread();
-        Log.d(TAG, String.format("createPipelineWithNode(cameraId: %s, resolution: %s)",
-                cameraId, resolution));
+        Log.d(TAG, String.format("createPipelineWithNode(cameraId: %s, streamSpec: %s)",
+                cameraId, streamSpec));
+        Size resolution = streamSpec.getResolution();
 
         checkState(mImagePipeline == null);
         mImagePipeline = new ImagePipeline(config, resolution, mCameraEffect);
@@ -1679,7 +1682,7 @@ public final class ImageCapture extends UseCase {
             if (isCurrentCamera(cameraId)) {
                 mTakePictureManager.pause();
                 clearPipelineWithNode(/*keepTakePictureManager=*/ true);
-                mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+                mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
                 updateSessionConfig(mSessionConfigBuilder.build());
                 notifyReset();
                 mTakePictureManager.resume();

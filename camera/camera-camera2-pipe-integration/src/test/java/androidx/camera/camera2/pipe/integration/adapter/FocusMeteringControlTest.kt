@@ -45,6 +45,7 @@ import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
@@ -482,7 +483,7 @@ class FocusMeteringControlTest {
     fun customFovAdjusted() {
         // 16:9 to 4:3
         val useCase = FakeUseCase()
-        useCase.updateSuggestedResolution(Size(1920, 1080))
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(Size(1920, 1080)).build())
 
         val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, useCase)
         val point = factory.createPoint(0f, 0f)
@@ -1244,7 +1245,7 @@ class FocusMeteringControlTest {
         )
     }
 
-    private fun createPreview(suggestedResolution: Size) =
+    private fun createPreview(suggestedStreamSpecResolution: Size) =
         Preview.Builder()
             .setCaptureOptionUnpacker { _, _ -> }
             .setSessionOptionUnpacker() { _, _ -> }
@@ -1255,6 +1256,8 @@ class FocusMeteringControlTest {
                 )
             }.also {
                 it.bindToCamera(FakeCamera("0"), null, null)
-                it.updateSuggestedResolution(suggestedResolution)
+                it.updateSuggestedStreamSpec(
+                    StreamSpec.builder(suggestedStreamSpecResolution).build()
+                )
             }
 }

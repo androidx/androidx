@@ -45,6 +45,7 @@ import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.SizeCoordinate
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
@@ -510,9 +511,9 @@ class SupportedSurfaceCombinationTest {
         )
         val maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG)
         val maxJpegAspectRatio = Rational(maxJpegSize.width, maxJpegSize.height)
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
-        val selectedSize = suggestedResolutionMap[useCase]
-        val resultAspectRatio = Rational(selectedSize!!.width, selectedSize.height)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
+        val selectedSize = suggestedStreamSpecMap[useCase]!!.resolution
+        val resultAspectRatio = Rational(selectedSize.width, selectedSize.height)
         // The targetAspectRatio value will only be set to the same aspect ratio as maximum
         // supported jpeg size in Legacy + API 21 combination. For other combinations, it should
         // keep the original targetAspectRatio set for the use case.
@@ -570,13 +571,13 @@ class SupportedSurfaceCombinationTest {
         )
         val maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG)
         val maxJpegAspectRatio = Rational(maxJpegSize.width, maxJpegSize.height)
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination, preview,
             imageCapture, imageAnalysis
         )
-        val previewResolution = suggestedResolutionMap[preview]
-        val imageCaptureResolution = suggestedResolutionMap[imageCapture]
-        val imageAnalysisResolution = suggestedResolutionMap[imageAnalysis]
+        val previewResolution = suggestedStreamSpecMap[preview]!!.resolution
+        val imageCaptureResolution = suggestedStreamSpecMap[imageCapture]!!.resolution
+        val imageAnalysisResolution = suggestedStreamSpecMap[imageAnalysis]!!.resolution
         // The targetAspectRatio value will only be set to the same aspect ratio as maximum
         // supported jpeg size in Legacy + API 21 combination. For other combinations, it should
         // keep the original targetAspectRatio set for the use case.
@@ -584,16 +585,16 @@ class SupportedSurfaceCombinationTest {
             // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
             // in the mSupportedSizes, are not equal to make sure this test case is valid.
             assertThat(targetAspectRatio).isNotEqualTo(maxJpegAspectRatio)
-            assertThat(hasMatchingAspectRatio(previewResolution!!, maxJpegAspectRatio)).isTrue()
+            assertThat(hasMatchingAspectRatio(previewResolution, maxJpegAspectRatio)).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageCaptureResolution!!,
+                    imageCaptureResolution,
                     maxJpegAspectRatio
                 )
             ).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageAnalysisResolution!!,
+                    imageAnalysisResolution,
                     maxJpegAspectRatio
                 )
             ).isTrue()
@@ -601,19 +602,19 @@ class SupportedSurfaceCombinationTest {
             // Checks no correction is needed.
             assertThat(
                 hasMatchingAspectRatio(
-                    previewResolution!!,
+                    previewResolution,
                     targetAspectRatio
                 )
             ).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageCaptureResolution!!,
+                    imageCaptureResolution,
                     targetAspectRatio
                 )
             ).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageAnalysisResolution!!,
+                    imageAnalysisResolution,
                     targetAspectRatio
                 )
             ).isTrue()
@@ -654,13 +655,13 @@ class SupportedSurfaceCombinationTest {
         // Preview/ImageCapture/ImageAnalysis' default config settings that will be applied after
         // bound to lifecycle. Calling bindToLifecycle here to make sure sizes matching to
         // default aspect ratio will be selected.
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination, preview,
             imageCapture, imageAnalysis
         )
-        val previewSize = suggestedResolutionMap[preview]!!
-        val imageCaptureSize = suggestedResolutionMap[imageCapture]!!
-        val imageAnalysisSize = suggestedResolutionMap[imageAnalysis]!!
+        val previewSize = suggestedStreamSpecMap[preview]!!.resolution
+        val imageCaptureSize = suggestedStreamSpecMap[imageCapture]!!.resolution
+        val imageAnalysisSize = suggestedStreamSpecMap[imageAnalysis]!!.resolution
 
         val previewAspectRatio = Rational(previewSize.width, previewSize.height)
         val imageCaptureAspectRatio = Rational(imageCaptureSize.width, imageCaptureSize.height)
@@ -696,7 +697,7 @@ class SupportedSurfaceCombinationTest {
             PREVIEW_USE_CASE,
             targetResolution = Size(displayHeight, displayWidth)
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, preview)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, preview)
         // Checks the preconditions.
         val preconditionSize = Size(256, 144)
         val targetRatio = Rational(displayHeight, displayWidth)
@@ -705,7 +706,7 @@ class SupportedSurfaceCombinationTest {
             assertThat(Rational(it.width, it.height)).isNotEqualTo(targetRatio)
         }
         // Checks the mechanism has filtered out the sizes which are smaller than default size 480p.
-        val previewSize = suggestedResolutionMap[preview]
+        val previewSize = suggestedStreamSpecMap[preview]
         assertThat(previewSize).isNotEqualTo(preconditionSize)
     }
 
@@ -741,9 +742,9 @@ class SupportedSurfaceCombinationTest {
                 Surface.ROTATION_90,
                 preferredResolution = it
             )
-            val suggestedResolutionMap =
-                getSuggestedResolutionMap(supportedSurfaceCombination, imageCapture)
-            assertThat(it).isEqualTo(suggestedResolutionMap[imageCapture])
+            val suggestedStreamSpecMap =
+                getSuggestedStreamSpecMap(supportedSurfaceCombination, imageCapture)
+            assertThat(it).isEqualTo(suggestedStreamSpecMap[imageCapture]!!.resolution)
         }
     }
 
@@ -792,23 +793,23 @@ class SupportedSurfaceCombinationTest {
             Surface.ROTATION_90,
             preferredResolution = resolution
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(expectedResult)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
+        assertThat(suggestedStreamSpecMap[useCase]!!.resolution).isEqualTo(expectedResult)
     }
 
     @Test
-    fun suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice_LegacyApi() {
-        suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice(legacyUseCaseCreator)
+    fun suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice_LegacyApi() {
+        suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice(legacyUseCaseCreator)
     }
 
     @Test
-    fun suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice_ResolutionSelector() {
-        suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice(
+    fun suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice_ResolutionSelector() {
+        suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice(
             resolutionSelectorUseCaseCreator
         )
     }
 
-    private fun suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice(
+    private fun suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice(
         useCaseCreator: UseCaseCreator
     ) {
         setupCameraAndInitCameraX(
@@ -829,7 +830,7 @@ class SupportedSurfaceCombinationTest {
         // An IllegalArgumentException will be thrown because a LEGACY level device can't support
         // ImageCapture + VideoCapture + Preview
         assertThrows(IllegalArgumentException::class.java) {
-            getSuggestedResolutionMap(
+            getSuggestedStreamSpecMap(
                 supportedSurfaceCombination,
                 imageCapture,
                 videoCapture,
@@ -839,18 +840,18 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice_LegacyApi() {
-        suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice(legacyUseCaseCreator)
+    fun suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice_LegacyApi() {
+        suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice(legacyUseCaseCreator)
     }
 
     @Test
-    fun suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice_ResolutionSelector() {
-        suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice(
+    fun suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice_ResolutionSelector() {
+        suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice(
             resolutionSelectorUseCaseCreator
         )
     }
 
-    private fun suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice(
+    private fun suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice(
         useCaseCreator: UseCaseCreator
     ) {
         setupCameraAndInitCameraX(
@@ -871,21 +872,21 @@ class SupportedSurfaceCombinationTest {
         // An IllegalArgumentException will be thrown because the VideoCapture requests to only
         // support a RECORD size but the configuration can't be supported on a LEGACY level device.
         assertThrows(IllegalArgumentException::class.java) {
-            getSuggestedResolutionMap(supportedSurfaceCombination, videoCapture, preview)
+            getSuggestedStreamSpecMap(supportedSurfaceCombination, videoCapture, preview)
         }
     }
 
     @Test
-    fun getSuggestedResolutionsForMixedUseCaseInLimitedDevice_LegacyApi() {
-        getSuggestedResolutionsForMixedUseCaseInLimitedDevice(legacyUseCaseCreator)
+    fun getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice_LegacyApi() {
+        getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice(legacyUseCaseCreator)
     }
 
     @Test
-    fun getSuggestedResolutionsForMixedUseCaseInLimitedDevice_ResolutionSelector() {
-        getSuggestedResolutionsForMixedUseCaseInLimitedDevice(resolutionSelectorUseCaseCreator)
+    fun getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice_ResolutionSelector() {
+        getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice(resolutionSelectorUseCaseCreator)
     }
 
-    private fun getSuggestedResolutionsForMixedUseCaseInLimitedDevice(
+    private fun getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice(
         useCaseCreator: UseCaseCreator
     ) {
         setupCameraAndInitCameraX(
@@ -903,16 +904,16 @@ class SupportedSurfaceCombinationTest {
             PREVIEW_USE_CASE,
             preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
             preview
         )
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[videoCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     // For the use case in b/230651237,
@@ -920,19 +921,19 @@ class SupportedSurfaceCombinationTest {
     // VideoCapture should have higher priority to choose size than ImageCapture.
     @Test
     @Throws(CameraUnavailableException::class)
-    fun getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage_LegacyApi() {
-        getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage(legacyUseCaseCreator)
+    fun getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage_LegacyApi() {
+        getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage(legacyUseCaseCreator)
     }
 
     @Test
     @Throws(CameraUnavailableException::class)
-    fun getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage_ResolutionSelector() {
-        getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage(
+    fun getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage_ResolutionSelector() {
+        getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage(
             resolutionSelectorUseCaseCreator
         )
     }
 
-    private fun getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage(
+    private fun getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage(
         useCaseCreator: UseCaseCreator
     ) {
         setupCameraAndInitCameraX(
@@ -953,7 +954,7 @@ class SupportedSurfaceCombinationTest {
             PREVIEW_USE_CASE,
             preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
@@ -962,9 +963,9 @@ class SupportedSurfaceCombinationTest {
         // There are two possible combinations in Full level device
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD) => should be applied
         // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[videoCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     @Test
@@ -1001,7 +1002,7 @@ class SupportedSurfaceCombinationTest {
             PREVIEW_USE_CASE,
             preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
@@ -1010,36 +1011,37 @@ class SupportedSurfaceCombinationTest {
         // There are two possible combinations in Full level device
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
         // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM) => should be applied
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(MAXIMUM_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(PREVIEW_SIZE) // Quality.HD
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(MAXIMUM_SIZE)
+        // Quality.HD
+        assertThat(suggestedStreamSpecMap[videoCapture]!!.resolution).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     @Test
-    fun getSuggestedResolutionsWithSameSupportedListForDifferentUseCases_LegacyApi() {
-        getSuggestedResolutionsWithSameSupportedListForDifferentUseCases(
+    fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases_LegacyApi() {
+        getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
             legacyUseCaseCreator,
             DISPLAY_SIZE
         )
     }
 
     @Test
-    fun getSuggestedResolutionsWithSameSupportedListForDifferentUseCases_RS_SensorSize() {
-        getSuggestedResolutionsWithSameSupportedListForDifferentUseCases(
+    fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases_RS_SensorSize() {
+        getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
             resolutionSelectorUseCaseCreator,
             PREVIEW_SIZE
         )
     }
 
     @Test
-    fun getSuggestedResolutionsWithSameSupportedListForDifferentUseCases_RS_ViewSize() {
-        getSuggestedResolutionsWithSameSupportedListForDifferentUseCases(
+    fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases_RS_ViewSize() {
+        getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
             viewSizeResolutionSelectorUseCaseCreator,
             PREVIEW_SIZE
         )
     }
 
-    private fun getSuggestedResolutionsWithSameSupportedListForDifferentUseCases(
+    private fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
         useCaseCreator: UseCaseCreator,
         preferredResolution: Size
     ) {
@@ -1082,15 +1084,15 @@ class SupportedSurfaceCombinationTest {
             IMAGE_ANALYSIS_USE_CASE,
             preferredResolution = preferredResolution
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             imageCapture,
             imageAnalysis,
             preview
         )
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(PREVIEW_SIZE)
-        assertThat(suggestedResolutionMap[imageAnalysis]).isEqualTo(PREVIEW_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageAnalysis]!!.resolution).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     @Test
@@ -1122,7 +1124,7 @@ class SupportedSurfaceCombinationTest {
             IMAGE_ANALYSIS_USE_CASE,
             preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             preview,
             imageCapture,
@@ -1130,35 +1132,35 @@ class SupportedSurfaceCombinationTest {
         )
         assertThat(
             hasMatchingAspectRatio(
-                suggestedResolutionMap[preview]!!,
+                suggestedStreamSpecMap[preview]!!.resolution,
                 ASPECT_RATIO_16_9
             )
         ).isTrue()
         assertThat(
             hasMatchingAspectRatio(
-                suggestedResolutionMap[imageCapture]!!,
+                suggestedStreamSpecMap[imageCapture]!!.resolution,
                 ASPECT_RATIO_16_9
             )
         ).isTrue()
         assertThat(
             hasMatchingAspectRatio(
-                suggestedResolutionMap[imageAnalysis]!!,
+                suggestedStreamSpecMap[imageAnalysis]!!.resolution,
                 ASPECT_RATIO_16_9
             )
         ).isTrue()
     }
 
     @Test
-    fun getSuggestedResolutionsForCustomizedSupportedResolutions_LegacyApi() {
-        getSuggestedResolutionsForCustomizedSupportedResolutions(legacyUseCaseCreator)
+    fun getsuggestedStreamSpecsForCustomizedSupportedResolutions_LegacyApi() {
+        getsuggestedStreamSpecsForCustomizedSupportedResolutions(legacyUseCaseCreator)
     }
 
     @Test
-    fun getSuggestedResolutionsForCustomizedSupportedResolutions_ResolutionSelector() {
-        getSuggestedResolutionsForCustomizedSupportedResolutions(resolutionSelectorUseCaseCreator)
+    fun getsuggestedStreamSpecsForCustomizedSupportedResolutions_ResolutionSelector() {
+        getsuggestedStreamSpecsForCustomizedSupportedResolutions(resolutionSelectorUseCaseCreator)
     }
 
-    private fun getSuggestedResolutionsForCustomizedSupportedResolutions(
+    private fun getsuggestedStreamSpecsForCustomizedSupportedResolutions(
         useCaseCreator: UseCaseCreator
     ) {
         setupCameraAndInitCameraX(
@@ -1182,16 +1184,16 @@ class SupportedSurfaceCombinationTest {
             PREVIEW_USE_CASE,
             supportedResolutions = formatResolutionsPairList
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
             preview
         )
-        // Checks all suggested resolutions will become 640x480.
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(RESOLUTION_VGA)
+        // Checks all resolutions in suggested stream specs will become 640x480.
+        assertThat(suggestedStreamSpecMap[imageCapture]?.resolution).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedStreamSpecMap[videoCapture]?.resolution).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedStreamSpecMap[preview]?.resolution).isEqualTo(RESOLUTION_VGA)
     }
 
     @Test
@@ -1334,8 +1336,8 @@ class SupportedSurfaceCombinationTest {
             preferredAspectRatio = AspectRatio.RATIO_16_9,
             preferredResolution = MOD16_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(MOD16_SIZE)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(MOD16_SIZE)
     }
 
     @Test
@@ -1826,9 +1828,9 @@ class SupportedSurfaceCombinationTest {
             PREVIEW_USE_CASE,
             maxResolution = MAXIMUM_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
         // Checks mMaximumSize is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(MAXIMUM_SIZE)
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(MAXIMUM_SIZE)
     }
 
     @Test
@@ -2406,9 +2408,9 @@ class SupportedSurfaceCombinationTest {
             targetRotation = Surface.ROTATION_90,
             preferredResolution = RESOLUTION_VGA
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
         // Checks 640x480 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(RESOLUTION_VGA)
     }
 
     @Test
@@ -2438,9 +2440,9 @@ class SupportedSurfaceCombinationTest {
             FAKE_USE_CASE,
             maxResolution = DISPLAY_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
         // Checks 480x480 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(Size(480, 480))
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(480, 480))
     }
 
     @Test
@@ -2502,13 +2504,13 @@ class SupportedSurfaceCombinationTest {
             targetRotation = Surface.ROTATION_90,
             preferredResolution = RECORD_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             preview,
             imageCapture,
             imageAnalysis
         )
-        assertThat(suggestedResolutionMap[imageAnalysis]).isEqualTo(expectedResult)
+        assertThat(suggestedStreamSpecMap[imageAnalysis]?.resolution).isEqualTo(expectedResult)
     }
 
     @Test
@@ -2570,13 +2572,13 @@ class SupportedSurfaceCombinationTest {
             targetRotation = Surface.ROTATION_90,
             preferredResolution = RECORD_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
             supportedSurfaceCombination,
             preview,
             imageCapture,
             imageAnalysis
         )
-        assertThat(suggestedResolutionMap[imageAnalysis]).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[imageAnalysis]?.resolution).isEqualTo(RECORD_SIZE)
     }
 
     @Config(minSdk = Build.VERSION_CODES.M)
@@ -2594,10 +2596,10 @@ class SupportedSurfaceCombinationTest {
         )
 
         val useCase = createUseCaseByResolutionSelector(FAKE_USE_CASE, highResolutionEnabled = true)
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
 
         // Checks 8000x6000 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(Size(8000, 6000))
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(8000, 6000))
     }
 
     @Config(minSdk = Build.VERSION_CODES.M)
@@ -2612,10 +2614,10 @@ class SupportedSurfaceCombinationTest {
         )
 
         val useCase = createUseCaseByResolutionSelector(FAKE_USE_CASE, highResolutionEnabled = true)
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
 
         // Checks 8000x6000 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(Size(4032, 3024))
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(4032, 3024))
     }
 
     @Config(minSdk = Build.VERSION_CODES.M)
@@ -2634,10 +2636,10 @@ class SupportedSurfaceCombinationTest {
 
         val useCase =
             createUseCaseByResolutionSelector(FAKE_USE_CASE, preferredResolution = Size(8000, 6000))
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
 
         // Checks 8000x6000 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(Size(4032, 3024))
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(4032, 3024))
     }
 
     @Config(minSdk = Build.VERSION_CODES.M)
@@ -2659,10 +2661,10 @@ class SupportedSurfaceCombinationTest {
             preferredAspectRatio = AspectRatio.RATIO_16_9,
             highResolutionEnabled = true
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(supportedSurfaceCombination, useCase)
 
         // Checks 8000x6000 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(Size(8000, 4500))
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(8000, 4500))
     }
 
     /**
@@ -2781,30 +2783,30 @@ class SupportedSurfaceCombinationTest {
      * Gets the suggested resolution map by the converted ResolutionSelector use case config which
      * will also be converted when a use case is bound to the lifecycle.
      */
-    private fun getSuggestedResolutionMap(
+    private fun getSuggestedStreamSpecMap(
         supportedSurfaceCombination: SupportedSurfaceCombination,
         vararg useCases: UseCase,
         cameraFactory: CameraFactory = this.cameraFactory!!,
         cameraId: String = DEFAULT_CAMERA_ID,
         useCaseConfigFactory: UseCaseConfigFactory = this.useCaseConfigFactory!!
-    ): Map<UseCase, Size?> {
+    ): Map<UseCase, StreamSpec?> {
         // Generates the use case to new ResolutionSelector use case config map
         val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
             cameraFactory.getCamera(cameraId).cameraInfoInternal,
             listOf(*useCases),
             useCaseConfigFactory
         )
-        // Uses the use case config list to get suggested resolutions
-        val useCaseConfigResolutionMap = supportedSurfaceCombination.getSuggestedResolutions(
-            emptyList(),
-            mutableListOf<UseCaseConfig<*>?>().apply { addAll(useCaseToConfigMap.values) }
+        // Uses the use case config list to get suggested stream specs
+        val useCaseConfigStreamSpecMap = supportedSurfaceCombination
+            .getSuggestedStreamSpecifications(emptyList(), mutableListOf<UseCaseConfig<*>?>()
+                .apply { addAll(useCaseToConfigMap.values) }
         )
-        val useCaseResolutionMap = mutableMapOf<UseCase, Size?>()
+        val useCaseStreamSpecMap = mutableMapOf<UseCase, StreamSpec?>()
         // Maps the use cases to the suggestion resolutions
         for (useCase in useCases) {
-            useCaseResolutionMap[useCase] = useCaseConfigResolutionMap[useCaseToConfigMap[useCase]]
+            useCaseStreamSpecMap[useCase] = useCaseConfigStreamSpecMap[useCaseToConfigMap[useCase]]
         }
-        return useCaseResolutionMap
+        return useCaseStreamSpecMap
     }
 
     /**

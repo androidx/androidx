@@ -28,6 +28,7 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.fakes.FakeCamera
@@ -145,11 +146,24 @@ class UseCaseTest {
             "UseCase"
         ).useCaseConfig
         val testUseCase = TestUseCase(config)
-        testUseCase.updateSuggestedResolution(Size(640, 480))
+        testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC)
         Truth.assertThat(testUseCase.attachedSurfaceResolution).isNotNull()
         testUseCase.bindToCamera(mockCameraInternal!!, null, null)
         testUseCase.unbindFromCamera(mockCameraInternal!!)
         Truth.assertThat(testUseCase.attachedSurfaceResolution).isNull()
+    }
+
+    @Test
+    fun attachedStreamSpecCanBeReset_whenOnDetach() {
+        val config = FakeUseCaseConfig.Builder().setTargetName(
+            "UseCase"
+        ).useCaseConfig
+        val testUseCase = TestUseCase(config)
+        testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC)
+        Truth.assertThat(testUseCase.attachedStreamSpec).isNotNull()
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.unbindFromCamera(mockCameraInternal!!)
+        Truth.assertThat(testUseCase.attachedStreamSpec).isNull()
     }
 
     @Test
@@ -259,10 +273,10 @@ class UseCaseTest {
             FakeCameraInfoInternal(cameraId)
         )
         val fakeCameraDeviceSurfaceManager = FakeCameraDeviceSurfaceManager()
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution(
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(
             cameraId,
             FakeUseCaseConfig::class.java,
-            SURFACE_RESOLUTION
+            TEST_STREAM_SPEC
         )
         val useCaseConfigFactory: UseCaseConfigFactory = FakeUseCaseConfigFactory()
         return CameraUseCaseAdapter(
@@ -285,12 +299,15 @@ class UseCaseTest {
             notifyUpdated()
         }
 
-        override fun onSuggestedResolutionUpdated(suggestedResolution: Size): Size {
-            return suggestedResolution
+        override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
+            return suggestedStreamSpec
         }
     }
 
     companion object {
         private val SURFACE_RESOLUTION: Size by lazy { Size(640, 480) }
+        private val TEST_STREAM_SPEC: StreamSpec by lazy {
+            StreamSpec.builder(SURFACE_RESOLUTION).build()
+        }
     }
 }

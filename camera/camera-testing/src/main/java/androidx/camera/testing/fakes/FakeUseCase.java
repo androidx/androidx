@@ -16,8 +16,6 @@
 
 package androidx.camera.testing.fakes;
 
-import android.util.Size;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -26,6 +24,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
@@ -122,8 +121,8 @@ public class FakeUseCase extends UseCase {
 
     @Override
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        return suggestedResolution;
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        return suggestedStreamSpec;
     }
 
     /**

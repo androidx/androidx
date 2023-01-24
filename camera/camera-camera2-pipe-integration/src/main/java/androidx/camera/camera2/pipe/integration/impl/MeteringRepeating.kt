@@ -39,6 +39,7 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
 import androidx.camera.core.impl.UseCaseConfigFactory
@@ -72,10 +73,10 @@ class MeteringRepeating(
     override fun getUseCaseConfigBuilder(config: Config) =
         Builder(cameraProperties, displayInfoManager)
 
-    override fun onSuggestedResolutionUpdated(suggestedResolution: Size): Size {
+    override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
         updateSessionConfig(createPipeline().build())
         notifyActive()
-        return meteringSurfaceSize
+        return StreamSpec.builder(meteringSurfaceSize).build()
     }
 
     override fun onUnbind() {
@@ -87,9 +88,9 @@ class MeteringRepeating(
 
     /** Sets up the use case's session configuration, mainly its [DeferrableSurface]. */
     fun setupSession() {
-        // The suggested resolution passed to `updateSuggestedResolution` doesn't matter since
+        // The suggested stream spec passed to `updateSuggestedStreamSpec` doesn't matter since
         // this use case uses the min preview size.
-        updateSuggestedResolution(DEFAULT_PREVIEW_SIZE)
+        updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build())
     }
 
     private fun createPipeline(): SessionConfig.Builder {
