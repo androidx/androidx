@@ -192,6 +192,9 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
 
+    @NonNull
+    private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
+
     /**
      * Constructor for a camera.
      *
@@ -224,9 +227,9 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSession = newCaptureSession();
 
         try {
-            CameraCharacteristicsCompat cameraCharacteristicsCompat =
+            mCameraCharacteristicsCompat =
                     mCameraManager.getCameraCharacteristicsCompat(cameraId);
-            mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
+            mCameraControlInternal = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                     mScheduledExecutorService, mExecutor, new ControlUpdateListenerInternal(),
                     cameraInfoImpl.getCameraQuirks());
             mCameraInfoInternal = cameraInfoImpl;
@@ -1131,7 +1134,7 @@ final class Camera2CameraImpl implements CameraInternal {
         Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 mUseCaseAttachState.getAttachedSessionConfigs(),
-                streamUseCaseMap);
+                streamUseCaseMap, mCameraCharacteristicsCompat);
 
         mCaptureSession.setStreamUseCaseMap(streamUseCaseMap);
 
