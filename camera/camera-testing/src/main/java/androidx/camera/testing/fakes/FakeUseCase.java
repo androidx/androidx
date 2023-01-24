@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -39,6 +40,7 @@ public class FakeUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
     private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
     private final CaptureType mCaptureType;
+    private boolean mMergedConfigRetrieved = false;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -72,7 +74,8 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return new FakeUseCaseConfig.Builder(config)
-                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> { });
+                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                });
     }
 
     /**
@@ -91,6 +94,14 @@ public class FakeUseCase extends UseCase {
         return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
     }
 
+    @NonNull
+    @Override
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        mMergedConfigRetrieved = true;
+        return builder.getUseCaseConfig();
+    }
+
     @Override
     public void onUnbind() {
         super.onUnbind();
@@ -101,6 +112,12 @@ public class FakeUseCase extends UseCase {
     public void onStateAttached() {
         super.onStateAttached();
         mStateAttachedCount.incrementAndGet();
+    }
+
+    @Override
+    public void onStateDetached() {
+        super.onStateDetached();
+        mStateAttachedCount.decrementAndGet();
     }
 
     @Override
@@ -121,5 +138,12 @@ public class FakeUseCase extends UseCase {
      */
     public int getStateAttachedCount() {
         return mStateAttachedCount.get();
+    }
+
+    /**
+     * Returns true if {@link #mergeConfigs} have been invoked.
+     */
+    public boolean getMergedConfigRetrieved() {
+        return mMergedConfigRetrieved;
     }
 }
