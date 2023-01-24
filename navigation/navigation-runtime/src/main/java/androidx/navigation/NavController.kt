@@ -372,6 +372,15 @@ public open class NavController(
             // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
             // completes
         }
+
+        override fun prepareForTransition(entry: NavBackStackEntry) {
+            super.prepareForTransition(entry)
+            if (backQueue.contains(entry)) {
+                entry.maxLifecycle = Lifecycle.State.STARTED
+            } else {
+                throw IllegalStateException("Cannot transition entry that is not in the back stack")
+            }
+        }
     }
 
     /**
