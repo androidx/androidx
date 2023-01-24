@@ -1074,12 +1074,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               }
 
               @Transaction
-              open fun concreteInternal() {
+              internal open fun concreteInternal() {
               }
 
               @Transaction
               open suspend fun suspendConcrete() {
+              }
 
+              @Transaction
+              open fun concreteWithVararg(vararg arr: Long) {
+              }
+
+              @Transaction
+              open suspend fun suspendConcreteWithVararg(vararg arr: Long) {
               }
             }
 

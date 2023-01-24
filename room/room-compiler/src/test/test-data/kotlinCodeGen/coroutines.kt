@@ -15,7 +15,6 @@ import java.lang.StringBuilder
 import java.util.ArrayList
 import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
-import kotlin.Array
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
@@ -128,7 +127,7 @@ public class MyDao_Impl(
         })
     }
 
-    public override suspend fun getSuspendList(arg: Array<out String?>): List<MyEntity> {
+    public override suspend fun getSuspendList(vararg arg: String?): List<MyEntity> {
         val _stringBuilder: StringBuilder = newStringBuilder()
         _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
         val _inputSize: Int = arg.size
