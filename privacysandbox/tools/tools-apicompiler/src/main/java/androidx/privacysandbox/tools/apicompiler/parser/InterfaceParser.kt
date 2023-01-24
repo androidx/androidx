@@ -37,6 +37,8 @@ internal class InterfaceParser(
 ) {
     private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
     private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
+    private val validInterfaceSuperTypes =
+        setOf("androidx.privacysandbox.ui.core.SandboxedUiAdapter")
 
     fun parseInterface(interfaceDeclaration: KSClassDeclaration): AnnotatedInterface {
         check(interfaceDeclaration.classKind == ClassKind.INTERFACE) {
@@ -76,14 +78,17 @@ internal class InterfaceParser(
                 })."
             )
         }
-        if (interfaceDeclaration.superTypes.singleOrNull()?.resolve()
-            != resolver.builtIns.anyType
-        ) {
+        val superTypes = interfaceDeclaration.superTypes.map {
+            it.resolve().declaration
+        }.toList()
+        val invalidSuperTypes = superTypes.filterNot {
+            it == resolver.builtIns.anyType.declaration ||
+                validInterfaceSuperTypes.contains(it.qualifiedName?.getFullName())
+        }
+        if (invalidSuperTypes.isNotEmpty()) {
             logger.error(
                 "Error in $name: annotated interface inherits prohibited types (${
-                    interfaceDeclaration.superTypes.map {
-                        it.resolve().declaration.simpleName.getShortName()
-                    }.sorted().joinToString(limit = 3)
+                    superTypes.map { it.simpleName.getShortName() }.sorted().joinToString(limit = 3)
                 })."
             )
         }

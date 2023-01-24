@@ -44,6 +44,7 @@ class FullFeaturedSdkTest {
             "com/mysdk/IMyInterfaceTransactionCallback.java",
             "com/mysdk/IMySdk.java",
             "com/mysdk/IMySecondInterface.java",
+            "com/mysdk/IMyUiInterface.java",
             "com/mysdk/IMySecondInterfaceTransactionCallback.java",
             "com/mysdk/IResponseTransactionCallback.java",
             "com/mysdk/IStringTransactionCallback.java",
