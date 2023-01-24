@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
+import androidx.privacysandbox.tools.apicompiler.util.allTestLibraryStubs
 import androidx.privacysandbox.tools.testing.CompilationTestHelper
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
@@ -41,105 +42,9 @@ fun compileWithPrivacySandboxKspCompiler(
     }
 
     return CompilationTestHelper.compileAll(
-        if (addLibraryStubs) sources + syntheticSdkRuntimeLibraryStubs + syntheticUiLibraryStubs
+        if (addLibraryStubs) sources + allTestLibraryStubs
         else sources,
         symbolProcessorProviders = listOf(provider),
         processorOptions = processorOptions,
     )
 }
-
-// SDK Runtime library is not available in AndroidX prebuilts, so while that's the case we use fake
-// stubs to run our compilation tests.
-private val syntheticSdkRuntimeLibraryStubs = listOf(
-    Source.kotlin(
-        "androidx/privacysandbox/sdkruntime/core/SandboxedSdkCompat.kt", """
-        |package androidx.privacysandbox.sdkruntime.core
-        |
-        |import android.os.IBinder
-        |
-        |@Suppress("UNUSED_PARAMETER")
-        |class SandboxedSdkCompat(sdkInterface: IBinder) {
-        |    fun getInterface(): IBinder? = throw RuntimeException("Stub!")
-        |}
-        |""".trimMargin()
-    ),
-    Source.kotlin(
-        "androidx/privacysandbox/sdkruntime/core/SandboxedSdkProviderCompat.kt", """
-        |package androidx.privacysandbox.sdkruntime.core
-        |
-        |import android.content.Context
-        |import android.os.Bundle
-        |import android.view.View
-        |
-        |@Suppress("UNUSED_PARAMETER")
-        |abstract class SandboxedSdkProviderCompat {
-        |   var context: Context? = null
-        |       private set
-        |   fun attachContext(context: Context): Unit = throw RuntimeException("Stub!")
-        |
-        |   abstract fun onLoadSdk(params: Bundle): SandboxedSdkCompat
-        |
-        |   open fun beforeUnloadSdk() {}
-        |
-        |   abstract fun getView(
-        |       windowContext: Context,
-        |       params: Bundle,
-        |       width: Int,
-        |       height: Int
-        |   ): View
-        |}
-        |""".trimMargin()
-    ),
-)
-
-private val syntheticUiLibraryStubs = listOf(
-    Source.kotlin(
-        "androidx/privacysandbox/ui/core/SandboxedUiAdapter.kt", """
-        |package androidx.privacysandbox.ui.core
-        |
-        |import android.content.Context
-        |import android.view.View
-        |import java.util.concurrent.Executor
-        |
-        |interface SandboxedUiAdapter {
-        |  fun openSession(
-        |      context: Context,
-        |      initialWidth: Int,
-        |      initialHeight: Int,
-        |      isZOrderOnTop: Boolean,
-        |      clientExecutor: Executor,
-        |      client: SessionClient
-        |  )
-        |
-        |
-        |  interface Session {
-        |    fun close()
-        |    val view: View
-        |  }
-        |
-        |  interface SessionClient {
-        |    fun onSessionError(throwable: Throwable);
-        |    fun onSessionOpened(session: Session);
-        |  }
-        |}
-        |""".trimMargin()
-    ),
-    Source.kotlin(
-        "androidx/privacysandbox/ui/core/SdkRuntimeUiLibVersions.kt", """
-        |package androidx.privacysandbox.ui.core
-        |
-        |import androidx.annotation.RestrictTo
-        |
-        |object SdkRuntimeUiLibVersions {
-        |    var clientVersion: Int = -1
-        |        /**
-        |         * @hide
-        |         */
-        |        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        |        set
-        |
-        |    const val apiVersion: Int = 1
-        |}
-        |""".trimMargin()
-    ),
-)

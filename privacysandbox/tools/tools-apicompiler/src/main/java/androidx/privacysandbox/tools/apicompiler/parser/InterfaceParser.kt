@@ -19,11 +19,12 @@ package androidx.privacysandbox.tools.apicompiler.parser
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.Types.any
+import androidx.privacysandbox.tools.core.model.Types.sandboxedUiAdapter
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -33,12 +34,10 @@ import com.google.devtools.ksp.symbol.Modifier
 internal class InterfaceParser(
     private val logger: KSPLogger,
     private val typeParser: TypeParser,
-    private val resolver: Resolver,
 ) {
     private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
     private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
-    private val validInterfaceSuperTypes =
-        setOf("androidx.privacysandbox.ui.core.SandboxedUiAdapter")
+    private val validInterfaceSuperTypes = setOf(sandboxedUiAdapter)
 
     fun parseInterface(interfaceDeclaration: KSClassDeclaration): AnnotatedInterface {
         check(interfaceDeclaration.classKind == ClassKind.INTERFACE) {
@@ -79,16 +78,14 @@ internal class InterfaceParser(
             )
         }
         val superTypes = interfaceDeclaration.superTypes.map {
-            it.resolve().declaration
-        }.toList()
-        val invalidSuperTypes = superTypes.filterNot {
-            it == resolver.builtIns.anyType.declaration ||
-                validInterfaceSuperTypes.contains(it.qualifiedName?.getFullName())
-        }
+            typeParser.parseFromDeclaration(it.resolve().declaration)
+        }.filterNot { it == any }.toList()
+        val invalidSuperTypes =
+            superTypes.filterNot { validInterfaceSuperTypes.contains(it) }
         if (invalidSuperTypes.isNotEmpty()) {
             logger.error(
                 "Error in $name: annotated interface inherits prohibited types (${
-                    superTypes.map { it.simpleName.getShortName() }.sorted().joinToString(limit = 3)
+                    superTypes.map { it.simpleName }.sorted().joinToString(limit = 3)
                 })."
             )
         }
@@ -96,6 +93,7 @@ internal class InterfaceParser(
         val methods = interfaceDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
         return AnnotatedInterface(
             type = typeParser.parseFromDeclaration(interfaceDeclaration),
+            superTypes = superTypes,
             methods = methods,
         )
     }

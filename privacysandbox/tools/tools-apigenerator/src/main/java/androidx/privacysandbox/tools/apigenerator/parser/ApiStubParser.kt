@@ -65,7 +65,7 @@ internal object ApiStubParser {
 
         return AnnotatedInterface(
             type = type,
-            service.functions.map(this::parseMethod),
+            methods = service.functions.map(this::parseMethod),
         )
     }
 
