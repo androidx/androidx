@@ -283,6 +283,7 @@ public class WatchFaceServiceImageTest {
                         WatchUiState(false, 0),
                         UserStyleWireFormat(emptyMap()),
                         null,
+                        null,
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
@@ -854,6 +855,7 @@ public class WatchFaceServiceImageTest {
                 UserStyleWireFormat(
                     mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())
                 ),
+                null,
                 null,
                 null
             ),
