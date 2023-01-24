@@ -84,13 +84,13 @@ package androidx.activity {
   }
 
   public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
     ctor public OnBackPressedDispatcher();
-    ctor public OnBackPressedDispatcher(Runnable?);
-    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
-    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);
   }
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
