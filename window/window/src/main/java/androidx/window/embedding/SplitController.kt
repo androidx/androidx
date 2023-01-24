@@ -222,6 +222,10 @@ class SplitController private constructor(private val applicationContext: Contex
                     " must be set and enabled in AndroidManifest.xml to use splits APIs."
                 )
                 return false
+            } catch (e: Exception) {
+                // This can happen when it is a test environment that doesn't support getProperty.
+                Log.e(TAG, "PackageManager.getProperty is not supported", e)
+                return false
             }
             if (!property.isBoolean) {
                 Log.e(
