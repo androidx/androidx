@@ -20,5 +20,5 @@ package androidx.test.uiautomator;
  * A {@link UiObject2Condition} is a condition which is satisfied when a {@link UiObject2} is in a
  * particular state.
  */
-public abstract class UiObject2Condition<U> extends Condition<UiObject2, U> {
+public abstract class UiObject2Condition<U> implements Condition<UiObject2, U> {
 }

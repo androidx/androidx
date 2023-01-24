@@ -163,12 +163,12 @@ public class UiDevice implements Searchable {
     /**
      * Waits for given the {@code condition} to be met.
      *
-     * @param condition The {@link SearchCondition} to evaluate.
+     * @param condition The {@link Condition} to evaluate.
      * @param timeout Maximum amount of time to wait in milliseconds.
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
      * was not met before the {@code timeout}.
      */
-    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
+    public <U> U wait(@NonNull Condition<? super UiDevice, U> condition, long timeout) {
         Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
@@ -188,7 +188,7 @@ public class UiDevice implements Searchable {
                 condition));
         try {
             event = getUiAutomation().executeAndWaitForEvent(
-                action, new EventForwardingFilter(condition), timeout);
+                    action, condition, timeout);
         } catch (TimeoutException e) {
             // Ignore
             Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout));
@@ -199,22 +199,6 @@ public class UiDevice implements Searchable {
         }
 
         return condition.getResult();
-    }
-
-    /** Proxy class which acts as an {@link AccessibilityEventFilter} and forwards calls to an
-     * {@link EventCondition} instance. */
-    private static class EventForwardingFilter implements AccessibilityEventFilter {
-        private final EventCondition<?> mCondition;
-
-        public EventForwardingFilter(EventCondition<?> condition) {
-            mCondition = condition;
-        }
-
-        @Override
-        public boolean accept(AccessibilityEvent event) {
-            // Guard against nulls
-            return Boolean.TRUE.equals(mCondition.apply(event));
-        }
     }
 
     /**
