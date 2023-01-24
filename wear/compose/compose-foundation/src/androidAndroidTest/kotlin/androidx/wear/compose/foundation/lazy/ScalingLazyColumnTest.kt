@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -999,6 +1001,20 @@ public class ScalingLazyColumnTest {
 
         rule.waitForIdle()
         assertThat(recompositionCount).isEqualTo(2)
+    }
+
+    @Test
+    fun scalingLazyColumnCanBeNestedOnHorizontalScrollingComponent() {
+        rule.setContent {
+            val horizontalScrollState = rememberScrollState()
+            Box(
+                modifier = Modifier.horizontalScroll(horizontalScrollState),
+            ) {
+                ScalingLazyColumn {
+                    item { Box(Modifier.size(10.dp)) }
+                }
+            }
+        }
     }
 }
 
