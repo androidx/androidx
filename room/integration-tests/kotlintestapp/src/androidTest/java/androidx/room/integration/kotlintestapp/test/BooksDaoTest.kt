@@ -30,11 +30,12 @@ import com.google.common.truth.Truth
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
+import java.util.Date
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
@@ -42,7 +43,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
-import java.util.Date
 
 @MediumTest
 class BooksDaoTest : TestDatabaseTest() {
@@ -431,7 +431,7 @@ class BooksDaoTest : TestDatabaseTest() {
     @Test
     fun kotlinDefaultFunction() {
         booksDao.addAndRemovePublisher(TestUtil.PUBLISHER)
-        assertNull(booksDao.getPublisher(TestUtil.PUBLISHER.publisherId))
+        assertNull(booksDao.getPublisherNullable(TestUtil.PUBLISHER.publisherId))
 
         assertEquals("", booksDao.concreteFunction())
         assertEquals("1 - hello", booksDao.concreteFunctionWithParams(1, "hello"))
