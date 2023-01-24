@@ -139,6 +139,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * will scroll to item(8) and update index[0] = item(8). The next `scrollTo(-2)` will scroll
      * to item(6) with index[0] = item(6). This example does not account for prefetches.
      *
+     * The [index] accounts for separators/headers/footers where each one of those consumes one
+     * scrolled index.
+     *
      * For both append/prepend, this function stops loading prior to fulfilling requested scroll
      * distance if there are no more data to load from.
      *
