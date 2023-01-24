@@ -141,18 +141,23 @@ public sealed class ComplicationData constructor(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract fun asWireComplicationData(): WireComplicationData
+    public fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let { return it }
+        return createWireComplicationDataBuilder()
+            .apply { fillWireComplicationDataBuilder(this) }
+            .build()
+            .also { cachedWireComplicationData = it }
+    }
 
     internal fun createWireComplicationDataBuilder(): WireComplicationDataBuilder =
         cachedWireComplicationData?.let {
             WireComplicationDataBuilder(it)
-        } ?: WireComplicationDataBuilder(type.toWireComplicationType()).apply {
-            setDataSource(dataSource)
-            setPersistencePolicy(persistencePolicy)
-            setDisplayPolicy(displayPolicy)
-        }
+        } ?: WireComplicationDataBuilder(type.toWireComplicationType())
 
     internal open fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        builder.setDataSource(dataSource)
+        builder.setPersistencePolicy(persistencePolicy)
+        builder.setDisplayPolicy(displayPolicy)
     }
 
     /**
@@ -299,21 +304,15 @@ public class NoDataComplicationData internal constructor(
             else -> null
         }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
+        if (placeholder == null) {
+            builder.setPlaceholder(null)
+        } else {
+            val placeholderBuilder = placeholder.createWireComplicationDataBuilder()
+            placeholder.fillWireComplicationDataBuilder(placeholderBuilder)
+            builder.setPlaceholder(placeholderBuilder.build())
         }
-        return createWireComplicationDataBuilder().apply {
-            if (placeholder == null) {
-                setPlaceholder(null)
-            } else {
-                val builder = placeholder.createWireComplicationDataBuilder()
-                placeholder.fillWireComplicationDataBuilder(builder)
-                setPlaceholder(builder.build())
-            }
-        }.build().also { cachedWireComplicationData = it }
     }
 
     override fun toString(): String {
@@ -345,9 +344,8 @@ public class EmptyComplicationData : ComplicationData(
     persistencePolicy = ComplicationPersistencePolicies.CACHING_ALLOWED,
     displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY
 ) {
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
+    // Always empty.
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {}
 
     override fun toString(): String {
         return "EmptyComplicationData()"
@@ -375,9 +373,8 @@ public class NotConfiguredComplicationData : ComplicationData(
     persistencePolicy = ComplicationPersistencePolicies.CACHING_ALLOWED,
     displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY
 ) {
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
+    // Always empty.
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {}
 
     override fun toString(): String {
         return "NotConfiguredComplicationData()"
@@ -515,18 +512,8 @@ public class ShortTextComplicationData internal constructor(
             )
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         builder.setShortText(text.toWireComplicationText())
         builder.setShortTitle(title?.toWireComplicationText())
         builder.setContentDescription(
@@ -696,18 +683,8 @@ public class LongTextComplicationData internal constructor(
             )
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         builder.setLongText(text.toWireComplicationText())
         builder.setLongTitle(title?.toWireComplicationText())
         monochromaticImage?.addToWireComplicationData(builder)
@@ -1062,18 +1039,8 @@ public class RangedValueComplicationData internal constructor(
         }
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         builder.setRangedValue(value)
         builder.setRangedValueExpression(valueExpression)
         builder.setRangedMinValue(min)
@@ -1397,18 +1364,8 @@ internal constructor(
         }
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         builder.setRangedValue(value)
         builder.setRangedValueExpression(valueExpression)
         builder.setTargetValue(targetValue)
@@ -1714,18 +1671,8 @@ internal constructor(
         }
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         builder.setElementWeights(elements.map { it.weight }.toFloatArray())
         builder.setElementColors(elements.map { it.color }.toIntArray())
         builder.setElementBackgroundColor(elementBackgroundColor)
@@ -1872,18 +1819,8 @@ public class MonochromaticImageComplicationData internal constructor(
             )
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         monochromaticImage.addToWireComplicationData(builder)
         builder.setContentDescription(
             when (contentDescription) {
@@ -1988,18 +1925,8 @@ public class SmallImageComplicationData internal constructor(
             )
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         smallImage.addToWireComplicationData(builder)
         builder.setContentDescription(
             when (contentDescription) {
@@ -2110,18 +2037,8 @@ public class PhotoImageComplicationData internal constructor(
             )
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            fillWireComplicationDataBuilder(this)
-        }.build().also { cachedWireComplicationData = it }
-    }
-
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
         builder.setLargeImage(photoImage)
         builder.setContentDescription(
             when (contentDescription) {
@@ -2250,18 +2167,12 @@ public class NoPermissionComplicationData internal constructor(
             )
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData {
-        cachedWireComplicationData?.let {
-            return it
-        }
-        return createWireComplicationDataBuilder().apply {
-            setShortText(text?.toWireComplicationText())
-            setShortTitle(title?.toWireComplicationText())
-            monochromaticImage?.addToWireComplicationData(this)
-            smallImage?.addToWireComplicationData(this)
-        }.build().also { cachedWireComplicationData = it }
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        super.fillWireComplicationDataBuilder(builder)
+        builder.setShortText(text?.toWireComplicationText())
+        builder.setShortTitle(title?.toWireComplicationText())
+        monochromaticImage?.addToWireComplicationData(builder)
+        smallImage?.addToWireComplicationData(builder)
     }
 
     override fun toString(): String {
