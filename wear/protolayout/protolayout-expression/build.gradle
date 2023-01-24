@@ -26,7 +26,7 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
 
     implementation("androidx.annotation:annotation-experimental:1.2.0")
-    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
 
