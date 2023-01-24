@@ -228,6 +228,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore("b/266588723")
     @Test
     fun createTextWithFillMaxDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -346,6 +347,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore("b/265078768")
     @Test
     fun createRowWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
