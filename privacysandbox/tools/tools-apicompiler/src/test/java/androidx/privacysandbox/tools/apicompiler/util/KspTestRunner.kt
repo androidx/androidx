@@ -40,7 +40,7 @@ fun parseSources(vararg sources: Source): ParsedApi {
         compile(
             Files.createTempDirectory("test").toFile(),
             TestCompilationArguments(
-                sources = sources.toList(),
+                sources = sources.toList() + allTestLibraryStubs,
                 symbolProcessorProviders = listOf(provider),
             )
         )
