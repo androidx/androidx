@@ -40,12 +40,14 @@ import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
+import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakePreviewEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
+import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
@@ -108,6 +110,7 @@ class CameraUseCaseAdapterTest {
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
+        DefaultSurfaceProcessor.Factory.setSupplier { FakeSurfaceProcessorInternal(executor) }
     }
 
     @After
