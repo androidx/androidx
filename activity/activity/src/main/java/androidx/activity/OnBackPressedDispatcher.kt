@@ -21,7 +21,6 @@ import android.window.OnBackInvokedDispatcher
 import androidx.annotation.DoNotInline
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
-import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -56,7 +55,7 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
     private val fallbackOnBackPressed: Runnable? = null
 ) {
     private val onBackPressedCallbacks = ArrayDeque<OnBackPressedCallback>()
-    private var enabledConsumer: Consumer<Boolean>? = null
+    private var enabledChangedCallback: (() -> Unit)? = null
     private var onBackInvokedCallback: OnBackInvokedCallback? = null
     private var invokedDispatcher: OnBackInvokedDispatcher? = null
     private var backInvokedCallbackRegistered = false
@@ -97,7 +96,7 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
 
     init {
         if (Build.VERSION.SDK_INT >= 33) {
-            enabledConsumer = Consumer {
+            enabledChangedCallback = {
                 updateBackInvokedCallbackState()
             }
             onBackInvokedCallback = Api33Impl.createOnBackInvokedCallback { onBackPressed() }
@@ -140,7 +139,7 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         onBackPressedCallback.addCancellable(cancellable)
         if (Build.VERSION.SDK_INT >= 33) {
             updateBackInvokedCallbackState()
-            onBackPressedCallback.setIsEnabledConsumer(enabledConsumer)
+            onBackPressedCallback.enabledChangedCallback = enabledChangedCallback
         }
         return cancellable
     }
@@ -181,7 +180,7 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         )
         if (Build.VERSION.SDK_INT >= 33) {
             updateBackInvokedCallbackState()
-            onBackPressedCallback.setIsEnabledConsumer(enabledConsumer)
+            onBackPressedCallback.enabledChangedCallback = enabledChangedCallback
         }
     }
 
@@ -224,7 +223,7 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
             onBackPressedCallbacks.remove(onBackPressedCallback)
             onBackPressedCallback.removeCancellable(this)
             if (Build.VERSION.SDK_INT >= 33) {
-                onBackPressedCallback.setIsEnabledConsumer(null)
+                onBackPressedCallback.enabledChangedCallback = null
                 updateBackInvokedCallbackState()
             }
         }
