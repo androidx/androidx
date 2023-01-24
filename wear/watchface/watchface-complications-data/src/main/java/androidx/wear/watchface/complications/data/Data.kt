@@ -18,6 +18,8 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationData.Builder as WireComplicationDataBuilder
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.graphics.Color
@@ -36,13 +38,6 @@ import androidx.wear.watchface.complications.data.WeightedElementsComplicationDa
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Companion.getMaxElements
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element
 import java.time.Instant
-
-/** The wire format for [ComplicationData]. */
-internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
-
-/** The builder for [WireComplicationData]. */
-internal typealias WireComplicationDataBuilder =
-    android.support.wearable.complications.ComplicationData.Builder
 
 internal const val TAG = "Data.kt"
 

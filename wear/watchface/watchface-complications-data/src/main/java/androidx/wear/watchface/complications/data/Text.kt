@@ -16,6 +16,11 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
+import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireComplicationTextTimeFormatBuilder
+import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.content.res.Resources
 import android.icu.util.TimeZone
 import android.support.wearable.complications.TimeDependentText
@@ -31,17 +36,6 @@ import android.text.style.UnderlineSpan
 import androidx.annotation.RestrictTo
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-
-/** The wire format for [ComplicationText]. */
-internal typealias WireComplicationText = android.support.wearable.complications.ComplicationText
-
-private typealias WireComplicationTextTimeDifferenceBuilder =
-    android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
-
-private typealias WireComplicationTextTimeFormatBuilder =
-    android.support.wearable.complications.ComplicationText.TimeFormatBuilder
-
-private typealias WireTimeDependentText = android.support.wearable.complications.TimeDependentText
 
 @JvmDefaultWithCompatibility
 /**

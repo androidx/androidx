@@ -425,7 +425,7 @@ class PlaceholderTest {
         timelineEntry.timelineStartEpochSecond = 100
         timelineEntry.timelineEndEpochSecond = 1000
 
-        val wireLongTextComplication = WireComplicationDataBuilder(
+        val wireLongTextComplication = ComplicationData.Builder(
             ComplicationType.LONG_TEXT.toWireComplicationType()
         )
             .setEndDateTimeMillis(1650988800000)
