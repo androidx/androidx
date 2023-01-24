@@ -43,7 +43,8 @@ class CredentialProviderFactory {
          */
         fun getBestAvailableProvider(context: Context): CredentialProvider? {
             if ((Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
-                (Build.VERSION.PREVIEW_SDK_INT == 0)) {
+                !(Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL &&
+                    Build.VERSION.PREVIEW_SDK_INT > 0)) {
                 return tryCreatePreUOemProvider(context)
             } else if ((Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
                 (Build.VERSION.PREVIEW_SDK_INT > 0)) {

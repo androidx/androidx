@@ -16,6 +16,8 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.TestUtilsKt.isPostFrameworkApiLevel;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Activity;
@@ -27,8 +29,10 @@ import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.CreateCredentialException;
 import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException;
+import androidx.credentials.exceptions.CreateCredentialUnknownException;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException;
+import androidx.credentials.exceptions.GetCredentialUnknownException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -37,6 +41,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
@@ -53,10 +59,11 @@ public class CredentialManagerJavaTest {
     }
 
     @Test
-    public void testCreateCredentialAsyc_successCallbackThrows() {
+    public void testCreateCredentialAsyc_successCallbackThrows() throws InterruptedException {
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }
+        CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<CreateCredentialException> loadedResult = new AtomicReference<>();
         mCredentialManager.createCredentialAsync(
                 new CreatePasswordRequest("test-user-id", "test-password"),
@@ -68,21 +75,33 @@ public class CredentialManagerJavaTest {
                     @Override
                     public void onError(@NonNull CreateCredentialException e) {
                         loadedResult.set(e);
+                        latch.countDown();
                     }
                     @Override
                     public void onResult(@NonNull CreateCredentialResponse result) {}
             });
-        assertThat(loadedResult.get().getClass()).isEqualTo(
-                CreateCredentialProviderConfigurationException.class);
-        // TODO("Add manifest tests and separate tests for pre and post U API Levels")
+
+        latch.await(100L, TimeUnit.MILLISECONDS);
+        if (!isPostFrameworkApiLevel()) {
+            assertThat(loadedResult.get().getClass()).isEqualTo(
+                    CreateCredentialProviderConfigurationException.class);
+        } else {
+            assertThat(loadedResult.get().getClass()).isEqualTo(
+                    CreateCredentialUnknownException.class);
+        }
+        // TODO("Add manifest tests and possibly further separate these tests by API Level
+        //  - maybe a rule perhaps?")
     }
 
+
     @Test
-    public void testGetCredentialAsyc_successCallbackThrows() {
+    public void testGetCredentialAsyc_successCallbackThrows() throws InterruptedException {
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }
+        CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<GetCredentialException> loadedResult = new AtomicReference<>();
+
         mCredentialManager.getCredentialAsync(
                 new GetCredentialRequest.Builder()
                         .addGetCredentialOption(new GetPasswordOption())
@@ -95,21 +114,31 @@ public class CredentialManagerJavaTest {
                 @Override
                 public void onError(@NonNull GetCredentialException e) {
                     loadedResult.set(e);
+                    latch.countDown();
                 }
 
                 @Override
                 public void onResult(@NonNull GetCredentialResponse result) {}
             });
-        assertThat(loadedResult.get().getClass()).isEqualTo(
-                GetCredentialProviderConfigurationException.class);
-        // TODO("Add manifest tests and separate tests for pre and post U API Levels")
+
+        latch.await(100L, TimeUnit.MILLISECONDS);
+        if (!isPostFrameworkApiLevel()) {
+            assertThat(loadedResult.get().getClass()).isEqualTo(
+                    GetCredentialProviderConfigurationException.class);
+        } else {
+            assertThat(loadedResult.get().getClass()).isEqualTo(
+                    GetCredentialUnknownException.class);
+        }
+        // TODO("Add manifest tests and possibly further separate these tests - maybe a rule
+        //  perhaps?")
     }
 
     @Test
-    public void testClearCredentialSessionAsync_throws() {
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
+    public void testClearCredentialSessionAsync_throws() throws InterruptedException {
+        if (isPostFrameworkApiLevel()) {
+            return; // TODO(Support!)
         }
+        CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<ClearCredentialException> loadedResult = new AtomicReference<>();
 
         mCredentialManager.clearCredentialStateAsync(
@@ -121,13 +150,16 @@ public class CredentialManagerJavaTest {
                     @Override
                     public void onError(@NonNull ClearCredentialException e) {
                         loadedResult.set(e);
+                        latch.countDown();
                     }
 
                     @Override
                     public void onResult(@NonNull Void result) {}
                 });
+
+        latch.await(100L, TimeUnit.MILLISECONDS);
         assertThat(loadedResult.get().getClass()).isEqualTo(
                 ClearCredentialProviderConfigurationException.class);
-        // TODO(Add manifest tests and separate tests for pre and post U API Levels")
+        // TODO(Add manifest tests and split this once postU is implemented for clearCreds")
     }
 }
