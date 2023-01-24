@@ -201,6 +201,14 @@ public sealed class ComplicationData constructor(
         internal var persistencePolicy = ComplicationPersistencePolicies.CACHING_ALLOWED
         internal var displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY
 
+        @Suppress("NewApi")
+        internal fun setCommon(data: WireComplicationData) = apply {
+            setCachedWireComplicationData(data)
+            setDataSource(data.dataSource)
+            setPersistencePolicy(data.persistencePolicy)
+            setDisplayPolicy(data.displayPolicy)
+        }
+
         /**
          * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
          * ComplicationData, if any.
@@ -2371,16 +2379,11 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
 @Suppress("NewApi")
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {
     try {
-        // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
-        val dataSourceCopy = dataSource
-        val persistencePolicyCopy = persistencePolicy
-        val displayPolicyCopy = displayPolicy
-        val wireComplicationData = this
         return when (type) {
             NoDataComplicationData.TYPE.toWireComplicationType() -> {
                 placeholder?.toPlaceholderComplicationData()?.let {
-                    NoDataComplicationData(it)
-                } ?: NoDataComplicationData()
+                    NoDataComplicationData(it, this@toApiComplicationData)
+                } ?: NoDataComplicationData(null, this@toApiComplicationData)
             }
 
             EmptyComplicationData.TYPE.toWireComplicationType() -> EmptyComplicationData()
@@ -2393,15 +2396,12 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     shortText!!.toApiComplicationText(),
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
                     setTitle(shortTitle?.toApiComplicationText())
                     setMonochromaticImage(parseIcon())
                     setSmallImage(parseSmallImage())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             LongTextComplicationData.TYPE.toWireComplicationType() ->
@@ -2409,15 +2409,12 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     longText!!.toApiComplicationText(),
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
                     setTitle(longTitle?.toApiComplicationText())
                     setMonochromaticImage(parseIcon())
                     setSmallImage(parseSmallImage())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             RangedValueComplicationData.TYPE.toWireComplicationType() ->
@@ -2429,19 +2426,16 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     contentDescription = contentDescription?.toApiComplicationText()
                         ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
                     setMonochromaticImage(parseIcon())
                     setSmallImage(parseSmallImage())
                     setTitle(shortTitle?.toApiComplicationText())
                     setText(shortText?.toApiComplicationText())
-                    setCachedWireComplicationData(wireComplicationData)
                     colorRamp?.let {
                         setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
                     }
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                     setValueType(rangedValueType)
                 }.build()
 
@@ -2450,12 +2444,9 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     parseIcon()!!,
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             SmallImageComplicationData.TYPE.toWireComplicationType() ->
@@ -2463,12 +2454,9 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     parseSmallImage()!!,
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             PhotoImageComplicationData.TYPE.toWireComplicationType() ->
@@ -2476,24 +2464,18 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     largeImage!!,
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             NoPermissionComplicationData.TYPE.toWireComplicationType() ->
                 NoPermissionComplicationData.Builder().apply {
+                    setCommon(this@toApiComplicationData)
                     setMonochromaticImage(parseIcon())
                     setSmallImage(parseSmallImage())
                     setTitle(shortTitle?.toApiComplicationText())
                     setText(shortText?.toApiComplicationText())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             GoalProgressComplicationData.TYPE.toWireComplicationType() ->
@@ -2504,19 +2486,16 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     contentDescription = contentDescription?.toApiComplicationText()
                         ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
                     setMonochromaticImage(parseIcon())
                     setSmallImage(parseSmallImage())
                     setTitle(shortTitle?.toApiComplicationText())
                     setText(shortText?.toApiComplicationText())
-                    setCachedWireComplicationData(wireComplicationData)
                     colorRamp?.let {
                         setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
                     }
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
 
             WeightedElementsComplicationData.TYPE.toWireComplicationType() -> {
@@ -2531,6 +2510,7 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     }.toList(),
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
+                    setCommon(this@toApiComplicationData)
                     setElementBackgroundColor(elementBackgroundColor)
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
@@ -2538,10 +2518,6 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                     setSmallImage(parseSmallImage())
                     setTitle(shortTitle?.toApiComplicationText())
                     setText(shortText?.toApiComplicationText())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
                 }.build()
             }
 
