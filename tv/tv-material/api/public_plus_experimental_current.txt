@@ -36,6 +36,37 @@ package androidx.tv.material3 {
     property public final int activeSlideIndex;
   }
 
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceColor {
+    method public long getDefaultColor();
+    method public long getDisabledColor();
+    method public long getFocusedColor();
+    method public long getPressedColor();
+    property public final long defaultColor;
+    property public final long disabledColor;
+    property public final long focusedColor;
+    property public final long pressedColor;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceColor color(optional long defaultColor, optional long focusedColor, optional long pressedColor, optional long disabledColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceColor contentColor(optional long defaultColor, optional long focusedColor, optional long pressedColor, optional long disabledColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceShape shape(optional androidx.compose.ui.graphics.Shape defaultShape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    field public static final androidx.tv.material3.ClickableSurfaceDefaults INSTANCE;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceShape {
+    method public androidx.compose.ui.graphics.Shape getDefaultShape();
+    method public androidx.compose.ui.graphics.Shape getDisabledShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedDisabledShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getPressedShape();
+    property public final androidx.compose.ui.graphics.Shape defaultShape;
+    property public final androidx.compose.ui.graphics.Shape disabledShape;
+    property public final androidx.compose.ui.graphics.Shape focusedDisabledShape;
+    property public final androidx.compose.ui.graphics.Shape focusedShape;
+    property public final androidx.compose.ui.graphics.Shape pressedShape;
+  }
+
   @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ColorScheme {
     ctor public ColorScheme(long primary, long onPrimary, long primaryContainer, long onPrimaryContainer, long inversePrimary, long secondary, long onSecondary, long secondaryContainer, long onSecondaryContainer, long tertiary, long onTertiary, long tertiaryContainer, long onTertiaryContainer, long background, long onBackground, long surface, long onSurface, long surfaceVariant, long onSurfaceVariant, long surfaceTint, long inverseSurface, long inverseOnSurface, long error, long onError, long errorContainer, long onErrorContainer, long outline, long outlineVariant, long scrim);
     method public androidx.tv.material3.ColorScheme copy(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
@@ -184,7 +215,7 @@ package androidx.tv.material3 {
   }
 
   public final class SurfaceKt {
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional float tonalElevation, optional androidx.compose.ui.semantics.Role? role, optional float shadowElevation, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ClickableSurfaceShape shape, optional androidx.tv.material3.ClickableSurfaceColor color, optional androidx.tv.material3.ClickableSurfaceColor contentColor, optional androidx.compose.foundation.BorderStroke? border, optional float tonalElevation, optional androidx.compose.ui.semantics.Role? role, optional float shadowElevation, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
   }

@@ -101,15 +101,23 @@ class SurfaceTest {
             ) {
                 Surface(
                     onClick = {},
-                    shape = RectangleShape,
-                    color = Color.Yellow
+                    shape = ClickableSurfaceDefaults.shape(
+                        defaultShape = RectangleShape
+                    ),
+                    color = ClickableSurfaceDefaults.color(
+                        defaultColor = Color.Yellow
+                    )
                 ) {
                     Box(Modifier.fillMaxSize())
                 }
                 Surface(
                     onClick = {},
-                    shape = RectangleShape,
-                    color = Color.Green
+                    shape = ClickableSurfaceDefaults.shape(
+                        defaultShape = RectangleShape
+                    ),
+                    color = ClickableSurfaceDefaults.color(
+                        defaultColor = Color.Green
+                    )
                 ) {
                     Box(Modifier.fillMaxSize())
                 }
@@ -148,7 +156,7 @@ class SurfaceTest {
     }
 
     /**
-     * Tests that composed modifiers applied to TvSurface are applied within the changes to
+     * Tests that composed modifiers applied to Surface are applied within the changes to
      * [LocalContentColor], so they can consume the updated values.
      */
     @Test
@@ -164,7 +172,7 @@ class SurfaceTest {
                     },
                     onClick = {},
                     tonalElevation = 2.toDp(),
-                    contentColor = expectedColor
+                    contentColor = ClickableSurfaceDefaults.color(defaultColor = expectedColor)
                 ) {}
             }
         }
@@ -175,19 +183,19 @@ class SurfaceTest {
     }
 
     @Test
-    fun tvClickableOverload_semantics() {
+    fun clickableOverload_semantics() {
         val count = mutableStateOf(0)
         rule.setContent {
             Surface(
                 modifier = Modifier
-                    .testTag("tvSurface"),
+                    .testTag("surface"),
                 onClick = { count.value += 1 }
             ) {
                 Text("${count.value}")
                 Spacer(Modifier.size(30.toDp()))
             }
         }
-        rule.onNodeWithTag("tvSurface")
+        rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .assertHasClickAction()
             .assertIsEnabled()
@@ -198,12 +206,12 @@ class SurfaceTest {
     }
 
     @Test
-    fun tvClickableOverload_customSemantics() {
+    fun clickableOverload_customSemantics() {
         val count = mutableStateOf(0)
         rule.setContent {
             Surface(
                 modifier = Modifier
-                    .testTag("tvSurface"),
+                    .testTag("surface"),
                 onClick = { count.value += 1 },
                 role = Role.Checkbox
             ) {
@@ -211,7 +219,7 @@ class SurfaceTest {
                 Spacer(Modifier.size(30.toDp()))
             }
         }
-        rule.onNodeWithTag("tvSurface")
+        rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .assertHasClickAction()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
@@ -223,44 +231,44 @@ class SurfaceTest {
     }
 
     @Test
-    fun tvClickableOverload_clickAction() {
+    fun clickableOverload_clickAction() {
         val count = mutableStateOf(0)
 
         rule.setContent {
             Surface(
                 modifier = Modifier
-                    .testTag("tvSurface"),
+                    .testTag("surface"),
                 onClick = { count.value += 1 }
             ) {
                 Spacer(modifier = Modifier.size(30.toDp()))
             }
         }
-        rule.onNodeWithTag("tvSurface")
+        rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
-        rule.onNodeWithTag("tvSurface").performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.onNodeWithTag("surface").performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
     }
 
     @Test
-    fun tvSurface_onDisable_clickFails() {
+    fun clickableSurface_onDisable_clickFails() {
         val count = mutableStateOf(0f)
         val enabled = mutableStateOf(true)
 
         rule.setContent {
             Surface(
                 modifier = Modifier
-                    .testTag("tvSurface"),
+                    .testTag("surface"),
                 onClick = { count.value += 1 },
                 enabled = enabled.value
             ) {
                 Spacer(Modifier.size(30.toDp()))
             }
         }
-        rule.onNodeWithTag("tvSurface")
+        rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .assertIsEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -270,7 +278,7 @@ class SurfaceTest {
             enabled.value = false
         }
 
-        rule.onNodeWithTag("tvSurface")
+        rule.onNodeWithTag("surface")
             .assertIsNotEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -278,7 +286,7 @@ class SurfaceTest {
     }
 
     @Test
-    fun tvClickableOverload_interactionSource() {
+    fun clickableOverload_interactionSource() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -287,7 +295,7 @@ class SurfaceTest {
             scope = rememberCoroutineScope()
             Surface(
                 modifier = Modifier
-                    .testTag("tvSurface"),
+                    .testTag("surface"),
                 onClick = {},
                 interactionSource = interactionSource
             ) {
@@ -305,7 +313,7 @@ class SurfaceTest {
             Truth.assertThat(interactions).isEmpty()
         }
 
-        rule.onNodeWithTag("tvSurface")
+        rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .performKeyInput { keyDown(Key.DirectionCenter) }
 
@@ -314,7 +322,7 @@ class SurfaceTest {
             Truth.assertThat(interactions[1]).isInstanceOf(PressInteraction.Press::class.java)
         }
 
-        rule.onNodeWithTag("tvSurface").performKeyInput { keyUp(Key.DirectionCenter) }
+        rule.onNodeWithTag("surface").performKeyInput { keyUp(Key.DirectionCenter) }
 
         rule.runOnIdle {
             Truth.assertThat(interactions).hasSize(3)
@@ -327,7 +335,7 @@ class SurfaceTest {
     }
 
     @Test
-    fun tvSurface_allowsFinalPassChildren() {
+    fun clickableSurface_allowsFinalPassChildren() {
         val hitTested = mutableStateOf(false)
 
         rule.setContent {
@@ -335,7 +343,7 @@ class SurfaceTest {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .testTag("tvSurface"),
+                        .testTag("surface"),
                     onClick = {}
                 ) {
                     Box(
@@ -355,7 +363,7 @@ class SurfaceTest {
                 }
             }
         }
-        rule.onNodeWithTag("tvSurface").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
         rule.onNodeWithTag("pressable", true)
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(hitTested.value).isTrue()
@@ -363,7 +371,7 @@ class SurfaceTest {
 
     @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
     @Test
-    fun tvSurface_reactsToStateChange() {
+    fun clickableSurface_reactsToStateChange() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
 
@@ -371,14 +379,14 @@ class SurfaceTest {
             isPressed = interactionSource.collectIsPressedAsState().value
             Surface(
                 modifier = Modifier
-                    .testTag("tvSurface")
+                    .testTag("surface")
                     .size(100.toDp()),
                 onClick = {},
                 interactionSource = interactionSource
             ) {}
         }
 
-        with(rule.onNodeWithTag("tvSurface")) {
+        with(rule.onNodeWithTag("surface")) {
             performSemanticsAction(SemanticsActions.RequestFocus)
             assertIsFocused()
             performKeyInput { keyDown(Key.DirectionCenter) }
