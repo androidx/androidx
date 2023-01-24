@@ -723,7 +723,6 @@ public class CombinedPaddingValues(
 public fun Modifier.verticalNegativePadding(
     extraPadding: Dp,
 ) = layout { measurable, constraints ->
-    require(constraints.hasBoundedWidth)
     require(constraints.hasBoundedHeight)
     val topAndBottomPadding = (extraPadding * 2).roundToPx()
     val placeable = measurable.measure(
