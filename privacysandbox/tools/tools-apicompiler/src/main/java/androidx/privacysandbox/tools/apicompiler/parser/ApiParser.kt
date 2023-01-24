@@ -40,7 +40,7 @@ internal fun KSName.getFullName(): String {
 /** Top-level entry point to parse a complete user-defined sandbox SDK API into a [ParsedApi]. */
 class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
     private val typeParser = TypeParser(logger)
-    private val interfaceParser = InterfaceParser(logger, typeParser, resolver)
+    private val interfaceParser = InterfaceParser(logger, typeParser)
     private val valueParser = ValueParser(logger, typeParser)
 
     fun parseApi(): ParsedApi {
