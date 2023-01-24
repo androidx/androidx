@@ -89,6 +89,7 @@ class AudioSourceTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun canRestartAudioSource() {
         for (i in 0..2) {
@@ -107,6 +108,7 @@ class AudioSourceTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun bufferProviderStateChange_acquireBufferOrNot() {
         // Arrange.
@@ -128,6 +130,7 @@ class AudioSourceTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun canResetBufferProvider_beforeStarting() {
         // Arrange
