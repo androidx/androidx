@@ -90,6 +90,7 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.Observable.Observer;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -280,14 +281,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onStateAttached() {
         super.onStateAttached();
-        Preconditions.checkNotNull(getAttachedSurfaceResolution(), "The suggested resolution "
-                + "should be already updated and shouldn't be null.");
+        Preconditions.checkNotNull(getAttachedStreamSpec(), "The suggested stream "
+                + "specification should be already updated and shouldn't be null.");
         Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
                 + "when VideoCapture is attached.");
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
         mSessionConfigBuilder = createPipeline(getCameraId(),
-                (VideoCaptureConfig<T>) getCurrentConfig(), getAttachedSurfaceResolution());
+                (VideoCaptureConfig<T>) getCurrentConfig(), getAttachedStreamSpec());
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
         // VideoCapture has to be active to apply SessionConfig's template type.
@@ -452,9 +453,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @NonNull
     private SessionConfig.Builder createPipeline(@NonNull String cameraId,
             @NonNull VideoCaptureConfig<T> config,
-            @NonNull Size resolution) {
+            @NonNull StreamSpec streamSpec) {
         Threads.checkMainThread();
         CameraInternal camera = Preconditions.checkNotNull(getCamera());
+        Size resolution = streamSpec.getResolution();
 
         // Currently, VideoCapture uses StreamInfo to handle requests for surface, so
         // handleInvalidate() is not used. But if a different approach is asked in the future,
@@ -526,7 +528,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addErrorListener(
-                (sessionConfig, error) -> resetPipeline(cameraId, config, resolution));
+                (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
         if (USE_TEMPLATE_PREVIEW_BY_QUIRK) {
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         }
@@ -572,7 +574,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void resetPipeline(@NonNull String cameraId,
             @NonNull VideoCaptureConfig<T> config,
-            @NonNull Size resolution) {
+            @NonNull StreamSpec streamSpec) {
         clearPipeline();
 
         // Ensure the attached camera has not changed before resetting.
@@ -580,7 +582,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         //  to this use case so we don't need to do this check.
         if (isCurrentCamera(cameraId)) {
             // Only reset the pipeline when the bound camera is the same.
-            mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+            mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
             applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
             updateSessionConfig(mSessionConfigBuilder.build());
             notifyReset();
@@ -669,7 +671,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 // Reset pipeline if the stream ids are different, which means there's a new
                 // surface ready to be requested.
                 resetPipeline(getCameraId(), (VideoCaptureConfig<T>) getCurrentConfig(),
-                        Preconditions.checkNotNull(getAttachedSurfaceResolution()));
+                        Preconditions.checkNotNull(getAttachedStreamSpec()));
             } else if ((currentStreamInfo.getId() != STREAM_ID_ERROR
                     && streamInfo.getId() == STREAM_ID_ERROR)
                     || (currentStreamInfo.getId() == STREAM_ID_ERROR

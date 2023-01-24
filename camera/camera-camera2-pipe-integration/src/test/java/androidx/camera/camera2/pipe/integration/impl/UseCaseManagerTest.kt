@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraCompone
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
@@ -269,6 +270,6 @@ class UseCaseManagerTest {
 
     private fun UseCase.simulateActivation() {
         bindToCamera(FakeCamera("0"), null, null)
-        updateSuggestedResolution(Size(640, 480))
+        updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build())
     }
 }

@@ -24,6 +24,7 @@ import android.util.Size
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.impl.StreamSpec
 import androidx.test.core.app.ApplicationProvider
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -41,7 +42,7 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class MeteringRepeatingTest {
     companion object {
-        val dummyZeroSize = Size(0, 0)
+        val dummyZeroSizeStreamSpec = StreamSpec.builder(Size(0, 0)).build()
 
         val dummySizeListWithout640x480 = listOf(
             Size(4160, 3120),
@@ -130,7 +131,7 @@ class MeteringRepeatingTest {
     fun attachedSurfaceResolutionIsLargestLessThan640x480_when640x480NotPresentInOutputSizes() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWithout640x480)
 
-        meteringRepeating.updateSuggestedResolution(dummyZeroSize)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
 
         assertEquals(Size(320, 240), meteringRepeating.attachedSurfaceResolution)
     }
@@ -139,7 +140,7 @@ class MeteringRepeatingTest {
     fun attachedSurfaceResolutionIs640x480_when640x480PresentInOutputSizes() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWith640x480)
 
-        meteringRepeating.updateSuggestedResolution(dummyZeroSize)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
 
         assertEquals(Size(640, 480), meteringRepeating.attachedSurfaceResolution)
     }
@@ -148,7 +149,7 @@ class MeteringRepeatingTest {
     fun attachedSurfaceResolutionFallsBackToMinimum_whenAllOutputSizesLargerThan640x480() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWithoutSmaller)
 
-        meteringRepeating.updateSuggestedResolution(dummyZeroSize)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
 
         assertEquals(Size(1280, 720), meteringRepeating.attachedSurfaceResolution)
     }
@@ -157,7 +158,7 @@ class MeteringRepeatingTest {
     fun attachedSurfaceResolutionIsLargestWithinPreviewSize_whenAllOutputSizesLessThan640x480() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListSmallerThan640x480)
 
-        meteringRepeating.updateSuggestedResolution(dummyZeroSize)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
 
         assertEquals(Size(320, 480), meteringRepeating.attachedSurfaceResolution)
     }

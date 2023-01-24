@@ -33,6 +33,7 @@ import android.util.Size;
 
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 
@@ -75,10 +76,12 @@ public class FakeCameraDeviceSurfaceManagerTest {
         mFakeCameraDeviceSurfaceManager = new FakeCameraDeviceSurfaceManager();
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().getUseCaseConfig();
 
-        mFakeCameraDeviceSurfaceManager.setSuggestedResolution(FAKE_CAMERA_ID0,
-                mFakeUseCaseConfig.getClass(), new Size(FAKE_WIDTH0, FAKE_HEIGHT0));
-        mFakeCameraDeviceSurfaceManager.setSuggestedResolution(FAKE_CAMERA_ID1,
-                mFakeUseCaseConfig.getClass(), new Size(FAKE_WIDTH1, FAKE_HEIGHT1));
+        mFakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(FAKE_CAMERA_ID0,
+                mFakeUseCaseConfig.getClass(),
+                StreamSpec.builder(new Size(FAKE_WIDTH0, FAKE_HEIGHT0)).build());
+        mFakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(FAKE_CAMERA_ID1,
+                mFakeUseCaseConfig.getClass(),
+                StreamSpec.builder(new Size(FAKE_WIDTH1, FAKE_HEIGHT1)).build());
 
         mUseCaseConfigList = singletonList(mFakeUseCaseConfig);
     }
@@ -87,7 +90,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
     public void validSurfaceCombination_noException() {
         UseCaseConfig<?> preview = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> analysis = new ImageAnalysis.Builder().getUseCaseConfig();
-        mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID0,
+        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
                 emptyList(), asList(preview, analysis));
     }
 
@@ -100,7 +103,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
                         YUV_420_888,
                         new Size(1, 1),
                         new Range<>(30, 30));
-        mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID0,
+        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
                 singletonList(analysis), asList(preview, video));
     }
 
@@ -109,23 +112,23 @@ public class FakeCameraDeviceSurfaceManagerTest {
         UseCaseConfig<?> preview = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> video = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> analysis = new ImageAnalysis.Builder().getUseCaseConfig();
-        mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID0,
+        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
                 Collections.emptyList(), asList(preview, video, analysis));
     }
 
     @Test
-    public void canRetrieveInsertedSuggestedResolutions() {
-        Map<UseCaseConfig<?>, Size> suggestedSizesCamera0 =
-                mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID0,
+    public void canRetrieveInsertedSuggestedStreamSpecs() {
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecsCamera0 =
+                mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
                         Collections.emptyList(), mUseCaseConfigList);
-        Map<UseCaseConfig<?>, Size> suggestedSizesCamera1 =
-                mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID1,
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecCamera1 =
+                mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID1,
                         Collections.emptyList(), mUseCaseConfigList);
 
-        assertThat(suggestedSizesCamera0.get(mFakeUseCaseConfig)).isEqualTo(
-                new Size(FAKE_WIDTH0, FAKE_HEIGHT0));
-        assertThat(suggestedSizesCamera1.get(mFakeUseCaseConfig)).isEqualTo(
-                new Size(FAKE_WIDTH1, FAKE_HEIGHT1));
+        assertThat(suggestedStreamSpecsCamera0.get(mFakeUseCaseConfig)).isEqualTo(
+                StreamSpec.builder(new Size(FAKE_WIDTH0, FAKE_HEIGHT0)).build());
+        assertThat(suggestedStreamSpecCamera1.get(mFakeUseCaseConfig)).isEqualTo(
+                StreamSpec.builder(new Size(FAKE_WIDTH1, FAKE_HEIGHT1)).build());
     }
 
 }

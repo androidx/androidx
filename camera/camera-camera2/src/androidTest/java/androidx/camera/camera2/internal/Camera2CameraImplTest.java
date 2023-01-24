@@ -63,6 +63,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
@@ -664,7 +665,8 @@ public final class Camera2CameraImplTest {
                         CameraSelector.LENS_FACING_BACK).build();
         TestUseCase testUseCase = new TestUseCase(template, config,
                 selector, mMockOnImageAvailableListener, mMockRepeatingCaptureCallback);
-        testUseCase.updateSuggestedResolution(new Size(640, 480));
+
+        testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
         mFakeUseCases.add(testUseCase);
         return testUseCase;
     }
@@ -976,7 +978,7 @@ public final class Camera2CameraImplTest {
     }
 
     private void changeUseCaseSurface(UseCase useCase) {
-        useCase.updateSuggestedResolution(new Size(640, 480));
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
     }
 
     private void waitForCameraClose(Camera2CameraImpl camera2CameraImpl)
@@ -1035,7 +1037,7 @@ public final class Camera2CameraImplTest {
             bindToCamera(new FakeCamera(mCameraId, null,
                             new FakeCameraInfoInternal(mCameraId, 0, lensFacing)),
                     null, null);
-            updateSuggestedResolution(new Size(640, 480));
+            updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
         }
 
         public void close() {
@@ -1054,8 +1056,8 @@ public final class Camera2CameraImplTest {
 
         @Override
         @NonNull
-        protected Size onSuggestedResolutionUpdated(
-                @NonNull Size suggestedResolution) {
+        protected StreamSpec onSuggestedStreamSpecUpdated(
+                @NonNull StreamSpec suggestedStreamSpec) {
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
 
             builder.setTemplateType(mTemplate);
@@ -1064,6 +1066,7 @@ public final class Camera2CameraImplTest {
             if (mDeferrableSurface != null) {
                 mDeferrableSurface.close();
             }
+            Size suggestedResolution = suggestedStreamSpec.getResolution();
             ImageReader imageReader =
                     ImageReader.newInstance(
                             suggestedResolution.getWidth(),
@@ -1080,7 +1083,7 @@ public final class Camera2CameraImplTest {
             builder.addSurface(mDeferrableSurface);
 
             updateSessionConfig(builder.build());
-            return suggestedResolution;
+            return suggestedStreamSpec;
         }
     }
 }

@@ -63,6 +63,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
@@ -105,7 +106,7 @@ final class SupportedSurfaceCombination {
     private boolean mIsBurstCaptureSupported = false;
     @VisibleForTesting
     SurfaceSizeDefinition mSurfaceSizeDefinition;
-    private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
+    private final Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
     private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
@@ -209,18 +210,18 @@ final class SupportedSurfaceCombination {
     }
 
     /**
-     * Finds the suggested resolutions of the newly added UseCaseConfig.
+     * Finds the suggested stream specifications of the newly added UseCaseConfig.
      *
      * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigs newly added UseCaseConfig.
-     * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
-     * resolution.
+     * @return the suggested stream specifications, which is a mapping from UseCaseConfig to the
+     * suggested stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
      *                                  found. This may be due to no available output size or no
      *                                  available surface combination.
      */
     @NonNull
-    Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+    Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecifications(
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         // Refresh Preview Size based on current display configurations.
@@ -265,7 +266,7 @@ final class SupportedSurfaceCombination {
                 getAllPossibleSizeArrangements(
                         supportedOutputSizesList);
 
-        Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = null;
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap = null;
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
@@ -286,18 +287,17 @@ final class SupportedSurfaceCombination {
 
             // Check whether the SurfaceConfig combination can be supported
             if (checkSupported(surfaceConfigList)) {
-                suggestedResolutionsMap = new HashMap<>();
+                suggestedStreamSpecMap = new HashMap<>();
                 for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-                    suggestedResolutionsMap.put(
+                    suggestedStreamSpecMap.put(
                             useCaseConfig,
-                            possibleSizeList.get(
-                                    useCasesPriorityOrder.indexOf(
-                                            newUseCaseConfigs.indexOf(useCaseConfig))));
+                            StreamSpec.builder(possibleSizeList.get(useCasesPriorityOrder.indexOf(
+                                    newUseCaseConfigs.indexOf(useCaseConfig)))).build());
                 }
                 break;
             }
         }
-        if (suggestedResolutionsMap == null) {
+        if (suggestedStreamSpecMap == null) {
             throw new IllegalArgumentException(
                     "No supported surface combination is found for camera device - Id : "
                             + mCameraId + " and Hardware level: " + mHardwareLevel
@@ -305,7 +305,7 @@ final class SupportedSurfaceCombination {
                             + " Existing surfaces: " + existingSurfaces
                             + " New configs: " + newUseCaseConfigs);
         }
-        return suggestedResolutionsMap;
+        return suggestedStreamSpecMap;
     }
 
     /**

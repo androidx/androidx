@@ -55,6 +55,7 @@ import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -167,8 +168,8 @@ public class ExposureDeviceTest {
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
                 new FakeCameraDeviceSurfaceManager();
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution(mCameraId, FakeUseCaseConfig.class,
-                new Size(640, 480));
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(mCameraId, FakeUseCaseConfig.class,
+                StreamSpec.builder(new Size(640, 480)).build());
 
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mCamera2CameraImpl)),
@@ -436,14 +437,14 @@ public class ExposureDeviceTest {
 
         @Override
         @NonNull
-        protected Size onSuggestedResolutionUpdated(
-                @NonNull Size suggestedResolution) {
-            createPipeline(suggestedResolution);
+        protected StreamSpec onSuggestedStreamSpecUpdated(
+                @NonNull StreamSpec suggestedStreamSpec) {
+            createPipeline(suggestedStreamSpec);
             notifyActive();
-            return suggestedResolution;
+            return suggestedStreamSpec;
         }
 
-        private void createPipeline(Size resolution) {
+        private void createPipeline(StreamSpec streamSpec) {
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -452,6 +453,7 @@ public class ExposureDeviceTest {
             }
 
             // Create the metering DeferrableSurface
+            Size resolution = streamSpec.getResolution();
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);
             surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
             Surface surface = new Surface(surfaceTexture);
@@ -477,7 +479,7 @@ public class ExposureDeviceTest {
 
             builder.addErrorListener((sessionConfig, error) -> {
                 // Create new pipeline and it will close the old one.
-                createPipeline(resolution);
+                createPipeline(streamSpec);
             });
             updateSessionConfig(builder.build());
         }

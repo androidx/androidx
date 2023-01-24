@@ -74,6 +74,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
@@ -302,8 +303,9 @@ public final class ImageAnalysis extends UseCase {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId,
-            @NonNull ImageAnalysisConfig config, @NonNull Size resolution) {
+            @NonNull ImageAnalysisConfig config, @NonNull StreamSpec streamSpec) {
         Threads.checkMainThread();
+        Size resolution = streamSpec.getResolution();
 
         Executor backgroundExecutor = Preconditions.checkNotNull(config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor()));
@@ -387,7 +389,7 @@ public final class ImageAnalysis extends UseCase {
             if (isCurrentCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 SessionConfig.Builder errorSessionConfigBuilder = createPipeline(cameraId, config,
-                        resolution);
+                        streamSpec);
                 updateSessionConfig(errorSessionConfigBuilder.build());
 
                 notifyReset();
@@ -726,14 +728,14 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
         SessionConfig.Builder sessionConfigBuilder = createPipeline(getCameraId(), config,
-                suggestedResolution);
+                suggestedStreamSpec);
         updateSessionConfig(sessionConfigBuilder.build());
 
-        return suggestedResolution;
+        return suggestedStreamSpec;
     }
 
     /**
