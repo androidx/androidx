@@ -16,7 +16,13 @@
 
 package androidx.camera.core.streamsharing;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
+
 import android.os.Build;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -24,12 +30,17 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -43,10 +54,8 @@ class VirtualCamera implements CameraInternal {
 
     private static final String UNSUPPORTED_MESSAGE = "Operation not supported by VirtualCamera.";
 
-    @SuppressWarnings("UnusedVariable")
     @NonNull
     private final Set<UseCase> mChildren;
-    @SuppressWarnings("UnusedVariable")
     @NonNull
     private final UseCaseConfigFactory mUseCaseConfigFactory;
     @NonNull
@@ -68,7 +77,47 @@ class VirtualCamera implements CameraInternal {
 
     // --- API for StreamSharing ---
 
-    // TODO(b/264936250): Add methods for interacting with the StreamSharing UseCase.
+    void mergeChildrenConfigs(@NonNull MutableConfig mutableConfig) {
+        Set<UseCaseConfig<?>> childrenConfigs = new HashSet<>();
+        for (UseCase useCase : mChildren) {
+            childrenConfigs.add(useCase.mergeConfigs(mParentCamera.getCameraInfoInternal(),
+                    null,
+                    useCase.getDefaultConfig(true, mUseCaseConfigFactory)));
+        }
+        // Merge resolution configs.
+        List<Size> supportedResolutions =
+                new ArrayList<>(mParentCamera.getCameraInfoInternal().getSupportedResolutions(
+                        INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
+        Size sensorSize = rectToSize(mParentCamera.getCameraControlInternal().getSensorRect());
+        mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
+                getMergedResolutions(supportedResolutions, sensorSize,
+                        childrenConfigs));
+    }
+
+    void bindChildren() {
+        for (UseCase useCase : mChildren) {
+            useCase.bindToCamera(this, null,
+                    useCase.getDefaultConfig(true, mUseCaseConfigFactory));
+        }
+    }
+
+    void unbindChildren() {
+        for (UseCase useCase : mChildren) {
+            useCase.unbindFromCamera(this);
+        }
+    }
+
+    void notifyStateAttached() {
+        for (UseCase useCase : mChildren) {
+            useCase.onStateAttached();
+        }
+    }
+
+    void notifyStateDetached() {
+        for (UseCase useCase : mChildren) {
+            useCase.onStateDetached();
+        }
+    }
 
     @NonNull
     Set<UseCase> getChildren() {
@@ -110,6 +159,8 @@ class VirtualCamera implements CameraInternal {
     @NonNull
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
+        // TODO(264936250): replace this with a virtual camera info that returns a updated sensor
+        //  rotation degrees based on buffer transformation applied in StreamSharing.
         return mParentCamera.getCameraInfoInternal();
     }
 

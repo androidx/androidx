@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -42,10 +43,10 @@ import java.util.Set;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class StreamSharing extends UseCase {
 
+    private static final StreamSharingConfig DEFAULT_CONFIG;
+
     @SuppressWarnings("UnusedVariable")
     private final VirtualCamera mVirtualCamera;
-
-    private static final StreamSharingConfig DEFAULT_CONFIG;
 
     static {
         MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
@@ -90,6 +91,38 @@ public class StreamSharing extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return new StreamSharingBuilder(MutableOptionsBundle.from(config));
+    }
+
+    @NonNull
+    @Override
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        mVirtualCamera.mergeChildrenConfigs(builder.getMutableConfig());
+        return builder.getUseCaseConfig();
+    }
+
+    @Override
+    public void onBind() {
+        super.onBind();
+        mVirtualCamera.bindChildren();
+    }
+
+    @Override
+    public void onUnbind() {
+        super.onUnbind();
+        mVirtualCamera.unbindChildren();
+    }
+
+    @Override
+    public void onStateAttached() {
+        super.onStateAttached();
+        mVirtualCamera.notifyStateAttached();
+    }
+
+    @Override
+    public void onStateDetached() {
+        super.onStateDetached();
+        mVirtualCamera.notifyStateDetached();
     }
 
     @NonNull
