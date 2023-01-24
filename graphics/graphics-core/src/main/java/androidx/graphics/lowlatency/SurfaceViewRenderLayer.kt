@@ -104,18 +104,25 @@ internal class SurfaceViewRenderLayer<T>(
         renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget {
         var params: Collection<T>? = null
+        val bufferInfo = BufferInfo()
         val frameBufferRenderer = FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
 
-                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer =
-                    mLayerCallback?.getFrameBufferPool()?.obtain(egl)
+                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
+                    val frameBuffer = mLayerCallback?.getFrameBufferPool()?.obtain(egl)
                         ?: throw IllegalArgumentException("No FrameBufferPool available")
+                    bufferInfo.frameBufferId = frameBuffer.frameBuffer
+                    return frameBuffer
+                }
 
                 override fun onDraw(eglManager: EGLManager) {
+                    bufferInfo.apply {
+                        this.width = mBufferTransform.glWidth
+                        this.height = mBufferTransform.glHeight
+                    }
                     renderLayerCallback.onDrawDoubleBufferedLayer(
                         eglManager,
-                        mBufferTransform.glWidth,
-                        mBufferTransform.glHeight,
+                        bufferInfo,
                         mBufferTransform.transform,
                         params ?: Collections.emptyList()
                     )
