@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
 import androidx.glance.ButtonColors
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -90,6 +91,7 @@ import org.robolectric.RobolectricTestRunner
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -756,6 +758,58 @@ class WearCompositionTranslatorTest {
         assertThat(idToImageMap.containsKey(mappedId2)).isTrue()
         assertThat(idToImageMap[mappedId2]!!.inlineResource).isNotNull()
         assertThat(idToImageMap[mappedId2]!!.androidResourceByResId).isNull()
+    }
+
+    @Test
+    fun translateImage_noColorFilter() = fakeCoroutineScope.runTest {
+        val compositionResult = runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+            )
+        }
+
+        val content = compositionResult.layout
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+        assertThat(image.colorFilter).isNull()
+    }
+
+    @Test
+    fun translateImage_colorFilter() = fakeCoroutineScope.runTest {
+        val compositionResult = runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+                colorFilter = ColorFilter.tint(ColorProvider(Color.Gray))
+            )
+        }
+
+        val content = compositionResult.layout
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+        val tint = assertNotNull(image.colorFilter?.tint)
+        assertThat(tint.argb).isEqualTo(Color.Gray.toArgb())
+    }
+
+    @Test
+    fun translateImage_colorFilterWithResource() = fakeCoroutineScope.runTest {
+        val compositionResult = runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+                colorFilter = ColorFilter.tint(ColorProvider(R.color.color1))
+            )
+        }
+
+        val content = compositionResult.layout
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+        val tint = assertNotNull(image.colorFilter?.tint)
+        assertThat(tint.argb).isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
     }
 
     @Test
