@@ -58,7 +58,7 @@ public final class AnimationParameterBuilders {
 
     /**
      * Incoming elements are animated using deceleration easing, which starts a transition at peak
-     * velocity (the fastest point of an element’s movement) and ends at rest.
+     * velocity (the fastest point of an element's movement) and ends at rest.
      *
      * <p>This is equivalent to the Compose {@code LinearOutSlowInEasing}.
      */
@@ -363,7 +363,7 @@ public final class AnimationParameterBuilders {
   }
 
   /**
-   * The cubic polynomial easing that implements third-order Bézier curves. This is equivalent to
+   * The cubic polynomial easing that implements third-order Bezier curves. This is equivalent to
    * the Android PathInterpolator.
    *
    * @since 1.2
