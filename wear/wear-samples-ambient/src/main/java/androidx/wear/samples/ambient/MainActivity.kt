@@ -5,15 +5,16 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.TextView
-import androidx.fragment.app.FragmentActivity
-import androidx.wear.ambient.AmbientModeSupport
+import androidx.core.app.ComponentActivity
+import androidx.wear.ambient.AmbientLifecycleObserver
+import androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientDetails
+import androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback
 import java.text.SimpleDateFormat
 import java.util.Date
 
 /** Sample activity that provides an ambient experience. */
 class MainActivity :
-    FragmentActivity(R.layout.activity_main),
-    AmbientModeSupport.AmbientCallbackProvider {
+    ComponentActivity() {
 
     /** Used to dispatch periodic updates when the activity is in active mode. */
     private val activeUpdatesHandler = Handler(Looper.getMainLooper())
@@ -22,7 +23,7 @@ class MainActivity :
     private val model = MainViewModel()
 
     /** The controller for ambient mode, initialized when the activity is created. */
-    private lateinit var ambientController: AmbientModeSupport.AmbientController
+    private lateinit var ambientObserver: AmbientLifecycleObserver
 
     // The views that are part of the activity.
     private val timerTextView by lazy { findViewById<TextView>(R.id.timer) }
@@ -30,11 +31,31 @@ class MainActivity :
     private val timestampTextView by lazy { findViewById<TextView>(R.id.timestamp) }
     private val updatesTextView by lazy { findViewById<TextView>(R.id.updates) }
 
+    private val ambientCallback = object : AmbientLifecycleCallback {
+        override fun onEnterAmbient(ambientDetails: AmbientDetails) {
+            Log.d(TAG, "onEnterAmbient()")
+            model.setStatus(Status.AMBIENT)
+            model.publishUpdate()
+        }
+
+        override fun onUpdateAmbient() {
+            Log.d(TAG, "onUpdateAmbient()")
+            model.publishUpdate()
+        }
+
+        override fun onExitAmbient() {
+            Log.d(TAG, "onExitAmbient()")
+            model.setStatus(Status.ACTIVE)
+            model.publishUpdate()
+            schedule()
+        }
+    }
+
     /** Invoked on [activeUpdatesHandler], posts an update when the activity is in active mode. */
     private val mActiveUpdatesRunnable: Runnable =
         Runnable {
             // If invoked in ambient mode, do nothing.
-            if (ambientController.isAmbient) {
+            if (ambientObserver.isAmbient()) {
                 return@Runnable
             }
             model.publishUpdate()
@@ -45,8 +66,10 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
+        setContentView(R.layout.activity_main)
         observeModel()
-        ambientController = AmbientModeSupport.attach(this)
+        ambientObserver = AmbientLifecycleObserver(this, ambientCallback)
+        this.lifecycle.addObserver(ambientObserver)
     }
 
     override fun onStart() {
@@ -76,29 +99,6 @@ class MainActivity :
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
-    }
-
-    override fun getAmbientCallback() = object : AmbientModeSupport.AmbientCallback() {
-        override fun onEnterAmbient(ambientDetails: Bundle) {
-            super.onEnterAmbient(ambientDetails)
-            Log.d(TAG, "onEnterAmbient()")
-            model.setStatus(Status.AMBIENT)
-            model.publishUpdate()
-        }
-
-        override fun onUpdateAmbient() {
-            super.onUpdateAmbient()
-            Log.d(TAG, "onUpdateAmbient()")
-            model.publishUpdate()
-        }
-
-        override fun onExitAmbient() {
-            super.onExitAmbient()
-            Log.d(TAG, "onExitAmbient()")
-            model.setStatus(Status.ACTIVE)
-            model.publishUpdate()
-            schedule()
-        }
     }
 
     private fun observeModel() {
