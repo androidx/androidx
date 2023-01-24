@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.control.data
 
-import android.content.ComponentName
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.WatchUiState
@@ -40,7 +39,8 @@ class WallpaperInteractiveWatchFaceInstanceParamsTest {
             ),
             UserStyle(emptyMap()).toWireFormat(),
             null,
-            ComponentName("some.package", "SomeClass")
+            null,
+            null
         )
 
         val dummyOutputStream = ByteArrayOutputStream()
