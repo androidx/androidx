@@ -18,15 +18,11 @@ package androidx.privacysandbox.ui.client.test
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.View
-import androidx.privacysandbox.ui.client.R
 
-class UiLibActivity : Activity() {
-
-    lateinit var mRootView: View
+class UiLibActivity() : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(androidx.privacysandbox.ui.client.test.R.layout.activity_main)
+        setContentView(R.layout.activity_main)
     }
 }

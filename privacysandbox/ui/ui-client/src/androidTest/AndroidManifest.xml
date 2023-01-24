@@ -18,7 +18,8 @@
     <application android:supportsRtl="true">
     <activity
         android:name="androidx.privacysandbox.ui.client.test.UiLibActivity"
-        android:exported="true" />
+        android:configChanges="orientation|screenSize"
+        android:exported="true"/>
     </application>
 
     <queries>
