@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -68,10 +69,22 @@ class TransactionMethodProcessor(
                 TransactionMethod.CallType.CONCRETE
         }
 
+        val isVarArgs = executableElement.isVarArgs()
+        val parameters = delegate.extractParams()
+        val processedParamNames = parameters.mapIndexed { index, param ->
+            // Apply spread operator when delegating to a vararg parameter in Kotlin.
+            if (context.codeLanguage == CodeLanguage.KOTLIN &&
+                isVarArgs && index == parameters.size - 1) {
+                "*${param.name}"
+            } else {
+                param.name
+            }
+        }
+
         return TransactionMethod(
             element = executableElement,
             returnType = returnType,
-            parameterNames = delegate.extractParams().map { it.name },
+            parameterNames = processedParamNames,
             callType = callType,
             methodBinder = delegate.findTransactionMethodBinder(callType)
         )
