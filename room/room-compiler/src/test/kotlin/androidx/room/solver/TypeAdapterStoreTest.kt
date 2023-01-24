@@ -280,7 +280,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.builder().build().toString().trim(),
+                bindScope.generate().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)} = fooVar ? 1 : 0;
@@ -292,7 +292,7 @@ class TypeAdapterStoreTest {
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "7", cursorScope)
             assertThat(
-                cursorScope.builder().build().toString().trim(),
+                cursorScope.generate().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)};
@@ -355,7 +355,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.builder().build().toString().trim(),
+                bindScope.generate().toString().trim(),
                 `is`(
                     """
                     final boolean ${tmp(0)} = foo.bar.Point.toBoolean(fooVar);
@@ -368,7 +368,7 @@ class TypeAdapterStoreTest {
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "11", cursorScope).toString()
             assertThat(
-                cursorScope.builder().build().toString().trim(),
+                cursorScope.generate().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)};
@@ -396,7 +396,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.readFromCursor("outDate", "curs", "0", bindScope)
             assertThat(
-                bindScope.builder().build().toString().trim(),
+                bindScope.generate().toString().trim(),
                 `is`(
                     """
                 final java.lang.Long _tmp;
@@ -445,7 +445,7 @@ class TypeAdapterStoreTest {
                 }
                 """.trimIndent()
             }
-            assertThat(bindScope.builder().build().toString().trim()).isEqualTo(
+            assertThat(bindScope.generate().toString().trim()).isEqualTo(
                 """
                 |final java.lang.String ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
                 |$expectedAdapterCode
