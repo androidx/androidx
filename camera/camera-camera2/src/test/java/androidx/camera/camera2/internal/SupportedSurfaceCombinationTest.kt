@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package androidx.camera.camera2.internal
+
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
@@ -22,6 +23,7 @@ import android.hardware.camera2.CameraMetadata
 import android.media.CamcorderProfile
 import android.os.Build
 import android.util.Pair
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -30,6 +32,7 @@ import androidx.annotation.NonNull
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.SupportedOutputSizesCollectorTest.Companion.createUseCaseByResolutionSelector
 import androidx.camera.camera2.internal.SupportedOutputSizesCollectorTest.Companion.setupCamera
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector.LensFacing
@@ -41,6 +44,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.MutableStateObservable
@@ -51,6 +55,7 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
 import androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio
@@ -163,6 +168,8 @@ class SupportedSurfaceCombinationTest {
             targetRotation: Int,
             preferredAspectRatio: Int,
             preferredResolution: Size?,
+            targetFrameRate: Range<Int>?,
+            surfaceOccupancyPriority: Int,
             maxResolution: Size?,
             highResolutionEnabled: Boolean,
             defaultResolution: Size?,
@@ -174,6 +181,8 @@ class SupportedSurfaceCombinationTest {
                 targetRotation,
                 preferredAspectRatio,
                 preferredResolution,
+                targetFrameRate,
+                surfaceOccupancyPriority,
                 maxResolution,
                 defaultResolution,
                 supportedResolutions,
@@ -188,6 +197,8 @@ class SupportedSurfaceCombinationTest {
             targetRotation: Int,
             preferredAspectRatio: Int,
             preferredResolution: Size?,
+            targetFrameRate: Range<Int>?,
+            surfaceOccupancyPriority: Int,
             maxResolution: Size?,
             highResolutionEnabled: Boolean,
             defaultResolution: Size?,
@@ -215,6 +226,8 @@ class SupportedSurfaceCombinationTest {
             targetRotation: Int,
             preferredAspectRatio: Int,
             preferredResolution: Size?,
+            targetFrameRate: Range<Int>?,
+            surfaceOccupancyPriority: Int,
             maxResolution: Size?,
             highResolutionEnabled: Boolean,
             defaultResolution: Size?,
@@ -2667,6 +2680,336 @@ class SupportedSurfaceCombinationTest {
         assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(8000, 4500))
     }
 
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_single_valid_targetFPS() {
+        // a valid target means the device is capable of that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(25, 30)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1
+        )
+        // single selected size should be equal to 3840 x 2160
+        assertThat(suggestedStreamSpecMap[useCase1]!!.resolution).isEqualTo(Size(3840, 2160))
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_single_invalid_targetFPS() {
+        // an invalid target means the device would neve be able to reach that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(65, 70)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1
+        )
+        // single selected size should be equal to 3840 x 2160
+        assertThat(suggestedStreamSpecMap[useCase1]!!.resolution).isEqualTo(Size(800, 450))
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_targetFPS_first_is_larger() {
+        // a valid target means the device is capable of that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(15, 25)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1080
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1445)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1445)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_targetFPS_first_is_smaller() {
+        // a valid target means the device is capable of that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(45, 50)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1440
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_targetFPS_intersect() {
+        // first and second new use cases have target fps that intersect each other
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 40),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(35, 45)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // effective target fps becomes 35-40
+        // both selected size should be no larger than 1920 x 1080
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1080)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1080)))
+            .isTrue()
+    }
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_cases_first_has_targetFPS() {
+        // first new use case has a target fps, second new use case does not
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1440
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_cases_second_has_targetFPS() {
+        // second new use case does not have a target fps, first new use case does not
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE
+        )
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1440
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_attached_with_targetFPS_no_new_targetFPS() {
+        // existing surface with target fps + new use case without a target fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // existing surface w/ target fps
+        val attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.JPEG,
+                ConfigSize.PREVIEW
+            ), ImageFormat.JPEG,
+            Size(1280, 720), Range(40, 50)
+        )
+
+        // new use case with no target fps
+        val useCase1 = createUseCaseByLegacyApi(FAKE_USE_CASE)
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            attachedSurfaces = listOf(attachedSurfaceInfo)
+        )
+        // size should be no larger than 1280 x 960
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1280, 960)))
+            .isTrue()
+    }
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_attached_with_targetFPS_and_new_targetFPS_no_intersect() {
+        // existing surface with target fps + new use case with target fps that does not intersect
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // existing surface w/ target fps
+        val attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.JPEG,
+                ConfigSize.PREVIEW
+            ), ImageFormat.JPEG,
+            Size(1280, 720), Range(40, 50)
+        )
+
+        // new use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35)
+
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            attachedSurfaces = listOf(attachedSurfaceInfo)
+        )
+        // size of new surface should be no larger than 1280 x 960
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1280, 960)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_attached_with_targetFPS_and_new_targetFPS_with_intersect() {
+        // existing surface with target fps + new use case with target fps that intersect each other
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // existing surface w/ target fps
+        val attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.JPEG,
+                ConfigSize.PREVIEW
+            ), ImageFormat.JPEG,
+            Size(1280, 720), Range(40, 50)
+        )
+
+        // new use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(45, 50)
+
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            supportedSurfaceCombination,
+            useCase1,
+            attachedSurfaces = listOf(attachedSurfaceInfo)
+        )
+        // size of new surface should be no larger than 1280 x 720
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1280, 720)))
+            .isTrue()
+    }
+
+    /**
+     * Helper function that returns whether size is <= maxSize
+     *
+     */
+    private fun sizeIsAtMost(size: Size, maxSize: Size): Boolean {
+        return (size.height * size.width) <= (maxSize.height * maxSize.width)
+    }
+
     /**
      * Sets up camera according to the specified settings and initialize [CameraX].
      *
@@ -2786,6 +3129,7 @@ class SupportedSurfaceCombinationTest {
     private fun getSuggestedStreamSpecMap(
         supportedSurfaceCombination: SupportedSurfaceCombination,
         vararg useCases: UseCase,
+        attachedSurfaces: List<AttachedSurfaceInfo>? = null,
         cameraFactory: CameraFactory = this.cameraFactory!!,
         cameraId: String = DEFAULT_CAMERA_ID,
         useCaseConfigFactory: UseCaseConfigFactory = this.useCaseConfigFactory!!
@@ -2798,8 +3142,9 @@ class SupportedSurfaceCombinationTest {
         )
         // Uses the use case config list to get suggested stream specs
         val useCaseConfigStreamSpecMap = supportedSurfaceCombination
-            .getSuggestedStreamSpecifications(emptyList(), mutableListOf<UseCaseConfig<*>?>()
-                .apply { addAll(useCaseToConfigMap.values) }
+            .getSuggestedStreamSpecifications(
+                attachedSurfaces ?: emptyList(),
+                mutableListOf<UseCaseConfig<*>?>().apply { addAll(useCaseToConfigMap.values) }
         )
         val useCaseStreamSpecMap = mutableMapOf<UseCase, StreamSpec?>()
         // Maps the use cases to the suggestion resolutions
@@ -2851,6 +3196,8 @@ class SupportedSurfaceCombinationTest {
         targetRotation: Int = UNKNOWN_ROTATION,
         targetAspectRatio: Int = UNKNOWN_ASPECT_RATIO,
         targetResolution: Size? = null,
+        targetFrameRate: Range<Int>? = null,
+        surfaceOccupancyPriority: Int = -1,
         maxResolution: Size? = null,
         defaultResolution: Size? = null,
         supportedResolutions: List<Pair<Int, Array<Size>>>? = null,
@@ -2868,6 +3215,10 @@ class SupportedSurfaceCombinationTest {
         if (targetAspectRatio != UNKNOWN_ASPECT_RATIO) {
             builder.setTargetAspectRatio(targetAspectRatio)
         }
+        if (surfaceOccupancyPriority >= 0) {
+            builder.setSurfaceOccupancyPriority(surfaceOccupancyPriority)
+        }
+        builder.mutableConfig.insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate)
         targetResolution?.let { builder.setTargetResolution(it) }
         maxResolution?.let { builder.setMaxResolution(it) }
         defaultResolution?.let { builder.setDefaultResolution(it) }
@@ -2920,6 +3271,8 @@ class SupportedSurfaceCombinationTest {
             targetRotation: Int = UNKNOWN_ROTATION,
             preferredAspectRatio: Int = UNKNOWN_ASPECT_RATIO,
             preferredResolution: Size? = null,
+            targetFrameRate: Range<Int>? = null,
+            surfaceOccupancyPriority: Int = -1,
             maxResolution: Size? = null,
             highResolutionEnabled: Boolean = false,
             defaultResolution: Size? = null,
