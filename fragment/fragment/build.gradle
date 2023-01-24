@@ -57,9 +57,9 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
-    androidTestImplementation(project(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
 
-    testImplementation(project(":fragment:fragment"))
+    testImplementation(projectOrArtifact(":fragment:fragment"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
