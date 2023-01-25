@@ -193,8 +193,11 @@ message FulfillmentRequest {
       // "textField.name".
       string name = 1;
 
+      // The updated values for this parameter.
+      repeated ParamValue values = 2 [deprecated = true];
+
       // The values and disambig data for this parameter.
-      repeated FulfillmentValue fulfillment_values = 2;
+      repeated FulfillmentValue fulfillment_values = 3;
     }
 
     repeated FulfillmentParam params = 3;
