@@ -42,7 +42,12 @@ class FrameBuffer(
 
     private var eglImage: EGLImageKHR?
     private var texture: Int = -1
-    private var frameBuffer: Int = -1
+
+    /**
+     * Return the corresponding FrameBuffer identifier.
+     */
+    internal var frameBuffer: Int = -1
+        private set
 
     /**
      * Boolean that tells if the frame buffer is currently closed

@@ -63,19 +63,18 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
 
         override fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
-            bufferWidth: Int,
-            bufferHeight: Int,
+            bufferInfo: BufferInfo,
             transform: FloatArray,
             param: FloatArray
         ) {
-            GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+            GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
             Matrix.orthoM(
                 mMVPMatrix,
                 0,
                 0f,
-                bufferWidth.toFloat(),
+                bufferInfo.width.toFloat(),
                 0f,
-                bufferHeight.toFloat(),
+                bufferInfo.height.toFloat(),
                 -1f,
                 1f
             )
@@ -94,21 +93,20 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
 
         override fun onDrawDoubleBufferedLayer(
             eglManager: EGLManager,
-            bufferWidth: Int,
-            bufferHeight: Int,
+            bufferInfo: BufferInfo,
             transform: FloatArray,
             params: Collection<FloatArray>
         ) {
-            GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+            GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
             GLES20.glClearColor(0f, 0f, 0f, 0f)
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             Matrix.orthoM(
                 mMVPMatrix,
                 0,
                 0f,
-                bufferWidth.toFloat(),
+                bufferInfo.width.toFloat(),
                 0f,
-                bufferHeight.toFloat(),
+                bufferInfo.height.toFloat(),
                 -1f,
                 1f
             )
