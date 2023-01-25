@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor

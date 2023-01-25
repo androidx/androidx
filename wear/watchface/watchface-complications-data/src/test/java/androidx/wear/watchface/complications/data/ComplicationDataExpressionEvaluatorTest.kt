@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.util.Log
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any

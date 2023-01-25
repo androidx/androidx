@@ -15,6 +15,7 @@
  */
 package androidx.wear.watchface.complications
 
+import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
@@ -52,9 +53,6 @@ import java.lang.IllegalArgumentException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
-
-private typealias WireComplicationProviderInfo =
-    android.support.wearable.complications.ComplicationProviderInfo
 
 /**
  * Retrieves [Result] for a watch face's complications.
@@ -440,14 +438,11 @@ public class ComplicationDataSourceInfo(
         )
 }
 
-// Ugh we need this since the linter wants the method signature all on one line...
-typealias ApiInfo = ComplicationDataSourceInfo
-
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo(): ApiInfo =
+public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
     ComplicationDataSourceInfo(
         appName!!, providerName!!, providerIcon!!, fromWireType(complicationType),
         providerComponentName
