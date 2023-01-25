@@ -79,7 +79,7 @@ class TopicsManagerTest {
         // Actually invoke the compat code.
         val result = runBlocking {
             val request = GetTopicsRequest.Builder()
-                .setSdkName(mSdkName)
+                .setAdsSdkName(mSdkName)
                 .setShouldRecordObservation(true)
                 .build()
 
@@ -108,7 +108,7 @@ class TopicsManagerTest {
         val managerCompat = obtain(mContext)
 
         val request = GetTopicsRequest.Builder()
-            .setSdkName(mSdkName)
+            .setAdsSdkName(mSdkName)
             .setShouldRecordObservation(false)
             .build()
 
