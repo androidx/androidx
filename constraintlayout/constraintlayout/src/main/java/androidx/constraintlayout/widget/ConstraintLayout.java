@@ -105,7 +105,6 @@ import java.util.HashMap;
  * ConstraintLayout.LayoutParams} for layout attributes
  * </p>
  *
- * <div class="special reference">
  * <h3>Developer Guide</h3>
  *
  * <h4 id="RelativePositioning"> Relative positioning </h4>
@@ -556,7 +555,6 @@ import java.util.HashMap;
  * <p>This attribute is a mask, so you can decide to turn on or off
  * specific optimizations by listing the ones you want.
  * For example: <i>app:layout_optimizationLevel="direct|barrier|chain"</i> </p>
- * </div>
  */
 public class ConstraintLayout extends ViewGroup {
     /**
