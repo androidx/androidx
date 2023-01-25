@@ -153,7 +153,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @RawQuery
-                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne();
+                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE.canonicalName}<User> getOne();
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
@@ -169,7 +169,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @RawQuery(observedEntities = {User.class})
-                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne(
+                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE.canonicalName}<User> getOne(
                         SupportSQLiteQuery query);
                 """
         ) { _, _ ->

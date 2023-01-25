@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
@@ -124,9 +125,7 @@ import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSetMultimap
-import com.squareup.javapoet.TypeName
 
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 /**
  * Holds all type adapters and can create on demand composite type adapters to convert a type into a
  * database column.
@@ -202,7 +201,7 @@ class TypeAdapterStore private constructor(
         }
     }
 
-    val queryResultBinderProviders: List<QueryResultBinderProvider> =
+    private val queryResultBinderProviders: List<QueryResultBinderProvider> =
         mutableListOf<QueryResultBinderProvider>().apply {
             add(CursorQueryResultBinderProvider(context))
             add(LiveDataQueryResultBinderProvider(context))
@@ -219,28 +218,28 @@ class TypeAdapterStore private constructor(
             add(InstantQueryResultBinderProvider(context))
         }
 
-    val preparedQueryResultBinderProviders: List<PreparedQueryResultBinderProvider> =
+    private val preparedQueryResultBinderProviders: List<PreparedQueryResultBinderProvider> =
         mutableListOf<PreparedQueryResultBinderProvider>().apply {
             addAll(RxPreparedQueryResultBinderProvider.getAll(context))
             add(GuavaListenableFuturePreparedQueryResultBinderProvider(context))
             add(InstantPreparedQueryResultBinderProvider(context))
         }
 
-    val insertBinderProviders: List<InsertOrUpsertMethodBinderProvider> =
+    private val insertBinderProviders: List<InsertOrUpsertMethodBinderProvider> =
         mutableListOf<InsertOrUpsertMethodBinderProvider>().apply {
             addAll(RxCallableInsertMethodBinderProvider.getAll(context))
             add(GuavaListenableFutureInsertMethodBinderProvider(context))
             add(InstantInsertMethodBinderProvider(context))
         }
 
-    val deleteOrUpdateBinderProvider: List<DeleteOrUpdateMethodBinderProvider> =
+    private val deleteOrUpdateBinderProvider: List<DeleteOrUpdateMethodBinderProvider> =
         mutableListOf<DeleteOrUpdateMethodBinderProvider>().apply {
             addAll(RxCallableDeleteOrUpdateMethodBinderProvider.getAll(context))
             add(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(context))
             add(InstantDeleteOrUpdateMethodBinderProvider(context))
         }
 
-    val upsertBinderProviders: List<InsertOrUpsertMethodBinderProvider> =
+    private val upsertBinderProviders: List<InsertOrUpsertMethodBinderProvider> =
         mutableListOf<InsertOrUpsertMethodBinderProvider>().apply {
             addAll(RxCallableUpsertMethodBinderProvider.getAll(context))
             add(GuavaListenableFutureUpsertMethodBinderProvider(context))
@@ -624,9 +623,9 @@ class TypeAdapterStore private constructor(
             }
             val keyTypeArg = when (mapType) {
                 MultimapQueryResultAdapter.MapType.LONG_SPARSE ->
-                    context.processingEnv.requireType(TypeName.LONG)
+                    context.processingEnv.requireType(XTypeName.PRIMITIVE_LONG)
                 MultimapQueryResultAdapter.MapType.INT_SPARSE ->
-                    context.processingEnv.requireType(TypeName.INT)
+                    context.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
                 else ->
                     typeMirror.typeArguments[0].extendsBoundOrSelf()
             }

@@ -26,7 +26,7 @@ import androidx.room.RoomProcessor
  *
  * Example of a typical config:
  * ```
- * # Room dejetifier packages for JavaPoet class names.
+ * # Room dejetifier packages for XPoet class names.
  * androidx.sqlite = android.arch.persistence
  * androidx.room = android.arch.persistence.room
  * androidx.paging = android.arch.paging

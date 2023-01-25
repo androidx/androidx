@@ -35,7 +35,6 @@ import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.columnNames
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -63,7 +62,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             )
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.requireType(TypeName.INT)
+            val intType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
             assertThat(
                 field,
                 `is`(
