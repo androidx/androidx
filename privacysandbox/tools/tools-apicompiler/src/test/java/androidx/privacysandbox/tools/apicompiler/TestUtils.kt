@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
-import androidx.privacysandbox.tools.apicompiler.util.allTestLibraryStubs
+import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.privacysandbox.tools.testing.CompilationTestHelper
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
