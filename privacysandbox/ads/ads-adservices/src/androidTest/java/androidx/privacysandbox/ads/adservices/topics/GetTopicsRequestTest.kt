@@ -27,13 +27,13 @@ import org.junit.runner.RunWith
 class GetTopicsRequestTest {
     @Test
     fun testToString() {
-        val result = "GetTopicsRequest: sdkName=sdk1, shouldRecordObservation=false"
+        val result = "GetTopicsRequest: adsSdkName=sdk1, shouldRecordObservation=false"
         val request = GetTopicsRequest("sdk1", false)
         Truth.assertThat(request.toString()).isEqualTo(result)
 
         // Verify Builder.
         val request2 = GetTopicsRequest.Builder()
-            .setSdkName("sdk1")
+            .setAdsSdkName("sdk1")
             .setShouldRecordObservation(false)
             .build()
         Truth.assertThat(request.toString()).isEqualTo(result)

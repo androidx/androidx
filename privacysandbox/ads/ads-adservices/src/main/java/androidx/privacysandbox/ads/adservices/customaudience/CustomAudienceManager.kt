@@ -203,7 +203,8 @@ abstract class CustomAudienceManager internal constructor() {
         /**
          *  Creates [CustomAudienceManager].
          *
-         *  @return CustomAudienceManager object.
+         *  @return CustomAudienceManager object. If the device is running an incompatible
+         *  build, the value returned is null.
          */
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")

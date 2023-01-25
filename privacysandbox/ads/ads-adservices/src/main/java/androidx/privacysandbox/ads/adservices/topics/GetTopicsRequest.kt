@@ -20,31 +20,31 @@ package androidx.privacysandbox.ads.adservices.topics
  * Represents the request for the getTopics API (which takes a [GetTopicsRequest] and
  * returns a [GetTopicsResponse].
  *
- * @param sdkName The Ads SDK name. This must be called by SDKs running outside of the Sandbox.
+ * @param adsSdkName The Ads SDK name. This must be called by SDKs running outside of the Sandbox.
  * Other clients must not call it.
  * @param shouldRecordObservation whether to record that the caller has observed the topics of the
  *     host app or not. This will be used to determine if the caller can receive the topic
  *     in the next epoch.
  */
 class GetTopicsRequest public constructor(
-    val sdkName: String = "",
+    val adsSdkName: String = "",
     @get:JvmName("shouldRecordObservation")
     val shouldRecordObservation: Boolean = false
 ) {
     override fun toString(): String {
         return "GetTopicsRequest: " +
-            "sdkName=$sdkName, shouldRecordObservation=$shouldRecordObservation"
+            "adsSdkName=$adsSdkName, shouldRecordObservation=$shouldRecordObservation"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GetTopicsRequest) return false
-        return this.sdkName == other.sdkName &&
+        return this.adsSdkName == other.adsSdkName &&
             this.shouldRecordObservation == other.shouldRecordObservation
     }
 
     override fun hashCode(): Int {
-        var hash = sdkName.hashCode()
+        var hash = adsSdkName.hashCode()
         hash = 31 * hash + shouldRecordObservation.hashCode()
         return hash
     }
@@ -53,7 +53,7 @@ class GetTopicsRequest public constructor(
      * Builder for [GetTopicsRequest].
      */
     public class Builder() {
-        private var sdkName: String = ""
+        private var adsSdkName: String = ""
         private var shouldRecordObservation: Boolean = true
 
         /**
@@ -62,9 +62,9 @@ class GetTopicsRequest public constructor(
          * <p>This must be called by SDKs running outside of the Sandbox. Other clients must not
          * call it.
          *
-         * @param sdkName the Ads Sdk Name.
+         * @param adsSdkName the Ads Sdk Name.
          */
-        fun setSdkName(sdkName: String): Builder = apply { this.sdkName = sdkName }
+        fun setAdsSdkName(adsSdkName: String): Builder = apply { this.adsSdkName = adsSdkName }
 
         /**
          * Set the Record Observation.
@@ -80,8 +80,8 @@ class GetTopicsRequest public constructor(
 
         /** Builds a [GetTopicsRequest] instance. */
         fun build(): GetTopicsRequest {
-            check(sdkName.isNotEmpty()) { "sdkName must be set" }
-            return GetTopicsRequest(sdkName, shouldRecordObservation)
+            check(adsSdkName.isNotEmpty()) { "adsSdkName must be set" }
+            return GetTopicsRequest(adsSdkName, shouldRecordObservation)
         }
     }
 }

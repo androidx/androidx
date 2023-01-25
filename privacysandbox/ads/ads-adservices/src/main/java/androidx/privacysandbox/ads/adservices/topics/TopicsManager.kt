@@ -81,7 +81,7 @@ abstract class TopicsManager internal constructor() {
                 throw IllegalArgumentException("shouldRecordObservation not supported yet.")
             }
             return android.adservices.topics.GetTopicsRequest.Builder()
-                .setAdsSdkName(request.sdkName)
+                .setAdsSdkName(request.adsSdkName)
                 .build()
         }
 

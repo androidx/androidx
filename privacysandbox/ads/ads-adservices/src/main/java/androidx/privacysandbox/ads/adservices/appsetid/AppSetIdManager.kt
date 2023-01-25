@@ -77,7 +77,8 @@ abstract class AppSetIdManager internal constructor() {
         /**
          *  Creates [AppSetIdManager].
          *
-         *  @return AppSetIdManager object.
+         *  @return AppSetIdManager object. If the device is running an incompatible
+         *  build, the value returned is null.
          */
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")

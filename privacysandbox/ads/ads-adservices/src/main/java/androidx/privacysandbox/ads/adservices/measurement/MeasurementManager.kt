@@ -244,7 +244,8 @@ abstract class MeasurementManager {
         /**
          *  Creates [MeasurementManager].
          *
-         *  @return MeasurementManager object.
+         *  @return MeasurementManager object. If the device is running an incompatible
+         *  build, the value returned is null.
          */
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
