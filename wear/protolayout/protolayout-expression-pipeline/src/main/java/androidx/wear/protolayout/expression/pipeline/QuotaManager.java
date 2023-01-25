@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import androidx.annotation.VisibleForTesting;
 
 /**
  * Interface responsible for managing quota. Before initiating some action (e.g. starting an
