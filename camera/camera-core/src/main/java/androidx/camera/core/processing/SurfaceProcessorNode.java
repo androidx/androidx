@@ -40,6 +40,7 @@ import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -121,9 +122,7 @@ public class SurfaceProcessorNode implements
     @NonNull
     private SurfaceEdge transformSingleOutput(@NonNull SurfaceEdge input,
             @NonNull OutConfig outConfig) {
-
         SurfaceEdge outputSurface;
-        Size inputSize = input.getSize();
         Rect cropRect = outConfig.getCropRect();
         int rotationDegrees = input.getRotationDegrees();
         boolean mirroring = outConfig.getMirroring();
@@ -131,7 +130,8 @@ public class SurfaceProcessorNode implements
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
                 new android.graphics.Matrix(input.getSensorToBufferTransform());
-        android.graphics.Matrix imageTransform = getRectToRect(sizeToRectF(inputSize),
+        android.graphics.Matrix imageTransform = getRectToRect(
+                sizeToRectF(input.getStreamSpec().getResolution()),
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
         sensorToBufferTransform.postConcat(imageTransform);
 
@@ -140,9 +140,13 @@ public class SurfaceProcessorNode implements
         Size rotatedCropSize = getRotatedSize(outConfig.getCropRect(), rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
+        StreamSpec streamSpec = StreamSpec.builder(outConfig.getSize())
+                .setExpectedFrameRateRange(input.getStreamSpec().getExpectedFrameRateRange())
+                .build();
+
         outputSurface = new SurfaceEdge(
                 outConfig.getTargets(),
-                outConfig.getSize(),
+                streamSpec,
                 sensorToBufferTransform,
                 // The Surface transform cannot be carried over during buffer copy.
                 /*hasCameraTransform=*/false,
@@ -190,7 +194,7 @@ public class SurfaceProcessorNode implements
     private void createAndSendSurfaceOutput(@NonNull SurfaceEdge input,
             Map.Entry<OutConfig, SurfaceEdge> output) {
         ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
-                input.getSize(),
+                input.getStreamSpec().getResolution(),
                 output.getKey().getCropRect(),
                 input.getRotationDegrees(),
                 output.getKey().getMirroring());

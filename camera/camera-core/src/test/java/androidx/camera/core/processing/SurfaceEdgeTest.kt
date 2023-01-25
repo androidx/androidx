@@ -22,9 +22,11 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.Result.RESULT_REQUEST_CANCELLED
@@ -32,6 +34,7 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.FutureCallback
@@ -60,6 +63,9 @@ class SurfaceEdgeTest {
 
     companion object {
         private val INPUT_SIZE = Size(640, 480)
+        private val FRAME_RATE = Range.create(30, 30)
+        private val FRAME_SPEC =
+            StreamSpec.builder(INPUT_SIZE).setExpectedFrameRateRange(FRAME_RATE).build()
     }
 
     private lateinit var surfaceEdge: SurfaceEdge
@@ -70,7 +76,7 @@ class SurfaceEdgeTest {
     @Before
     fun setUp() {
         surfaceEdge = SurfaceEdge(
-            CameraEffect.PREVIEW, INPUT_SIZE,
+            CameraEffect.PREVIEW, StreamSpec.builder(INPUT_SIZE).build(),
             Matrix(), true, Rect(), 0, false
         )
         fakeSurfaceTexture = SurfaceTexture(0)
@@ -84,6 +90,14 @@ class SurfaceEdgeTest {
         provider.close()
         fakeSurfaceTexture.release()
         fakeSurface.release()
+    }
+
+    @Test
+    fun createWithStreamSpec_canGetStreamSpec() {
+        val edge = SurfaceEdge(
+            PREVIEW, FRAME_SPEC, Matrix(), true, Rect(), 0, false
+        )
+        assertThat(edge.streamSpec).isEqualTo(FRAME_SPEC)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -253,7 +267,13 @@ class SurfaceEdgeTest {
     private fun getSurfaceRequestHasTransform(hasCameraTransform: Boolean): Boolean {
         // Arrange.
         val surface = SurfaceEdge(
-            CameraEffect.PREVIEW, Size(640, 480), Matrix(), hasCameraTransform, Rect(), 0, false
+            CameraEffect.PREVIEW,
+            StreamSpec.builder(Size(640, 480)).build(),
+            Matrix(),
+            hasCameraTransform,
+            Rect(),
+            0,
+            false
         )
         var transformationInfo: TransformationInfo? = null
 
