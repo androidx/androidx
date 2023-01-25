@@ -12,6 +12,8 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Duration!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Instant!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Boolean!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void close();
     method @UiThread public void disablePlatformDataSources();

@@ -31,15 +31,16 @@ import androidx.wear.protolayout.expression.ConditionScopes.ConditionScope;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
+import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInstant;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
 import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.protobuf.ExtensionRegistryLite;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.Instant;
 
 /** Builders for dynamic primitive types used by layout elements. */
 public final class DynamicBuilders {
@@ -247,6 +248,101 @@ public final class DynamicBuilders {
    * @since 1.2
    */
   static final int LOGICAL_OP_TYPE_OR = 2;
+
+  /**
+   * The duration part to retrieve using {@link GetDurationPartOp}.
+   *
+   * @since 1.2
+   * @hide
+   */
+  @RestrictTo(RestrictTo.Scope.LIBRARY)
+  @IntDef({
+    DURATION_PART_TYPE_UNDEFINED,
+    DURATION_PART_TYPE_TOTAL_DAYS,
+    DURATION_PART_TYPE_TOTAL_HOURS,
+    DURATION_PART_TYPE_TOTAL_MINUTES,
+    DURATION_PART_TYPE_TOTAL_SECONDS,
+    DURATION_PART_TYPE_DAYS,
+    DURATION_PART_TYPE_HOURS,
+    DURATION_PART_TYPE_MINUTES,
+    DURATION_PART_TYPE_SECONDS
+  })
+  @Retention(RetentionPolicy.SOURCE)
+  @interface DurationPartType {}
+
+  /**
+   * Undefined duration part type.
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_UNDEFINED = 0;
+
+  /**
+   * Total number of days in a duration. The fraction part of the result will be truncated. This is
+   * based on the standard definition of a day as 24 hours. Notice that the duration can be
+   * negative, in which case total number of days will be also negative.
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_TOTAL_DAYS = 1;
+
+  /**
+   * Total number of hours in a duration. The fraction part of the result will be truncated. Notice
+   * that the duration can be negative, in which case total number of hours will be also negative.
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_TOTAL_HOURS = 2;
+
+  /**
+   * Total number of minutes in a duration. The fraction part of the result will be truncated.
+   * Notice that the duration can be negative, in which case total number of minutes will be also
+   * negative.
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_TOTAL_MINUTES = 3;
+
+  /**
+   * Total number of seconds in a duration. Notice that the duration can be negative, in which case
+   * total number of seconds will be also negative.
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_TOTAL_SECONDS = 4;
+
+  /**
+   * Number of days part in the duration. This represents the absolute value of the total number of
+   * days in the duration based on the 24 hours day definition. The fraction part of the result will
+   * be truncated.
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_DAYS = 5;
+
+  /**
+   * Number of hours part in the duration. This represents the absolute value of remaining hours
+   * when dividing total hours by hours in a day (24 hours).
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_HOURS = 6;
+
+  /**
+   * Number of minutes part in the duration. This represents the absolute value of remaining minutes
+   * when dividing total minutes by minutes in an hour (60 minutes).
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_MINUTES = 7;
+
+  /**
+   * Number of seconds part in the duration. This represents the absolute value of remaining seconds
+   * when dividing total seconds by seconds in a minute (60 seconds).
+   *
+   * @since 1.2
+   */
+  static final int DURATION_PART_TYPE_SECONDS = 8;
 
   /**
    * An arithmetic operation, operating on two Int32 instances. This implements simple binary
@@ -1838,7 +1934,7 @@ public final class DynamicBuilders {
     @NonNull
     default DynamicFloat rem(float other) {
       return new ArithmeticFloatOp.Builder()
-          .setInputLhs( this.asFloat())
+          .setInputLhs(this.asFloat())
           .setInputRhs(DynamicFloat.constant(other))
           .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
           .build();
@@ -2114,6 +2210,9 @@ public final class DynamicBuilders {
     }
     if (proto.hasFloatToInt()) {
       return FloatToInt32Op.fromProto(proto.getFloatToInt());
+    }
+    if (proto.hasDurationPart()) {
+      return GetDurationPartOp.fromProto(proto.getDurationPart());
     }
     if (proto.hasAnimatableFixed()) {
       return AnimatableFixedInt32.fromProto(proto.getAnimatableFixed());
@@ -3730,8 +3829,6 @@ public final class DynamicBuilders {
     @SuppressWarnings("KotlinOperator")
     @NonNull
     default DynamicFloat plus(@NonNull DynamicFloat other) {
-
-      // overloaded operators.
       return new ArithmeticFloatOp.Builder()
           .setInputLhs(this)
           .setInputRhs(other)
@@ -4036,7 +4133,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * reates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * Creates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
      * by a float; As an example, the following is equal to {@code DynamicFloat.constant(1.5f)}
      *
      * <pre>
@@ -4060,7 +4157,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * reates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * Creates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
      * by a {@link DynamicInt32}; As an example, the following is equal to {@code
      * DynamicFloat.constant(2f)}
      *
@@ -5597,7 +5694,7 @@ public final class DynamicBuilders {
      * the state value changes, this {@link DynamicColor} will animate from its current value to the
      * new value (from the state).
      *
-     * @param stateKey The key to a {@link StateEntryValue} with a color value from the providers
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the provider's
      *     state.
      */
     @NonNull
@@ -5610,7 +5707,7 @@ public final class DynamicBuilders {
      * the state value changes, this {@link DynamicColor} will animate from its current value to the
      * new value (from the state).
      *
-     * @param stateKey The key to a {@link StateEntryValue} with a color value from the providers
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the provider's
      *     state.
      * @param spec The animation parameters.
      */
@@ -5687,6 +5784,677 @@ public final class DynamicBuilders {
       return AnimatableDynamicColor.fromProto(proto.getAnimatableDynamic());
     }
     throw new IllegalStateException("Proto was not a recognised instance of DynamicColor");
+  }
+
+  /**
+   * A dynamic time instant that sources its value from the platform.
+   *
+   * @since 1.2
+   */
+  static final class PlatformTimeSource implements DynamicInstant {
+    private final DynamicProto.PlatformTimeSource mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    PlatformTimeSource(DynamicProto.PlatformTimeSource impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static PlatformTimeSource fromProto(@NonNull DynamicProto.PlatformTimeSource proto) {
+      return new PlatformTimeSource(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.PlatformTimeSource toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInstant toDynamicInstantProto() {
+      return DynamicProto.DynamicInstant.newBuilder().setPlatformSource(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "PlatformTimeSource";
+    }
+
+    /** Builder for {@link PlatformTimeSource}. */
+    public static final class Builder implements DynamicInstant.Builder {
+      private final DynamicProto.PlatformTimeSource.Builder mImpl =
+          DynamicProto.PlatformTimeSource.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1895976938);
+
+      public Builder() {}
+
+      @Override
+      @NonNull
+      public PlatformTimeSource build() {
+        return new PlatformTimeSource(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * Interface defining a dynamic time instant type.
+   *
+   * <p> {@link DynamicInstant} precision is seconds. Thus, any time or duration operation will
+   * operate on that precision level.
+   *
+   * @since 1.2
+   */
+  public interface DynamicInstant extends DynamicType {
+    /**
+     * Get the protocol buffer representation of this object.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    DynamicProto.DynamicInstant toDynamicInstantProto();
+
+    /**
+     * Creates a {@link DynamicInstant} from a byte array generated by {@link
+     * #toDynamicInstantByteArray()}.
+     */
+    @NonNull
+    static DynamicInstant fromByteArray(@NonNull byte[] byteArray) {
+      try {
+        return dynamicInstantFromProto(
+            DynamicProto.DynamicInstant.parseFrom(
+                byteArray, ExtensionRegistryLite.getEmptyRegistry()));
+      } catch (InvalidProtocolBufferException e) {
+        throw new IllegalArgumentException("Byte array could not be parsed into DynamicInstant", e);
+      }
+    }
+
+    /** Creates a byte array that can later be used with {@link #fromByteArray(byte[])}. */
+    @NonNull
+    default byte[] toDynamicInstantByteArray() {
+      return toDynamicInstantProto().toByteArray();
+    }
+
+
+    /**
+     * Creates a constant-valued {@link DynamicInstant} from an {@link Instant}. If {@link Instant}
+     * precision is greater than seconds, then any excess precision information will be dropped.
+     */
+    @NonNull
+    static DynamicInstant withSecondsPrecision(@NonNull Instant instant) {
+      return new FixedInstant.Builder().setEpochSeconds(instant.getEpochSecond()).build();
+    }
+
+    /**
+     * Creates a {@link DynamicInstant} that updates its value periodically from the system time.
+     */
+    @NonNull
+    static DynamicInstant platformTimeWithSecondsPrecision() {
+      return new PlatformTimeSource.Builder().build();
+    }
+
+    /**
+     * Returns duration between the two {@link DynamicInstant} instances as a {@link
+     * DynamicDuration}. The resulted duration is inclusive of the start instant and exclusive of
+     * the end; As an example, the following expression yields a duration object representing 10
+     * seconds:
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(10L))
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(20L)));
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicDuration} containing the result of the operation.
+     */
+    @NonNull
+    default DynamicDuration durationUntil(@NonNull DynamicInstant to) {
+      return new BetweenDuration.Builder().setStartInclusive(this).setEndExclusive(to).build();
+    }
+
+    /**
+     * Get the fingerprint for this object or null if unknown.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    Fingerprint getFingerprint();
+
+    /**
+     * Builder to create {@link DynamicInstant} objects.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    interface Builder {
+
+      /** Builds an instance with values accumulated in this Builder. */
+      @NonNull
+      DynamicInstant build();
+    }
+  }
+
+  /**
+   * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
+   * created using this method can't be added to any other wrapper.
+   *
+   * @hide
+   */
+  @RestrictTo(Scope.LIBRARY_GROUP)
+  @NonNull
+  public static DynamicInstant dynamicInstantFromProto(@NonNull DynamicProto.DynamicInstant proto) {
+    if (proto.hasFixed()) {
+      return FixedInstant.fromProto(proto.getFixed());
+    }
+    if (proto.hasPlatformSource()) {
+      return PlatformTimeSource.fromProto(proto.getPlatformSource());
+    }
+    throw new IllegalStateException("Proto was not a recognised instance of DynamicInstant");
+  }
+
+  /**
+   * A dynamic duration type that represents the duration between two dynamic time instants.
+   *
+   * @since 1.2
+   */
+  static final class BetweenDuration implements DynamicDuration {
+    private final DynamicProto.BetweenDuration mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    BetweenDuration(DynamicProto.BetweenDuration impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the time instant value marking the start of the duration.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInstant getStartInclusive() {
+      if (mImpl.hasStartInclusive()) {
+        return DynamicBuilders.dynamicInstantFromProto(mImpl.getStartInclusive());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the time instant value marking the end of the duration.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInstant getEndExclusive() {
+      if (mImpl.hasEndExclusive()) {
+        return DynamicBuilders.dynamicInstantFromProto(mImpl.getEndExclusive());
+      } else {
+        return null;
+      }
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static BetweenDuration fromProto(@NonNull DynamicProto.BetweenDuration proto) {
+      return new BetweenDuration(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.BetweenDuration toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicDuration toDynamicDurationProto() {
+      return DynamicProto.DynamicDuration.newBuilder().setBetween(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "BetweenDuration{"
+          + "startInclusive="
+          + getStartInclusive()
+          + ", endExclusive="
+          + getEndExclusive()
+          + "}";
+    }
+
+    /** Builder for {@link BetweenDuration}. */
+    public static final class Builder implements DynamicDuration.Builder {
+      private final DynamicProto.BetweenDuration.Builder mImpl =
+          DynamicProto.BetweenDuration.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1615230958);
+
+      public Builder() {}
+
+      /**
+       * Sets the time instant value marking the start of the duration.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setStartInclusive(@NonNull DynamicInstant startInclusive) {
+        mImpl.setStartInclusive(startInclusive.toDynamicInstantProto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(startInclusive.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the time instant value marking the end of the duration.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setEndExclusive(@NonNull DynamicInstant endExclusive) {
+        mImpl.setEndExclusive(endExclusive.toDynamicInstantProto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(endExclusive.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public BetweenDuration build() {
+        return new BetweenDuration(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * Interface defining a dynamic duration type.
+   *
+   * @since 1.2
+   */
+  public interface DynamicDuration extends DynamicType {
+    /**
+     * Get the protocol buffer representation of this object.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    DynamicProto.DynamicDuration toDynamicDurationProto();
+
+    /**
+     * Creates a {@link DynamicDuration} from a byte array generated by {@link
+     * #toDynamicDurationByteArray()}.
+     */
+    @NonNull
+    static DynamicDuration fromByteArray(@NonNull byte[] byteArray) {
+      try {
+        return dynamicDurationFromProto(
+            DynamicProto.DynamicDuration.parseFrom(
+                byteArray, ExtensionRegistryLite.getEmptyRegistry()));
+      } catch (InvalidProtocolBufferException e) {
+        throw new IllegalArgumentException(
+            "Byte array could not be parsed into DynamicDuration", e);
+      }
+    }
+
+    /** Creates a byte array that can later be used with {@link #fromByteArray(byte[])}. */
+    @NonNull
+    default byte[] toDynamicDurationByteArray() {
+      return toDynamicDurationProto().toByteArray();
+    }
+
+
+    /**
+     * Returns the total number of days in a {@link DynamicDuration} as a {@link DynamicInt32}. The
+     * fraction part of the result will be truncated. This is based on the standard definition of a
+     * day as 24 hours. As an example, the following is equal to {@code DynamicInt32.constant(1)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .toIntDays();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     *     Integer overflow can occur if the result of the operation is larger than {@link
+     *     Integer#MAX_VALUE}.
+     */
+    @NonNull
+    default DynamicInt32 toIntDays() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_TOTAL_DAYS)
+          .build();
+    }
+
+    /**
+     * Returns the total number of hours in a {@link DynamicDuration} as a {@link DynamicInt32}. The
+     * fraction part of the result will be truncated. As an example, the following is equal to
+     * {@code DynamicInt32.constant(34)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .toIntHours();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     *     Integer overflow can occur if the result of the operation is larger than {@link
+     *     Integer#MAX_VALUE}.
+     */
+    @NonNull
+    default DynamicInt32 toIntHours() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_TOTAL_HOURS)
+          .build();
+    }
+
+    /**
+     * Returns the total number of minutes in a {@link DynamicDuration} as a {@link DynamicInt32}.
+     * The fraction part of the result will be truncated. As an example, the following is equal to
+     * {@code DynamicInt32.constant(2057)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .toIntMinutes();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     *     Integer overflow can occur if the result of the operation is larger than {@link
+     *     Integer#MAX_VALUE}.
+     */
+    @NonNull
+    default DynamicInt32 toIntMinutes() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_TOTAL_MINUTES)
+          .build();
+    }
+
+    /**
+     * Returns the total number of seconds in a {@link DynamicDuration} as a {@link DynamicInt32}.
+     * As an example, the following is equal to {@code DynamicInt32.constant(123456)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .toIntSeconds();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     *     Integer overflow can occur if the result of the operation is larger than {@link
+     *     Integer#MAX_VALUE}.
+     */
+    @NonNull
+    default DynamicInt32 toIntSeconds() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_TOTAL_SECONDS)
+          .build();
+    }
+
+    /**
+     * Returns the total number of days in a duration as a {@link DynamicInt32}. This represents the
+     * absolute value of the total number of days in the duration based on the 24 hours day
+     * definition. The fraction part of the result will be truncated; As an example, the following
+     * is equal to {@code DynamicInt32.constant(1)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .getIntDaysPart();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     *     Integer overflow can occur if the result of the operation is larger than {@link
+     *     Integer#MAX_VALUE}.
+     */
+    @NonNull
+    default DynamicInt32 getIntDaysPart() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_DAYS)
+          .build();
+    }
+
+    /**
+     * Returns the number of hours part in the duration as a {@link DynamicInt32}. This represents
+     * the absolute value of remaining hours when dividing total hours by hours in a day (24 hours);
+     * As an example, the following is equal to {@code DynamicInt32.constant(10)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .getHoursPart();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @NonNull
+    default DynamicInt32 getHoursPart() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_HOURS)
+          .build();
+    }
+
+    /**
+     * Returns the number of minutes part in the duration as a {@link DynamicInt32}. This represents
+     * the absolute value of remaining minutes when dividing total minutes by minutes in an hour (60
+     * minutes). As an example, the following is equal to {@code DynamicInt32.constant(17)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .getMinutesPart();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @NonNull
+    default DynamicInt32 getMinutesPart() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_MINUTES)
+          .build();
+    }
+
+    /**
+     * Returns the number of seconds part in the duration as a {@link DynamicInt32}. This represents
+     * the absolute value of remaining seconds when dividing total seconds by seconds in a minute
+     * (60 seconds); As an example, the following is equal to {@code DynamicInt32.constant(36)}
+     *
+     * <pre>
+     *   DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+     *      .durationUntil(DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123456L)))
+     *      .getSecondsPart();
+     * </pre>
+     *
+     * @return a new instance of {@link DynamicInt32} containing the result of the operation.
+     */
+    @NonNull
+    default DynamicInt32 getSecondsPart() {
+      return new GetDurationPartOp.Builder()
+          .setInput(this)
+          .setDurationPart(DURATION_PART_TYPE_SECONDS)
+          .build();
+    }
+
+    /**
+     * Get the fingerprint for this object or null if unknown.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    Fingerprint getFingerprint();
+
+    /**
+     * Builder to create {@link DynamicDuration} objects.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    interface Builder {
+
+      /** Builds an instance with values accumulated in this Builder. */
+      @NonNull
+      DynamicDuration build();
+    }
+  }
+
+  /**
+   * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
+   * created using this method can't be added to any other wrapper.
+   *
+   * @hide
+   */
+  @RestrictTo(Scope.LIBRARY_GROUP)
+  @NonNull
+  public static DynamicDuration dynamicDurationFromProto(
+      @NonNull DynamicProto.DynamicDuration proto) {
+    if (proto.hasBetween()) {
+      return BetweenDuration.fromProto(proto.getBetween());
+    }
+    throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
+  }
+
+  /**
+   * Retrieve the specified duration part of a {@link DynamicDuration} instance as a {@link
+   * DynamicInt32}.
+   *
+   * @since 1.2
+   */
+  static final class GetDurationPartOp implements DynamicInt32 {
+    private final DynamicProto.GetDurationPartOp mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    GetDurationPartOp(DynamicProto.GetDurationPartOp impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the duration input.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicDuration getInput() {
+      if (mImpl.hasInput()) {
+        return DynamicBuilders.dynamicDurationFromProto(mImpl.getInput());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the duration part to retrieve.
+     *
+     * @since 1.2
+     */
+    @DurationPartType
+    public int getDurationPart() {
+      return mImpl.getDurationPart().getNumber();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static GetDurationPartOp fromProto(@NonNull DynamicProto.GetDurationPartOp proto) {
+      return new GetDurationPartOp(proto, null);
+    }
+
+    @NonNull
+    DynamicProto.GetDurationPartOp toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setDurationPart(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "GetDurationPartOp{"
+          + "input="
+          + getInput()
+          + ", durationPart="
+          + getDurationPart()
+          + "}";
+    }
+
+    /** Builder for {@link GetDurationPartOp}. */
+    public static final class Builder implements DynamicInt32.Builder {
+      private final DynamicProto.GetDurationPartOp.Builder mImpl =
+          DynamicProto.GetDurationPartOp.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-225941123);
+
+      public Builder() {}
+
+      /**
+       * Sets the duration input.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setInput(@NonNull DynamicDuration input) {
+        mImpl.setInput(input.toDynamicDurationProto());
+        mFingerprint.recordPropertyUpdate(
+            1, checkNotNull(input.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the duration part to retrieve.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setDurationPart(@DurationPartType int durationPart) {
+        mImpl.setDurationPart(DynamicProto.DurationPartType.forNumber(durationPart));
+        mFingerprint.recordPropertyUpdate(2, durationPart);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public GetDurationPartOp build() {
+        return new GetDurationPartOp(mImpl.build(), mFingerprint);
+      }
+    }
   }
 
   /**

@@ -104,6 +104,19 @@ package androidx.wear.protolayout.expression {
     method public default byte[] toDynamicColorByteArray();
   }
 
+  public static interface DynamicBuilders.DynamicDuration extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration fromByteArray(byte[]);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getHoursPart();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getIntDaysPart();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinutesPart();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecondsPart();
+    method public default byte[] toDynamicDurationByteArray();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntDays();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntHours();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntMinutes();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntSeconds();
+  }
+
   public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(float, float);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(float, float, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
@@ -154,6 +167,14 @@ package androidx.wear.protolayout.expression {
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minFractionDigits(@IntRange(from=0) int);
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minIntegerDigits(@IntRange(from=0) int);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter with();
+  }
+
+  public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration durationUntil(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant platformTimeWithSecondsPrecision();
+    method public default byte[] toDynamicInstantByteArray();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant withSecondsPrecision(java.time.Instant);
   }
 
   public static interface DynamicBuilders.DynamicInt32 extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
