@@ -359,6 +359,10 @@ interface HealthConnectClient {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be released after testing
+        const val HEALTH_CONNECT_SETTING_INTENT_ACTION =
+            "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+
         /**
          * Determines whether the current Health Connect SDK is supported on this device. If it is
          * not supported, then installing any provider will not help - instead disable the
