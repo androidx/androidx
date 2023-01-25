@@ -118,6 +118,20 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
     }
 
     @Test
+    fun singleNullableParamError() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user: User?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+            }
+        }
+    }
+
+    @Test
     fun notAnEntity() {
         singleShortcutMethod(
             """
@@ -168,6 +182,21 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
     }
 
     @Test
+    fun twoNullableParamError() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user1: User?, user2: User?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+                hasErrorCount(2)
+            }
+        }
+    }
+
+    @Test
     fun list() {
         listOf(
             "int",
@@ -206,6 +235,24 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
     }
 
     @Test
+    fun nullableListParamError() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: List<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "java.util.List<? extends foo.bar.User>"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun array() {
         singleShortcutMethod(
             """
@@ -231,6 +278,22 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
     }
 
     @Test
+    fun nullableArrayParamError() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: Array<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User[]")
+                )
+            }
+        }
+    }
+
+    @Test
     fun set() {
         singleShortcutMethod(
             """
@@ -252,6 +315,24 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 shortcut.entities["users"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
+        }
+    }
+
+    @Test
+    fun nullableSetParamError() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: Set<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "java.util.Set<? extends foo.bar.User>"
+                    )
+                )
+            }
         }
     }
 
@@ -309,6 +390,25 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
     }
 
     @Test
+    fun nullableCustomCollectionParamError() {
+        singleShortcutMethodKotlin(
+            """
+                class MyList<Irrelevant, Item> : ArrayList<Item> {}
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: MyList<String?, User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "foo.bar.MyClass.MyList<java.lang.String, foo.bar.User>"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun differentTypes() {
         listOf(
             "void",
@@ -347,6 +447,22 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                     shortcut.entities["b1"]?.pojo?.typeName,
                     `is`(BOOK_TYPE_NAME)
                 )
+            }
+        }
+    }
+
+    @Test
+    fun twoNullableDifferentParamError() {
+        singleShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user1: User?, book1: Book?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.Book"))
+                hasErrorCount(2)
             }
         }
     }

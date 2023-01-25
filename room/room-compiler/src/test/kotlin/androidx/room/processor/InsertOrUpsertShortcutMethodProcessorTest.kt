@@ -145,6 +145,21 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 .isEqualTo(XTypeName.PRIMITIVE_LONG)
         }
     }
+
+    @Test
+    fun singleNullableParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user: User?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+            }
+        }
+    }
+
     @Test
     fun two() {
         singleInsertUpsertShortcutMethod(
@@ -174,6 +189,21 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.returnType.asTypeName())
                 .isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun twoNullableParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user1: User?, user2: User?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+                hasErrorCount(2)
+            }
         }
     }
 
@@ -209,6 +239,24 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     }
 
     @Test
+    fun nullableListParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: List<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "java.util.List<? extends foo.bar.User>"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun array() {
         singleInsertUpsertShortcutMethod(
             """
@@ -229,6 +277,20 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.returnType.asTypeName())
                 .isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun nullableArrayParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: Array<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User[]"))
+            }
         }
     }
 
@@ -254,6 +316,24 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun nullableSetParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: Set<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "java.util.Set<? extends foo.bar.User>"
+                    )
+                )
+            }
         }
     }
 
@@ -336,6 +416,25 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     }
 
     @Test
+    fun nullableCustomCollectionParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                class MyList<Irrelevant, Item> : ArrayList<Item> {}
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: MyList<String?, User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "foo.bar.MyClass.MyList<java.lang.String, foo.bar.User>"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun differentTypes() {
         singleInsertUpsertShortcutMethod(
             """
@@ -363,6 +462,22 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName)
                 .isEqualTo(BOOK_TYPE_NAME)
+        }
+    }
+
+    @Test
+    fun twoNullableDifferentParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user1: User?, book1: Book?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.Book"))
+                hasErrorCount(2)
+            }
         }
     }
 
