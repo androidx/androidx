@@ -16,7 +16,7 @@ message AnimationSpec {
   // 0.
   uint32 delay_millis = 2;
 
-  // The easing to be used for adjusting an animation’s fraction. If not set,
+  // The easing to be used for adjusting an animation's fraction. If not set,
   // defaults to Linear Interpolator.
   Easing easing = 3;
 
@@ -25,17 +25,17 @@ message AnimationSpec {
   Repeatable repeatable = 5;
 }
 
-// The easing to be used for adjusting an animation’s fraction. This allows
+// The easing to be used for adjusting an animation's fraction. This allows
 // animation to speed up and slow down, rather than moving at a constant rate.
 // If not set, defaults to Linear Interpolator.
 message Easing {
   oneof inner {
-    // The cubic polynomial easing that implements third-order Bézier curves.
+    // The cubic polynomial easing that implements third-order Bezier curves.
     CubicBezierEasing cubic_bezier = 1;
   }
 }
 
-// The cubic polynomial easing that implements third-order Bézier curves. This
+// The cubic polynomial easing that implements third-order Bezier curves. This
 // is equivalent to the Android PathInterpolator.
 message CubicBezierEasing {
   // The x coordinate of the first control point. The line through the point (0,
