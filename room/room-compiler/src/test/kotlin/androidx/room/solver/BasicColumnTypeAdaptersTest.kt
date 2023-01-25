@@ -16,18 +16,21 @@
 
 package androidx.room.solver
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.writeTo
+import androidx.room.ext.AndroidTypeNames
 import androidx.room.processor.Context
 import androidx.room.vo.BuiltInConverterFlags
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -124,7 +127,7 @@ class BasicColumnTypeAdaptersTest(
                 """.trimIndent()
             }
             adapter.bindToStmt("st", "6", "inp", scope)
-            assertThat(scope.builder().build().toString().trim(), `is`(expected))
+            assertThat(scope.generate().toString().trim(), `is`(expected))
             generateCode(invocation, scope, type)
         }
     }
@@ -155,7 +158,7 @@ class BasicColumnTypeAdaptersTest(
                 """.trimIndent()
             }
             assertThat(
-                scope.builder().build().toString().trim(),
+                scope.generate().toString().trim(),
                 `is`(
                     expected
                 )
@@ -180,7 +183,7 @@ class BasicColumnTypeAdaptersTest(
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
-                scope.builder().build().toString().trim(),
+                scope.generate().toString().trim(),
                 `is`(
                     """
                     if (inp == null) {
@@ -200,20 +203,52 @@ class BasicColumnTypeAdaptersTest(
             // guard against multi round
             return
         }
-        val spec = TypeSpec.classBuilder("OutClass")
-            .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
-            .addField(FieldSpec.builder(CURSOR, "crs").build())
-            .addField(FieldSpec.builder(type.typeName, "out").build())
-            .addField(FieldSpec.builder(type.typeName, "inp").build())
-            .addMethod(
-                MethodSpec.methodBuilder("foo")
-                    .addCode(scope.builder().build())
+        XTypeSpec.classBuilder(
+            language = CodeLanguage.JAVA,
+            className = XClassName.get("foo.bar", "OuterClass")
+        ).apply {
+            addProperty(
+                XPropertySpec.builder(
+                    language = CodeLanguage.JAVA,
+                    name = "st",
+                    typeName = XClassName.get("android.database.sqlite", "SQLiteStatement"),
+                    visibility = VisibilityModifier.PUBLIC,
+                    isMutable = true
+                ).build()
+            )
+            addProperty(
+                XPropertySpec.builder(
+                    language = CodeLanguage.JAVA,
+                    name = "crs",
+                    typeName = AndroidTypeNames.CURSOR,
+                    visibility = VisibilityModifier.PUBLIC,
+                    isMutable = true
+                ).build()
+            )
+            addProperty(
+                XPropertySpec.builder(
+                    language = CodeLanguage.JAVA,
+                    name = "out",
+                    typeName = type.asTypeName(),
+                    visibility = VisibilityModifier.PUBLIC,
+                    isMutable = true
+                ).build()
+            )
+            addProperty(
+                XPropertySpec.builder(
+                    language = CodeLanguage.JAVA,
+                    name = "inp",
+                    typeName = type.asTypeName(),
+                    visibility = VisibilityModifier.PUBLIC,
+                    isMutable = true
+                ).build()
+            )
+            addFunction(
+                XFunSpec.builder(CodeLanguage.JAVA, "foo", VisibilityModifier.PUBLIC)
+                    .addCode(scope.generate())
                     .build()
             )
-            .build()
-        JavaFile.builder("foo.bar", spec).build().writeTo(
-            invocation.processingEnv.filer
-        )
+        }.build().writeTo(invocation.processingEnv.filer)
     }
 
     @Test
@@ -241,7 +276,7 @@ class BasicColumnTypeAdaptersTest(
                 """.trimIndent()
             }
             adapter.readFromCursor("out", "crs", "9", scope)
-            assertThat(scope.builder().build().toString().trim(), `is`(expected))
+            assertThat(scope.generate().toString().trim(), `is`(expected))
             generateCode(invocation, scope, type)
         }
     }
@@ -272,7 +307,7 @@ class BasicColumnTypeAdaptersTest(
                 """.trimIndent()
             }
             assertThat(
-                scope.builder().build().toString().trim(),
+                scope.generate().toString().trim(),
                 `is`(
                     expected
                 )
@@ -292,7 +327,7 @@ class BasicColumnTypeAdaptersTest(
             ).findColumnTypeAdapter(nullableType, null, false)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
-                scope.builder().build().toString().trim(),
+                scope.generate().toString().trim(),
                 `is`(
                     """
                     if (crs.isNull(9)) {

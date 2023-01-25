@@ -58,7 +58,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.String _sql = "SELECT id FROM users";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 0);
@@ -90,7 +90,7 @@ class QueryWriterTest {
                 }
                 """.trimIndent()
             }
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
                 |final $QUERY _stmt = $QUERY.acquire(_sql, 1);
@@ -111,7 +111,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 2);
@@ -134,7 +134,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE id IN(");
@@ -198,7 +198,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
+            assertThat(scope.generate().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -212,7 +212,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
+            assertThat(scope.generate().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -226,7 +226,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
+            assertThat(scope.generate().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -240,7 +240,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 2);
@@ -263,7 +263,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE age > ");
@@ -305,7 +305,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE age IN (");
