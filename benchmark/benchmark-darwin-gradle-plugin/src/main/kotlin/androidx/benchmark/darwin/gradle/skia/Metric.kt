@@ -32,11 +32,18 @@ data class Measurements(
 )
 
 data class Metric(val key: Map<String, String>, val measurements: Measurements)
-data class Metrics(val key: Map<String, String>, val results: List<Metric>) {
+data class Metrics(
+    val key: Map<String, String>,
+    val results: List<Metric>,
+    val version: Long = 1L,
+    @SerializedName("git_hash")
+    val referenceSha: String? = null
+) {
     companion object {
         fun buildMetrics(
             record: ActionsInvocationRecord,
-            summaries: List<ActionTestSummary>
+            summaries: List<ActionTestSummary>,
+            referenceSha: String?,
         ): Metrics {
             require(record.actions.actionRecords.isNotEmpty())
             val runDestination = record.actions.actionRecords.first().runDestination
@@ -49,7 +56,7 @@ data class Metrics(val key: Map<String, String>, val results: List<Metric>) {
                 "modelCode" to runDestination.localComputerRecord.modelCode.value
             )
             val results = summaries.flatMap { it.toMetrics() }
-            return Metrics(metricsKeys, results)
+            return Metrics(metricsKeys, results, referenceSha = referenceSha)
         }
 
         private fun ActionTestSummary.toMetrics(): List<Metric> {
