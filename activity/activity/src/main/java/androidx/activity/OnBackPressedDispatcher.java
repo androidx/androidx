@@ -25,9 +25,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -118,14 +116,11 @@ public final class OnBackPressedDispatcher {
      * @param fallbackOnBackPressed The Runnable that should be triggered if
      * {@link #onBackPressed()} is called when {@link #hasEnabledCallbacks()} returns false.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public OnBackPressedDispatcher(@Nullable Runnable fallbackOnBackPressed) {
         mFallbackOnBackPressed = fallbackOnBackPressed;
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             mEnabledConsumer = aBoolean -> {
-                if (BuildCompat.isAtLeastT()) {
-                    updateBackInvokedCallbackState();
-                }
+                updateBackInvokedCallbackState();
             };
             mOnBackInvokedCallback = Api33Impl.createOnBackInvokedCallback(this::onBackPressed);
         }
@@ -160,7 +155,6 @@ public final class OnBackPressedDispatcher {
      * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
      * the callback and remove it from the set of OnBackPressedCallbacks.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @MainThread
     @NonNull
@@ -168,7 +162,7 @@ public final class OnBackPressedDispatcher {
         mOnBackPressedCallbacks.add(onBackPressedCallback);
         OnBackPressedCancellable cancellable = new OnBackPressedCancellable(onBackPressedCallback);
         onBackPressedCallback.addCancellable(cancellable);
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             updateBackInvokedCallbackState();
             onBackPressedCallback.setIsEnabledConsumer(mEnabledConsumer);
         }
@@ -199,7 +193,6 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressLint("LambdaLast")
     @MainThread
     public void addCallback(@NonNull LifecycleOwner owner,
@@ -211,7 +204,7 @@ public final class OnBackPressedDispatcher {
 
         onBackPressedCallback.addCancellable(
                 new LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback));
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             updateBackInvokedCallbackState();
             onBackPressedCallback.setIsEnabledConsumer(mEnabledConsumer);
         }
@@ -267,12 +260,11 @@ public final class OnBackPressedDispatcher {
             mOnBackPressedCallback = onBackPressedCallback;
         }
 
-        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         @Override
         public void cancel() {
             mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
             mOnBackPressedCallback.removeCancellable(this);
-            if (BuildCompat.isAtLeastT()) {
+            if (Build.VERSION.SDK_INT >= 33) {
                 mOnBackPressedCallback.setIsEnabledConsumer(null);
                 updateBackInvokedCallbackState();
             }
