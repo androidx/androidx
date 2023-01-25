@@ -17,9 +17,7 @@
 package androidx.room.solver
 
 import androidx.annotation.VisibleForTesting
-import androidx.room.compiler.codegen.JCodeBlockBuilder
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.apply
 import androidx.room.writer.TypeWriter
 
 /**
@@ -42,17 +40,6 @@ class CodeGenScope(
 
         private fun getTmpVarString(prefix: String, index: Int) =
             "$prefix${if (index == 0) "" else "_$index"}"
-    }
-
-    // TODO(b/248383583): Remove once XPoet is more widely adopted.
-    // @Deprecated("Use property, will be removed once more writers are migrated to XPoet")
-    fun builder(): JCodeBlockBuilder {
-        lateinit var leakJavaBuilder: JCodeBlockBuilder
-        builder.apply(
-            javaCodeBuilder = { leakJavaBuilder = this },
-            kotlinCodeBuilder = { error("KotlinPoet code builder should have not been invoked!") }
-        )
-        return leakJavaBuilder
     }
 
     fun getTmpVar(): String {
