@@ -121,6 +121,7 @@ SLICE_REMOTECALLBACK = "1.0.0-alpha01"
 SLIDINGPANELAYOUT = "1.3.0-alpha01"
 SQLITE = "2.4.0-alpha01"
 SQLITE_INSPECTOR = "2.1.0-alpha01"
+STABLE_AIDL = "1.0.0-alpha01"
 STARTUP = "1.2.0-alpha03"
 SWIPEREFRESHLAYOUT = "1.2.0-alpha01"
 TESTEXT = "1.0.0-alpha01"
@@ -249,6 +250,7 @@ SHARETARGET = { group = "androidx.sharetarget", atomicGroupVersion = "versions.S
 SLICE = { group = "androidx.slice" }
 SLIDINGPANELAYOUT = { group = "androidx.slidingpanelayout", atomicGroupVersion = "versions.SLIDINGPANELAYOUT" }
 SQLITE = { group = "androidx.sqlite", atomicGroupVersion = "versions.SQLITE" }
+STABLE_AIDL = { group = "androidx.stableaidl", atomicGroupVersion = "versions.STABLE_AIDL" }
 STARTUP = { group = "androidx.startup", atomicGroupVersion = "versions.STARTUP" }
 SWIPEREFRESHLAYOUT = { group = "androidx.swiperefreshlayout", atomicGroupVersion = "versions.SWIPEREFRESHLAYOUT" }
 TESTEXT = { group = "androidx.test.ext", atomicGroupVersion = "versions.TESTEXT" }

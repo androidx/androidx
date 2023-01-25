@@ -73,7 +73,9 @@ androidLintChecksMin = { module = "com.android.tools.lint:lint-checks", version.
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 androidToolsCommon = { module = "com.android.tools:common", version.ref = "androidLint" }
 androidToolsNinepatch = { module = "com.android.tools:ninepatch", version.ref = "androidLint" }
+androidToolsRepository= { module = "com.android.tools:repository", version.ref = "androidLint" }
 androidToolsSdkCommon = { module = "com.android.tools:sdk-common", version.ref = "androidLint" }
+androidToolsAnalyticsProtos = { module = "com.android.tools.analytics-library:protos", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
 atomicFuPluginz = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicFu" }
