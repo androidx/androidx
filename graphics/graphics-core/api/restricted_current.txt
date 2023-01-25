@@ -1,6 +1,15 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
+  public final class BufferInfo {
+    method public int getFrameBufferId();
+    method public int getHeight();
+    method public int getWidth();
+    property public final int frameBufferId;
+    property public final int height;
+    property public final int width;
+  }
+
   public final class FrontBufferSyncStrategy implements androidx.graphics.opengl.SyncStrategy {
     ctor public FrontBufferSyncStrategy(long usageFlags);
     method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
@@ -26,8 +35,8 @@ package androidx.graphics.lowlatency {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, java.util.Collection<? extends T> params);
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, T? param);
+    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T? param);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 

@@ -575,6 +575,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         bufferHeight: Int,
         usageFlags: Long
     ): FrameBufferRenderer {
+        val bufferInfo = BufferInfo()
         return FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
                 private fun createFrontBufferLayer(usageFlags: Long): HardwareBuffer {
@@ -597,6 +598,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                             createFrontBufferLayer(usageFlags)
                         ).also {
                             mFrontLayerBuffer = it
+                            bufferInfo.frameBufferId = it.frameBuffer
                         }
                     }
                     return buffer
@@ -604,11 +606,14 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
                 @WorkerThread
                 override fun onDraw(eglManager: EGLManager) {
+                    bufferInfo.apply {
+                        this.width = mParentRenderLayer.getBufferWidth()
+                        this.height = mParentRenderLayer.getBufferHeight()
+                    }
                     mActiveSegment.next { param ->
                         mCallback.onDrawFrontBufferedLayer(
                             eglManager,
-                            mParentRenderLayer.getBufferWidth(),
-                            mParentRenderLayer.getBufferHeight(),
+                            bufferInfo,
                             mParentRenderLayer.getTransform(),
                             param
                         )
@@ -711,16 +716,14 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the front buffered layer
-         * @param bufferWidth Width of the buffer that is being rendered into. This can be different
-         * than the corresponding dimensions of the [SurfaceView] provided to the
-         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
-         * parameters in order to avoid GPU composition to rotate content. This should be used
-         * as input to [GLES20.glViewport].
-         * @param bufferHeight Height of the buffer that is being rendered into. This can be different
-         * than the corresponding dimensions of the [SurfaceView] provided to the
-         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
-         * parameters in order to avoid GPU composition to rotate content. This should be used as
-         * input to [GLES20.glViewport].
+         * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
+         * includes the width and height of the buffer which can be different than the corresponding
+         * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
+         * can occasionally swap width and height parameters in order to avoid GPU composition to
+         * rotate content. This should be used as input to [GLES20.glViewport].
+         * Additionally this also contains a frame buffer identifier that can be used to retarget
+         * rendering operations to the original destination after rendering into intermediate
+         * scratch buffers.
          * @param transform Matrix that should be applied to the rendering in this callback.
          * This should be consumed as input to any vertex shader implementations. Buffers are
          * pre-rotated in advance in order to avoid unnecessary overhead of GPU composition to
@@ -735,9 +738,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          *      myMatrix, // matrix
          *      0, // offset starting index into myMatrix
          *      0f, // left
-         *      bufferWidth.toFloat(), // right
+         *      bufferInfo.bufferWidth.toFloat(), // right
          *      0f, // bottom
-         *      bufferHeight.toFloat(), // top
+         *      bufferInfo.bufferHeight.toFloat(), // top
          *      -1f, // near
          *      1f, // far
          * )
@@ -751,8 +754,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         @WorkerThread
         fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
-            bufferWidth: Int,
-            bufferHeight: Int,
+            bufferInfo: BufferInfo,
             transform: FloatArray,
             param: T
         )
@@ -762,16 +764,14 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the double buffered layer
-         * @param bufferWidth Width of the buffer that is being rendered into. This can be different
-         * than the corresponding dimensions of the [SurfaceView] provided to the
-         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
-         * parameters in order to avoid GPU composition to rotate content. This should be used
-         * as input to [GLES20.glViewport].
-         * @param bufferHeight Height of the buffer that is being rendered into. This can be different
-         * than the corresponding dimensions of the [SurfaceView] provided to the
-         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
-         * parameters in order to avoid GPU composition to rotate content. This should be used as
-         * input to [GLES20.glViewport].
+         * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
+         * includes the width and height of the buffer which can be different than the corresponding
+         * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
+         * can occasionally swap width and height parameters in order to avoid GPU composition to
+         * rotate content. This should be used as input to [GLES20.glViewport].
+         * Additionally this also contains a frame buffer identifier that can be used to retarget
+         * rendering operations to the original destination after rendering into intermediate
+         * scratch buffers.
          * @param transform Matrix that should be applied to the rendering in this callback.
          * This should be consumed as input to any vertex shader implementations. Buffers are
          * pre-rotated in advance in order to avoid unnecessary overhead of GPU composition to
@@ -786,9 +786,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          *      myMatrix, // matrix
          *      0, // offset starting index into myMatrix
          *      0f, // left
-         *      bufferWidth.toFloat(), // right
+         *      bufferInfo.bufferWidth.toFloat(), // right
          *      0f, // bottom
-         *      bufferHeight.toFloat(), // top
+         *      bufferInfo.bufferHeight.toFloat(), // top
          *      -1f, // near
          *      1f, // far
          * )
@@ -827,8 +827,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         @WorkerThread
         fun onDrawDoubleBufferedLayer(
             eglManager: EGLManager,
-            bufferWidth: Int,
-            bufferHeight: Int,
+            bufferInfo: BufferInfo,
             transform: FloatArray,
             params: Collection<T>
         )
