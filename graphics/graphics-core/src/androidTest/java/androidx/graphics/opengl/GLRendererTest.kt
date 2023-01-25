@@ -37,11 +37,9 @@ import android.view.SurfaceHolder
 import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.graphics.lowlatency.FrameBufferRenderer
-import androidx.graphics.lowlatency.FrameBuffer
 import androidx.graphics.lowlatency.LineRenderer
 import androidx.graphics.lowlatency.Rectangle
-import androidx.graphics.lowlatency.SyncFenceCompat
+import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
@@ -759,7 +757,7 @@ class GLRendererTest {
                         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
                         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                         GLES20.glFlush()
-                        syncFenceCompat = SyncFenceCompat.createNativeSyncFence(egl)
+                        syncFenceCompat = SyncFenceCompat.createNativeSyncFence()
                         syncFenceCompat.await(TimeUnit.SECONDS.toNanos(3))
                     } finally {
                         syncFenceCompat?.close()

@@ -25,8 +25,8 @@ import android.view.AttachedSurfaceControl
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceImpl
-import androidx.graphics.lowlatency.SyncFenceV33
+import androidx.hardware.SyncFenceImpl
+import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
 
 /**

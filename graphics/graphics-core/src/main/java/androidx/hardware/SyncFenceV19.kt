@@ -33,7 +33,7 @@ import kotlin.concurrent.withLock
  * such as for display or media encoding.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-class SyncFence(private var fd: Int) : AutoCloseable {
+internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl {
 
     private val fenceLock = ReentrantLock()
 
@@ -41,21 +41,21 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      * Checks if the SyncFence object is valid.
      * @return `true` if it is valid, `false` otherwise
      */
-    fun isValid(): Boolean = fenceLock.withLock {
+    override fun isValid(): Boolean = fenceLock.withLock {
         fd != -1
     }
 
     /**
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
+     * This returns [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
      */
     // Relies on NDK APIs sync_file_info/sync_file_info_free which were introduced in API level 26
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getSignalTime(): Long = fenceLock.withLock {
+    override fun getSignalTimeNanos(): Long = fenceLock.withLock {
         if (isValid()) {
             nGetSignalTime(fd)
         } else {
-            SIGNAL_TIME_INVALID
+            SyncFenceCompat.SIGNAL_TIME_INVALID
         }
     }
 
@@ -77,7 +77,7 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      * indefinitely until the fence is signaled
      * @return `true` if the fence signaled or is not valid, `false` otherwise
      */
-    fun await(timeoutNanos: Long): Boolean {
+    override fun await(timeoutNanos: Long): Boolean {
         fenceLock.withLock {
             if (isValid()) {
                 val timeout: Int
@@ -100,7 +100,7 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      *
      * @return `true` if the fence signaled or isn't valid, `false` otherwise
      */
-    fun awaitForever(): Boolean = await(-1)
+    override fun awaitForever(): Boolean = await(-1)
 
     /**
      * Close the SyncFence instance. After this method is invoked the fence is invalid. That
@@ -133,19 +133,6 @@ class SyncFence(private var fd: Int) : AutoCloseable {
     private external fun nDup(fd: Int): Int
 
     companion object {
-
-        /**
-         * An invalid signal time. Represents either the signal time for a SyncFence that isn't
-         * valid (that is, [isValid] is `false`), or if an error occurred while attempting to
-         * retrieve the signal time.
-         */
-        const val SIGNAL_TIME_INVALID: Long = -1L
-
-        /**
-         * A pending signal time. This is equivalent to the max value of a long, representing an
-         * infinitely far point in the future.
-         */
-        const val SIGNAL_TIME_PENDING: Long = Long.MAX_VALUE
 
         init {
             System.loadLibrary("graphics-core")

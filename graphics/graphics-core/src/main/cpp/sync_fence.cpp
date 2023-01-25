@@ -239,7 +239,7 @@ static const JNINativeMethod SYNC_FENCE_TEST_METHOD_TABLE[] = {
 };
 
 jint loadSyncFenceMethods(JNIEnv* env) {
-    jclass syncFenceClass = env->FindClass("androidx/hardware/SyncFence");
+    jclass syncFenceClass = env->FindClass("androidx/hardware/SyncFenceV19");
     if (syncFenceClass == nullptr) {
         return JNI_ERR;
     }

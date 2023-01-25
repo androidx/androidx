@@ -31,12 +31,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @SmallTest
-class SyncFenceTest {
+class SyncFenceV19Test {
 
     @Test
     fun testDupSyncFenceFd() {
         val fileDescriptor = 7
-        val syncFence = SyncFence(7)
+        val syncFence = SyncFenceV19(7)
         // If the file descriptor is valid dup'ing it should return a different fd
         Assert.assertNotEquals(fileDescriptor, JniBindings.nDupFenceFd(syncFence))
     }
@@ -44,7 +44,7 @@ class SyncFenceTest {
     @Test
     fun testWaitMethodLink() {
         try {
-            SyncFence(8).await(1000)
+            SyncFenceV19(8).await(1000)
         } catch (linkError: UnsatisfiedLinkError) {
             fail("Unable to resolve wait method")
         } catch (exception: Exception) {
@@ -56,7 +56,7 @@ class SyncFenceTest {
     fun testDupSyncFenceFdWhenInvalid() {
         // If the fence is invalid there should be no attempt to dup the fd it and -1
         // should be returned
-        Assert.assertEquals(-1, JniBindings.nDupFenceFd(SyncFence(-1)))
+        Assert.assertEquals(-1, JniBindings.nDupFenceFd(SyncFenceV19(-1)))
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -67,19 +67,19 @@ class SyncFenceTest {
         // Because not all devices support the ability to create a native file descriptor from
         // an EGLSync, create a validity check to ensure we can get more presubmit test coverage
         Assert.assertEquals(
-            SyncFence.SIGNAL_TIME_INVALID,
-            SyncFence(7).getSignalTime()
+            SyncFenceCompat.SIGNAL_TIME_INVALID,
+            SyncFenceV19(7).getSignalTimeNanos()
         )
         Assert.assertEquals(
-            SyncFence.SIGNAL_TIME_INVALID,
-            SyncFence(-1).getSignalTime()
+            SyncFenceCompat.SIGNAL_TIME_INVALID,
+            SyncFenceV19(-1).getSignalTimeNanos()
         )
     }
 
     @Test
     fun testIsValid() {
-        assertFalse(SyncFence(-1).isValid())
-        assertTrue(SyncFence(42).isValid())
+        assertFalse(SyncFenceV19(-1).isValid())
+        assertTrue(SyncFenceV19(42).isValid())
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

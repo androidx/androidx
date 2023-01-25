@@ -266,7 +266,7 @@ void JniBindings_nTransactionSetOnCommit(JNIEnv *env, jclass, jlong surfaceTrans
 
 void setupSyncFenceClassInfo(JNIEnv *env) {
     if (!gSyncFenceClassInfo.CLASS_INFO_INITIALIZED) {
-        jclass syncFenceClazz = env->FindClass("androidx/hardware/SyncFence");
+        jclass syncFenceClazz = env->FindClass("androidx/hardware/SyncFenceV19");
         gSyncFenceClassInfo.clazz = static_cast<jclass>(env->NewGlobalRef(syncFenceClazz));
         gSyncFenceClassInfo.dupeFileDescriptor =
                 env->GetMethodID(gSyncFenceClassInfo.clazz, "dupeFileDescriptor", "()I");
@@ -496,12 +496,12 @@ static const JNINativeMethod JNI_METHOD_TABLE[] = {
         },
         {
                 "nDupFenceFd",
-                "(Landroidx/hardware/SyncFence;)I",
+                "(Landroidx/hardware/SyncFenceV19;)I",
                 (void *) JniBindings_nDupFenceFd
         },
         {
                 "nSetBuffer",
-                "(JJLandroid/hardware/HardwareBuffer;Landroidx/hardware/SyncFence;)V",
+                "(JJLandroid/hardware/HardwareBuffer;Landroidx/hardware/SyncFenceV19;)V",
                 (void *) JniBindings_nSetBuffer
         },
         {

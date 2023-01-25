@@ -14,41 +14,50 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.hardware
 
+import android.hardware.SyncFence
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.hardware.SyncFence
+import java.time.Duration
 
-internal interface SyncFenceImpl {
-    /**
-     * Waits for a [SyncFenceImpl] to signal for up to the timeout duration
-     *
-     * @param timeoutNanos time in nanoseconds to wait for before timing out.
-     */
-    fun await(timeoutNanos: Long): Boolean
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+internal class SyncFenceV33 internal constructor(syncFence: SyncFence) : SyncFenceImpl {
+    internal val mSyncFence: SyncFence = syncFence
 
     /**
-     * Waits forever for a [SyncFenceImpl] to signal
+     * See [SyncFenceImpl.await]
      */
-    fun awaitForever(): Boolean
+    override fun await(timeoutNanos: Long): Boolean {
+        return mSyncFence.await(Duration.ofNanos(timeoutNanos))
+    }
 
     /**
-     * Close the [SyncFenceImpl]
+     * See [SyncFenceImpl.awaitForever]
      */
-    fun close()
+    override fun awaitForever(): Boolean {
+        return mSyncFence.awaitForever()
+    }
 
     /**
-     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns an instant, [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
-     * if the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
+     * See [SyncFenceImpl.close]
      */
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getSignalTimeNanos(): Long
+    override fun close() {
+        mSyncFence.close()
+    }
+
+    /**
+     * See [SyncFenceImpl.getSignalTimeNanos]
+     */
+    override fun getSignalTimeNanos(): Long {
+        return mSyncFence.signalTime
+    }
 
     /**
      * Checks if the SyncFence object is valid.
      * @return `true` if it is valid, `false` otherwise
      */
-    fun isValid(): Boolean
+    override fun isValid(): Boolean {
+        return mSyncFence.isValid
+    }
 }

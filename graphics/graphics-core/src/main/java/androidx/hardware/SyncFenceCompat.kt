@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.hardware
 
 import android.opengl.EGL14
 import android.opengl.EGL15
 import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EGLSpec
-import androidx.hardware.SyncFence
 import androidx.opengl.EGLExt
-import androidx.opengl.EGLSyncKHR
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.opengl.EGLSyncKHR
 
 /**
  * A synchronization primitive which signals when hardware units have completed work on a
@@ -34,7 +32,7 @@ import androidx.graphics.surface.SurfaceControlCompat
  *
  * [SyncFenceCompat] is a presentation fence used in combination with
  * [SurfaceControlCompat.Transaction.setBuffer]. Note that depending on API level, this will
- * utilize either [android.hardware.SyncFence] or [SyncFence].
+ * utilize either [android.hardware.SyncFence] or a compatibility implementation.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class SyncFenceCompat : AutoCloseable {
@@ -44,21 +42,22 @@ class SyncFenceCompat : AutoCloseable {
         /**
          * Creates a native synchronization fence from an EGLSync object.
          *
-         * @param egl an [EGLSpec] object to dictate the version of EGL and make EGL calls.
-         *
-         * @throws IllegalArgumentException if sync object creation fails.
+         * @throws IllegalStateException if EGL dependencies cannot be resolved
          */
         @JvmStatic
-        fun createNativeSyncFence(egl: EGLSpec): SyncFenceCompat {
+        fun createNativeSyncFence(): SyncFenceCompat {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 SyncFenceCompatVerificationHelper.createSyncFenceCompatV33()
             } else {
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                    ?: throw IllegalStateException("No EGL Display available")
                 val eglSync: EGLSyncKHR =
-                    egl.eglCreateSyncKHR(EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
-                        ?: throw IllegalArgumentException("Unable to create sync object")
+                    EGLExt.eglCreateSyncKHR(display, EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                        ?: throw IllegalStateException("Unable to create sync object")
                 GLES20.glFlush()
-                val syncFenceCompat = SyncFenceCompat(egl.eglDupNativeFenceFDANDROID(eglSync))
-                egl.eglDestroySyncKHR(eglSync)
+
+                val syncFenceCompat = EGLExt.eglDupNativeFenceFDANDROID(display, eglSync)
+                EGLExt.eglDestroySyncKHR(display, eglSync)
 
                 syncFenceCompat
             }
@@ -78,8 +77,8 @@ class SyncFenceCompat : AutoCloseable {
         const val SIGNAL_TIME_PENDING: Long = Long.MAX_VALUE
     }
 
-    internal constructor(syncFence: SyncFence) {
-        mImpl = SyncFenceV19(syncFence)
+    internal constructor(syncFence: SyncFenceV19) {
+        mImpl = syncFence
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -110,8 +109,8 @@ class SyncFenceCompat : AutoCloseable {
 
     /**
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns an instant, [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
-     * if the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
+     * This returns an instant, [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
+     * if the fence hasn't yet signaled, then [SyncFenceCompat.SIGNAL_TIME_PENDING] is returned.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun getSignalTimeNanos(): Long {
@@ -124,15 +123,6 @@ class SyncFenceCompat : AutoCloseable {
      */
     fun isValid() = mImpl.isValid()
 }
-
-/**
- * Creates a native synchronization fence from an EGLSync object.
- *
- * @throws IllegalArgumentException if sync object creation fails.
- */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
-@JvmSynthetic
-fun EGLSpec.createNativeSyncFence(): SyncFenceCompat = SyncFenceCompat.createNativeSyncFence(this)
 
 /**
  * Helper class to avoid class verification failures

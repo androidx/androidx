@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.graphics.opengl
+package androidx.hardware
 
 import android.opengl.EGL14
 import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.EGLVersion
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
-import androidx.hardware.SyncFence
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -45,7 +43,7 @@ class SyncFenceCompatTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
-                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence()
                 assert(syncFenceCompat.isValid())
                 syncFenceCompat.close()
             }
@@ -58,7 +56,7 @@ class SyncFenceCompatTest {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
 
-                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence()
                 assert(syncFenceCompat.isValid())
                 GLES20.glFlush()
                 assertTrue(syncFenceCompat.await(1000))
@@ -73,7 +71,7 @@ class SyncFenceCompatTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
-                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence()
                 assert(syncFenceCompat.isValid())
                 assertTrue(syncFenceCompat.awaitForever())
 
@@ -89,9 +87,10 @@ class SyncFenceCompatTest {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
                 val start = System.nanoTime()
-                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence()
                 assertTrue(syncFenceCompat.isValid())
-                assertTrue(syncFenceCompat.getSignalTimeNanos() != SyncFence.SIGNAL_TIME_INVALID)
+                assertTrue(syncFenceCompat.getSignalTimeNanos() !=
+                    SyncFenceCompat.SIGNAL_TIME_INVALID)
                 assertTrue(syncFenceCompat.awaitForever())
 
                 assertTrue(syncFenceCompat.getSignalTimeNanos() > start)
