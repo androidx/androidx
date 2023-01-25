@@ -66,12 +66,12 @@ class SignalGeneratorViewModelTest {
     private lateinit var viewModel: SignalGeneratorViewModel
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private val fakeViewModelStoreOwner = object : ViewModelStoreOwner {
-        private val viewModelStore = ViewModelStore()
+        private val vmStore = ViewModelStore()
 
-        override fun getViewModelStore() = viewModelStore
+        override val viewModelStore = vmStore
 
         fun clear() {
-            viewModelStore.clear()
+            vmStore.clear()
         }
     }
 
