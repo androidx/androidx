@@ -481,7 +481,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             timebase = camera.getCameraInfoInternal().getTimebase();
             SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
-                    resolution,
+                    streamSpec,
                     getSensorToBufferTransformMatrix(),
                     getHasCameraTransform(),
                     mCropRect,
