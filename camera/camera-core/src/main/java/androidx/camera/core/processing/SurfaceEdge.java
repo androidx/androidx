@@ -50,6 +50,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -101,7 +102,7 @@ public class SurfaceEdge {
     private final boolean mMirroring;
     @CameraEffect.Targets
     private final int mTargets;
-    private final Size mSize;
+    private final StreamSpec mStreamSpec;
     // Guarded by main thread.
     private int mRotationDegrees;
 
@@ -128,20 +129,20 @@ public class SurfaceEdge {
      */
     public SurfaceEdge(
             @CameraEffect.Targets int targets,
-            @NonNull Size size,
+            @NonNull StreamSpec streamSpec,
             @NonNull Matrix sensorToBufferTransform,
             boolean hasCameraTransform,
             @NonNull Rect cropRect,
             int rotationDegrees,
             boolean mirroring) {
         mTargets = targets;
-        mSize = size;
+        mStreamSpec = streamSpec;
         mSensorToBufferTransform = sensorToBufferTransform;
         mHasCameraTransform = hasCameraTransform;
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
-        mSettableSurface = new SettableSurface(size);
+        mSettableSurface = new SettableSurface(streamSpec.getResolution());
     }
 
     /**
@@ -248,8 +249,9 @@ public class SurfaceEdge {
             @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
         // TODO(b/238230154) figure out how to support HDR.
-        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal,
-                expectedFpsRange, () -> mainThreadExecutor().execute(this::invalidate));
+        SurfaceRequest surfaceRequest = new SurfaceRequest(mStreamSpec.getResolution(),
+                cameraInternal, expectedFpsRange,
+                () -> mainThreadExecutor().execute(this::invalidate));
         try {
             DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
             if (mSettableSurface.setProvider(deferrableSurface)) {
@@ -308,8 +310,8 @@ public class SurfaceEdge {
                         return immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
-                            getTargets(), getSize(), inputSize, cropRect, rotationDegrees,
-                            mirroring);
+                            getTargets(), mStreamSpec.getResolution(), inputSize, cropRect,
+                            rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             settableSurface::decrementUseCount,
                             directExecutor());
@@ -337,7 +339,7 @@ public class SurfaceEdge {
         checkMainThread();
         close();
         mHasConsumer = false;
-        mSettableSurface = new SettableSurface(mSize);
+        mSettableSurface = new SettableSurface(mStreamSpec.getResolution());
         for (Runnable onInvalidated : mOnInvalidatedListeners) {
             onInvalidated.run();
         }
@@ -371,14 +373,6 @@ public class SurfaceEdge {
     @CameraEffect.Targets
     public int getTargets() {
         return mTargets;
-    }
-
-    /**
-     * The allocated size of the {@link Surface}.
-     */
-    @NonNull
-    public Size getSize() {
-        return mSize;
     }
 
     /**
@@ -472,6 +466,14 @@ public class SurfaceEdge {
      */
     public boolean getMirroring() {
         return mMirroring;
+    }
+
+    /**
+     * Returns {@link StreamSpec} associated with this edge.
+     */
+    @NonNull
+    public StreamSpec getStreamSpec() {
+        return mStreamSpec;
     }
 
     /**
