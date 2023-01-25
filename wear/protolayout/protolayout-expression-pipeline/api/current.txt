@@ -1,1 +1,58 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.expression.pipeline {
+
+  public interface BoundDynamicType extends java.lang.AutoCloseable {
+    method @UiThread public void close();
+  }
+
+  public class DynamicTypeEvaluator implements java.lang.AutoCloseable {
+    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?, androidx.wear.protolayout.expression.pipeline.ObservableStateStore);
+    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?, androidx.wear.protolayout.expression.pipeline.ObservableStateStore, androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Boolean!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void close();
+    method @UiThread public void disablePlatformDataSources();
+    method @UiThread public void enablePlatformDataSources();
+  }
+
+  public interface DynamicTypeValueReceiver<T> {
+    method @UiThread public void onData(T);
+    method @UiThread public void onInvalidated();
+  }
+
+  public class ObservableStateStore {
+    ctor public ObservableStateStore(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
+    method @UiThread public void setStateEntryValues(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
+  }
+
+  public interface QuotaManager {
+    method public void releaseQuota(int);
+    method public boolean tryAcquireQuota(int);
+  }
+
+}
+
+package androidx.wear.protolayout.expression.pipeline.sensor {
+
+  public interface SensorGateway extends java.io.Closeable {
+    method public void close();
+    method @UiThread public void registerSensorGatewayConsumer(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
+    method @UiThread public void registerSensorGatewayConsumer(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
+    method @UiThread public void unregisterSensorGatewayConsumer(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
+    field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final int SENSOR_DATA_TYPE_DAILY_STEP_COUNT = 1; // 0x1
+    field @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static final int SENSOR_DATA_TYPE_HEART_RATE = 0; // 0x0
+    field public static final int SENSOR_DATA_TYPE_INVALID = -1; // 0xffffffff
+  }
+
+  public static interface SensorGateway.Consumer {
+    method public int getRequestedDataType();
+    method @AnyThread public void onData(double);
+    method @AnyThread public default void onInvalidated();
+    method @AnyThread public default void onPreUpdate();
+  }
+
+}
+
