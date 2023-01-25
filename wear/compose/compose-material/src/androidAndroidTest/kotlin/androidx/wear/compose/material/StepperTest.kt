@@ -351,6 +351,57 @@ public class StepperTest {
             .assertContentDescriptionContains(testContentDescription)
     }
 
+    @Test
+    fun supports_stepper_range_semantics_by_default() {
+        val value = 1f
+        val steps = 5
+        val valueRange = 0f..(steps + 1).toFloat()
+
+        val modifier = Modifier.testTag(TEST_TAG)
+
+        rule.setContentWithTheme {
+            Stepper(
+                modifier = modifier,
+                value = value,
+                steps = steps,
+                valueRange = valueRange,
+                onValueChange = { },
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+            ) {}
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(TEST_TAG, true)
+            .assertExists()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(value, valueRange, steps))
+    }
+
+    @Test(expected = java.lang.AssertionError::class)
+    fun disable_stepper_semantics_with_enableDefaultSemantics_false() {
+        val value = 1f
+        val steps = 5
+        val valueRange = 0f..(steps + 1).toFloat()
+
+        rule.setContentWithTheme {
+            Stepper(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = value,
+                steps = steps,
+                valueRange = valueRange,
+                onValueChange = { },
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                enableRangeSemantics = false
+            ) {}
+        }
+        rule.waitForIdle()
+        // Should throw assertion error for assertRangeInfoEquals
+        rule.onNodeWithTag(TEST_TAG, true)
+            .assertExists()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(value, valueRange, steps))
+    }
+
     private fun verifyDisabledColors(increase: Boolean, value: Float) {
         val state = mutableStateOf(value)
         var expectedIconColor = Color.Transparent
@@ -469,6 +520,63 @@ public class IntegerStepperTest {
         newValue = 5,
         expectedFinalValue = 6
     )
+
+    @Test
+    fun supports_stepper_range_semantics_by_default() {
+        val value = 1
+        val valueProgression = 0..10
+
+        rule.setContentWithTheme {
+            Stepper(
+                value = value,
+                onValueChange = {},
+                valueProgression = valueProgression,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {}
+        }
+        rule.waitForIdle()
+        // Should throw assertion error for assertRangeInfoEquals
+        rule.onNodeWithTag(TEST_TAG, true)
+            .assertExists()
+            .assertRangeInfoEquals(
+                ProgressBarRangeInfo(
+                    value.toFloat(),
+                    valueProgression.first.toFloat()..valueProgression.last.toFloat(),
+                    valueProgression.stepsNumber()
+                )
+            )
+    }
+
+    @Test(expected = java.lang.AssertionError::class)
+    fun disable_stepper_semantics_with_enableDefaultSemantics_false() {
+        val value = 1
+        val valueProgression = 0..10
+
+        rule.setContentWithTheme {
+            Stepper(
+                value = value,
+                onValueChange = {},
+                valueProgression = valueProgression,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                modifier = Modifier.testTag(TEST_TAG),
+                enableRangeSemantics = false
+            ) {}
+        }
+        rule.waitForIdle()
+        // Should throw assertion error for assertRangeInfoEquals
+        rule.onNodeWithTag(TEST_TAG, true)
+            .assertExists()
+            .assertRangeInfoEquals(
+                ProgressBarRangeInfo(
+                    value.toFloat(),
+                    valueProgression.first.toFloat()..valueProgression.last.toFloat(),
+                    valueProgression.stepsNumber()
+                )
+            )
+    }
 }
 
 private fun ComposeContentTestRule.setNewValueAndCheck(
