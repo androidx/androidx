@@ -22,6 +22,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
@@ -38,7 +39,6 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.implementsEqualsAndHashcode
-import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
 import androidx.room.processor.CustomConverterProcessor
@@ -74,7 +74,6 @@ import androidx.room.testing.context
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.ReadQueryMethod
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.TypeName
 import java.util.UUID
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -86,7 +85,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import testCodeGenScope
 
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
 class TypeAdapterStoreTest {
     companion object {
@@ -155,7 +153,7 @@ class TypeAdapterStoreTest {
                 Context(invocation.processingEnv),
                 BuiltInConverterFlags.DEFAULT
             )
-            val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
+            val primitiveType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
             val adapter = store.findColumnTypeAdapter(
                 primitiveType,
                 null,
@@ -250,7 +248,7 @@ class TypeAdapterStoreTest {
             )
             val uuid = invocation
                 .processingEnv
-                .requireType(UUID::class.typeName)
+                .requireType(UUID::class.asClassName())
             val adapter = store.findColumnTypeAdapter(
                 out = uuid,
                 affinity = null,
@@ -269,7 +267,7 @@ class TypeAdapterStoreTest {
                 Context(invocation.processingEnv),
                 BuiltInConverterFlags.DEFAULT
             )
-            val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
+            val booleanType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_BOOLEAN)
             val adapter = store.findColumnTypeAdapter(
                 booleanType,
                 null,
@@ -491,7 +489,6 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testMissingRx2Room() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         runProcessorTest(
             sources = listOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)
         ) { invocation ->
@@ -512,7 +509,6 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testMissingRx3Room() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         runProcessorTest(
             sources = listOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)
         ) { invocation ->
@@ -627,7 +623,6 @@ class TypeAdapterStoreTest {
             COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
             COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
                 sources = listOf(
                     COMMON.RX2_SINGLE,
@@ -658,7 +653,6 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_FLOWABLE, COMMON.RX2_ROOM, RxJava2TypeNames.FLOWABLE),
             Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
                 sources = listOf(
                     COMMON.RX2_SINGLE,
@@ -687,7 +681,6 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_OBSERVABLE, COMMON.RX2_ROOM, RxJava2TypeNames.OBSERVABLE),
             Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
                 sources = listOf(
                     COMMON.RX2_SINGLE,
@@ -717,7 +710,6 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
             Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                 val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(single, notNullValue())
@@ -849,7 +841,6 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
             Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                 val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(single).isNotNull()
@@ -1462,7 +1453,7 @@ class TypeAdapterStoreTest {
             collectionTypes.map { collectionType ->
                 invocation.processingEnv.getDeclaredType(
                     invocation.processingEnv.requireTypeElement(collectionType),
-                    invocation.processingEnv.requireType(TypeName.INT).boxed()
+                    invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT).boxed()
                 )
             }.forEach { type ->
                 val adapter = store.findQueryParameterAdapter(

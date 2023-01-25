@@ -42,7 +42,6 @@ import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import com.google.common.truth.Truth
-import com.squareup.javapoet.ClassName
 import java.io.File
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -64,7 +63,7 @@ import org.mockito.Mockito.mock
 class PojoProcessorTest {
 
     companion object {
-        val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
+        val MY_POJO = XClassName.get("foo.bar", "MyPojo")
         val HEADER = """
             package foo.bar;
             import androidx.room.*;
@@ -88,11 +87,11 @@ class PojoProcessorTest {
         runProcessorTest(
             sources = listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} extends foo.bar.x.BaseClass {
+                    public class ${MY_POJO.simpleNames.single()} extends foo.bar.x.BaseClass {
                         public String myField;
                     }
                     """
@@ -1060,7 +1059,7 @@ class PojoProcessorTest {
     @Test
     fun cache() {
         val pojo = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             $HEADER
             int id;
@@ -1193,7 +1192,7 @@ class PojoProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.ambiguousConstructor(
-                        MY_POJO.toString(),
+                        MY_POJO.canonicalName,
                         "name", listOf("mName", "_name")
                     )
                 )
@@ -1721,12 +1720,12 @@ class PojoProcessorTest {
     @Test
     fun ignoredColumns() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
             import androidx.room.*;
             @Entity(ignoredColumns = {"bar"})
-            public class ${MY_POJO.simpleName()} {
+            public class ${MY_POJO.simpleNames.single()} {
                 public String foo;
                 public String bar;
             }
@@ -1751,15 +1750,15 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"bar"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private final String foo;
                         private final String bar;
-                        public ${MY_POJO.simpleName()}(String foo) {
+                        public ${MY_POJO.simpleNames.single()}(String foo) {
                           this.foo = foo;
                           this.bar = null;
                         }
@@ -1788,12 +1787,12 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"bar"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() {
@@ -1823,12 +1822,12 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"my_bar"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         public String foo;
                         @ColumnInfo(name = "my_bar")
                         public String bar;
@@ -1853,12 +1852,12 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"no_such_column"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         public String foo;
                         public String bar;
                     }
@@ -1887,11 +1886,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() { return foo; }
@@ -1915,11 +1914,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() { return foo; }
@@ -1948,11 +1947,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() { return foo; }
@@ -1981,11 +1980,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public void setFoo(String foo) { this.foo = foo; }
@@ -2012,11 +2011,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public void setFoo(String foo) { this.foo = foo; }
@@ -2043,11 +2042,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public void setFoo(String foo) { this.foo = foo; }
@@ -2187,7 +2186,7 @@ class PojoProcessorTest {
         classpath: List<File> = emptyList(),
         handler: (Pojo, XTestInvocation) -> Unit
     ) {
-        val pojoSource = Source.java(MY_POJO.toString(), code)
+        val pojoSource = Source.java(MY_POJO.canonicalName, code)
         val all = sources.toList() + pojoSource
         runProcessorTest(
             sources = all,
