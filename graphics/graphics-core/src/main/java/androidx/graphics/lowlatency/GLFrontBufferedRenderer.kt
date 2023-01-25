@@ -171,6 +171,19 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
+     * Runnable executed on the GLThread to update [FrontBufferSyncStrategy.isVisible] as well
+     * as hide the SurfaceControl associated with the front buffered layer
+     */
+    private val mCancelRunnable = Runnable {
+        mFrontBufferSyncStrategy.isVisible = false
+        mFrontBufferedLayerSurfaceControl?.let { frontBufferSurfaceControl ->
+            SurfaceControlCompat.Transaction()
+                .setVisibility(frontBufferSurfaceControl, false)
+                .commit()
+        }
+    }
+
+    /**
      * Queue of parameters to be consumed in [Callback.onDrawFrontBufferedLayer] with the parameter
      * provided in [renderFrontBufferedLayer]
      */
@@ -442,6 +455,39 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 TAG, "Attempt to render to the double buffered layer when " +
                     "GLFrontBufferedRenderer has been released"
             )
+        }
+    }
+
+    /**
+     * Requests to cancel rendering and hides the front buffered layer.
+     * Unlike [commit], this does not schedule a call to render into the double buffered layer.
+     *
+     * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
+     * this call is ignored.
+     */
+    fun cancel() {
+        if (isValid()) {
+            mActiveSegment.clear()
+            mGLRenderer.execute(mCancelRunnable)
+            mFrontBufferedLayerRenderer?.clear()
+        } else {
+            Log.w(TAG, "Attempt to cancel rendering to front buffer after " +
+                "GLFrontBufferedRenderer has been released")
+        }
+    }
+
+    /**
+     * Queue a [Runnable] to be executed on the GL rendering thread. Note it is important
+     * this [Runnable] does not block otherwise it can stall the GL thread.
+     *
+     * @param runnable to be executed
+     */
+    fun execute(runnable: Runnable) {
+        if (isValid()) {
+            mGLRenderer.execute(runnable)
+        } else {
+            Log.w(TAG, "Attempt to execute runnable after GLFrontBufferedRenderer has " +
+                "been released")
         }
     }
 
