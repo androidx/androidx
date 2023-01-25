@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.graphics.opengl
 
 import android.opengl.EGL14
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.FrontBufferSyncStrategy
+import androidx.graphics.lowlatency.GLFrontBufferedRenderer
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec

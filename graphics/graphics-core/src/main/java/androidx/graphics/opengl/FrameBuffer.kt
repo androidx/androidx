@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.graphics.opengl
 
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
@@ -31,7 +31,7 @@ import androidx.opengl.EGLImageKHR
  * that is loaded as a texture.
  *
  * @param egl [EGLSpec] used to specify EGL version and call various EGL methods
- * @property hardwareBuffer the [HardwareBuffer] that this class wraps and used to generate a
+ * @param hardwareBuffer the [HardwareBuffer] that this class wraps and used to generate a
  * [EGLImageKHR] object
  */
 @RequiresApi(Build.VERSION_CODES.O)
