@@ -105,7 +105,6 @@ public class ObservableStateStore {
     @UiThread
     void registerCallback(
             @NonNull String key, @NonNull DynamicTypeValueReceiver<StateEntryValue> callback) {
-        new MainThreadExecutor();
         mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
     }
 

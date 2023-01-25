@@ -42,11 +42,11 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
 
     /** Returns how many of {@link AnimatableNode} are running. */
     @Override
-    public int getRunningAnimationCount() {
+    public int getRunningOrStartedAnimationCount() {
         return (int)
                 mNodes.stream()
                         .filter(n -> n instanceof AnimatableNode)
-                        .filter(n -> ((AnimatableNode) n).hasRunningAnimation())
+                        .filter(n -> ((AnimatableNode) n).hasRunningOrStartedAnimation())
                         .count();
     }
 

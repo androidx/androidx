@@ -24,19 +24,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Wrapper for Animator that is aware of quota. Animator's animations will be played only if given
- * quota manager allows. If not, non infinite animation will jump to an end.
+ * quota manager allows. If not, non infinite animation will jump to an end. Any existing listeners
+ * on wrapped {@link Animator} will be replaced.
  */
 class QuotaAwareAnimator {
     @Nullable private ValueAnimator mAnimator;
 
-    @NonNull private final QuotaManager mQuotaManager;
     @NonNull private final QuotaReleasingAnimatorListener mListener;
 
     QuotaAwareAnimator(@Nullable ValueAnimator animator, @NonNull QuotaManager quotaManager) {
         this.mAnimator = animator;
-        this.mQuotaManager = quotaManager;
         this.mListener = new QuotaReleasingAnimatorListener(quotaManager);
 
         if (this.mAnimator != null) {
@@ -53,6 +54,7 @@ class QuotaAwareAnimator {
 
         this.mAnimator = animator;
         this.mAnimator.addListener(mListener);
+        this.mAnimator.addPauseListener(mListener);
     }
 
     /** Resets the animator to null. Previous animator will be canceled. */
@@ -63,54 +65,37 @@ class QuotaAwareAnimator {
     }
 
     /**
-     * Tries to start animation. Returns true if quota allows the animator to start. Otherwise, it
-     * returns false.
+     * Tries to start animation. This method will call start on animation, but when animation is due
+     * to start (i.e. after the given delay), listener will check the quota and allow/disallow
+     * animation to be played.
      */
     @UiThread
-    boolean tryStartAnimation() {
+    void tryStartAnimation() {
         if (mAnimator == null) {
-            return false;
+            return;
         }
-        ValueAnimator localAnimator = mAnimator;
-        if (mQuotaManager.tryAcquireQuota(1)) {
-            startAnimator(localAnimator);
-            return true;
-        } else {
-            if (!isInfiniteAnimator()) {
-                localAnimator.end();
-            }
-            return false;
-        }
+
+        mAnimator.start();
     }
 
     /**
-     * Tries to start/resume infinite animation. Returns true if quota allows the animator to
-     * start/resume. Otherwise, it returns false.
+     * Tries to start/resume infinite animation. This method will call start/resume on animation,
+     * but when animation is due to start (i.e. after the given delay), listener will check the
+     * quota and allow/disallow animation to be played.
      */
     @UiThread
-    boolean tryStartOrResumeAnimator() {
+    void tryStartOrResumeInfiniteAnimation() {
         if (mAnimator == null) {
-            return false;
+            return;
         }
         ValueAnimator localAnimator = mAnimator;
-        if (localAnimator.isPaused() && mQuotaManager.tryAcquireQuota(1)) {
-            resumeAnimator(localAnimator);
-        } else if (isInfiniteAnimator() && mQuotaManager.tryAcquireQuota(1)) {
+        if (localAnimator.isPaused()) {
+            localAnimator.resume();
+        } else if (isInfiniteAnimator()) {
             // Infinite animators created when this node was invisible have not started yet.
-            startAnimator(localAnimator);
+            localAnimator.start();
         }
         // No need to jump to an end of animation if it can't be played as they are infinite.
-        return false;
-    }
-
-    private void resumeAnimator(ValueAnimator localAnimator) {
-        localAnimator.resume();
-        mListener.mIsUsingQuota = true;
-    }
-
-    private void startAnimator(ValueAnimator localAnimator) {
-        localAnimator.start();
-        mListener.mIsUsingQuota = true;
     }
 
     /**
@@ -149,6 +134,7 @@ class QuotaAwareAnimator {
         // This calls both onCancel and onEnd methods from listener.
         mAnimator.cancel();
         mAnimator.removeListener(mListener);
+        mAnimator.removePauseListener(mListener);
     }
 
     /** Returns whether the animator in this class has an infinite duration. */
@@ -156,14 +142,21 @@ class QuotaAwareAnimator {
         return mAnimator != null && mAnimator.getTotalDuration() == Animator.DURATION_INFINITE;
     }
 
-    /** Returns whether this node has a running animation. */
-    boolean hasRunningAnimation() {
-        return mAnimator != null && mAnimator.isRunning();
+    /**
+     * Returns whether this node has a running or started animation. Started means that animation is
+     * scheduled to run, but it has set time delay.
+     */
+    boolean hasRunningOrStartedAnimation() {
+        return mAnimator != null
+                && (mAnimator.isRunning() || /* delayed animation */ mAnimator.isStarted());
     }
 
     /**
      * The listener used for animatable nodes to release quota when the animation is finished or
-     * paused.
+     * paused. Additionally, when {@link
+     * android.animation.Animator.AnimatorListener#onAnimationStart(Animator)} is called, this
+     * listener will check quota, and if there isn't any available, it will jump to an end of
+     * animation.
      */
     private static final class QuotaReleasingAnimatorListener extends AnimatorListenerAdapter {
         @NonNull private final QuotaManager mQuotaManager;
@@ -173,33 +166,55 @@ class QuotaAwareAnimator {
         // inner ValueAnimator implementation (i.e., when calling end() on animator to assign it end
         // value, ValueAnimator will call start first if animation is not running to get it to the
         // end state.
-        boolean mIsUsingQuota = false;
+        @NonNull final AtomicBoolean mIsUsingQuota = new AtomicBoolean(false);
 
         QuotaReleasingAnimatorListener(@NonNull QuotaManager quotaManager) {
             this.mQuotaManager = quotaManager;
         }
 
         @Override
-        public void onAnimationStart(Animator animation) {}
+        public void onAnimationStart(Animator animation) {
+            acquireQuota(animation);
+        }
 
         @Override
-        public void onAnimationResume(Animator animation) {}
+        public void onAnimationResume(Animator animation) {
+            acquireQuota(animation);
+        }
 
         @Override
         @UiThread
         public void onAnimationEnd(Animator animation) {
-            if (mIsUsingQuota) {
-                mQuotaManager.releaseQuota(1);
-                mIsUsingQuota = false;
-            }
+            releaseQuota();
         }
 
         @Override
         @UiThread
         public void onAnimationPause(Animator animation) {
-            if (mIsUsingQuota) {
+            releaseQuota();
+        }
+
+        /**
+         * This method will block the given Animator from running animation if there is no enough
+         * quota. In that case, animation will jump to an end.
+         */
+        private void acquireQuota(Animator animation) {
+            if (!mQuotaManager.tryAcquireQuota(1)) {
+                mIsUsingQuota.set(false);
+                animation.end();
+                // End will fire end value via UpdateListener. We don't want any new updates to be
+                // pushed to the callback.
+                if (animation instanceof ValueAnimator) {
+                    ((ValueAnimator) animation).removeAllUpdateListeners();
+                }
+            } else {
+                mIsUsingQuota.set(true);
+            }
+        }
+
+        private void releaseQuota() {
+            if (mIsUsingQuota.compareAndSet(true, false)) {
                 mQuotaManager.releaseQuota(1);
-                mIsUsingQuota = false;
             }
         }
     }

@@ -16,15 +16,12 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 
 /** Data animatable source node within a dynamic data pipeline. */
 abstract class AnimatableNode {
-
     private boolean mIsVisible = false;
     @NonNull final QuotaAwareAnimator mQuotaAwareAnimator;
 
@@ -42,7 +39,6 @@ abstract class AnimatableNode {
      * it.
      */
     @UiThread
-    @SuppressLint("CheckResult") // (b/247804720)
     protected void startOrSkipAnimator() {
         if (mIsVisible) {
             mQuotaAwareAnimator.tryStartAnimation();
@@ -67,7 +63,7 @@ abstract class AnimatableNode {
         mIsVisible = visible;
         if (mIsVisible) {
             startOrResumeAnimator();
-        } else if (mQuotaAwareAnimator.hasRunningAnimation()) {
+        } else if (mQuotaAwareAnimator.hasRunningOrStartedAnimation()) {
             stopOrPauseAnimator();
         }
     }
@@ -76,14 +72,13 @@ abstract class AnimatableNode {
      * Starts or resumes the animator if there is a quota, depending on whether the animation was
      * paused.
      */
-    @SuppressLint("CheckResult") // (b/247804720)
     private void startOrResumeAnimator() {
-        mQuotaAwareAnimator.tryStartOrResumeAnimator();
+        mQuotaAwareAnimator.tryStartOrResumeInfiniteAnimation();
     }
 
     /** Returns whether this node has a running animation. */
-    boolean hasRunningAnimation() {
-        return mQuotaAwareAnimator.hasRunningAnimation();
+    boolean hasRunningOrStartedAnimation() {
+        return mQuotaAwareAnimator.hasRunningOrStartedAnimation();
     }
 
     /** Returns whether the animator in this node has an infinite duration. */

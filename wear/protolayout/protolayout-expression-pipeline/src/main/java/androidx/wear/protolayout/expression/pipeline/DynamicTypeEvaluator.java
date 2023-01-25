@@ -66,9 +66,12 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 /**
@@ -77,11 +80,14 @@ import java.util.concurrent.Executor;
  * <p>Given a dynamic ProtoLayout data source, this builds up a sequence of {@link DynamicDataNode}
  * instances, which can source the required data, and transform it into its final form.
  *
- * <p>Data source can includes animations which will then emit value transitions.
+ * <p>Data source can include animations which will then emit value transitions.
  *
  * <p>In order to evaluate dynamic types, the caller needs to add any number of pending dynamic
  * types with {@link #bind} methods and then call {@link #processPendingBindings()} to start
  * evaluation on those dynamic types. Starting evaluation can be done for batches of dynamic types.
+ *
+ * <p>It's the callers responsibility to destroy those dynamic types after use, with {@link
+ * BoundDynamicType#close()}.
  *
  * <p>It's the callers responsibility to destroy those dynamic types after use, with {@link
  * BoundDynamicType#close()}.
@@ -97,17 +103,18 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     private final boolean mEnableAnimations;
     @NonNull private final QuotaManager mAnimationQuotaManager;
     @NonNull private final List<DynamicDataNode<?>> mDynamicTypeNodes = new ArrayList<>();
+    private final Handler mUiHandler;
 
     @NonNull
     private static final QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =
             new QuotaManager() {
                 @Override
-                public boolean tryAcquireQuota(int quotaNum) {
+                public boolean tryAcquireQuota(int quota) {
                     return false;
                 }
 
                 @Override
-                public void releaseQuota(int quotaNum) {
+                public void releaseQuota(int quota) {
                     throw new IllegalStateException(
                             "releaseQuota method is called when no quota is acquired!");
                 }
@@ -185,10 +192,9 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull ObservableStateStore stateStore,
             boolean enableAnimations,
             @NonNull QuotaManager animationQuotaManager) {
-
         this.mSensorGateway = sensorGateway;
-        Handler uiHandler = new Handler(Looper.getMainLooper());
-        Executor uiExecutor = new MainThreadExecutor(uiHandler);
+        mUiHandler = new Handler(Looper.getMainLooper());
+        Executor uiExecutor = new MainThreadExecutor(mUiHandler);
         if (this.mSensorGateway != null) {
             if (platformDataSourcesInitiallyEnabled) {
                 this.mSensorGateway.enableUpdates();
@@ -201,7 +207,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             this.mSensorGatewayDataSource = null;
         }
 
-        this.mTimeGateway = new TimeGatewayImpl(uiHandler, platformDataSourcesInitiallyEnabled);
+        this.mTimeGateway = new TimeGatewayImpl(mUiHandler, platformDataSourcesInitiallyEnabled);
         this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, mTimeGateway);
 
         this.mEnableAnimations = enableAnimations;
@@ -284,7 +290,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicTypeValueReceiver<String> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
         bindRecursively(stringSource.toDynamicStringProto(), consumer, locale, resultBuilder);
-        processBindings(resultBuilder);
+        mUiHandler.post(() -> processBindings(resultBuilder));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -335,7 +341,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
         bindRecursively(int32Source.toDynamicInt32Proto(), consumer, resultBuilder);
-        processBindings(resultBuilder);
+        mUiHandler.post(() -> processBindings(resultBuilder));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -383,8 +389,37 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicBuilders.DynamicFloat floatSource,
             @NonNull DynamicTypeValueReceiver<Float> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(floatSource.toDynamicFloatProto(), consumer, resultBuilder);
-        processBindings(resultBuilder);
+        bindRecursively(
+                floatSource.toDynamicFloatProto(), consumer, resultBuilder, Optional.empty());
+        mUiHandler.post(() -> processBindings(resultBuilder));
+        return new BoundDynamicTypeImpl(resultBuilder);
+    }
+
+    /**
+     * Adds pending dynamic type from the given {@link DynamicFloat} for future evaluation.
+     *
+     * <p>Evaluation of this dynamic type will start when {@link #processPendingBindings} is called.
+     *
+     * <p>While the {@link BoundDynamicType} is not destroyed with {@link BoundDynamicType#close()}
+     * by caller, results of evaluation will be sent through the given {@link
+     * DynamicTypeValueReceiver}.
+     *
+     * @param floatSource The given float dynamic type that should be evaluated.
+     * @param consumer The registered consumer for results of the evaluation. It will be called from
+     *     UI thread.
+     * @param animationFallbackValue The value used if the given {@link DynamicFloat} is animatable
+     *     and animation are disabled.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public BoundDynamicType bind(
+            @NonNull DynamicFloat floatSource,
+            @NonNull DynamicTypeValueReceiver<Float> consumer,
+            float animationFallbackValue) {
+        List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
+        bindRecursively(floatSource, consumer, resultBuilder, Optional.of(animationFallbackValue));
+        mDynamicTypeNodes.addAll(resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -407,7 +442,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     public BoundDynamicType bind(
             @NonNull DynamicFloat floatSource, @NonNull DynamicTypeValueReceiver<Float> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(floatSource, consumer, resultBuilder);
+        bindRecursively(floatSource, consumer, resultBuilder, Optional.empty());
         mDynamicTypeNodes.addAll(resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
@@ -431,8 +466,9 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicBuilders.DynamicColor colorSource,
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(colorSource.toDynamicColorProto(), consumer, resultBuilder);
-        processBindings(resultBuilder);
+        bindRecursively(
+                colorSource.toDynamicColorProto(), consumer, resultBuilder, Optional.empty());
+        mUiHandler.post(() -> processBindings(resultBuilder));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -456,7 +492,35 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicColor colorSource,
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(colorSource, consumer, resultBuilder);
+        bindRecursively(colorSource, consumer, resultBuilder, Optional.empty());
+        mDynamicTypeNodes.addAll(resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder);
+    }
+
+    /**
+     * Adds pending dynamic type from the given {@link DynamicColor} for future evaluation.
+     *
+     * <p>Evaluation of this dynamic type will start when {@link #processPendingBindings} is called.
+     *
+     * <p>While the {@link BoundDynamicType} is not destroyed with {@link BoundDynamicType#close()}
+     * by caller, results of evaluation will be sent through the given {@link
+     * DynamicTypeValueReceiver}.
+     *
+     * @param colorSource The given color dynamic type that should be evaluated.
+     * @param consumer The registered consumer for results of the evaluation. It will be called from
+     *     UI thread.
+     * @param animationFallbackValue The value used if the given {@link DynamicFloat} is animatable
+     *     and animation are disabled.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public BoundDynamicType bind(
+            @NonNull DynamicColor colorSource,
+            @NonNull DynamicTypeValueReceiver<Integer> consumer,
+            int animationFallbackValue) {
+        List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
+        bindRecursively(colorSource, consumer, resultBuilder, Optional.of(animationFallbackValue));
         mDynamicTypeNodes.addAll(resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
@@ -481,7 +545,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
         bindRecursively(boolSource.toDynamicBoolProto(), consumer, resultBuilder);
-        processBindings(resultBuilder);
+        mUiHandler.post(() -> processBindings(resultBuilder));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -546,7 +610,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             stringSource.getFloatFormatOp().getInput(),
                             floatFormatNode.getIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     break;
                 }
             case STATE_SOURCE:
@@ -605,8 +670,9 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     }
 
     /**
-     * Same as {@link #bind(DynamicBuilders.DynamicInt32, DynamicTypeValueReceiver)}, all {@link
-     * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
+     * Same as {@link #bind(DynamicBuilders.DynamicInt32, DynamicTypeValueReceiver)}, but instead of
+     * returning one {@link BoundDynamicType}, all {@link DynamicDataNode} produced by evaluating
+     * given dynamic type are added to the given list.
      */
     private void bindRecursively(
             @NonNull DynamicInt32 int32Source,
@@ -680,7 +746,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             int32Source.getFloatToInt().getInput(),
                             conversionNode.getIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     break;
                 }
             case INNER_NOT_SET:
@@ -693,13 +760,15 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     }
 
     /**
-     * Same as {@link #bind(DynamicBuilders.DynamicFloat, DynamicTypeValueReceiver)}, all {@link
-     * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
+     * Same as {@link #bind(DynamicBuilders.DynamicFloat, DynamicTypeValueReceiver)}, but instead of
+     * returning one {@link BoundDynamicType}, all {@link DynamicDataNode} produced by evaluating
+     * given dynamic type are added to the given list.
      */
     private void bindRecursively(
             @NonNull DynamicFloat floatSource,
             @NonNull DynamicTypeValueReceiver<Float> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @NonNull Optional<Float> animationFallbackValue) {
         DynamicDataNode<?> node;
 
         switch (floatSource.getInnerCase()) {
@@ -720,11 +789,13 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             floatSource.getArithmeticOperation().getInputLhs(),
                             arithmeticNode.getLhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     bindRecursively(
                             floatSource.getArithmeticOperation().getInputRhs(),
                             arithmeticNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
 
                     break;
                 }
@@ -751,49 +822,66 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             op.getValueIfTrue(),
                             conditionalNode.getTrueValueIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     bindRecursively(
                             op.getValueIfFalse(),
                             conditionalNode.getFalseValueIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
 
                     node = conditionalNode;
                     break;
                 }
             case ANIMATABLE_FIXED:
-                {
-                    if (mEnableAnimations) {
-                        node =
-                                new AnimatableFixedFloatNode(
-                                        floatSource.getAnimatableFixed(),
-                                        consumer,
-                                        mAnimationQuotaManager);
-                    } else {
-                        throw new IllegalStateException(
-                                "Cannot translate static_animated_float; animations are disabled.");
-                    }
-                    break;
+                if (!mEnableAnimations && animationFallbackValue.isPresent()) {
+                    // Just assign static value if animations are disabled.
+                    node =
+                            new FixedFloatNode(
+                                    FixedFloat.newBuilder()
+                                            .setValue(animationFallbackValue.get())
+                                            .build(),
+                                    consumer);
+                } else {
+                    // We don't have to check if enableAnimations is true, because if it's false and
+                    // we didn't have static value set, constructor has put QuotaManager that don't
+                    // have any quota, so animations won't be played and they would jump to the end
+                    // value.
+                    node =
+                            new AnimatableFixedFloatNode(
+                                    floatSource.getAnimatableFixed(),
+                                    consumer,
+                                    mAnimationQuotaManager);
                 }
+                break;
             case ANIMATABLE_DYNAMIC:
-                {
-                    if (mEnableAnimations) {
-                        AnimatableDynamicFloat dynamicNode = floatSource.getAnimatableDynamic();
-                        DynamicAnimatedFloatNode animationNode =
-                                new DynamicAnimatedFloatNode(
-                                        consumer, dynamicNode.getSpec(), mAnimationQuotaManager);
-                        node = animationNode;
+                if (!mEnableAnimations && animationFallbackValue.isPresent()) {
+                    // Just assign static value if animations are disabled.
+                    node =
+                            new FixedFloatNode(
+                                    FixedFloat.newBuilder()
+                                            .setValue(animationFallbackValue.get())
+                                            .build(),
+                                    consumer);
 
-                        bindRecursively(
-                                dynamicNode.getInput(),
-                                animationNode.getInputCallback(),
-                                resultBuilder);
-                    } else {
-                        throw new IllegalStateException(
-                                "Cannot translate dynamic_animated_float; animations are"
-                                        + " disabled.");
-                    }
-                    break;
+                } else {
+                    // We don't have to check if enableAnimations is true, because if it's false and
+                    // we didn't have static value set, constructor has put QuotaManager that don't
+                    // have any quota, so animations won't be played and they would jump to the end
+                    // value.
+                    AnimatableDynamicFloat dynamicNode = floatSource.getAnimatableDynamic();
+                    DynamicAnimatedFloatNode animationNode =
+                            new DynamicAnimatedFloatNode(
+                                    consumer, dynamicNode.getSpec(), mAnimationQuotaManager);
+                    node = animationNode;
+
+                    bindRecursively(
+                            dynamicNode.getInput(),
+                            animationNode.getInputCallback(),
+                            resultBuilder,
+                            animationFallbackValue);
                 }
+                break;
 
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicFloat has no inner source set");
@@ -805,13 +893,15 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     }
 
     /**
-     * Same as {@link #bind(DynamicBuilders.DynamicColor, DynamicTypeValueReceiver)}, all {@link
-     * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
+     * Same as {@link #bind(DynamicBuilders.DynamicColor, DynamicTypeValueReceiver)}, but instead of
+     * returning one {@link BoundDynamicType}, all {@link DynamicDataNode} produced by evaluating
+     * given dynamic type are added to the given list.
      */
     private void bindRecursively(
             @NonNull DynamicColor colorSource,
             @NonNull DynamicTypeValueReceiver<Integer> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @NonNull Optional<Integer> animationFallbackValue) {
         DynamicDataNode<?> node;
 
         switch (colorSource.getInnerCase()) {
@@ -824,19 +914,42 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                                 mStateStore, colorSource.getStateSource(), consumer);
                 break;
             case ANIMATABLE_FIXED:
-                if (mEnableAnimations) {
+                if (!mEnableAnimations && animationFallbackValue.isPresent()) {
+                    // Just assign static value if animations are disabled.
+                    node =
+                            new FixedColorNode(
+                                    FixedColor.newBuilder()
+                                            .setArgb(animationFallbackValue.get())
+                                            .build(),
+                                    consumer);
+
+                } else {
+                    // We don't have to check if enableAnimations is true, because if it's false and
+                    // we didn't have static value set, constructor has put QuotaManager that don't
+                    // have any quota, so animations won't be played and they would jump to the end
+                    // value.
                     node =
                             new AnimatableFixedColorNode(
                                     colorSource.getAnimatableFixed(),
                                     consumer,
                                     mAnimationQuotaManager);
-                } else {
-                    throw new IllegalStateException(
-                            "Cannot translate animatable_fixed color; animations are disabled.");
                 }
                 break;
             case ANIMATABLE_DYNAMIC:
-                if (mEnableAnimations) {
+                if (!mEnableAnimations && animationFallbackValue.isPresent()) {
+                    // Just assign static value if animations are disabled.
+                    node =
+                            new FixedColorNode(
+                                    FixedColor.newBuilder()
+                                            .setArgb(animationFallbackValue.get())
+                                            .build(),
+                                    consumer);
+
+                } else {
+                    // We don't have to check if enableAnimations is true, because if it's false and
+                    // we didn't have static value set, constructor has put QuotaManager that don't
+                    // have any quota, so animations won't be played and they would jump to the end
+                    // value.
                     AnimatableDynamicColor dynamicNode = colorSource.getAnimatableDynamic();
                     DynamicAnimatedColorNode animationNode =
                             new DynamicAnimatedColorNode(
@@ -846,10 +959,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             dynamicNode.getInput(),
                             animationNode.getInputCallback(),
-                            resultBuilder);
-                } else {
-                    throw new IllegalStateException(
-                            "Cannot translate dynamic_animated_float; animations are disabled.");
+                            resultBuilder,
+                            animationFallbackValue);
                 }
                 break;
             case INNER_NOT_SET:
@@ -862,8 +973,9 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     }
 
     /**
-     * Same as {@link #bind(DynamicBuilders.DynamicBool, DynamicTypeValueReceiver)}, all {@link
-     * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
+     * Same as {@link #bind(DynamicBuilders.DynamicBool, DynamicTypeValueReceiver)}, but instead of
+     * returning one {@link BoundDynamicType}, all {@link DynamicDataNode} produced by evaluating
+     * given dynamic type are added to the given list.
      */
     private void bindRecursively(
             @NonNull DynamicBool boolSource,
@@ -931,11 +1043,13 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             boolSource.getFloatComparison().getInputLhs(),
                             compNode.getLhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     bindRecursively(
                             boolSource.getFloatComparison().getInputRhs(),
                             compNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
 
                     break;
                 }
