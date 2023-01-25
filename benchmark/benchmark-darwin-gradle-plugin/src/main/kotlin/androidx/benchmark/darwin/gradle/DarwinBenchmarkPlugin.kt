@@ -117,9 +117,12 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         project.tasks.register(
             DARWIN_BENCHMARK_RESULTS_TASK, DarwinBenchmarkResultsTask::class.java
         ) {
+            it.group = "Verification"
+            it.description = "Run Kotlin Multiplatform Benchmarks for Darwin"
             it.xcResultPath.set(runDarwinBenchmarks.flatMap { task ->
                 task.xcResultPath
             })
+            it.referenceSha.set(extension.referenceSha)
             val resultFileName = "${extension.xcodeProjectName.get()}-benchmark-result.json"
             it.outputFile.set(
                 project.layout.buildDirectory.file(
