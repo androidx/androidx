@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,11 +46,14 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
         }
         ProcessGlobalConfig config = new ProcessGlobalConfig();
         config.setDataDirectorySuffix(this,
-                "per_process_webview_data_0");
+                "per_process_webview_data_test");
         ProcessGlobalConfig.apply(config);
         setContentView(R.layout.activity_process_global_config);
         WebView wv = findViewById(R.id.process_global_config_webview);
+        wv.getSettings().setJavaScriptEnabled(true);
         wv.setWebViewClient(new WebViewClient());
         wv.loadUrl("www.google.com");
+        TextView tv = findViewById(R.id.process_global_textview);
+        tv.setText("WebView Loaded!");
     }
 }
