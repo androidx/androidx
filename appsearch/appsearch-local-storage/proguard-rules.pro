@@ -19,7 +19,7 @@
   <fields>;
 }
 -keep class com.google.android.icing.BreakIteratorBatcher { *; }
--keepclassmembers public class com.google.android.icing.IcingSearchEngine {
+-keepclassmembers public class com.google.android.icing.IcingSearchEngineImpl {
   private long nativePointer;
 }
 
