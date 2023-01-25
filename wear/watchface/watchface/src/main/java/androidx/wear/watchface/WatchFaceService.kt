@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
@@ -110,9 +111,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-
-/** The wire format for [ComplicationData]. */
-internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
 
 /**
  * After user code finishes, we need up to 100ms of wake lock holding for the drawing to occur. This

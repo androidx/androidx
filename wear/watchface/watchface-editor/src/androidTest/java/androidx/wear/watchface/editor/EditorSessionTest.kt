@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.editor
 
+import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
@@ -144,9 +145,6 @@ private const val PROVIDER_CHOOSER_EXTRA_KEY = "PROVIDER_CHOOSER_EXTRA_KEY"
 private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
 private const val PROVIDER_CHOOSER_RESULT_EXTRA_KEY = "PROVIDER_CHOOSER_RESULT_EXTRA_KEY"
 private const val PROVIDER_CHOOSER_RESULT_EXTRA_VALUE = "PROVIDER_CHOOSER_RESULT_EXTRA_VALUE"
-
-private typealias WireComplicationProviderInfo =
-    android.support.wearable.complications.ComplicationProviderInfo
 
 internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", "Red", icon = null)
 internal val greenStyleOption =

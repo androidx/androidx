@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -69,7 +70,7 @@ public class MonochromaticImage internal constructor(
     }
 
     /** Adds a [MonochromaticImage] to a builder for [WireComplicationData]. */
-    internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {
+    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) = builder.apply {
         setIcon(image)
         setBurnInProtectionIcon(ambientImage)
     }
@@ -173,7 +174,7 @@ public class SmallImage internal constructor(
     }
 
     /** Adds a [SmallImage] to a builder for [WireComplicationData]. */
-    internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {
+    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) = builder.apply {
         setSmallImage(image)
         setSmallImageStyle(
             when (this@SmallImage.type) {

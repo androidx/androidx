@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF

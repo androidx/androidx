@@ -51,9 +51,6 @@ package androidx.wear.watchface.complications.datasource {
     property public final java.util.Collection<androidx.wear.watchface.complications.datasource.TimelineEntry> timelineEntries;
   }
 
-  public final class ComplicationDataTimelineKt {
-  }
-
   public final class ComplicationRequest {
     ctor public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType, boolean immediateResponseRequired);
     ctor @Deprecated public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType);
