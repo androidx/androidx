@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
+package androidx.lifecycle
 
 /**
- * A scope that owns {@link ViewModelStore}.
- * <p>
+ * A scope that owns [ViewModelStore].
+ *
  * A responsibility of an implementation of this interface is to retain owned ViewModelStore
- * during the configuration changes and call {@link ViewModelStore#clear()}, when this scope is
+ * during the configuration changes and call [ViewModelStore.clear], when this scope is
  * going to be destroyed.
  *
  * @see ViewTreeViewModelStoreOwner
  */
-@SuppressWarnings("WeakerAccess")
-public interface ViewModelStoreOwner {
+interface ViewModelStoreOwner {
+
     /**
-     * Returns owned {@link ViewModelStore}
-     *
-     * @return a {@code ViewModelStore}
+     * The owned [ViewModelStore]
      */
-    @NonNull
-    ViewModelStore getViewModelStore();
+    val viewModelStore: ViewModelStore
 }

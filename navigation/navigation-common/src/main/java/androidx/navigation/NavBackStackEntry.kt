@@ -197,29 +197,30 @@ public class NavBackStackEntry private constructor(
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalStateException if called before the [lifecycle] has moved to
-     * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
-     * [androidx.navigation.NavHostController.setViewModelStore].
-     */
-    public override fun getViewModelStore(): ViewModelStore {
-        check(savedStateRegistryAttached) {
-            "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
-                "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
-                "reaches the CREATED state)."
+    public override val viewModelStore: ViewModelStore
+        /**
+         * {@inheritDoc}
+         *
+         * @throws IllegalStateException if called before the [lifecycle] has moved to
+         * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
+         * [androidx.navigation.NavHostController.setViewModelStore].
+         */
+        get() {
+            check(savedStateRegistryAttached) {
+                "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
+                    "the NavController's back stack (i.e., the Lifecycle of the " +
+                    "NavBackStackEntry reaches the CREATED state)."
+            }
+            check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                "You cannot access the NavBackStackEntry's ViewModels after the " +
+                    "NavBackStackEntry is destroyed."
+            }
+            checkNotNull(viewModelStoreProvider) {
+                "You must call setViewModelStore() on your NavHostController before " +
+                    "accessing the ViewModelStore of a navigation graph."
+            }
+            return viewModelStoreProvider.getViewModelStore(id)
         }
-        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
-            "You cannot access the NavBackStackEntry's ViewModels after the " +
-                "NavBackStackEntry is destroyed."
-        }
-        checkNotNull(viewModelStoreProvider) {
-            "You must call setViewModelStore() on your NavHostController before accessing the " +
-                "ViewModelStore of a navigation graph."
-        }
-        return viewModelStoreProvider.getViewModelStore(id)
-    }
 
     override val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory
 
