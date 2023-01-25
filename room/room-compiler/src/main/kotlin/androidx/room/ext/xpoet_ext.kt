@@ -28,15 +28,8 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
 import java.util.concurrent.Callable
-import kotlin.reflect.KClass
-
-val KClass<*>.typeName: ClassName
-    get() = ClassName.get(this.java)
-val KClass<*>.arrayTypeName: ArrayTypeName
-    get() = ArrayTypeName.of(typeName)
 
 object SupportDbTypeNames {
     val DB = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
@@ -83,10 +76,8 @@ object RoomTypeNames {
 }
 
 object PagingTypeNames {
-    val DATA_SOURCE: ClassName =
-        ClassName.get(PAGING_PACKAGE, "DataSource")
-    val POSITIONAL_DATA_SOURCE: ClassName =
-        ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
+    val DATA_SOURCE = XClassName.get(PAGING_PACKAGE, "DataSource")
+    val POSITIONAL_DATA_SOURCE = XClassName.get(PAGING_PACKAGE, "PositionalDataSource")
     val DATA_SOURCE_FACTORY = XClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
     val PAGING_SOURCE = XClassName.get(PAGING_PACKAGE, "PagingSource")
     val LISTENABLE_FUTURE_PAGING_SOURCE =
@@ -326,7 +317,7 @@ fun CallableTypeSpecBuilder(
             callBody()
         }.apply(
             javaMethodBuilder = {
-                addException(Exception::class.typeName)
+                addException(JTypeName.get(Exception::class.java))
             },
             kotlinFunctionBuilder = { }
         ).build()

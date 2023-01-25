@@ -21,7 +21,9 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -29,8 +31,6 @@ import androidx.room.compiler.processing.writeTo
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.processor.Context
 import androidx.room.vo.BuiltInConverterFlags
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -40,60 +40,58 @@ import testCodeGenScope
 
 @RunWith(Parameterized::class)
 class BasicColumnTypeAdaptersTest(
-    val input: TypeName,
+    val input: XTypeName,
     val bindCode: String,
     val cursorCode: String
 ) {
     companion object {
-        val SQLITE_STMT: TypeName = ClassName.get("android.database.sqlite", "SQLiteStatement")
-        val CURSOR: TypeName = ClassName.get("android.database", "Cursor")
 
         @Parameterized.Parameters(name = "kind:{0},bind:_{1},cursor:_{2}")
         @JvmStatic
         fun params(): List<Array<Any>> {
             return listOf(
                 arrayOf(
-                    TypeName.INT,
+                    XTypeName.PRIMITIVE_INT,
                     "st.bindLong(6, inp);",
                     "out = crs.getInt(9);"
                 ),
                 arrayOf(
-                    TypeName.BYTE,
+                    XTypeName.PRIMITIVE_BYTE,
                     "st.bindLong(6, inp);",
                     "out = (byte) (crs.getShort(9));"
                 ),
                 arrayOf(
-                    TypeName.SHORT,
+                    XTypeName.PRIMITIVE_SHORT,
                     "st.bindLong(6, inp);",
                     "out = crs.getShort(9);"
                 ),
                 arrayOf(
-                    TypeName.LONG,
+                    XTypeName.PRIMITIVE_LONG,
                     "st.bindLong(6, inp);",
                     "out = crs.getLong(9);"
                 ),
                 arrayOf(
-                    TypeName.CHAR,
+                    XTypeName.PRIMITIVE_CHAR,
                     "st.bindLong(6, inp);",
                     "out = (char) (crs.getInt(9));"
                 ),
                 arrayOf(
-                    TypeName.FLOAT,
+                    XTypeName.PRIMITIVE_FLOAT,
                     "st.bindDouble(6, inp);",
                     "out = crs.getFloat(9);"
                 ),
                 arrayOf(
-                    TypeName.DOUBLE,
+                    XTypeName.PRIMITIVE_DOUBLE,
                     "st.bindDouble(6, inp);",
                     "out = crs.getDouble(9);"
                 ),
                 arrayOf(
-                    TypeName.get(String::class.java),
+                    String::class.asClassName(),
                     "st.bindString(6, inp);",
                     "out = crs.getString(9);"
                 ),
                 arrayOf(
-                    TypeName.get(ByteArray::class.java),
+                    XTypeName.getArrayName(XTypeName.PRIMITIVE_BYTE),
                     "st.bindBlob(6, inp);",
                     "out = crs.getBlob(9);"
                 )
