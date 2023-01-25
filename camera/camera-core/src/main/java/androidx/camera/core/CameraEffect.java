@@ -81,7 +81,7 @@ public abstract class CameraEffect {
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(flag = true, value = {PREVIEW, IMAGE_CAPTURE})
+    @IntDef(flag = true, value = {PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE})
     public @interface Targets {
     }
 
