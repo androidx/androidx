@@ -32,6 +32,7 @@ dependencies {
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
 
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
