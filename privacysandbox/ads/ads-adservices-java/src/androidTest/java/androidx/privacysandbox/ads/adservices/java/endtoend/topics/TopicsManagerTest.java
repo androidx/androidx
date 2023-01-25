@@ -86,7 +86,7 @@ public class TopicsManagerTest {
         TopicsManagerFutures topicsManager =
                 TopicsManagerFutures.from(ApplicationProvider.getApplicationContext());
         GetTopicsRequest request = new GetTopicsRequest.Builder()
-                .setSdkName("sdk1")
+                .setAdsSdkName("sdk1")
                 .setShouldRecordObservation(true)
                 .build();
         GetTopicsResponse response = topicsManager.getTopicsAsync(request).get();
@@ -124,7 +124,7 @@ public class TopicsManagerTest {
         // Sdk 2 did not call getTopics API. So it should not receive any topic.
         GetTopicsResponse response2 = topicsManager.getTopicsAsync(
                 new GetTopicsRequest.Builder()
-                        .setSdkName("sdk2")
+                        .setAdsSdkName("sdk2")
                         .build()).get();
         assertThat(response2.getTopics()).isEmpty();
     }

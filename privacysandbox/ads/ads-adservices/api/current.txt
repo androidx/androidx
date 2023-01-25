@@ -301,17 +301,17 @@ package androidx.privacysandbox.ads.adservices.measurement {
 package androidx.privacysandbox.ads.adservices.topics {
 
   public final class GetTopicsRequest {
-    ctor public GetTopicsRequest(optional String sdkName, optional boolean shouldRecordObservation);
-    method public String getSdkName();
+    ctor public GetTopicsRequest(optional String adsSdkName, optional boolean shouldRecordObservation);
+    method public String getAdsSdkName();
     method public boolean getShouldRecordObservation();
-    property public final String sdkName;
+    property public final String adsSdkName;
     property public final boolean shouldRecordObservation;
   }
 
   public static final class GetTopicsRequest.Builder {
     ctor public GetTopicsRequest.Builder();
     method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest build();
-    method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.Builder setSdkName(String sdkName);
+    method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.Builder setAdsSdkName(String adsSdkName);
     method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.Builder setShouldRecordObservation(boolean shouldRecordObservation);
   }
 

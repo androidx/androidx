@@ -78,7 +78,7 @@ class TopicsManagerFuturesTest {
 
         // Actually invoke the compat code.
         val request = GetTopicsRequest.Builder()
-            .setSdkName(mSdkName)
+            .setAdsSdkName(mSdkName)
             .setShouldRecordObservation(true)
             .build()
 
