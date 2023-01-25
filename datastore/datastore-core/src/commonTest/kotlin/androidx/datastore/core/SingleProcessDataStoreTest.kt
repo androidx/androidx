@@ -850,7 +850,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         initTasksList: List<InitTaskList> = listOf(),
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
-        return SingleProcessDataStore(
+        return DataStoreImpl(
             testIO.getStorage(serializerConfig) { file },
             scope = scope,
             initTasksList = initTasksList,
