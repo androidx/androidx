@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
+import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Parcel
@@ -27,15 +28,18 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.R
 import java.time.Instant
 import java.util.Collections
 
 /**
- * Base class for a generic credential entry that is displayed on the account selector UI.
+ * Custom credential entry for a custom credential tyoe that is displayed on the account
+ * selector UI.
+ *
  * Each entry corresponds to an account that can provide a credential.
  *
  * @property title the title shown with this entry on the selector UI
- * @property subTitle the subTitle shown with this entry on the selector UI
+ * @property subtitle the subTitle shown with this entry on the selector UI
  * @property lastUsedTime the last used time the credential underlying this entry was
  * used by the user
  * @property icon the icon to be displayed with this entry on the selector UI
@@ -52,9 +56,9 @@ import java.util.Collections
 class CustomCredentialEntry internal constructor(
     type: String,
     val title: CharSequence,
-    val subTitle: CharSequence?,
+    val subtitle: CharSequence?,
     val typeDisplayName: CharSequence?,
-    val icon: Icon?,
+    val icon: Icon,
     val lastUsedTime: Instant?,
     val pendingIntent: PendingIntent,
     val isAutoSelectAllowed: Boolean
@@ -63,7 +67,7 @@ class CustomCredentialEntry internal constructor(
     toSlice(
         type,
         title,
-        subTitle,
+        subtitle,
         pendingIntent,
         typeDisplayName,
         lastUsedTime,
@@ -118,7 +122,7 @@ class CustomCredentialEntry internal constructor(
         internal fun toSlice(
             type: String,
             title: CharSequence,
-            subTitle: CharSequence?,
+            subtitle: CharSequence?,
             pendingIntent: PendingIntent,
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
@@ -137,7 +141,7 @@ class CustomCredentialEntry internal constructor(
                     listOf(SLICE_HINT_TYPE_DISPLAY_NAME))
                 .addText(title, /*subType=*/null,
                     listOf(SLICE_HINT_TITLE))
-                .addText(subTitle, /*subType=*/null,
+                .addText(subtitle, /*subType=*/null,
                     listOf(SLICE_HINT_SUBTITLE))
                 .addText(autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED))
@@ -170,7 +174,7 @@ class CustomCredentialEntry internal constructor(
         fun fromSlice(slice: Slice): CustomCredentialEntry? {
             var typeDisplayName: CharSequence? = null
             var title: CharSequence? = null
-            var subTitle: CharSequence? = null
+            var subtitle: CharSequence? = null
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
@@ -182,7 +186,7 @@ class CustomCredentialEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_TITLE)) {
                     title = it.text
                 } else if (it.hasHint(SLICE_HINT_SUBTITLE)) {
-                    subTitle = it.text
+                    subtitle = it.text
                 } else if (it.hasHint(SLICE_HINT_ICON)) {
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
@@ -199,9 +203,9 @@ class CustomCredentialEntry internal constructor(
 
             return try {
                 CustomCredentialEntry(slice.spec!!.type, title!!,
-                    subTitle,
-                    typeDisplayName!!,
-                    icon,
+                    subtitle,
+                    typeDisplayName,
+                    icon!!,
                     lastUsedTime, pendingIntent!!, autoSelectAllowed)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -221,6 +225,67 @@ class CustomCredentialEntry internal constructor(
             override fun newArray(size: Int): Array<CustomCredentialEntry?> {
                 return arrayOfNulls(size)
             }
+        }
+    }
+
+    /** Builder for [CustomCredentialEntry] */
+    class Builder(
+        private val context: Context,
+        private val type: String,
+        private val title: CharSequence,
+        private val pendingIntent: PendingIntent
+    ) {
+        private var subtitle: CharSequence? = null
+        private var lastUsedTime: Instant? = null
+        private var typeDisplayName: CharSequence? = null
+        private var icon: Icon? = null
+        private var autoSelectAllowed = false
+
+        /** Sets a displayName to be shown on the UI with this entry. */
+        fun setSubtitle(subtitle: CharSequence?): Builder {
+            this.subtitle = subtitle
+            return this
+        }
+
+        /** Sets the display name of this credential type, to be shown on the UI with this entry. */
+        fun setTypeDisplayName(typeDisplayName: CharSequence?): Builder {
+            this.typeDisplayName = typeDisplayName
+            return this
+        }
+
+        /**
+         * Sets the icon to be show on the UI.
+         * If no icon is set, a default icon representing a custom credential will be set.
+         */
+        fun setIcon(icon: Icon?): Builder {
+            this.icon = icon
+            return this
+        }
+
+        /**
+         * Sets the last used time of this account. This information will be used to sort the
+         * entries on the selector.
+         */
+        fun setLastUsedTime(lastUsedTime: Instant?): Builder {
+            this.lastUsedTime = lastUsedTime
+            return this
+        }
+
+        /** Builds an instance of [CustomCredentialEntry] */
+        fun build(): CustomCredentialEntry {
+            if (icon == null) {
+                icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in)
+            }
+            return CustomCredentialEntry(
+                type,
+                title,
+                subtitle,
+                typeDisplayName,
+                icon!!,
+                lastUsedTime,
+                pendingIntent,
+                autoSelectAllowed
+            )
         }
     }
 }
