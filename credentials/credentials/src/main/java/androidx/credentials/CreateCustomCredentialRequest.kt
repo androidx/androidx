@@ -25,6 +25,11 @@ import android.os.Bundle
  * [CredentialManager.createCredential] to launch framework UI flows to collect consent and
  * any other metadata needed from the user to register a new user credential.
  *
+ * If you get a [CreateCustomCredentialRequest] instead of a type-safe request class such as
+ * [CreatePasswordRequest], [CreatePublicKeyCredentialRequest], etc., then you should check if you
+ * have any other library at interest that supports this custom [type] of credential request,
+ * and if so use its parsing utilities to resolve to a type-safe class within that library.
+ *
  * @property type the credential type determined by the credential-type-specific subclass for custom
  * use cases
  * @property credentialData the full credential creation request data in the [Bundle] format for
