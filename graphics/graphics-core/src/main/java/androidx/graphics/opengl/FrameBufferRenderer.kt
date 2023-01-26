@@ -49,6 +49,7 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
  * This API can be used to render content into a [HardwareBuffer] directly and convert that to a
  * bitmap with the following code snippet:
  *
+ * ```
  * val glRenderer = GLRenderer().apply { start() }
  * val callbacks = object : FrameBufferRenderer.RenderCallback {
  *
@@ -77,6 +78,7 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
  * }
  *
  * glRenderer.createRenderTarget(width,height, FrameBufferRenderer(callbacks)).requestRender()
+ * ```
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class FrameBufferRenderer(
