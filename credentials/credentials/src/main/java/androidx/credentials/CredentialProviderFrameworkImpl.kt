@@ -46,9 +46,9 @@ import java.util.concurrent.Executors
  * @hide
  */
 @RequiresApi(34)
-internal class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
-    private val credentialManager: CredentialManager =
-        context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager
+class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
+    private val credentialManager: CredentialManager? =
+        context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager?
 
     override fun onGetCredential(
         request: GetCredentialRequest,
@@ -58,6 +58,8 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onGetCredential")
+        if (isCredmanDisabled { -> callback.onError(GetCredentialUnknownException(
+                "Your device doesn't support credential manager")) }) return
 
         val outcome = object : OutcomeReceiver<
             android.credentials.GetCredentialResponse, android.credentials.GetCredentialException> {
@@ -71,13 +73,22 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
                 callback.onError(convertToJetpackGetException(error))
             }
         }
-        credentialManager.getCredential(
+
+        credentialManager!!.getCredential(
             convertGetRequestToFrameworkClass(request),
             activity,
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
             outcome
         )
+    }
+
+    private fun isCredmanDisabled(handleNullCredMan: () -> Unit): Boolean {
+        if (credentialManager == null) {
+            handleNullCredMan()
+            return true
+        }
+        return false
     }
 
     override fun onCreateCredential(
@@ -88,7 +99,8 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onCreateCredential")
-
+        if (isCredmanDisabled { -> callback.onError(CreateCredentialUnknownException(
+                        "Your device doesn't support credential manager")) }) return
         val outcome = object : OutcomeReceiver<
             android.credentials.CreateCredentialResponse,
             android.credentials.CreateCredentialException> {
@@ -107,7 +119,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             }
         }
 
-        credentialManager.createCredential(
+        credentialManager!!.createCredential(
             android.credentials.CreateCredentialRequest(
                 request.type,
                 FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
@@ -197,6 +209,9 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onClearCredential")
 
+        if (isCredmanDisabled { -> callback.onError(ClearCredentialUnknownException(
+                "Your device doesn't support credential manager")) }) return
+
         val outcome = object : OutcomeReceiver<Void,
             android.credentials.ClearCredentialStateException> {
             override fun onResult(response: Void) {
@@ -211,7 +226,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             }
         }
 
-        credentialManager.clearCredentialState(
+        credentialManager!!.clearCredentialState(
             createFrameworkClearCredentialRequest(),
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
