@@ -22,7 +22,6 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
@@ -248,7 +247,7 @@ class TypeAdapterStoreTest {
             )
             val uuid = invocation
                 .processingEnv
-                .requireType(UUID::class.asClassName())
+                .requireType(CommonTypeNames.UUID)
             val adapter = store.findColumnTypeAdapter(
                 out = uuid,
                 affinity = null,
