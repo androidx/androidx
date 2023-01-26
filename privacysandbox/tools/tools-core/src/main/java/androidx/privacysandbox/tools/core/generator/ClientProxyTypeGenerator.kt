@@ -21,11 +21,13 @@ import androidx.privacysandbox.tools.core.generator.SpecNames.resumeWithExceptio
 import androidx.privacysandbox.tools.core.generator.SpecNames.suspendCancellableCoroutineMethod
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
@@ -34,24 +36,34 @@ class ClientProxyTypeGenerator(
     private val basePackageName: String,
     private val binderCodeConverter: BinderCodeConverter
 ) {
-    private val cancellationSignalClassName =
-        ClassName(basePackageName, "ICancellationSignal")
+    private val cancellationSignalClassName = ClassName(basePackageName, "ICancellationSignal")
+    private val sandboxedUiAdapterPropertyName = "sandboxedUiAdapter"
 
     fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
         val className = annotatedInterface.clientProxyNameSpec().simpleName
         val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetTypeName()
+        val inheritsUiAdapter = annotatedInterface.superTypes.contains(Types.sandboxedUiAdapter)
 
         val classSpec = TypeSpec.classBuilder(className).build {
             addSuperinterface(annotatedInterface.type.poetTypeName())
 
-            primaryConstructor(
-                listOf(
+            primaryConstructor(buildList {
+                add(
                     PropertySpec.builder("remote", remoteBinderClassName)
                         .addModifiers(KModifier.PUBLIC).build()
                 )
-            )
+                if (inheritsUiAdapter) add(
+                    PropertySpec.builder(
+                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
+                    ).addModifiers(KModifier.PUBLIC).build()
+                )
+            })
 
             addFunctions(annotatedInterface.methods.map(::toFunSpec))
+
+            if (inheritsUiAdapter) {
+                addFunction(generateOpenSession())
+            }
         }
 
         return FileSpec.builder(annotatedInterface.type.packageName, className).build {
@@ -93,6 +105,28 @@ class ClientProxyTypeGenerator(
 
             addCode(generateRemoteCall(method))
         }
+
+    private fun generateOpenSession() = FunSpec.builder("openSession").build {
+        addModifiers(KModifier.OVERRIDE)
+        addParameters(
+            listOf(
+                ParameterSpec("context", ClassName("android.content", "Context")),
+                ParameterSpec("initialWidth", Types.int.poetClassName()),
+                ParameterSpec("initialHeight", Types.int.poetClassName()),
+                ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
+                ParameterSpec("clientExecutor", ClassName("java.util.concurrent", "Executor")),
+                ParameterSpec(
+                    "client", ClassName(
+                        "androidx.privacysandbox.ui.core", "SandboxedUiAdapter.SessionClient"
+                    )
+                ),
+            )
+        )
+        addStatement(
+            "$sandboxedUiAdapterPropertyName.openSession(context, initialWidth, initialHeight, " +
+                "isZOrderOnTop, clientExecutor, client)"
+        )
+    }
 
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
         val transactionCallbackClassName = ClassName(
