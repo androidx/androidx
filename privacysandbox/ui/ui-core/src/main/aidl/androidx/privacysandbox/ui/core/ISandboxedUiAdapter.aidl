@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+package androidx.privacysandbox.ui.core;
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-}
+import androidx.privacysandbox.ui.core.IRemoteSessionClient;
+import android.content.Context;
 
-dependencies {
-    api(libs.kotlinStdlib)
-    implementation project(path: ':privacysandbox:ui:ui-core')
-    implementation project(path: ':annotation:annotation')
-}
-
-android {
-    namespace "androidx.privacysandbox.ui.client"
-}
-
-androidx {
-    name = "androidx.privacysandbox.ui:ui-client"
-    type = LibraryType.PUBLISHED_LIBRARY
-    inceptionYear = "2022"
-    description = "show UI from an SDKRuntime aware SDK"
+/** @hide */
+oneway interface ISandboxedUiAdapter {
+    void openRemoteSession(
+        IBinder hostToken, int displayId, int initialWidth, int initialHeight, boolean isZOrderOnTop,
+        IRemoteSessionClient remoteSessionClient);
 }
