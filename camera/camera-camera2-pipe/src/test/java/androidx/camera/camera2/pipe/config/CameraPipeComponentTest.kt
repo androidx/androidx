@@ -86,7 +86,9 @@ internal class CameraPipeComponentTest {
                         CameraGraph.Config(
                             camera = fakeCameraId,
                             streams = listOf(),
-                        )))
+                        )
+                    )
+                )
                 .build()
 
         val graph = graphComponent.cameraGraph()

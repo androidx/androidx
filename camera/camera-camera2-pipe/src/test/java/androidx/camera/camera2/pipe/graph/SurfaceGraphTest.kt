@@ -202,6 +202,7 @@ class SurfaceGraphTest {
         verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
         verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
     }
+
     @Test
     fun settingSurfaceToPreviouslySetSurfaceIsANoOp() {
         surfaceGraph[stream1.id] = fakeSurface1
@@ -214,6 +215,7 @@ class SurfaceGraphTest {
         verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
         verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
     }
+
     @Test
     fun settingSurfaceToNullThenPreviousSurfaceWillReaquireSurfaceToken() {
         surfaceGraph[stream1.id] = fakeSurface1

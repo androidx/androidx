@@ -39,7 +39,8 @@ public interface Metadata {
     /** Metadata keys provide values or controls that are provided or computed by CameraPipe. */
     public class Key<T> private constructor(private val name: String) {
         public companion object {
-            @JvmStatic internal val keys: MutableSet<String> = HashSet()
+            @JvmStatic
+            internal val keys: MutableSet<String> = HashSet()
 
             /**
              * This will create a new Key instance, and will check to see that the key has not been
@@ -188,14 +189,16 @@ public value class RequestTemplate(public val value: Int) {
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
  * to the Camera.
  */
-@JvmInline public value class RequestNumber(public val value: Long)
+@JvmInline
+public value class RequestNumber(public val value: Long)
 
 /**
  * A [FrameNumber] is the identifier that represents a specific exposure by the Camera. FrameNumbers
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
-@JvmInline public value class FrameNumber(public val value: Long)
+@JvmInline
+public value class FrameNumber(public val value: Long)
 
 /**
  * This is a timestamp from the Camera, and corresponds to the nanosecond exposure time of a Frame.
@@ -208,7 +211,8 @@ public value class RequestTemplate(public val value: Int) {
  * operate based on a real-time clock, while audio/visual systems commonly operate based on a
  * monotonic clock.
  */
-@JvmInline public value class CameraTimestamp(public val value: Long)
+@JvmInline
+public value class CameraTimestamp(public val value: Long)
 
 /** Utility function to help deal with the unsafe nature of the typed Key/Value pairs. */
 public fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {

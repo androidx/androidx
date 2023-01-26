@@ -49,9 +49,11 @@ internal class ExternalCameraGraphConfigModule(
     private val cameraMetadata: CameraMetadata,
     private val requestProcessor: RequestProcessor
 ) {
-    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
+    @Provides
+    fun provideCameraGraphConfig(): CameraGraph.Config = config
 
-    @Provides fun provideCameraMetadata(): CameraMetadata = cameraMetadata
+    @Provides
+    fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
     @CameraGraphScope
     @Provides

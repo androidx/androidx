@@ -83,7 +83,9 @@ constructor(
             camera2CameraControllerComponent
                 .camera2ControllerConfig(
                     Camera2ControllerConfig(
-                        this, graphConfig, graphListener, streamGraph as StreamGraphImpl))
+                        this, graphConfig, graphListener, streamGraph as StreamGraphImpl
+                    )
+                )
                 .build()
 
         // Create and return a Camera2 CameraController object.

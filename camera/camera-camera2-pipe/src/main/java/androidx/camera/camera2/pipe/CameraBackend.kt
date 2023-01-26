@@ -19,7 +19,8 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
 
 /** This is used to uniquely identify a specific backend implementation. */
-@JvmInline value class CameraBackendId(public val value: String)
+@JvmInline
+value class CameraBackendId(public val value: String)
 
 /**
  * A CameraBackend is used by [CameraPipe] to abstract out the lifecycle, state, and interactions

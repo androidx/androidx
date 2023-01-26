@@ -56,7 +56,8 @@ internal class CameraBackendsImpl(
 
             val backend =
                 cameraBackends[backendId]?.create(
-                    CameraBackendContext(cameraPipeContext, threads, this))
+                    CameraBackendContext(cameraPipeContext, threads, this)
+                )
             if (backend != null) {
                 check(backendId == backend.id) {
                     "Unexpected backend id! Expected $backendId but it was actually ${backend.id}"

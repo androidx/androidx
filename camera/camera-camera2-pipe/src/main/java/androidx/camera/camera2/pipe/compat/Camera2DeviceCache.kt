@@ -39,7 +39,8 @@ constructor(
 ) {
     private val lock = Any()
 
-    @GuardedBy("lock") private var openableCameras: List<CameraId>? = null
+    @GuardedBy("lock")
+    private var openableCameras: List<CameraId>? = null
 
     suspend fun getCameraIds(): List<CameraId>? {
         val cameras = synchronized(lock) { openableCameras }

@@ -53,7 +53,8 @@ constructor(
     private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
     private val timeSource: TimeSource
 ) : Camera2MetadataProvider {
-    @GuardedBy("cache") private val cache = ArrayMap<String, CameraMetadata>()
+    @GuardedBy("cache")
+    private val cache = ArrayMap<String, CameraMetadata>()
 
     override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
@@ -111,7 +112,8 @@ constructor(
 
                 val cameraMetadata =
                     Camera2CameraMetadata(
-                        cameraId, redacted, characteristics, this, emptyMap(), cacheBlocklist)
+                        cameraId, redacted, characteristics, this, emptyMap(), cacheBlocklist
+                    )
 
                 Log.info {
                     val duration = Timestamps.now(timeSource) - start

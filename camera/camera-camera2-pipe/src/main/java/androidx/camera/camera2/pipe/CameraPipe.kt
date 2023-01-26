@@ -170,7 +170,8 @@ public class CameraPipe(config: Config) {
      * system.
      */
     @Deprecated(
-        "CameraPipe.External is deprecated, use customCameraBackend on " + "GraphConfig instead.")
+        "CameraPipe.External is deprecated, use customCameraBackend on " + "GraphConfig instead."
+    )
     class External(threadConfig: ThreadConfig = ThreadConfig()) {
         private val component: ExternalCameraPipeComponent =
             DaggerExternalCameraPipeComponent.builder()
@@ -184,7 +185,8 @@ public class CameraPipe(config: Config) {
         @Suppress("DEPRECATION")
         @Deprecated(
             "CameraPipe.External is deprecated, use customCameraBackend on " +
-                "GraphConfig instead.")
+                "GraphConfig instead."
+        )
         public fun create(
             config: CameraGraph.Config,
             cameraMetadata: CameraMetadata,
@@ -197,7 +199,8 @@ public class CameraPipe(config: Config) {
             val component: ExternalCameraGraphComponent =
                 componentBuilder
                     .externalCameraGraphConfigModule(
-                        ExternalCameraGraphConfigModule(config, cameraMetadata, requestProcessor))
+                        ExternalCameraGraphConfigModule(config, cameraMetadata, requestProcessor)
+                    )
                     .build()
             return component.cameraGraph()
         }

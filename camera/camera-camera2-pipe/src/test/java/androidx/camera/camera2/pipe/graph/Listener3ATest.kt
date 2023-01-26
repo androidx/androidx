@@ -38,7 +38,8 @@ internal class Listener3ATest {
     fun testListenersInvoked() {
         val result3AStateListener =
             Result3AStateListenerImpl(
-                mapOf(CaptureResult.CONTROL_AF_MODE to listOf(CaptureResult.CONTROL_AF_MODE_AUTO)))
+                mapOf(CaptureResult.CONTROL_AF_MODE to listOf(CaptureResult.CONTROL_AF_MODE_AUTO))
+            )
         val listener3A = Listener3A()
         listener3A.addListener(result3AStateListener)
 
@@ -50,7 +51,8 @@ internal class Listener3ATest {
         val frameNumber = FrameNumber(1L)
         val captureResult =
             FakeFrameMetadata(
-                mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO))
+                mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO)
+            )
         // Once the correct metadata is updated the listener3A should broadcast it to the
         // result3AState listener added to it, making the deferred result complete.
         listener3A.onPartialCaptureResult(requestMetadata, frameNumber, captureResult)
@@ -64,7 +66,10 @@ internal class Listener3ATest {
                 Result3AStateListenerImpl(
                     mapOf(
                         CaptureResult.CONTROL_AF_MODE to
-                            listOf(CaptureResult.CONTROL_AF_MODE_AUTO))))
+                            listOf(CaptureResult.CONTROL_AF_MODE_AUTO)
+                    )
+                )
+            )
         val listener3A = Listener3A()
         listener3A.addListener(result3AStateListener)
 
@@ -75,12 +80,16 @@ internal class Listener3ATest {
             FakeFrameMetadata(
                 mapOf(
                     CaptureResult.CONTROL_AF_MODE to
-                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE))
+                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                )
+            )
         val captureResult1 =
             FakeFrameMetadata(
                 mapOf(
                     CaptureResult.CONTROL_AF_MODE to
-                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE))
+                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                )
+            )
         listener3A.onPartialCaptureResult(requestMetadata, FrameNumber(1), captureResult)
         assertThat(result3AStateListener.updateCount).isEqualTo(1)
 
@@ -97,13 +106,19 @@ internal class Listener3ATest {
                 Result3AStateListenerImpl(
                     mapOf(
                         CaptureResult.CONTROL_AF_MODE to
-                            listOf(CaptureResult.CONTROL_AF_MODE_AUTO))))
+                            listOf(CaptureResult.CONTROL_AF_MODE_AUTO)
+                    )
+                )
+            )
         val result3AStateListener2 =
             UpdateCounting3AStateListener(
                 Result3AStateListenerImpl(
                     mapOf(
                         CaptureResult.CONTROL_AE_MODE to
-                            listOf(CaptureResult.CONTROL_AE_MODE_OFF))))
+                            listOf(CaptureResult.CONTROL_AE_MODE_OFF)
+                    )
+                )
+            )
 
         val listener3A = Listener3A()
         listener3A.addListener(result3AStateListener1)
@@ -113,7 +128,8 @@ internal class Listener3ATest {
         val frameNumber = FrameNumber(1L)
         val captureResult =
             FakeFrameMetadata(
-                mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO))
+                mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO)
+            )
 
         // There should be no update to either of the listeners right now.
         assertThat(result3AStateListener1.updateCount).isEqualTo(0)
@@ -134,7 +150,9 @@ internal class Listener3ATest {
             FakeFrameMetadata(
                 mapOf(
                     CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO,
-                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF))
+                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF
+                )
+            )
         listener3A.onPartialCaptureResult(requestMetadata, frameNumber, captureResult1)
         assertThat(result3AStateListener1.updateCount).isEqualTo(1)
         assertThat(result3AStateListener2.updateCount).isEqualTo(2)

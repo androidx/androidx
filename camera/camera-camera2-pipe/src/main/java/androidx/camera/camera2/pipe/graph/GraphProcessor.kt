@@ -92,19 +92,26 @@ constructor(
 ) : GraphProcessor, GraphListener {
     private val lock = Any()
 
-    @GuardedBy("lock") private val submitQueue: MutableList<List<Request>> = ArrayList()
+    @GuardedBy("lock")
+    private val submitQueue: MutableList<List<Request>> = ArrayList()
 
-    @GuardedBy("lock") private var currentRepeatingRequest: Request? = null
+    @GuardedBy("lock")
+    private var currentRepeatingRequest: Request? = null
 
-    @GuardedBy("lock") private var nextRepeatingRequest: Request? = null
+    @GuardedBy("lock")
+    private var nextRepeatingRequest: Request? = null
 
-    @GuardedBy("lock") private var _requestProcessor: GraphRequestProcessor? = null
+    @GuardedBy("lock")
+    private var _requestProcessor: GraphRequestProcessor? = null
 
-    @GuardedBy("lock") private var submitting = false
+    @GuardedBy("lock")
+    private var submitting = false
 
-    @GuardedBy("lock") private var dirty = false
+    @GuardedBy("lock")
+    private var dirty = false
 
-    @GuardedBy("lock") private var closed = false
+    @GuardedBy("lock")
+    private var closed = false
 
     private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
 
@@ -262,7 +269,8 @@ constructor(
                         requests = listOf(request),
                         defaultParameters = cameraGraphConfig.defaultParameters,
                         requiredParameters = requiredParameters,
-                        listeners = graphListeners)
+                        listeners = graphListeners
+                    )
             }
         }
 
@@ -372,11 +380,13 @@ constructor(
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
 
                 if (processor.submit(
-                    isRepeating = true,
-                    requests = listOf(request),
-                    defaultParameters = cameraGraphConfig.defaultParameters,
-                    requiredParameters = requiredParameters,
-                    listeners = graphListeners)) {
+                        isRepeating = true,
+                        requests = listOf(request),
+                        defaultParameters = cameraGraphConfig.defaultParameters,
+                        requiredParameters = requiredParameters,
+                        listeners = graphListeners
+                    )
+                ) {
                     // ONLY update the current repeating request if the update succeeds
                     synchronized(lock) {
                         if (processor === _requestProcessor) {
@@ -437,7 +447,8 @@ constructor(
                             requests = burst,
                             defaultParameters = cameraGraphConfig.defaultParameters,
                             requiredParameters = requiredParameters,
-                            listeners = graphListeners)
+                            listeners = graphListeners
+                        )
                     }
             } finally {
                 Debug.traceStop()

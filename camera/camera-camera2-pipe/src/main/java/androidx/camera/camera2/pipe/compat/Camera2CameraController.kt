@@ -60,7 +60,8 @@ constructor(
     override fun start() {
         val camera =
             virtualCameraManager.open(
-                config.camera, config.flags.allowMultipleActiveCameras, graphListener)
+                config.camera, config.flags.allowMultipleActiveCameras, graphListener
+            )
         synchronized(this) {
             if (closed) {
                 return
@@ -77,7 +78,8 @@ constructor(
                     captureSequenceProcessorFactory,
                     cameraSurfaceManager,
                     timeSource,
-                    scope)
+                    scope
+                )
             currentSession = session
 
             val surfaces: Map<StreamId, Surface>? = currentSurfaceMap
@@ -133,12 +135,12 @@ constructor(
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
         // TODO: Add logic to decide if / when to re-configure the Camera2 CaptureSession.
         synchronized(this) {
-                if (closed) {
-                    return
-                }
-                currentSurfaceMap = surfaceMap
-                currentSession
+            if (closed) {
+                return
             }
+            currentSurfaceMap = surfaceMap
+            currentSession
+        }
             ?.configureSurfaceMap(surfaceMap)
     }
 

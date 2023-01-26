@@ -52,7 +52,8 @@ internal class Camera2CaptureSequence(
 ) : CameraCaptureSession.CaptureCallback(), CaptureSequence<CaptureRequest> {
     private val debugId = captureSequenceDebugIds.incrementAndGet()
 
-    @Volatile private var _sequenceNumber: Int? = null
+    @Volatile
+    private var _sequenceNumber: Int? = null
     override var sequenceNumber: Int
         get() {
             if (_sequenceNumber == null) {

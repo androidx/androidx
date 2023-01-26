@@ -58,6 +58,7 @@ internal inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T 
                 Log.debug(e) { "Rethrowing ${e::class.java.simpleName} from Camera2" }
                 ObjectUnavailableException(e)
             }
+
             else -> e
         }
     }

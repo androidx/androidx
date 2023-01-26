@@ -115,7 +115,8 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createCaptureSessionByOutputConfigurations(
-            outputConfig, stateCallback, handler)
+            outputConfig, stateCallback, handler
+        )
     }
 
     @JvmStatic
@@ -130,7 +131,8 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createReprocessableCaptureSessionByConfigurations(
-            inputConfig, outputs, stateCallback, handler)
+            inputConfig, outputs, stateCallback, handler
+        )
     }
 
     @JvmStatic

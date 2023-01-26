@@ -60,7 +60,8 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     val inputSurface: Surface?
 
     /** @see [CameraCaptureSession.abortCaptures]. */
-    @Throws(ObjectUnavailableException::class) fun abortCaptures()
+    @Throws(ObjectUnavailableException::class)
+    fun abortCaptures()
 
     /**
      * @param request The settings for this exposure
@@ -125,7 +126,8 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     ): Int
 
     /** @see [CameraCaptureSession.stopRepeating]. */
-    @Throws(ObjectUnavailableException::class) fun stopRepeating()
+    @Throws(ObjectUnavailableException::class)
+    fun stopRepeating()
 
     /** Forwards to CameraCaptureSession#finalizeOutputConfigurations */
     @Throws(ObjectUnavailableException::class)
@@ -242,7 +244,8 @@ internal class AndroidCaptureSessionStateCallback(
         // this happens, several methods are not allowed, the behavior is different, and interacting
         // with the session requires several behavior changes for these interactions to work well.
         return if (Build.VERSION.SDK_INT >= 23 &&
-            session is CameraConstrainedHighSpeedCaptureSession) {
+            session is CameraConstrainedHighSpeedCaptureSession
+        ) {
             AndroidCameraConstrainedHighSpeedCaptureSession(device, session)
         } else {
             AndroidCameraCaptureSession(device, session)

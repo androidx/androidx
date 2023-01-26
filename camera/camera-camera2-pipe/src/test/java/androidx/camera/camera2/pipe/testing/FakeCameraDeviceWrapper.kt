@@ -53,7 +53,8 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
             return Api23Compat.createReprocessCaptureRequest(fakeCamera.cameraDevice, inputResult)
         }
         throw UnsupportedOperationException(
-            "createReprocessCaptureRequest is not supported below API 23")
+            "createReprocessCaptureRequest is not supported below API 23"
+        )
     }
 
     override fun createCaptureSession(

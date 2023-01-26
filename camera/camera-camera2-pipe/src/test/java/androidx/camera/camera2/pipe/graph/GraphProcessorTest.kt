@@ -79,7 +79,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         graphProcessor.submit(request1)
         advanceUntilIdle()
@@ -99,7 +100,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         graphProcessor.onGraphStarted(graphRequestProcessor2)
@@ -121,7 +123,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.submit(request1)
         graphProcessor.submit(request2)
@@ -147,7 +150,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.submit(listOf(request1, request2))
         graphProcessor.onGraphStarted(graphRequestProcessor1)
@@ -165,7 +169,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         fakeProcessor1.rejectRequests = true
         graphProcessor.onGraphStarted(graphRequestProcessor1)
@@ -195,7 +200,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         // Note: setting the requestProcessor, and calling submit() can both trigger a call
         // to submit a request.
@@ -231,7 +237,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         graphProcessor.startRepeating(request1)
@@ -254,7 +261,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         graphProcessor.startRepeating(request1)
@@ -280,7 +288,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         fakeProcessor1.rejectRequests = true
         graphProcessor.onGraphStarted(graphRequestProcessor1)
@@ -301,7 +310,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.startRepeating(request1)
         graphProcessor.submit(request2)
@@ -314,16 +324,16 @@ internal class GraphProcessorTest {
 
         // Loop until we see at least one repeating request, and one submit event.
         launch {
-                while (!hasRequest1Event && !hasRequest2Event) {
-                    val event = fakeProcessor1.nextEvent()
-                    hasRequest1Event =
-                        hasRequest1Event ||
-                            event.requestSequence?.captureRequestList?.contains(request1) ?: false
-                    hasRequest2Event =
-                        hasRequest2Event ||
-                            event.requestSequence?.captureRequestList?.contains(request2) ?: false
-                }
+            while (!hasRequest1Event && !hasRequest2Event) {
+                val event = fakeProcessor1.nextEvent()
+                hasRequest1Event =
+                    hasRequest1Event ||
+                        event.requestSequence?.captureRequestList?.contains(request1) ?: false
+                hasRequest2Event =
+                    hasRequest2Event ||
+                        event.requestSequence?.captureRequestList?.contains(request2) ?: false
             }
+        }
             .join()
     }
 
@@ -335,7 +345,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
 
         graphProcessor.startRepeating(request1)
         graphProcessor.submit(request2)
@@ -366,7 +377,8 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
         graphProcessor.close()
 
         // Abort queued and in-flight requests.
@@ -391,12 +403,14 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         graphProcessor.onGraphError(
-            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true))
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
         assertThat(graphProcessor.graphState.value).isInstanceOf(GraphStateError::class.java)
     }
 
@@ -408,11 +422,13 @@ internal class GraphProcessorTest {
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
-                arrayListOf(globalListener))
+                arrayListOf(globalListener)
+            )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
         graphProcessor.onGraphError(
-            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true))
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
         graphProcessor.onGraphStarting()
@@ -421,13 +437,15 @@ internal class GraphProcessorTest {
         // GraphProcessor should drop errors while the camera graph is stopping.
         graphProcessor.onGraphStopping()
         graphProcessor.onGraphError(
-            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true))
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
         // GraphProcessor should also drop errors while the camera graph is stopped.
         graphProcessor.onGraphStopped(graphRequestProcessor1)
         graphProcessor.onGraphError(
-            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true))
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
     }
 }

@@ -97,7 +97,8 @@ class RetryingCameraStateOpenerTest {
 
     private val retryingCameraStateOpener =
         RetryingCameraStateOpener(
-            cameraStateOpener, cameraAvailabilityMonitor, fakeTimeSource, fakeDevicePolicyManager)
+            cameraStateOpener, cameraAvailabilityMonitor, fakeTimeSource, fakeDevicePolicyManager
+        )
 
     // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
     private val fakeGraphListener =
@@ -121,12 +122,14 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_IN_USE,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_IN_USE,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
     }
 
@@ -136,12 +139,14 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(30_000_000_000L) // 30 seconds
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_IN_USE,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_IN_USE,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isFalse()
     }
 
@@ -151,12 +156,14 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_UNDETERMINED,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_UNDETERMINED,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isFalse()
     }
 
@@ -166,18 +173,21 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_IN_USE,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_IN_USE,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // The second retry attempt should fail if SDK version < S, and succeed otherwise.
         val secondRetry =
             RetryingCameraStateOpener.shouldRetry(
-                CameraError.ERROR_CAMERA_IN_USE, 2, firstAttemptTimestamp, fakeTimeSource, false)
+                CameraError.ERROR_CAMERA_IN_USE, 2, firstAttemptTimestamp, fakeTimeSource, false
+            )
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             assertThat(secondRetry).isFalse()
         } else {
@@ -191,22 +201,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_LIMIT_EXCEEDED,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_LIMIT_EXCEEDED,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_LIMIT_EXCEEDED,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_LIMIT_EXCEEDED,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
     }
 
@@ -216,22 +230,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DISABLED,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    camerasDisabledByDevicePolicy = true))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DISABLED,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                camerasDisabledByDevicePolicy = true
+            )
+        )
             .isTrue()
 
         // Second attempt should fail if camera is disabled.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DISABLED,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    camerasDisabledByDevicePolicy = true))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DISABLED,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                camerasDisabledByDevicePolicy = true
+            )
+        )
             .isFalse()
     }
 
@@ -241,22 +259,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DISABLED,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    camerasDisabledByDevicePolicy = false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DISABLED,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                camerasDisabledByDevicePolicy = false
+            )
+        )
             .isTrue()
 
         // Second attempt should success if camera is not disabled.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DISABLED,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    camerasDisabledByDevicePolicy = false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DISABLED,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                camerasDisabledByDevicePolicy = false
+            )
+        )
             .isTrue()
     }
 
@@ -266,22 +288,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DEVICE,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DEVICE,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DEVICE,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DEVICE,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
     }
 
@@ -291,22 +317,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_SERVICE,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_SERVICE,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_SERVICE,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_SERVICE,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
     }
 
@@ -316,22 +346,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DISCONNECTED,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DISCONNECTED,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_CAMERA_DISCONNECTED,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_DISCONNECTED,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
     }
 
@@ -341,22 +375,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
     }
 
@@ -366,22 +404,26 @@ class RetryingCameraStateOpenerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_SECURITY_EXCEPTION,
-                    1,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_SECURITY_EXCEPTION,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isTrue()
 
         // Second attempt should fail.
         assertThat(
-                RetryingCameraStateOpener.shouldRetry(
-                    CameraError.ERROR_SECURITY_EXCEPTION,
-                    2,
-                    firstAttemptTimestamp,
-                    fakeTimeSource,
-                    false))
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_SECURITY_EXCEPTION,
+                2,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
             .isFalse()
     }
 

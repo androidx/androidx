@@ -83,14 +83,17 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(afMode = AfMode.OFF)
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF)))
+                    mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF)
+                )
+            )
         }
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
@@ -104,16 +107,20 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(aeMode = AeMode.ON_ALWAYS_FLASH)
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_MODE to
-                                CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH)))
+                    mapOf(
+                        CaptureResult.CONTROL_AE_MODE to
+                            CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                    )
+                )
+            )
         }
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
@@ -127,16 +134,20 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AWB_MODE to
-                                CaptureResult.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT)))
+                    mapOf(
+                        CaptureResult.CONTROL_AWB_MODE to
+                            CaptureResult.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT
+                    )
+                )
+            )
         }
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
@@ -150,16 +161,19 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(afRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_REGIONS to
-                                Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_REGIONS to
+                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })
+                )
+            )
         }
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
@@ -173,16 +187,19 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(aeRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_REGIONS to
-                                Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })))
+                    mapOf(
+                        CaptureResult.CONTROL_AE_REGIONS to
+                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })
+                )
+            )
         }
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
@@ -197,16 +214,19 @@ internal class Controller3AUpdate3ATest {
             controller3A.update3A(awbRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AWB_REGIONS to
-                                Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })))
+                    mapOf(
+                        CaptureResult.CONTROL_AWB_REGIONS to
+                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })
+                )
+            )
         }
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)

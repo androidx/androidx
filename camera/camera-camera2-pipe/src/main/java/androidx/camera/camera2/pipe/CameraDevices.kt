@@ -64,7 +64,8 @@ public interface CameraDevices {
     @Deprecated(
         message = "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     public fun findAll(): List<CameraId>
 
     /**
@@ -74,7 +75,8 @@ public interface CameraDevices {
     @Deprecated(
         message = "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     public suspend fun ids(): List<CameraId>
 
     /**
@@ -85,7 +87,8 @@ public interface CameraDevices {
     @Deprecated(
         message = "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     public suspend fun getMetadata(camera: CameraId): CameraMetadata
 
     /**
@@ -95,7 +98,8 @@ public interface CameraDevices {
     @Deprecated(
         message = "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING)
+        level = DeprecationLevel.WARNING
+    )
     public fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
@@ -145,7 +149,8 @@ public fun CameraDevices.find(
                     val physicalMetadata = this@find.getCameraMetadata(physicalId, cameraBackendId)
                     if (physicalMetadata != null &&
                         physicalMetadata.camera == physicalId &&
-                        visited.add(physicalId)) {
+                        visited.add(physicalId)
+                    ) {
                         emit(physicalMetadata)
                     }
                 }

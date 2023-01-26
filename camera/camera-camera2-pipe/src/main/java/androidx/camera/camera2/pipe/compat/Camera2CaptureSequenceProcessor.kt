@@ -63,7 +63,8 @@ constructor(
     ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
         @Suppress("SyntheticAccessor")
         return Camera2CaptureSequenceProcessor(
-            session, threads, graphConfig.defaultTemplate, surfaceMap, streamGraph)
+            session, threads, graphConfig.defaultTemplate, surfaceMap, streamGraph
+        )
             as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
     }
 }
@@ -207,7 +208,8 @@ internal class Camera2CaptureSequenceProcessor(
                         requestTemplate,
                         isRepeating,
                         request,
-                        requestTag)
+                        requestTag
+                    )
                 requestMap[requestTag] = metadata
                 requestList.add(metadata)
             } else {
@@ -224,7 +226,8 @@ internal class Camera2CaptureSequenceProcessor(
                         requestTemplate,
                         isRepeating,
                         request,
-                        requestTag)
+                        requestTag
+                    )
                 requestMap[requestTag] = metadata
                 requestList.add(metadata)
             }
@@ -240,28 +243,34 @@ internal class Camera2CaptureSequenceProcessor(
             listeners,
             sequenceListener,
             requestMap,
-            surfaceToStreamMap)
+            surfaceToStreamMap
+        )
     }
 
     override fun submit(captureSequence: Camera2CaptureSequence): Int {
         val captureCallback = captureSequence as CameraCaptureSession.CaptureCallback
         // TODO: Update these calls to use executors on newer versions of the OS
         return if (captureSequence.captureRequestList.size == 1 &&
-            session !is CameraConstrainedHighSpeedCaptureSessionWrapper) {
+            session !is CameraConstrainedHighSpeedCaptureSessionWrapper
+        ) {
             if (captureSequence.repeating) {
                 session.setRepeatingRequest(
-                    captureSequence.captureRequestList[0], captureCallback, threads.camera2Handler)
+                    captureSequence.captureRequestList[0], captureCallback, threads.camera2Handler
+                )
             } else {
                 session.capture(
-                    captureSequence.captureRequestList[0], captureSequence, threads.camera2Handler)
+                    captureSequence.captureRequestList[0], captureSequence, threads.camera2Handler
+                )
             }
         } else {
             if (captureSequence.repeating) {
                 session.setRepeatingBurst(
-                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler)
+                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler
+                )
             } else {
                 session.captureBurst(
-                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler)
+                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler
+                )
             }
         }
     }
@@ -433,9 +442,11 @@ internal class Camera2RequestMetadata(
             requiredParameters.containsKey(key) -> {
                 requiredParameters[key] as T?
             }
+
             request.extras.containsKey(key) -> {
                 request.extras[key] as T?
             }
+
             else -> {
                 defaultParameters[key] as T?
             }
@@ -449,6 +460,7 @@ internal class Camera2RequestMetadata(
             CaptureRequest::class -> captureRequest as T
             CameraCaptureSession::class ->
                 cameraCaptureSessionWrapper.unwrapAs(CameraCaptureSession::class) as? T
+
             else -> null
         }
 }

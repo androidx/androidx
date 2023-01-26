@@ -123,7 +123,8 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
             lightweightExecutor = lightweightExecutor,
             lightweightDispatcher = lightweightDispatcher,
             camera2Handler = cameraHandlerFn,
-            camera2Executor = cameraExecutorFn)
+            camera2Executor = cameraExecutorFn
+        )
     }
 
     private fun provideTestOnlyThreads(

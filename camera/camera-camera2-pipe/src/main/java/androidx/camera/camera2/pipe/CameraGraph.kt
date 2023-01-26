@@ -147,7 +147,7 @@ public interface CameraGraph : AutoCloseable {
         val customCameraBackend: CameraBackendFactory? = null,
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
-    // TODO: Internal error handling. May be better at the CameraPipe level.
+        // TODO: Internal error handling. May be better at the CameraPipe level.
     ) {
         init {
             check(cameraBackendId == null || customCameraBackend == null) {

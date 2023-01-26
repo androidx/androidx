@@ -69,7 +69,8 @@ class CaptureSessionStateTest {
 
     private val captureSessionFactory =
         FakeCaptureSessionFactory(
-            requiredStreams = setOf(stream1, stream2), deferrableStreams = setOf(stream3Deferred))
+            requiredStreams = setOf(stream1, stream2), deferrableStreams = setOf(stream3Deferred)
+        )
 
     private val fakeCameraDevice: CameraDeviceWrapper = mock()
     private val fakeCaptureSession: CameraCaptureSessionWrapper = mock()
@@ -89,7 +90,8 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                this
+            )
         // When disconnect is called first
         state.disconnect()
 
@@ -110,7 +112,8 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                this
+            )
 
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -136,7 +139,8 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                this
+            )
 
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -164,7 +168,8 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                this
+            )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And session is finalized
@@ -186,7 +191,8 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                this
+            )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And configuration fails
@@ -208,7 +214,8 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                this)
+                this
+            )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And the capture session is closed
