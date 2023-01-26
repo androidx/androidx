@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.JoinSpec;
+import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
@@ -79,12 +80,13 @@ public final class SearchSpecToProtoConverter {
      * filters which are stored in AppSearch. This is a field so that we can generate nested protos.
      */
     private final Map<String, Set<String>> mNamespaceMap;
+
     /**
-     *The cached Map of {@code <Prefix, Map<PrefixedSchemaType, schemaProto>>} stores all
-     * prefixed schema filters which are stored inAppSearch. This is a field so that we can
-     * generated nested protos.
+     * The nested converter, which contains SearchSpec, ResultSpec, and ScoringSpec information
+     * about the nested query. This will remain null if there is no nested {@link JoinSpec}.
      */
-    private final Map<String, Map<String, SchemaTypeConfigProto>> mSchemaMap;
+    @Nullable
+    private SearchSpecToProtoConverter mNestedConverter = null;
 
     /**
      * Creates a {@link SearchSpecToProtoConverter} for given {@link SearchSpec}.
@@ -107,7 +109,6 @@ public final class SearchSpecToProtoConverter {
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
         mPrefixes = Preconditions.checkNotNull(prefixes);
         mNamespaceMap = Preconditions.checkNotNull(namespaceMap);
-        mSchemaMap = Preconditions.checkNotNull(schemaMap);
         mTargetPrefixedNamespaceFilters =
                 SearchSpecToProtoConverterUtil.generateTargetNamespaceFilters(
                         prefixes, namespaceMap, searchSpec.getFilterNamespaces());
@@ -120,11 +121,27 @@ public final class SearchSpecToProtoConverter {
         } else {
             mTargetPrefixedSchemaFilters = new ArraySet<>();
         }
+
+        JoinSpec joinSpec = searchSpec.getJoinSpec();
+        if (joinSpec == null) {
+            return;
+        }
+
+        mNestedConverter = new SearchSpecToProtoConverter(
+                joinSpec.getNestedQuery(),
+                joinSpec.getNestedSearchSpec(),
+                mPrefixes,
+                namespaceMap,
+                schemaMap);
     }
 
     /**
      * @return whether this search's target filters are empty. If any target filter is empty, we
      * should skip send request to Icing.
+     *
+     * <p> The nestedConverter is not checked as {@link SearchResult}s from the nested query have
+     * to be joined to a {@link SearchResult} from the parent query. If the parent query has
+     * nothing to search, then so does the child query.
      */
     public boolean hasNothingToSearch() {
         return mTargetPrefixedNamespaceFilters.isEmpty() || mTargetPrefixedSchemaFilters.isEmpty();
@@ -146,22 +163,67 @@ public final class SearchSpecToProtoConverter {
             @NonNull CallerAccess callerAccess,
             @Nullable VisibilityStore visibilityStore,
             @Nullable VisibilityChecker visibilityChecker) {
+        removeInaccessibleSchemaFilterCached(callerAccess, visibilityStore,
+                /*inaccessibleSchemaPrefixes=*/new ArraySet<>(),
+                /*accessibleSchemaPrefixes=*/new ArraySet<>(), visibilityChecker);
+    }
+
+    /**
+     * For each target schema, we will check visibility store is that accessible to the caller. And
+     * remove this schemas if it is not allowed for caller to query. This private version accepts
+     * two additional parameters to minimize the amount of calls to
+     * {@link VisibilityUtil#isSchemaSearchableByCaller}.
+     *
+     * @param callerAccess      Visibility access info of the calling app
+     * @param visibilityStore   The {@link VisibilityStore} that store all visibility
+     *                          information.
+     * @param visibilityChecker Optional visibility checker to check whether the caller
+     *                          could access target schemas. Pass {@code null} will
+     *                          reject access for all documents which doesn't belong
+     *                          to the calling package.
+     * @param inaccessibleSchemaPrefixes A set of schemas that are known to be inaccessible. This
+     *                                  is helpful for reducing duplicate calls to
+     *                                  {@link VisibilityUtil}.
+     * @param accessibleSchemaPrefixes A set of schemas that are known to be accessible. This is
+     *                                 helpful for reducing duplicate calls to
+     *                                 {@link VisibilityUtil}.
+     */
+    private void removeInaccessibleSchemaFilterCached(
+            @NonNull CallerAccess callerAccess,
+            @Nullable VisibilityStore visibilityStore,
+            @NonNull Set<String> inaccessibleSchemaPrefixes,
+            @NonNull Set<String> accessibleSchemaPrefixes,
+            @Nullable VisibilityChecker visibilityChecker) {
         Iterator<String> targetPrefixedSchemaFilterIterator =
                 mTargetPrefixedSchemaFilters.iterator();
         while (targetPrefixedSchemaFilterIterator.hasNext()) {
             String targetPrefixedSchemaFilter = targetPrefixedSchemaFilterIterator.next();
             String packageName = getPackageName(targetPrefixedSchemaFilter);
 
-            if (!VisibilityUtil.isSchemaSearchableByCaller(
+            if (accessibleSchemaPrefixes.contains(targetPrefixedSchemaFilter)) {
+                continue;
+            } else if (inaccessibleSchemaPrefixes.contains(targetPrefixedSchemaFilter)) {
+                targetPrefixedSchemaFilterIterator.remove();
+            } else if (!VisibilityUtil.isSchemaSearchableByCaller(
                     callerAccess,
                     packageName,
                     targetPrefixedSchemaFilter,
                     visibilityStore,
                     visibilityChecker)) {
                 targetPrefixedSchemaFilterIterator.remove();
+                inaccessibleSchemaPrefixes.add(targetPrefixedSchemaFilter);
+            } else {
+                accessibleSchemaPrefixes.add(targetPrefixedSchemaFilter);
             }
         }
+
+        if (mNestedConverter != null) {
+            mNestedConverter.removeInaccessibleSchemaFilterCached(
+                    callerAccess, visibilityStore, inaccessibleSchemaPrefixes,
+                    mTargetPrefixedSchemaFilters, visibilityChecker);
+        }
     }
+
 
     /** Extracts {@link SearchSpecProto} information from a {@link SearchSpec}. */
     @NonNull
@@ -181,25 +243,25 @@ public final class SearchSpecToProtoConverter {
         }
         protoBuilder.setTermMatchType(termMatchCodeProto);
 
-        JoinSpec joinSpec = mSearchSpec.getJoinSpec();
-        if (joinSpec != null) {
-            SearchSpecToProtoConverter nestedConverter = new SearchSpecToProtoConverter(
-                    joinSpec.getNestedQuery(), joinSpec.getNestedSearchSpec(), mPrefixes,
-                    mNamespaceMap, mSchemaMap);
+        if (mNestedConverter != null && !mNestedConverter.hasNothingToSearch()) {
+            JoinSpecProto.NestedSpecProto nestedSpec =
+                    JoinSpecProto.NestedSpecProto.newBuilder()
+                            .setResultSpec(mNestedConverter.toResultSpecProto(mNamespaceMap))
+                            .setScoringSpec(mNestedConverter.toScoringSpecProto())
+                            .setSearchSpec(mNestedConverter.toSearchSpecProto())
+                            .build();
 
-            JoinSpecProto.NestedSpecProto nestedSpec = JoinSpecProto.NestedSpecProto.newBuilder()
-                    .setResultSpec(nestedConverter.toResultSpecProto(mNamespaceMap))
-                    .setScoringSpec(nestedConverter.toScoringSpecProto())
-                    .setSearchSpec(nestedConverter.toSearchSpecProto())
-                    .build();
-
-            JoinSpecProto.Builder joinSpecProtoBuilder = JoinSpecProto.newBuilder()
-                    .setNestedSpec(nestedSpec)
-                    .setParentPropertyExpression(JoinSpec.QUALIFIED_ID)
-                    .setChildPropertyExpression(joinSpec.getChildPropertyExpression())
-                    .setAggregationScoringStrategy(
-                            toAggregationScoringStrategy(joinSpec.getAggregationScoringStrategy()))
-                    .setMaxJoinedChildCount(joinSpec.getMaxJoinedResultCount());
+            // This cannot be null, otherwise mNestedConverter would be null as well.
+            JoinSpec joinSpec = mSearchSpec.getJoinSpec();
+            JoinSpecProto.Builder joinSpecProtoBuilder =
+                    JoinSpecProto.newBuilder()
+                            .setNestedSpec(nestedSpec)
+                            .setParentPropertyExpression(JoinSpec.QUALIFIED_ID)
+                            .setChildPropertyExpression(joinSpec.getChildPropertyExpression())
+                            .setAggregationScoringStrategy(
+                                    toAggregationScoringStrategy(
+                                            joinSpec.getAggregationScoringStrategy()))
+                            .setMaxJoinedChildCount(joinSpec.getMaxJoinedResultCount());
 
             protoBuilder.setJoinSpec(joinSpecProtoBuilder);
         }
