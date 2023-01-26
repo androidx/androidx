@@ -27,6 +27,7 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
+import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -39,34 +40,47 @@ class ApiStubParserTest {
     @Test
     fun annotatedInterface_isParsed() {
         val source = Source.kotlin(
-            "com/mysdk/TestSandboxSdk.kt", """
-                    package com.mysdk
-                    import androidx.privacysandbox.tools.PrivacySandboxCallback
-                    import androidx.privacysandbox.tools.PrivacySandboxInterface
-                    import androidx.privacysandbox.tools.PrivacySandboxService
-                    import androidx.privacysandbox.tools.PrivacySandboxValue
-                    @PrivacySandboxService
-                    interface MySdk {
-                      fun doSomething(magicNumber: Int, awesomeString: String?)
-                      suspend fun getPayload(request: PayloadRequest): PayloadResponse
-                      suspend fun getInterface(): MyInterface
-                      suspend fun processList(list: List<Long>): List<Long>
-                    }
-                    @PrivacySandboxInterface
-                    interface MyInterface {
-                      suspend fun getMorePayload(request: PayloadRequest): PayloadResponse
-                    }
-                    @PrivacySandboxValue
-                    data class PayloadType(val size: Long, val appId: String)
-                    @PrivacySandboxValue
-                    data class PayloadResponse(val url: String)
-                    @PrivacySandboxValue
-                    data class PayloadRequest(val type: PayloadType)
-                    @PrivacySandboxCallback
-                    interface CustomCallback {
-                      fun onComplete(status: Int)
-                    }
-                """,
+            "com/mysdk/TestSandboxSdk.kt",
+            """
+                    |package com.mysdk
+                    |
+                    |import androidx.privacysandbox.tools.PrivacySandboxCallback
+                    |import androidx.privacysandbox.tools.PrivacySandboxInterface
+                    |import androidx.privacysandbox.tools.PrivacySandboxService
+                    |import androidx.privacysandbox.tools.PrivacySandboxValue
+                    |import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+                    |
+                    |@PrivacySandboxService
+                    |interface MySdk {
+                    |  fun doSomething(magicNumber: Int, awesomeString: String?)
+                    |  suspend fun getPayload(request: PayloadRequest): PayloadResponse
+                    |  suspend fun getInterface(): MyInterface
+                    |  suspend fun getUiInterface(): MyUiInterface
+                    |  suspend fun processList(list: List<Long>): List<Long>
+                    |}
+                    |
+                    |@PrivacySandboxInterface
+                    |interface MyInterface {
+                    |  suspend fun getMorePayload(request: PayloadRequest): PayloadResponse
+                    |}
+                    |
+                    |@PrivacySandboxInterface
+                    |interface MyUiInterface : SandboxedUiAdapter {}
+                    |
+                    |@PrivacySandboxValue
+                    |data class PayloadType(val size: Long, val appId: String)
+                    |
+                    |@PrivacySandboxValue
+                    |data class PayloadResponse(val url: String)
+                    |
+                    |@PrivacySandboxValue
+                    |data class PayloadRequest(val type: PayloadType)
+                    |
+                    |@PrivacySandboxCallback
+                    |interface CustomCallback {
+                    |  fun onComplete(status: Int)
+                    |}
+                """.trimMargin(),
         )
 
         val expectedPayloadType = AnnotatedValue(
@@ -122,6 +136,12 @@ class ApiStubParserTest {
                         isSuspend = true,
                     ),
                     Method(
+                        name = "getUiInterface",
+                        parameters = listOf(),
+                        returnType = Type("com.mysdk", "MyUiInterface"),
+                        isSuspend = true,
+                    ),
+                    Method(
                         name = "processList",
                         parameters = listOf(
                             Parameter(
@@ -134,7 +154,7 @@ class ApiStubParserTest {
                     ),
                 )
             )
-        val expectedInterface =
+        val expectedInterfaces = listOf(
             AnnotatedInterface(
                 type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
                 methods = listOf(
@@ -150,7 +170,13 @@ class ApiStubParserTest {
                         isSuspend = true,
                     )
                 )
-            )
+            ),
+            AnnotatedInterface(
+                type = Type(packageName = "com.mysdk", simpleName = "MyUiInterface"),
+                superTypes = listOf(Types.sandboxedUiAdapter),
+                methods = listOf(),
+            ),
+        )
         val expectedCallback = AnnotatedInterface(
             type = Type(packageName = "com.mysdk", simpleName = "CustomCallback"),
                 methods = listOf(
@@ -176,7 +202,7 @@ class ApiStubParserTest {
             expectedPayloadResponse,
         )
         assertThat(actualApi.callbacks).containsExactly(expectedCallback)
-        assertThat(actualApi.interfaces).containsExactly(expectedInterface)
+        assertThat(actualApi.interfaces).containsExactlyElementsIn(expectedInterfaces)
     }
 
     @Test
@@ -378,7 +404,7 @@ class ApiStubParserTest {
     }
 
     private fun compileAndParseApi(vararg sources: Source): ParsedApi {
-        val classpath = mergedClasspath(assertCompiles(sources.toList()))
+        val classpath = mergedClasspath(assertCompiles(sources.toList() + allTestLibraryStubs))
         return ApiStubParser.parse(classpath)
     }
 }
