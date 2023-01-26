@@ -43,6 +43,26 @@ public class GridReference extends HelperReference {
     private GridCore mGrid;
 
     /**
+     * padding left
+     */
+    private int mPaddingLeft = 0;
+
+    /**
+     * padding right
+     */
+    private int mPaddingRight = 0;
+
+    /**
+     * padding top
+     */
+    private int mPaddingTop = 0;
+
+    /**
+     * padding bottom
+     */
+    private int mPaddingBottom = 0;
+
+    /**
      * The orientation of the widgets arrangement horizontally or vertically
      */
     private int mOrientation;
@@ -86,6 +106,70 @@ public class GridReference extends HelperReference {
      * Specify the positions to be skipped in the Grid
      */
     private String mSkips;
+
+    /**
+     * get padding left
+     * @return padding left
+     */
+    public int getPaddingLeft() {
+        return mPaddingLeft;
+    }
+
+    /**
+     * set padding left
+     * @param paddingLeft padding left to be set
+     */
+    public void setPaddingLeft(int paddingLeft) {
+        mPaddingLeft = paddingLeft;
+    }
+
+    /**
+     * get padding right
+     * @return padding right
+     */
+    public int getPaddingRight() {
+        return mPaddingRight;
+    }
+
+    /**
+     * set padding right
+     * @param paddingRight padding right to be set
+     */
+    public void setPaddingRight(int paddingRight) {
+        mPaddingRight = paddingRight;
+    }
+
+    /**
+     * get padding top
+     * @return padding top
+     */
+    public int getPaddingTop() {
+        return mPaddingTop;
+    }
+
+    /**
+     * set padding top
+     * @param paddingTop padding top to be set
+     */
+    public void setPaddingTop(int paddingTop) {
+        mPaddingTop = paddingTop;
+    }
+
+    /**
+     * get padding bottom
+     * @return padding bottom
+     */
+    public int getPaddingBottom() {
+        return mPaddingBottom;
+    }
+
+    /**
+     * set padding bottom
+     * @param paddingBottom padding bottom to be set
+     */
+    public void setPaddingBottom(int paddingBottom) {
+        mPaddingBottom = paddingBottom;
+    }
 
     /**
      * Get the number of rows
