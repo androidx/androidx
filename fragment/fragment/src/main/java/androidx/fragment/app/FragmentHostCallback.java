@@ -19,7 +19,6 @@ package androidx.fragment.app;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -149,7 +148,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      * See {@link FragmentActivity#startActivityForResult(Intent, int)}.
      */
     public void onStartActivityFromFragment(@NonNull Fragment fragment,
-            @SuppressLint("UnknownNullness") Intent intent, int requestCode) {
+            @NonNull Intent intent, int requestCode) {
         onStartActivityFromFragment(fragment, intent, requestCode, null);
     }
 
@@ -158,7 +157,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      * See {@link FragmentActivity#startActivityForResult(Intent, int, Bundle)}.
      */
     public void onStartActivityFromFragment(
-            @NonNull Fragment fragment, @SuppressLint("UnknownNullness") Intent intent,
+            @NonNull Fragment fragment, @NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (requestCode != -1) {
             throw new IllegalStateException(
@@ -179,7 +178,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      */
     @Deprecated
     public void onStartIntentSenderFromFragment(@NonNull Fragment fragment,
-            @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,
+            @NonNull IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
             @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (requestCode != -1) {
