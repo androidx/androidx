@@ -722,7 +722,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
-                    mSurfaceProcessor != null ? mSurfaceProcessor : new DefaultSurfaceProcessor());
+                    mSurfaceProcessor != null ? mSurfaceProcessor :
+                            DefaultSurfaceProcessor.Factory.newInstance());
         }
         return null;
     }
