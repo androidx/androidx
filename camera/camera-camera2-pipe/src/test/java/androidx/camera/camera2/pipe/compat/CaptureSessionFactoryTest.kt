@@ -23,6 +23,8 @@ import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
@@ -104,22 +106,25 @@ internal class CaptureSessionFactoryTest {
         val pendingOutputs =
             sessionFactory.create(
                 AndroidCameraDevice(
-                    testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId),
+                    testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                ),
                 mapOf(stream1.id to surface),
                 captureSessionState =
-                    CaptureSessionState(
-                        FakeGraphProcessor(),
-                        sessionFactory,
-                        object : Camera2CaptureSequenceProcessorFactory {
-                            override fun create(
-                                session: CameraCaptureSessionWrapper,
-                                surfaceMap: Map<StreamId, Surface>
-                            ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
-                                FakeCaptureSequenceProcessor()
-                        },
-                        CameraSurfaceManager(),
-                        SystemTimeSource(),
-                        this))
+                CaptureSessionState(
+                    FakeGraphProcessor(),
+                    sessionFactory,
+                    object : Camera2CaptureSequenceProcessorFactory {
+                        override fun create(
+                            session: CameraCaptureSessionWrapper,
+                            surfaceMap: Map<StreamId, Surface>
+                        ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
+                            FakeCaptureSequenceProcessor()
+                    },
+                    CameraSurfaceManager(),
+                    SystemTimeSource(),
+                    this
+                )
+            )
 
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
@@ -132,10 +137,12 @@ internal class CaptureSessionFactoryTest {
 @Camera2ControllerScope
 @Component(
     modules =
-        [
-            FakeCameraGraphModule::class,
-            FakeCameraPipeModule::class,
-            Camera2CaptureSessionsModule::class])
+    [
+        FakeCameraGraphModule::class,
+        FakeCameraPipeModule::class,
+        Camera2CaptureSessionsModule::class,
+        FakeCamera2Module::class]
+)
 internal interface Camera2CaptureSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
     fun sessionFactory(): CaptureSessionFactory
@@ -148,9 +155,12 @@ class FakeCameraPipeModule(
     private val context: Context,
     private val fakeCamera: RobolectricCameras.FakeCamera
 ) {
-    @Provides fun provideFakeCamera() = fakeCamera
+    @Provides
+    fun provideFakeCamera() = fakeCamera
 
-    @Provides @Singleton fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+    @Provides
+    @Singleton
+    fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
 }
 
 @Module(includes = [SharedCameraGraphModules::class])
@@ -167,5 +177,22 @@ class FakeCameraGraphModule {
             camera = fakeCamera.cameraId,
             streams = listOf(stream),
         )
+    }
+}
+
+@Module
+class FakeCamera2Module {
+    @Provides
+    @Singleton
+    internal fun provideFakeCamera2MetadataProvider(
+        fakeCamera: RobolectricCameras.FakeCamera
+    ): Camera2MetadataProvider = object : Camera2MetadataProvider {
+        override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
+            return fakeCamera.metadata
+        }
+
+        override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
+            return fakeCamera.metadata
+        }
     }
 }

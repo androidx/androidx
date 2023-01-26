@@ -35,6 +35,7 @@ import android.view.Surface
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.camera.camera2.pipe.CameraMetadata
 import java.util.concurrent.Executor
 
 @RequiresApi(Build.VERSION_CODES.M)
@@ -318,6 +319,12 @@ internal object Api33Compat {
     @DoNotInline
     fun setStreamUseCase(outputConfig: OutputConfiguration, streamUseCase: Long) {
         outputConfig.streamUseCase = streamUseCase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getAvailableStreamUseCases(cameraMetadata: CameraMetadata): LongArray? {
+        return cameraMetadata[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
     }
 
     @JvmStatic

@@ -24,6 +24,7 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
@@ -180,14 +181,21 @@ internal class AndroidNSessionFactory
 constructor(
     private val threads: Threads,
     private val streamGraph: StreamGraphImpl,
-    private val graphConfig: CameraGraph.Config
+    private val graphConfig: CameraGraph.Config,
+    private val camera2MetadataProvider: Camera2MetadataProvider
 ) : CaptureSessionFactory {
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        val outputs = buildOutputConfigurations(graphConfig, streamGraph, surfaces)
+        val outputs = buildOutputConfigurations(
+            graphConfig,
+            streamGraph,
+            surfaces,
+            camera2MetadataProvider,
+            cameraDevice.cameraId
+        )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
             return emptyMap()
@@ -224,7 +232,8 @@ internal class AndroidPSessionFactory
 constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    private val streamGraph: StreamGraphImpl
+    private val streamGraph: StreamGraphImpl,
+    private val camera2MetadataProvider: Camera2MetadataProvider
 ) : CaptureSessionFactory {
     override fun create(
         cameraDevice: CameraDeviceWrapper,
@@ -238,7 +247,13 @@ constructor(
                 CameraGraph.OperatingMode.HIGH_SPEED -> SessionConfigData.SESSION_TYPE_HIGH_SPEED
             }
 
-        val outputs = buildOutputConfigurations(graphConfig, streamGraph, surfaces)
+        val outputs = buildOutputConfigurations(
+            graphConfig,
+            streamGraph,
+            surfaces,
+            camera2MetadataProvider,
+            cameraDevice.cameraId
+        )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
             return emptyMap()
@@ -277,7 +292,9 @@ constructor(
 internal fun buildOutputConfigurations(
     graphConfig: CameraGraph.Config,
     streamGraph: StreamGraphImpl,
-    surfaces: Map<StreamId, Surface>
+    surfaces: Map<StreamId, Surface>,
+    camera2MetadataProvider: Camera2MetadataProvider,
+    cameraId: CameraId
 ): OutputConfigurations {
     val allOutputs = arrayListOf<OutputConfigurationWrapper>()
     val deferredOutputs = mutableMapOf<StreamId, OutputConfigurationWrapper>()
@@ -303,23 +320,24 @@ internal fun buildOutputConfigurations(
         }
 
         if (outputConfig.deferrable && outputSurfaces.size != outputConfig.streams.size) {
-            val output =
-                AndroidOutputConfiguration.create(
-                    null,
-                    size = outputConfig.size,
-                    outputType = outputConfig.deferredOutputType!!,
-                    mirrorMode = outputConfig.mirrorMode,
-                    timestampBase = outputConfig.timestampBase,
-                    dynamicRangeProfile = outputConfig.dynamicRangeProfile,
-                    streamUseCase = outputConfig.streamUseCase,
-                    surfaceSharing = outputConfig.surfaceSharing,
-                    surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
-                    physicalCameraId =
-                        if (outputConfig.camera != graphConfig.camera) {
-                            outputConfig.camera
-                        } else {
-                            null
-                        })
+            val output = AndroidOutputConfiguration.create(
+                null,
+                size = outputConfig.size,
+                outputType = outputConfig.deferredOutputType!!,
+                mirrorMode = outputConfig.mirrorMode,
+                timestampBase = outputConfig.timestampBase,
+                dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+                streamUseCase = outputConfig.streamUseCase,
+                surfaceSharing = outputConfig.surfaceSharing,
+                surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
+                physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
+                    outputConfig.camera
+                } else {
+                    null
+                },
+                cameraId = cameraId,
+                camera2MetadataProvider = camera2MetadataProvider
+            )
             if (output == null) {
                 Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
                 continue
@@ -337,22 +355,23 @@ internal fun buildOutputConfigurations(
             "Surfaces are not yet available for $outputConfig!" +
                 " Missing surfaces for $missingStreams!"
         }
-        val output =
-            AndroidOutputConfiguration.create(
-                outputSurfaces.first(),
-                mirrorMode = outputConfig.mirrorMode,
-                timestampBase = outputConfig.timestampBase,
-                dynamicRangeProfile = outputConfig.dynamicRangeProfile,
-                streamUseCase = outputConfig.streamUseCase,
-                size = outputConfig.size,
-                surfaceSharing = outputConfig.surfaceSharing,
-                surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
-                physicalCameraId =
-                    if (outputConfig.camera != graphConfig.camera) {
-                        outputConfig.camera
-                    } else {
-                        null
-                    })
+        val output = AndroidOutputConfiguration.create(
+            outputSurfaces.first(),
+            mirrorMode = outputConfig.mirrorMode,
+            timestampBase = outputConfig.timestampBase,
+            dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+            streamUseCase = outputConfig.streamUseCase,
+            size = outputConfig.size,
+            surfaceSharing = outputConfig.surfaceSharing,
+            surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
+            physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
+                outputConfig.camera
+            } else {
+                null
+            },
+            cameraId = cameraId,
+            camera2MetadataProvider = camera2MetadataProvider
+        )
         if (output == null) {
             Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
             continue
