@@ -160,7 +160,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         GetPublicKeyCredentialOptionPrivileged option =
                 new GetPublicKeyCredentialOptionPrivileged("json", "rp", "clientDataHash", true);
 
-        GetCredentialOption convertedOption = GetCredentialOption.createFrom(
+        CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(),
                 option.getCandidateQueryData(), option.isSystemProviderRequired());
 

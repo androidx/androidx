@@ -18,7 +18,7 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
-import androidx.credentials.GetCredentialOption
+import androidx.credentials.CredentialOption
 
 /**
  * Request received by the provider after the query phase of the get flow is complete i.e. the user
@@ -35,7 +35,7 @@ import androidx.credentials.GetCredentialOption
  */
 @RequiresApi(34)
 class ProviderGetCredentialRequest internal constructor(
-    val credentialOption: GetCredentialOption,
+    val credentialOption: CredentialOption,
     val callingAppInfo: CallingAppInfo
     ) {
 
@@ -43,11 +43,12 @@ class ProviderGetCredentialRequest internal constructor(
     companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
         ProviderGetCredentialRequest {
-            val option = GetCredentialOption.createFrom(
+            val option = CredentialOption.createFrom(
                 request.getCredentialOption.type,
                 request.getCredentialOption.candidateQueryData,
                 request.getCredentialOption.credentialRetrievalData,
-                request.getCredentialOption.isSystemProviderRequired())
+                request.getCredentialOption.isSystemProviderRequired
+            )
             return ProviderGetCredentialRequest(
                 option,
                 request.callingAppInfo)

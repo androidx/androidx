@@ -116,7 +116,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
         GetPublicKeyCredentialOption option =
                 new GetPublicKeyCredentialOption("json", true);
 
-        GetCredentialOption convertedOption = GetCredentialOption.createFrom(
+        CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(),
                 option.getCandidateQueryData(), option.isSystemProviderRequired());
 

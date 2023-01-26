@@ -23,10 +23,10 @@ import androidx.credentials.internal.FrameworkClassParsingException
 /**
  * Base class for getting a specific type of credentials.
  *
- * [GetCredentialRequest] will be composed of a list of [GetCredentialOption] subclasses to indicate
+ * [GetCredentialRequest] will be composed of a list of [CredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
  */
-abstract class GetCredentialOption internal constructor(
+abstract class CredentialOption internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
@@ -49,7 +49,7 @@ abstract class GetCredentialOption internal constructor(
             requestData: Bundle,
             candidateQueryData: Bundle,
             requireSystemProvider: Boolean
-        ): GetCredentialOption {
+        ): CredentialOption {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
