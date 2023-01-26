@@ -192,6 +192,7 @@ private val goldenDefaultConfig = """
     <option name="test-suite-tag" value="placeholder_tag" />
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
+    <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="true" />
@@ -225,6 +226,7 @@ private val goldenMediaDefaultConfig = """
     <option name="test-suite-tag" value="media_compat" />
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.client.Placeholder;com.androidx.service.Placeholder" />
     <option name="wifi:disable" value="true" />
+    <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="true" />
