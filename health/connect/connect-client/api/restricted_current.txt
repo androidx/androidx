@@ -427,36 +427,21 @@ package androidx.health.connect.client.records {
     property public final String? title;
     field public static final androidx.health.connect.client.records.ExerciseSessionRecord.Companion Companion;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> EXERCISE_DURATION_TOTAL;
-    field public static final int EXERCISE_TYPE_BACK_EXTENSION = 1; // 0x1
     field public static final int EXERCISE_TYPE_BADMINTON = 2; // 0x2
-    field public static final int EXERCISE_TYPE_BARBELL_SHOULDER_PRESS = 3; // 0x3
     field public static final int EXERCISE_TYPE_BASEBALL = 4; // 0x4
     field public static final int EXERCISE_TYPE_BASKETBALL = 5; // 0x5
-    field public static final int EXERCISE_TYPE_BENCH_PRESS = 6; // 0x6
-    field public static final int EXERCISE_TYPE_BENCH_SIT_UP = 7; // 0x7
     field public static final int EXERCISE_TYPE_BIKING = 8; // 0x8
     field public static final int EXERCISE_TYPE_BIKING_STATIONARY = 9; // 0x9
     field public static final int EXERCISE_TYPE_BOOT_CAMP = 10; // 0xa
     field public static final int EXERCISE_TYPE_BOXING = 11; // 0xb
-    field public static final int EXERCISE_TYPE_BURPEE = 12; // 0xc
     field public static final int EXERCISE_TYPE_CALISTHENICS = 13; // 0xd
     field public static final int EXERCISE_TYPE_CRICKET = 14; // 0xe
-    field public static final int EXERCISE_TYPE_CRUNCH = 15; // 0xf
     field public static final int EXERCISE_TYPE_DANCING = 16; // 0x10
-    field public static final int EXERCISE_TYPE_DEADLIFT = 17; // 0x11
-    field public static final int EXERCISE_TYPE_DUMBBELL_CURL_LEFT_ARM = 18; // 0x12
-    field public static final int EXERCISE_TYPE_DUMBBELL_CURL_RIGHT_ARM = 19; // 0x13
-    field public static final int EXERCISE_TYPE_DUMBBELL_FRONT_RAISE = 20; // 0x14
-    field public static final int EXERCISE_TYPE_DUMBBELL_LATERAL_RAISE = 21; // 0x15
-    field public static final int EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM = 22; // 0x16
-    field public static final int EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM = 23; // 0x17
-    field public static final int EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM = 24; // 0x18
     field public static final int EXERCISE_TYPE_ELLIPTICAL = 25; // 0x19
     field public static final int EXERCISE_TYPE_EXERCISE_CLASS = 26; // 0x1a
     field public static final int EXERCISE_TYPE_FENCING = 27; // 0x1b
     field public static final int EXERCISE_TYPE_FOOTBALL_AMERICAN = 28; // 0x1c
     field public static final int EXERCISE_TYPE_FOOTBALL_AUSTRALIAN = 29; // 0x1d
-    field public static final int EXERCISE_TYPE_FORWARD_TWIST = 30; // 0x1e
     field public static final int EXERCISE_TYPE_FRISBEE_DISC = 31; // 0x1f
     field public static final int EXERCISE_TYPE_GOLF = 32; // 0x20
     field public static final int EXERCISE_TYPE_GUIDED_BREATHING = 33; // 0x21
@@ -466,16 +451,11 @@ package androidx.health.connect.client.records {
     field public static final int EXERCISE_TYPE_HIKING = 37; // 0x25
     field public static final int EXERCISE_TYPE_ICE_HOCKEY = 38; // 0x26
     field public static final int EXERCISE_TYPE_ICE_SKATING = 39; // 0x27
-    field public static final int EXERCISE_TYPE_JUMPING_JACK = 40; // 0x28
-    field public static final int EXERCISE_TYPE_JUMP_ROPE = 41; // 0x29
-    field public static final int EXERCISE_TYPE_LAT_PULL_DOWN = 42; // 0x2a
-    field public static final int EXERCISE_TYPE_LUNGE = 43; // 0x2b
     field public static final int EXERCISE_TYPE_MARTIAL_ARTS = 44; // 0x2c
     field public static final int EXERCISE_TYPE_OTHER_WORKOUT = 0; // 0x0
     field public static final int EXERCISE_TYPE_PADDLING = 46; // 0x2e
     field public static final int EXERCISE_TYPE_PARAGLIDING = 47; // 0x2f
     field public static final int EXERCISE_TYPE_PILATES = 48; // 0x30
-    field public static final int EXERCISE_TYPE_PLANK = 49; // 0x31
     field public static final int EXERCISE_TYPE_RACQUETBALL = 50; // 0x32
     field public static final int EXERCISE_TYPE_ROCK_CLIMBING = 51; // 0x33
     field public static final int EXERCISE_TYPE_ROLLER_HOCKEY = 52; // 0x34
@@ -493,7 +473,6 @@ package androidx.health.connect.client.records {
     field public static final int EXERCISE_TYPE_SOCCER = 64; // 0x40
     field public static final int EXERCISE_TYPE_SOFTBALL = 65; // 0x41
     field public static final int EXERCISE_TYPE_SQUASH = 66; // 0x42
-    field public static final int EXERCISE_TYPE_SQUAT = 67; // 0x43
     field public static final int EXERCISE_TYPE_STAIR_CLIMBING = 68; // 0x44
     field public static final int EXERCISE_TYPE_STAIR_CLIMBING_MACHINE = 69; // 0x45
     field public static final int EXERCISE_TYPE_STRENGTH_TRAINING = 70; // 0x46
@@ -503,7 +482,6 @@ package androidx.health.connect.client.records {
     field public static final int EXERCISE_TYPE_SWIMMING_POOL = 74; // 0x4a
     field public static final int EXERCISE_TYPE_TABLE_TENNIS = 75; // 0x4b
     field public static final int EXERCISE_TYPE_TENNIS = 76; // 0x4c
-    field public static final int EXERCISE_TYPE_UPPER_TWIST = 77; // 0x4d
     field public static final int EXERCISE_TYPE_VOLLEYBALL = 78; // 0x4e
     field public static final int EXERCISE_TYPE_WALKING = 79; // 0x4f
     field public static final int EXERCISE_TYPE_WATER_POLO = 80; // 0x50
