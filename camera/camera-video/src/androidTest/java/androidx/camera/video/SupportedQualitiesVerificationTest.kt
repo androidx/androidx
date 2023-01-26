@@ -205,10 +205,12 @@ class SupportedQualitiesVerificationTest(
                     // Make sure the recording proceed for a while.
                     latchForRecordingStatus.countDown()
                 }
+
                 is VideoRecordEvent.Finalize -> {
                     finalizedEvent = event
                     latchForRecordingFinalized.countDown()
                 }
+
                 else -> {
                     // Ignore other events.
                 }
@@ -238,7 +240,7 @@ class SupportedQualitiesVerificationTest(
     }
 
     private fun createSurfaceProcessor(): SurfaceProcessorInternal =
-        DefaultSurfaceProcessor().apply { surfaceProcessorsToRelease.add(this) }
+        DefaultSurfaceProcessor.Factory.newInstance().apply { surfaceProcessorsToRelease.add(this) }
 
     /** Skips tests which will enable surface processing and encounter device specific issues. */
     private fun assumeSuccessfulSurfaceProcessing() {
