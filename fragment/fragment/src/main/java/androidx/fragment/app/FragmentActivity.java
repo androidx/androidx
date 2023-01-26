@@ -18,7 +18,6 @@ package androidx.fragment.app;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -501,7 +500,7 @@ public class FragmentActivity extends ComponentActivity implements
      *                    greater than 65535, an IllegalArgumentException would be thrown.
      */
     public void startActivityFromFragment(@NonNull Fragment fragment,
-            @SuppressLint("UnknownNullness") Intent intent, int requestCode) {
+            @NonNull Intent intent, int requestCode) {
         startActivityFromFragment(fragment, intent, requestCode, null);
     }
 
@@ -519,7 +518,7 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @SuppressWarnings("deprecation")
     public void startActivityFromFragment(@NonNull Fragment fragment,
-            @SuppressLint("UnknownNullness") Intent intent, int requestCode,
+            @NonNull Intent intent, int requestCode,
             @Nullable Bundle options) {
         // request code will be -1 if called from fragment.startActivity
         if (requestCode == -1) {
@@ -558,7 +557,7 @@ public class FragmentActivity extends ComponentActivity implements
     @SuppressWarnings({"deprecation"})
     @Deprecated
     public void startIntentSenderFromFragment(@NonNull Fragment fragment,
-            @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,
+            @NonNull IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
             @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (requestCode == -1) {

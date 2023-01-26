@@ -2815,12 +2815,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     void launchStartActivityForResult(@NonNull Fragment f,
-            @SuppressLint("UnknownNullness") Intent intent,
+            @NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mStartActivityForResult != null) {
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
-            if (intent != null && options != null) {
+            if (options != null) {
                 intent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
             mStartActivityForResult.launch(intent);
@@ -2831,7 +2831,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     @SuppressWarnings("deprecation")
     void launchStartIntentSenderForResult(@NonNull Fragment f,
-            @SuppressLint("UnknownNullness") IntentSender intent,
+            @NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (mStartIntentSenderForResult != null) {
