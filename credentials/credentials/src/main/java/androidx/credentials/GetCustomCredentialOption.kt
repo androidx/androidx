@@ -21,6 +21,11 @@ import android.os.Bundle
 /**
  * Allows extending custom versions of GetCredentialOptions for unique use cases.
  *
+ * If you get a [GetCustomCredentialOption] instead of a type-safe option class such as
+ * [GetPasswordOption], [GetPublicKeyCredentialOption], etc., then you should check if
+ * you have any other library at interest that supports this custom [type] of credential option,
+ * and if so use its parsing utilities to resolve to a type-safe class within that library.
+ *
  * @property type the credential type determined by the credential-type-specific subclass
  * generated for custom use cases
  * @property requestData the request data in the [Bundle] format, generated for custom use cases
