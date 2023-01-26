@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity
 
-package androidx.activity;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner
 
 /**
- * A class that has an {@link OnBackPressedDispatcher} that allows you to register a
- * {@link OnBackPressedCallback} for handling the system back button.
- * <p>
+ * A class that has an [OnBackPressedDispatcher] that allows you to register a
+ * [OnBackPressedCallback] for handling the system back button.
+ *
  * It is expected that classes that implement this interface route the system back button
  * to the dispatcher
  *
  * @see OnBackPressedDispatcher
  */
-public interface OnBackPressedDispatcherOwner extends LifecycleOwner {
-
+interface OnBackPressedDispatcherOwner : LifecycleOwner {
     /**
-     * Retrieve the {@link OnBackPressedDispatcher} that should handle the system back button.
-     *
-     * @return The {@link OnBackPressedDispatcher}.
+     * The [OnBackPressedDispatcher] that should handle the system back button.
      */
-    @NonNull
-    OnBackPressedDispatcher getOnBackPressedDispatcher();
+    val onBackPressedDispatcher: OnBackPressedDispatcher
 }

@@ -60,9 +60,7 @@ class BackPressedDispatcherOwnerTest {
                     return LifecycleRegistry(this)
                 }
 
-                override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher {
-                    return OnBackPressedDispatcher()
-                }
+                override val onBackPressedDispatcher = OnBackPressedDispatcher()
             }
 
         var innerDispatcherOwner: OnBackPressedDispatcherOwner? = null

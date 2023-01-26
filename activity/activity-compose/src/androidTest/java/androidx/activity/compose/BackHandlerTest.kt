@@ -121,7 +121,7 @@ class BackHandlerTest {
             val dispatcherOwner = object : OnBackPressedDispatcherOwner {
                 override fun getLifecycle() = lifecycleOwner.lifecycle
 
-                override fun getOnBackPressedDispatcher() = dispatcher
+                override val onBackPressedDispatcher = dispatcher
             }
             dispatcher.addCallback(lifecycleOwner) { }
             CompositionLocalProvider(
