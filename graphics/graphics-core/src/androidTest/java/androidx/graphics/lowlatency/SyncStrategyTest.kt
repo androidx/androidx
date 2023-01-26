@@ -33,7 +33,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@RequiresApi(Build.VERSION_CODES.Q)
 class SyncStrategyTest {
+    private val mUsageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun testSyncStrategy_Always() {
@@ -46,50 +49,46 @@ class SyncStrategyTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun testSyncStrategy_onFirstShow_FrontBufferUsageOff_Invisible() {
         val egl = createAndSetupEGLManager(EGLSpec.V14)
         if (egl.supportsNativeAndroidFence()) {
-            val strategy = FrontBufferSyncStrategy(false)
+            val strategy = FrontBufferSyncStrategy(0L)
             val fence = strategy.createSyncFence(EGLSpec.V14)
             assertTrue(fence != null)
             fence?.close()
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun testSyncStrategy_onFirstShow_FrontBufferUsageOff_Visible() {
         val egl = createAndSetupEGLManager(EGLSpec.V14)
         if (egl.supportsNativeAndroidFence()) {
-            val strategy = FrontBufferSyncStrategy(false)
-            strategy.setVisible(true)
+            val strategy = FrontBufferSyncStrategy(0L)
+            strategy.isVisible = true
             val fence = strategy.createSyncFence(EGLSpec.V14)
             assertTrue(fence == null)
             fence?.close()
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun testSyncStrategy_onFirstShow_FrontBufferUsageOn_Invisible() {
         val egl = createAndSetupEGLManager(EGLSpec.V14)
         if (egl.supportsNativeAndroidFence()) {
-            val strategy = FrontBufferSyncStrategy(true)
+            val strategy = FrontBufferSyncStrategy(mUsageFlags)
             val fence = strategy.createSyncFence(egl.eglSpec)
             assertTrue(fence != null)
             fence?.close()
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun testSyncStrategy_onFirstShow_FrontBufferUsageOn_Visible() {
         val egl = createAndSetupEGLManager(EGLSpec.V14)
         if (egl.supportsNativeAndroidFence()) {
-            val strategy = FrontBufferSyncStrategy(true)
-            strategy.setVisible(true)
+            val strategy = FrontBufferSyncStrategy(mUsageFlags)
+            strategy.isVisible = true
             val fence = strategy.createSyncFence(EGLSpec.V14)
             assertTrue(fence == null)
             fence?.close()

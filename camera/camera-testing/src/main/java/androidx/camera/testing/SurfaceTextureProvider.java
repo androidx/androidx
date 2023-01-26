@@ -30,6 +30,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
@@ -132,6 +133,21 @@ public final class SurfaceTextureProvider {
      */
     @NonNull
     public static Preview.SurfaceProvider createAutoDrainingSurfaceTextureProvider() {
+        return createAutoDrainingSurfaceTextureProvider(null);
+    }
+
+    /**
+     * Creates a {@link Preview.SurfaceProvider} that is backed by a {@link SurfaceTexture}.
+     *
+     * <p>This method also creates a backing OpenGL thread that will automatically drain frames
+     * from the SurfaceTexture as they become available.
+     *
+     * @param frameAvailableListener listener to be invoked when frame is updated.
+     */
+    @NonNull
+    public static Preview.SurfaceProvider createAutoDrainingSurfaceTextureProvider(
+            @Nullable SurfaceTexture.OnFrameAvailableListener frameAvailableListener
+    ) {
         return (surfaceRequest) -> {
             HandlerThread handlerThread = new HandlerThread(String.format("CameraX"
                     + "-AutoDrainThread-%x", surfaceRequest.hashCode()));
@@ -147,8 +163,12 @@ public final class SurfaceTextureProvider {
                 SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
                 surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
                         surfaceRequest.getResolution().getHeight());
-                surfaceTexture.setOnFrameAvailableListener(
-                        SurfaceTexture::updateTexImage, handler);
+                surfaceTexture.setOnFrameAvailableListener((st) -> {
+                    st.updateTexImage();
+                    if (frameAvailableListener != null) {
+                        frameAvailableListener.onFrameAvailable(st);
+                    }
+                }, handler);
 
                 Surface surface = new Surface(surfaceTexture);
                 surfaceRequest.provideSurface(surface,
@@ -162,6 +182,70 @@ public final class SurfaceTextureProvider {
                         });
             });
         };
+    }
+
+    /**
+     * Creates a {@link SurfaceTextureHolder} that contains a {@link SurfaceTexture} which will
+     * automatically drain frames as new frames arrive.
+     *
+     * @param glExecutor             the executor where the GL codes will run.
+     * @param width                  the width of the SurfaceTexture size
+     * @param height                 the height of the SurfaceTexture size.
+     * @param frameAvailableListener listener to be invoked when there are new frames.
+     */
+    @NonNull
+    public static SurfaceTextureHolder createAutoDrainingSurfaceTexture(
+            @NonNull Executor glExecutor,
+            int width,
+            int height,
+            @NonNull SurfaceTexture.OnFrameAvailableListener frameAvailableListener) {
+        int[] textureIds = new int[1];
+        SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
+        EGLContextParams contextParams = createDummyEGLContext();
+        glExecutor.execute(() -> {
+            EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
+                    contextParams.outputSurface, contextParams.context);
+            GLES20.glGenTextures(1, textureIds, 0);
+            surfaceTexture.setDefaultBufferSize(width, height);
+            surfaceTexture.setOnFrameAvailableListener(it ->
+                    glExecutor.execute(() -> {
+                        it.updateTexImage();
+                        frameAvailableListener.onFrameAvailable(surfaceTexture);
+                    }));
+        });
+
+        return new SurfaceTextureHolder(surfaceTexture, () -> {
+            glExecutor.execute(() -> {
+                surfaceTexture.release();
+                GLES20.glDeleteTextures(1, textureIds, 0);
+                terminateEGLContext(contextParams);
+            });
+        });
+    }
+
+    /**
+     * A holder that contains the {@link SurfaceTexture}. Close() must be called to reclaim the
+     * resource.
+     */
+    public static class SurfaceTextureHolder implements AutoCloseable {
+        private final SurfaceTexture mSurfaceTexture;
+        private final Runnable mCloseRunnable;
+
+        public SurfaceTextureHolder(@NonNull SurfaceTexture surfaceTexture,
+                @NonNull Runnable closeRunnable) {
+            mSurfaceTexture = surfaceTexture;
+            mCloseRunnable = closeRunnable;
+        }
+
+        @NonNull
+        public SurfaceTexture getSurfaceTexture() {
+            return mSurfaceTexture;
+        }
+
+        @Override
+        public void close() throws Exception {
+            mCloseRunnable.run();
+        }
     }
 
     @NonNull

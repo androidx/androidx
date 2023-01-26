@@ -127,7 +127,7 @@ public abstract class DeferrableSurface {
     /**
      * Creates a new DeferrableSurface which has no use count.
      *
-     * @param size  the {@link Size} of the surface
+     * @param size   the {@link Size} of the surface
      * @param format the stream configuration format that the provided Surface will be used on.
      */
     public DeferrableSurface(@NonNull Size size, int format) {
@@ -337,6 +337,15 @@ public abstract class DeferrableSurface {
     public int getUseCount() {
         synchronized (mLock) {
             return mUseCount;
+        }
+    }
+
+    /**
+     * Checks if the {@link DeferrableSurface} is closed
+     */
+    public boolean isClosed() {
+        synchronized (mLock) {
+            return mClosed;
         }
     }
 

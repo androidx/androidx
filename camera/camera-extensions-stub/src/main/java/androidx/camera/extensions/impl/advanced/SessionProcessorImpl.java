@@ -56,6 +56,8 @@ import java.util.Map;
  *
  * (6) {@link #deInitSession}: called when CameraCaptureSession is closed.
  * </pre>
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface SessionProcessorImpl {
@@ -274,6 +276,8 @@ public interface SessionProcessorImpl {
          *                             as part of this callback. Both Camera2 and CameraX guarantee
          *                             that those two settings and results are always supported and
          *                             applied by the corresponding framework.
+         *
+         * @since 1.3
          */
         void onCaptureCompleted(long timestamp, int captureSequenceId,
                 Map<CaptureResult.Key, Object> result);

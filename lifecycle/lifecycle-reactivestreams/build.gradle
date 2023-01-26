@@ -20,9 +20,11 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     api("androidx.arch.core:core-common:2.1.0")
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
@@ -34,6 +36,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.rxjava2)
+    testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
@@ -46,7 +49,6 @@ dependencies {
 androidx {
     name = "Android Lifecycle Reactivestreams"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"
 }

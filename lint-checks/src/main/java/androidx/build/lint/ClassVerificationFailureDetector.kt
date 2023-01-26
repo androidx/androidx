@@ -421,7 +421,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // Builtin R8 desugaring, such as rewriting compare calls (see b/36390874)
             if (owner.startsWith("java.") &&
-                DesugaredMethodLookup.isDesugared(owner, name, desc)) {
+                DesugaredMethodLookup.isDesugared(owner, name, desc, context.sourceSetType)) {
                 return
             }
 

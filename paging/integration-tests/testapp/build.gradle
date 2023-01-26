@@ -50,8 +50,8 @@ dependencies {
 
 kapt {
     javacOptions {
-        option("-source", "8")
-        option("-target", "8")
+        option("--source", "8")
+        option("--target", "8")
     }
 }
 

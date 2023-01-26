@@ -25,6 +25,7 @@ import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -116,6 +117,28 @@ public class LiveDataTest {
     @After
     public void removeExecutorDelegate() {
         ArchTaskExecutor.getInstance().setDelegate(null);
+    }
+
+    @Test
+    public void testIsInitialized() {
+        assertThat(mLiveData.isInitialized(), is(false));
+        assertThat(mLiveData.getValue(), is(nullValue()));
+
+        mLiveData.setValue("a");
+
+        assertThat(mLiveData.getValue(), is("a"));
+        assertThat(mLiveData.isInitialized(), is(true));
+    }
+
+    @Test
+    public void testIsInitializedNullValue() {
+        assertThat(mLiveData.isInitialized(), is(false));
+        assertThat(mLiveData.getValue(), is(nullValue()));
+
+        mLiveData.setValue(null);
+
+        assertThat(mLiveData.isInitialized(), is(true));
+        assertThat(mLiveData.getValue(), is(nullValue()));
     }
 
     @Test
@@ -931,7 +954,7 @@ public class LiveDataTest {
 
     private class FailReentranceObserver<T> implements Observer<T> {
         @Override
-        public void onChanged(@Nullable T t) {
+        public void onChanged(@Nullable T value) {
             assertThat(mInObserver, is(false));
         }
     }

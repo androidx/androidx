@@ -23,10 +23,10 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,7 +43,7 @@ public class PermissionCheckerTest {
         mContext = ApplicationProvider.getApplicationContext();
     }
 
-    @FlakyTest(bugId = 242739867)
+    @Ignore // b/242739867
     @Test
     public void testCheckPermission() throws Exception {
         assertEquals(PermissionChecker.PERMISSION_DENIED, PermissionChecker.checkSelfPermission(

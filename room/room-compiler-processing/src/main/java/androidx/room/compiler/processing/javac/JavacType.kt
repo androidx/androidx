@@ -21,8 +21,8 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.javac.kotlin.KmType
-import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
+import androidx.room.compiler.processing.javac.kotlin.KmClassContainer
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
@@ -33,10 +33,10 @@ import kotlin.reflect.KClass
 internal abstract class JavacType(
     internal val env: JavacProcessingEnv,
     open val typeMirror: TypeMirror,
-    private val maybeNullability: XNullability?,
+    internal val maybeNullability: XNullability?,
 ) : XType, XEquality {
-    // Kotlin type information about the type if this type is driven from kotlin code.
-    abstract val kotlinType: KmType?
+    // Kotlin type information about the type if this type is driven from Kotlin code.
+    abstract val kotlinType: KmTypeContainer?
 
     override val rawType: XRawType by lazy {
         JavacRawType(env, this)
@@ -48,7 +48,7 @@ internal abstract class JavacType(
             val element = MoreTypes.asTypeElement(it)
             env.wrap<JavacType>(
                 typeMirror = it,
-                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                kotlinType = KmClassContainer.createFor(env, element)?.type,
                 elementNullability = element.nullability
             )
         }
@@ -79,7 +79,7 @@ internal abstract class JavacType(
         XTypeName(
             typeMirror.safeTypeName(),
             XTypeName.UNAVAILABLE_KTYPE_NAME,
-            nullability
+            maybeNullability ?: XNullability.UNKNOWN
         )
     }
 
@@ -194,10 +194,10 @@ internal abstract class JavacType(
     }
 
     override val nullability: XNullability get() {
-        return maybeNullability
-            ?: throw IllegalStateException(
-                "XType#nullibility cannot be called from this type because it is missing " +
-                    "nullability information. Was this type derived from a type created with " +
-                    "TypeMirror#toXProcessing(XProcessingEnv)?")
+        return maybeNullability ?: error(
+            "XType#nullibility cannot be called from this type because it is missing nullability " +
+                "information. Was this type derived from a type created with " +
+                "TypeMirror#toXProcessing(XProcessingEnv)?"
+        )
     }
 }

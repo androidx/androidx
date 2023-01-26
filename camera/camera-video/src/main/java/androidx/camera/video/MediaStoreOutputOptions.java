@@ -164,7 +164,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
             mInternalBuilder = (MediaStoreOutputOptionsInternal.Builder) mRootInternalBuilder;
             mInternalBuilder.setContentResolver(contentResolver)
                     .setCollectionUri(collectionUri)
-                    .setContentValues(new ContentValues());
+                    .setContentValues(EMPTY_CONTENT_VALUES);
         }
 
         /**
@@ -186,23 +186,6 @@ public final class MediaStoreOutputOptions extends OutputOptions {
             Preconditions.checkNotNull(contentValues, "Content values can't be null.");
             mInternalBuilder.setContentValues(contentValues);
             return this;
-        }
-
-        /**
-         * Sets the limit for the file length in bytes.
-         *
-         * <p>When used to
-         * {@link Recorder#prepareRecording(android.content.Context, MediaStoreOutputOptions)
-         * generate} recording, if the specified file size limit is reached while the recording
-         * is being recorded, the recording will be finalized with
-         * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
-         *
-         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
-         */
-        @Override
-        @NonNull
-        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
-            return super.setFileSizeLimit(fileSizeLimitBytes);
         }
 
         /** Builds the {@link MediaStoreOutputOptions} instance. */

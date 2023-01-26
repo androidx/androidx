@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.compiler.IntrospectionHelper.PropertyClass;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -45,6 +44,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Types;
 
@@ -131,22 +132,40 @@ class DocumentModel {
             mIsAutoValueDocument = false;
             // Scan methods and constructors. We will need this info when processing fields to
             // make sure the fields can be get and set.
-            Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
-            for (Element child : mClass.getEnclosedElements()) {
-                if (child.getKind() == ElementKind.CONSTRUCTOR) {
-                    creationMethods.add((ExecutableElement) child);
-                } else if (child.getKind() == ElementKind.METHOD) {
-                    ExecutableElement method = (ExecutableElement) child;
-                    mAllMethods.add(method);
-                    if (isFactoryMethod(method)) {
-                        creationMethods.add(method);
-                    }
-                }
-            }
+            Set<ExecutableElement> creationMethods = extractCreationMethods(mClass);
+            addAllMethods(mClass, mAllMethods);
 
             mQualifiedDocumentClassName = clazz.getQualifiedName().toString();
             scanFields(mClass);
             scanCreationMethods(creationMethods);
+        }
+    }
+
+    private Set<ExecutableElement> extractCreationMethods(TypeElement typeElement) {
+        Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
+        for (Element child : typeElement.getEnclosedElements()) {
+            if (child.getKind() == ElementKind.CONSTRUCTOR) {
+                creationMethods.add((ExecutableElement) child);
+            } else if (child.getKind() == ElementKind.METHOD) {
+                ExecutableElement method = (ExecutableElement) child;
+                if (isFactoryMethod(method)) {
+                    creationMethods.add(method);
+                }
+            }
+        }
+        return creationMethods;
+    }
+
+    private void addAllMethods(TypeElement typeElement, Set<ExecutableElement> allMethods) {
+        for (Element child : typeElement.getEnclosedElements()) {
+            if (child.getKind() == ElementKind.METHOD) {
+                allMethods.add((ExecutableElement) child);
+            }
+        }
+
+        TypeMirror superClass = typeElement.getSuperclass();
+        if (superClass.getKind().equals(TypeKind.DECLARED)) {
+            addAllMethods((TypeElement) mTypeUtil.asElement(superClass), allMethods);
         }
     }
 
@@ -181,6 +200,7 @@ class DocumentModel {
 
     /**
      * The name of the original class annotated with @Document
+     *
      * @return the class name
      */
     @NonNull
@@ -387,13 +407,13 @@ class DocumentModel {
     /**
      * Scans all the fields of the class, as well as superclasses annotated with @Document,
      * to get AppSearch fields such as id
+     *
      * @param element the class to scan
      */
     private void scanFields(@NonNull TypeElement element) throws ProcessingException {
-        Collection<TypeElement> hierarchy = generateClassHierarchy(element, mIsAutoValueDocument);
+        List<TypeElement> hierarchy = generateClassHierarchy(element, mIsAutoValueDocument);
 
-        for (TypeElement clazz: hierarchy) {
-
+        for (TypeElement clazz : hierarchy) {
             List<? extends Element> enclosedElements = clazz.getEnclosedElements();
             for (int i = 0; i < enclosedElements.size(); i++) {
                 Element childElement = enclosedElements.get(i);
@@ -422,22 +442,7 @@ class DocumentModel {
                     mClass);
         }
 
-        // The schema name of the class at the top of the hierarchy will be used, so that
-        // performing a query on the base @Document class will also return child @Document classes
-        TypeElement topDocumentClass = hierarchy.iterator().next();
-        AnnotationMirror annotationMirror = getDocumentAnnotation(topDocumentClass);
-        if (annotationMirror == null) {
-            mSchemaName = mClass.getSimpleName().toString();
-        } else {
-            Map<String, Object> params = mHelper.getAnnotationParams(annotationMirror);
-            String name = params.get("name").toString();
-            // Documents don't need an explicit name annotation,  can use the class name
-            if (!name.isEmpty()) {
-                mSchemaName = name;
-            } else {
-                mSchemaName = topDocumentClass.getSimpleName().toString();
-            }
-        }
+        mSchemaName = computeSchemaName(hierarchy);
 
         for (VariableElement appSearchField : mAllAppSearchFields.values()) {
             chooseAccessKinds(appSearchField);
@@ -779,5 +784,41 @@ class DocumentModel {
         }
 
         return fieldName;
+    }
+
+    /**
+     * Computes the schema name for a Document class given its hierarchy of parent @Document
+     * classes.
+     *
+     * <p>The schema name will be the most specific Document class that has an explicit schema name,
+     * to allow the schema name to be manually set with the "name" annotation. If no such Document
+     * class exists, use the name of the root Document class, so that performing a query on the base
+     * \@Document class will also return child @Document classes.
+     *
+     * @param hierarchy List of classes annotated with \@Document, with the root class at the
+     *                  beginning and the final class at the end
+     * @return the final schema name for the class at the end of the hierarchy
+     */
+    @NonNull
+    private String computeSchemaName(List<TypeElement> hierarchy) {
+        for (int i = hierarchy.size() - 1; i >= 0; i--) {
+            AnnotationMirror documentAnnotation = getDocumentAnnotation(hierarchy.get(i));
+            if (documentAnnotation == null) {
+                continue;
+            }
+            Map<String, Object> params = mHelper.getAnnotationParams(documentAnnotation);
+            String name = params.get("name").toString();
+            if (!name.isEmpty()) {
+                return name;
+            }
+        }
+        // Nobody had a name annotation -- use the class name of the root document in the hierarchy
+        TypeElement rootDocumentClass = hierarchy.get(0);
+        AnnotationMirror rootDocumentAnnotation = getDocumentAnnotation(rootDocumentClass);
+        if (rootDocumentAnnotation == null) {
+            return mClass.getSimpleName().toString();
+        }
+        // Documents don't need an explicit name annotation, can use the class name
+        return rootDocumentClass.getSimpleName().toString();
     }
 }

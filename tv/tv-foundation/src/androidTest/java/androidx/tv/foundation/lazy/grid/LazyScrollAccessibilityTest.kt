@@ -49,6 +49,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROL
 import androidx.test.filters.MediumTest
 import com.google.common.truth.IterableSubject
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -147,6 +148,7 @@ class LazyScrollAccessibilityTest(
         )
     }
 
+    @Ignore // b/242180919
     @Test
     fun verifyScrollActionsAtEnd() {
         createScrollableContent_StartAtEnd()

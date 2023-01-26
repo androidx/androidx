@@ -20,6 +20,9 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
+import androidx.testutils.withUse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -27,9 +30,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityReportFullyDrawnTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testReportFullyDrawn() {
-        with(ActivityScenario.launch(ReportFullyDrawnActivity::class.java)) {
+       withUse(ActivityScenario.launch(ReportFullyDrawnActivity::class.java)) {
             withActivity {
                 // This test makes sure that this method does not throw an exception on devices
                 // running API 19 (without UPDATE_DEVICE_STATS permission) and earlier

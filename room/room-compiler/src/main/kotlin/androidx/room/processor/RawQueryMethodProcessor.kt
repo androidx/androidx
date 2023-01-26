@@ -18,13 +18,13 @@ package androidx.room.processor
 
 import androidx.room.RawQuery
 import androidx.room.Transaction
-import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.isEntityElement
-import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.isEntityElement
+import androidx.room.parser.SqlParser
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.vo.MapInfo
 import androidx.room.vo.RawQueryMethod
@@ -45,9 +45,8 @@ class RawQueryMethodProcessor(
             ProcessorErrors.MISSING_RAWQUERY_ANNOTATION
         )
 
-        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
-            returnTypeName, executableElement,
+            returnType, executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
         )
 
@@ -78,7 +77,6 @@ class RawQueryMethodProcessor(
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(
             element = executableElement,
-            name = executableElement.jvmName,
             observedTableNames = observedTableNames,
             returnType = returnType,
             runtimeQueryParam = runtimeQueryParam,
@@ -125,7 +123,9 @@ class RawQueryMethodProcessor(
                     if (tableNames.isEmpty()) {
                         context.logger.e(
                             executableElement,
-                            ProcessorErrors.rawQueryBadEntity(it.type.typeName)
+                            ProcessorErrors.rawQueryBadEntity(
+                                it.type.asTypeName().toString(context.codeLanguage)
+                            )
                         )
                     }
                     tableNames
@@ -155,7 +155,7 @@ class RawQueryMethodProcessor(
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
                     paramName = extractParams[0].name,
-                    type = supportQueryType.typeName
+                    typeName = supportQueryType.asTypeName()
                 )
             }
             val stringType = processingEnv.requireType("java.lang.String")

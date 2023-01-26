@@ -17,14 +17,15 @@
 package androidx.privacysandbox.tools.testing
 
 import androidx.room.compiler.processing.util.DiagnosticLocation
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.DiagnosticMessage
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import java.io.File
 import java.nio.file.Files
 import javax.tools.Diagnostic
 
@@ -37,6 +38,7 @@ object CompilationTestHelper {
 
     fun compileAll(
         sources: List<Source>,
+        extraClasspath: List<File> = emptyList(),
         symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
         processorOptions: Map<String, String> = emptyMap()
     ): TestCompilationResult {
@@ -44,7 +46,8 @@ object CompilationTestHelper {
         return compile(
             tempDir,
             TestCompilationArguments(
-                sources = sources + syntheticPrivacySandboxSources,
+                sources = sources,
+                classpath = extraClasspath,
                 symbolProcessorProviders = symbolProcessorProviders,
                 processorOptions = processorOptions,
             )
@@ -54,30 +57,51 @@ object CompilationTestHelper {
     fun assertThat(result: TestCompilationResult) = CompilationResultSubject(result)
 }
 
+val TestCompilationResult.resourceOutputDir: File
+    get() = outputClasspath.first().parentFile.resolve("ksp-compiler/resourceOutputDir")
+
+fun hasAllExpectedGeneratedSourceFilesAndContent(
+    actualKotlinSources: List<Source>,
+    expectedKotlinSources: List<Source>,
+    expectedAidlFilepath: List<String>
+) {
+    val expectedRelativePaths =
+        expectedKotlinSources.map(Source::relativePath) + expectedAidlFilepath
+    assertThat(actualKotlinSources.map(Source::relativePath))
+        .containsExactlyElementsIn(expectedRelativePaths)
+
+    val actualRelativePathMap = actualKotlinSources.associateBy(Source::relativePath)
+    for (expectedKotlinSource in expectedKotlinSources) {
+        assertWithMessage(
+            "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
+                "match golden."
+        ).that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
+            .isEqualTo(expectedKotlinSource.contents)
+    }
+}
+
 class CompilationResultSubject(private val result: TestCompilationResult) {
     fun succeeds() {
         assertWithMessage(
-            "UnexpectedErrors:\n${getFullErrorMessages()?.joinToString("\n")}"
+            "Unexpected errors:\n${getFullErrorMessages().joinToString("\n")}"
         ).that(
-            result.success
+            result.success && getRawErrorMessages().isEmpty()
         ).isTrue()
     }
 
-    fun generatesExactlySources(vararg sourcePaths: String) {
-        succeeds()
-        assertThat(result.generatedSources.map(Source::relativePath))
-            .containsExactlyElementsIn(sourcePaths)
+    fun hasAllExpectedGeneratedSourceFilesAndContent(
+        expectedKotlinSources: List<Source>,
+        expectedAidlFilepath: List<String>
+    ) {
+        hasAllExpectedGeneratedSourceFilesAndContent(
+            result.generatedSources,
+            expectedKotlinSources,
+            expectedAidlFilepath
+        )
     }
 
-    fun generatesSourcesWithContents(sources: List<Source>) {
-        succeeds()
-        val contentsByFile = result.generatedSources.associate { it.relativePath to it.contents }
-        for (source in sources) {
-            assertWithMessage("File ${source.relativePath} was not generated")
-                .that(contentsByFile).containsKey(source.relativePath)
-            assertWithMessage("Contents of file ${source.relativePath} don't match.")
-                .that(contentsByFile[source.relativePath]).isEqualTo(source.contents)
-        }
+    fun hasNoGeneratedSourceFiles() {
+        assertThat(result.generatedSources).isEmpty()
     }
 
     fun fails() {
@@ -92,14 +116,19 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         assertThat(getShortErrorMessages()).containsExactly(*errors)
     }
 
+    private fun getRawErrorMessages() =
+        (result.diagnostics[Diagnostic.Kind.ERROR] ?: emptyList()) +
+            (result.diagnostics[Diagnostic.Kind.WARNING] ?: emptyList()) +
+            (result.diagnostics[Diagnostic.Kind.MANDATORY_WARNING] ?: emptyList())
+
     private fun getShortErrorMessages() =
         result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
 
     private fun getFullErrorMessages() =
-        result.diagnostics[Diagnostic.Kind.ERROR]?.map { it.toFormattedMessage() }
+        getRawErrorMessages().map { it.toFormattedMessage() }
 
     private fun DiagnosticMessage.toFormattedMessage() = """
-            |Error: $msg
+            |$kind: $msg
             |${location?.toFormattedLocation()}$
         """.trimMargin()
 
@@ -115,81 +144,9 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
     private fun contentsHighlightingLine(contents: String, line: Int): String {
         var lineCountdown = line
         // Insert a "->" in the beginning of the highlighted line.
-        return contents.split("\n").map {
+        return contents.split("\n").joinToString("\n") {
             val lineHeader = if (--lineCountdown == 0) "->" else "  "
             "$lineHeader$it"
-        }.joinToString("\n")
+        }
     }
 }
-
-// PrivacySandbox platform APIs are not available in AndroidX prebuilts nor are they stable, so
-// while that's the case we use fake stubs to run our compilation tests.
-val syntheticPrivacySandboxSources = listOf(
-    Source.java(
-        "android.app.sdksandbox.SdkSandboxManager", """
-        |package android.app.sdksandbox;
-        |
-        |import android.os.Bundle;
-        |import android.os.OutcomeReceiver;
-        |import java.util.concurrent.Executor;
-        |
-        |public final class SdkSandboxManager {
-        |    public void loadSdk(
-        |        String sdkName,
-        |        Bundle params,
-        |        Executor executor,
-        |        OutcomeReceiver<SandboxedSdk, LoadSdkException> receiver) {}
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdk", """
-        |package android.app.sdksandbox;
-        |
-        |import android.os.IBinder;
-        |
-        |public final class SandboxedSdk {
-        |    public SandboxedSdk(IBinder sdkInterface) {}
-        |    public IBinder getInterface() { return null; }
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdkProvider", """
-        |package android.app.sdksandbox;
-        |
-        |import android.content.Context;
-        |import android.os.Bundle;
-        |import android.view.View;
-        |
-        |public abstract class SandboxedSdkProvider {
-        |    public abstract SandboxedSdk onLoadSdk(Bundle params) throws LoadSdkException;
-        |    public abstract View getView(
-        |            Context windowContext, Bundle params, int width, int height);
-        |    public final Context getContext() {
-        |        return null;
-        |    }
-        |    public abstract void onDataReceived(
-        |            Bundle data, DataReceivedCallback callback);
-        |    public interface DataReceivedCallback {
-        |        void onDataReceivedSuccess(Bundle params);
-        |        void onDataReceivedError(String errorMessage);
-        |    }
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.LoadSdkException", """
-        |package android.app.sdksandbox;
-        |
-        |public final class LoadSdkException extends Exception {}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdkContext", """
-        |package android.app.sdksandbox;
-        |
-        |public final class SandboxedSdkContext {}
-        |""".trimMargin()
-    ),
-)

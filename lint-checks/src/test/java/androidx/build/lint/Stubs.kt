@@ -278,6 +278,37 @@ public @interface DoNotInline {
 }
             """
         )
+
+        val DeprecatedSinceApi = TestFiles.kotlin(
+            """
+package androidx.annotation
+
+import kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS
+import kotlin.annotation.AnnotationTarget.CLASS
+import kotlin.annotation.AnnotationTarget.CONSTRUCTOR
+import kotlin.annotation.AnnotationTarget.FUNCTION
+import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
+import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
+
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, ANNOTATION_CLASS, CLASS, CONSTRUCTOR)
+public annotation class DeprecatedSinceApi(
+    val api: Int,
+    val message: String = ""
+)
+            """
+        )
+
+        val JvmDefaultWithCompatibility = TestFiles.kotlin(
+            """
+package kotlin.jvm
+
+@Retention(AnnotationRetention.SOURCE)
+@Target(AnnotationTarget.CLASS)
+annotation class JvmDefaultWithCompatibility
+            """.trimIndent()
+        )
         /* ktlint-enable max-line-length */
     }
 }

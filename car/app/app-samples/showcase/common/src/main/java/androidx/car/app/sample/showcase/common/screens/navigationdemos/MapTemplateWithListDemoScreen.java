@@ -36,7 +36,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapController;
 import androidx.car.app.navigation.model.MapTemplate;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates.RoutingDemoModels;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 

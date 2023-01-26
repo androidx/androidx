@@ -89,8 +89,8 @@ class CompilationModeTest {
         }
 
     private fun getCompilationMode(): String {
-        val dump =
-            Shell.executeScriptWithStderr("cmd package dump $TARGET_PACKAGE_NAME").stdout.trim()
+        val dump = Shell.executeScriptCaptureStdoutStderr("cmd package dump $TARGET_PACKAGE_NAME")
+            .stdout.trim()
 
         // Find `Dexopt state:` line
         var firstMarkerFound = false

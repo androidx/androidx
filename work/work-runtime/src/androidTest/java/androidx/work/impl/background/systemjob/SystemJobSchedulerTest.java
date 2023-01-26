@@ -41,6 +41,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.PersistableBundle;
 
+import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -49,7 +50,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.SchedulingExceptionHandler;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
@@ -239,11 +239,12 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = 23)
+    @SuppressWarnings("unchecked")
     public void testSchedulingExceptionHandler() {
         doCallRealMethod().when(mSystemJobScheduler)
                 .scheduleInternal(any(WorkSpec.class), anyInt());
 
-        SchedulingExceptionHandler handler = mock(SchedulingExceptionHandler.class);
+        Consumer<Throwable> handler = mock(Consumer.class);
         Configuration configuration = new Configuration.Builder()
                 .setSchedulingExceptionHandler(handler)
                 .build();
@@ -254,7 +255,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         WorkSpec workSpec = work.getWorkSpec();
         addToWorkSpecDao(workSpec);
         mSystemJobScheduler.schedule(workSpec);
-        verify(handler, times(1)).handleException(any());
+        verify(handler, times(1)).accept(any());
     }
 
     @Test

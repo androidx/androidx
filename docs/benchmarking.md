@@ -9,7 +9,7 @@ AndroidX repo, and our continuous testing / triage process.
 
 This page is for MICRO benchmarks measuring CPU performance of small sections of
 code. If you're looking for measuring startup or jank, see the guide for
-MACRObenchmarks [here](macrobenchmarking).
+MACRObenchmarks [here](/company/teams/androidx/macrobenchmarking.md).
 
 ### Writing the benchmark
 

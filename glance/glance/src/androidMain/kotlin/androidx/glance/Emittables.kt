@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Emittable {
     var modifier: GlanceModifier
+    fun copy(): Emittable
 }
 
 /** @suppress */

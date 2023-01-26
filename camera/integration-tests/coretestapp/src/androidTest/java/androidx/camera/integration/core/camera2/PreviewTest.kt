@@ -16,7 +16,9 @@
 package androidx.camera.integration.core.camera2
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.os.Build
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
@@ -27,6 +29,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -57,6 +60,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -320,6 +324,14 @@ class PreviewTest(
     }
 
     @Test
+    fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() {
+        val useCase = Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
+        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, useCase)
+        val config = useCase.currentConfig as ImageOutputConfig
+        Truth.assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
+    }
+
+    @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         val useCase = Preview.Builder().setTargetResolution(DEFAULT_RESOLUTION).build()
@@ -517,6 +529,42 @@ class PreviewTest(
         // Assert.
         // No frame coming for 3 seconds in 10 seconds timeout.
         Truth.assertThat(noFrameCome(3000L, 10000L)).isTrue()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    fun getsFrame_withHighResolutionEnabled() {
+        // TODO(b/247492645) Remove camera-pipe-integration restriction after porting
+        //  ResolutionSelector logic
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+
+        val maxHighResolutionOutputSize = CameraUtil.getMaxHighResolutionOutputSizeWithLensFacing(
+            cameraSelector.lensFacing!!,
+            ImageFormat.PRIVATE
+        )
+        // Only runs the test when the device has high resolution output sizes
+        assumeTrue(maxHighResolutionOutputSize != null)
+
+        // Arrange.
+        val resolutionSelector =
+            ResolutionSelector.Builder()
+                .setMaxResolution(maxHighResolutionOutputSize!!)
+                .setPreferredResolution(maxHighResolutionOutputSize)
+                .setHighResolutionEnabled(true)
+                .build()
+        val preview = Preview.Builder().setResolutionSelector(resolutionSelector).build()
+
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        instrumentation.runOnMainSync { preview.setSurfaceProvider(getSurfaceProvider(null)) }
+
+        // Act.
+        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
+
+        Truth.assertThat(preview.resolutionInfo!!.resolution).isEqualTo(maxHighResolutionOutputSize)
+
+        // Assert.
+        Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(10, TimeUnit.SECONDS)).isTrue()
     }
 
     private val workExecutorWithNamedThread: Executor

@@ -17,13 +17,83 @@
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.DelegatingLazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.rememberLazyNearestItemsRangeState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
-internal sealed interface LazyListItemProvider : LazyLayoutItemProvider {
+internal interface LazyListItemProvider : LazyLayoutItemProvider {
     /** The list of indexes of the sticky header items */
     val headerIndexes: List<Int>
     /** The scope used by the item content lambdas */
     val itemScope: TvLazyListItemScopeImpl
 }
+
+@ExperimentalFoundationApi
+@Composable
+internal fun rememberLazyListItemProvider(
+    state: TvLazyListState,
+    content: TvLazyListScope.() -> Unit
+): LazyListItemProvider {
+    val latestContent = rememberUpdatedState(content)
+    val nearestItemsRangeState = rememberLazyNearestItemsRangeState(
+        firstVisibleItemIndex = { state.firstVisibleItemIndex },
+        slidingWindowSize = { NearestItemsSlidingWindowSize },
+        extraItemCount = { NearestItemsExtraItemCount }
+    )
+
+    return remember(nearestItemsRangeState, state) {
+        val itemScope = TvLazyListItemScopeImpl()
+        val itemProviderState = derivedStateOf {
+            val listScope = TvLazyListScopeImpl().apply(latestContent.value)
+            LazyListItemProviderImpl(
+                listScope.intervals,
+                nearestItemsRangeState.value,
+                listScope.headerIndexes,
+                itemScope,
+                state
+            )
+        }
+        object : LazyListItemProvider,
+            LazyLayoutItemProvider by DelegatingLazyLayoutItemProvider(itemProviderState) {
+            override val headerIndexes: List<Int> get() = itemProviderState.value.headerIndexes
+            override val itemScope: TvLazyListItemScopeImpl get() =
+                itemProviderState.value.itemScope
+        }
+    }
+}
+
+@ExperimentalFoundationApi
+private class LazyListItemProviderImpl(
+    intervals: IntervalList<LazyListIntervalContent>,
+    nearestItemsRange: IntRange,
+    override val headerIndexes: List<Int>,
+    override val itemScope: TvLazyListItemScopeImpl,
+    state: TvLazyListState
+) : LazyListItemProvider,
+    LazyLayoutItemProvider by LazyLayoutItemProvider(
+        intervals = intervals,
+        nearestItemsRange = nearestItemsRange,
+        itemContent = { interval, index ->
+            LazyListPinnableContainerProvider(state, index) {
+                interval.value.item.invoke(itemScope, index - interval.startIndex)
+            }
+        }
+    )
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+private const val NearestItemsSlidingWindowSize = 30
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+private const val NearestItemsExtraItemCount = 100

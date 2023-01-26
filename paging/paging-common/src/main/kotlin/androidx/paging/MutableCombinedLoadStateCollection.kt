@@ -19,117 +19,125 @@ package androidx.paging
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * Helper to construct [CombinedLoadStates] that accounts for previous state to set the convenience
  * properties correctly.
  *
- * This class exposes a [flow] and handles dispatches to tracked [listeners] intended for use
+ * This class exposes a [StateFlow] and handles dispatches to tracked [listeners] intended for use
  * with presenter APIs, which has the nuance of filtering out the initial value and dispatching to
  * listeners immediately as they get added.
  */
 internal class MutableCombinedLoadStateCollection {
-    /**
-     * Tracks whether this [MutableCombinedLoadStateCollection] has been updated with real state
-     * or has just been instantiated with its initial values.
-     */
-    private var isInitialized: Boolean = false
+
     private val listeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
-
-    private var refresh: LoadState = NotLoading.Incomplete
-    private var prepend: LoadState = NotLoading.Incomplete
-    private var append: LoadState = NotLoading.Incomplete
-    var source: LoadStates = LoadStates.IDLE
-        private set
-    var mediator: LoadStates? = null
-        private set
-
     private val _stateFlow = MutableStateFlow<CombinedLoadStates?>(null)
-    val flow: Flow<CombinedLoadStates> = _stateFlow.filterNotNull()
+    public val stateFlow = _stateFlow.asStateFlow()
 
-    fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) {
-        isInitialized = true
-        source = sourceLoadStates
-        mediator = remoteLoadStates
-        updateHelperStatesAndDispatch()
-    }
-
-    fun set(type: LoadType, remote: Boolean, state: LoadState): Boolean {
-        isInitialized = true
-        val didChange = if (remote) {
-            val lastMediator = mediator
-            mediator = (mediator ?: LoadStates.IDLE).modifyState(type, state)
-            mediator != lastMediator
-        } else {
-            val lastSource = source
-            source = source.modifyState(type, state)
-            source != lastSource
+    fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) =
+        dispatchNewState { currState ->
+            computeNewState(currState, sourceLoadStates, remoteLoadStates)
         }
 
-        updateHelperStatesAndDispatch()
-        return didChange
-    }
+    fun set(type: LoadType, remote: Boolean, state: LoadState) =
+        dispatchNewState { currState ->
+            var source = currState?.source ?: LoadStates.IDLE
+            var mediator = currState?.mediator ?: LoadStates.IDLE
+
+            if (remote) {
+                mediator = mediator.modifyState(type, state)
+            } else {
+                source = source.modifyState(type, state)
+            }
+            computeNewState(currState, source, mediator)
+        }
 
     fun get(type: LoadType, remote: Boolean): LoadState? {
-        return (if (remote) mediator else source)?.get(type)
+        val state = _stateFlow.value
+        return (if (remote) state?.mediator else state?.source)?.get(type)
     }
 
     /**
-     * When a new listener is added, it will be immediately called with the current [snapshot]
-     * unless no state has been set yet, and thus has no valid state to emit.
+     * When a new listener is added, it will be immediately called with the current
+     * [CombinedLoadStates] unless no state has been set yet, and thus has no valid state to emit.
      */
     fun addListener(listener: (CombinedLoadStates) -> Unit) {
         // Note: Important to add the listener first before sending off events, in case the
         // callback triggers removal, which could lead to a leak if the listener is added
         // afterwards.
         listeners.add(listener)
-        snapshot()?.also { listener(it) }
+        _stateFlow.value?.also { listener(it) }
     }
 
     fun removeListener(listener: (CombinedLoadStates) -> Unit) {
         listeners.remove(listener)
     }
 
-    private fun snapshot(): CombinedLoadStates? = when {
-        !isInitialized -> null
-        else -> CombinedLoadStates(
+    /**
+     * Computes and dispatches the new CombinedLoadStates. No-op if new value is same as
+     * previous value.
+     *
+     * We manually de-duplicate emissions to StateFlow and to listeners even though
+     * [MutableStateFlow.update] de-duplicates automatically in that duplicated values are set but
+     * not sent to collectors. However it doesn't indicate whether the new value is indeed a
+     * duplicate or not, so we still need to manually compare previous/updated values before
+     * sending to listeners. Because of that, we manually de-dupe both stateFlow and listener
+     * emissions to ensure they are in sync.
+     */
+    private fun dispatchNewState(
+        computeNewState: (currState: CombinedLoadStates?) -> CombinedLoadStates
+    ) {
+        var newState: CombinedLoadStates? = null
+        _stateFlow.update { currState ->
+            val computed = computeNewState(currState)
+            if (currState != computed) {
+                newState = computed
+                computed
+            } else {
+                // no-op, doesn't dispatch
+                return
+            }
+        }
+        newState?.apply { listeners.forEach { it(this) } }
+    }
+
+    private fun computeNewState(
+        previousState: CombinedLoadStates?,
+        newSource: LoadStates,
+        newRemote: LoadStates?
+    ): CombinedLoadStates {
+        val refresh = computeHelperState(
+            previousState = previousState?.refresh ?: NotLoading.Incomplete,
+            sourceRefreshState = newSource.refresh,
+            sourceState = newSource.refresh,
+            remoteState = newRemote?.refresh
+
+        )
+        val prepend = computeHelperState(
+            previousState = previousState?.prepend ?: NotLoading.Incomplete,
+            sourceRefreshState = newSource.refresh,
+            sourceState = newSource.prepend,
+            remoteState = newRemote?.prepend
+        )
+        val append = computeHelperState(
+            previousState = previousState?.append ?: NotLoading.Incomplete,
+            sourceRefreshState = newSource.refresh,
+            sourceState = newSource.append,
+            remoteState = newRemote?.append
+        )
+
+        return CombinedLoadStates(
             refresh = refresh,
             prepend = prepend,
             append = append,
-            source = source,
-            mediator = mediator,
+            source = newSource,
+            mediator = newRemote,
         )
-    }
-
-    private fun updateHelperStatesAndDispatch() {
-        refresh = computeHelperState(
-            previousState = refresh,
-            sourceRefreshState = source.refresh,
-            sourceState = source.refresh,
-            remoteState = mediator?.refresh
-        )
-        prepend = computeHelperState(
-            previousState = prepend,
-            sourceRefreshState = source.refresh,
-            sourceState = source.prepend,
-            remoteState = mediator?.prepend
-        )
-        append = computeHelperState(
-            previousState = append,
-            sourceRefreshState = source.refresh,
-            sourceState = source.append,
-            remoteState = mediator?.append
-        )
-
-        val snapshot = snapshot()
-        if (snapshot != null) {
-            _stateFlow.value = snapshot
-            listeners.forEach { it(snapshot) }
-        }
     }
 
     /**

@@ -33,6 +33,7 @@ package androidx.camera.camera2.pipe.integration.interop {
     method @RequiresApi(28) public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setPhysicalCameraId(String cameraId);
     method public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setSessionCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback captureCallback);
     method public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback stateCallback);
+    method @RequiresApi(33) public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setStreamUseCase(long streamUseCase);
   }
 
   @RequiresApi(21) @androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {

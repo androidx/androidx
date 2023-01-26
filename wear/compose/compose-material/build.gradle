@@ -24,90 +24,37 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+// Disable multi-platform.
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:ui:ui-text"))
+    api(project(":compose:runtime:runtime"))
 
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api(project(":compose:foundation:foundation"))
-        api(project(":compose:ui:ui"))
-        api(project(":compose:ui:ui-text"))
-        api(project(":compose:runtime:runtime"))
+    implementation(libs.kotlinStdlib)
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:material:material-icons-core"))
+    implementation(project(":compose:material:material-ripple"))
+    implementation(project(":compose:ui:ui-util"))
+    implementation(project(":wear:compose:compose-foundation"))
+    implementation(project(":wear:compose:compose-material-core"))
+    implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
-        implementation(libs.kotlinStdlib)
-        implementation(project(":compose:animation:animation"))
-        implementation(project(":compose:material:material"))
-        implementation(project(":compose:material:material-ripple"))
-        implementation(project(":compose:ui:ui-util"))
-        implementation(project(":wear:compose:compose-foundation"))
-        implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
 
-        androidTestImplementation(project(":compose:ui:ui-test"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 
-        androidTestImplementation(project(":test:screenshot:screenshot"))
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
 
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.junit)
-
-        samples(project(":wear:compose:compose-material-samples"))
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
-                implementation(libs.kotlinStdlibCommon)
-
-                api(project(":compose:foundation:foundation"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-text"))
-                api(project(":compose:runtime:runtime"))
-                api("androidx.annotation:annotation:1.1.0")
-
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:material:material"))
-                implementation(project(":compose:material:material-ripple"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation(project(":wear:compose:compose-foundation"))
-            }
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-
-            commonTest.dependencies {
-                implementation(kotlin("test-junit"))
-            }
-            androidAndroidTest.dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.truth)
-                implementation(project(":compose:ui:ui-util"))
-                implementation(project(":compose:ui:ui-test"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-                implementation(project(":test:screenshot:screenshot"))
-            }
-        }
-    }
-    dependencies {
-        samples(project(":wear:compose:compose-material-samples"))
-    }
+    samples(project(":wear:compose:compose-material-samples"))
 }
 
 android {
@@ -118,6 +65,9 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
     namespace "androidx.wear.compose.material"
     lint {
         baseline = file("lint-baseline.xml")
@@ -127,19 +77,10 @@ android {
 androidx {
     name = "Android Wear Compose Material"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "WearOS Compose Material Library. This library makes it easier for developers " +
             "to write Jetpack Compose applications for Wearable devices that implement Wear " +
             "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
             " libraries."
     targetsJavaConsumers = false
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
-    }
 }

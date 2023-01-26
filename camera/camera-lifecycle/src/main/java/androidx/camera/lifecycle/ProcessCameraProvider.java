@@ -16,6 +16,8 @@
 
 package androidx.camera.lifecycle;
 
+import static androidx.camera.core.impl.utils.Threads.runOnMainSync;
+
 import static java.util.Collections.emptyList;
 
 import android.app.Application;
@@ -274,6 +276,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @RestrictTo(Scope.TESTS)
     @NonNull
     public ListenableFuture<Void> shutdown() {
+        runOnMainSync(this::unbindAll);
         mLifecycleCameraRepository.clear();
 
         ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.shutdown() :

@@ -39,7 +39,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapController;
 import androidx.car.app.navigation.model.MapTemplate;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates.RoutingDemoModels;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
@@ -179,8 +179,7 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
                 // Row with a large image.
                 return new Row.Builder()
                         .setTitle(getCarContext().getString(R.string.first_row_title))
-                        .addText(getCarContext().getString(R.string.first_row_text))
-                        .addText(getCarContext().getString(R.string.first_row_text))
+                        .addText(getCarContext().getString(R.string.long_line_text))
                         .setImage(new CarIcon.Builder(mRowLargeIcon).build())
                         .build();
             default:

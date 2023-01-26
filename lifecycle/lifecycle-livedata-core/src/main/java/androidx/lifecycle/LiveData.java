@@ -311,10 +311,11 @@ public abstract class LiveData<T> {
 
     /**
      * Returns the current value.
+     * <p>
      * Note that calling this method on a background thread does not guarantee that the latest
      * value set will be received.
      *
-     * @return the current value
+     * @return the current value or null if {@link #isInitialized()} is false
      */
     @SuppressWarnings("unchecked")
     @Nullable
@@ -324,6 +325,20 @@ public abstract class LiveData<T> {
             return (T) data;
         }
         return null;
+    }
+
+    /**
+     * Returns whether an explicit value has been set on this LiveData. If this returns
+     * <code>true</code>, then the current value can be retrieved from {@link #getValue()}.
+     * <p>
+     * Note that calling this method on a background thread may still result in this method
+     * returning <code>false</code> even if a call to {@link #postValue(Object)} is being
+     * processed.
+     *
+     * @return whether an explicit value has been set on this LiveData
+     */
+    public boolean isInitialized() {
+        return mData != NOT_SET;
     }
 
     int getVersion() {

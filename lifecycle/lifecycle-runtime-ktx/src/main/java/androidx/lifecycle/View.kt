@@ -23,4 +23,12 @@ import android.view.View
  * This may be used to scope work or heavyweight resources associated with the view
  * that may span cycles of the view becoming detached and reattached from a window.
  */
-public fun View.findViewTreeLifecycleOwner(): LifecycleOwner? = ViewTreeLifecycleOwner.get(this)
+@Deprecated(
+    message = "Replaced by View.findViewTreeLifecycleOwner() from lifecycle module",
+    replaceWith = ReplaceWith(
+        "findViewTreeLifecycleOwner()",
+        "androidx.lifecycle.findViewTreeLifecycleOwner"
+    ),
+    level = DeprecationLevel.HIDDEN
+)
+public fun View.findViewTreeLifecycleOwner(): LifecycleOwner? = findViewTreeLifecycleOwner()

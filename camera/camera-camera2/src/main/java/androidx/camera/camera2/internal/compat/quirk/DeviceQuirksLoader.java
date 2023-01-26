@@ -80,6 +80,12 @@ public class DeviceQuirksLoader {
         if (TorchIsClosedAfterImageCapturingQuirk.load()) {
             quirks.add(new TorchIsClosedAfterImageCapturingQuirk());
         }
+        if (ZslDisablerQuirk.load()) {
+            quirks.add(new ZslDisablerQuirk());
+        }
+        if (ExtraSupportedOutputSizeQuirk.load()) {
+            quirks.add(new ExtraSupportedOutputSizeQuirk());
+        }
 
         return quirks;
     }

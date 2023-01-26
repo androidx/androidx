@@ -220,38 +220,24 @@ internal object StackSamplingSimpleperf : Profiler() {
         securityPerfHarden.forceValue()
 
         // for all other properties, simply set the values, as these don't have defaults
-        Shell.executeCommand("setprop debug.perf_event_max_sample_rate 10000")
-        Shell.executeCommand("setprop debug.perf_cpu_time_max_percent 25")
-        Shell.executeCommand("setprop debug.perf_event_mlock_kb 32800")
+        Shell.executeScriptSilent("setprop debug.perf_event_max_sample_rate 10000")
+        Shell.executeScriptSilent("setprop debug.perf_cpu_time_max_percent 25")
+        Shell.executeScriptSilent("setprop debug.perf_event_mlock_kb 32800")
 
         outputRelativePath = traceName(traceUniqueName, "stackSampling")
         session = ProfileSession().also {
             // prepare simpleperf must be done as shell user, so do this here with other shell setup
             // NOTE: this is sticky across reboots, so missing this will cause tests or profiling to
             // fail, but only on devices that have not run this command since flashing (e.g. in CI)
-            Shell.executeCommand(it.findSimpleperf() + " api-prepare")
+            Shell.executeScriptSilent(it.findSimpleperf() + " api-prepare")
             it.startRecording(
                 RecordOptions()
                     .setSampleFrequency(Arguments.profilerSampleFrequency)
                     .recordDwarfCallGraph() // enable Java/Kotlin callstacks
+                    .setEvent("cpu-clock") // Required on API 33 to enable traceOffCpu
                     .traceOffCpu() // track time sleeping
                     .setSampleCurrentThread() // sample stacks from this thread only
                     .setOutputFilename("simpleperf.data")
-                    .apply {
-                        // some emulators don't support cpu-cycles, the default event, so instead we
-                        // use cpu-clock, which is a software perf event using kernel hrtimer to
-                        // generate interrupts
-                        val hwEventsOutput = Shell.executeCommand("simpleperf list hw").trim()
-                        check(hwEventsOutput.startsWith("List of hardware events:"))
-                        val events = hwEventsOutput
-                            .split("\n")
-                            .drop(1)
-                            .map { line -> line.trim() }
-                        if (!events.any { hwEvent -> hwEvent.trim() == "cpu-cycles" }) {
-                            Log.d(TAG, "cpu-cycles not found - using cpu-clock (events = $events)")
-                            setEvent("cpu-clock")
-                        }
-                    }
             )
         }
         return ResultFile(

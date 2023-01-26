@@ -92,14 +92,13 @@ internal class SizeWrapper(
     private var maxThicknessPx = 0f
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int {
+        measurables: Iterator<Measurable>
+    ) {
         minThicknessPx = minThickness.toPx()
         maxThicknessPx = maxThickness.toPx()
-        return with(wrapped) {
+        with(wrapped) {
             // Call initializeMeasure on wrapper (while still having the MeasureScope scope)
-            initializeMeasure(measurables, index)
+            initializeMeasure(measurables)
         }
     }
 

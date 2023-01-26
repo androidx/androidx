@@ -40,7 +40,6 @@ See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/pro
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
 [0-9]+ problems were found reusing the configuration cache, [0-9]+ of which seems unique\.
-[0-9]+ problems were found storing the configuration cache, [0-9]+ of which seems unique\.
 [0-9]+ problems were found reusing the configuration cache\.
 [0-9]+ problem was found reusing the configuration cache\.
 Configuration cache entry reused with [0-9]+ problem\.
@@ -147,3 +146,4 @@ Publishing build scan\.\.\.
 https://ge\.androidx\.dev/s/.*
 # androidx-demos:compileReleaseJavaWithJavac
 Note: \$SUPPORT/samples/Support[0-9]+Demos/src/main/java/com/example/android/supportv[0-9]+/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
+Calculating task graph as configuration cache cannot be reused because JVM has changed\.

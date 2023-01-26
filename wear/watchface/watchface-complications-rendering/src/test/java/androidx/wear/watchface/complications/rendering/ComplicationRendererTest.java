@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -107,9 +107,10 @@ public class ComplicationRendererTest {
     private OnInvalidateListener mMockInvalidateListener;
     private final Resources mResurces = ApplicationProvider.getApplicationContext().getResources();
 
+    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         mComplicationBounds = new Rect(0, 0, BOUNDS_WIDTH, BOUNDS_HEIGHT);
 
         mComplicationRenderer = createRendererWithBounds(mComplicationBounds);
@@ -334,7 +335,7 @@ public class ComplicationRendererTest {
         // AND complication is drawn again
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
         // THEN nothing is drawn on canvas
-        verifyZeroInteractions(mMockCanvas);
+        verifyNoMoreInteractions(mMockCanvas);
     }
 
     @Test
@@ -351,7 +352,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
 
         // THEN nothing is drawn on canvas
-        verifyZeroInteractions(mMockCanvas);
+        verifyNoMoreInteractions(mMockCanvas);
     }
 
     @Test
@@ -428,9 +429,9 @@ public class ComplicationRendererTest {
     }
 
     private class RangedArcsTestData {
-        public int min;
-        public int max;
-        public int value;
+        public float min;
+        public float max;
+        public float value;
         public float progress;
         public float remaining;
         public float gap;
@@ -497,9 +498,9 @@ public class ComplicationRendererTest {
     @Test
     public void rangedValueIsDrawnCorrectlyInActiveMode() {
         // GIVEN a complication renderer with ranged value complication data
-        int min = 0;
-        int max = 100;
-        int value = (max - min) / 2;
+        float min = 0;
+        float max = 100;
+        float value = (max - min) / 2;
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setRangedValue(value)
@@ -531,9 +532,9 @@ public class ComplicationRendererTest {
     @Test
     public void rangedValueIsDrawnCorrectlyInAmbientMode() {
         // GIVEN a complication renderer with ranged value complication data
-        int min = 0;
-        int max = 100;
-        int value = (max - min) / 2;
+        float min = 0;
+        float max = 100;
+        float value = (max - min) / 2;
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setRangedValue(value)
@@ -1004,9 +1005,9 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setShortText(ComplicationText.plainText("foo"))
                         .setShortTitle(ComplicationText.plainText("bar"))
-                        .setRangedMinValue(1)
-                        .setRangedValue(5)
-                        .setRangedMaxValue(10)
+                        .setRangedMinValue(1f)
+                        .setRangedValue(5f)
+                        .setRangedMaxValue(10f)
                         .build(),
                 true);
         mComplicationRenderer.setRangedValueProgressHidden(true);
@@ -1028,9 +1029,9 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setIcon(mMockIcon)
-                        .setRangedMinValue(1)
-                        .setRangedValue(5)
-                        .setRangedMaxValue(10)
+                        .setRangedMinValue(1f)
+                        .setRangedValue(5f)
+                        .setRangedMaxValue(10f)
                         .build(),
                 true);
         mComplicationRenderer.setRangedValueProgressHidden(true);

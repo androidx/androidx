@@ -1,0 +1,27 @@
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+}
+
+dependencies {
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":mediarouter:mediarouter"))
+    implementation(project(":recyclerview:recyclerview"))
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+}
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled = true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+    }
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+    }
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+    namespace "com.example.androidx.mediarouting"
+}

@@ -16,5 +16,39 @@
 
 package androidx.credentials
 
-/** Base class for a credential with which the user consented to authenticate to the app. */
-abstract class Credential
+import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.credentials.internal.FrameworkClassParsingException
+
+/**
+ * Base class for a credential with which the user consented to authenticate to the app.
+ */
+abstract class Credential internal constructor(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val data: Bundle,
+) {
+    /** @hide */
+    companion object {
+        /** @hide */
+        @JvmStatic
+        fun createFrom(type: String, data: Bundle): Credential {
+            return try {
+                when (type) {
+                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
+                        PasswordCredential.createFrom(data)
+                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
+                        PublicKeyCredential.createFrom(data)
+                    else -> throw FrameworkClassParsingException()
+                }
+            } catch (e: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a response
+                // with the raw framework values.
+                CustomCredential(type, data)
+            }
+        }
+    }
+}

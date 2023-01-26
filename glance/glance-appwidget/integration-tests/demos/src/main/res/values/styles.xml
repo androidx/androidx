@@ -20,10 +20,6 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Glance.AppWidget.Column" parent="">
-        <item name="android:background">@color/default_widget_background</item>
-    </style>
-
     <style name="Glance.ErrorUi.TitleAppearance" parent="">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>

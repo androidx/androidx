@@ -19,6 +19,7 @@ package androidx.wear.watchface.complications.datasource.samples
 import android.content.ComponentName
 import android.os.Handler
 import android.os.Looper
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
@@ -80,7 +81,7 @@ class BackgroundDataSourceService : ComplicationDataSourceService() {
         )
     }
 
-    override fun getPreviewData(type: ComplicationType) = when (type) {
+    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
         ComplicationType.SHORT_TEXT ->
             ShortTextComplicationData.Builder(
                 plainText("# 123"),

@@ -19,7 +19,9 @@ package androidx.camera.core.impl.utils
 import android.os.Build
 import android.util.Rational
 import android.util.Size
-import com.google.common.truth.Truth
+import androidx.camera.core.impl.utils.AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace
+import com.google.common.truth.Truth.assertThat
+import java.util.Collections
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -31,7 +33,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withNullAspectRatio() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(16, 9),
                 null
@@ -41,7 +43,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withSameAspectRatio() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(16, 9),
                 Rational(16, 9)
@@ -51,7 +53,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_720p() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(1280, 720),
                 Rational(16, 9)
@@ -61,7 +63,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_1080p() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(1920, 1088),
                 Rational(16, 9)
@@ -71,7 +73,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_1440p() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(2560, 1440),
                 Rational(16, 9)
@@ -81,7 +83,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_2160p() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(3840, 2160),
                 Rational(16, 9)
@@ -91,7 +93,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_1x1() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(1088, 1088),
                 Rational(1, 1)
@@ -101,7 +103,7 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_4x3() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(1024, 768),
                 Rational(4, 3)
@@ -111,11 +113,65 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withNonMod16AspectRatio() {
-        Truth.assertThat(
+        assertThat(
             AspectRatioUtil.hasMatchingAspectRatio(
                 Size(1281, 721),
                 Rational(16, 9)
             )
         ).isFalse()
+    }
+
+    @Test
+    fun testHasMatchingAspectRatio_smallerThanDefaultMod16LowerBound() {
+        assertThat(
+            AspectRatioUtil.hasMatchingAspectRatio(
+                Size(640, 358),
+                Rational(16, 9)
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun testHasMatchingAspectRatio_setCustomMod16LowerBound() {
+        assertThat(
+            AspectRatioUtil.hasMatchingAspectRatio(
+                Size(640, 358),
+                Rational(16, 9),
+                Size(320, 240)
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun sortAspectRatios() {
+        // Sort the aspect ratio key set by the target aspect ratio.
+        val aspectRatios = listOf(
+            Rational(1, 1),
+            Rational(4, 3),
+            Rational(16, 9),
+            Rational(18, 9),
+            Rational(14, 9),
+        )
+
+        val targetAspectRatio = Rational(16, 9)
+        val fullFovAspectRatio = Rational(4, 3)
+
+        Collections.sort(
+            aspectRatios,
+            CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
+                targetAspectRatio,
+                fullFovAspectRatio
+            )
+        )
+
+        val expectedResult = listOf(
+            Rational(16, 9),
+            Rational(14, 9),
+            Rational(4, 3),
+            Rational(18, 9),
+            Rational(1, 1),
+        )
+
+        assertThat(aspectRatios == expectedResult).isTrue()
     }
 }

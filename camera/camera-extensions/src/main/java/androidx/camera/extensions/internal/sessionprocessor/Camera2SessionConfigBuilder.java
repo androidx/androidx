@@ -55,8 +55,8 @@ class Camera2SessionConfigBuilder {
      * Sets session parameters.
      */
     @NonNull
-    <T> Camera2SessionConfigBuilder addSessionParameter(
-            @NonNull CaptureRequest.Key<T> key, @Nullable T value) {
+    Camera2SessionConfigBuilder addSessionParameter(
+            @NonNull CaptureRequest.Key key, @Nullable Object value) {
         mSessionParameters.put(key, value);
         return this;
     }

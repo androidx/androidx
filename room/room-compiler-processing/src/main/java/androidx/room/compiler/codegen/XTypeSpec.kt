@@ -16,10 +16,15 @@
 
 package androidx.room.compiler.codegen
 
+import androidx.room.compiler.codegen.java.JavaCodeBlock
 import androidx.room.compiler.codegen.java.JavaTypeSpec
+import androidx.room.compiler.codegen.kotlin.KotlinCodeBlock
 import androidx.room.compiler.codegen.kotlin.KotlinTypeSpec
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.addOriginatingElement
+import com.squareup.kotlinpoet.javapoet.JTypeSpec
+import com.squareup.kotlinpoet.javapoet.KTypeSpec
+import javax.lang.model.element.Modifier
 
 interface XTypeSpec : TargetLanguage {
 
@@ -27,22 +32,44 @@ interface XTypeSpec : TargetLanguage {
 
     interface Builder : TargetLanguage {
         fun superclass(typeName: XTypeName): Builder
+        fun addSuperinterface(typeName: XTypeName): Builder
         fun addAnnotation(annotation: XAnnotationSpec)
-
-        // TODO(b/247241418): Maybe make a XPropertySpec ?
-        fun addProperty(
-            typeName: XTypeName,
-            name: String,
-            visibility: VisibilityModifier,
-            isMutable: Boolean = false,
-            initExpr: XCodeBlock? = null,
-            annotations: List<XAnnotationSpec> = emptyList()
-        ): Builder
-
+        fun addProperty(propertySpec: XPropertySpec): Builder
         fun addFunction(functionSpec: XFunSpec): Builder
+        fun addType(typeSpec: XTypeSpec): Builder
+        fun setPrimaryConstructor(functionSpec: XFunSpec): Builder
+        fun setVisibility(visibility: VisibilityModifier)
         fun build(): XTypeSpec
 
         companion object {
+
+            fun Builder.addOriginatingElement(element: XElement) = apply {
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        check(this is JavaTypeSpec.Builder)
+                        actual.addOriginatingElement(element)
+                    }
+                    CodeLanguage.KOTLIN -> {
+                        check(this is KotlinTypeSpec.Builder)
+                        actual.addOriginatingElement(element)
+                    }
+                }
+            }
+
+            fun Builder.addProperty(
+                name: String,
+                typeName: XTypeName,
+                visibility: VisibilityModifier,
+                isMutable: Boolean = false,
+                initExpr: XCodeBlock? = null,
+            ) = apply {
+                val builder = XPropertySpec.builder(language, name, typeName, visibility, isMutable)
+                if (initExpr != null) {
+                    builder.initializer(initExpr)
+                }
+                addProperty(builder.build())
+            }
+
             fun Builder.apply(
                 javaTypeBuilder: com.squareup.javapoet.TypeSpec.Builder.() -> Unit,
                 kotlinTypeBuilder: com.squareup.kotlinpoet.TypeSpec.Builder.() -> Unit,
@@ -66,26 +93,66 @@ interface XTypeSpec : TargetLanguage {
             return when (language) {
                 CodeLanguage.JAVA -> JavaTypeSpec.Builder(
                     className = className,
-                    actual = com.squareup.javapoet.TypeSpec.classBuilder(className.java)
+                    actual = JTypeSpec.classBuilder(className.java)
+                        .addModifiers(Modifier.FINAL)
                 )
                 CodeLanguage.KOTLIN -> KotlinTypeSpec.Builder(
                     className = className,
-                    actual = com.squareup.kotlinpoet.TypeSpec.classBuilder(className.kotlin)
+                    actual = KTypeSpec.classBuilder(className.kotlin)
+                )
+            }
+        }
+
+        fun anonymousClassBuilder(
+            language: CodeLanguage,
+            argsFormat: String = "",
+            vararg args: Any
+        ): Builder {
+            return when (language) {
+                CodeLanguage.JAVA -> JavaTypeSpec.Builder(
+                    className = null,
+                    actual = JTypeSpec.anonymousClassBuilder(
+                        XCodeBlock.of(language, argsFormat, *args).let {
+                            check(it is JavaCodeBlock)
+                            it.actual
+                        }
+                    )
+                )
+                CodeLanguage.KOTLIN -> KotlinTypeSpec.Builder(
+                    className = null,
+                    actual = KTypeSpec.anonymousClassBuilder().apply {
+                        if (args.isNotEmpty()) {
+                            addSuperclassConstructorParameter(
+                                XCodeBlock.of(language, argsFormat, *args).let {
+                                    check(it is KotlinCodeBlock)
+                                    it.actual
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        fun companionObjectBuilder(language: CodeLanguage): Builder {
+            return when (language) {
+                CodeLanguage.JAVA -> JavaTypeSpec.Builder(
+                    className = null,
+                    actual = JTypeSpec.classBuilder("Companion")
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                )
+                CodeLanguage.KOTLIN -> KotlinTypeSpec.Builder(
+                    className = null,
+                    actual = KTypeSpec.companionObjectBuilder()
                 )
             }
         }
     }
 }
 
-fun XTypeSpec.Builder.addOriginatingElement(element: XElement) = apply {
-    when (language) {
-        CodeLanguage.JAVA -> {
-            check(this is JavaTypeSpec.Builder)
-            actual.addOriginatingElement(element)
-        }
-        CodeLanguage.KOTLIN -> {
-            check(this is KotlinTypeSpec.Builder)
-            actual.addOriginatingElement(element)
-        }
-    }
+// TODO(b/127483380): Temporary API for XPoet migration.
+// @Deprecated("Temporary API for XPoet migration.")
+fun XTypeSpec.toJavaPoet(): JTypeSpec {
+    check(this is JavaTypeSpec)
+    return this.actual
 }

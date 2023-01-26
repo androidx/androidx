@@ -357,7 +357,7 @@ package androidx.appcompat.graphics.drawable {
 
   public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
     ctor public DrawerArrowDrawable(android.content.Context!);
-    method public void draw(android.graphics.Canvas!);
+    method public void draw(android.graphics.Canvas);
     method public float getArrowHeadLength();
     method public float getArrowShaftLength();
     method public float getBarLength();

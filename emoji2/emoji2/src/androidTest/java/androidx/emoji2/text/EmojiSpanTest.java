@@ -56,8 +56,8 @@ public class EmojiSpanTest {
 
     @Test
     public void testGetSize() {
-        final short dimensionX = 18;
-        final short dimensionY = 20;
+        final int dimensionX = 18;
+        final int dimensionY = 20;
         final int fontHeight = 10;
         final float expectedRatio = fontHeight * 1.0f / dimensionY;
         final TextPaint paint = mock(TextPaint.class);
@@ -73,7 +73,7 @@ public class EmojiSpanTest {
             }
         });
 
-        final EmojiMetadata metadata = mock(EmojiMetadata.class);
+        final TypefaceEmojiRasterizer metadata = mock(TypefaceEmojiRasterizer.class);
         when(metadata.getWidth()).thenReturn(dimensionX);
         when(metadata.getHeight()).thenReturn(dimensionY);
         final EmojiSpan span = new TypefaceEmojiSpan(metadata);
@@ -88,9 +88,9 @@ public class EmojiSpanTest {
     @Test
     public void testBackgroundIndicator() {
         // control the size of the emoji span
-        final EmojiMetadata metadata = mock(EmojiMetadata.class);
-        when(metadata.getWidth()).thenReturn((short) 10);
-        when(metadata.getHeight()).thenReturn((short) 10);
+        final TypefaceEmojiRasterizer metadata = mock(TypefaceEmojiRasterizer.class);
+        when(metadata.getWidth()).thenReturn(10);
+        when(metadata.getHeight()).thenReturn(10);
 
         final EmojiSpan span = new TypefaceEmojiSpan(metadata);
         TextPaint textPaint = new TextPaint();
@@ -121,9 +121,9 @@ public class EmojiSpanTest {
     @Test
     public void testBackgroundColor_doesDrawbackground() {
         // control the size of the emoji span
-        final EmojiMetadata metadata = mock(EmojiMetadata.class);
-        when(metadata.getWidth()).thenReturn((short) 10);
-        when(metadata.getHeight()).thenReturn((short) 10);
+        final TypefaceEmojiRasterizer metadata = mock(TypefaceEmojiRasterizer.class);
+        when(metadata.getWidth()).thenReturn(10);
+        when(metadata.getHeight()).thenReturn(10);
 
         final EmojiSpan span = new TypefaceEmojiSpan(metadata);
         TextPaint textPaint = new TextPaint();
@@ -150,9 +150,9 @@ public class EmojiSpanTest {
     @Test
     public void testBackgroundColor_inPositionNextToEmoji_doesNotDrawBackground() {
         // control the size of the emoji span
-        final EmojiMetadata metadata = mock(EmojiMetadata.class);
-        when(metadata.getWidth()).thenReturn((short) 10);
-        when(metadata.getHeight()).thenReturn((short) 10);
+        final TypefaceEmojiRasterizer metadata = mock(TypefaceEmojiRasterizer.class);
+        when(metadata.getWidth()).thenReturn(10);
+        when(metadata.getHeight()).thenReturn(10);
 
         final EmojiSpan span = new TypefaceEmojiSpan(metadata);
         TextPaint textPaint = new TextPaint();

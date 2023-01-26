@@ -1,0 +1,83 @@
+// Parameters that can be used to customize an animation.
+syntax = "proto3";
+
+package androidx.wear.protolayout.expression.proto;
+
+option java_package = "androidx.wear.protolayout.expression.proto";
+option java_outer_classname = "AnimationParameterProto";
+
+// Animation parameters that can be added to any animatable node.
+message AnimationSpec {
+  // The duration of the animation in milliseconds. If not set, defaults to
+  // 300ms.
+  uint32 duration_millis = 1;
+
+  // The delay to start the animation in milliseconds. If not set, defaults to
+  // 0.
+  uint32 delay_millis = 2;
+
+  // The easing to be used for adjusting an animation’s fraction. If not set,
+  // defaults to Linear Interpolator.
+  Easing easing = 3;
+
+  // The repeatable mode to be used for specifying repetition parameters for the
+  // animation. If not set, animation won't be repeated.
+  Repeatable repeatable = 5;
+}
+
+// The easing to be used for adjusting an animation’s fraction. This allows
+// animation to speed up and slow down, rather than moving at a constant rate.
+// If not set, defaults to Linear Interpolator.
+message Easing {
+  oneof inner {
+    // The cubic polynomial easing that implements third-order Bézier curves.
+    CubicBezierEasing cubic_bezier = 1;
+  }
+}
+
+// The cubic polynomial easing that implements third-order Bézier curves. This
+// is equivalent to the Android PathInterpolator.
+message CubicBezierEasing {
+  // The x coordinate of the first control point. The line through the point (0,
+  // 0) and the first control point is tangent to the easing at the point (0, 0)
+  float x1 = 1;
+
+  // The y coordinate of the first control point. The line through the point (0,
+  // 0) and the first control point is tangent to the easing at the point (0,
+  // 0).
+  float y1 = 2;
+
+  // The x coordinate of the second control point. The line through the point
+  // (1, 1) and the second control point is tangent to the easing at the point
+  // (1, 1).
+  float x2 = 3;
+
+  // The y coordinate of the second control point. The line through the point
+  // (1, 1) and the second control point is tangent to the easing at the point
+  // (1, 1).
+  float y2 = 4;
+}
+
+// The repeatable mode to be used for specifying how many times animation will
+// be repeated.
+message Repeatable {
+  // The number specifying how many times animation will be repeated. If
+  // not set, defaults to 0, i.e. repeat infinitely.
+  uint32 iterations = 1;
+
+  // The repeat mode to specify how animation will behave when repeated. If not
+  // set, defaults to restart.
+  RepeatMode repeat_mode = 2;
+}
+
+// The repeat mode to specify how animation will behave when repeated.
+enum RepeatMode {
+  // The unknown repeat mode.
+  REPEAT_MODE_UNKNOWN = 0;
+
+  // The repeat mode where animation restarts from the beginning when repeated.
+  REPEAT_MODE_RESTART = 1;
+
+  // The repeat mode where animation is played in reverse when repeated.
+  REPEAT_MODE_REVERSE = 2;
+}

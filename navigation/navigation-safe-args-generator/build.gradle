@@ -53,11 +53,15 @@ tasks.findByName("test").doFirst {
     def androidJar = classpath.find { it.name == "android.jar" }
     it.classpath = files(classpath.minus(androidJar).plus(androidJar))
 }
+tasks.withType(Test).configureEach {
+    // https://github.com/google/compile-testing/issues/222
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+}
+
 
 androidx {
     name = "Android Navigation TypeSafe Arguments Generator"
     type = LibraryType.OTHER_CODE_PROCESSOR
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Generator"
 }

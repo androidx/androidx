@@ -16,74 +16,73 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 
 /**
  * This Binder binds queries directly to native Paging3
- * PagingSource (i.e. [LimitOffsetPagingSource]) or its subclasses such as
- * [LimitOffsetListenableFuturePagingSource]. Used solely by Paging3.
+ * PagingSource (i.e. [androidx.room.paging.LimitOffsetPagingSource]) or its subclasses such as
+ * [androidx.room.paging.guava.LimitOffsetListenableFuturePagingSource]. Used solely by Paging3.
  */
 class MultiTypedPagingSourceQueryResultBinder(
     private val listAdapter: ListQueryResultAdapter?,
     private val tableNames: Set<String>,
-    className: ClassName
+    className: XClassName
 ) : QueryResultBinder(listAdapter) {
 
-    private val itemTypeName: TypeName =
-        listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
-
-    private val pagingSourceTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
-        className, itemTypeName
-    )
+    private val itemTypeName: XTypeName =
+        listAdapter?.rowAdapters?.firstOrNull()?.out?.asTypeName() ?: XTypeName.ANY_OBJECT
+    private val pagingSourceTypeName: XTypeName = className.parametrizedBy(itemTypeName)
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
+        scope.builder.apply {
             val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
-            val pagingSourceSpec = TypeSpec.anonymousClassBuilder(
-                "$L, $N, $L",
+            val pagingSourceSpec = XTypeSpec.anonymousClassBuilder(
+                language = language,
+                argsFormat = "%L, %N, %L",
                 roomSQLiteQueryVar,
-                dbField,
+                dbProperty,
                 tableNamesList
             ).apply {
-                addSuperinterface(pagingSourceTypeName)
-                addMethod(createConvertRowsMethod(scope))
+                superclass(pagingSourceTypeName)
+                addFunction(createConvertRowsMethod(scope))
             }.build()
-            addStatement("return $L", pagingSourceSpec)
+            addStatement("return %L", pagingSourceSpec)
         }
     }
 
-    private fun createConvertRowsMethod(scope: CodeGenScope): MethodSpec {
-        return MethodSpec.methodBuilder("convertRows").apply {
-            addAnnotation(Override::class.java)
-            addModifiers(Modifier.PROTECTED)
-            returns(ParameterizedTypeName.get(CommonTypeNames.LIST, itemTypeName))
-            val cursorParam = ParameterSpec.builder(CURSOR.toJavaPoet(), "cursor")
-                .build()
-            addParameter(cursorParam)
+    private fun createConvertRowsMethod(scope: CodeGenScope): XFunSpec {
+        return XFunSpec.builder(
+            language = scope.language,
+            name = "convertRows",
+            visibility = VisibilityModifier.PROTECTED,
+            isOverride = true
+        ).apply {
+            val cursorParamName = "cursor"
+            returns(CommonTypeNames.LIST.parametrizedBy(itemTypeName))
+            addParameter(
+                typeName = CURSOR,
+                name = cursorParamName
+            )
             val resultVar = scope.getTmpVar("_result")
             val rowsScope = scope.fork()
-            listAdapter?.convert(resultVar, cursorParam.name, rowsScope)
-            addCode(rowsScope.builder().build())
-            addStatement("return $L", resultVar)
+            listAdapter?.convert(resultVar, cursorParamName, rowsScope)
+            addCode(rowsScope.generate())
+            addStatement("return %L", resultVar)
         }.build()
     }
 }

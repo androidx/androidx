@@ -25,7 +25,9 @@ import android.os.Looper
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.toDataType
-import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermissionLegacy
+import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
@@ -86,7 +88,7 @@ private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissions(setOf()) },
+        { getGrantedPermissionsLegacy(setOf()) },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -189,10 +191,10 @@ class HealthConnectClientImplTest {
     }
 
     @Test
-    fun getGrantedPermissions_none() = runTest {
+    fun getGrantedPermissionsLegacy_none() = runTest {
         val response = testBlocking {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+            healthConnectClient.getGrantedPermissionsLegacy(
+                setOf(createReadPermissionLegacy(StepsRecord::class))
             )
         }
 
@@ -200,7 +202,7 @@ class HealthConnectClientImplTest {
     }
 
     @Test
-    fun getGrantedPermissions_steps() = runTest {
+    fun getGrantedPermissionsLegacy_steps() = runTest {
         fakeAhpServiceStub.addGrantedPermission(
             androidx.health.platform.client.permission.Permission(
                 PermissionProto.Permission.newBuilder()
@@ -210,12 +212,44 @@ class HealthConnectClientImplTest {
             )
         )
         val response = testBlocking {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+            healthConnectClient.getGrantedPermissionsLegacy(
+                setOf(createReadPermissionLegacy(StepsRecord::class))
             )
         }
 
-        assertThat(response).containsExactly(createReadPermission(StepsRecord::class))
+        assertThat(response).containsExactly(createReadPermissionLegacy(StepsRecord::class))
+    }
+
+    @Test
+    fun getGrantedPermissions_none() = runTest {
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response).isEmpty()
+    }
+
+    @Test
+    fun getGrantedPermissions() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(getReadPermission(StepsRecord::class))
+                    .build()
+            )
+        )
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(getWritePermission(HeartRateRecord::class))
+                    .build()
+            )
+        )
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response)
+            .containsExactly(
+                getReadPermission(StepsRecord::class),
+                getWritePermission(HeartRateRecord::class)
+            )
     }
 
     @Test

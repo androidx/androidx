@@ -16,12 +16,21 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import androidx.camera.camera2.pipe.graph.GraphState3A
 import androidx.camera.camera2.pipe.putAllMetadata
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * Fake implementation of a [GraphProcessor] for tests.
@@ -43,6 +52,11 @@ internal class FakeGraphProcessor(
     private val _requestQueue = mutableListOf<List<Request>>()
     private var processor: GraphRequestProcessor? = null
 
+    private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
+
+    override val graphState: StateFlow<GraphState>
+        get() = _graphState
+
     override fun startRepeating(request: Request) {
         repeatingRequest = request
     }
@@ -58,6 +72,7 @@ internal class FakeGraphProcessor(
     override fun submit(requests: List<Request>) {
         _requestQueue.add(requests)
     }
+
     override suspend fun submit(parameters: Map<*, Any?>): Boolean {
         if (closed) {
             return false
@@ -94,13 +109,23 @@ internal class FakeGraphProcessor(
         _requestQueue.clear()
     }
 
+    override fun onGraphStarting() {
+        _graphState.value = GraphStateStarting
+    }
+
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        _graphState.value = GraphStateStarted
         val old = processor
         processor = requestProcessor
         old?.close()
     }
 
+    override fun onGraphStopping() {
+        _graphState.value = GraphStateStopping
+    }
+
     override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        _graphState.value = GraphStateStopped
         val old = processor
         if (requestProcessor === old) {
             processor = null
@@ -110,6 +135,16 @@ internal class FakeGraphProcessor(
 
     override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
         invalidate()
+    }
+
+    override fun onGraphError(graphStateError: GraphStateError) {
+        _graphState.update { graphState ->
+            if (graphState is GraphStateStopping || graphState is GraphStateStopped) {
+                GraphStateStopped
+            } else {
+                graphStateError
+            }
+        }
     }
 
     override fun invalidate() {

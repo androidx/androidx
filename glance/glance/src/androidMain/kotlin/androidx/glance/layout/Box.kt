@@ -18,6 +18,7 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -29,9 +30,17 @@ class EmittableBox : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
     var contentAlignment: Alignment = Alignment.TopStart
 
-    override fun toString(): String {
-        return "EmittableBox(modifier=$modifier, contentAlignment=$contentAlignment)"
+    override fun copy(): Emittable = EmittableBox().also {
+        it.modifier = modifier
+        it.contentAlignment = contentAlignment
+        it.children.addAll(children.map { it.copy() })
     }
+
+    override fun toString(): String = "EmittableBox(" +
+        "modifier=$modifier, " +
+        "contentAlignment=$contentAlignment" +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }
 
 /**

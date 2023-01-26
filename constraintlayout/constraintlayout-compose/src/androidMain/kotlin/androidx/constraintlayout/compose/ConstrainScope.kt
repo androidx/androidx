@@ -22,10 +22,13 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.AnchorFunctions.baselineAnchorFunction
-import androidx.constraintlayout.core.state.ConstraintReference
+import androidx.constraintlayout.core.parser.CLArray
+import androidx.constraintlayout.core.parser.CLNumber
+import androidx.constraintlayout.core.parser.CLObject
+import androidx.constraintlayout.core.parser.CLString
+import kotlin.properties.ObservableProperty
+import kotlin.reflect.KProperty
 
 /**
  * Scope that can be used to constrain a layout.
@@ -35,96 +38,75 @@ import androidx.constraintlayout.core.state.ConstraintReference
  */
 @LayoutScopeMarker
 @Stable
-class ConstrainScope internal constructor(internal val id: Any) {
-    internal val tasks = mutableListOf<(State) -> Unit>()
-    internal fun applyTo(state: State) = tasks.forEach { it(state) }
-
+class ConstrainScope internal constructor(
+    internal val id: Any,
+    internal val containerObject: CLObject
+) {
     /**
      * Reference to the [ConstraintLayout] itself, which can be used to specify constraints
      * between itself and its children.
      */
-    val parent = ConstrainedLayoutReference(SolverState.PARENT)
+    val parent = ConstrainedLayoutReference("parent")
 
     /**
      * The start anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val start: VerticalAnchorable = ConstraintVerticalAnchorable(id, -2, tasks)
+    val start: VerticalAnchorable = ConstraintVerticalAnchorable(-2, containerObject)
 
     /**
      * The left anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val absoluteLeft: VerticalAnchorable = ConstraintVerticalAnchorable(id, 0, tasks)
+    val absoluteLeft: VerticalAnchorable = ConstraintVerticalAnchorable(0, containerObject)
 
     /**
      * The top anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo].
      */
-    val top: HorizontalAnchorable = ConstraintHorizontalAnchorable(id, 0, tasks)
+    val top: HorizontalAnchorable = ConstraintHorizontalAnchorable(0, containerObject)
 
     /**
      * The end anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val end: VerticalAnchorable = ConstraintVerticalAnchorable(id, -1, tasks)
+    val end: VerticalAnchorable = ConstraintVerticalAnchorable(-1, containerObject)
 
     /**
      * The right anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val absoluteRight: VerticalAnchorable = ConstraintVerticalAnchorable(id, 1, tasks)
+    val absoluteRight: VerticalAnchorable = ConstraintVerticalAnchorable(1, containerObject)
 
     /**
      * The bottom anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo].
      */
-    val bottom: HorizontalAnchorable = ConstraintHorizontalAnchorable(id, 1, tasks)
+    val bottom: HorizontalAnchorable = ConstraintHorizontalAnchorable(1, containerObject)
 
     /**
      * The [FirstBaseline] of the layout - can be constrained using [BaselineAnchorable.linkTo].
      */
-    val baseline: BaselineAnchorable = ConstraintBaselineAnchorable(id, tasks)
+    val baseline: BaselineAnchorable = ConstraintBaselineAnchorable(containerObject)
 
     /**
      * The width of the [ConstraintLayout] child.
      */
-    var width: Dimension = Dimension.wrapContent
-        set(value) {
-            field = value
-            tasks.add { state ->
-                state.constraints(id).width(
-                    (value as DimensionDescription).toSolverDimension(state)
-                )
-            }
-        }
+    var width: Dimension by DimensionProperty(Dimension.wrapContent)
 
     /**
      * The height of the [ConstraintLayout] child.
      */
-    var height: Dimension = Dimension.wrapContent
-        set(value) {
-            field = value
-            tasks.add { state ->
-                state.constraints(id).height(
-                    (value as DimensionDescription).toSolverDimension(state)
-                )
-            }
-        }
+    var height: Dimension by DimensionProperty(Dimension.wrapContent)
 
     /**
      * The overall visibility of the [ConstraintLayout] child.
      *
      * [Visibility.Visible] by default.
      */
-    var visibility: Visibility = Visibility.Visible
-        set(value) {
-            field = value
-            tasks.add { state ->
-                with(state.constraints(id)) {
-                    visibility(value.solverValue)
-                    if (value == Visibility.Invisible) {
-                        // A bit of a hack, this behavior is not defined in :core
-                        // Invisible should override alpha
-                        alpha(0f)
-                    }
-                }
-            }
+    var visibility: Visibility by object : ObservableProperty<Visibility>(Visibility.Visible) {
+        override fun afterChange(
+            property: KProperty<*>,
+            oldValue: Visibility,
+            newValue: Visibility
+        ) {
+            containerObject.putString(property.name, newValue.name)
         }
+    }
 
     /**
      * The transparency value when rendering the content.
@@ -132,12 +114,11 @@ class ConstrainScope internal constructor(internal val id: Any) {
     @FloatRange(from = 0.0, to = 1.0)
     var alpha: Float = 1.0f
         set(value) {
-            field = value
-            addTransform {
-                if (visibility != Visibility.Invisible) {
-                    // A bit of a hack, this behavior is not defined in :core
-                    // Invisible should override alpha
-                    alpha(value)
+            // Not using delegate to support FloatRange annotation
+            if (value != field) {
+                field = value
+                if (!value.isNaN()) {
+                    containerObject.putNumber("alpha", value)
                 }
             }
         }
@@ -145,128 +126,110 @@ class ConstrainScope internal constructor(internal val id: Any) {
     /**
      * The percent scaling value on the horizontal axis. Where 1 is 100%.
      */
-    var scaleX: Float = 1.0f
-        set(value) {
-            field = value
-            addTransform { scaleX(value) }
-        }
+    var scaleX: Float by FloatProperty(1.0f)
 
     /**
      * The percent scaling value on the vertical axis. Where 1 is 100%.
      */
-    var scaleY: Float = 1.0f
-        set(value) {
-            field = value
-            addTransform { scaleY(value) }
-        }
+    var scaleY: Float by FloatProperty(1.0f)
 
     /**
      * The degrees to rotate the content over the horizontal axis.
      */
-    var rotationX: Float = 0.0f
-        set(value) {
-            field = value
-            addTransform { rotationX(value) }
-        }
+    var rotationX: Float by FloatProperty(0.0f)
 
     /**
      * The degrees to rotate the content over the vertical axis.
      */
-    var rotationY: Float = 0.0f
-        set(value) {
-            field = value
-            addTransform { rotationY(value) }
-        }
+    var rotationY: Float by FloatProperty(0.0f)
 
     /**
      * The degrees to rotate the content on the screen plane.
      */
-    var rotationZ: Float = 0.0f
-        set(value) {
-            field = value
-            addTransform { rotationZ(value) }
-        }
+    var rotationZ: Float by FloatProperty(0.0f)
 
     /**
      * The distance to offset the content over the X axis.
      */
-    var translationX: Dp = 0.dp
-        set(value) {
-            field = value
-            addFloatTransformFromDp(value) { floatValue -> translationX(floatValue) }
-        }
+    var translationX: Dp by DpProperty(0.dp)
 
     /**
      * The distance to offset the content over the Y axis.
      */
-    var translationY: Dp = 0.dp
-        set(value) {
-            field = value
-            addFloatTransformFromDp(value) { floatValue -> translationY(floatValue) }
-        }
+    var translationY: Dp by DpProperty(0.dp)
 
     /**
      * The distance to offset the content over the Z axis.
      */
-    var translationZ: Dp = 0.dp
-        set(value) {
-            field = value
-            addFloatTransformFromDp(value) { floatValue -> translationZ(floatValue) }
-        }
+    var translationZ: Dp by DpProperty(0.dp)
 
     /**
      * The X axis offset percent where the content is rotated and scaled.
      *
      * @see [TransformOrigin]
      */
-    var pivotX: Float = 0.5f
-        set(value) {
-            field = value
-            addTransform { pivotX(value) }
-        }
+    var pivotX: Float by FloatProperty(0.5f)
 
     /**
      * The Y axis offset percent where the content is rotated and scaled.
      *
      * @see [TransformOrigin]
      */
-    var pivotY: Float = 0.5f
-        set(value) {
-            field = value
-            addTransform { pivotY(value) }
-        }
+    var pivotY: Float by FloatProperty(0.5f)
 
     /**
      * Whenever the width is not fixed, this weight may be used by an horizontal Chain to decide how
      * much space assign to this widget.
      */
-    var horizontalChainWeight: Float = Float.NaN
-        set(value) {
-            field = value
-            tasks.add { state ->
-                state.constraints(id).horizontalChainWeight = value
-            }
-        }
+    var horizontalChainWeight: Float by FloatProperty(Float.NaN, "hWeight")
 
     /**
      * Whenever the height is not fixed, this weight may be used by a vertical Chain to decide how
      * much space assign to this widget.
      */
-    var verticalChainWeight: Float = Float.NaN
+    var verticalChainWeight: Float by FloatProperty(Float.NaN, "vWeight")
+
+    /**
+     * Applied when the widget has constraints on the [start] and [end] anchors. It defines the
+     * position of the widget relative to the space within the constraints, where `0f` is the
+     * left-most position and `1f` is the right-most position.
+     *
+     * &nbsp;
+     *
+     * When layout direction is RTL, the value of the bias is effectively inverted.
+     *
+     * E.g.: For `horizontalBias = 0.3f`, `0.7f` is used for RTL.
+     *
+     * &nbsp;
+     *
+     * Note that the bias may also be applied with calls such as [linkTo].
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    var horizontalBias: Float = 0.5f
         set(value) {
-            field = value
-            tasks.add { state ->
-                state.constraints(id).verticalChainWeight = value
+            // Not using delegate to support FloatRange annotation
+            if (value != field) {
+                field = value
+                if (!value.isNaN()) {
+                    containerObject.putNumber("hBias", value)
+                }
             }
         }
 
-    private fun addTransform(change: ConstraintReference.() -> Unit) =
-        tasks.add { state -> change(state.constraints(id)) }
-
-    private fun addFloatTransformFromDp(dpValue: Dp, change: ConstraintReference.(Float) -> Unit) =
-        tasks.add { state ->
-            (state as? State)?.also {
-                state.constraints(id).change(state.convertDimension(dpValue).toFloat())
+    /**
+     * Applied when the widget has constraints on the [top] and [bottom] anchors. It defines the
+     * position of the widget relative to the space within the constraints, where `0f` is the
+     * top-most position and `1f` is the bottom-most position.
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    var verticalBias: Float = 0.5f
+        set(value) {
+            // Not using delegate to support FloatRange annotation
+            if (value != field) {
+                field = value
+                if (!value.isNaN()) {
+                    containerObject.putNumber("vBias", value)
+                }
             }
         }
 
@@ -287,11 +250,12 @@ class ConstrainScope internal constructor(internal val id: Any) {
             margin = startMargin,
             goneMargin = startGoneMargin
         )
-        this@ConstrainScope.end.linkTo(anchor = end, margin = endMargin, goneMargin = endGoneMargin)
-        tasks.add { state ->
-            val resolvedBias = if (state.layoutDirection == LayoutDirection.Rtl) 1 - bias else bias
-            state.constraints(id).horizontalBias(resolvedBias)
-        }
+        this@ConstrainScope.end.linkTo(
+            anchor = end,
+            margin = endMargin,
+            goneMargin = endGoneMargin
+        )
+        containerObject.putNumber("hRtlBias", bias)
     }
 
     /**
@@ -306,15 +270,17 @@ class ConstrainScope internal constructor(internal val id: Any) {
         bottomGoneMargin: Dp = 0.dp,
         @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
     ) {
-        this@ConstrainScope.top.linkTo(anchor = top, margin = topMargin, goneMargin = topGoneMargin)
+        this@ConstrainScope.top.linkTo(
+            anchor = top,
+            margin = topMargin,
+            goneMargin = topGoneMargin
+        )
         this@ConstrainScope.bottom.linkTo(
             anchor = bottom,
             margin = bottomMargin,
             goneMargin = bottomGoneMargin
         )
-        tasks.add { state ->
-            state.constraints(id).verticalBias(bias)
-        }
+        containerObject.putNumber("vBias", bias)
     }
 
     /**
@@ -410,10 +376,12 @@ class ConstrainScope internal constructor(internal val id: Any) {
      * This will position the current widget at a relative angle and distance from [other].
      */
     fun circular(other: ConstrainedLayoutReference, angle: Float, distance: Dp) {
-        tasks.add { state ->
-            state.constraints(id)
-                .circularConstraint(other.id, angle, state.convertDimension(distance).toFloat())
+        val circularParams = CLArray(charArrayOf()).apply {
+            add(CLString.from(other.id.toString()))
+            add(CLNumber(angle))
+            add(CLNumber(distance.value))
         }
+        containerObject.put("circular", circularParams)
     }
 
     /**
@@ -422,9 +390,10 @@ class ConstrainScope internal constructor(internal val id: Any) {
      * Useful when extending another [ConstraintSet] with unwanted constraints on this axis.
      */
     fun clearHorizontal() {
-        tasks.add { state ->
-            state.constraints(id).clearHorizontal()
-        }
+        containerObject.remove("left")
+        containerObject.remove("right")
+        containerObject.remove("start")
+        containerObject.remove("end")
     }
 
     /**
@@ -433,9 +402,9 @@ class ConstrainScope internal constructor(internal val id: Any) {
      * Useful when extending another [ConstraintSet] with unwanted constraints on this axis.
      */
     fun clearVertical() {
-        tasks.add { state ->
-            state.constraints(id).clearVertical()
-        }
+        containerObject.remove("top")
+        containerObject.remove("bottom")
+        containerObject.remove("baseline")
     }
 
     /**
@@ -444,9 +413,9 @@ class ConstrainScope internal constructor(internal val id: Any) {
      * Useful when extending another [ConstraintSet] with unwanted constraints applied.
      */
     fun clearConstraints() {
-        tasks.add { state ->
-            state.constraints(id).clearAll()
-        }
+        clearHorizontal()
+        clearVertical()
+        containerObject.remove("circular")
     }
 
     /**
@@ -455,13 +424,8 @@ class ConstrainScope internal constructor(internal val id: Any) {
      * Useful when extending another [ConstraintSet] with unwanted dimensions.
      */
     fun resetDimensions() {
-        tasks.add { state ->
-            val defaultDimension =
-                (Dimension.wrapContent as DimensionDescription).toSolverDimension(state)
-            state.constraints(id)
-                .width(defaultDimension)
-                .height(defaultDimension)
-        }
+        width = Dimension.wrapContent
+        height = Dimension.wrapContent
     }
 
     /**
@@ -472,19 +436,53 @@ class ConstrainScope internal constructor(internal val id: Any) {
      * Useful when extending another [ConstraintSet] with unwanted transforms applied.
      */
     fun resetTransforms() {
-        tasks.add { state ->
-            state.constraints(id)
-                .alpha(Float.NaN)
-                .scaleX(Float.NaN)
-                .scaleY(Float.NaN)
-                .rotationX(Float.NaN)
-                .rotationY(Float.NaN)
-                .rotationZ(Float.NaN)
-                .translationX(Float.NaN)
-                .translationY(Float.NaN)
-                .translationZ(Float.NaN)
-                .pivotX(Float.NaN)
-                .pivotY(Float.NaN)
+        containerObject.remove("alpha")
+        containerObject.remove("scaleX")
+        containerObject.remove("scaleY")
+        containerObject.remove("rotationX")
+        containerObject.remove("rotationY")
+        containerObject.remove("rotationZ")
+        containerObject.remove("translationX")
+        containerObject.remove("translationY")
+        containerObject.remove("translationZ")
+        containerObject.remove("pivotX")
+        containerObject.remove("pivotY")
+    }
+
+    /**
+     * Convenience extension variable to parse a [Dp] as a [Dimension] object.
+     *
+     * @see Dimension.value
+     */
+    val Dp.asDimension: Dimension
+        get() = Dimension.value(this)
+
+    private inner class DimensionProperty(initialValue: Dimension) :
+        ObservableProperty<Dimension>(initialValue) {
+        override fun afterChange(property: KProperty<*>, oldValue: Dimension, newValue: Dimension) {
+            containerObject.put(property.name, (newValue as DimensionDescription).asCLElement())
+        }
+    }
+
+    private inner class FloatProperty(
+        initialValue: Float,
+        private val nameOverride: String? = null
+    ) : ObservableProperty<Float>(initialValue) {
+        override fun afterChange(property: KProperty<*>, oldValue: Float, newValue: Float) {
+            if (!newValue.isNaN()) {
+                containerObject.putNumber(nameOverride ?: property.name, newValue)
+            }
+        }
+    }
+
+    private inner class DpProperty(
+        initialValue: Dp,
+        private val nameOverride: String? = null
+    ) : ObservableProperty<Dp>(initialValue) {
+        override fun afterChange(property: KProperty<*>, oldValue: Dp, newValue: Dp) {
+            if (!newValue.value.isNaN()) {
+                containerObject.putNumber(nameOverride ?: property.name, newValue.value)
+            }
         }
     }
 }
@@ -494,34 +492,25 @@ class ConstrainScope internal constructor(internal val id: Any) {
  * [linkTo] in their `Modifier.constrainAs` blocks.
  */
 private class ConstraintVerticalAnchorable constructor(
-    val id: Any,
     index: Int,
-    tasks: MutableList<(State) -> Unit>
-) : BaseVerticalAnchorable(tasks, index) {
-    override fun getConstraintReference(state: State): ConstraintReference =
-        state.constraints(id)
-}
+    containerObject: CLObject
+) : BaseVerticalAnchorable(containerObject, index)
 
 /**
  * Represents a horizontal side of a layout (i.e top and bottom) that can be anchored using
  * [linkTo] in their `Modifier.constrainAs` blocks.
  */
 private class ConstraintHorizontalAnchorable constructor(
-    val id: Any,
     index: Int,
-    tasks: MutableList<(State) -> Unit>
-) : BaseHorizontalAnchorable(tasks, index) {
-    override fun getConstraintReference(state: State): ConstraintReference =
-        state.constraints(id)
-}
+    containerObject: CLObject
+) : BaseHorizontalAnchorable(containerObject, index)
 
 /**
  * Represents the [FirstBaseline] of a layout that can be anchored
  * using [linkTo] in their `Modifier.constrainAs` blocks.
  */
 private class ConstraintBaselineAnchorable constructor(
-    val id: Any,
-    val tasks: MutableList<(State) -> Unit>
+    private val containerObject: CLObject
 ) : BaselineAnchorable {
     /**
      * Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor].
@@ -531,14 +520,30 @@ private class ConstraintBaselineAnchorable constructor(
         margin: Dp,
         goneMargin: Dp
     ) {
-        tasks.add { state ->
-            (state as? State)?.let {
-                it.baselineNeededFor(id)
-                it.baselineNeededFor(anchor.id)
-            }
-            with(state.constraints(id)) {
-                baselineAnchorFunction.invoke(this, anchor.id).margin(margin).marginGone(goneMargin)
-            }
+        val constraintArray = CLArray(charArrayOf()).apply {
+            add(CLString.from(anchor.id.toString()))
+            add(CLString.from("baseline"))
+            add(CLNumber(margin.value))
+            add(CLNumber(goneMargin.value))
         }
+        containerObject.put("baseline", constraintArray)
+    }
+
+    /**
+     * Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor].
+     */
+    override fun linkTo(
+        anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
+        margin: Dp,
+        goneMargin: Dp
+    ) {
+        val targetAnchorName = AnchorFunctions.horizontalAnchorIndexToAnchorName(anchor.index)
+        val constraintArray = CLArray(charArrayOf()).apply {
+            add(CLString.from(anchor.id.toString()))
+            add(CLString.from(targetAnchorName))
+            add(CLNumber(margin.value))
+            add(CLNumber(goneMargin.value))
+        }
+        containerObject.put("baseline", constraintArray)
     }
 }

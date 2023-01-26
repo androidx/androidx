@@ -46,6 +46,12 @@ public class DeviceQuirksLoader {
         if (SurfaceOrderQuirk.load()) {
             quirks.add(new SurfaceOrderQuirk());
         }
+        if (CaptureFailedRetryQuirk.load()) {
+            quirks.add(new CaptureFailedRetryQuirk());
+        }
+        if (LowMemoryQuirk.load()) {
+            quirks.add(new LowMemoryQuirk());
+        }
 
         return quirks;
     }

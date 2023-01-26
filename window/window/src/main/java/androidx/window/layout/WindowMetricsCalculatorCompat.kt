@@ -30,15 +30,15 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
-import androidx.window.layout.ActivityCompatHelperApi24.isInMultiWindowMode
-import androidx.window.layout.ActivityCompatHelperApi30.currentWindowBounds
-import androidx.window.layout.ActivityCompatHelperApi30.currentWindowInsets
-import androidx.window.layout.ActivityCompatHelperApi30.maximumWindowBounds
-import androidx.window.layout.DisplayCompatHelperApi17.getRealSize
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetBottom
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetLeft
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetRight
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetTop
+import androidx.window.layout.util.ActivityCompatHelperApi24.isInMultiWindowMode
+import androidx.window.layout.util.ActivityCompatHelperApi30.currentWindowBounds
+import androidx.window.layout.util.ActivityCompatHelperApi30.currentWindowInsets
+import androidx.window.layout.util.ActivityCompatHelperApi30.maximumWindowBounds
+import androidx.window.layout.util.DisplayCompatHelperApi17.getRealSize
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetBottom
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetLeft
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetRight
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetTop
 import java.lang.reflect.InvocationTargetException
 
 /**

@@ -56,7 +56,6 @@ androidx {
     name = "Android ConstraintLayout Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT
-    mavenGroup = LibraryGroups.CONSTRAINTLAYOUT
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets"
 }

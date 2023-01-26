@@ -39,3 +39,6 @@ fun assertThat(actual: Boolean?): BooleanSubject {
 fun assertThat(actual: String?): StringSubject {
     return StringSubject(actual)
 }
+
+fun <T> assertThat(actual: Iterable<T>?): IterableSubject<T> =
+    IterableSubject(actual)

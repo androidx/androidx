@@ -22,6 +22,12 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
@@ -33,6 +39,9 @@ import androidx.camera.camera2.pipe.formatForLogs
 import androidx.camera.camera2.pipe.putAllMetadata
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,6 +51,8 @@ import kotlinx.coroutines.withContext
  * and submitted before the camera is available.
  */
 internal interface GraphProcessor {
+    val graphState: StateFlow<GraphState>
+
     fun submit(request: Request)
     fun submit(requests: List<Request>)
     suspend fun submit(parameters: Map<*, Any?>): Boolean
@@ -102,7 +113,19 @@ internal class GraphProcessorImpl @Inject constructor(
     @GuardedBy("lock")
     private var closed = false
 
+    private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
+
+    override val graphState: StateFlow<GraphState>
+        get() = _graphState
+
+    override fun onGraphStarting() {
+        debug { "$this onGraphStarting" }
+        _graphState.value = GraphStateStarting
+    }
+
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphStarted" }
+        _graphState.value = GraphStateStarted
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -125,7 +148,14 @@ internal class GraphProcessorImpl @Inject constructor(
         resubmit()
     }
 
+    override fun onGraphStopping() {
+        debug { "$this onGraphStopping" }
+        _graphState.value = GraphStateStopping
+    }
+
     override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphStopped" }
+        _graphState.value = GraphStateStopped
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -161,6 +191,16 @@ internal class GraphProcessorImpl @Inject constructor(
             }
         }
         resubmit()
+    }
+
+    override fun onGraphError(graphStateError: GraphStateError) {
+        _graphState.update { graphState ->
+            if (graphState is GraphStateStopping || graphState is GraphStateStopped) {
+                GraphStateStopped
+            } else {
+                graphStateError
+            }
+        }
     }
 
     override fun startRepeating(request: Request) {

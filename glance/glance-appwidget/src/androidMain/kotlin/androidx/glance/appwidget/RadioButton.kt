@@ -16,17 +16,18 @@
 
 package androidx.glance.appwidget
 
-import androidx.annotation.ColorRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.GlanceTheme
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
+import androidx.glance.color.DynamicThemeColorProviders
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
@@ -45,57 +46,73 @@ class RadioButtonColors internal constructor(internal val radio: CheckableColorP
  * @param uncheckedColor the tint to apply to the radio button when it is not checked,
  * or null to use the default tint.
  */
-fun RadioButtonColors(
-    checkedColor: ColorProvider?,
-    uncheckedColor: ColorProvider?,
+fun radioButtonColors(
+    checkedColor: ColorProvider,
+    uncheckedColor: ColorProvider,
 ): RadioButtonColors {
     return RadioButtonColors(
         radio = createCheckableColorProvider(
-            source = "RadioButtonColors",
-            checked = checkedColor,
-            unchecked = uncheckedColor,
-            fallback = R.color.glance_default_radio_button
+            source = "RadioButtonColors", checked = checkedColor, unchecked = uncheckedColor
         )
     )
 }
 
 /**
- * [RadioButtonColors] set to color resources.
- *
- * These may be fixed colors or a color selector that selects color depending on
- * [android.R.attr.state_checked].
- *
- * @param color the resource to use to tint the radio button. If an invalid resource id is provided,
- * the default colors will be used.
- */
-fun RadioButtonColors(
-    @ColorRes color: Int = R.color.glance_default_radio_button
-): RadioButtonColors =
-    RadioButtonColors(
-        radio = ResourceCheckableColorProvider(
-            resId = color,
-            fallback = R.color.glance_default_radio_button
-        )
-    )
-
-/**
- * [RadioButtonColors] that uses [checkedColor] or [uncheckedColor] depending on the checked state
+ * [radioButtonColors] that uses [checkedColor] or [uncheckedColor] depending on the checked state
  * of the RadioButton.
  *
  * @param checkedColor the [Color] to use when the RadioButton is checked
  * @param uncheckedColor the [Color] to use when the RadioButton is not checked
  */
-fun RadioButtonColors(checkedColor: Color, uncheckedColor: Color): RadioButtonColors =
-    RadioButtonColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
+fun radioButtonColors(checkedColor: Color, uncheckedColor: Color): RadioButtonColors =
+    radioButtonColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
 
-internal class EmittableRadioButton : Emittable {
+@Composable
+fun radioButtonColors(): RadioButtonColors {
+    val colorProvider = if (GlanceTheme.colors == DynamicThemeColorProviders) {
+        // If using the m3 dynamic color theme, we need to create a color provider from xml
+        // because resource backed ColorStateLists cannot be created programmatically
+        ResourceCheckableColorProvider(R.color.glance_default_radio_button)
+    } else {
+        createCheckableColorProvider(
+            source = "CheckBoxColors",
+            checked = GlanceTheme.colors.primary,
+            unchecked = GlanceTheme.colors.onSurfaceVariant
+        )
+    }
+
+    return RadioButtonColors(colorProvider)
+}
+
+internal class EmittableRadioButton(
+    var colors: RadioButtonColors
+) : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var checked: Boolean = false
     var enabled: Boolean = true
     var text: String = ""
     var style: TextStyle? = null
-    var colors: RadioButtonColors = RadioButtonColors()
     var maxLines: Int = Int.MAX_VALUE
+
+    override fun copy(): Emittable = EmittableRadioButton(colors = colors).also {
+        it.modifier = modifier
+        it.checked = checked
+        it.enabled = enabled
+        it.text = text
+        it.style = style
+        it.maxLines = maxLines
+    }
+
+    override fun toString(): String = "EmittableRadioButton(" +
+        "$text, " +
+        "modifier=$modifier, " +
+        "checked=$checked, " +
+        "enabled=$enabled, " +
+        "text=$text, " +
+        "style=$style, " +
+        "colors=$colors, " +
+        "maxLines=$maxLines, " +
+        ")"
 }
 
 /**
@@ -123,22 +140,19 @@ fun RadioButton(
     enabled: Boolean = true,
     text: String = "",
     style: TextStyle? = null,
-    colors: RadioButtonColors = RadioButtonColors(),
+    colors: RadioButtonColors = radioButtonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (enabled && onClick != null) modifier.clickable(onClick) else modifier
-    GlanceNode(
-        factory = ::EmittableRadioButton,
-        update = {
-            this.set(checked) { this.checked = it }
-            this.set(finalModifier) { this.modifier = it }
-            this.set(enabled) { this.enabled = it }
-            this.set(text) { this.text = it }
-            this.set(style) { this.style = it }
-            this.set(colors) { this.colors = it }
-            this.set(maxLines) { this.maxLines = it }
-        }
-    )
+    GlanceNode(factory = { EmittableRadioButton(colors) }, update = {
+        this.set(checked) { this.checked = it }
+        this.set(finalModifier) { this.modifier = it }
+        this.set(enabled) { this.enabled = it }
+        this.set(text) { this.text = it }
+        this.set(style) { this.style = it }
+        this.set(colors) { this.colors = it }
+        this.set(maxLines) { this.maxLines = it }
+    })
 }
 
 /**
@@ -149,8 +163,7 @@ fun RadioButton(
  * another is selected. When this modifier is used, an error will be thrown if more than one
  * RadioButton has their "checked" value set to true.
  */
-fun GlanceModifier.selectableGroup(): GlanceModifier =
-    this.then(SelectableGroupModifier)
+fun GlanceModifier.selectableGroup(): GlanceModifier = this.then(SelectableGroupModifier)
 
 internal object SelectableGroupModifier : GlanceModifier.Element
 

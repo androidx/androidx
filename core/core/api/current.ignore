@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.core.os.ParcelCompat#readArray(android.os.Parcel, ClassLoader, Class<T>):
+    Method androidx.core.os.ParcelCompat.readArray has changed return type from T[] to Object[]

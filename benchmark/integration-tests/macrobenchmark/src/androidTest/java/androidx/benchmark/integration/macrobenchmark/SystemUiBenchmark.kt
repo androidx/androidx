@@ -16,28 +16,22 @@
 
 package androidx.benchmark.integration.macrobenchmark
 
-import androidx.benchmark.Shell
-import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import org.junit.Assume.assumeTrue
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalBaselineProfilesApi::class)
 class SystemUiBenchmark {
-
     @get:Rule
     val baselineRule = BaselineProfileRule()
 
     @Test
     @Ignore
     fun baselineProfiles() {
-        assumeTrue(Shell.isSessionRooted())
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
             profileBlock = {

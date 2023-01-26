@@ -300,6 +300,12 @@ public class Carousel extends MotionHelper {
         }
     };
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mList.clear();
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onAttachedToWindow() {
@@ -310,6 +316,7 @@ public class Carousel extends MotionHelper {
         } else {
             return;
         }
+        mList.clear();
         for (int i = 0; i < mCount; i++) {
             int id = mIds[i];
             View view = container.getViewById(id);

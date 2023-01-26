@@ -49,7 +49,6 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
-    mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2019"
     description = "AndroidX Security"
 }

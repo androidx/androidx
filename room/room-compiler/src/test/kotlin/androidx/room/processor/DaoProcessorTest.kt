@@ -17,25 +17,26 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.common.truth.Truth
-import com.squareup.javapoet.TypeName
 import createVerifierFromEntitiesAndViews
+import java.io.File
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
 
 @RunWith(Parameterized::class)
 class DaoProcessorTest(private val enableVerification: Boolean) {
@@ -224,7 +225,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -272,7 +273,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             if (!dao.isTypeElement()) {
                 error("Expected DAO to be a type")
             }
-            val dbType = invocation.context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB.toJavaPoet())
             val daoProcessor =
                 DaoProcessor(invocation.context, dao, dbType, null)
             Truth.assertThat(daoProcessor.context.logger.suppressedWarnings)
@@ -293,7 +294,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(
@@ -437,7 +438,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             assertThat(method.element.jvmName, `is`("getAllIds"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.cannotFindQueryResultAdapter(TypeName.VOID)
+                    ProcessorErrors.cannotFindQueryResultAdapter("void")
                 )
             }
         }
@@ -457,7 +458,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         """.trimIndent())
         runProcessorTest(sources = listOf(source)) { invocation ->
             val dao = invocation.processingEnv.requireTypeElement("MyDao")
-            val dbType = invocation.context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB.toJavaPoet())
             DaoProcessor(
                 baseContext = invocation.context,
                 element = dao,
@@ -468,6 +469,44 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 hasWarningContaining(
                     ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                 )
+            }
+        }
+    }
+
+    @Test
+    fun disallowPropertyDao() {
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              val allEntities: List<MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            )
+            """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(src),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+        ) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
             }
         }
     }
@@ -499,7 +538,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 null
             }
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, dbVerifier

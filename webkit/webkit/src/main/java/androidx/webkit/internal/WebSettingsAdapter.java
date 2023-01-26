@@ -16,9 +16,13 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.WebSettings;
+
 import androidx.annotation.NonNull;
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
+
+import java.util.Set;
 
 /**
  * Adapter between WebSettingsCompat and
@@ -144,5 +148,23 @@ public class WebSettingsAdapter {
      */
     public boolean getEnterpriseAuthenticationAppLinkPolicyEnabled() {
         return mBoundaryInterface.getEnterpriseAuthenticationAppLinkPolicyEnabled();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)}.
+     */
+    @NonNull
+    public Set<String> getRequestedWithHeaderOriginAllowList() {
+        return mBoundaryInterface.getRequestedWithHeaderOriginAllowList();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderOriginAllowList(
+     * WebSettings, Set)}.
+     */
+    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
+        mBoundaryInterface.setRequestedWithHeaderOriginAllowList(allowList);
     }
 }

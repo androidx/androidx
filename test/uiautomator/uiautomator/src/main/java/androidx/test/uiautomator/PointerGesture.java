@@ -26,7 +26,7 @@ import java.util.Deque;
  */
 class PointerGesture {
     // The list of actions that make up this gesture.
-    private final Deque<PointerAction> mActions = new ArrayDeque<PointerAction>();
+    private final Deque<PointerAction> mActions = new ArrayDeque<>();
     private final long mDelay;
     private final int mDisplayId;
     private long mDuration;
@@ -137,10 +137,7 @@ class PointerGesture {
         }
     }
 
-    /**
-     * A {@link PointerLinearMotionAction} moves the pointer between two points at a constant
-     * speed.
-     */
+    /** Action that moves the pointer between two points at a constant speed. */
     private static class PointerLinearMoveAction extends PointerAction {
 
         public PointerLinearMoveAction(Point startPoint, Point endPoint, int speed) {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="emoji_category_recent" msgid="7142376595414250279">"НЕОДАМНА КОРИСТЕНИ"</string>
+    <string name="emoji_category_emotions" msgid="1570830970240985537">"СМЕШКОВЦИ И ЕМОТИКОНИ"</string>
+    <string name="emoji_category_people" msgid="7968173366822927025">"ЛУЃЕ"</string>
+    <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ЖИВОТНИ И ПРИРОДА"</string>
+    <string name="emoji_category_food_drink" msgid="1189971856721244395">"ХРАНА И ПИЈАЛАЦИ"</string>
+    <string name="emoji_category_travel_places" msgid="8105712773237012672">"ПАТУВАЊЕ И МЕСТА"</string>
+    <string name="emoji_category_activity" msgid="4381135114947330911">"АКТИВНОСТИ И НАСТАНИ"</string>
+    <string name="emoji_category_objects" msgid="6106115586332708067">"ОБЈЕКТИ"</string>
+    <string name="emoji_category_symbols" msgid="5626171724310261787">"СИМБОЛИ"</string>
+    <string name="emoji_category_flags" msgid="6185639503532784871">"ЗНАМИЊА"</string>
+    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Нема достапни емоџија"</string>
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Сѐ уште не сте користеле емоџија"</string>
+</resources>

@@ -123,7 +123,7 @@ final class ImageSaver implements Runnable {
 
         SaveError saveError = null;
         String errorMessage = null;
-        Exception exception = null;
+        Throwable throwable = null;
         try (ImageProxy imageToClose = mImage;
              FileOutputStream output = new FileOutputStream(tempFile)) {
             byte[] bytes = imageToJpegByteArray(mImage, mJpegQuality);
@@ -151,10 +151,14 @@ final class ImageSaver implements Runnable {
             }
 
             exif.save();
+        } catch (OutOfMemoryError e) {
+            saveError = SaveError.UNKNOWN;
+            errorMessage = "Processing failed due to low memory.";
+            throwable = e;
         } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write temp file";
-            exception = e;
+            throwable = e;
         } catch (CodecFailedException e) {
             switch (e.getFailureType()) {
                 case ENCODE_FAILED:
@@ -171,10 +175,10 @@ final class ImageSaver implements Runnable {
                     errorMessage = "Failed to transcode mImage";
                     break;
             }
-            exception = e;
+            throwable = e;
         }
         if (saveError != null) {
-            postError(saveError, errorMessage, exception);
+            postError(saveError, errorMessage, throwable);
             tempFile.delete();
             return null;
         }
@@ -197,7 +201,7 @@ final class ImageSaver implements Runnable {
             }
         } else if (imageFormat == ImageFormat.YUV_420_888) {
             return ImageUtil.yuvImageToJpegByteArray(image, shouldCropImage ? image.getCropRect() :
-                    null, jpegQuality);
+                    null, jpegQuality, 0 /* rotationDegrees */);
         } else {
             Logger.w(TAG, "Unrecognized image format: " + imageFormat);
         }
@@ -251,7 +255,7 @@ final class ImageSaver implements Runnable {
                 }
                 outputUri = Uri.fromFile(targetFile);
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | SecurityException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write destination file.";
             exception = e;

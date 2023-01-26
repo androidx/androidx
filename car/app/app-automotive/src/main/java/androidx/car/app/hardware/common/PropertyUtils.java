@@ -333,7 +333,7 @@ public final class PropertyUtils {
     /**
      * Creates a response from {@link CarPropertyValue}.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
     public static CarPropertyResponse<?> convertPropertyValueToPropertyResponse(

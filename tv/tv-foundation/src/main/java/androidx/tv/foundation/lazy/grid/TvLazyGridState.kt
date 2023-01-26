@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import androidx.tv.foundation.lazy.layout.animateScrollToItem
 import androidx.tv.foundation.lazy.list.AwaitFirstLayoutModifier
 import kotlin.math.abs
 
@@ -172,7 +173,7 @@ class TvLazyGridState constructor(
     /**
      * The list of handles associated with the items from the [lineToPrefetch] line.
      */
-    private var currentLinePrefetchHandles =
+    private val currentLinePrefetchHandles =
         mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
 
     /**
@@ -209,6 +210,8 @@ class TvLazyGridState constructor(
     mutableStateOf({ emptyList() })
 
     internal var placementAnimator by mutableStateOf<LazyGridItemPlacementAnimator?>(null)
+
+    private val animateScrollScope = LazyGridAnimateScrollScope(this)
 
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
@@ -258,8 +261,9 @@ class TvLazyGridState constructor(
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
-    private var canScrollBackward: Boolean = false
-    internal var canScrollForward: Boolean = false
+    override var canScrollForward: Boolean by mutableStateOf(false)
+        private set
+    override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
     // TODO: Coroutine scrolling APIs will allow this to be private again once we have more
@@ -306,7 +310,6 @@ class TvLazyGridState constructor(
         }
         val info = layoutInfo
         if (info.visibleItemsInfo.isNotEmpty()) {
-            // check(isActive)
             val scrollingForward = delta < 0
             val lineToPrefetch: Int
             val closestNextItemToPrefetch: Int
@@ -377,7 +380,7 @@ class TvLazyGridState constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        doSmoothScrollToItem(index, scrollOffset, slotsPerLine)
+        animateScrollScope.animateScrollToItem(index, scrollOffset)
     }
 
     /**

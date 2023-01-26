@@ -18,6 +18,7 @@ package androidx.health.services.client.data
 
 import androidx.annotation.IntDef
 import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.ExerciseClient
 import kotlin.annotation.AnnotationRetention.SOURCE
 
 /**
@@ -56,7 +57,7 @@ public annotation class ExerciseEndReason {
          */
         public const val AUTO_END_MISSING_LISTENER: Int = 3
 
-        /** The exercise has been ended by a direct call to [endExercise]. */
+        /** The exercise has been ended by a direct call to [ExerciseClient.endExerciseAsync]. */
         public const val USER_END: Int = 4
 
         /**

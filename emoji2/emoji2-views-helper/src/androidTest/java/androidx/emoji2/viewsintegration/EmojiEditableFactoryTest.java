@@ -30,9 +30,9 @@ import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.RequiresApi;
-import androidx.emoji2.text.EmojiMetadata;
 import androidx.emoji2.text.EmojiSpan;
 import androidx.emoji2.text.SpannableBuilder;
+import androidx.emoji2.text.TypefaceEmojiRasterizer;
 import androidx.emoji2.text.TypefaceEmojiSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -65,7 +65,7 @@ public class EmojiEditableFactoryTest {
     public void testNewEditable_preservesCharSequenceData() {
         final String string = "abc";
         final SpannableString str = new SpannableString(string);
-        final EmojiMetadata metadata = mock(EmojiMetadata.class);
+        final TypefaceEmojiRasterizer metadata = mock(TypefaceEmojiRasterizer.class);
         final EmojiSpan span = new TypefaceEmojiSpan(metadata);
         str.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 

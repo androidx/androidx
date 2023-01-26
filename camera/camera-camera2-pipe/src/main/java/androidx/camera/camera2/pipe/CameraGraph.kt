@@ -26,15 +26,53 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
-import java.io.Closeable
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.StateFlow
+
+abstract class GraphState internal constructor() {
+    /**
+     * When the [CameraGraph] is starting. This means we're in the process of opening a (virtual)
+     * camera and creating a capture session.
+     */
+    object GraphStateStarting : GraphState()
+
+    /**
+     * When the [CameraGraph] is started. This means a capture session has been successfully created
+     * for the [CameraGraph].
+     */
+    object GraphStateStarted : GraphState()
+
+    /**
+     * When the [CameraGraph] is stopping. This means we're in the process of stopping the graph.
+     */
+    object GraphStateStopping : GraphState()
+
+    /**
+     * When the [CameraGraph] hasn't been started, or stopped. This does not guarantee the closure
+     * of the capture session or the camera device itself.
+     */
+    object GraphStateStopped : GraphState()
+
+    /**
+     * When the [CameraGraph] has encountered an error. If [willAttemptRetry] is true, CameraPipe
+     * will retry opening the camera (and creating a capture session).
+     */
+    class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
+        GraphState()
+}
 
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface CameraGraph : Closeable {
+public interface CameraGraph : AutoCloseable {
     public val streams: StreamGraph
+
+    /**
+     * Returns the state flow of [GraphState], which emits the current state of the
+     * [CameraGraph], including when a [CameraGraph] is stopped, starting or started.
+     */
+    public val graphState: StateFlow<GraphState>
 
     /**
      * This will cause the [CameraGraph] to start opening the [CameraDevice] and configuring a
@@ -174,7 +212,7 @@ public interface CameraGraph : Closeable {
      * While this object is thread-safe, it should not shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
-    public interface Session : Closeable {
+    public interface Session : AutoCloseable {
         /**
          * Causes the CameraGraph to start or update the current repeating request with the
          * provided [Request] object. The [Request] object may be cached, and may be used for
@@ -262,6 +300,8 @@ public interface CameraGraph : Closeable {
          * AF skips the initial state of the new mode's state machine and stays locks in the new
          * mode as well.
          *
+         * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
+         * AF_TRIGGER_START request, this value should not be retained for following requests
          * @param frameLimit the maximum number of frames to wait before we give up waiting for
          * this operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
@@ -281,6 +321,7 @@ public interface CameraGraph : Closeable {
             aeLockBehavior: Lock3ABehavior? = null,
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
+            afTriggerStartAeMode: AeMode? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>

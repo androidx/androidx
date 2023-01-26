@@ -30,7 +30,6 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
  */
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
-    val typeParam: KSTypeParameter,
     val typeArg: KSTypeArgument,
     jvmTypeResolver: KspJvmTypeResolver?
 ) : KspType(
@@ -40,13 +39,19 @@ internal class KspTypeArgumentType(
 ) {
     /**
      * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
-     * pass to super is actually our extendsBound.
+     * pass to super is actually our extendsBound. Note that an unbound type argument will resolve
+     * to itself thus we need to check if the extendBound is not the same as this type arg.
      */
     private val _extendsBound by lazy {
-        env.wrap(
+        val extendBound = env.wrap(
             ksType = ksType,
             allowPrimitives = false
         )
+        if (this.ksType.declaration is KSTypeParameter && this == extendBound) {
+            null
+        } else {
+            extendBound
+        }
     }
 
     override fun resolveJTypeName(): JTypeName {
@@ -61,14 +66,13 @@ internal class KspTypeArgumentType(
         return this
     }
 
-    override fun extendsBound(): XType {
+    override fun extendsBound(): XType? {
         return _extendsBound
     }
 
     override fun copyWithNullability(nullability: XNullability): KspTypeArgumentType {
         return KspTypeArgumentType(
             env = env,
-            typeParam = typeParam,
             typeArg = DelegatingTypeArg(
                 original = typeArg,
                 type = ksType.withNullability(nullability).createTypeReference()
@@ -80,7 +84,6 @@ internal class KspTypeArgumentType(
     override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
         return KspTypeArgumentType(
             env = env,
-            typeParam = typeParam,
             typeArg = typeArg,
             jvmTypeResolver = jvmTypeResolver
         )

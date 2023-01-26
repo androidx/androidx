@@ -27,11 +27,17 @@ public class ArcCurveFit extends CurveFit {
     public static final int ARC_START_VERTICAL = 1;
     public static final int ARC_START_HORIZONTAL = 2;
     public static final int ARC_START_FLIP = 3;
+    public static final int ARC_BELOW = 4;
+    public static final int ARC_ABOVE = 5;
+
     public static final int ARC_START_LINEAR = 0;
 
     private static final int START_VERTICAL = 1;
     private static final int START_HORIZONTAL = 2;
     private static final int START_LINEAR = 3;
+    private static final int DOWN_ARC = 4;
+    private static final int UP_ARC = 5;
+
     private final double[] mTime;
     Arc[] mArcs;
     private boolean mExtrapolate = true;
@@ -275,6 +281,13 @@ public class ArcCurveFit extends CurveFit {
                     break;
                 case ARC_START_LINEAR:
                     mode = START_LINEAR;
+                    break;
+                case ARC_ABOVE:
+                    mode = UP_ARC;
+                    break;
+                case ARC_BELOW:
+                    mode = DOWN_ARC;
+                    break;
             }
             mArcs[i] =
                     new Arc(mode, time[i], time[i + 1], y[i][0], y[i][1], y[i + 1][0], y[i + 1][1]);
@@ -302,15 +315,29 @@ public class ArcCurveFit extends CurveFit {
         private static final double EPSILON = 0.001;
 
         Arc(int mode, double t1, double t2, double x1, double y1, double x2, double y2) {
-            mVertical = mode == START_VERTICAL;
+            double dx = x2 - x1;
+            double dy = y2 - y1;
+            switch (mode) {
+                case START_VERTICAL:
+                    mVertical = true;
+                    break;
+                case UP_ARC:
+                    mVertical = dy < 0;
+                    break;
+                case DOWN_ARC:
+                    mVertical = dy > 0;
+                    break;
+                default:
+                    mVertical = false;
+            }
+
             mTime1 = t1;
             mTime2 = t2;
             mOneOverDeltaTime = 1 / (mTime2 - mTime1);
             if (START_LINEAR == mode) {
                 mLinear = true;
             }
-            double dx = x2 - x1;
-            double dy = y2 - y1;
+
             if (mLinear || Math.abs(dx) < EPSILON || Math.abs(dy) < EPSILON) {
                 mLinear = true;
                 mX1 = x1;

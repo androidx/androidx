@@ -24,9 +24,11 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Handler
+import android.os.IBinder
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.IWatchFaceService
+import android.support.wearable.watchface.ParcelableWrapper
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
@@ -53,7 +55,6 @@ internal class TestWatchFaceService(
     private val watchState: MutableWatchState?,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
-    private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
     private val choreographer: ChoreographerWrapper,
     var mockSystemTimeMillis: Long = 0L,
@@ -169,8 +170,6 @@ internal class TestWatchFaceService(
         complicationCache?.set(fileName, byteArray)
     }
 
-    override fun isPreAndroidR() = preAndroidR
-
     override fun getSystemTimeProvider() = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = mockSystemTimeMillis
 
@@ -218,8 +217,8 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
         iWatchFaceService.setContentDescriptionLabels(labels)
     }
 
-    override fun reserved5() {
-        iWatchFaceService.reserved5()
+    override fun reserved5(wrapper: ParcelableWrapper) {
+        iWatchFaceService.reserved5(wrapper)
     }
 
     override fun setDefaultComplicationProviderWithFallbacks(
@@ -233,8 +232,8 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
         )
     }
 
-    override fun reserved8() {
-        iWatchFaceService.reserved8()
+    override fun reserved8(wrapper: ParcelableWrapper, binder: IBinder) {
+        iWatchFaceService.reserved8(wrapper, binder)
     }
 }
 
@@ -253,6 +252,7 @@ public open class TestRenderer(
 ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null
     public var lastRenderWasForScreenshot: Boolean? = null
+    public val renderParametersScreenshotFlags = mutableListOf<Boolean>()
 
     override fun render(
         canvas: Canvas,
@@ -264,6 +264,11 @@ public open class TestRenderer(
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+    }
+
+    public override fun onRenderParametersChanged(renderParameters: RenderParameters) {
+        renderParametersScreenshotFlags.add(renderParameters.isForScreenshot)
+        super.onRenderParametersChanged(renderParameters)
     }
 }
 

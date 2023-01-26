@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -779,5 +780,57 @@ public class SetSchemaRequestCtsTest {
                 ImmutableSet.of(
                         ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA)));
+    }
+
+    @Test
+    public void testVerbatimTokenizerType() {
+        AppSearchSchema.StringPropertyConfig prop1 =
+                new AppSearchSchema.StringPropertyConfig.Builder("prop1")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
+                        .build();
+        AppSearchSchema schema1 =
+                new AppSearchSchema.Builder("type1").addProperty(prop1).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1)
+                .setForceOverride(true)
+                .setVersion(142857)
+                .build();
+        AppSearchSchema[] schemas = request.getSchemas().toArray(new AppSearchSchema[0]);
+        assertThat(schemas).hasLength(1);
+        List<AppSearchSchema.PropertyConfig> properties = schemas[0].getProperties();
+        assertThat(properties).hasSize(1);
+        assertThat(((AppSearchSchema.StringPropertyConfig) properties.get(0)).getTokenizerType())
+                .isEqualTo(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM);
+    }
+
+    @Test
+    public void testRfc822TokenizerType() {
+        AppSearchSchema.StringPropertyConfig prop1 =
+                new AppSearchSchema.StringPropertyConfig.Builder("prop1")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822)
+                        .build();
+        AppSearchSchema schema1 =
+                new AppSearchSchema.Builder("type1").addProperty(prop1).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1)
+                .setForceOverride(true)
+                .setVersion(142857)
+                .build();
+        AppSearchSchema[] schemas = request.getSchemas().toArray(new AppSearchSchema[0]);
+        assertThat(schemas).hasLength(1);
+        List<AppSearchSchema.PropertyConfig> properties = schemas[0].getProperties();
+        assertThat(properties).hasSize(1);
+        assertThat(((AppSearchSchema.StringPropertyConfig) properties.get(0)).getTokenizerType())
+                .isEqualTo(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822);
     }
 }

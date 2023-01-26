@@ -18,19 +18,17 @@ package androidx.window.sample.embedding
 
 import android.content.Context
 import androidx.startup.Initializer
-import androidx.window.core.ExperimentalWindowApi
-import androidx.window.embedding.SplitController
+import androidx.window.embedding.RuleController
 import androidx.window.sample.R
 
 /**
- * Initializes SplitController with a set of statically defined rules.
+ * Initializes [RuleController] with a set of statically defined rules.
  */
-@OptIn(ExperimentalWindowApi::class)
-class ExampleWindowInitializer : Initializer<SplitController> {
-    override fun create(context: Context): SplitController {
-        SplitController.initialize(context, R.xml.main_split_config)
-        return SplitController.getInstance()
-    }
+class ExampleWindowInitializer : Initializer<RuleController> {
+    override fun create(context: Context): RuleController =
+        RuleController.getInstance(context).apply {
+            setRules(RuleController.parseRules(context, R.xml.main_split_config))
+        }
 
     override fun dependencies(): List<Class<out Initializer<*>>> {
         return emptyList()

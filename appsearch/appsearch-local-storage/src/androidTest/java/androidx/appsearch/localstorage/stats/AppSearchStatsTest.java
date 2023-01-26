@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.stats.SchemaMigrationStats;
 
 import org.junit.Test;
 
@@ -188,22 +189,27 @@ public class AppSearchStatsTest {
     public void testAppSearchStats_SearchStats() {
         int rewriteSearchSpecLatencyMillis = 1;
         int rewriteSearchResultLatencyMillis = 2;
+        int javaLockAcquisitionLatencyMillis = 3;
+        int aclCheckLatencyMillis = 4;
         int visibilityScope = SearchStats.VISIBILITY_SCOPE_LOCAL;
-        int nativeLatencyMillis = 4;
-        int nativeNumTerms = 5;
-        int nativeQueryLength = 6;
-        int nativeNumNamespacesFiltered = 7;
-        int nativeNumSchemaTypesFiltered = 8;
-        int nativeRequestedPageSize = 9;
-        int nativeNumResultsReturnedCurrentPage = 10;
+        int nativeLatencyMillis = 6;
+        int nativeNumTerms = 7;
+        int nativeQueryLength = 8;
+        int nativeNumNamespacesFiltered = 9;
+        int nativeNumSchemaTypesFiltered = 10;
+        int nativeRequestedPageSize = 11;
+        int nativeNumResultsReturnedCurrentPage = 12;
         boolean nativeIsFirstPage = true;
-        int nativeParseQueryLatencyMillis = 11;
-        int nativeRankingStrategy = 12;
-        int nativeNumDocumentsScored = 13;
-        int nativeScoringLatencyMillis = 14;
-        int nativeRankingLatencyMillis = 15;
-        int nativeNumResultsSnippeted = 16;
-        int nativeDocumentRetrievingLatencyMillis = 17;
+        int nativeParseQueryLatencyMillis = 13;
+        int nativeRankingStrategy = 14;
+        int nativeNumDocumentsScored = 15;
+        int nativeScoringLatencyMillis = 16;
+        int nativeRankingLatencyMillis = 17;
+        int nativeNumResultsSnippeted = 18;
+        int nativeDocumentRetrievingLatencyMillis = 19;
+        int nativeLockAcquisitionLatencyMillis = 20;
+        int javaToNativeJniLatencyMillis = 21;
+        int nativeToJavaJniLatencyMillis = 22;
         final SearchStats.Builder sStatsBuilder = new SearchStats.Builder(visibilityScope,
                 TEST_PACKAGE_NAME)
                 .setDatabase(TEST_DATA_BASE)
@@ -211,6 +217,8 @@ public class AppSearchStatsTest {
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
                 .setRewriteSearchSpecLatencyMillis(rewriteSearchSpecLatencyMillis)
                 .setRewriteSearchResultLatencyMillis(rewriteSearchResultLatencyMillis)
+                .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
+                .setAclCheckLatencyMillis(aclCheckLatencyMillis)
                 .setNativeLatencyMillis(nativeLatencyMillis)
                 .setTermCount(nativeNumTerms)
                 .setQueryLength(nativeQueryLength)
@@ -225,7 +233,10 @@ public class AppSearchStatsTest {
                 .setScoringLatencyMillis(nativeScoringLatencyMillis)
                 .setRankingLatencyMillis(nativeRankingLatencyMillis)
                 .setResultWithSnippetsCount(nativeNumResultsSnippeted)
-                .setDocumentRetrievingLatencyMillis(nativeDocumentRetrievingLatencyMillis);
+                .setDocumentRetrievingLatencyMillis(nativeDocumentRetrievingLatencyMillis)
+                .setNativeLockAcquisitionLatencyMillis(nativeLockAcquisitionLatencyMillis)
+                .setJavaToNativeJniLatencyMillis(javaToNativeJniLatencyMillis)
+                .setNativeToJavaJniLatencyMillis(nativeToJavaJniLatencyMillis);
         final SearchStats sStats = sStatsBuilder.build();
 
         assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -237,6 +248,10 @@ public class AppSearchStatsTest {
                 rewriteSearchSpecLatencyMillis);
         assertThat(sStats.getRewriteSearchResultLatencyMillis()).isEqualTo(
                 rewriteSearchResultLatencyMillis);
+        assertThat(sStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(
+                javaLockAcquisitionLatencyMillis);
+        assertThat(sStats.getAclCheckLatencyMillis()).isEqualTo(
+                aclCheckLatencyMillis);
         assertThat(sStats.getVisibilityScope()).isEqualTo(visibilityScope);
         assertThat(sStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
         assertThat(sStats.getTermCount()).isEqualTo(nativeNumTerms);
@@ -257,74 +272,144 @@ public class AppSearchStatsTest {
         assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(nativeNumResultsSnippeted);
         assertThat(sStats.getDocumentRetrievingLatencyMillis()).isEqualTo(
                 nativeDocumentRetrievingLatencyMillis);
+        assertThat(sStats.getNativeLockAcquisitionLatencyMillis()).isEqualTo(
+                nativeLockAcquisitionLatencyMillis);
+        assertThat(sStats.getJavaToNativeJniLatencyMillis()).isEqualTo(
+                javaToNativeJniLatencyMillis);
+        assertThat(sStats.getNativeToJavaJniLatencyMillis()).isEqualTo(
+                nativeToJavaJniLatencyMillis);
+
     }
 
     @Test
     public void testAppSearchStats_SetSchemaStats() {
-        SchemaMigrationStats schemaMigrationStats = new SchemaMigrationStats.Builder()
-                .setGetSchemaLatencyMillis(1)
-                .setQueryAndTransformLatencyMillis(2)
-                .setFirstSetSchemaLatencyMillis(3)
-                .setSecondSetSchemaLatencyMillis(4)
-                .setSaveDocumentLatencyMillis(5)
-                .setMigratedDocumentCount(6)
-                .setSavedDocumentCount(7)
-                .build();
         int newTypeCount = 1;
-        int compatibleTypeChangeCount = 2;
-        int indexIncompatibleTypeChangeCount = 3;
-        int backwardsIncompatibleTypeChangeCount = 4;
+        int deletedTypeCount = 2;
+        int compatibleTypeChangeCount = 3;
+        int indexIncompatibleTypeChangeCount = 4;
+        int backwardsIncompatibleTypeChangeCount = 5;
+        int verifyIncomingCallLatencyMillis = 6;
+        int executorAcquisitionLatencyMillis = 7;
+        int rebuildFromBundleLatencyMillis = 8;
+        int javaLockAcquisitionLatencyMillis = 9;
+        int totalNativeLatencyMillis = 10;
+        int rewriteSchemaLatencyMillis = 11;
+        int visibilitySettingLatencyMillis = 12;
+        int convertToResponseLatencyMillis = 13;
+        int dispatchChangeNotificationsLatencyMillis = 14;
+        int optimizeLatencyMillis = 15;
+        boolean isPackageObserved = true;
+        int getOldSchemaLatencyMillis = 16;
+        int getObserverLatencyMillis = 17;
+        int sendNotificationLatencyMillis = 18;
         SetSchemaStats sStats = new SetSchemaStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
-                .setSchemaMigrationStats(schemaMigrationStats)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
                 .setNewTypeCount(newTypeCount)
+                .setDeletedTypeCount(deletedTypeCount)
                 .setCompatibleTypeChangeCount(compatibleTypeChangeCount)
                 .setIndexIncompatibleTypeChangeCount(indexIncompatibleTypeChangeCount)
                 .setBackwardsIncompatibleTypeChangeCount(backwardsIncompatibleTypeChangeCount)
+                .setVerifyIncomingCallLatencyMillis(verifyIncomingCallLatencyMillis)
+                .setExecutorAcquisitionLatencyMillis(executorAcquisitionLatencyMillis)
+                .setRebuildFromBundleLatencyMillis(rebuildFromBundleLatencyMillis)
+                .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
+                .setRewriteSchemaLatencyMillis(rewriteSchemaLatencyMillis)
+                .setTotalNativeLatencyMillis(totalNativeLatencyMillis)
+                .setVisibilitySettingLatencyMillis(visibilitySettingLatencyMillis)
+                .setConvertToResponseLatencyMillis(convertToResponseLatencyMillis)
+                .setDispatchChangeNotificationsLatencyMillis(
+                        dispatchChangeNotificationsLatencyMillis)
+                .setOptimizeLatencyMillis(optimizeLatencyMillis)
+                .setIsPackageObserved(isPackageObserved)
+                .setGetOldSchemaLatencyMillis(getOldSchemaLatencyMillis)
+                .setGetObserverLatencyMillis(getObserverLatencyMillis)
+                .setPreparingChangeNotificationLatencyMillis(sendNotificationLatencyMillis)
+                .setSchemaMigrationCallType(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA)
                 .build();
 
         assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(sStats.getDatabase()).isEqualTo(TEST_DATA_BASE);
         assertThat(sStats.getStatusCode()).isEqualTo(TEST_STATUS_CODE);
-        assertThat(sStats.getSchemaMigrationStats()).isEqualTo(schemaMigrationStats);
         assertThat(sStats.getTotalLatencyMillis()).isEqualTo(
                 TEST_TOTAL_LATENCY_MILLIS);
         assertThat(sStats.getNewTypeCount()).isEqualTo(newTypeCount);
+        assertThat(sStats.getDeletedTypeCount()).isEqualTo(deletedTypeCount);
         assertThat(sStats.getCompatibleTypeChangeCount()).isEqualTo(compatibleTypeChangeCount);
         assertThat(sStats.getIndexIncompatibleTypeChangeCount()).isEqualTo(
                 indexIncompatibleTypeChangeCount);
         assertThat(sStats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(
                 backwardsIncompatibleTypeChangeCount);
+        assertThat(sStats.getVerifyIncomingCallLatencyMillis()).isEqualTo(
+                verifyIncomingCallLatencyMillis);
+        assertThat(sStats.getExecutorAcquisitionLatencyMillis()).isEqualTo(
+                executorAcquisitionLatencyMillis);
+        assertThat(sStats.getRebuildFromBundleLatencyMillis()).isEqualTo(
+                rebuildFromBundleLatencyMillis);
+        assertThat(sStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(
+                javaLockAcquisitionLatencyMillis);
+        assertThat(sStats.getRewriteSchemaLatencyMillis()).isEqualTo(rewriteSchemaLatencyMillis);
+        assertThat(sStats.getTotalNativeLatencyMillis()).isEqualTo(totalNativeLatencyMillis);
+        assertThat(sStats.getVisibilitySettingLatencyMillis()).isEqualTo(
+                visibilitySettingLatencyMillis);
+        assertThat(sStats.getConvertToResponseLatencyMillis()).isEqualTo(
+                convertToResponseLatencyMillis);
+        assertThat(sStats.getDispatchChangeNotificationsLatencyMillis()).isEqualTo(
+                dispatchChangeNotificationsLatencyMillis);
+        assertThat(sStats.getOptimizeLatencyMillis()).isEqualTo(optimizeLatencyMillis);
+        assertThat(sStats.isPackageObserved()).isEqualTo(isPackageObserved);
+        assertThat(sStats.getGetOldSchemaLatencyMillis()).isEqualTo(getOldSchemaLatencyMillis);
+        assertThat(sStats.getGetObserverLatencyMillis()).isEqualTo(getObserverLatencyMillis);
+        assertThat(sStats.getPreparingChangeNotificationLatencyMillis())
+                .isEqualTo(sendNotificationLatencyMillis);
+        assertThat(sStats.getSchemaMigrationCallType())
+                .isEqualTo(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA);
     }
 
     @Test
     public void testAppSearchStats_SchemaMigrationStats() {
-        int getSchemaLatency = 1;
-        int queryAndTransformLatency = 2;
-        int firstSetSchemaLatency = 3;
-        int secondSetSchemaLatency = 4;
-        int saveDocumentLatency = 5;
-        int migratedDocumentCount = 6;
-        int savedDocumentCount = 7;
-        SchemaMigrationStats sStats = new SchemaMigrationStats.Builder()
+        int executorAcquisitionLatencyMillis = 1;
+        int getSchemaLatency = 2;
+        int queryAndTransformLatency = 3;
+        int firstSetSchemaLatency = 4;
+        boolean isFirstSetSchemaSuccess = true;
+        int secondSetSchemaLatency = 5;
+        int saveDocumentLatency = 6;
+        int migratedDocumentCount = 7;
+        int savedDocumentCount = 8;
+        int migrationFailureCount = 9;
+        SchemaMigrationStats sStats = new SchemaMigrationStats.Builder(
+                TEST_PACKAGE_NAME, TEST_DATA_BASE)
+                .setStatusCode(TEST_STATUS_CODE)
+                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
+                .setExecutorAcquisitionLatencyMillis(executorAcquisitionLatencyMillis)
                 .setGetSchemaLatencyMillis(getSchemaLatency)
                 .setQueryAndTransformLatencyMillis(queryAndTransformLatency)
                 .setFirstSetSchemaLatencyMillis(firstSetSchemaLatency)
+                .setIsFirstSetSchemaSuccess(isFirstSetSchemaSuccess)
                 .setSecondSetSchemaLatencyMillis(secondSetSchemaLatency)
                 .setSaveDocumentLatencyMillis(saveDocumentLatency)
-                .setMigratedDocumentCount(migratedDocumentCount)
-                .setSavedDocumentCount(savedDocumentCount)
+                .setTotalNeedMigratedDocumentCount(migratedDocumentCount)
+                .setTotalSuccessMigratedDocumentCount(savedDocumentCount)
+                .setMigrationFailureCount(migrationFailureCount)
                 .build();
 
+        assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
+        assertThat(sStats.getDatabase()).isEqualTo(TEST_DATA_BASE);
+        assertThat(sStats.getStatusCode()).isEqualTo(TEST_STATUS_CODE);
+        assertThat(sStats.getTotalLatencyMillis()).isEqualTo(
+                TEST_TOTAL_LATENCY_MILLIS);
+        assertThat(sStats.getExecutorAcquisitionLatencyMillis())
+                .isEqualTo(executorAcquisitionLatencyMillis);
         assertThat(sStats.getGetSchemaLatencyMillis()).isEqualTo(getSchemaLatency);
         assertThat(sStats.getQueryAndTransformLatencyMillis()).isEqualTo(queryAndTransformLatency);
         assertThat(sStats.getFirstSetSchemaLatencyMillis()).isEqualTo(firstSetSchemaLatency);
+        assertThat(sStats.isFirstSetSchemaSuccess()).isEqualTo(isFirstSetSchemaSuccess);
         assertThat(sStats.getSecondSetSchemaLatencyMillis()).isEqualTo(secondSetSchemaLatency);
         assertThat(sStats.getSaveDocumentLatencyMillis()).isEqualTo(saveDocumentLatency);
-        assertThat(sStats.getMigratedDocumentCount()).isEqualTo(migratedDocumentCount);
-        assertThat(sStats.getSavedDocumentCount()).isEqualTo(
-                savedDocumentCount);
+        assertThat(sStats.getTotalNeedMigratedDocumentCount()).isEqualTo(migratedDocumentCount);
+        assertThat(sStats.getTotalSuccessMigratedDocumentCount()).isEqualTo(savedDocumentCount);
+        assertThat(sStats.getMigrationFailureCount()).isEqualTo(migrationFailureCount);
     }
 
     @Test

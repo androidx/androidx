@@ -43,7 +43,7 @@ object PowerRail {
      * @Throws UnsupportedOperationException if `hasException == true` and no rail metrics are found.
      */
     fun hasMetrics(throwOnMissingMetrics: Boolean = false): Boolean {
-        val output = Shell.executeCommand(DUMPSYS_POWERSTATS)
+        val output = Shell.executeScriptCaptureStdout(DUMPSYS_POWERSTATS)
         return hasMetrics(output, throwOnMissingMetrics)
     }
 

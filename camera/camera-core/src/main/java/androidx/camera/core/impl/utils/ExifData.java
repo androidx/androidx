@@ -308,7 +308,9 @@ public class ExifData {
     public static ExifData create(@NonNull ImageProxy imageProxy,
             @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
         ExifData.Builder builder = ExifData.builderForDevice();
-        imageProxy.getImageInfo().populateExifData(builder);
+        if (imageProxy.getImageInfo() != null) {
+            imageProxy.getImageInfo().populateExifData(builder);
+        }
 
         // Overwrites the orientation degrees value of the output image because the capture
         // results might not have correct value when capturing image in YUV_420_888 format. See

@@ -26,9 +26,9 @@ import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
-import org.jetbrains.annotations.TestOnly
 import java.io.File
 import java.io.IOException
+import org.jetbrains.annotations.TestOnly
 
 /**
  * PerfettoHelper is used to start and stop the perfetto tracing and move the
@@ -96,22 +96,45 @@ public class PerfettoHelper(
             val actualConfigPath = if (unbundled) {
                 val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                 // Move the config to a directory that unbundled perfetto has permissions for.
-                Shell.executeCommand("rm $path")
-                Shell.executeCommand("mv $configFilePath $path")
+                Shell.executeScriptSilent("rm -f $path")
+                if (Build.VERSION.SDK_INT == 23) {
+                    // Observed stderr output (though command still completes successfully) on:
+                    // google/shamu/shamu:6.0.1/MOB31T/3671974:userdebug/dev-keys
+                    // Doesn't repro on all API 23 devices :|
+                    Shell.executeScriptCaptureStdoutStderr("cp $configFilePath $path").also {
+                        check(
+                            it.stdout.isBlank() &&
+                                (it.stderr.isBlank() || it.stderr.startsWith("mv: chown"))
+                        ) {
+                            "Observed unexpected output: it"
+                        }
+                    }
+                } else {
+                    Shell.executeScriptSilent("cp $configFilePath $path")
+                }
                 path
             } else {
                 configFilePath
             }
 
             val outputPath = getPerfettoTmpOutputFilePath()
+
+            if (!unbundled && Build.VERSION.SDK_INT == 29) {
+                // observed this on unrooted emulator
+                val output = Shell.executeScriptCaptureStdoutStderr("rm -f $outputPath")
+                Log.d(LOG_TAG, "Attempted to remove $outputPath, result = $output")
+            } else {
+                Shell.executeScriptSilent("rm -f $outputPath")
+            }
             // Remove already existing temporary output trace file if any.
-            val output = Shell.executeCommand("rm $outputPath")
-            Log.i(LOG_TAG, "Perfetto output file cleanup - $output")
 
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput = Shell.executeScript("$perfettoCmd; echo EXITCODE=$?").trim()
+            // Note: we intentionally don't check stderr, as benign warnings are printed
+            val perfettoCmdOutput = Shell.executeScriptCaptureStdoutStderr(
+                "$perfettoCmd; echo EXITCODE=$?"
+            ).stdout.trim()
 
             val expectedSuffix = "\nEXITCODE=0"
             if (!perfettoCmdOutput.endsWith(expectedSuffix)) {
@@ -162,7 +185,7 @@ public class PerfettoHelper(
         val pollTracingOnMs = 100L
 
         repeat(pollTracingOnMaxCount) {
-            when (val output = Shell.executeCommand("cat $path").trim()) {
+            when (val output = Shell.executeScriptCaptureStdout("cat $path").trim()) {
                 "0" -> {
                     userspaceTrace("wait for trace to start (tracing_on == 1)") {
                         SystemClock.sleep(pollTracingOnMs)
@@ -295,6 +318,7 @@ public class PerfettoHelper(
     private fun copyFileOutput(destinationFile: String): Boolean {
         val sourceFile = getPerfettoTmpOutputFilePath()
         val filePath = File(destinationFile)
+        filePath.setWritable(true, false)
         val destDirectory = filePath.parent
         if (destDirectory != null) {
             // Check if the directory already exists
@@ -314,14 +338,14 @@ public class PerfettoHelper(
         // Copy the collected trace from /data/misc/perfetto-traces/trace_output.pb to
         // destinationFile
         try {
-            val moveResult =
-                Shell.executeCommand("mv $sourceFile $destinationFile")
-            if (moveResult.isNotEmpty()) {
+            val copyResult =
+                Shell.executeScriptCaptureStdoutStderr("cp $sourceFile $destinationFile")
+            if (!copyResult.isBlank()) {
                 Log.e(
                     LOG_TAG,
                     """
-                        Unable to move perfetto output file from $sourceFile
-                        to $destinationFile due to $moveResult.
+                        Unable to copy perfetto output file from $sourceFile
+                        to $destinationFile due to $copyResult.
                     """.trimIndent()
                 )
                 return false
@@ -375,11 +399,8 @@ public class PerfettoHelper(
 
         fun isAbiSupported(): Boolean {
             Log.d(LOG_TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
-            // Cuttlefish is x86 but claims support for x86_64
-            return !Build.MODEL.contains("Cuttlefish") && ( // b/204892353
-                Build.SUPPORTED_64_BIT_ABIS.any { SUPPORTED_64_ABIS.contains(it) } ||
-                    Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
-                )
+            return Build.SUPPORTED_64_BIT_ABIS.any { SUPPORTED_64_ABIS.contains(it) } ||
+                Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
         }
 
         @get:TestOnly
@@ -399,6 +420,8 @@ public class PerfettoHelper(
                     // supported by a device. That is why we need to search from most specific to
                     // least specific. For e.g. emulators claim to support aarch64, when in reality
                     // they can only support x86 or x86_64.
+                    // Note: Cuttlefish is x86 but claims support for x86_64
+                    Build.MODEL.contains("Cuttlefish") -> "x86" // TODO(204892353): handle properly
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("x86_64") } -> "x86_64"
                     Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("x86") } -> "x86"
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm64") } -> "aarch64"
@@ -423,15 +446,22 @@ public class PerfettoHelper(
                 )
             }
 
-            // Have seen cases where unbundled Perfetto crashes, and leaves ftrace enabled,
+            // Have seen cases where bundled Perfetto crashes, and leaves ftrace enabled,
             // e.g. b/205763418. --cleanup-after-crash will reset that state, so it doesn't leak
             // between tests. If this sort of crash happens on higher API levels, may need to do
-            // this there as well. Can't use /system/bin/traced_probes, as that requires root, and
-            // unbundled tracebox otherwise not used/installed on higher APIs, outside of tests.
+            // this there as well. Can't use bundled /system/bin/traced_probes, as that requires
+            // root, and unbundled tracebox otherwise not used/installed on higher APIs, outside
+            // of tests.
             if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
-                Shell.executeCommand(
+                val output = Shell.executeScriptCaptureStdoutStderr(
                     "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
                 )
+                check(
+                    output.stderr.isBlank() ||
+                        output.stderr.contains("Hard resetting ftrace state")
+                ) {
+                    "Unexpected output from --cleanup-after-crash: $output"
+                }
             }
         }
     }

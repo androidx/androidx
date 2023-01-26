@@ -25,10 +25,10 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
-import androidx.test.runner.screenshot.Screenshot
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
 import androidx.core.splashscreen.R as SR
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 
 /**
  * If true, sets an [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener] on the
@@ -124,7 +124,7 @@ public class SplashScreenTestController(internal val activity: Activity) {
                 waitedLatch.countDown()
                 val shouldWait = waitBarrier.get() || waitedLatch.count > 0L
                 if (!shouldWait && takeScreenShot && splashScreenScreenshot == null) {
-                    splashScreenScreenshot = Screenshot.capture().bitmap
+                    splashScreenScreenshot = getInstrumentation().uiAutomation.takeScreenshot()
                 }
                 shouldWait
             }
@@ -141,7 +141,8 @@ public class SplashScreenTestController(internal val activity: Activity) {
                 if (takeScreenShot) {
                     splashScreenViewProvider.view.postDelayed(
                         {
-                            splashScreenViewScreenShot = Screenshot.capture().bitmap
+                            splashScreenViewScreenShot =
+                                getInstrumentation().uiAutomation.takeScreenshot()
                             splashScreenViewProvider.remove()
                             exitAnimationListenerLatch.countDown()
                         },

@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.room.Upsert
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.vo.UpsertionMethod
@@ -39,9 +38,8 @@ class UpsertionMethodProcessor(
         )
 
         val returnType = delegate.extractReturnType()
-        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
-            returnTypeName, executableElement,
+            returnType, executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS
         )
 
@@ -56,7 +54,7 @@ class UpsertionMethodProcessor(
                     entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                     executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
-                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = entity.primaryKey.fields.columnNames
                     )
                 )
@@ -71,7 +69,7 @@ class UpsertionMethodProcessor(
                     missingRequiredFields.isEmpty(),
                     executableElement,
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         missingColumnNames = missingRequiredFields.map { it.columnName }
                     )
                 )

@@ -101,6 +101,9 @@ fun EdgeSwipeDemo(swipeToDismissBoxState: SwipeToDismissBoxState) {
     val colors = listOf(Color.Blue, Color.Red, Color.Green, Color.Cyan, Color.Magenta)
     Box(modifier = Modifier.fillMaxSize()) {
         LazyRow(
+            // When using Modifier.edgeSwipeToDismiss, it is required that the element on which the
+            // modifier applies exists within a SwipeToDismissBox which shares the same state.
+            // Here, we share the swipeToDismissBoxState used by DemoApp's SwipeToDismissBox.
             modifier = Modifier.border(4.dp, Color.DarkGray)
                 .fillMaxSize()
                 .edgeSwipeToDismiss(swipeToDismissBoxState),

@@ -62,11 +62,17 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
                 toSchedule[it] = state
             }
         }
-        toSchedule.forEach { (spec, state) ->
+        toSchedule.forEach { (originalSpec, state) ->
             // this spec is attempted to run for the first time
             // so we have to rewind the time, because we have to override flex.
-            if (spec.isPeriodic && state.periodDelayMet) {
-                WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(spec.id)
+            val spec = if (originalSpec.isPeriodic && state.periodDelayMet) {
+                WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(originalSpec.id)
+            } else originalSpec
+            // don't even try to run a worker that WorkerWrapper won't execute anyway.
+            // similar to logic in WorkerWrapper
+            if ((spec.isPeriodic || spec.isBackedOff) &&
+                (spec.calculateNextRunTime() > System.currentTimeMillis())) {
+                return@forEach
             }
             scheduleInternal(spec.generationalId(), state)
         }
@@ -200,7 +206,7 @@ internal fun InternalWorkState(spec: WorkSpec): InternalWorkState =
         isPeriodic = spec.isPeriodic
     )
 
-private fun WorkManagerImpl.rewindLastEnqueueTime(id: String) {
+private fun WorkManagerImpl.rewindLastEnqueueTime(id: String): WorkSpec {
     // We need to pass check that mWorkSpec.calculateNextRunTime() < now
     // so we reset "rewind" enqueue time to pass the check
     // we don't reuse available internalWorkState.mWorkSpec, because it
@@ -216,4 +222,6 @@ private fun WorkManagerImpl.rewindLastEnqueueTime(id: String) {
     if (timeOffset > 0) {
         dao.setLastEnqueuedTime(id, workSpec.lastEnqueueTime - timeOffset)
     }
+    return dao.getWorkSpec(id)
+        ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
 }

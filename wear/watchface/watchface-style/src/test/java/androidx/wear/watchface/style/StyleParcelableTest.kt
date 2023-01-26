@@ -60,24 +60,28 @@ public class StyleParcelableTest {
     private val option1 = ListOption(
         Option.Id("1"),
         "one",
+        "one screen reader",
         icon1,
         watchFaceEditorData = WatchFaceEditorData(wfIcon1)
     )
     private val option2 = ListOption(
         Option.Id("2"),
         "two",
+        "two screen reader",
         icon2,
         watchFaceEditorData = WatchFaceEditorData(wfIcon2)
     )
     private val option3 = ListOption(
         Option.Id("3"),
         "three",
+        "three screen reader",
         icon3,
         watchFaceEditorData = WatchFaceEditorData(wfIcon3)
     )
     private val option4 = ListOption(
         Option.Id("4"),
         "four",
+        "four screen reader",
         icon4,
         watchFaceEditorData = WatchFaceEditorData(wfIcon4)
     )
@@ -277,10 +281,10 @@ public class StyleParcelableTest {
     @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelHierarchicalSchema() {
         val twelveHourClockOption =
-            ListOption(Option.Id("12_style"), "12", icon = null)
+            ListOption(Option.Id("12_style"), "12", "12", icon = null)
 
         val twentyFourHourClockOption =
-            ListOption(Option.Id("24_style"), "24", icon = null)
+            ListOption(Option.Id("24_style"), "24", "24", icon = null)
 
         val digitalClockStyleSetting = ListUserStyleSetting(
             UserStyleSetting.Id("digital_clock_style"),
@@ -294,6 +298,7 @@ public class StyleParcelableTest {
         val digitalWatchFaceType = ListOption(
             Option.Id("digital"),
             "Digital",
+            "Digital setting",
             icon = null,
             childSettings = listOf(digitalClockStyleSetting)
         )
@@ -322,6 +327,7 @@ public class StyleParcelableTest {
         val analogWatchFaceType = ListOption(
             Option.Id("analog"),
             "Analog",
+            "Analog setting",
             icon = null,
             childSettings = listOf(styleSetting1, styleSetting2)
         )
@@ -543,6 +549,7 @@ public class StyleParcelableTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun parcelAndUnparcelComplicationsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102
@@ -555,12 +562,14 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     "Both",
+                    "Both complications visible",
                     null,
                     listOf()
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("NO_COMPLICATIONS"),
                     "None",
+                    "No complications visible",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -576,6 +585,7 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("LEFT_COMPLICATION"),
                     "Left",
+                    "Left complication visible",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -593,6 +603,7 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("RIGHT_COMPLICATION"),
                     "Right",
+                    "Right complication visible",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -604,6 +615,7 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("RIGHT_COMPLICATION_MOVED"),
                     "MoveRight",
+                    "Right complication moved",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(

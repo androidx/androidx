@@ -51,7 +51,7 @@ internal fun RemoteViews.translateEmittableLinearProgressIndicator(
         is ResourceColorProvider -> {
           setProgressBarProgressTintList(
             viewId = viewDef.mainViewId,
-            tint = ColorStateList.valueOf(indicatorColor.resId)
+            resId = indicatorColor.resId
           )
         }
       }
@@ -66,7 +66,7 @@ internal fun RemoteViews.translateEmittableLinearProgressIndicator(
         is ResourceColorProvider -> {
           setProgressBarProgressBackgroundTintList(
             viewId = viewDef.mainViewId,
-            tint = ColorStateList.valueOf(backgroundColor.resId)
+            resId = backgroundColor.resId
           )
         }
       }

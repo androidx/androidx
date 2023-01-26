@@ -36,13 +36,18 @@ dependencies {
 
         implementation(project(":constraintlayout:constraintlayout-core"))
 
+        androidTestImplementation(project(":compose:material:material"))
         androidTestImplementation(project(":compose:ui:ui-test"))
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:ui:ui-test-manifest"))
         androidTestImplementation(project(":activity:activity"))
 
+        androidTestImplementation(libs.kotlinTest)
         androidTestImplementation(libs.testRules)
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.junit)
+
+        lintPublish(project(":constraintlayout:constraintlayout-compose-lint"))
     }
 }
 
@@ -90,12 +95,15 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             androidAndroidTest.dependencies {
+                implementation(libs.kotlinTest)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:material:material"))
                 implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-manifest"))
                 implementation(project(":compose:test-utils"))
             }
         }
@@ -106,7 +114,6 @@ androidx {
     name = "Android ConstraintLayout Compose Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
-    mavenGroup = LibraryGroups.CONSTRAINTLAYOUT
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
 }

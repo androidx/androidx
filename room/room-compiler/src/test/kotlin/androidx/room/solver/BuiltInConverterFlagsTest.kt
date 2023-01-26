@@ -60,6 +60,19 @@ class BuiltInConverterFlagsTest {
     }
 
     @Test
+    fun byteBuffer_disabledInDb() {
+        compile(
+            dbAnnotation = createTypeConvertersCode(
+                byteBuffer = DISABLED
+            )
+        ) {
+            hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val blob: ByteBuffer")
+            hasError(CANNOT_FIND_CURSOR_READER, "val blob: ByteBuffer")
+            hasErrorCount(2)
+        }
+    }
+
+    @Test
     fun all_disabledInDb_enabledInDao_enabledInEntity() {
         compile(
             dbAnnotation = createTypeConvertersCode(
@@ -84,16 +97,19 @@ class BuiltInConverterFlagsTest {
         compile(
             entityAnnotation = createTypeConvertersCode(
                 enums = DISABLED,
-                uuid = DISABLED
+                uuid = DISABLED,
+                byteBuffer = DISABLED
             )
         ) {
             hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val uuid: UUID")
             hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val myEnum: MyEnum")
+            hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val blob: ByteBuffer")
             // even though it is enabled in dao or db, since pojo processing will visit the pojo,
-            // we'll still get erros for these because entity disabled them
+            // we'll still get errors for these because entity disabled them
             hasError(CANNOT_FIND_CURSOR_READER, "val uuid: UUID")
             hasError(CANNOT_FIND_CURSOR_READER, "val myEnum: MyEnum")
-            hasErrorCount(4)
+            hasError(CANNOT_FIND_CURSOR_READER, "val blob: ByteBuffer")
+            hasErrorCount(6)
         }
     }
 
@@ -102,15 +118,18 @@ class BuiltInConverterFlagsTest {
         compile(
             dbAnnotation = createTypeConvertersCode(
                 enums = DISABLED,
-                uuid = DISABLED
+                uuid = DISABLED,
+                byteBuffer = DISABLED
             ),
             daoAnnotation = createTypeConvertersCode(
                 enums = DISABLED,
-                uuid = DISABLED
+                uuid = DISABLED,
+                byteBuffer = DISABLED
             ),
             entityAnnotation = createTypeConvertersCode(
                 enums = ENABLED,
-                uuid = ENABLED
+                uuid = ENABLED,
+                byteBuffer = ENABLED
             )
         ) {
             // success since we only fetch full objects.
@@ -184,7 +203,7 @@ class BuiltInConverterFlagsTest {
         return Source.kotlin(
             "Foo.kt",
             """
-            import androidx.room.*
+            import androidx.room.*import java.nio.ByteBuffer
             import java.util.UUID
             enum class MyEnum {
                 VAL_1,
@@ -197,7 +216,8 @@ class BuiltInConverterFlagsTest {
                 @PrimaryKey
                 val id:Int,
                 val uuid: UUID,
-                val myEnum: MyEnum
+                val myEnum: MyEnum,
+                val blob: ByteBuffer
             )
 
             $daoAnnotation
@@ -218,11 +238,13 @@ class BuiltInConverterFlagsTest {
 
     private fun createTypeConvertersCode(
         enums: BuiltInTypeConverters.State? = null,
-        uuid: BuiltInTypeConverters.State? = null
+        uuid: BuiltInTypeConverters.State? = null,
+        byteBuffer: BuiltInTypeConverters.State? = null
     ): String {
         val builtIns = listOfNotNull(
             enums?.let { "enums = BuiltInTypeConverters.State.${enums.name}" },
             uuid?.let { "uuid = BuiltInTypeConverters.State.${uuid.name}" },
+            byteBuffer?.let { "byteBuffer = BuiltInTypeConverters.State.${byteBuffer.name}" },
         ).joinToString(",")
         return if (builtIns.isBlank()) {
             ""

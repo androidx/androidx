@@ -25,8 +25,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.tiles.proto.TimelineProto.Timeline;
-import androidx.wear.tiles.proto.TimelineProto.TimelineEntry;
+import androidx.wear.protolayout.proto.TimelineProto.Timeline;
+import androidx.wear.protolayout.proto.TimelineProto.TimelineEntry;
 
 import java.util.concurrent.Executor;
 

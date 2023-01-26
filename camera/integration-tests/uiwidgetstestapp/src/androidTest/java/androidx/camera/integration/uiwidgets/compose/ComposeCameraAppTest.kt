@@ -18,6 +18,8 @@ package androidx.camera.integration.uiwidgets.compose
 
 import android.os.Build
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
+import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.DEFAULT_LENS_FACING
+import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.view.PreviewView
 import androidx.compose.ui.semantics.Role
@@ -64,6 +66,7 @@ class ComposeCameraAppTest {
             "Cuttlefish has MediaCodec dequeInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING))
 
         // Recreate the activity as it might terminate in other tests
         androidComposeTestRule.activityRule.scenario.recreate()

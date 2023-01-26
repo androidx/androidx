@@ -83,6 +83,10 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScreenshotTests {
+
+    private val defaultTextColor = ColorProvider(Color.White)
+    private val defaultTextStyle = TextStyle(defaultTextColor)
+
     @get:Rule
     var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear-tiles")
 
@@ -157,13 +161,16 @@ class ScreenshotTests {
     @Test
     fun basicText() = runSingleGoldenTest("basic-text") {
         Column {
-            Text(text = "Normal")
-            Text(text = "Bold", style = TextStyle(fontWeight = FontWeight.Bold))
-            Text(text = "Italic", style = TextStyle(fontStyle = FontStyle.Italic))
-            Text(text = "Underline", style = TextStyle(textDecoration = TextDecoration.Underline))
+            Text(text = "Normal", style = defaultTextStyle)
+            Text(text = "Bold", style = defaultTextStyle.copy(fontWeight = FontWeight.Bold))
+            Text(text = "Italic", style = defaultTextStyle.copy(fontStyle = FontStyle.Italic))
+            Text(
+                text = "Underline",
+                style = defaultTextStyle.copy(textDecoration = TextDecoration.Underline)
+            )
             Text(
                 text = "Everything",
-                style = TextStyle(
+                style = defaultTextStyle.copy(
                     fontWeight = FontWeight.Bold,
                     fontStyle = FontStyle.Italic,
                     textDecoration = TextDecoration.Underline
@@ -178,23 +185,25 @@ class ScreenshotTests {
             Column {
                 Text(
                     text = "Hello World",
+                    style = defaultTextStyle,
                     modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Green)
                 )
                 Text(
                     text = "Hello World",
-                    style = TextStyle(textAlign = TextAlign.Start),
+                    style = defaultTextStyle.copy(textAlign = TextAlign.Start),
                     modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Blue)
                 )
 
                 Text(
                     text = "Hello World",
-                    style = TextStyle(textAlign = TextAlign.End),
+                    style = defaultTextStyle.copy(textAlign = TextAlign.End),
                     modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Red)
                 )
             }
             Column {
                 Text(
                     text = "Hello World! This is a multiline test",
+                    style = defaultTextStyle,
                     maxLines = 3,
                     modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Red)
                 )
@@ -202,7 +211,7 @@ class ScreenshotTests {
                 Text(
                     text = "Hello World! This is a multiline test",
                     maxLines = 3,
-                    style = TextStyle(
+                    style = defaultTextStyle.copy(
                         textAlign = TextAlign.Start
                     ),
                     modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Green)
@@ -211,7 +220,7 @@ class ScreenshotTests {
                 Text(
                     text = "Hello World! This is a multiline test",
                     maxLines = 3,
-                    style = TextStyle(
+                    style = defaultTextStyle.copy(
                         textAlign = TextAlign.End
                     ),
                     modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Blue)
@@ -331,7 +340,7 @@ class ScreenshotTests {
     @Test
     fun visibility() = runSingleGoldenTest("visibility") {
         Column(modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)) {
-            Text("First", style = TextStyle(color = ColorProvider(Color.Red)))
+            Text("First", style = defaultTextStyle.copy(color = ColorProvider(Color.Red)))
             Text("gone", modifier = GlanceModifier.visibility(Visibility.Gone))
             Row {
                 Text(
@@ -339,15 +348,15 @@ class ScreenshotTests {
                     modifier = GlanceModifier.visibility(Visibility.Invisible)
                         .background(ColorProvider(Color.Red))
                 )
-                Text("after")
+                Text("after", style = defaultTextStyle)
             }
-            Text("Third")
+            Text("Third", style = defaultTextStyle)
             Row(
                 modifier = GlanceModifier.visibility(Visibility.Invisible).background(Color.Green)
             ) {
                 Spacer(modifier = GlanceModifier.size(10.dp).background(Color.Red))
             }
-            Text("Last")
+            Text("Last", style = defaultTextStyle)
         }
     }
 
@@ -416,8 +425,6 @@ class ScreenshotTests {
             SCREEN_WIDTH,
             SCREEN_HEIGHT
         )
-
-        // Blit it to a bitmap for further testing.
 
         // Blit it to a bitmap for further testing.
         val bmp = Bitmap.createBitmap(

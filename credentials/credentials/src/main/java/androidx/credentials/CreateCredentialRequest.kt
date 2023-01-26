@@ -16,6 +16,12 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
+import androidx.credentials.internal.FrameworkClassParsingException
+
 /**
  * Base request class for registering a credential.
  *
@@ -23,4 +29,56 @@ package androidx.credentials
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
  */
-abstract class CreateCredentialRequest
+abstract class CreateCredentialRequest internal constructor(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val credentialData: Bundle,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val candidateQueryData: Bundle,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val requireSystemProvider: Boolean
+) {
+    /** @hide */
+    companion object {
+        /** @hide */
+        @JvmStatic
+        fun createFrom(
+            type: String,
+            credentialData: Bundle,
+            candidateQueryData: Bundle,
+            requireSystemProvider: Boolean
+        ): CreateCredentialRequest {
+            return try {
+                when (type) {
+                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
+                        CreatePasswordRequest.createFrom(credentialData)
+                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
+                        when (credentialData.getString(BUNDLE_KEY_SUBTYPE)) {
+                            CreatePublicKeyCredentialRequest
+                                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
+                                CreatePublicKeyCredentialRequest.createFrom(credentialData)
+                            BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED ->
+                                CreatePublicKeyCredentialRequestPrivileged
+                                    .createFrom(credentialData)
+                            else -> throw FrameworkClassParsingException()
+                        }
+                    else -> throw FrameworkClassParsingException()
+                }
+            } catch (e: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a request with
+                // the raw framework values.
+                CreateCustomCredentialRequest(
+                    type,
+                    credentialData,
+                    candidateQueryData,
+                    requireSystemProvider
+                )
+            }
+        }
+    }
+}

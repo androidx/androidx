@@ -66,6 +66,8 @@ class SignalGeneratorViewModel : ViewModel() {
         private set
     var isRecording: Boolean by mutableStateOf(false)
         private set
+    var isPaused: Boolean by mutableStateOf(false)
+        private set
 
     suspend fun initialRecorder(context: Context, lifecycleOwner: LifecycleOwner) {
         withContext(Dispatchers.Main) {
@@ -145,6 +147,23 @@ class SignalGeneratorViewModel : ViewModel() {
 
         cameraHelper.stopRecording()
         isRecording = false
+        isPaused = false
+    }
+
+    fun pauseRecording() {
+        Logger.d(TAG, "Pause recording.")
+        Preconditions.checkState(isRecorderReady)
+
+        cameraHelper.pauseRecording()
+        isPaused = true
+    }
+
+    fun resumeRecording() {
+        Logger.d(TAG, "Resume recording.")
+        Preconditions.checkState(isRecorderReady)
+
+        cameraHelper.resumeRecording()
+        isPaused = false
     }
 
     private fun saveOriginalVolume() {

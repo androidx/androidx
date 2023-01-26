@@ -45,9 +45,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.constraintlayout.core.state.CorePixelDp
 import androidx.constraintlayout.core.state.Transition.WidgetState
 import androidx.constraintlayout.core.widgets.ConstraintWidget
 import kotlin.math.abs
@@ -95,7 +93,7 @@ import kotlinx.coroutines.launch
 @ExperimentalMotionApi
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Motion(
+private fun Motion(
     modifier: Modifier = Modifier,
     content: @Composable MotionScope.() -> Unit
 ) {
@@ -127,7 +125,7 @@ fun Motion(
 }
 
 @DslMarker
-annotation class MotionDslScope
+private annotation class MotionDslScope
 
 /**
  * Scope for the [Motion] Composable.
@@ -138,7 +136,7 @@ annotation class MotionDslScope
 @ExperimentalMotionApi
 @MotionDslScope
 @OptIn(ExperimentalComposeUiApi::class)
-class MotionScope(
+private class MotionScope(
     lookaheadLayoutScope: LookaheadLayoutScope
 ) : LookaheadLayoutScope by lookaheadLayoutScope {
     private var nextId: Int = 1000
@@ -169,7 +167,7 @@ class MotionScope(
         ignoreAxisChanges: Boolean = false,
         motionDescription: MotionModifierScope.() -> Unit = {},
     ): Modifier = composed {
-        val dpToPixel = with(LocalDensity.current) { 1.dp.toPx() }
+        val dpToPxFactor = with(LocalDensity.current) { density }
         val layoutId = remember { nextId++ }
         val transitionScope = remember { MotionModifierScope(layoutId) }
         val snapshotObserver = remember {
@@ -204,17 +202,14 @@ class MotionScope(
             transitionScope.motionDescription()
         }
 
-        @Suppress("RedundantSamConstructor") // Clearer this way
         val transitionImpl = remember {
-            TransitionImpl(
-                transitionScope.getObject(),
-                CorePixelDp { dpValue -> dpValue * dpToPixel }
-            )
+            TransitionImpl(transitionScope.getObject())
         }
         val transitionState = remember {
-            androidx.constraintlayout.core.state.Transition().apply {
-                transitionImpl.applyAllTo(this)
-            }
+            androidx.constraintlayout.core.state.Transition { dpValue -> dpValue * dpToPxFactor }
+                .apply {
+                    transitionImpl.applyAllTo(this)
+                }
         }
         val startWidget =
             remember { ConstraintWidget().apply { stringId = layoutId.toString() } }
@@ -365,7 +360,7 @@ class MotionScope(
  */
 @ExperimentalMotionApi
 @Composable
-fun rememberMotionContent(content: @Composable MotionScope.() -> Unit):
+private fun rememberMotionContent(content: @Composable MotionScope.() -> Unit):
     @Composable MotionScope.() -> Unit {
     return remember {
         movableContentOf(content)
@@ -381,7 +376,7 @@ fun rememberMotionContent(content: @Composable MotionScope.() -> Unit):
  */
 @ExperimentalMotionApi
 @Composable
-fun rememberMotionListItems(
+private fun rememberMotionListItems(
     count: Int,
     content: @Composable MotionScope.(index: Int) -> Unit
 ): List<@Composable MotionScope.(index: Int) -> Unit> {

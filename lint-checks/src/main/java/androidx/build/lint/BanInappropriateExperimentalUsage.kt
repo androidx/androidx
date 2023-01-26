@@ -282,7 +282,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         private const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
             "androidx.annotation.RequiresOptIn"
 
-        private val APPLICABLE_ANNOTATIONS = listOf(
+        val APPLICABLE_ANNOTATIONS = listOf(
             JAVA_EXPERIMENTAL_ANNOTATION,
             KOTLIN_EXPERIMENTAL_ANNOTATION,
             JAVA_REQUIRES_OPT_IN_ANNOTATION,

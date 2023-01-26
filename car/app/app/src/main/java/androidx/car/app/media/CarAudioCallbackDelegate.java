@@ -21,10 +21,10 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /**
@@ -35,8 +35,8 @@ import androidx.car.app.annotations.RequiresCarApi;
  */
 @CarProtocol
 @RequiresCarApi(5)
+@KeepFields
 public class CarAudioCallbackDelegate {
-    @Keep
     @Nullable
     private final ICarAudioCallback mCallback;
 
@@ -67,9 +67,9 @@ public class CarAudioCallbackDelegate {
         mCallback = null;
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    // We need to keep these stub for Bundler serialization logic.
+    @KeepFields
     private static class CarAudioCallbackStub extends ICarAudioCallback.Stub {
-        @Keep
         @Nullable
         private final CarAudioCallback mCarAudioCallback;
 

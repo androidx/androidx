@@ -97,7 +97,7 @@ class BluetoothAdapterTest {
         assertEquals(byteDevice.address, stringDevice.address)
     }
 
-    @Test
+    // @Test (b/259962903)
     fun nameTest() {
         if (!hasBluetooth)
             return

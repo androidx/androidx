@@ -142,10 +142,21 @@ abstract class BasePluginTest {
             suffix = """
                 android {
                     namespace 'androidx.navigation.testapp'
+                    compileOptions {
+                        sourceCompatibility = JavaVersion.VERSION_1_8
+                        targetCompatibility = JavaVersion.VERSION_1_8
+                    }
                 }
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
                     implementation "${projectSetup.props.navigationRuntime}"
+                }
+                tasks.withType(
+                    org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+                ).configureEach {
+                    kotlinOptions {
+                        jvmTarget = "1.8"
+                    }
                 }
             """.trimIndent()
         )

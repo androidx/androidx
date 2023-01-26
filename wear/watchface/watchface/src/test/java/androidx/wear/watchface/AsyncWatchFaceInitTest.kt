@@ -35,7 +35,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
@@ -112,12 +112,11 @@ internal class TestAsyncWatchFaceService(
         prefs: WallpaperInteractiveWatchFaceInstanceParams
     ) {
     }
-
-    override fun isPreAndroidR() = false
 }
 
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = [Build.VERSION_CODES.R])
 @RunWith(WatchFaceTestRunner::class)
+@RequiresApi(Build.VERSION_CODES.R)
 public class AsyncWatchFaceInitTest {
     private val handler = mock<Handler>()
     private val surfaceHolder = mock<SurfaceHolder>()
@@ -133,6 +132,7 @@ public class AsyncWatchFaceInitTest {
         ),
         WatchUiState(false, 0),
         UserStyle(emptyMap()).toWireFormat(),
+        null,
         null
     )
 
@@ -191,10 +191,10 @@ public class AsyncWatchFaceInitTest {
 
     @After
     fun tearDown() {
+        InteractiveInstanceManager.releaseInstance(initParams.instanceId)
         assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     public fun createInteractiveInstanceFailsIfDirectBootWatchFaceCreationIsInProgress() {
         val completableWatchFace = CompletableDeferred<WatchFace>()
@@ -235,11 +235,8 @@ public class AsyncWatchFaceInitTest {
         runPostedTasksFor(0)
 
         assertThat(pendingException.message).startsWith("WatchFace already exists!")
-
-        InteractiveInstanceManager.releaseInstance(initParams.instanceId)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     public fun directBootAndGetExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance() {
         val completableDirectBootWatchFace = CompletableDeferred<WatchFace>()

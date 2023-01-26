@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PRIVATE
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PROTECTED
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PUBLIC
+import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.FINAL
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
@@ -44,8 +45,23 @@ class KspFieldElementTest {
                 source = Source.kotlin(
                     "Foo.kt",
                     """
-                    class Foo {
+                    open class Foo {
                         val intField: Int = 0
+                        open val openField: Int = 0
+                        var intVar: Int = 0
+                        open var openVar: Int = 0
+                        lateinit var lateinitField: String
+                        private lateinit var privateLateinitField: String
+                        protected lateinit var protectedLateinitField: String
+                        internal lateinit var internalLateinitField: String
+                        lateinit var lateinitFieldWithPrivateSetter: String
+                            private set
+                        lateinit var lateinitFieldWithProtectedSetter: String
+                            protected set
+                        lateinit var lateinitFieldWithInternalSetter: String
+                            internal set
+                        protected lateinit var protectedLateinitFieldWithPrivateSetter: String
+                            private set
                         @JvmField
                         val jvmField: Int = 0
                         protected val protectedField: Int = 0
@@ -58,10 +74,21 @@ class KspFieldElementTest {
                     """.trimIndent()
                 ),
                 expected = mapOf(
-                    "intField" to PRIVATE,
-                    "jvmField" to PUBLIC,
-                    "protectedField" to PRIVATE,
-                    "protectedJvmField" to PROTECTED
+                    "intField" to listOf(PRIVATE, FINAL),
+                    "openField" to listOf(PRIVATE, FINAL),
+                    "intVar" to listOf(PRIVATE),
+                    "openVar" to listOf(PRIVATE),
+                    "lateinitField" to listOf(PUBLIC),
+                    "privateLateinitField" to listOf(PRIVATE),
+                    "protectedLateinitField" to listOf(PROTECTED),
+                    "internalLateinitField" to listOf(PUBLIC),
+                    "lateinitFieldWithPrivateSetter" to listOf(PRIVATE),
+                    "lateinitFieldWithProtectedSetter" to listOf(PROTECTED),
+                    "lateinitFieldWithInternalSetter" to listOf(PUBLIC),
+                    "protectedLateinitFieldWithPrivateSetter" to listOf(PRIVATE),
+                    "jvmField" to listOf(PUBLIC, FINAL),
+                    "protectedField" to listOf(PRIVATE, FINAL),
+                    "protectedJvmField" to listOf(PROTECTED, FINAL)
                 )
             )
         )
@@ -80,14 +107,18 @@ class KspFieldElementTest {
                         protected Long javaProtected;
                         Long javaPackage;
                         private Long javaPrivate;
+                        public final long javaFinalPublic = 0;
+                        public static final long javaStaticFinalPublic = 0;
                     }
                     """.trimIndent()
                 ),
                 expected = mapOf(
-                    "javaPublic" to PUBLIC,
-                    "javaProtected" to PROTECTED,
-                    "javaPackage" to null,
-                    "javaPrivate" to PRIVATE
+                    "javaPublic" to listOf(PUBLIC),
+                    "javaProtected" to listOf(PROTECTED),
+                    "javaPackage" to emptyList(),
+                    "javaPrivate" to listOf(PRIVATE),
+                    "javaFinalPublic" to listOf(PUBLIC, FINAL),
+                    "javaStaticFinalPublic" to listOf(PUBLIC, FINAL)
                 )
             )
         )
@@ -131,10 +162,10 @@ class KspFieldElementTest {
                     """.trimIndent()
                 ),
                 expected = mapOf(
-                    "javaPublic" to PUBLIC,
-                    "javaProtected" to PROTECTED,
-                    "javaPackage" to null,
-                    "javaPrivate" to PRIVATE
+                    "javaPublic" to listOf(PUBLIC),
+                    "javaProtected" to listOf(PROTECTED),
+                    "javaPackage" to emptyList(),
+                    "javaPrivate" to listOf(PRIVATE)
                 )
             )
         )
@@ -199,12 +230,12 @@ class KspFieldElementTest {
     private fun assertModifiers(invocation: XTestInvocation, inputs: Array<out ModifierTestInput>) {
         inputs.forEach { input ->
             val element = invocation.processingEnv.requireTypeElement(input.qName)
-            input.expected.forEach { (name, modifier) ->
+            input.expected.forEach { (name, modifiers) ->
                 val field = element.getField(name)
                 assertWithMessage("${input.qName}:$name")
                     .that(field.modifiers)
                     .containsExactlyElementsIn(
-                        listOfNotNull(modifier)
+                        modifiers
                     )
                 assertThat(field.enclosingElement).isEqualTo(element)
             }
@@ -219,6 +250,7 @@ class KspFieldElementTest {
         PUBLIC,
         PRIVATE,
         PROTECTED,
+        FINAL
     }
 
     private val XFieldElement.modifiers
@@ -226,11 +258,12 @@ class KspFieldElementTest {
             if (isPrivate()) yield(PRIVATE)
             if (isProtected()) yield(PROTECTED)
             if (isPublic()) yield(PUBLIC)
+            if (isFinal()) yield(FINAL)
         }.toList()
 
     private data class ModifierTestInput(
         val qName: String,
         val source: Source,
-        val expected: Map<String, TestModifier?>
+        val expected: Map<String, List<TestModifier>>
     )
 }

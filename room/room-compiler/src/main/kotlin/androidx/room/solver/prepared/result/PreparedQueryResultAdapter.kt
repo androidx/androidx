@@ -16,20 +16,19 @@
 
 package androidx.room.solver.prepared.result
 
-import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
-import androidx.room.parser.QueryType
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isInt
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.parser.QueryType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
-import com.squareup.javapoet.FieldSpec
 
 /**
  * An adapter for [PreparedQueryResultBinder] that executes queries with INSERT, UPDATE or DELETE
@@ -64,40 +63,42 @@ class PreparedQueryResultAdapter(
 
     fun executeAndReturn(
         stmtQueryVal: String,
-        preparedStmtField: String?,
-        dbField: FieldSpec,
+        preparedStmtProperty: XPropertySpec?,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
+        scope.builder.apply {
             val stmtMethod = if (queryType == QueryType.INSERT) {
                 "executeInsert"
             } else {
                 "executeUpdateDelete"
             }
-            addStatement("$N.beginTransaction()", dbField)
+            addStatement("%N.beginTransaction()", dbProperty)
             beginControlFlow("try").apply {
                 if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
-                    addStatement("$L.$L()", stmtQueryVal, stmtMethod)
-                    addStatement("$N.setTransactionSuccessful()", dbField)
+                    addStatement("%L.%L()", stmtQueryVal, stmtMethod)
+                    addStatement("%N.setTransactionSuccessful()", dbProperty)
                     if (returnType.isVoidObject()) {
                         addStatement("return null")
-                    } else if (returnType.isKotlinUnit()) {
-                        addStatement("return $T.INSTANCE", KotlinTypeNames.UNIT)
+                    } else if (returnType.isKotlinUnit() && language == CodeLanguage.JAVA) {
+                        addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                     }
                 } else {
                     val resultVar = scope.getTmpVar("_result")
-                    addStatement(
-                        "final $L $L = $L.$L()",
-                        returnType.typeName, resultVar, stmtQueryVal, stmtMethod
+                    addLocalVal(
+                        resultVar,
+                        returnType.asTypeName(),
+                        "%L.%L()",
+                        stmtQueryVal, stmtMethod
                     )
-                    addStatement("$N.setTransactionSuccessful()", dbField)
-                    addStatement("return $L", resultVar)
+                    addStatement("%N.setTransactionSuccessful()", dbProperty)
+                    addStatement("return %L", resultVar)
                 }
             }
             nextControlFlow("finally").apply {
-                addStatement("$N.endTransaction()", dbField)
-                if (preparedStmtField != null) {
-                    addStatement("$N.release($L)", preparedStmtField, stmtQueryVal)
+                addStatement("%N.endTransaction()", dbProperty)
+                if (preparedStmtProperty != null) {
+                    addStatement("%N.release(%L)", preparedStmtProperty, stmtQueryVal)
                 }
             }
             endControlFlow()

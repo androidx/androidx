@@ -236,6 +236,13 @@ public abstract class UseCase {
             mergedConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
+        // Forces disable ZSL when high resolution is enabled.
+        if (mergedConfig.containsOption(ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)
+                && mergedConfig.retrieveOption(
+                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).isHighResolutionEnabled()) {
+            mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
+        }
+
         return onMergeConfig(cameraInfo, getUseCaseConfigBuilder(mergedConfig));
     }
 
@@ -545,7 +552,9 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected abstract Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution);
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        return suggestedResolution;
+    }
 
     /**
      * Called when CameraControlInternal is attached into the UseCase. UseCase may need to
@@ -555,17 +564,37 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onCameraControlReady() {
+    public void onCameraControlReady() {
     }
 
     /**
-     * Called when use case is attaching to a camera.
+     * Binds use case to a camera.
+     *
+     * <p>Before a use case can receive frame data, it needs to establish association with the
+     * target camera first. An implementation of {@link CameraInternal} (e.g. a lifecycle camera
+     * or lifecycle-less camera) is provided when
+     * {@link #bindToCamera(CameraInternal, UseCaseConfig, UseCaseConfig)} is invoked, so that the
+     * use case can retrieve the necessary information from the camera to calculate and set up
+     * the configs.
+     *
+     * <p>The default, extended and camera config settings are also applied to the use case config
+     * in this stage. Subclasses can override {@link #onMergeConfig} to update the use case
+     * config for use case specific purposes.
+     *
+     * <p>Calling {@link #getCameraControl()} can retrieve a real {@link CameraControlInternal}
+     * implementation of the associated camera after this function is invoked. Otherwise, a fake
+     * no-op {@link CameraControlInternal} implementation is returned by
+     * {@link #getCameraControl()} function.
+     *
+     * <p>An {@link EventCallback} can be registered to receive
+     * {@link EventCallback#onBind(CameraInfo)} event which is invoked right after this function
+     * is executed.
      *
      * @hide
      */
     @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttach(@NonNull CameraInternal camera,
+    public final void bindToCamera(@NonNull CameraInternal camera,
             @Nullable UseCaseConfig<?> extendedConfig,
             @Nullable UseCaseConfig<?> cameraConfig) {
         synchronized (mCameraLock) {
@@ -580,41 +609,54 @@ public abstract class UseCase {
 
         EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
-            eventCallback.onAttach(camera.getCameraInfoInternal());
+            eventCallback.onBind(camera.getCameraInfoInternal());
         }
-        onAttached();
+        onBind();
     }
 
     /**
-     * Called in the end of onAttach().
+     * Called when use case is binding to a camera.
      *
-     * <p>Called after the use case is attached to a camera. After the use case is attached, the
-     * default config settings are also applied to the use case config. The sub classes should
-     * create the necessary objects to make the use case work correctly.
+     * <p>Subclasses can override this callback function to create the necessary objects to
+     * make the use case work correctly.
      *
-     * <p>When onAttached is called, then UseCase should run setup to make sure that the UseCase
-     * sets up the pipeline to receive data from the camera.
+     * <p>After this function is invoked, CameraX will also provide the selected resolution
+     * information to subclasses via {@link #onSuggestedResolutionUpdated}. Subclasses should
+     * override it to set up the pipeline according to the selected resolution, so that UseCase
+     * becomes ready to receive data from the camera.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttached() {
+    public void onBind() {
     }
 
     /**
-     * Called when use case is detaching from a camera.
+     * Unbinds use case from a camera.
+     *
+     * <p>The use case de-associates from the camera. Before this function is invoked, the use
+     * case must have been detached from the camera. So that the {@link CameraInternal}
+     * implementation can remove the related resource (e.g. surface) from the working capture
+     * session. Then, when this function is invoked, the use case can also clear all objects and
+     * settings to initial state like it is never bound to a camera.
+     *
+     * <p>After this function is invoked, calling {@link #getCameraControl()} returns a fake no-op
+     * {@link CameraControlInternal} implementation.
+     *
+     * <p>An {@link EventCallback} can be registered to receive {@link EventCallback#onUnbind()}
+     * event which is invoked right after this function is executed.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public void onDetach(@NonNull CameraInternal camera) {
+    public final void unbindFromCamera(@NonNull CameraInternal camera) {
         // Do any cleanup required by the UseCase implementation
-        onDetached();
+        onUnbind();
 
         // Cleanup required for any type of UseCase
         EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
-            eventCallback.onDetach();
+            eventCallback.onUnbind();
         }
 
         synchronized (mCameraLock) {
@@ -634,27 +676,38 @@ public abstract class UseCase {
     }
 
     /**
-     * Clears internal state of this use case.
+     * Called when use case is unbinding from a camera.
+     *
+     * <p>Subclasses can override this callback function to clear the objects created for
+     * their specific purposes.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onDetached() {
+    public void onUnbind() {
     }
 
     /**
      * Called when use case is attached to the camera. This method is called on main thread.
+     *
+     * <p>Once this function is invoked, the use case is attached to the {@link CameraInternal}
+     * implementation of the associated camera. CameraX starts to open the camera and capture
+     * session with the use case session config. The use case can receive the frame data from the
+     * camera after the capture session is configured.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @CallSuper
     public void onStateAttached() {
-        onCameraControlReady();
     }
 
     /**
      * Called when use case is detached from the camera. This method is called on main thread.
+     *
+     * <p>Once this function is invoked, the use case is detached from the {@link CameraInternal}
+     * implementation of the associated camera. The use case no longer receives frame data from
+     * the camera.
      *
      * @hide
      */
@@ -832,7 +885,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Callback for when a {@link UseCase} transitions between attach/detach states.
+     * Callback for when a {@link UseCase} transitions between bound/unbound states.
      *
      * @hide
      */
@@ -840,16 +893,16 @@ public abstract class UseCase {
     public interface EventCallback {
 
         /**
-         * Called when use case is attached to a camera.
+         * Called when use case is binding to a camera.
          *
          * @param cameraInfo that current used.
          */
-        void onAttach(@NonNull CameraInfo cameraInfo);
+        void onBind(@NonNull CameraInfo cameraInfo);
 
         /**
-         * Called when use case is detached from the camera to clear additional resources used
+         * Called when use case is unbinding from the camera to clear additional resources used
          * for the UseCase.
          */
-        void onDetach();
+        void onUnbind();
     }
 }

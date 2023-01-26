@@ -51,6 +51,7 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 import kotlinx.coroutines.guava.await
@@ -65,9 +66,16 @@ class HealthConnectClientImpl
 internal constructor(
     private val providerPackageName: String,
     private val delegate: HealthDataAsyncClient,
+    private val allPermissions: List<String> =
+        HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
+            listOf<String>(
+                HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
+                HealthPermission.READ_PERMISSION_PREFIX + it.value
+            )
+        },
 ) : HealthConnectClient, PermissionController {
 
-    override suspend fun getGrantedPermissions(
+    override suspend fun getGrantedPermissionsLegacy(
         permissions: Set<HealthPermission>
     ): Set<HealthPermission> {
         val grantedPermissions =
@@ -79,6 +87,24 @@ internal constructor(
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
             "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
+        )
+        return grantedPermissions
+    }
+
+    override suspend fun getGrantedPermissions(): Set<String> {
+        val grantedPermissions =
+            delegate
+                .filterGrantedPermissions(
+                    allPermissions
+                        .map { PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                        .toSet()
+                )
+                .await()
+                .map { it.permission }
+                .toSet()
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Granted ${grantedPermissions.size} out of ${allPermissions.size} permissions."
         )
         return grantedPermissions
     }

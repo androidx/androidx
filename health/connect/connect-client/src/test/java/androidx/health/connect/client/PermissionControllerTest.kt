@@ -41,11 +41,25 @@ class PermissionControllerTest {
     @Test
     fun createIntentTest() {
         val requestPermissionContract =
+            PermissionController.createRequestPermissionResultContractLegacy(PROVIDER_PACKAGE_NAME)
+        val intent =
+            requestPermissionContract.createIntent(
+                context,
+                setOf(HealthPermission.createReadPermissionLegacy(StepsRecord::class))
+            )
+
+        Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
+        Truth.assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
+    }
+
+    @Test
+    fun createIntentTest_permissionStrings() {
+        val requestPermissionContract =
             PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.createReadPermission(StepsRecord::class))
+                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
             )
 
         Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")

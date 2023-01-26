@@ -16,9 +16,10 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.capitalize
 import androidx.room.ext.defaultValue
 import androidx.room.solver.CodeGenScope
@@ -118,15 +119,19 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         builder = scope.builder
                     )
                     scope.builder.apply {
-                        beginControlFlow("if (%L != null)", node.varName).apply {
+                        if (fieldParent.nonNull) {
                             bindWithDescendants()
-                        }
-                        nextControlFlow("else").apply {
-                            node.allFields().forEach {
-                                addStatement("%L.bindNull(%L)", stmtParamVar, it.indexVar)
+                        } else {
+                            beginControlFlow("if (%L != null)", node.varName).apply {
+                                bindWithDescendants()
                             }
+                            nextControlFlow("else").apply {
+                                node.allFields().forEach {
+                                    addStatement("%L.bindNull(%L)", stmtParamVar, it.indexVar)
+                                }
+                            }
+                            endControlFlow()
                         }
-                        endControlFlow()
                     }
                 } else {
                     bindWithDescendants()
@@ -280,7 +285,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     // always declare, we'll set below
                     scope.builder.addLocalVariable(
                         node.varName,
-                        fieldParent.pojo.typeName
+                        fieldParent.field.typeName
                     )
                     if (fieldParent.nonNull) {
                         readNode()
@@ -310,51 +315,30 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
     }
 
     /**
-     * @param ownerVar The entity / pojo that owns this field. It must own this field! (not the
-     * container pojo)
+     * @param ownerVar The entity / pojo variable that owns this field.
+     * It must own this field! (not the container pojo)
      * @param stmtParamVar The statement variable
      * @param scope The code generation scope
      */
     private fun bindToStatement(ownerVar: String, stmtParamVar: String, scope: CodeGenScope) {
-        field.statementBinder?.let { binder ->
-            val varName = if (field.getter.callType == CallType.FIELD) {
-                "$ownerVar.${field.name}"
-            } else {
-                "$ownerVar.${field.getter.jvmName}()"
-            }
-            binder.bindToStmt(stmtParamVar, indexVar, varName, scope)
-        }
+        val binder = field.statementBinder ?: return
+        field.getter.writeGetToStatement(
+            ownerVar, stmtParamVar, indexVar, binder, scope
+        )
     }
 
     /**
-     * @param ownerVar The entity / pojo that owns this field. It must own this field (not the
-     * container pojo)
+     * @param ownerVar The entity / pojo variable that owns this field.
+     * It must own this field (not the container pojo)
      * @param cursorVar The cursor variable
      * @param scope The code generation scope
      */
     private fun readFromCursor(ownerVar: String, cursorVar: String, scope: CodeGenScope) {
         fun doRead() {
-            field.cursorValueReader?.let { reader ->
-                scope.builder.apply {
-                    when (field.setter.callType) {
-                        CallType.FIELD -> {
-                            val outFieldName = "$ownerVar.${field.setter.jvmName}"
-                            reader.readFromCursor(outFieldName, cursorVar, indexVar, scope)
-                        }
-                        CallType.METHOD -> {
-                            val tmpField = scope.getTmpVar(
-                                "_tmp${field.name.capitalize(Locale.US)}"
-                            )
-                            addLocalVariable(tmpField, field.setter.type.asTypeName())
-                            reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
-                            addStatement("%L.%L(%L)", ownerVar, field.setter.jvmName, tmpField)
-                        }
-                        CallType.CONSTRUCTOR -> {
-                            // no-op
-                        }
-                    }
-                }
-            }
+            val reader = field.cursorValueReader ?: return
+            field.setter.writeSetFromCursor(
+                ownerVar, cursorVar, indexVar, reader, scope
+            )
         }
         if (alwaysExists) {
             doRead()
@@ -383,7 +367,20 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)
             } else {
                 beginControlFlow("if (%L == -1)", indexVar).apply {
-                    addStatement("%L = %L", tmpField, typeName.toJavaPoet().defaultValue())
+                    val defaultValue = typeName.defaultValue()
+                    if (
+                        language == CodeLanguage.KOTLIN &&
+                        typeName.nullability == XNullability.NONNULL &&
+                        defaultValue == "null"
+                    ) {
+                        // TODO(b/249984504): Generate / output a better message.
+                        addStatement(
+                            "error(%S)",
+                            "Missing column '${field.columnName}' for a non null value."
+                        )
+                    } else {
+                        addStatement("%L = %L", tmpField, defaultValue)
+                    }
                 }
                 nextControlFlow("else").apply {
                     field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)

@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.AchievedExerciseGoal
 import androidx.health.services.client.proto.DataProto.MilestoneMarkerSummary.SummaryMetricsEntry
@@ -49,7 +48,7 @@ public class MilestoneMarkerSummary(
      * [DataPoint]s for [AggregateDataType]s.
      */
     public val summaryMetrics: DataPointContainer,
-) : ProtoParcelable<DataProto.MilestoneMarkerSummary>() {
+) {
 
     internal constructor(
         proto: DataProto.MilestoneMarkerSummary
@@ -63,8 +62,7 @@ public class MilestoneMarkerSummary(
         })
     )
 
-    /** @hide */
-    override val proto: DataProto.MilestoneMarkerSummary =
+    internal val proto: DataProto.MilestoneMarkerSummary =
         DataProto.MilestoneMarkerSummary.newBuilder()
             .setStartTimeEpochMs(startTime.toEpochMilli())
             .setEndTimeEpochMs(endTime.toEpochMilli())
@@ -100,12 +98,4 @@ public class MilestoneMarkerSummary(
             "endTime=$endTime, " +
             "achievedGoal=$achievedGoal, " +
             "summaryMetrics=$summaryMetrics)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<MilestoneMarkerSummary> = newCreator { bytes ->
-            val proto = DataProto.MilestoneMarkerSummary.parseFrom(bytes)
-            MilestoneMarkerSummary(proto)
-        }
-    }
 }

@@ -18,4 +18,5 @@
     <string name="app_name">AV sync test app</string>
     <string name="desc_signal_control">Signal Control</string>
     <string name="desc_recording_control">Recording Control</string>
+    <string name="desc_pause_control">Pause Control</string>
 </resources>

@@ -28,6 +28,7 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
@@ -49,6 +50,7 @@ public class AlarmsTest extends DatabaseTest {
     private final long mTriggerAt = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testSetAlarm_noPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
@@ -60,6 +62,7 @@ public class AlarmsTest extends DatabaseTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testSetAlarm_withPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);

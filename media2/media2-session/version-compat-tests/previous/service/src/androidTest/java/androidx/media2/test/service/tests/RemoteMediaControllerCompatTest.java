@@ -26,6 +26,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.media2.test.service.RemoteMediaControllerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -37,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /** Test {@link RemoteMediaControllerCompat}. */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 public class RemoteMediaControllerCompatTest extends MediaSessionTestBase {
     private Context mContext;

@@ -19,6 +19,7 @@ package androidx.graphics.lowlatency
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 
+@JvmDefaultWithCompatibility
 /**
  * Interface used to define a parent for rendering front and double buffered layers.
  * This provides the following facilities:
@@ -30,6 +31,32 @@ import androidx.graphics.surface.SurfaceControlCompat
  * to implementations of front/double buffered layers
  */
 internal interface ParentRenderLayer<T> {
+
+    /**
+     * Returns the inverse of the pre-rotation hint to configure buffer content. This is helpful
+     * to avoid unnecessary GPU composition for the purposes of rotating buffer content to
+     * match display orientation. Because this value is already inverted from the buffer transform
+     * hint, consumers can pass the result of this method directly into
+     * SurfaceControl.Transaction#setBufferTransform to handle pre-rotation
+     */
+    fun getInverseBufferTransform(): Int = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+
+    /**
+     * Return the suggested width used for buffers taking into account pre-rotation transformations
+     */
+    fun getBufferWidth(): Int
+
+    /**
+     * Return the suggested height used for buffers taking into account pre-rotation transformations
+     */
+    fun getBufferHeight(): Int
+
+    /**
+     * Return the 4 x 4 transformation matrix represented as a 1 dimensional
+     * float array of 16 values
+     */
+    fun getTransform(): FloatArray
+
     /**
      * Modify the provided [SurfaceControlCompat.Transaction] to reparent the provided
      * child [SurfaceControlCompat] to a [SurfaceControlCompat] provided by the parent rendering
@@ -96,12 +123,14 @@ internal interface ParentRenderLayer<T> {
 
         /**
          * Callback invoked by the [ParentRenderLayer] to query the parameters since the last
-         * render to the dry layer. This includes all parameters to each request to render content
-         * to the front buffered layer since the last time the dry layer was re-rendered.
+         * render to the multi-buffered layer. This includes all parameters to each request to
+         * render content to the front buffered layer since the last time the dry layer was
+         * re-rendered.
          * This is useful for recreating the entire scene when front buffered layer contents are to
          * be committed, that is the entire scene is re-rendered into the double buffered layer.
+         * This can return null if all the double buffered params have already been queried.
          */
-        fun obtainDoubleBufferedLayerParams(): MutableCollection<T>
+        fun obtainDoubleBufferedLayerParams(): MutableCollection<T>?
 
         /**
          * Obtain a handle to the front buffered layer [SurfaceControlCompat] to be used in
@@ -111,9 +140,9 @@ internal interface ParentRenderLayer<T> {
         fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat?
 
         /**
-         * Obtain a handle to the [RenderBufferPool] to get [RenderBuffer] instances for
+         * Obtain a handle to the [FrameBufferPool] to get [FrameBuffer] instances for
          * rendering to front and double buffered layers
          */
-        fun getRenderBufferPool(): RenderBufferPool?
+        fun getFrameBufferPool(): FrameBufferPool?
     }
 }

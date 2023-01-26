@@ -22,16 +22,18 @@ import java.time.ZoneOffset
 
 /** Captures the number of floors climbed by the user since the last reading. */
 public class FloorsClimbedRecord(
-    /** Number of floors. Required field. Valid range: 0-1000000. */
-    public val floors: Double,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Number of floors. Required field. Valid range: 0-1000000. */
+    public val floors: Double,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
     init {
         requireNonNegative(value = floors, name = "floors")
+        floors.requireNotMore(other = 1000_000.0, name = "floors")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     override fun equals(other: Any?): Boolean {

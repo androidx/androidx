@@ -24,6 +24,7 @@ import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
+@OptIn(ExperimentalMetricApi::class)
 class PowerMetricTest {
     private val captureInfo = Metric.CaptureInfo(
         31,

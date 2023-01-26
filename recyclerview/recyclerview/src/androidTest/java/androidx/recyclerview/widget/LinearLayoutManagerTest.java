@@ -22,6 +22,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,15 +37,19 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -1268,7 +1274,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         assertEquals("Remaining children", 0, mLayoutManager.collectChildCoordinates().size());
     }
 
-
     @Test
     public void accessibilityPositions() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, false), true);
@@ -1287,5 +1292,218 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         assertEquals("result should have last position",
                 event.getToIndex(),
                 mLayoutManager.findLastVisibleItemPosition());
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_classNameAdded()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(0)), false);
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(nodeInfo));
+
+        assertEquals(nodeInfo.getClassName(), "android.widget.ListView");
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_notAddedWithEmptyList()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(0)), false);
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+
+        assertFalse(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(nodeInfo);
+            }
+        });
+
+        assertFalse(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_addedWithNonEmptyList()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(1)), false);
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+
+        assertFalse(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(nodeInfo);
+            }
+        });
+
+        assertTrue(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_withTooLowPosition()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(30)), true);
+        assertFirstItemIsAtTop();
+
+        final boolean[] returnValue = {false};
+        Bundle arguments = new Bundle();
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, -1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mLayoutManager.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, arguments);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertFalse(returnValue[0]);
+        assertFirstItemIsAtTop();
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_verticalWithNoRowArg()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(30)), true);
+        assertFirstItemIsAtTop();
+
+        final boolean[] returnValue = {false};
+        Bundle arguments = new Bundle();
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_COLUMN_INT, 30);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mLayoutManager.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, arguments);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertFalse(returnValue[0]);
+        assertFirstItemIsAtTop();
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_horizontalWithNoColumnArg()
+            throws Throwable {
+        setupByConfig(new Config(HORIZONTAL, false, false).adapter(new TestAdapter(30)), true);
+        assertFirstItemIsAtTop();
+
+        final boolean[] returnValue = {false};
+        Bundle arguments = new Bundle();
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, 10);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mLayoutManager.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, arguments);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertFalse(returnValue[0]);
+        assertFirstItemIsAtTop();
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_verticalWithRowArg_scrolls()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(30)), true);
+        assertFirstItemIsAtTop();
+
+        final boolean[] returnValue = {false};
+        Bundle arguments = new Bundle();
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, 10);
+        // The column argument is ignored in VERTICAL orientation.
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_COLUMN_INT, 30);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mLayoutManager.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, arguments);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertTrue(returnValue[0]);
+        assertEquals(((TextView) mLayoutManager.getChildAt(0)).getText(), "Item (11)");
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_horizontalWithColumnArg_scrolls()
+            throws Throwable {
+        setupByConfig(new Config(HORIZONTAL, false, false).adapter(new TestAdapter(30)), true);
+        assertFirstItemIsAtTop();
+
+        final boolean[] returnValue = {false};
+        Bundle arguments = new Bundle();
+        // The row argument is ignored in HORIZONTAL orientation.
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, 30);
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_COLUMN_INT, 10);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mLayoutManager.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, arguments);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertTrue(returnValue[0]);
+        assertEquals(((TextView) mLayoutManager.getChildAt(0)).getText(), "Item (11)");
+    }
+
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_withTooHighPosition_scrollsToEnd()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(30)), true);
+        assertFirstItemIsAtTop();
+
+        final boolean[] returnValue = {false};
+        Bundle arguments = new Bundle();
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, 1000);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mLayoutManager.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, arguments);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertTrue(returnValue[0]);
+        assertEquals(((TextView) mLayoutManager.getChildAt(
+                mLayoutManager.getChildCount() - 1)).getText(), "Item (30)");
+    }
+
+    private void assertFirstItemIsAtTop() {
+        assertEquals(((TextView) mLayoutManager.getChildAt(0)).getText(), "Item (1)");
+    }
+
+    @Test
+    public void onInitializeAccessibilityNodeInfo_noAdapter() throws Throwable {
+        mRecyclerView = inflateWrappedRV();
+        mLayoutManager = new WrappedLinearLayoutManager(
+                getActivity(), LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+        mActivityRule.runOnUiThread(() -> {
+            mLayoutManager.onInitializeAccessibilityNodeInfo(mRecyclerView.mRecycler,
+                    mRecyclerView.mState, nodeInfo);
+        });
+
+        assertThat(nodeInfo.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION);
+
     }
 }

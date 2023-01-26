@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.autoValueAnnotations)
     androidTestImplementation(project(":camera:camera-lifecycle"))
@@ -66,7 +66,9 @@ dependencies {
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
-    androidTestImplementation(libs.mockitoKotlin4)
+    androidTestImplementation libs.mockitoKotlin, {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
     androidTestAnnotationProcessor(libs.autoValue)
 }
 
@@ -88,7 +90,6 @@ androidx {
     name = "Jetpack Camera Video Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
-    mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2020"
     description = "Video components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +

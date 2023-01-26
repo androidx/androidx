@@ -29,12 +29,15 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * A fake {@link UseCase}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
+    private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
     private final CaptureType mCaptureType;
 
     /**
@@ -89,9 +92,15 @@ public class FakeUseCase extends UseCase {
     }
 
     @Override
-    public void onDetached() {
-        super.onDetached();
+    public void onUnbind() {
+        super.onUnbind();
         mIsDetached = true;
+    }
+
+    @Override
+    public void onStateAttached() {
+        super.onStateAttached();
+        mStateAttachedCount.incrementAndGet();
     }
 
     @Override
@@ -101,9 +110,16 @@ public class FakeUseCase extends UseCase {
     }
 
     /**
-     * Returns true if {@link #onDetached()} has been called previously.
+     * Returns true if {@link #onUnbind()} has been called previously.
      */
     public boolean isDetached() {
         return mIsDetached;
+    }
+
+    /**
+     * Returns true if {@link #onStateAttached()} has been called previously.
+     */
+    public int getStateAttachedCount() {
+        return mStateAttachedCount.get();
     }
 }

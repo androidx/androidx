@@ -21,12 +21,16 @@ import androidx.room.compiler.codegen.JCodeBlock
 import androidx.room.compiler.codegen.TargetLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XMemberName
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 
 internal class JavaCodeBlock(
     internal val actual: JCodeBlock
 ) : JavaLang(), XCodeBlock {
+
+    override fun toString() = actual.toString()
 
     internal class Builder : JavaLang(), XCodeBlock.Builder {
         internal val actual = JCodeBlock.builder()
@@ -84,15 +88,25 @@ internal class JavaCodeBlock(
             actual.endControlFlow()
         }
 
+        override fun indent() = apply {
+            actual.indent()
+        }
+
+        override fun unindent() = apply {
+            actual.unindent()
+        }
+
         override fun build(): XCodeBlock {
             return JavaCodeBlock(actual.build())
         }
 
         // Converts '%' place holders to '$' for JavaPoet
         private fun processFormatString(format: String): String {
-            // TODO(b/247241415): Very simple replace for now, but this will not work when emitting
-            //  modulo expressions!
-            return format.replace('%', '$')
+            // Replace KPoet's member name placeholder for a JPoet literal for a XMemberName arg.
+            return format.replace("%M", "\$L")
+                // TODO(b/247241415): Very simple replace for now, but this will not work when
+                //  emitting modulo expressions!
+                .replace('%', '$')
         }
 
         // Unwraps room.compiler.codegen types to their JavaPoet actual
@@ -105,7 +119,9 @@ internal class JavaCodeBlock(
                 }
                 when (arg) {
                     is XTypeName -> arg.java
+                    is XMemberName -> arg.java
                     is XTypeSpec -> (arg as JavaTypeSpec).actual
+                    is XPropertySpec -> (arg as JavaPropertySpec).actual
                     is XFunSpec -> (arg as JavaFunSpec).actual
                     is XCodeBlock -> (arg as JavaCodeBlock).actual
                     else -> arg

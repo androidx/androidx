@@ -24,6 +24,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.layout.ContentScale
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 
 /**
  * Interface representing an Image source which can be used with a Glance [Image] element.
@@ -78,8 +80,19 @@ class EmittableImage : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
 
     var provider: ImageProvider? = null
-    var contentDescription: String? = null
     var contentScale: ContentScale = ContentScale.Fit
+
+    override fun copy(): Emittable = EmittableImage().also {
+        it.modifier = modifier
+        it.provider = provider
+        it.contentScale = contentScale
+    }
+
+    override fun toString(): String = "EmittableImage(" +
+        "modifier=$modifier, " +
+        "provider=$provider, " +
+        "contentScale=$contentScale" +
+        ")"
 }
 
 /**
@@ -103,12 +116,19 @@ fun Image(
     modifier: GlanceModifier = GlanceModifier,
     contentScale: ContentScale = ContentScale.Fit
 ) {
+    val finalModifier = if (contentDescription != null) {
+        modifier.semantics {
+            this.contentDescription = contentDescription
+        }
+    } else {
+        modifier
+    }
+
     GlanceNode(
         factory = ::EmittableImage,
         update = {
             this.set(provider) { this.provider = it }
-            this.set(contentDescription) { this.contentDescription = it }
-            this.set(modifier) { this.modifier = it }
+            this.set(finalModifier) { this.modifier = it }
             this.set(contentScale) { this.contentScale = it }
         }
     )

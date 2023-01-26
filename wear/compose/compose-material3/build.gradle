@@ -1,0 +1,95 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+import androidx.build.AndroidXComposePlugin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+// Disable multi-platform.
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
+
+dependencies {
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:ui:ui-text"))
+    api(project(":compose:runtime:runtime"))
+
+    implementation(libs.kotlinStdlib)
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:material:material-icons-core"))
+    implementation(project(":compose:material:material-ripple"))
+    implementation(project(":compose:ui:ui-util"))
+    implementation(project(":wear:compose:compose-foundation"))
+    implementation(project(":wear:compose:compose-material-core"))
+    implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+
+    samples(project(":wear:compose:compose-material3-samples"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 25
+    }
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/wear/compose/material3"
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
+    namespace "androidx.wear.compose.material3"
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+}
+
+androidx {
+    name = "Android Wear Compose Material 3"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.WEAR_COMPOSE_MATERIAL3
+    inceptionYear = "2022"
+    description = "WearOS Compose Material 3 Library. This library makes it easier for " +
+            "developers to write Jetpack Compose applications for Wearable devices that " +
+            "implement Wear Material 3 Design UX guidelines and specifications. It builds upon " +
+            "the Jetpack Compose libraries."
+    targetsJavaConsumers = false
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}

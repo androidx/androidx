@@ -32,10 +32,11 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
-import org.junit.Test
 import java.io.File
 import java.io.OutputStream
 import javax.tools.Diagnostic
+import kotlin.io.path.Path
+import org.junit.Test
 
 class KspFilerTest {
 
@@ -143,6 +144,29 @@ class KspFilerTest {
         }
     }
 
+    @Test
+    fun writeResource() {
+        runKspTest(
+            sources = emptyList()
+        ) { invocation ->
+            invocation.processingEnv.filer.writeResource(
+                filePath = Path("test.log"),
+                originatingElements = emptyList()
+            ).bufferedWriter(Charsets.UTF_8).use {
+                it.write("Hello!")
+            }
+            invocation.processingEnv.filer.writeResource(
+                filePath = Path("META-INF/services/com.test.Foo"),
+                originatingElements = emptyList()
+            ).bufferedWriter(Charsets.UTF_8).use {
+                it.write("Not a real service...")
+            }
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
     private fun Dependencies?.containsExactlySimpleKotlinClass() {
         assertThat(this).isNotNull()
         val originatingFiles = this!!.originatingFiles.map { it.fileName }
@@ -201,6 +225,24 @@ class KspFilerTest {
             fileName: String,
             extensionName: String
         ): OutputStream {
+            fileDependencies[fileName] = dependencies
+            return OutputStream.nullOutputStream()
+        }
+
+        override fun associateByPath(
+            sources: List<KSFile>,
+            path: String,
+            extensionName: String
+        ) {
+            // no-op for the sake of dependency tracking.
+        }
+
+        override fun createNewFileByPath(
+            dependencies: Dependencies,
+            path: String,
+            extensionName: String
+        ): OutputStream {
+            val fileName = path.split(File.separator).last()
             fileDependencies[fileName] = dependencies
             return OutputStream.nullOutputStream()
         }

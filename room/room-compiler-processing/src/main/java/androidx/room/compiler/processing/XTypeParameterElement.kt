@@ -32,6 +32,7 @@ interface XTypeParameterElement : XElement {
      */
     val bounds: List<XType>
 
+    // TODO(b/259091615): Migrate to XTypeName
     /** Returns the [TypeVariableName] for this type parameter) */
     val typeVariableName: TypeVariableName
 }

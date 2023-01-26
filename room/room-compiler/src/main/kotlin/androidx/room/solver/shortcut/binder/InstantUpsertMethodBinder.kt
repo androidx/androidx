@@ -16,12 +16,10 @@
 
 package androidx.room.solver.shortcut.binder
 
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Binder that knows how to write instant (blocking) upsert methods.
@@ -31,17 +29,17 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, Any>>,
-        dbField: FieldSpec,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+        scope.builder.apply {
+            addStatement("%N.assertNotSuspendingTransaction()", dbProperty)
         }
         adapter?.createMethodBody(
             parameters = parameters,
             adapters = adapters,
-            dbField = dbField,
+            dbProperty = dbProperty,
             scope = scope
         )
     }

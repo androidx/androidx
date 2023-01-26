@@ -25,6 +25,7 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.ImageProvider
 import androidx.glance.appwidget.runAndTranslate
@@ -32,6 +33,8 @@ import androidx.glance.appwidget.test.R
 import androidx.glance.layout.ContentScale
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -172,4 +175,49 @@ class ImageTranslatorTest {
         assertThat(imageView.getContentDescription()).isEqualTo("oval")
         assertThat(imageView.getScaleType()).isEqualTo(ImageView.ScaleType.FIT_XY)
     }
+
+    @Test
+    fun translateImage_contentDescriptionFieldAndSemanticsSet_fieldPreferred() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = "oval",
+                    modifier = GlanceModifier.semantics { contentDescription = "round" },
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.getContentDescription()).isEqualTo("oval")
+        }
+
+    @Test
+    fun translateImage_contentDescriptionFieldNullAndSemanticsSet_setFromSemantics() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    modifier = GlanceModifier.semantics { contentDescription = "round" },
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.getContentDescription()).isEqualTo("round")
+        }
+
+    @Test
+    fun translateImage_contentDescriptionFieldAndSemanticsNull() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    modifier = GlanceModifier.semantics {},
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.getContentDescription()).isNull()
+        }
 }

@@ -49,12 +49,14 @@ import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -65,6 +67,9 @@ import org.robolectric.shadows.ShadowApplication;
 @Config(instrumentedPackages = { "androidx.activity" })
 @DoNotInstrument
 public final class AppManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private ICarHost mMockCarHost;
     @Mock
@@ -93,8 +98,6 @@ public final class AppManagerTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
-
         mApplication = ApplicationProvider.getApplicationContext();
         mTestCarContext = TestCarContext.createCarContext(mApplication);
 

@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+import androidx.build.SdkResourceGenerator
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
+}
+
+dependencies {
+    api(gradleApi())
+    implementation(libs.kotlinGradlePluginz)
+    implementation(libs.gson)
+    implementation(libs.apacheCommonsMath)
+    testImplementation(gradleTestKit())
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+}
+
+SdkResourceGenerator.generateForHostTest(project)
+
+gradlePlugin {
+    plugins {
+        darwinBenchmark {
+            id = "androidx.benchmark.darwin"
+            implementationClass = "androidx.benchmark.darwin.gradle.DarwinBenchmarkPlugin"
+        }
+    }
+}
+
+androidx {
+    name = "AndroidX Benchmarks - Darwin Gradle Plugin"
+    type = LibraryType.GRADLE_PLUGIN
+    inceptionYear = "2022"
+    description = "AndroidX Benchmarks - Darwin Gradle Plugin"
+}
+
+validatePlugins {
+    enableStricterValidation = true
+}

@@ -40,7 +40,7 @@ import org.junit.runners.model.Statement
  *
  *     @Test
  *     fun startup() = benchmarkRule.measureRepeated(
- *         packageName = "mypackage.myapp",
+ *         packageName = "com.example.my.application.id"
  *         metrics = listOf(StartupTimingMetric()),
  *         iterations = 5,
  *         startupMode = StartupMode.COLD,
@@ -70,13 +70,14 @@ public class MacrobenchmarkRule : TestRule {
      *     compile(compilationMode)
      *     repeat(iterations) {
      *         setupBlock()
-     *         captureTrace {
+     *         captureTraceAndMetrics {
      *             measureBlock()
      *         }
      *     }
      * ```
      *
-     * @param packageName Package name of the app being measured.
+     * @param packageName ApplicationId / Application manifest package name of the app for
+     *   which profiles are generated.
      * @param metrics List of metrics to measure.
      * @param compilationMode Mode of compilation used before capturing measurement, such as
      * [CompilationMode.Partial], defaults to [CompilationMode.DEFAULT].

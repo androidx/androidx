@@ -37,7 +37,7 @@ dependencies {
 
     implementation("androidx.test:rules:1.4.0")
     implementation("androidx.test:runner:1.4.0")
-    implementation("androidx.tracing:tracing-ktx:1.0.0")
+    implementation("androidx.tracing:tracing-ktx:1.1.0")
     api("androidx.annotation:annotation:1.1.0")
 
     androidTestImplementation(project(":internal-testutils-ktx"))
@@ -48,7 +48,6 @@ dependencies {
 androidx {
     name = "Android Benchmark - JUnit4"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2019"
     description = "Android Benchmark - JUnit4"
 }

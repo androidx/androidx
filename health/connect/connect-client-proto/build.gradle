@@ -38,31 +38,25 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
+        ofSourceSet("main").each { task ->
+            sourceSets.main.java.srcDir(task)
+        }
         all().each { task ->
-            project.tasks.named("sourceJar").configure {
-                it.dependsOn(task)
-            }
-            project.tasks.named("runErrorProne").configure {
-                it.dependsOn(task)
-            }
-            project.tasks.named("lint").configure {
-                it.dependsOn(task)
-                it.enabled = false
-            }
-            project.tasks.named("lintAnalyze").configure {
-                it.dependsOn(task)
-                it.enabled = false
-            }
             task.builtins {
                 java {
                     option "lite"
                 }
             }
+        }
+    }
+}
+
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated and synthetic accessor methods
+            disable("UnknownNullness", "SyntheticAccessor")
         }
     }
 }
@@ -86,7 +80,6 @@ artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFi
 androidx {
     name = "AndroidX Health Connect Client Proto"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.HEALTH_CONNECT
     inceptionYear = "2022"
     description = "Proto files for health-connect-client"
 }

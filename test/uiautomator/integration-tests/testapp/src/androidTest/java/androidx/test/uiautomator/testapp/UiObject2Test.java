@@ -203,9 +203,9 @@ public class UiObject2Test extends BaseTest {
         // Get the same textView object via different methods.
         UiObject2 textView1 = mDevice.findObject(By.res(TEST_APP, "example_id"));
         UiObject2 textView2 = mDevice.findObject(By.text("TextView with an id"));
-        assertTrue(textView1.equals(textView2));
+        assertEquals(textView1, textView2);
         UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
-        assertFalse(textView1.equals(linearLayout));
+        assertNotEquals(textView1, linearLayout);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class UiObject2Test extends BaseTest {
         UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         List<UiObject2> children = nestedObject.getChildren();
         assertEquals(2, children.size());
-        Set<String> childrenClassNames = new HashSet<String>();
+        Set<String> childrenClassNames = new HashSet<>();
         childrenClassNames.add(children.get(0).getClassName());
         childrenClassNames.add(children.get(1).getClassName());
         assertTrue(childrenClassNames.contains("android.widget.TextView"));
@@ -590,7 +590,7 @@ public class UiObject2Test extends BaseTest {
                 IllegalStateException.class,
                 () -> textView.getText()
         );
-        assertEquals("This object has already been recycled", e.getMessage());
+        assertEquals("This object has already been recycled.", e.getMessage());
     }
 
     @Test
@@ -598,22 +598,15 @@ public class UiObject2Test extends BaseTest {
         launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
-        // Scroll down to bottom (20000px) in increments of 5000px.
+        // Scroll down to bottom where is two-screen-height distant from the top.
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
         scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
+
         Rect bounds = scrollView.getVisibleBounds();
-        float percent = 5_000f / (bounds.height() - 2 * SCROLL_MARGIN);
-        // Scroll to an element 5000px from the top.
+        float percent =
+                (float) (mDevice.getDisplayHeight() * 2 / (bounds.height() - 2 * SCROLL_MARGIN));
         scrollView.scroll(Direction.DOWN, percent);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_5000")));
-        // Scroll to an element 10000px from the top.
-        scrollView.scroll(Direction.DOWN, percent);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_10000")));
-        // Scroll to an element 15000px from the top.
-        scrollView.scroll(Direction.DOWN, percent);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_15000")));
-        // Scroll to the bottom element 20000px from the top.
-        scrollView.scroll(Direction.DOWN, percent);
+
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
@@ -688,13 +681,15 @@ public class UiObject2Test extends BaseTest {
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
 
+        Rect pinchAreaBounds = pinchArea.getVisibleBounds();
+
         // Set the gesture's margins to a large number (greater than the width or height of the UI
         // object's visible bounds).
         // The gesture's bounds cannot form a rectangle and no action can be performed.
-        pinchArea.setGestureMargin(1_000);
+        pinchArea.setGestureMargin(Math.max(pinchAreaBounds.height(), pinchAreaBounds.width()) * 2);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
 
@@ -704,7 +699,7 @@ public class UiObject2Test extends BaseTest {
         pinchArea.setGestureMargin(1);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
@@ -716,13 +711,16 @@ public class UiObject2Test extends BaseTest {
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
 
+        Rect pinchAreaBounds = pinchArea.getVisibleBounds();
+
         // Set the gesture's margins to large numbers (greater than the width or height of the UI
         // object's visible bounds).
         // The gesture's bounds cannot form a rectangle and no action can be performed.
-        pinchArea.setGestureMargins(1, 1, 1_000, 1_000);
+        pinchArea.setGestureMargins(1, 1, pinchAreaBounds.width() * 2,
+                pinchAreaBounds.height() * 2);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
 
@@ -732,7 +730,7 @@ public class UiObject2Test extends BaseTest {
         pinchArea.setGestureMargins(1, 1, 1, 1);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }

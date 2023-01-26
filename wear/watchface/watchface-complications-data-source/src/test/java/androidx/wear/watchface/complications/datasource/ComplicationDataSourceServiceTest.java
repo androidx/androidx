@@ -18,12 +18,11 @@ package androidx.wear.watchface.complications.datasource;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
@@ -38,9 +37,9 @@ import androidx.wear.watchface.complications.data.ComplicationText;
 import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.data.LongTextComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
-import androidx.wear.watchface.complications.data.TimeRange;
+import androidx.wear.watchface.complications.data.StringExpression;
+import androidx.wear.watchface.complications.data.StringExpressionComplicationText;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +47,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowLog;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class ComplicationDataSourceServiceTest {
     private IComplicationManager mRemoteManager;
 
     private final CountDownLatch mUpdateComplicationDataLatch = new CountDownLatch(1);
-    private IComplicationManager.Stub mLocalManager = new IComplicationManager.Stub() {
+    private final IComplicationManager.Stub mLocalManager = new IComplicationManager.Stub() {
         @Override
         public void updateComplicationData(int complicationSlotId,
                 android.support.wearable.complications.ComplicationData data)
@@ -82,12 +82,42 @@ public class ComplicationDataSourceServiceTest {
         }
     };
 
-    private IComplicationProvider.Stub mComplicationProvider;
-    private IComplicationProvider.Stub mNoUpdateComplicationProvider;
-    private IComplicationProvider.Stub mWrongComplicationProvider;
-    private IComplicationProvider.Stub mTimelineProvider;
+    private IComplicationProvider.Stub mProvider;
 
-    private ComplicationDataSourceService mTestService = new ComplicationDataSourceService() {
+    /**
+     * Mock implementation of ComplicationDataSourceService.
+     *
+     * <p>Can't use Mockito because it doesn't like partially implemented classes.
+     */
+    private class MockComplicationDataSourceService extends ComplicationDataSourceService {
+        boolean respondWithTimeline = false;
+
+        /**
+         * Will be used to invoke {@link ComplicationRequestListener#onComplicationData} on
+         * {@link #onComplicationRequest}.
+         */
+        @Nullable
+        ComplicationData responseData;
+
+        /**
+         * Will be used to invoke {@link ComplicationRequestListener#onComplicationDataTimeline} on
+         * {@link #onComplicationRequest}, if {@link #respondWithTimeline} is true.
+         */
+        @Nullable
+        ComplicationDataTimeline responseDataTimeline;
+
+        /** Last request provided to {@link #onComplicationRequest}. */
+        @Nullable
+        ComplicationRequest lastRequest;
+
+        /** Will be returned from {@link #getPreviewData}. */
+        @Nullable
+        ComplicationData previewData;
+
+        /** Last type provided to {@link #getPreviewData}. */
+        @Nullable
+        ComplicationType lastPreviewType;
+
         @NonNull
         @Override
         public Handler createMainThreadHandler() {
@@ -95,20 +125,15 @@ public class ComplicationDataSourceServiceTest {
         }
 
         @Override
-        public void onComplicationRequest(
-                @NotNull ComplicationRequest request,
+        public void onComplicationRequest(@NonNull ComplicationRequest request,
                 @NonNull ComplicationRequestListener listener) {
+            lastRequest = request;
             try {
-                String response = request.isImmediateResponseRequired()
-                        ? "hello synchronous " + request.getComplicationInstanceId() :
-                        "hello " + request.getComplicationInstanceId();
-
-                listener.onComplicationData(
-                        new LongTextComplicationData.Builder(
-                                new PlainComplicationText.Builder(response).build(),
-                                ComplicationText.EMPTY
-                        ).build()
-                );
+                if (respondWithTimeline) {
+                    listener.onComplicationDataTimeline(responseDataTimeline);
+                } else {
+                    listener.onComplicationData(responseData);
+                }
             } catch (RemoteException e) {
                 Log.e(TAG, "onComplicationRequest failed with error: ", e);
             }
@@ -117,160 +142,21 @@ public class ComplicationDataSourceServiceTest {
         @Nullable
         @Override
         public ComplicationData getPreviewData(@NonNull ComplicationType type) {
-            if (type == ComplicationType.PHOTO_IMAGE) {
-                return null;
-            }
-            return new LongTextComplicationData.Builder(
-                    new PlainComplicationText.Builder("hello preview").build(),
-                    ComplicationText.EMPTY
-            ).build();
+            lastPreviewType = type;
+            return previewData;
         }
-    };
+    }
 
-    private ComplicationDataSourceService mTestServiceNotValidTimeRange =
-            new ComplicationDataSourceService() {
-                @Override
-                public void onComplicationRequest(
-                        @NotNull ComplicationRequest request,
-                        @NonNull ComplicationRequestListener listener) {
-                    try {
-                        listener.onComplicationData(
-                                new LongTextComplicationData.Builder(
-                                        new PlainComplicationText.Builder(
-                                                "hello " + request.getComplicationInstanceId()
-                                        ).build(),
-                                        ComplicationText.EMPTY
-                                ).build()
-                        );
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "onComplicationRequest failed with error: ", e);
-                    }
-                }
+    private final MockComplicationDataSourceService mService =
+            new MockComplicationDataSourceService();
 
-                @Nullable
-                @Override
-                public ComplicationData getPreviewData(@NonNull ComplicationType type) {
-                    return new LongTextComplicationData.Builder(
-                            new PlainComplicationText.Builder("hello preview").build(),
-                            ComplicationText.EMPTY
-                    ).setValidTimeRange(TimeRange.between(Instant.now(), Instant.now())).build();
-                }
-            };
-
-    private ComplicationDataSourceService mNoUpdateTestService =
-            new ComplicationDataSourceService() {
-                @NonNull
-                @Override
-                public Handler createMainThreadHandler() {
-                    return mPretendMainThreadHandler;
-                }
-
-                @Override
-                public void onComplicationRequest(
-                        @NotNull ComplicationRequest request,
-                        @NonNull ComplicationRequestListener listener) {
-                    try {
-                        // Null means no update required.
-                        listener.onComplicationData(null);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "onComplicationRequest failed with error: ", e);
-                    }
-                }
-
-                @Nullable
-                @Override
-                public ComplicationData getPreviewData(@NonNull ComplicationType type) {
-                    return new LongTextComplicationData.Builder(
-                            new PlainComplicationText.Builder("hello preview").build(),
-                            ComplicationText.EMPTY
-                    ).build();
-                }
-            };
-
-    private ComplicationDataSourceService mTimelineTestService =
-            new ComplicationDataSourceService() {
-                @NonNull
-                @Override
-                public Handler createMainThreadHandler() {
-                    return mPretendMainThreadHandler;
-                }
-
-                @Override
-                public void onComplicationRequest(
-                        @NotNull ComplicationRequest request,
-                        @NonNull ComplicationRequestListener listener) {
-                    try {
-                        ArrayList<TimelineEntry> timeline = new ArrayList<>();
-                        timeline.add(new TimelineEntry(
-                                        new TimeInterval(
-                                                Instant.ofEpochSecond(1000),
-                                                Instant.ofEpochSecond(4000)
-                                        ),
-                                        new LongTextComplicationData.Builder(
-                                                new PlainComplicationText.Builder(
-                                                        "A").build(),
-                                                ComplicationText.EMPTY
-                                        ).build()
-                                )
-                        );
-
-                        timeline.add(new TimelineEntry(
-                                        new TimeInterval(
-                                                Instant.ofEpochSecond(6000),
-                                                Instant.ofEpochSecond(8000)
-                                        ),
-                                        new LongTextComplicationData.Builder(
-                                                new PlainComplicationText.Builder(
-                                                        "B").build(),
-                                                ComplicationText.EMPTY
-                                        ).build()
-                                )
-                        );
-
-                        listener.onComplicationDataTimeline(
-                                new ComplicationDataTimeline(
-                                        new LongTextComplicationData.Builder(
-                                                new PlainComplicationText.Builder(
-                                                        "default").build(),
-                                                ComplicationText.EMPTY
-                                        ).build(),
-                                        timeline
-                                ));
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "onComplicationRequest failed with error: ", e);
-                    }
-                }
-
-                @Nullable
-                @Override
-                public ComplicationData getPreviewData(@NonNull ComplicationType type) {
-                    return new LongTextComplicationData.Builder(
-                            new PlainComplicationText.Builder("hello preview").build(),
-                            ComplicationText.EMPTY
-                    ).build();
-                }
-            };
-
+    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
+        ShadowLog.setLoggable("ComplicationData", Log.DEBUG);
         MockitoAnnotations.initMocks(this);
-        mComplicationProvider =
-                (IComplicationProvider.Stub) mTestService.onBind(
-                        new Intent(
-                                ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
-
-        mNoUpdateComplicationProvider =
-                (IComplicationProvider.Stub) mNoUpdateTestService.onBind(
-                        new Intent(
-                                ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
-
-        mWrongComplicationProvider =
-                (IComplicationProvider.Stub) mTestServiceNotValidTimeRange.onBind(
-                        new Intent(
-                                ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
-
-        mTimelineProvider =
-                (IComplicationProvider.Stub) mTimelineTestService.onBind(
+        mProvider =
+                (IComplicationProvider.Stub) mService.onBind(
                         new Intent(
                                 ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
 
@@ -279,14 +165,20 @@ public class ComplicationDataSourceServiceTest {
     }
 
     @After
-    public void tareDown() {
+    public void tearDown() {
         mPretendMainThread.quitSafely();
     }
 
     @Test
     public void testOnComplicationRequest() throws Exception {
+        mService.responseData =
+                new LongTextComplicationData.Builder(
+                        new PlainComplicationText.Builder("hello").build(),
+                        ComplicationText.EMPTY
+                ).build();
+
         int id = 123;
-        mComplicationProvider.onUpdate(
+        mProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
 
@@ -294,13 +186,71 @@ public class ComplicationDataSourceServiceTest {
                 ArgumentCaptor.forClass(
                         android.support.wearable.complications.ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
-        assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
-                "hello " + id
-        );
+        assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo("hello");
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.TIRAMISU)
+    public void testOnComplicationRequestWithExpression_doesNotEvaluateExpression()
+            throws Exception {
+        mService.responseData =
+                new LongTextComplicationData.Builder(
+                        new StringExpressionComplicationText(
+                                new StringExpression(new byte[]{1, 2})),
+                        ComplicationText.EMPTY)
+                        .build();
+
+        mProvider.onUpdate(
+                /* complicationInstanceId = */ 123,
+                ComplicationType.LONG_TEXT.toWireComplicationType(),
+                mLocalManager);
+
+        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+        verify(mRemoteManager).updateComplicationData(
+                eq(123),
+                eq(new LongTextComplicationData.Builder(
+                        new StringExpressionComplicationText(
+                                new StringExpression(new byte[]{1, 2})),
+                        ComplicationText.EMPTY)
+                        .build()
+                        .asWireComplicationData()));
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.S)
+    public void testOnComplicationRequestWithExpressionPreT_evaluatesExpression()
+            throws Exception {
+        mService.responseData =
+                new LongTextComplicationData.Builder(
+                        new StringExpressionComplicationText(
+                                new StringExpression(new byte[]{1, 2})),
+                        ComplicationText.EMPTY)
+                        .build();
+
+        mProvider.onUpdate(
+                /* complicationInstanceId = */ 123,
+                ComplicationType.LONG_TEXT.toWireComplicationType(),
+                mLocalManager);
+
+        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+        verify(mRemoteManager).updateComplicationData(
+                eq(123),
+                eq(new LongTextComplicationData.Builder(
+                        // TODO(b/260065006): Verify that it is actually evaluated.
+                        new StringExpressionComplicationText(
+                                new StringExpression(new byte[]{1, 2})),
+                        ComplicationText.EMPTY)
+                        .build()
+                        .asWireComplicationData()));
     }
 
     @Test
     public void testOnComplicationRequestWrongType() throws Exception {
+        mService.responseData =
+                new LongTextComplicationData.Builder(
+                        new PlainComplicationText.Builder("hello").build(),
+                        ComplicationText.EMPTY
+                ).build();
         int id = 123;
         AtomicReference<Throwable> exception = new AtomicReference<>();
         CountDownLatch exceptionLatch = new CountDownLatch(1);
@@ -310,7 +260,7 @@ public class ComplicationDataSourceServiceTest {
             exceptionLatch.countDown();
         });
 
-        mComplicationProvider.onUpdate(
+        mProvider.onUpdate(
                 id, ComplicationType.SHORT_TEXT.toWireComplicationType(), mLocalManager);
 
         assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
@@ -318,17 +268,11 @@ public class ComplicationDataSourceServiceTest {
     }
 
     @Test
-    public void testOnComplicationRequestWrongValidTimeRange() throws Exception {
-        int id = 123;
-        mWrongComplicationProvider.onUpdate(
-                id, ComplicationType.SHORT_TEXT.toWireComplicationType(), mLocalManager);
-        assertThrows(IllegalArgumentException.class, ShadowLooper::runUiThreadTasks);
-    }
-
-    @Test
     public void testOnComplicationRequestNoUpdateRequired() throws Exception {
+        mService.responseData = null;
+
         int id = 123;
-        mNoUpdateComplicationProvider.onUpdate(
+        mProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
 
@@ -341,23 +285,55 @@ public class ComplicationDataSourceServiceTest {
 
     @Test
     public void testGetComplicationPreviewData() throws Exception {
-        assertThat(mComplicationProvider.getComplicationPreviewData(
+        mService.previewData = new LongTextComplicationData.Builder(
+                new PlainComplicationText.Builder("hello preview").build(),
+                ComplicationText.EMPTY
+        ).build();
+
+        assertThat(mProvider.getComplicationPreviewData(
                 ComplicationType.LONG_TEXT.toWireComplicationType()
         ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
     }
 
     @Test
-    public void testGetComplicationPreviewDataReturnsNull() throws Exception {
-        // The ComplicationProvider doesn't support PHOTO_IMAGE so null should be returned.
-        assertNull(mComplicationProvider.getComplicationPreviewData(
-                ComplicationType.PHOTO_IMAGE.toWireComplicationType())
-        );
-    }
-
-    @Test
     public void testTimelineTestService() throws Exception {
+        mService.respondWithTimeline = true;
+        ArrayList<TimelineEntry> timeline = new ArrayList<>();
+        timeline.add(new TimelineEntry(
+                        new TimeInterval(
+                                Instant.ofEpochSecond(1000),
+                                Instant.ofEpochSecond(4000)
+                        ),
+                        new LongTextComplicationData.Builder(
+                                new PlainComplicationText.Builder(
+                                        "A").build(),
+                                ComplicationText.EMPTY
+                        ).build()
+                )
+        );
+        timeline.add(new TimelineEntry(
+                        new TimeInterval(
+                                Instant.ofEpochSecond(6000),
+                                Instant.ofEpochSecond(8000)
+                        ),
+                        new LongTextComplicationData.Builder(
+                                new PlainComplicationText.Builder(
+                                        "B").build(),
+                                ComplicationText.EMPTY
+                        ).build()
+                )
+        );
+        mService.responseDataTimeline = new ComplicationDataTimeline(
+                new LongTextComplicationData.Builder(
+                        new PlainComplicationText.Builder(
+                                "default").build(),
+                        ComplicationText.EMPTY
+                ).build(),
+                timeline
+        );
+
         int id = 123;
-        mTimelineProvider.onUpdate(
+        mProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
 
@@ -388,6 +364,11 @@ public class ComplicationDataSourceServiceTest {
     @Test
     public void testImmediateRequest() throws Exception {
         int id = 123;
+        mService.responseData =
+                new LongTextComplicationData.Builder(
+                        new PlainComplicationText.Builder("hello").build(),
+                        ComplicationText.EMPTY
+                ).build();
         HandlerThread thread = new HandlerThread("testThread");
 
         try {
@@ -399,7 +380,8 @@ public class ComplicationDataSourceServiceTest {
 
             threadHandler.post(() -> {
                         try {
-                            response.set(mComplicationProvider.onSynchronousComplicationRequest(123,
+                            response.set(mProvider.onSynchronousComplicationRequest(
+                                    123,
                                     ComplicationType.LONG_TEXT.toWireComplicationType()));
                             doneLatch.countDown();
                         } catch (RemoteException e) {
@@ -409,9 +391,7 @@ public class ComplicationDataSourceServiceTest {
             );
 
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
-            assertThat(response.get().getLongText().getTextAt(null, 0)).isEqualTo(
-                    "hello synchronous " + id
-            );
+            assertThat(response.get().getLongText().getTextAt(null, 0)).isEqualTo("hello");
         } finally {
             thread.quitSafely();
         }

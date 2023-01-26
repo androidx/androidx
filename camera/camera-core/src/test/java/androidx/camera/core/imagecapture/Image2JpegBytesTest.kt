@@ -19,6 +19,7 @@ package androidx.camera.core.imagecapture
 import android.graphics.ImageFormat.JPEG
 import android.os.Build
 import android.util.Size
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
@@ -57,7 +58,8 @@ class Image2JpegBytesTest {
             exif,
             CROP_RECT,
             ROTATION_DEGREES,
-            SENSOR_TO_BUFFER
+            SENSOR_TO_BUFFER,
+            CAMERA_CAPTURE_RESULT
         )
 
         // Act.
@@ -75,5 +77,6 @@ class Image2JpegBytesTest {
         assertThat(output.format).isEqualTo(JPEG)
         assertThat(output.size).isEqualTo(Size(WIDTH, HEIGHT))
         assertThat(output.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
+        assertThat(output.cameraCaptureResult).isEqualTo(CAMERA_CAPTURE_RESULT)
     }
 }

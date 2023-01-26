@@ -34,6 +34,7 @@ import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.LambdaAction
 import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.action.StartActivityAction
 import androidx.glance.action.StartActivityClassAction
@@ -212,6 +213,13 @@ private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
         is RunCallbackAction -> {
             builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
                 .setId(callbackClass.canonicalName!!)
+        }
+        is LambdaAction -> {
+            Log.e(
+                GlanceWearTileTag,
+                "Lambda actions are not currently supported on Wear Tiles. Use " +
+                    "actionRunCallback actions instead."
+            )
         }
         else -> {
             Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
@@ -406,7 +414,7 @@ private fun translateTextStyle(
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
+    style.color.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
     // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
         if (!it.isSp) {
@@ -553,7 +561,7 @@ private fun translateEmittableImage(
     val imageBuilder = LayoutElementBuilders.Image.Builder()
         .setWidth(element.modifier.getWidth(context).toImageDimension())
         .setHeight(element.modifier.getHeight(context).toImageDimension())
-        .setModifiers(translateModifiers(context, element.modifier, element.contentDescription))
+        .setModifiers(translateModifiers(context, element.modifier))
         .setResourceId(mappedResId)
         .setContentScaleMode(
             when (element.contentScale) {
@@ -693,7 +701,6 @@ private fun translateCurvedModifiers(
 private fun translateModifiers(
     context: Context,
     modifier: GlanceModifier,
-    contentDescription: String? = null
 ): ModifiersBuilders.Modifiers =
     modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {
@@ -719,14 +726,6 @@ private fun translateModifiers(
                 ?.let {
                     builder.setPadding(it.toProto())
                 }
-
-            contentDescription?.let { contentDescription ->
-                builder.setSemantics(
-                    ModifiersBuilders.Semantics.Builder()
-                        .setContentDescription(contentDescription)
-                        .build()
-                )
-            }
         }
         .build()
 

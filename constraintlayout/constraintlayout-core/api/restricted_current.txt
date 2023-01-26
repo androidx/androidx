@@ -1250,6 +1250,8 @@ package androidx.constraintlayout.core.motion.utils {
     method public void getSlope(double, double[]!);
     method public double getSlope(double, int);
     method public double[]! getTimePoints();
+    field public static final int ARC_ABOVE = 5; // 0x5
+    field public static final int ARC_BELOW = 4; // 0x4
     field public static final int ARC_START_FLIP = 3; // 0x3
     field public static final int ARC_START_HORIZONTAL = 2; // 0x2
     field public static final int ARC_START_LINEAR = 0; // 0x0
@@ -1872,6 +1874,7 @@ package androidx.constraintlayout.core.parser {
     method public void add(androidx.constraintlayout.core.parser.CLElement!);
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
     method public void clear();
+    method public androidx.constraintlayout.core.parser.CLContainer! clone();
     method public androidx.constraintlayout.core.parser.CLElement! get(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLElement! get(int) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLArray! getArray(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
@@ -1903,9 +1906,10 @@ package androidx.constraintlayout.core.parser {
     method public int size();
   }
 
-  public class CLElement {
+  public class CLElement implements java.lang.Cloneable {
     ctor public CLElement(char[]!);
     method protected void addIndent(StringBuilder!, int);
+    method public androidx.constraintlayout.core.parser.CLElement! clone();
     method public String! content();
     method public androidx.constraintlayout.core.parser.CLElement! getContainer();
     method protected String! getDebugName();
@@ -1915,6 +1919,7 @@ package androidx.constraintlayout.core.parser {
     method public int getLine();
     method public long getStart();
     method protected String! getStrClass();
+    method public boolean hasContent();
     method public boolean isDone();
     method public boolean isStarted();
     method public boolean notStarted();
@@ -1951,6 +1956,7 @@ package androidx.constraintlayout.core.parser {
   public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey> {
     ctor public CLObject(char[]!);
     method public static androidx.constraintlayout.core.parser.CLObject! allocate(char[]!);
+    method public androidx.constraintlayout.core.parser.CLObject! clone();
     method public java.util.Iterator<androidx.constraintlayout.core.parser.CLKey!>! iterator();
     method public String! toFormattedJSON();
     method public String! toFormattedJSON(int, int);
@@ -1971,6 +1977,7 @@ package androidx.constraintlayout.core.parser {
   public class CLString extends androidx.constraintlayout.core.parser.CLElement {
     ctor public CLString(char[]!);
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
+    method public static androidx.constraintlayout.core.parser.CLString from(String);
   }
 
   public class CLToken extends androidx.constraintlayout.core.parser.CLElement {
@@ -2115,6 +2122,7 @@ package androidx.constraintlayout.core.state {
     method public static void parseJSON(String!, androidx.constraintlayout.core.state.Transition!, int);
     method public static void parseJSON(String!, androidx.constraintlayout.core.state.State!, androidx.constraintlayout.core.state.ConstraintSetParser.LayoutVariables!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public static void parseMotionSceneJSON(androidx.constraintlayout.core.state.CoreMotionScene!, String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void populateState(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.State, androidx.constraintlayout.core.state.ConstraintSetParser.LayoutVariables) throws androidx.constraintlayout.core.parser.CLParsingException;
   }
 
   public static class ConstraintSetParser.DesignElement {
@@ -2247,6 +2255,7 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.ConstraintReference! createConstraintReference(Object!);
     method public void directMapping();
     method public androidx.constraintlayout.core.state.helpers.FlowReference! getFlow(Object!, boolean);
+    method public androidx.constraintlayout.core.state.helpers.GridReference getGrid(Object, String);
     method public androidx.constraintlayout.core.state.helpers.FlowReference! getHorizontalFlow();
     method public androidx.constraintlayout.core.state.helpers.FlowReference! getHorizontalFlow(java.lang.Object!...);
     method public java.util.ArrayList<java.lang.String!>! getIdsForTag(String!);
@@ -2259,12 +2268,14 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.helpers.HorizontalChainReference! horizontalChain(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.helpers.GuidelineReference! horizontalGuideline(Object!);
     method public boolean isBaselineNeeded(androidx.constraintlayout.core.widgets.ConstraintWidget!);
+    method public boolean isLtr();
     method public void map(Object!, Object!);
     method public void reset();
     method public boolean sameFixedHeight(int);
     method public boolean sameFixedWidth(int);
     method public void setDpToPixel(androidx.constraintlayout.core.state.CorePixelDp!);
     method public androidx.constraintlayout.core.state.State! setHeight(androidx.constraintlayout.core.state.Dimension!);
+    method public void setLtr(boolean);
     method public void setTag(String!, String!);
     method public androidx.constraintlayout.core.state.State! setWidth(androidx.constraintlayout.core.state.Dimension!);
     method public androidx.constraintlayout.core.state.helpers.VerticalChainReference! verticalChain();
@@ -2291,6 +2302,7 @@ package androidx.constraintlayout.core.state {
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BASELINE_TO_BASELINE;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BASELINE_TO_BOTTOM;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BASELINE_TO_TOP;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BOTTOM_TO_BASELINE;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BOTTOM_TO_BOTTOM;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BOTTOM_TO_TOP;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint CENTER_HORIZONTALLY;
@@ -2304,6 +2316,7 @@ package androidx.constraintlayout.core.state {
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint RIGHT_TO_RIGHT;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint START_TO_END;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint START_TO_START;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Constraint TOP_TO_BASELINE;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint TOP_TO_BOTTOM;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint TOP_TO_TOP;
   }
@@ -2321,10 +2334,13 @@ package androidx.constraintlayout.core.state {
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper ALIGN_HORIZONTALLY;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper ALIGN_VERTICALLY;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper BARRIER;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Helper COLUMN;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper FLOW;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Helper GRID;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper HORIZONTAL_CHAIN;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper HORIZONTAL_FLOW;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper LAYER;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Helper ROW;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper VERTICAL_CHAIN;
     enum_constant public static final androidx.constraintlayout.core.state.State.Helper VERTICAL_FLOW;
   }
@@ -2340,7 +2356,7 @@ package androidx.constraintlayout.core.state {
   }
 
   public class Transition implements androidx.constraintlayout.core.motion.utils.TypedValues {
-    ctor public Transition();
+    ctor public Transition(androidx.constraintlayout.core.state.CorePixelDp);
     method public void addCustomColor(int, String!, String!, int);
     method public void addCustomFloat(int, String!, String!, float);
     method public void addKeyAttribute(String!, androidx.constraintlayout.core.motion.utils.TypedBundle!);
@@ -2404,7 +2420,8 @@ package androidx.constraintlayout.core.state {
 
   public class TransitionParser {
     ctor public TransitionParser();
-    method public static void parse(androidx.constraintlayout.core.parser.CLObject!, androidx.constraintlayout.core.state.Transition!, androidx.constraintlayout.core.state.CorePixelDp!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method @Deprecated public static void parse(androidx.constraintlayout.core.parser.CLObject!, androidx.constraintlayout.core.state.Transition!, androidx.constraintlayout.core.state.CorePixelDp!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void parse(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public static void parseKeyFrames(androidx.constraintlayout.core.parser.CLObject!, androidx.constraintlayout.core.state.Transition!) throws androidx.constraintlayout.core.parser.CLParsingException;
   }
 
@@ -2416,6 +2433,7 @@ package androidx.constraintlayout.core.state {
     method public void addCustomFloat(String!, float);
     method public float centerX();
     method public float centerY();
+    method public boolean containsCustom(String);
     method public androidx.constraintlayout.core.motion.CustomVariable! getCustomAttribute(String!);
     method public java.util.Set<java.lang.String!>! getCustomAttributeNames();
     method public int getCustomColor(String!);
@@ -2477,20 +2495,23 @@ package androidx.constraintlayout.core.state.helpers {
   }
 
   public class ChainReference extends androidx.constraintlayout.core.state.HelperReference {
-    ctor public ChainReference(androidx.constraintlayout.core.state.State!, androidx.constraintlayout.core.state.State.Helper!);
-    method public void addChainElement(String!, float, float, float);
-    method public androidx.constraintlayout.core.state.helpers.ChainReference! bias(float);
+    ctor public ChainReference(androidx.constraintlayout.core.state.State, androidx.constraintlayout.core.state.State.Helper);
+    method public void addChainElement(String, float, float, float);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void addChainElement(Object, float, float, float, float, float);
+    method public androidx.constraintlayout.core.state.helpers.ChainReference bias(float);
     method public float getBias();
-    method protected float getPostMargin(String!);
-    method protected float getPreMargin(String!);
-    method public androidx.constraintlayout.core.state.State.Chain! getStyle();
-    method protected float getWeight(String!);
-    method public androidx.constraintlayout.core.state.helpers.ChainReference! style(androidx.constraintlayout.core.state.State.Chain!);
+    method protected float getPostGoneMargin(String);
+    method protected float getPostMargin(String);
+    method protected float getPreGoneMargin(String);
+    method protected float getPreMargin(String);
+    method public androidx.constraintlayout.core.state.State.Chain getStyle();
+    method protected float getWeight(String);
+    method public androidx.constraintlayout.core.state.helpers.ChainReference style(androidx.constraintlayout.core.state.State.Chain);
     field protected float mBias;
-    field protected java.util.HashMap<java.lang.String!,java.lang.Float!>! mMapPostMargin;
-    field protected java.util.HashMap<java.lang.String!,java.lang.Float!>! mMapPreMargin;
-    field protected java.util.HashMap<java.lang.String!,java.lang.Float!>! mMapWeights;
-    field protected androidx.constraintlayout.core.state.State.Chain! mStyle;
+    field @Deprecated protected java.util.HashMap<java.lang.String!,java.lang.Float!> mMapPostMargin;
+    field @Deprecated protected java.util.HashMap<java.lang.String!,java.lang.Float!> mMapPreMargin;
+    field @Deprecated protected java.util.HashMap<java.lang.String!,java.lang.Float!> mMapWeights;
+    field protected androidx.constraintlayout.core.state.State.Chain mStyle;
   }
 
   public interface Facade {
@@ -2575,6 +2596,28 @@ package androidx.constraintlayout.core.state.helpers {
     field protected int mWrapMode;
   }
 
+  public class GridReference extends androidx.constraintlayout.core.state.HelperReference {
+    ctor public GridReference(androidx.constraintlayout.core.state.State, androidx.constraintlayout.core.state.State.Helper);
+    method public String? getColumnWeights();
+    method public int getColumnsSet();
+    method public float getHorizontalGaps();
+    method public int getOrientation();
+    method public String? getRowWeights();
+    method public int getRowsSet();
+    method public String? getSkips();
+    method public String? getSpans();
+    method public float getVerticalGaps();
+    method public void setColumnWeights(String);
+    method public void setColumnsSet(int);
+    method public void setHorizontalGaps(float);
+    method public void setOrientation(int);
+    method public void setRowWeights(String);
+    method public void setRowsSet(int);
+    method public void setSkips(String);
+    method public void setSpans(String);
+    method public void setVerticalGaps(float);
+  }
+
   public class GuidelineReference implements androidx.constraintlayout.core.state.helpers.Facade androidx.constraintlayout.core.state.Reference {
     ctor public GuidelineReference(androidx.constraintlayout.core.state.State!);
     method public void apply();
@@ -2601,6 +2644,29 @@ package androidx.constraintlayout.core.state.helpers {
 }
 
 package androidx.constraintlayout.core.utils {
+
+  public class GridCore extends androidx.constraintlayout.core.widgets.VirtualLayout {
+    ctor public GridCore();
+    ctor public GridCore(int, int);
+    method public String? getColumnWeights();
+    method public androidx.constraintlayout.core.widgets.ConstraintWidgetContainer? getContainer();
+    method public float getHorizontalGaps();
+    method public int getOrientation();
+    method public String? getRowWeights();
+    method public float getVerticalGaps();
+    method public void setColumnWeights(String);
+    method public void setColumns(int);
+    method public void setContainer(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer);
+    method public void setHorizontalGaps(float);
+    method public void setOrientation(int);
+    method public void setRowWeights(String);
+    method public void setRows(int);
+    method public void setSkips(String);
+    method public void setSpans(CharSequence);
+    method public void setVerticalGaps(float);
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
+  }
 
   public class GridEngine {
     ctor public GridEngine();

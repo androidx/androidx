@@ -1,0 +1,67 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    def media3Version = '1.0.0-beta03'
+
+    api(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation("androidx.test:core:1.4.0@aar")
+
+    // Add dependencies here
+    implementation('androidx.media3:media3-effect:' + media3Version)
+    implementation('androidx.media3:media3-common:' + media3Version)
+    implementation('androidx.media3:media3-ui:' + media3Version)
+    implementation('androidx.media3:media3-exoplayer:' + media3Version)
+    implementation('androidx.media3:media3-transformer:' + media3Version)
+
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+
+    namespace "androidx.graphics.filters"
+    buildFeatures {
+        viewBinding true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+androidx {
+    name = "androidx.graphics.filters:filters"
+    type = LibraryType.PUBLISHED_LIBRARY
+    inceptionYear = "2022"
+    description = "Apply visual filters to images, video or UI in real time."
+}

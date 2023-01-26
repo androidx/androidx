@@ -46,13 +46,6 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
         get() = superClass
 
     /**
-     * The direct super types of this element.
-     *
-     * See [JLS 4.10.2](https://docs.oracle.com/javase/specs/jls/se18/html/jls-4.html#jls-4.10.2)
-     */
-    val superTypes: List<XType>
-
-    /**
      * The super class of this element if it represents a class.
      */
     val superClass: XType?
@@ -65,14 +58,13 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     /**
      * Javapoet [ClassName] of the type.
      */
-    // TODO(b/247248619): Deprecate when more progress is made, otherwise -werror fails the build.
-    // @Deprecated(
-    //     message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
-    //     replaceWith = ReplaceWith(
-    //         expression = "asClassName().toJavaPoet()",
-    //         imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-    //     )
-    // )
+     @Deprecated(
+         message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+         replaceWith = ReplaceWith(
+             expression = "asClassName().toJavaPoet()",
+             imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+         )
+     )
     override val className: ClassName
 
     /**

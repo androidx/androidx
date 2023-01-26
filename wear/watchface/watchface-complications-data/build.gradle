@@ -33,14 +33,17 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.wear.tiles:tiles:1.1.0-alpha08")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.testParameterInjector)
 
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
@@ -64,7 +67,6 @@ android {
 androidx {
     name = "Android Wear Complications Data"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Complications Data"
 }

@@ -23,11 +23,12 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
+import kotlin.reflect.KClass
 
 internal class FakeCaptureSessionWrapper(
     override val device: CameraDeviceWrapper,
     override val isReprocessable: Boolean = false,
-    override val inputSurface: Surface? = null
+    override val inputSurface: Surface? = null,
 ) : CameraCaptureSessionWrapper {
     var closed = false
     var lastSequenceNumber = 0
@@ -39,6 +40,8 @@ internal class FakeCaptureSessionWrapper(
 
     var stopRepeatingInvoked = false
     var abortCapturesInvoked = false
+
+    val unwrappedClasses = arrayListOf<Any>()
 
     override fun abortCaptures() {
         abortCapturesInvoked = true
@@ -102,10 +105,9 @@ internal class FakeCaptureSessionWrapper(
         )
     }
 
-    override fun unwrap(): CameraCaptureSession? {
-        throw UnsupportedOperationException(
-            "FakeCaptureSessionWrapper does not wrap CameraCaptureSession"
-        )
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+        unwrappedClasses.add(type)
+        return null
     }
 
     override fun close() {

@@ -74,8 +74,8 @@ class UseCaseTest {
             "UseCase"
         ).useCaseConfig
         val testUseCase = TestUseCase(config)
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
-        testUseCase.onDetach(mockCameraInternal!!)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.unbindFromCamera(mockCameraInternal!!)
         testUseCase.activate()
         Mockito.verify(mockCameraInternal, Mockito.never())!!.onUseCaseActive(
             ArgumentMatchers.any(
@@ -90,7 +90,7 @@ class UseCaseTest {
             "UseCase"
         ).useCaseConfig
         val testUseCase = TestUseCase(config)
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
         testUseCase.activate()
         Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseActive(testUseCase)
     }
@@ -101,7 +101,7 @@ class UseCaseTest {
             "UseCase"
         ).useCaseConfig
         val testUseCase = TestUseCase(config)
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
         testUseCase.deactivate()
         Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseInactive(testUseCase)
     }
@@ -112,7 +112,7 @@ class UseCaseTest {
             "UseCase"
         ).useCaseConfig
         val testUseCase = TestUseCase(config)
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
         testUseCase.update()
         Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseUpdated(testUseCase)
     }
@@ -123,7 +123,7 @@ class UseCaseTest {
             "UseCase"
         ).useCaseConfig
         val testUseCase = TestUseCase(config)
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
         testUseCase.notifyReset()
         Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseReset(testUseCase)
     }
@@ -147,8 +147,8 @@ class UseCaseTest {
         val testUseCase = TestUseCase(config)
         testUseCase.updateSuggestedResolution(Size(640, 480))
         Truth.assertThat(testUseCase.attachedSurfaceResolution).isNotNull()
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
-        testUseCase.onDetach(mockCameraInternal!!)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.unbindFromCamera(mockCameraInternal!!)
         Truth.assertThat(testUseCase.attachedSurfaceResolution).isNull()
     }
 
@@ -160,8 +160,8 @@ class UseCaseTest {
         val testUseCase = TestUseCase(config)
         testUseCase.setViewPortCropRect(Rect(0, 0, 640, 480))
         Truth.assertThat(testUseCase.viewPortCropRect).isNotNull()
-        testUseCase.onAttach(mockCameraInternal!!, null, null)
-        testUseCase.onDetach(mockCameraInternal!!)
+        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.unbindFromCamera(mockCameraInternal!!)
         Truth.assertThat(testUseCase.viewPortCropRect).isNull()
     }
 

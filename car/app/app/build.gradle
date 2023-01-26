@@ -68,7 +68,7 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation project(path: ':car:app:app-testing')
@@ -91,10 +91,6 @@ android {
         resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
         consumerProguardFiles "proguard-rules.pro"
     }
-    lintOptions {
-        // We rely on keeping a bunch of private variables in the library for serialization.
-        disable("BanKeepAnnotation")
-    }
 
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.car.app"
@@ -103,7 +99,6 @@ android {
 androidx {
     name = "Android for Cars App Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
 }
@@ -145,6 +140,7 @@ class ProtocolApiTask extends DefaultTask {
         MetalavaRunnerKt.runMetalavaWithArgs(
                 metalavaClasspath,
                 standardArgs,
+                false,
                 workerExecutor,
         )
     }

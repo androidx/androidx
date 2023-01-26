@@ -25,6 +25,8 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
+import androidx.camera.integration.uiwidgets.viewpager.BaseActivity.Companion.COMPATIBLE_MODE
+import androidx.camera.integration.uiwidgets.viewpager.BaseActivity.Companion.PERFORMANCE_MODE
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -57,14 +59,22 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXConfig: String) {
+class ViewPager2ActivityTest(
+    private val lensFacing: Int,
+    private val implementationMode: Int,
+    private val cameraXConfig: String
+) {
 
     companion object {
         private const val ACTION_IDLE_TIMEOUT: Long = 5000
+        private const val PREVIEW_UPDATE_COUNT = 10
 
         @JvmStatic
         private val lensFacingList =
             arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+
+        @JvmStatic
+        private val implementationModeList = arrayOf(COMPATIBLE_MODE, PERFORMANCE_MODE)
 
         @JvmStatic
         private val cameraXConfigList = arrayOf(
@@ -73,11 +83,13 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, cameraXConfig={1}")
+        @Parameterized.Parameters(name = "lensFacing={0}, mode={1}, cameraXConfig={2}")
         fun data() = mutableListOf<Array<Any?>>().apply {
             lensFacingList.forEach { lens ->
-                cameraXConfigList.forEach { cameraXConfig ->
-                    add(arrayOf(lens, cameraXConfig))
+                implementationModeList.forEach { mode ->
+                    cameraXConfigList.forEach { cameraXConfig ->
+                        add(arrayOf(lens, mode, cameraXConfig))
+                    }
                 }
             }
         }
@@ -139,7 +151,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
 
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
             // Make sure the surface texture of TextureView continues getting updates.
-            assertSurfaceTextureFramesUpdate(scenario)
+            assertPreviewViewUpdate(scenario)
         }
     }
 
@@ -161,7 +173,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
 
             // For b/149877652, need to check if the surface texture of TextureView continues
             // getting updates after detaching from window and then attaching to window.
-            assertSurfaceTextureFramesUpdate(scenario)
+            assertPreviewViewUpdate(scenario)
         }
     }
 
@@ -188,7 +200,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
 
             // The test covers pause/resume and ViewPager2 switch behaviors. Hence, need to
             // check the surface texture of TextureView continues getting updates for b/149877652.
-            assertSurfaceTextureFramesUpdate(scenario)
+            assertPreviewViewUpdate(scenario)
         }
     }
 
@@ -198,14 +210,15 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
     ):
         ActivityScenario<ViewPager2Activity> {
             val intent = Intent(
-                ApplicationProvider.getApplicationContext<Context>(),
+                ApplicationProvider.getApplicationContext(),
                 ViewPager2Activity::class.java
             ).apply {
                 putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
+                putExtra(BaseActivity.INTENT_IMPLEMENTATION_MODE, implementationMode)
                 putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
                 putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
-            return ActivityScenario.launch<ViewPager2Activity>(intent)
+            return ActivityScenario.launch(intent)
         }
 
     private fun getTextureView(previewView: PreviewView): TextureView? {
@@ -238,6 +251,14 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
         assertThat(result.await()).isTrue()
     }
 
+    private fun assertPreviewViewUpdate(scenario: ActivityScenario<ViewPager2Activity>) {
+        when (implementationMode) {
+            COMPATIBLE_MODE -> assertSurfaceTextureFramesUpdate(scenario)
+            PERFORMANCE_MODE -> assertPreviewUpdate(scenario)
+            else -> throw IllegalArgumentException()
+        }
+    }
+
     private fun assertSurfaceTextureFramesUpdate(scenario: ActivityScenario<ViewPager2Activity>) {
         var newSurfaceTexture: SurfaceTexture? = null
         lateinit var previewView: PreviewView
@@ -252,5 +273,25 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
             latchForFrameUpdate.countDown()
         }
         assertThat(latchForFrameUpdate.await(ACTION_IDLE_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    /**
+     * Checks update from Preview instead of SurfaceView, since the SurfaceView's content can not
+     * be got.
+     */
+    private fun assertPreviewUpdate(scenario: ActivityScenario<ViewPager2Activity>) {
+        val latch = CountDownLatch(PREVIEW_UPDATE_COUNT)
+        getCameraFragment(scenario)?.setPreviewUpdatingLatch(latch)
+        assertThat(latch.await(ACTION_IDLE_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    private fun getCameraFragment(scenario: ActivityScenario<ViewPager2Activity>): CameraFragment? {
+        var fragment: CameraFragment? = null
+        scenario.onActivity { activity ->
+            val fragments = activity.supportFragmentManager.fragments
+            fragment = fragments.firstOrNull { it is CameraFragment } as? CameraFragment
+        }
+
+        return fragment
     }
 }

@@ -79,6 +79,7 @@ internal interface SurfaceControlImpl {
         fun build(): SurfaceControlImpl
     }
 
+    @JvmDefaultWithCompatibility
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     interface Transaction : AutoCloseable {
 
@@ -194,6 +195,7 @@ internal interface SurfaceControlImpl {
          * @param listener [TransactionCommittedListener] instance that is invoked when the
          * transaction has been committed.
          */
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener
@@ -295,7 +297,7 @@ internal interface SurfaceControlImpl {
          */
         fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
-            transformation: Int
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
         ): Transaction
 
         /**

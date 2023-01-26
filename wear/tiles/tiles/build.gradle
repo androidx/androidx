@@ -38,7 +38,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation("androidx.concurrent:concurrent-futures:1.1.0")
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 android {
@@ -61,7 +61,6 @@ androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2020"
     description = "Android Wear Tiles"
 }

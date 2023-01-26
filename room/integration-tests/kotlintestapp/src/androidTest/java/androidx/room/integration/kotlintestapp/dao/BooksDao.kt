@@ -20,13 +20,13 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.integration.kotlintestapp.vo.AnswerConverter
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
@@ -41,16 +41,19 @@ import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.common.base.Optional
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableListMultimap
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import io.reactivex.Observable
+import io.reactivex.Single
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import java.util.Date
 
+@JvmDefaultWithCompatibility
 @Dao
 @TypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {
@@ -136,6 +139,9 @@ interface BooksDao {
     @Query("SELECT * FROM book")
     suspend fun getBooksSuspend(): List<Book>
 
+    @Query("SELECT * FROM publisher")
+    suspend fun getPublishersSuspend(): List<Publisher>
+
     @Query("UPDATE book SET salesCnt = salesCnt + 1 WHERE bookId = :bookId")
     fun increaseBookSales(bookId: String)
 
@@ -155,7 +161,7 @@ interface BooksDao {
     fun increaseBookSalesFuture(bookId: String): ListenableFuture<Int>
 
     @Query("UPDATE book SET salesCnt = salesCnt + 1 WHERE bookId = :bookId")
-    fun increaseBookSalesVoidFuture(bookId: String): ListenableFuture<Void>
+    fun increaseBookSalesVoidFuture(bookId: String): ListenableFuture<Void?>
 
     @Query("DELETE FROM book WHERE salesCnt = 0")
     fun deleteUnsoldBooks(): Int
@@ -176,7 +182,7 @@ interface BooksDao {
     fun deleteUnsoldBooksFuture(): ListenableFuture<Int>
 
     @Query("DELETE FROM book WHERE salesCnt = 0")
-    fun deleteUnsoldBooksVoidFuture(): ListenableFuture<Void>
+    fun deleteUnsoldBooksVoidFuture(): ListenableFuture<Void?>
 
     @Query("DELETE FROM book WHERE bookId IN (:bookIds)")
     fun deleteBookWithIds(vararg bookIds: String)
@@ -354,6 +360,9 @@ interface BooksDao {
     @Query("SELECT * FROM Publisher")
     fun getPublishers(): List<Publisher>
 
+    @Query("SELECT * FROM Publisher")
+    fun getPublishersImmutable(): ImmutableList<Publisher>
+
     @Query("SELECT * FROM Publisher WHERE publisherId = :publisherId")
     fun getPublisher(publisherId: String): Publisher
 
@@ -449,14 +458,18 @@ interface BooksDao {
         action: suspend (input: Book) -> Book
     ): Book = action(input)
 
+    // Commented out because of https://youtrack.jetbrains.com/issue/KT-48013
     // This is a private method to validate b/194706278
-    private fun getNullAuthor(): Author? = null
+    // private fun getNullAuthor(): Author? = null
 
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
     fun getBooksByPublisher(): Map<Publisher, List<Book>>
 
-    @get:Query("SELECT * FROM Book")
-    val allBooks: List<Book>
+    @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
+    fun getBooksByPublisherImmutable(): ImmutableListMultimap<Publisher, Book>
+
+    @Query("SELECT * FROM Book")
+    fun getAllBooks(): List<Book>
 
     @Upsert
     fun upsertBooks(vararg books: Book)

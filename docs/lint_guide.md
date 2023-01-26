@@ -33,9 +33,7 @@ and a `build.gradle` file containing the needed dependencies.
 `mylibrary/mylibrary-lint/build.gradle`:
 
 ```
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -50,12 +48,12 @@ dependencies {
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {
     name = "MyLibrary lint checks"
     type = LibraryType.LINT
-    mavenVersion = LibraryVersions.MYLIBRARY
     mavenGroup = LibraryGroups.MYLIBRARY
     inceptionYear = "2022"
     description = "Lint checks for MyLibrary"
@@ -495,9 +493,10 @@ class ApiLintVersionsTest {
 
     @Test
     fun versionsCheck() {
+        LintClient.clientName = LintClient.CLIENT_UNIT_TESTS
         val registry = MyLibraryIssueRegistry()
         assertThat(registry.api).isEqualTo(CURRENT_API)
-        assertThat(registry.minApi).isEqualTo(3)
+        assertThat(registry.minApi).isEqualTo(10)
     }
 }
 ```
@@ -585,15 +584,16 @@ lintPublish(project(':mylibrary:mylibrary-lint'))
 This adds a `lint.jar` file into the `.aar` bundle of the desired library.
 
 Then we should add a `com.android.tools.lint.client.api.IssueRegistry` file in
-`main > resources > META-INF > services`. The file should contain a single line
-that has the `IssueRegistry` class name with the full path. This class can
-contain more than one line if the module contains multiple registries.
+`mylibrary > mylibrary-lint > main > resources > META-INF > services`. The file
+should contain a single line that has the `IssueRegistry` class name with the
+full path. This class can contain more than one line if the module contains
+multiple registries.
 
 ```
 androidx.mylibrary.lint.MyLibraryIssueRegistry
 ```
 
-## Advanced topics:
+## Advanced topics
 
 ### Analyzing multiple different file types
 

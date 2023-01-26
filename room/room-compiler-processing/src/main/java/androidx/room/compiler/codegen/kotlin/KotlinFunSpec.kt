@@ -24,15 +24,21 @@ import androidx.room.compiler.codegen.XTypeName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.UNIT
 
 internal class KotlinFunSpec(
+    override val name: String,
     internal val actual: FunSpec
 ) : KotlinLang(), XFunSpec {
 
     internal class Builder(
+        override val name: String,
         internal val actual: FunSpec.Builder
     ) : KotlinLang(), XFunSpec.Builder {
+
+        override fun addAnnotation(annotation: XAnnotationSpec) {
+            require(annotation is KotlinAnnotationSpec)
+            actual.addAnnotation(annotation.actual)
+        }
 
         override fun addCode(code: XCodeBlock) = apply {
             require(code is KotlinCodeBlock)
@@ -61,18 +67,16 @@ internal class KotlinFunSpec(
         }
 
         override fun returns(typeName: XTypeName) = apply {
-            if (typeName.kotlin == UNIT) {
-                return@apply
-            }
             actual.returns(typeName.kotlin)
         }
 
-        override fun build() = KotlinFunSpec(actual.build())
+        override fun build() = KotlinFunSpec(name, actual.build())
     }
 }
 
 internal fun VisibilityModifier.toKotlinVisibilityModifier() = when (this) {
     VisibilityModifier.PUBLIC -> KModifier.PUBLIC
     VisibilityModifier.PROTECTED -> KModifier.PROTECTED
+    VisibilityModifier.INTERNAL -> KModifier.INTERNAL
     VisibilityModifier.PRIVATE -> KModifier.PRIVATE
 }

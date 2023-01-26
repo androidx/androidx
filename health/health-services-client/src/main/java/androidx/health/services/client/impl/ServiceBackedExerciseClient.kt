@@ -22,11 +22,13 @@ import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateCallback
+import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.IpcConstants.EXERCISE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
@@ -37,11 +39,13 @@ import androidx.health.services.client.impl.ipc.Client
 import androidx.health.services.client.impl.ipc.ClientConfiguration
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
+import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
+import androidx.health.services.client.impl.request.UpdateExerciseTypeConfigRequest
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -209,12 +213,40 @@ internal class ServiceBackedExerciseClient(
         )
     }
 
+    override fun overrideBatchingModesForActiveExerciseAsync(
+        batchingModes: Set<BatchingMode>
+    ): ListenableFuture<Void> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.overrideBatchingModesForActiveExercise(
+                    BatchingModeConfigRequest(packageName, batchingModes),
+                    StatusCallback(resultFuture)
+                )
+            },
+            /* minApiVersion= */ 4
+        )
+    }
+
     override fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities> =
         Futures.transform(
             execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
             { response -> response!!.exerciseCapabilities },
             ContextCompat.getMainExecutor(context)
         )
+
+    override fun updateExerciseTypeConfigAsync(
+        exerciseTypeConfig: ExerciseTypeConfig
+    ): ListenableFuture<Void> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.updateExerciseTypeConfigForActiveExercise(
+                    UpdateExerciseTypeConfigRequest(packageName, exerciseTypeConfig),
+                    StatusCallback(resultFuture)
+                )
+            },
+            3
+        )
+    }
 
     internal companion object {
         internal const val CLIENT = "HealthServicesExerciseClient"

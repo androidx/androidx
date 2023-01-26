@@ -29,7 +29,7 @@ plugins {
 def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
-    jvm {
+    jvm() {
         withJava()
     }
     mac()
@@ -123,8 +123,7 @@ dependencies {
 
 androidx {
     name = "Android Preferences DataStore Core"
-    type = LibraryType.KMP_LIBRARY
-    mavenGroup = LibraryGroups.DATASTORE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true

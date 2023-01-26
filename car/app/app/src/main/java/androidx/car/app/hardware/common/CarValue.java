@@ -18,7 +18,6 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -26,6 +25,7 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,6 +41,7 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class CarValue<T> {
     /**
      * Defines the possible status codes when trying to access car hardware properties, sensors,
@@ -89,15 +90,11 @@ public final class CarValue<T> {
     @StatusCode
     public static final int STATUS_UNAVAILABLE = 3;
 
-    @Keep
     @Nullable
     private final T mValue;
-    @Keep
     private final long mTimestampMillis;
-    @Keep
     @StatusCode
     private final int mStatus;
-    @Keep
     @NonNull
     private final List<CarZone> mCarZones;
 
@@ -226,7 +223,7 @@ public final class CarValue<T> {
      *
      * @param value           data to be returned with the result
      * @param timestampMillis the time in milliseconds when the value was generated (see
-     * {@link #getTimestampMillis})
+     *                        {@link #getTimestampMillis})
      * @param status          the status code associated with this value
      */
     @OptIn(markerClass = ExperimentalCarApi.class)
@@ -242,7 +239,7 @@ public final class CarValue<T> {
      *
      * @param value           data to be returned with the result
      * @param timestampMillis the time in milliseconds when the value was generated (see
-     * {@link #getTimestampMillis})
+     *                        {@link #getTimestampMillis})
      * @param status          the status code associated with this value
      * @param zones           the car zones associated with this value
      */

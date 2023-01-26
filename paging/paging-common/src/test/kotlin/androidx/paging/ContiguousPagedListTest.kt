@@ -29,11 +29,10 @@ import androidx.paging.PagedList.Callback
 import androidx.paging.PagedList.Config
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.reset
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -329,7 +328,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(0, 40, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(35)
         drain()
@@ -345,7 +344,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(0, 40, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(35)
         // return a LoadResult.Invalid
@@ -369,7 +368,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(60, 40, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(if (placeholdersEnabled) 65 else 5)
         drain()
@@ -385,7 +384,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(60, 40, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(if (placeholdersEnabled) 65 else 5)
         // return a LoadResult.Invalid
@@ -409,7 +408,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(20, 40, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(if (placeholdersEnabled) 55 else 35)
         drain()
@@ -496,7 +495,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(0, 20, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         // load 2nd page
         pagedList.loadAround(19)
@@ -533,7 +532,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(80, 20, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         // load 4th page
         pagedList.loadAround(if (placeholdersEnabled) 80 else 0)
@@ -586,7 +585,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
         // but before page received, access near end of list
         pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
         mainThread.executeAll()
         // and the load at the beginning is dropped without signaling callback
         verifyNoMoreInteractions(callback)
@@ -628,7 +627,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
         // but before page received, access near front of list
         pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
         mainThread.executeAll()
         // and the load at the end is dropped without signaling callback
         verifyNoMoreInteractions(callback)
@@ -878,7 +877,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         val callback = mock<Callback>()
         pagedList.addWeakCallback(callback)
         verifyRange(0, 10, pagedList)
-        verifyZeroInteractions(callback)
+        verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(5)
         drain()
@@ -1060,9 +1059,9 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(80, 20, pagedList)
 
         // nothing yet
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
         drain()
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         // loading around last item causes onItemAtEndLoaded
         pagedList.loadAround(if (placeholdersEnabled) 99 else 19)
@@ -1075,7 +1074,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(if (placeholdersEnabled) 80 else 0)
         drain()
         verifyRange(60, 40, pagedList)
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         // ...load rest of data, still no dispatch...
         pagedList.loadAround(if (placeholdersEnabled) 60 else 0)
@@ -1085,7 +1084,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(if (placeholdersEnabled) 20 else 0)
         drain()
         verifyRange(0, 100, pagedList)
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         // ... finally try prepend, see 0 items, which will dispatch front callback
         pagedList.loadAround(0)

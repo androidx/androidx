@@ -23,9 +23,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
 
@@ -33,10 +31,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
-import androidx.window.core.ExperimentalWindowApi;
+import androidx.window.embedding.ActivityEmbeddingController;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
 import androidx.window.embedding.EmbeddingRule;
+import androidx.window.embedding.RuleController;
 import androidx.window.embedding.SplitController;
 import androidx.window.embedding.SplitInfo;
 import androidx.window.embedding.SplitPairFilter;
@@ -49,22 +48,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import kotlin.OptIn;
-
 /**
  * Sample showcase of split activity rules. Allows the user to select some split configuration
  * options with checkboxes and launch activities with those options applied.
  */
-@OptIn(markerClass = ExperimentalWindowApi.class)
 public class SplitActivityBase extends AppCompatActivity
         implements CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "SplitActivityTest";
-    private static final float MIN_SPLIT_WIDTH_DP = 600f;
+    static final int MIN_SPLIT_WIDTH_DP = 600;
     static final float SPLIT_RATIO = 0.3f;
     static final String EXTRA_LAUNCH_C_TO_SIDE = "launch_c_to_side";
 
     private SplitController mSplitController;
+
+    private final RuleController mRuleController = RuleController.getInstance(this);
+
     private SplitInfoCallback mCallback;
 
     private ActivitySplitActivityLayoutBinding mViewBinding;
@@ -109,7 +108,7 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
-        mSplitController = SplitController.Companion.getInstance();
+        mSplitController = SplitController.getInstance(this);
     }
 
     @Override
@@ -192,7 +191,7 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Gets the split rule for the given activity pair. */
     private SplitPairRule getRuleFor(Class<? extends Activity> a, Class<? extends Activity> b) {
-        Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
+        Set<EmbeddingRule> currentRules = mRuleController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPairRule && isRuleFor(a, b, (SplitPairRule) rule)) {
                 return (SplitPairRule) rule;
@@ -202,12 +201,12 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Gets the placeholder rule for the given activity. */
-    SplitPlaceholderRule getPlaceholderRule(Class<? extends Activity> a) {
-        Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
+    SplitPlaceholderRule getPlaceholderRule(@NonNull Class<? extends Activity> a) {
+        Set<EmbeddingRule> currentRules = mRuleController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPlaceholderRule) {
                 for (ActivityFilter filter : ((SplitPlaceholderRule) rule).getFilters()) {
-                    if (filter.matchesClassName(a)) {
+                    if (filter.getComponentName().getClassName().equals(a.getName())) {
                         return (SplitPlaceholderRule) rule;
                     }
                 }
@@ -218,7 +217,7 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Gets the split rule for the given activity. */
     private ActivityRule getRuleFor(Class<? extends Activity> a) {
-        Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
+        Set<EmbeddingRule> currentRules = mRuleController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof ActivityRule && isRuleFor(a, (ActivityRule) rule)) {
                 return (ActivityRule) rule;
@@ -248,12 +247,9 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Whether the given rule is for splitting the given activity with another. */
-    private boolean isRuleFor(
-            @Nullable Class<? extends Activity> a,
-            @NonNull ActivityRule config
-    ) {
+    private boolean isRuleFor(@NonNull Class<? extends Activity> a, @NonNull ActivityRule config) {
         for (ActivityFilter filter : config.getFilters()) {
-            if (filter.matchesClassNameOrWildCard(a)) {
+            if (filter.getComponentName().getClassName().equals(a.getName())) {
                 return true;
             }
         }
@@ -262,24 +258,21 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Updates the split rules based on the current selection on checkboxes. */
     private void updateRulesFromCheckboxes() {
-        int minSplitWidth = minSplitWidth();
-        mSplitController.clearRegisteredRules();
+        mRuleController.clearRules();
 
         Set<SplitPairFilter> pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
                 componentName("*"), null));
-        SplitPairRule rule = new SplitPairRule.Builder(
-                pairFilters,
-                minSplitWidth,
-                0 /* minSmallestWidth */
-        )
+        SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
                 .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
                 .setClearTop(true)
                 .setSplitRatio(SPLIT_RATIO)
                 .build();
         if (mViewBinding.splitMainCheckBox.isChecked()) {
-            mSplitController.registerRule(rule);
+            mRuleController.addRule(rule);
         }
 
         Set<ActivityFilter> activityFilters = new HashSet<>();
@@ -289,26 +282,24 @@ public class SplitActivityBase extends AppCompatActivity
                 componentName("androidx.window.sample.embedding.SplitActivityPlaceholder"));
         SplitPlaceholderRule placeholderRule = new SplitPlaceholderRule.Builder(
                 activityFilters,
-                intent,
-                minSplitWidth,
-                0 /* minSmallestWidth */
+                intent
         )
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinSmallestWidthDp(0)
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
                 .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
                 .setSplitRatio(SPLIT_RATIO)
                 .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
-            mSplitController.registerRule(placeholderRule);
+            mRuleController.addRule(placeholderRule);
         }
 
         pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityB.class),
                 componentName(SplitActivityC.class), null));
-        rule = new SplitPairRule.Builder(
-                pairFilters,
-                minSplitWidth,
-                0 /* minSmallestWidth */
-        )
+        rule = new SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(
                         mViewBinding.finishBCCheckBox.isChecked()
                                 ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER
@@ -321,24 +312,22 @@ public class SplitActivityBase extends AppCompatActivity
                 .setSplitRatio(SPLIT_RATIO)
                 .build();
         if (mViewBinding.splitBCCheckBox.isChecked()) {
-            mSplitController.registerRule(rule);
+            mRuleController.addRule(rule);
         }
 
         pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName("androidx.window.*"),
                 componentName(SplitActivityF.class), null));
-        rule = new SplitPairRule.Builder(
-                pairFilters,
-                minSplitWidth,
-                0 /* minSmallestWidth */
-        )
+        rule = new SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
                 .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
                 .setClearTop(true)
                 .setSplitRatio(SPLIT_RATIO)
                 .build();
         if (mViewBinding.splitWithFCheckBox.isChecked()) {
-            mSplitController.registerRule(rule);
+            mRuleController.addRule(rule);
         }
 
         activityFilters = new HashSet<>();
@@ -347,7 +336,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setAlwaysExpand(true)
                 .build();
         if (mViewBinding.fullscreenECheckBox.isChecked()) {
-            mSplitController.registerRule(activityRule);
+            mRuleController.addRule(activityRule);
         }
     }
 
@@ -360,14 +349,9 @@ public class SplitActivityBase extends AppCompatActivity
         return new ComponentName(getPackageName(), className);
     }
 
-    int minSplitWidth() {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_SPLIT_WIDTH_DP, dm);
-    }
-
     /** Updates the status label that says when an activity is embedded. */
     void updateEmbeddedStatus() {
-        if (mSplitController.isActivityEmbedded(this)) {
+        if (ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)) {
             mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.VISIBLE);
         } else {
             mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.GONE);

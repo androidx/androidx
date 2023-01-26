@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.5.2")
+    api("androidx.fragment:fragment-ktx:1.5.4")
     api(project(":navigation:navigation-runtime"))
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(libs.kotlinStdlib)
@@ -45,7 +45,6 @@ dependencies {
 androidx {
     name = "Android Navigation Fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Fragment"
 }

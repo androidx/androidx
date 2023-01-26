@@ -4,6 +4,9 @@ package androidx.navigation.compose {
   @androidx.navigation.Navigator.Name("composable") public final class ComposeNavigator extends androidx.navigation.Navigator<androidx.navigation.compose.ComposeNavigator.Destination> {
     ctor public ComposeNavigator();
     method public androidx.navigation.compose.ComposeNavigator.Destination createDestination();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getBackStack();
+    method public void onTransitionComplete(androidx.navigation.NavBackStackEntry entry);
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
   }
 
   @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class ComposeNavigator.Destination extends androidx.navigation.NavDestination {

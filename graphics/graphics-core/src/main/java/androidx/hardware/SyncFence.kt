@@ -19,6 +19,8 @@ package androidx.hardware
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * A SyncFence represents a synchronization primitive which signals when hardware buffers have
@@ -33,11 +35,15 @@ import java.util.concurrent.TimeUnit
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class SyncFence(private var fd: Int) : AutoCloseable {
 
+    private val fenceLock = ReentrantLock()
+
     /**
      * Checks if the SyncFence object is valid.
      * @return `true` if it is valid, `false` otherwise
      */
-    fun isValid(): Boolean = fd != -1
+    fun isValid(): Boolean = fenceLock.withLock {
+        fd != -1
+    }
 
     /**
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
@@ -45,12 +51,22 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      */
     // Relies on NDK APIs sync_file_info/sync_file_info_free which were introduced in API level 26
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getSignalTime(): Long =
+    fun getSignalTime(): Long = fenceLock.withLock {
         if (isValid()) {
             nGetSignalTime(fd)
         } else {
             SIGNAL_TIME_INVALID
         }
+    }
+
+    // Accessed through JNI to obtain the dup'ed file descriptor in a thread safe manner
+    private fun dupeFileDescriptor(): Int = fenceLock.withLock {
+        return if (isValid()) {
+            nDup(fd)
+        } else {
+            -1
+        }
+    }
 
     /**
      * Waits for a SyncFence to signal for up to the [timeoutNanos] duration. An invalid SyncFence,
@@ -62,17 +78,19 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      * @return `true` if the fence signaled or is not valid, `false` otherwise
      */
     fun await(timeoutNanos: Long): Boolean {
-        if (isValid()) {
-            val timeout: Int
-            if (timeoutNanos < 0) {
-                timeout = -1
+        fenceLock.withLock {
+            if (isValid()) {
+                val timeout: Int
+                if (timeoutNanos < 0) {
+                    timeout = -1
+                } else {
+                    timeout = TimeUnit.NANOSECONDS.toMillis(timeoutNanos).toInt()
+                }
+                return nWait(fd, timeout)
             } else {
-                timeout = TimeUnit.NANOSECONDS.toMillis(timeoutNanos).toInt()
+                // invalid file descriptors will always return true
+                return true
             }
-            return nWait(fd, timeout)
-        } else {
-            // invalid file descriptors will always return true
-            return true
         }
     }
 
@@ -89,8 +107,12 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      * is subsequent calls to [isValid] will return `false`
      */
     override fun close() {
-        nClose(fd)
-        fd = -1
+        fenceLock.withLock {
+            if (isValid()) {
+                nClose(fd)
+                fd = -1
+            }
+        }
     }
 
     protected fun finalize() {
@@ -103,6 +125,12 @@ class SyncFence(private var fd: Int) : AutoCloseable {
     private external fun nWait(fd: Int, timeoutMillis: Int): Boolean
     private external fun nGetSignalTime(fd: Int): Long
     private external fun nClose(fd: Int)
+
+    /**
+     * Dup the provided file descriptor, this method requires the caller to acquire the corresponding
+     * [fenceLock] before invoking
+     */
+    private external fun nDup(fd: Int): Int
 
     companion object {
 
@@ -120,7 +148,7 @@ class SyncFence(private var fd: Int) : AutoCloseable {
         const val SIGNAL_TIME_PENDING: Long = Long.MAX_VALUE
 
         init {
-            System.loadLibrary("sync-fence")
+            System.loadLibrary("graphics-core")
         }
     }
 }

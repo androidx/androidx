@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "Android Tracing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.TRACING
     inceptionYear = "2020"
     description = "Android Tracing"
 }

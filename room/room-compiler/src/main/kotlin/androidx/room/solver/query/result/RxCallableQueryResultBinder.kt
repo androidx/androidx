@@ -16,20 +16,21 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import javax.lang.model.element.Modifier
 
 /**
  * Generic Result binder for Rx classes that accept a callable.
@@ -42,40 +43,46 @@ internal class RxCallableQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callable = CallableTypeSpecBuilder(typeArg.typeName) {
-            fillInCallMethod(
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
-                dbField = dbField,
-                inTransaction = inTransaction,
-                scope = scope
+        val callable = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+            addCode(
+                XCodeBlock.builder(language).apply {
+                    fillInCallMethod(
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        dbProperty = dbProperty,
+                        inTransaction = inTransaction,
+                        scope = scope,
+                        returnType = typeArg
+                    )
+                }.build()
             )
         }.apply {
             if (canReleaseQuery) {
-                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+                createFinalizeMethod(roomSQLiteQueryVar)
             }
         }.build()
-        scope.builder().apply {
+        scope.builder.apply {
             if (rxType.isSingle()) {
-                addStatement("return $T.createSingle($L)", rxType.version.rxRoomClassName, callable)
+                addStatement("return %T.createSingle(%L)", rxType.version.rxRoomClassName, callable)
             } else {
-                addStatement("return $T.fromCallable($L)", rxType.className, callable)
+                addStatement("return %T.fromCallable(%L)", rxType.className, callable)
             }
         }
     }
 
-    private fun MethodSpec.Builder.fillInCallMethod(
+    private fun XCodeBlock.Builder.fillInCallMethod(
         roomSQLiteQueryVar: String,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
+        returnType: XType,
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
         val transactionWrapper = if (inTransaction) {
-            transactionWrapper(dbField)
+            transactionWrapper(dbProperty.name)
         } else {
             null
         }
@@ -83,45 +90,68 @@ internal class RxCallableQueryResultBinder(
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
-        addStatement(
-            "final $T $L = $T.query($N, $L, $L, $L)",
-            CURSOR.toJavaPoet(),
-            cursorVar,
-            RoomTypeNames.DB_UTIL,
-            dbField,
-            roomSQLiteQueryVar,
-            if (shouldCopyCursor) "true" else "false",
-            "null"
+        addLocalVariable(
+            name = cursorVar,
+            typeName = CURSOR,
+            assignExpr = XCodeBlock.of(
+                language = language,
+                format = "%M(%N, %L, %L, %L)",
+                RoomTypeNames.DB_UTIL.packageMember("query"),
+                dbProperty,
+                roomSQLiteQueryVar,
+                if (shouldCopyCursor) "true" else "false",
+                "null"
+            )
         )
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
-            addCode(adapterScope.builder().build())
-            if (!rxType.canBeNull) {
-                beginControlFlow("if($L == null)", outVar).apply {
+            add(adapterScope.generate())
+            if ((language == CodeLanguage.JAVA && !rxType.canBeNull) ||
+                returnType.nullability == XNullability.NULLABLE
+            ) {
+                beginControlFlow("if (%L == null)", outVar).apply {
                     addStatement(
-                        "throw new $T($S + $L.getSql())",
-                        rxType.version.emptyResultExceptionClassName,
-                        "Query returned empty result set: ",
-                        roomSQLiteQueryVar
+                        "throw %L",
+                        XCodeBlock.ofNewInstance(
+                            language,
+                            rxType.version.emptyResultExceptionClassName,
+                            "%L",
+                            XCodeBlock.of(
+                                language,
+                                when (language) {
+                                    CodeLanguage.KOTLIN -> "%S + %L.sql"
+                                    CodeLanguage.JAVA -> "%S + %L.getSql()"
+                                },
+                                "Query returned empty result set: ",
+                                roomSQLiteQueryVar
+                            )
+                        )
                     )
                 }
                 endControlFlow()
             }
             transactionWrapper?.commitTransaction()
-            addStatement("return $L", outVar)
+            addStatement("return %L", outVar)
         }
         nextControlFlow("finally").apply {
-            addStatement("$L.close()", cursorVar)
+            addStatement("%L.close()", cursorVar)
         }
         endControlFlow()
         transactionWrapper?.endTransactionWithControlFlow()
     }
 
-    private fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
-        return MethodSpec.methodBuilder("finalize").apply {
-            addModifiers(Modifier.PROTECTED)
-            addAnnotation(Override::class.java)
-            addStatement("$L.release()", roomSQLiteQueryVar)
-        }.build()
+    private fun XTypeSpec.Builder.createFinalizeMethod(roomSQLiteQueryVar: String) {
+        addFunction(
+            XFunSpec.builder(
+                language = language,
+                name = "finalize",
+                visibility = VisibilityModifier.PROTECTED,
+                // To 'override' finalize in Kotlin one does not use the 'override' keyword, but in
+                // Java the @Override is needed
+                isOverride = language == CodeLanguage.JAVA
+            ).apply {
+                addStatement("%L.release()", roomSQLiteQueryVar)
+            }.build()
+        )
     }
 }

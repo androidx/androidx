@@ -197,13 +197,13 @@ class TextBlock(
  *
  * @param images The sequence of images or just one image for display. Default to empty list.
  * @param aspectRatio The preferred aspect ratio of the images. Default to [AspectRatio.Ratio1x1].
- * @param size The preferred size type of the images. Default to [ImageSize.Small].
+ * @param size The preferred size type of the images.
  * @param priority The display priority number relative to other blocks such as a [TextBlock].
  */
 class ImageBlock(
     val images: List<TemplateImageWithDescription> = listOf(),
     val aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
-    val size: ImageSize = ImageSize.Small,
+    val size: ImageSize = ImageSize.Undefined,
     @IntRange(from = 0)
     val priority: Int = 0,
 ) {
@@ -320,19 +320,24 @@ value class AspectRatio private constructor(private val value: Int) {
 value class ImageSize private constructor(private val value: Int) {
     companion object {
         /**
+         * Unknown image scale for dynamic sizing by image hosting space available.
+         */
+        val Undefined: ImageSize = ImageSize(0)
+
+        /**
          * Small sized image.
          */
-        val Small: ImageSize = ImageSize(0)
+        val Small: ImageSize = ImageSize(1)
 
         /**
          * Medium sized image.
          */
-        val Medium: ImageSize = ImageSize(1)
+        val Medium: ImageSize = ImageSize(2)
 
         /**
          * Large sized image.
          */
-        val Large: ImageSize = ImageSize(2)
+        val Large: ImageSize = ImageSize(3)
     }
 }
 

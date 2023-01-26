@@ -21,6 +21,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
@@ -31,6 +33,7 @@ import androidx.camera.camera2.pipe.core.acquire
 import androidx.camera.camera2.pipe.core.acquireOrNull
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.StateFlow
 
 internal val cameraGraphIds = atomic(0)
 
@@ -40,6 +43,7 @@ internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
+    private val graphListener: GraphListener,
     private val streamGraph: StreamGraphImpl,
     private val surfaceGraph: SurfaceGraph,
     private val cameraController: CameraController,
@@ -58,14 +62,40 @@ internal class CameraGraphImpl @Inject constructor(
         Log.info {
             Debug.formatCameraGraphProperties(metadata, graphConfig, this)
         }
+
+        // Enforce preview and video stream use cases for high speed sessions
+        if (graphConfig.sessionMode == CameraGraph.OperatingMode.HIGH_SPEED) {
+            require(streamGraph.outputs.isNotEmpty()) {
+                "Cannot create a HIGH_SPEED CameraGraph without outputs." }
+            require(streamGraph.outputs.size <= 2) {
+                "Cannot create a HIGH_SPEED CameraGraph with more than two outputs. " +
+                    "Configured outputs are ${streamGraph.outputs}" }
+            val containsPreviewStream = this.streamGraph.outputs.any {
+                it.streamUseCase == OutputStream.StreamUseCase.PREVIEW }
+            val containsVideoStream = this.streamGraph.outputs.any {
+                it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD }
+            if (streamGraph.outputs.size == 2) {
+                require(containsPreviewStream) {
+                    "Cannot create a HIGH_SPEED CameraGraph without setting the Preview " +
+                        "Video stream. Configured outputs are ${streamGraph.outputs}" }
+            } else {
+                require(containsPreviewStream || containsVideoStream) {
+                    "Cannot create a HIGH_SPEED CameraGraph without having a Preview or Video " +
+                        "stream. Configured outputs are ${streamGraph.outputs}" }
+            }
+        }
     }
 
     override val streams: StreamGraph
         get() = streamGraph
 
+    override val graphState: StateFlow<GraphState>
+        get() = graphProcessor.graphState
+
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
+        graphListener.onGraphStarting()
         cameraController.start()
         Debug.traceStop()
     }
@@ -73,6 +103,7 @@ internal class CameraGraphImpl @Inject constructor(
     override fun stop() {
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
+        graphListener.onGraphStopping()
         cameraController.stop()
         Debug.traceStop()
     }
@@ -108,6 +139,7 @@ internal class CameraGraphImpl @Inject constructor(
         sessionLock.close()
         graphProcessor.close()
         cameraController.close()
+        surfaceGraph.close()
         Debug.traceStop()
     }
 

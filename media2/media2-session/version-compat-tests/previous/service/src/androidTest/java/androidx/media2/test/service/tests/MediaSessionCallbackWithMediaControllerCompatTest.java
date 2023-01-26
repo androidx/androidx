@@ -64,6 +64,7 @@ import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaControllerCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,6 +79,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link SessionCallback} working with {@link MediaControllerCompat}.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSessionTestBase {

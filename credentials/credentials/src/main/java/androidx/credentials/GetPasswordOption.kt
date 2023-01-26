@@ -16,5 +16,21 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+
 /** A request to retrieve the user's saved application password from their password provider. */
-class GetPasswordOption : GetCredentialOption()
+class GetPasswordOption : GetCredentialOption(
+    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    requestData = Bundle(),
+    candidateQueryData = Bundle(),
+    requireSystemProvider = false,
+) {
+    /** @hide */
+    companion object {
+        @Suppress("UNUSED_PARAMETER")
+        @JvmStatic
+        internal fun createFrom(data: Bundle): GetPasswordOption {
+            return GetPasswordOption()
+        }
+    }
+}

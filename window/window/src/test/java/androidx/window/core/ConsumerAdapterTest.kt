@@ -18,7 +18,7 @@ package androidx.window.core
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import java.util.function.Consumer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

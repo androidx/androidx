@@ -87,7 +87,7 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
-        WatchFaceService.awaitDeferredWatchFaceThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceThenRunOnUiThread(
             engine,
             "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
         ) { WatchFaceOverlayStyleWireFormat(
@@ -160,9 +160,7 @@ internal class InteractiveWatchFaceImpl(
 
     override fun updateComplicationData(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
-    ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
-        "InteractiveWatchFaceImpl.updateComplicationData"
-    ) {
+    ): Unit = TraceEvent("InteractiveWatchFaceImpl.updateComplicationData").use {
         if ("user" != Build.TYPE) {
             Log.d(TAG, "updateComplicationData " + complicationDatumWireFormats.joinToString())
         }
@@ -191,16 +189,19 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? {
-        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
-            engine,
-            "InteractiveWatchFaceImpl.getComplicationDetails"
-        ) { it.complicationSlotsManager.getComplicationsState(it.surfaceHolder.surfaceFrame) }
+        val engineCopy = engine
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
+            engineCopy,
+            "InteractiveWatchFaceImpl.getComplicationDetails",
+            WatchFaceService.Companion.ExecutionThread.UI
+        ) { it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds) }
     }
 
     override fun getUserStyleSchema(): UserStyleSchemaWireFormat? {
-        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "InteractiveWatchFaceImpl.getUserStyleSchema"
+            "InteractiveWatchFaceImpl.getUserStyleSchema",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
         ) { it.userStyleRepository.schema.toWireFormat() }
     }
 
@@ -213,6 +214,15 @@ internal class InteractiveWatchFaceImpl(
             engine?.addWatchfaceReadyListener(listener)
                 ?: Log.d(TAG, "addWatchfaceReadyListener ignored due to null engine id $instanceId")
         }
+    }
+
+    override fun getComplicationIdAt(xPos: Int, yPos: Int): Long {
+        return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine,
+            "InteractiveWatchFaceImpl.getComplicationIdAt"
+        ) {
+            it.complicationSlotsManager.getComplicationSlotAt(xPos, yPos)?.id?.toLong()
+        } ?: Long.MIN_VALUE
     }
 
     fun onDestroy() {

@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "Android WorkManager Runtime Lint Checks"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager Runtime Lint Checks"
 }

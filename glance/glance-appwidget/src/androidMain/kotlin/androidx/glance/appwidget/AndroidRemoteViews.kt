@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.IdRes
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -61,8 +62,22 @@ fun AndroidRemoteViews(
 
 internal class EmittableAndroidRemoteViews : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-
+    var containerViewId: Int = View.NO_ID
     lateinit var remoteViews: RemoteViews
 
-    var containerViewId: Int = View.NO_ID
+    override fun copy(): Emittable = EmittableAndroidRemoteViews().also {
+        it.modifier = modifier
+        if (::remoteViews.isInitialized) {
+            it.remoteViews = remoteViews
+        }
+        it.containerViewId = containerViewId
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String = "AndroidRemoteViews(" +
+        "modifier=$modifier, " +
+        "containerViewId=$containerViewId, " +
+        "remoteViews=${if (::remoteViews.isInitialized) remoteViews else null}, " +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }

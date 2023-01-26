@@ -91,11 +91,14 @@ class SyncFenceCompatTest {
                 val start = System.nanoTime()
                 val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
                 assertTrue(syncFenceCompat.isValid())
-                assertTrue(syncFenceCompat.getSignalTime() != SyncFence.SIGNAL_TIME_INVALID)
+                assertTrue(syncFenceCompat.getSignalTimeNanos() != SyncFence.SIGNAL_TIME_INVALID)
                 assertTrue(syncFenceCompat.awaitForever())
 
-                assertTrue(syncFenceCompat.getSignalTime() > start)
-                assertTrue(syncFenceCompat.getSignalTime() != SyncFenceCompat.SIGNAL_TIME_PENDING)
+                assertTrue(syncFenceCompat.getSignalTimeNanos() > start)
+                assertTrue(
+                    syncFenceCompat.getSignalTimeNanos() !=
+                        SyncFenceCompat.SIGNAL_TIME_PENDING
+                )
 
                 syncFenceCompat.close()
             }

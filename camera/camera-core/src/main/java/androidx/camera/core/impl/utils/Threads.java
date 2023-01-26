@@ -16,16 +16,22 @@
 
 package androidx.camera.core.impl.utils;
 
+import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Helpers for {@link Thread}s.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Threads {
+    private static final long TIMEOUT_RUN_ON_MAIN_MS = 30_000L; // milliseconds
 
     // Prevent instantiation.
     private Threads() {
@@ -57,6 +63,51 @@ public final class Threads {
      */
     public static void checkBackgroundThread() {
         Preconditions.checkState(isBackgroundThread(), "In application's main thread");
+    }
+
+    /**
+     * Executes the {@link Runnable} on main thread.
+     *
+     * <p>If the caller thread is already main thread, then runnable will be executed immediately.
+     * Otherwise, the runnable will be posted to main thread and caller thread will be blocked until
+     * the runnable is complete.
+     *
+     * <p> A 30 second timeout is basically to prevent unit tests from waiting infinitely if
+     * there is any error. Normal flow should not expect this timeout. Basically main
+     * thread should not be occupied for too long or an ANR could occur.
+     *
+     * @param runnable the runnable to execute.
+     *
+     * @throws IllegalStateException if timed out waiting for the posted runnable to complete.
+     * @throws InterruptedRuntimeException if the waiting is interrupted.
+     */
+    public static void runOnMainSync(@NonNull Runnable runnable) {
+        if (isMainThread()) {
+            runnable.run();
+            return;
+        }
+        // Post to main thread and wait for the completion.
+        CountDownLatch latch = new CountDownLatch(1);
+        boolean postResult = getMainHandler().post(() -> {
+            try {
+                runnable.run();
+            } finally {
+                latch.countDown();
+            }
+        });
+        Preconditions.checkState(postResult, "Unable to post to main thread");
+        try {
+            if (!latch.await(TIMEOUT_RUN_ON_MAIN_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout to wait main thread execution");
+            }
+        } catch (InterruptedException e) {
+            throw new InterruptedRuntimeException(e);
+        }
+    }
+
+    @NonNull
+    private static Handler getMainHandler() {
+        return new Handler(Looper.getMainLooper());
     }
 }
 

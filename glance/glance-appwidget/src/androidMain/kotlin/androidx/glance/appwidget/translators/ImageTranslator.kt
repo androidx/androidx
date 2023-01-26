@@ -22,6 +22,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.core.widget.RemoteViewsCompat.setImageViewAdjustViewBounds
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BitmapImageProvider
 import androidx.glance.layout.ContentScale
@@ -33,6 +34,10 @@ import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.UriImageProvider
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
+import androidx.glance.findModifier
+import androidx.glance.layout.HeightModifier
+import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.Dimension
 
 internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
@@ -48,7 +53,6 @@ internal fun RemoteViews.translateEmittableImage(
         }
     }
     val viewDef = insertView(translationContext, selector, element.modifier)
-    setContentDescription(viewDef.mainViewId, element.contentDescription)
     when (val provider = element.provider) {
         is AndroidResourceImageProvider -> setImageViewResource(
             viewDef.mainViewId,
@@ -61,6 +65,15 @@ internal fun RemoteViews.translateEmittableImage(
             throw IllegalArgumentException("An unsupported ImageProvider type was used.")
     }
     applyModifiers(translationContext, this, element.modifier, viewDef)
+
+    // If the content scale is Fit, the developer has expressed that they want the image to
+    // maintain its aspect ratio. AdjustViewBounds on ImageView tells the view to rescale to
+    // maintain its aspect ratio. This only really makes sense if one of the dimensions is set to
+    // wrap, that is, should change to match the content.
+    val shouldAdjustViewBounds = element.contentScale == ContentScale.Fit &&
+        (element.modifier.findModifier<WidthModifier>()?.width == Dimension.Wrap ||
+            element.modifier.findModifier<HeightModifier>()?.height == Dimension.Wrap)
+    setImageViewAdjustViewBounds(viewDef.mainViewId, shouldAdjustViewBounds)
 }
 
 private fun setImageViewIcon(rv: RemoteViews, viewId: Int, provider: IconImageProvider) {

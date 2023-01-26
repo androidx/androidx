@@ -33,10 +33,10 @@ dependencies {
     api("androidx.core:core-ktx:1.1.0") {
         because "Mirror activity dependency graph for -ktx artifacts"
     }
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1") {
+    api(project(":lifecycle:lifecycle-runtime-ktx")) {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api("androidx.savedstate:savedstate-ktx:1.2.0") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
@@ -57,7 +57,6 @@ dependencies {
 androidx {
     name = "Activity Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"
 }

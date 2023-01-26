@@ -18,7 +18,6 @@ package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
@@ -27,6 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import java.lang.ref.WeakReference
 import java.util.UUID
 
 /**
@@ -56,13 +56,13 @@ public fun NavBackStackEntry.LocalOwnersProvider(
 @Composable
 private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit) {
     val viewModel = viewModel<BackStackEntryIdViewModel>()
-    viewModel.saveableStateHolder = this
+    // Stash a reference to the SaveableStateHolder in the ViewModel so that
+    // it is available when the ViewModel is cleared, marking the permanent removal of this
+    // NavBackStackEntry from the back stack. Which, because of animations,
+    // only happens after this leaves composition. Which means we can't rely on
+    // DisposableEffect to clean up this reference (as it'll be cleaned up too early)
+    viewModel.saveableStateHolderRef = WeakReference(this)
     SaveableStateProvider(viewModel.id, content)
-    DisposableEffect(viewModel) {
-        onDispose {
-            viewModel.saveableStateHolder = null
-        }
-    }
 }
 
 internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel() {
@@ -73,13 +73,14 @@ internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel()
     // destination. this id will be restored by SavedStateHandle
     val id: UUID = handle.get<UUID>(IdKey) ?: UUID.randomUUID().also { handle.set(IdKey, it) }
 
-    var saveableStateHolder: SaveableStateHolder? = null
+    lateinit var saveableStateHolderRef: WeakReference<SaveableStateHolder>
 
     // onCleared will be called on the entries removed from the back stack. here we notify
-    // RestorableStateHolder that we shouldn't save the state for this id, so when we open this
-    // destination again the state will not be restored.
+    // SaveableStateProvider that we should remove any state is had associated with this
+    // destination as it is no longer needed.
     override fun onCleared() {
         super.onCleared()
-        saveableStateHolder?.removeState(id)
+        saveableStateHolderRef.get()?.removeState(id)
+        saveableStateHolderRef.clear()
     }
 }

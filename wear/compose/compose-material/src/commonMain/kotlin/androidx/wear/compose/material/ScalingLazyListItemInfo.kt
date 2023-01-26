@@ -20,6 +20,8 @@ package androidx.wear.compose.material
  *
  * @see ScalingLazyListLayoutInfo
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public sealed interface ScalingLazyListItemInfo {
     /**
      * The index of the item in the list.
@@ -58,6 +60,9 @@ public sealed interface ScalingLazyListItemInfo {
      * For [ScalingLazyListAnchorType.ItemStart] if is the offset
      * between the start (edge) of the item and the center-line of the viewport, for normal layout
      * this will be the top edge of the item, for reverseLayout it will be the bottom edge.
+     *
+     * A positive value indicates that the item's anchor point is below the viewport center-line, a
+     * negative value indicates that the item anchor point is above the viewport center-line.
      */
     val offset: Int
 

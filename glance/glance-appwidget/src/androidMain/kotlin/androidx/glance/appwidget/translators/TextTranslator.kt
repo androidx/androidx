@@ -44,7 +44,7 @@ import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -109,9 +109,9 @@ internal fun RemoteViews.setText(
     }
     style.fontWeight?.let {
         val textAppearance = when (it) {
-            FontWeight.Bold -> R.style.TextAppearance_Bold
-            FontWeight.Medium -> R.style.TextAppearance_Medium
-            else -> R.style.TextAppearance_Normal
+            FontWeight.Bold -> R.style.Glance_AppWidget_TextAppearance_Bold
+            FontWeight.Medium -> R.style.Glance_AppWidget_TextAppearance_Medium
+            else -> R.style.Glance_AppWidget_TextAppearance_Normal
         }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
@@ -151,7 +151,6 @@ internal fun RemoteViews.setText(
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
-        null -> {}
         else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
     }
 }

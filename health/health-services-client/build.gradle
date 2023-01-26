@@ -25,10 +25,12 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.1.0")
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
     implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.protobufLite)
 
     testImplementation(libs.junit)
@@ -36,6 +38,9 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
 }
 
 android {
@@ -71,7 +76,6 @@ androidx {
     name = "AndroidX Health Services Client Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.HEALTH_SERVICES_CLIENT
-    mavenGroup = LibraryGroups.HEALTH
     inceptionYear = "2021"
     description = "This library helps developers create performant health applications in a platform agnostic way"
 }

@@ -18,6 +18,10 @@ package androidx.room.writer
 
 import androidx.room.RoomProcessor
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
 import androidx.room.compiler.processing.XProcessingEnv
@@ -25,17 +29,17 @@ import androidx.room.compiler.processing.writeTo
 import androidx.room.ext.S
 import androidx.room.solver.CodeGenScope
 import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
+import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.KAnnotationSpec
-import com.squareup.kotlinpoet.javapoet.toKClassName
+import com.squareup.kotlinpoet.javapoet.KClassName
 import kotlin.reflect.KClass
 
 /**
  * Base class for all writers that can produce a class.
  */
 abstract class TypeWriter(val codeLanguage: CodeLanguage) {
-    // TODO(danysantiago): Migrate to XPoet
-    private val sharedFieldSpecs = mutableMapOf<String, com.squareup.javapoet.FieldSpec>()
-    private val sharedMethodSpecs = mutableMapOf<String, com.squareup.javapoet.MethodSpec>()
+    private val sharedFieldSpecs = mutableMapOf<String, XPropertySpec>()
+    private val sharedMethodSpecs = mutableMapOf<String, XFunSpec>()
     private val sharedFieldNames = mutableSetOf<String>()
     private val sharedMethodNames = mutableSetOf<String>()
 
@@ -66,32 +70,26 @@ abstract class TypeWriter(val codeLanguage: CodeLanguage) {
 
     fun write(processingEnv: XProcessingEnv) {
         val builder = createTypeSpecBuilder()
-        builder.apply(
-            javaTypeBuilder = {
-                sharedFieldSpecs.values.forEach { addField(it) }
-                sharedMethodSpecs.values.forEach { addMethod(it) }
-            },
-            kotlinTypeBuilder = { }
-        )
+        sharedFieldSpecs.values.forEach { builder.addProperty(it) }
+        sharedMethodSpecs.values.forEach { builder.addFunction(it) }
         addGeneratedAnnotationIfAvailable(builder, processingEnv)
         addSuppressWarnings(builder)
         builder.build().writeTo(processingEnv.filer)
     }
 
     private fun addSuppressWarnings(builder: XTypeSpec.Builder) {
-        val suppressionKeys = arrayOf("unchecked", "deprecation")
         builder.apply(
             javaTypeBuilder = {
                 addAnnotation(
                     com.squareup.javapoet.AnnotationSpec.builder(SuppressWarnings::class.java)
-                        .addMember("value", "{$S, $S}", *suppressionKeys)
+                        .addMember("value", "{$S, $S}", "unchecked", "deprecation")
                         .build()
                 )
             },
             kotlinTypeBuilder = {
                 addAnnotation(
                     com.squareup.kotlinpoet.AnnotationSpec.builder(Suppress::class)
-                        .addMember("names = [%S, %S]", *suppressionKeys)
+                        .addMember("names = [%S, %S]", "UNCHECKED_CAST", "DEPRECATION")
                         .build()
                 )
             }
@@ -103,18 +101,19 @@ abstract class TypeWriter(val codeLanguage: CodeLanguage) {
         processingEnv: XProcessingEnv
     ) {
         processingEnv.findGeneratedAnnotation()?.let {
+            val annotationName = it.asClassName().canonicalName
             val memberValue = RoomProcessor::class.java.canonicalName
             adapterTypeSpecBuilder.apply(
                 javaTypeBuilder = {
                     addAnnotation(
-                        JAnnotationSpec.builder(it.className)
+                        JAnnotationSpec.builder(JClassName.bestGuess(annotationName))
                             .addMember("value", "$S", memberValue)
                             .build()
                     )
                 },
                 kotlinTypeBuilder = {
                     addAnnotation(
-                        KAnnotationSpec.builder(it.className.toKClassName())
+                        KAnnotationSpec.builder(KClassName.bestGuess(annotationName))
                             .addMember("value = [%S]", memberValue)
                             .build()
                     )
@@ -139,43 +138,51 @@ abstract class TypeWriter(val codeLanguage: CodeLanguage) {
         }
     }
 
-    fun getOrCreateField(sharedField: SharedFieldSpec): com.squareup.javapoet.FieldSpec {
-        return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey()) {
-            sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
+    fun getOrCreateProperty(sharedProperty: SharedPropertySpec): XPropertySpec {
+        return sharedFieldSpecs.getOrPut(sharedProperty.getUniqueKey()) {
+            sharedProperty.build(this, makeUnique(sharedFieldNames, sharedProperty.baseName))
         }
     }
 
-    fun getOrCreateMethod(sharedMethod: SharedMethodSpec): com.squareup.javapoet.MethodSpec {
-        return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey()) {
-            sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
+    fun getOrCreateFunction(sharedFunction: SharedFunctionSpec): XFunSpec {
+        return sharedMethodSpecs.getOrPut(sharedFunction.getUniqueKey()) {
+            sharedFunction.build(this, makeUnique(sharedMethodNames, sharedFunction.baseName))
         }
     }
 
-    abstract class SharedFieldSpec(val baseName: String, val type: com.squareup.javapoet.TypeName) {
+    abstract class SharedPropertySpec(val baseName: String, val type: XTypeName) {
+
+        open val isMutable = false
 
         abstract fun getUniqueKey(): String
 
-        abstract fun prepare(writer: TypeWriter, builder: com.squareup.javapoet.FieldSpec.Builder)
+        abstract fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder)
 
-        fun build(classWriter: TypeWriter, name: String): com.squareup.javapoet.FieldSpec {
-            val builder = com.squareup.javapoet.FieldSpec.builder(type, name)
+        fun build(classWriter: TypeWriter, name: String): XPropertySpec {
+            val builder = XPropertySpec.builder(
+                language = classWriter.codeLanguage,
+                name = name,
+                typeName = type,
+                visibility = VisibilityModifier.PRIVATE,
+                isMutable = isMutable
+            )
             prepare(classWriter, builder)
             return builder.build()
         }
     }
 
-    abstract class SharedMethodSpec(val baseName: String) {
+    abstract class SharedFunctionSpec(val baseName: String) {
 
         abstract fun getUniqueKey(): String
 
         abstract fun prepare(
             methodName: String,
             writer: TypeWriter,
-            builder: com.squareup.javapoet.MethodSpec.Builder
+            builder: XFunSpec.Builder
         )
 
-        fun build(writer: TypeWriter, name: String): com.squareup.javapoet.MethodSpec {
-            val builder = com.squareup.javapoet.MethodSpec.methodBuilder(name)
+        fun build(writer: TypeWriter, name: String): XFunSpec {
+            val builder = XFunSpec.builder(writer.codeLanguage, name, VisibilityModifier.PRIVATE)
             prepare(name, writer, builder)
             return builder.build()
         }

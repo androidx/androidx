@@ -28,37 +28,43 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
+import androidx.wear.watchface.RenderParameters.HighlightedElement
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator
+import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
-import androidx.wear.watchface.RenderParameters.HighlightedElement
-import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.data.BoundingArcWireFormat
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import java.lang.Integer.min
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit.SECONDS
 import java.util.Objects
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 /**
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
  * [CanvasComplicationFactory.create]. If state needs to be shared with the [Renderer] that should
  * be set up inside [onRendererCreated].
  */
+@JvmDefaultWithCompatibility
 public interface CanvasComplication {
 
     /** Interface for observing when a [CanvasComplication] needs the screen to be redrawn. */
@@ -156,6 +162,7 @@ public interface CanvasComplication {
 }
 
 /** Interface for determining whether a tap hits a complication. */
+@JvmDefaultWithCompatibility
 public interface ComplicationTapFilter {
     /**
      * Performs a hit test, returning `true` if the supplied coordinates in pixels are within the
@@ -371,7 +378,7 @@ public class ComplicationSlot
     @ComplicationSlotBoundsType public val boundsType: Int,
     bounds: ComplicationSlotBounds,
     public val canvasComplicationFactory: CanvasComplicationFactory,
-    supportedTypes: List<ComplicationType>,
+    public val supportedTypes: List<ComplicationType>,
     defaultPolicy: DefaultComplicationDataSourcePolicy,
     defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
@@ -421,6 +428,8 @@ public class ComplicationSlot
             }
         )
     }
+
+    private val wearSdkVersion by lazy { complicationSlotsManager.watchFaceHostApi.wearSdkVersion }
 
     private var lastComplicationUpdate = Instant.EPOCH
 
@@ -480,6 +489,8 @@ public class ComplicationSlot
         private const val MAX_COMPLICATION_HISTORY_ENTRIES = 50
 
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
+
+        internal val screenLockedFallback = NoDataComplicationData()
 
         /**
          * Constructs a [Builder] for a complication with bounds type
@@ -856,12 +867,6 @@ public class ComplicationSlot
             enabledDirty = true
         }
 
-    /** The types of complicationSlots the complication supports. Must be non-empty. */
-
-    public val supportedTypes: List<ComplicationType> = supportedTypes
-        @UiThread // TODO(b/229727216): Remove this annotation.
-        get
-
     internal var defaultDataSourcePolicyDirty = true
 
     /**
@@ -885,8 +890,10 @@ public class ComplicationSlot
     /**
      * The default [ComplicationType] to use alongside [defaultDataSourcePolicy].
      */
-    @Deprecated("Use DefaultComplicationDataSourcePolicy." +
-        "systemDataSourceFallbackDefaultType instead")
+    @Deprecated(
+        "Use DefaultComplicationDataSourcePolicy." +
+            "systemDataSourceFallbackDefaultType instead"
+    )
     public var defaultDataSourceType: ComplicationType = defaultDataSourceType
         @UiThread
         get
@@ -935,6 +942,7 @@ public class ComplicationSlot
         get
         @UiThread
         internal set(value) {
+            require(value != 0)
             if (field == value) {
                 return
             }
@@ -965,12 +973,16 @@ public class ComplicationSlot
 
     internal var dataDirty = true
 
+    private var lastExpressionEvaluator: ComplicationDataExpressionEvaluator? = null
+
+    private var unevaluatedComplicationData: ComplicationData = NoDataComplicationData()
+
     /**
      * The [androidx.wear.watchface.complications.data.ComplicationData] associated with the
      * [ComplicationSlot]. This defaults to [NoDataComplicationData].
      */
     public val complicationData: StateFlow<ComplicationData> =
-        MutableStateFlow(NoDataComplicationData())
+        MutableStateFlow(unevaluatedComplicationData)
 
     /**
      * The complication data sent by the system. This may contain a timeline out of which
@@ -991,9 +1003,7 @@ public class ComplicationSlot
         lastComplicationUpdate = instant
         complicationHistory?.push(ComplicationDataHistoryEntry(complicationData, instant))
         timelineComplicationData = complicationData
-        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
-            it
-        }
+        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.toList()
         selectComplicationDataForInstant(instant, loadDrawablesAsynchronous, true)
     }
 
@@ -1025,10 +1035,87 @@ public class ComplicationSlot
             }
         }
 
-        if (forceUpdate || complicationData.value != best) {
-            renderer.loadData(best, loadDrawablesAsynchronous)
-            (complicationData as MutableStateFlow).value = best
+        // If the screen is locked and our policy is to not display it when locked then select
+        // screenLockedFallback instead.
+        if ((best.displayPolicy and
+                ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED) != 0 &&
+            complicationSlotsManager.watchState.isLocked.value
+        ) {
+            best = screenLockedFallback // This is NoDataComplicationData.
         }
+
+        if (wearSdkVersion >= Build.VERSION_CODES.TIRAMISU) {
+            best.evaluateAndLoadUpdates(loadDrawablesAsynchronous)
+            // Loading synchronously if forced.
+            if (forceUpdate) best.load(loadDrawablesAsynchronous)
+        } else {
+            // Avoid expression evaluation pre-T as it may be redacted by the old platform.
+            if (forceUpdate || complicationData.value != best) best.load(loadDrawablesAsynchronous)
+        }
+    }
+
+    private fun ComplicationData.load(loadDrawablesAsynchronous: Boolean) {
+        renderer.loadData(this, loadDrawablesAsynchronous)
+        (complicationData as MutableStateFlow).value = this
+    }
+
+    /**
+     * Creates a [ComplicationDataExpressionEvaluator] and monitors for updates, sending them to the
+     * [renderer].
+     *
+     * Ignores new data that has equivalent expression (see [ComplicationData.equalsUnevaluated]).
+     * While the data is first being evaluated, sends [NoDataComplicationData] to the renderer.
+     */
+    private fun ComplicationData.evaluateAndLoadUpdates(
+        loadDrawablesAsynchronous: Boolean,
+    ) {
+        if (unevaluatedComplicationData equalsUnevaluated this) return
+        unevaluatedComplicationData = this
+        // Reverting to NoData while evaluating.
+        NoDataComplicationData().load(loadDrawablesAsynchronous)
+        lastExpressionEvaluator?.close()
+        // TODO(b/260065006): Do we need to close the evaluator on destroy?
+        lastExpressionEvaluator =
+            ComplicationDataExpressionEvaluator(asWireComplicationData())
+                .apply {
+                    init()
+                    loadUpdates(loadDrawablesAsynchronous)
+                }
+    }
+
+    /**
+     * Monitors evaluated expression updates and sends them to the [renderer].
+     *
+     * If this is the first evaluation, loads the data immediately. Otherwise, triggers watchface
+     * invalidation on the next top of the second.
+     */
+    private fun ComplicationDataExpressionEvaluator.loadUpdates(
+        loadDrawablesAsynchronous: Boolean
+    ) {
+        complicationSlotsManager.watchFaceHostApi.getUiThreadCoroutineScope().launch {
+            data.collect { evaluatedWireData ->
+                if (evaluatedWireData == null) return@collect // Not yet evaluated.
+                val evaluatedData = evaluatedWireData.toApiComplicationData()
+                if (complicationData.value is NoDataComplicationData) {
+                    // Loading now if it's the first update.
+                    evaluatedData.load(loadDrawablesAsynchronous)
+                } else {
+                    // Loading in the next frame on further updates.
+                    (complicationData as MutableStateFlow).value = evaluatedData
+                    complicationSlotsManager.watchFaceHostApi.postInvalidate(
+                        durationUntilNextForcedFrame()
+                    )
+                }
+            }
+        }
+    }
+
+    /** Returns the duration until the next top of the second. */
+    private fun durationUntilNextForcedFrame(): Duration {
+        val now = Instant.ofEpochMilli(
+            complicationSlotsManager.watchFaceHostApi.systemTimeProvider.getSystemTimeMillis()
+        )
+        return Duration.between(now, (now + Duration.ofSeconds(1)).truncatedTo(SECONDS))
     }
 
     /**
@@ -1123,7 +1210,8 @@ public class ComplicationSlot
 
         if (isHeadless) {
             timelineComplicationData = EmptyComplicationData()
-            (complicationData as MutableStateFlow).value = EmptyComplicationData()
+            unevaluatedComplicationData = EmptyComplicationData()
+            (complicationData as MutableStateFlow).value = unevaluatedComplicationData
         }
     }
 
@@ -1193,20 +1281,26 @@ public class ComplicationSlot
         writer.println(
             "defaultDataSourcePolicy.primaryDataSource=${defaultDataSourcePolicy.primaryDataSource}"
         )
-        writer.println("defaultDataSourcePolicy.primaryDataSourceDefaultDataSourceType=" +
-            defaultDataSourcePolicy.primaryDataSourceDefaultType)
+        writer.println(
+            "defaultDataSourcePolicy.primaryDataSourceDefaultDataSourceType=" +
+                defaultDataSourcePolicy.primaryDataSourceDefaultType
+        )
         writer.println(
             "defaultDataSourcePolicy.secondaryDataSource=" +
                 defaultDataSourcePolicy.secondaryDataSource
         )
-        writer.println("defaultDataSourcePolicy.secondaryDataSourceDefaultDataSourceType=" +
-            defaultDataSourcePolicy.secondaryDataSourceDefaultType)
+        writer.println(
+            "defaultDataSourcePolicy.secondaryDataSourceDefaultDataSourceType=" +
+                defaultDataSourcePolicy.secondaryDataSourceDefaultType
+        )
         writer.println(
             "defaultDataSourcePolicy.systemDataSourceFallback=" +
                 defaultDataSourcePolicy.systemDataSourceFallback
         )
-        writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
-            defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+        writer.println(
+            "defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
+                defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+        )
         writer.println("timelineComplicationData=$timelineComplicationData")
         writer.println("timelineEntries=" + timelineEntries?.joinToString())
         writer.println("data=${renderer.getData()}")
@@ -1236,8 +1330,10 @@ public class ComplicationSlot
         if (accessibilityTraversalIndex != other.accessibilityTraversalIndex) return false
         if (boundsType != other.boundsType) return false
         if (complicationSlotBounds != other.complicationSlotBounds) return false
-        if (supportedTypes.size != other.supportedTypes.size ||
-            !supportedTypes.containsAll(other.supportedTypes)) return false
+        if (
+            supportedTypes.size != other.supportedTypes.size ||
+            !supportedTypes.containsAll(other.supportedTypes)
+        ) return false
         if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
         if (initiallyEnabled != other.initiallyEnabled) return false
         if (fixedComplicationDataSource != other.fixedComplicationDataSource) return false
@@ -1251,9 +1347,11 @@ public class ComplicationSlot
 
     override fun hashCode(): Int {
         @OptIn(ComplicationExperimental::class)
-        return Objects.hash(id, accessibilityTraversalIndex, boundsType, complicationSlotBounds,
+        return Objects.hash(
+            id, accessibilityTraversalIndex, boundsType, complicationSlotBounds,
             supportedTypes.sorted(),
             defaultDataSourcePolicy, initiallyEnabled, fixedComplicationDataSource,
-            nameResourceId, screenReaderNameResourceId, boundingArc)
+            nameResourceId, screenReaderNameResourceId, boundingArc
+        )
     }
 }

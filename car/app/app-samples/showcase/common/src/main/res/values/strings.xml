@@ -373,6 +373,7 @@
   <string name="task_limit_reached_msg">Task limit reached\nGoing forward will force stop the app</string>
   <string name="task_step_of_title">Task step %1$d of %2$d</string>
   <string name="task_step_of_text">Click to go forward</string>
+  <string name="task_content_allowed">Please visit the different templates and ensure the car is in driving mode</string>
 
   <!-- ToggleButtonDemoScreen -->
   <string name="toggle_button_demo_title">Toggle Button Demo</string>
@@ -389,6 +390,16 @@
   <string name="toggle_test_enabled">Toggle Test Enabled</string>
   <string name="toggle_test_disabled">Toggle Test Disabled</string>
 
+  <!--SecondaryActionsAndDecorationDemoScreen -->
+  <string name="secondary_actions_decoration_button_demo_title">Secondary Action and Decoration Demo</string>
+  <string name="secondary_actions_test_title">Secondary Action Test</string>
+  <string name="secondary_actions_test_subtitle">Only the secondary action can be selected</string>
+  <string name="decoration_test_title">Decoration Test</string>
+  <string name="secondary_actions_decoration_test_title">Secondary Actions and Decoration</string>
+  <string name="secondary_actions_decoration_test_subtitle">The row can also be selected</string>
+  <string name="secondary_action_toast">Secondary Action is selected</string>
+  <string name="row_primary_action_toast">Row primary action is selected</string>
+
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
   <string name="cal_api_level_prefix" translatable="false">CAL API Level: %d</string>
@@ -400,6 +411,11 @@
   <string name="voice_access_demo_title">Voice Access Demo Screen</string>
   <string name="user_interactions_demo_title">User Interactions</string>
   <string name="request_permission_menu_demo_title">Request Permissions Demos</string>
+
+  <!-- Task Overflow Demo Screen -->
+  <string name="application_overflow_title">Application Overflow Validator</string>
+  <string name="application_overflow_subtitle1">Please test the following templates while changing</string>
+  <string name="application_overflow_subtitle2">the vehicle from parked to driving state</string>
 
   <!-- Manifest file permissions -->
   <string name="perm_group">Permission Group</string>
@@ -448,4 +464,9 @@
   <string name="loading_toggle_disabled">Loading disabled</string>
   <string name="loading_screen">Loading screen</string>
   <string name="vector_toggle_details">Toggle to add/remove color</string>
+    <string name="map_template_toggle_demo_title">Map Template with Toggles</string>
+  <string name="avoid_tolls_row_title">Avoid tolls</string>
+    <string name="route_options_demo_title">Route options</string>
+  <string name="avoid_highways_row_title">Avoid highways</string>
+  <string name="avoid_ferries_row_title">Avoid ferry</string>
 </resources>

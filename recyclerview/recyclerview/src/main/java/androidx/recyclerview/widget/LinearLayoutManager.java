@@ -21,6 +21,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PointF;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -28,11 +30,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.TraceCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.List;
 
@@ -282,6 +288,60 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             event.setFromIndex(findFirstVisibleItemPosition());
             event.setToIndex(findLastVisibleItemPosition());
         }
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+        super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+        // Set the class name so this is treated as a list. This helps accessibility services
+        // distinguish lists from one row or one column grids.
+        info.setClassName(ListView.class.getName());
+
+        // TODO(b/251823537)
+        if (mRecyclerView.mAdapter != null && mRecyclerView.mAdapter.getItemCount() > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                info.addAction(AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION);
+            }
+        }
+    }
+
+    @Override
+    boolean performAccessibilityAction(int action, @Nullable Bundle args) {
+        if (super.performAccessibilityAction(action, args)) {
+            return true;
+        }
+
+        if (action == android.R.id.accessibilityActionScrollToPosition && args != null) {
+            int position = -1;
+
+            if (mOrientation == VERTICAL) {
+                final int rowArg = args.getInt(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_ROW_INT, -1);
+                if (rowArg < 0) {
+                    return false;
+                }
+                position = Math.min(rowArg, getRowCountForAccessibility(mRecyclerView.mRecycler,
+                        mRecyclerView.mState) - 1);
+            } else { // horizontal
+                final int columnArg = args.getInt(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_COLUMN_INT, -1);
+                if (columnArg < 0) {
+                    return false;
+                }
+                position = Math.min(columnArg,
+                        getColumnCountForAccessibility(mRecyclerView.mRecycler,
+                                mRecyclerView.mState) - 1);
+            }
+            if (position >= 0) {
+                // We want the target element to be the first on screen. That way, a
+                // screenreader like Talkback can directly focus on it as part of its default focus
+                // logic.
+                scrollToPositionWithOffset(position, 0);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -595,26 +655,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         // resolve layout direction
         resolveShouldLayoutReverse();
 
-        boolean layoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
-
-        // The 2 booleans below are necessary because if we are laying out from the end, and the
-        // previous measured dimension is different from the new measured value, then any
-        // previously calculated anchor will be incorrect.
-        boolean reCalcAnchorDueToVertical = layoutFromEnd
-                && getOrientation() == RecyclerView.VERTICAL
-                && state.getPreviousMeasuredHeight() != getHeight();
-        boolean reCalcAnchorDueToHorizontal = layoutFromEnd
-                && getOrientation() == RecyclerView.HORIZONTAL
-                && state.getPreviousMeasuredWidth() != getWidth();
-
-        boolean reCalcAnchor = reCalcAnchorDueToVertical || reCalcAnchorDueToHorizontal
-                || mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
-
         final View focused = getFocusedChild();
-
-        if (!mAnchorInfo.mValid || reCalcAnchor) {
+        if (!mAnchorInfo.mValid || mPendingScrollPosition != RecyclerView.NO_POSITION
+                || mPendingSavedState != null) {
             mAnchorInfo.reset();
-            mAnchorInfo.mLayoutFromEnd = layoutFromEnd;
+            mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
             // calculate anchor position and coordinate
             updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
             mAnchorInfo.mValid = true;
@@ -753,7 +798,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             // because layout from end may be changed by scroll to position
             // we re-calculate it.
             // find which side we should check for gaps.
-            if (layoutFromEnd) {
+            if (mShouldReverseLayout ^ mStackFromEnd) {
                 int fixOffset = fixLayoutEndGap(endOffset, recycler, state, true);
                 startOffset += fixOffset;
                 endOffset += fixOffset;

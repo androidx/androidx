@@ -28,6 +28,7 @@ import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.activity.Camera2TestActivity
 import androidx.camera.testing.activity.CameraXTestActivity
 import androidx.test.core.app.ActivityScenario
@@ -64,6 +65,9 @@ class CameraDisconnectTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val labTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
@@ -102,6 +106,7 @@ class CameraDisconnectTest(
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun testCameraDisconnect() {

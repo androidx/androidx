@@ -29,10 +29,13 @@ import android.util.Size;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
@@ -40,7 +43,10 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
+import androidx.camera.core.processing.InternalImageProcessor;
 import androidx.core.util.Pair;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,9 +84,18 @@ public class ImagePipeline {
     // ===== public methods =====
 
     @MainThread
+    @VisibleForTesting
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize) {
+        this(useCaseConfig, cameraSurfaceSize, /*cameraEffect=*/ null);
+    }
+
+    @MainThread
+    public ImagePipeline(
+            @NonNull ImageCaptureConfig useCaseConfig,
+            @NonNull Size cameraSurfaceSize,
+            @Nullable CameraEffect cameraEffect) {
         checkMainThread();
         mUseCaseConfig = useCaseConfig;
         mCaptureConfig = CaptureConfig.Builder.createFrom(useCaseConfig).build();
@@ -89,7 +104,8 @@ public class ImagePipeline {
         mCaptureNode = new CaptureNode();
         mBundlingNode = new SingleBundlingNode();
         mProcessingNode = new ProcessingNode(
-                requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())));
+                requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())),
+                cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes
         mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat());
@@ -133,6 +149,7 @@ public class ImagePipeline {
 
     /**
      * Sets a listener for close calls on this image.
+     *
      * @param listener to set
      */
     @MainThread
@@ -151,12 +168,16 @@ public class ImagePipeline {
      * <p>{@link ImagePipeline} creates two requests from {@link TakePictureRequest}: 1) a
      * request sent for post-processing pipeline and 2) a request for camera. The camera request
      * is returned to the caller, and the post-processing request is handled by this class.
+     *
+     * @param captureFuture used to monitor the events when the request is terminated due to
+     *                      capture failure or abortion.
      */
     @MainThread
     @NonNull
     Pair<CameraRequest, ProcessingRequest> createRequests(
             @NonNull TakePictureRequest takePictureRequest,
-            @NonNull TakePictureCallback takePictureCallback) {
+            @NonNull TakePictureCallback takePictureCallback,
+            @NonNull ListenableFuture<Void> captureFuture) {
         checkMainThread();
         CaptureBundle captureBundle = createCaptureBundle();
         return new Pair<>(
@@ -167,13 +188,20 @@ public class ImagePipeline {
                 createProcessingRequest(
                         captureBundle,
                         takePictureRequest,
-                        takePictureCallback));
+                        takePictureCallback,
+                        captureFuture));
     }
 
     @MainThread
-    void postProcess(@NonNull ProcessingRequest request) {
+    void submitProcessingRequest(@NonNull ProcessingRequest request) {
         checkMainThread();
         mPipelineIn.getRequestEdge().accept(request);
+    }
+
+    @MainThread
+    void notifyCaptureError(@NonNull ImageCaptureException e) {
+        checkMainThread();
+        mPipelineIn.getErrorEdge().accept(e);
     }
 
     // ===== private methods =====
@@ -187,7 +215,8 @@ public class ImagePipeline {
     private ProcessingRequest createProcessingRequest(
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
-            @NonNull TakePictureCallback takePictureCallback) {
+            @NonNull TakePictureCallback takePictureCallback,
+            @NonNull ListenableFuture<Void> captureFuture) {
         return new ProcessingRequest(
                 captureBundle,
                 takePictureRequest.getOutputFileOptions(),
@@ -195,7 +224,8 @@ public class ImagePipeline {
                 takePictureRequest.getRotationDegrees(),
                 takePictureRequest.getJpegQuality(),
                 takePictureRequest.getSensorToBufferTransform(),
-                takePictureCallback);
+                takePictureCallback,
+                captureFuture);
     }
 
     private CameraRequest createCameraRequest(
@@ -270,4 +300,9 @@ public class ImagePipeline {
         return mCaptureNode;
     }
 
+    @NonNull
+    @VisibleForTesting
+    ProcessingNode getProcessingNode() {
+        return mProcessingNode;
+    }
 }

@@ -62,7 +62,7 @@ internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 @CameraGraphScope
 internal class StreamGraphImpl @Inject constructor(
     cameraMetadata: CameraMetadata,
-    graphConfig: CameraGraph.Config
+    graphConfig: CameraGraph.Config,
 ) : StreamGraph {
     private val _streamMap: Map<CameraStream.Config, CameraStream>
 
@@ -119,6 +119,10 @@ internal class StreamGraphImpl @Inject constructor(
                     } else {
                         null
                     },
+                    mirrorMode = output.mirrorMode,
+                    timestampBase = output.timestampBase,
+                    dynamicRangeProfile = output.dynamicRangeProfile,
+                    streamUseCase = output.streamUseCase,
                     externalOutputConfig =
                     (output as? OutputStream.Config.ExternalOutputConfig)?.output
                 )
@@ -139,7 +143,11 @@ internal class StreamGraphImpl @Inject constructor(
                     nextOutputId(),
                     outputConfig.size,
                     outputConfig.format,
-                    outputConfig.camera
+                    outputConfig.camera,
+                    outputConfig.mirrorMode,
+                    outputConfig.timestampBase,
+                    outputConfig.dynamicRangeProfile,
+                    outputConfig.streamUseCase,
                 )
                 outputStream
             }
@@ -175,6 +183,10 @@ internal class StreamGraphImpl @Inject constructor(
         val groupNumber: Int?,
         val externalOutputConfig: OutputConfiguration?,
         val deferredOutputType: OutputStream.OutputType?,
+        val mirrorMode: OutputStream.MirrorMode?,
+        val timestampBase: OutputStream.TimestampBase?,
+        val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
+        val streamUseCase: OutputStream.StreamUseCase?,
     ) {
         internal val streamBuilder = mutableListOf<CameraStream>()
         val streams: List<CameraStream>
@@ -191,6 +203,10 @@ internal class StreamGraphImpl @Inject constructor(
         override val size: Size,
         override val format: StreamFormat,
         override val camera: CameraId,
+        override val mirrorMode: OutputStream.MirrorMode?,
+        override val timestampBase: OutputStream.TimestampBase?,
+        override val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
+        override val streamUseCase: OutputStream.StreamUseCase?,
     ) : OutputStream {
         override lateinit var stream: CameraStream
         override fun toString(): String = id.toString()

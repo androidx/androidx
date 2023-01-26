@@ -24,6 +24,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CaptureSequence
+import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -31,10 +33,10 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.CaptureSequence
-import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 @RequiresApi(21)
@@ -43,8 +45,9 @@ class ExternalCameraController(
     private val graphListener: GraphListener,
     private val requestProcessor: RequestProcessor
 ) : CameraController {
+    private val sequenceProcessor = ExternalCaptureSequenceProcessor(graphConfig, requestProcessor)
     private val graphProcessor: GraphRequestProcessor = GraphRequestProcessor.from(
-        ExternalCaptureSequenceProcessor(graphConfig, requestProcessor)
+        sequenceProcessor
     )
     private var started = atomic(false)
 
@@ -61,9 +64,11 @@ class ExternalCameraController(
     }
 
     override fun close() {
+        graphProcessor.close()
     }
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
+        sequenceProcessor.surfaceMap = surfaceMap
     }
 }
 
@@ -93,7 +98,11 @@ internal class ExternalCaptureSequenceProcessor(
         if (closed.value) {
             return null
         }
-        val streamToSurfaceMap = surfaceMap ?: return null
+        val streamToSurfaceMap = surfaceMap
+        if (streamToSurfaceMap == null) {
+            Log.warn { "Cannot create an ExternalCaptureSequence until Surfaces are available!" }
+            return null
+        }
         val metadata = requests.map { request ->
             val parameters = defaultParameters + request.parameters + requiredParameters
 
@@ -218,9 +227,6 @@ internal class ExternalCaptureSequenceProcessor(
 
         override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
-        override fun unwrap(): CaptureRequest? {
-            // CustomRequestMetadata does not extend a Camera2 CaptureRequest.
-            return null
-        }
+        override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
     }
 }

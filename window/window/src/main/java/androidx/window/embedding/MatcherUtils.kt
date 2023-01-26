@@ -20,12 +20,10 @@ import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Internal utils used for matching activities with embedding rules.
  */
-@ExperimentalWindowApi
 internal object MatcherUtils {
     /** Checks component match allowing wildcard patterns. */
     internal fun areComponentsMatching(

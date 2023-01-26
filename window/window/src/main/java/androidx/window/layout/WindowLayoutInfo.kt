@@ -16,7 +16,7 @@
 package androidx.window.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.TESTS
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /**
  * Contains the list of [DisplayFeature]-s located within the window. For example, a hinge or
@@ -27,20 +27,12 @@ import androidx.annotation.RestrictTo.Scope.TESTS
  * positions and sizes can change if the window is moved or resized on screen.
  * @see WindowInfoTracker.windowLayoutInfo
  */
-public class WindowLayoutInfo {
-
+class WindowLayoutInfo @RestrictTo(LIBRARY_GROUP) constructor(
     /**
      * [displayFeatures] all the [DisplayFeature] within the window.
      */
-    public val displayFeatures: List<DisplayFeature>
-
-    /**
-     * @suppress
-     */
-    @RestrictTo(TESTS)
-    public constructor(displayFeatures: List<DisplayFeature>) {
-        this.displayFeatures = displayFeatures
-    }
+    val displayFeatures: List<DisplayFeature>
+) {
 
     override fun toString(): String {
         return displayFeatures.joinToString(

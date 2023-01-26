@@ -247,6 +247,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Callback that observes when the client disconnects. Use [addClientDisconnectListener] to
      * register a ClientDisconnectListener.
      */
+    @JvmDefaultWithCompatibility
     public interface ClientDisconnectListener {
         /**
          * The client disconnected, typically due to the server side crashing. Note this is not
@@ -667,6 +668,28 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     ) {
         synchronized(lock) {
             watchFaceColorsChangeListeners.remove(listener)
+        }
+    }
+
+    override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? = TraceEvent(
+        "getComplicationIdAt"
+    ).use {
+        if (iInteractiveWatchFace.apiVersion >= 7) {
+            val longId = iInteractiveWatchFace.getComplicationIdAt(x, y)
+            if (longId == Long.MIN_VALUE) {
+                null
+            } else {
+                longId.toInt()
+            }
+        } else {
+            complicationSlotsState.asSequence().firstOrNull {
+                it.value.isEnabled && when (it.value.boundsType) {
+                    ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                    ComplicationSlotBoundsType.BACKGROUND -> false
+                    ComplicationSlotBoundsType.EDGE -> false
+                    else -> false
+                }
+            }?.key
         }
     }
 }

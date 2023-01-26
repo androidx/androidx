@@ -16,20 +16,28 @@
 
 package androidx.camera.camera2.internal;
 
+import static androidx.camera.camera2.impl.Camera2ImplConfig.STREAM_USE_CASE_OPTION;
+
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraMetadata;
+import android.media.MediaCodec;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
-import androidx.camera.core.impl.ImageAnalysisConfig;
-import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.camera.core.impl.PreviewConfig;
+import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
-import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.VideoCaptureConfig;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A class that contains utility methods for stream use case.
@@ -37,84 +45,74 @@ import java.util.Collection;
 public final class StreamUseCaseUtil {
 
     private StreamUseCaseUtil() {
+
+    }
+
+    private static Map<Class<?>, Long> sUseCaseToStreamUseCaseMapping;
+
+    /**
+     * Populates the mapping between surfaces of a capture session and the Stream Use Case of their
+     * associated stream.
+     *
+     * @param sessionConfigs   collection of all session configs for this capture session
+     * @param streamUseCaseMap the mapping between surfaces and Stream Use Case flag
+     */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    public static void populateSurfaceToStreamUseCaseMapping(
+            @NonNull Collection<SessionConfig> sessionConfigs,
+            @NonNull Map<DeferrableSurface, Long> streamUseCaseMap) {
+        if (Build.VERSION.SDK_INT < 33) {
+            return;
+        }
+        for (SessionConfig sessionConfig : sessionConfigs) {
+            if (sessionConfig.getTemplateType()
+                    == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            ) {
+                // If is ZSL, do not populate anything.
+                streamUseCaseMap.clear();
+                return;
+            }
+            for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
+                if (sessionConfig.getImplementationOptions().containsOption(STREAM_USE_CASE_OPTION)
+                        &&
+                        sessionConfig.getImplementationOptions()
+                                .retrieveOption(STREAM_USE_CASE_OPTION) != null
+                ) {
+                    streamUseCaseMap.put(
+                            surface,
+                            sessionConfig.getImplementationOptions()
+                                    .retrieveOption(STREAM_USE_CASE_OPTION));
+
+                    continue;
+                }
+
+                @Nullable Long flag = getUseCaseToStreamUseCaseMapping()
+                        .get(surface.getContainerClass());
+                if (flag != null) {
+                    streamUseCaseMap.put(surface, flag);
+                }
+            }
+        }
     }
 
     /**
-     * Returns the appropriate stream use case for a capture session based on the attached
-     * CameraX use cases. If API level is below 33, return
-     * {@value OutputConfigurationCompat#STREAM_USE_CASE_NONE}. If use cases are empty or is ZSL,
-     * return DEFAULT. Otherwise, return PREVIEW_VIDEO_STILL for ImageCapture + VideoCapture;
-     * return STILL_CAPTURE for ImageCapture; return VIDEO_RECORD for VideoCapture; return
-     * VIEW_FINDER for Preview only.
-     *
-     * @param useCaseConfigs collection of all attached CameraX use cases for this capture session
-     * @param sessionConfigs collection of all session configs for this capture session
-     * @return the appropriate stream use case for this capture session
+     * Returns the mapping between the container class of a surface and the StreamUseCase
+     * associated with that class. Refer to {@link UseCase} for the potential UseCase as the
+     * container class for a given surface.
      */
-    public static long getStreamUseCaseFromUseCaseConfigs(
-            @NonNull Collection<UseCaseConfig<?>> useCaseConfigs,
-            @NonNull Collection<SessionConfig> sessionConfigs) {
-        if (Build.VERSION.SDK_INT < 33) {
-            return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static Map<Class<?>, Long> getUseCaseToStreamUseCaseMapping() {
+        if (sUseCaseToStreamUseCaseMapping == null) {
+            sUseCaseToStreamUseCaseMapping = new HashMap<>();
+            sUseCaseToStreamUseCaseMapping.put(ImageAnalysis.class,
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW));
+            sUseCaseToStreamUseCaseMapping.put(Preview.class,
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW));
+            sUseCaseToStreamUseCaseMapping.put(ImageCapture.class,
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE));
+            sUseCaseToStreamUseCaseMapping.put(MediaCodec.class,
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
         }
-        if (useCaseConfigs.isEmpty()) {
-            //If the collection is empty, return default case.
-            return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
-        } else {
-            for (SessionConfig sessionConfig : sessionConfigs) {
-                if (sessionConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
-                    //If is ZSL, return default case.
-                    return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
-                }
-            }
-            boolean hasImageCapture = false, hasVideoCapture = false, hasPreview = false;
-            for (UseCaseConfig<?> useCaseConfig : useCaseConfigs) {
-                if (useCaseConfig instanceof ImageAnalysisConfig) {
-                    //If contains analysis use case, return default case.
-                    return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
-                }
-
-                if (useCaseConfig instanceof PreviewConfig) {
-                    hasPreview = true;
-                    continue;
-                }
-
-                if (useCaseConfig instanceof ImageCaptureConfig) {
-                    if (hasVideoCapture) {
-                        // If has both image and video capture, return preview video still case.
-                        return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL;
-                    }
-                    hasImageCapture = true;
-                    continue;
-
-                }
-
-                if (useCaseConfig instanceof VideoCaptureConfig) {
-                    if (hasImageCapture) {
-                        // If has both image and video capture, return preview video still case.
-                        return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL;
-                    }
-                    hasVideoCapture = true;
-                    continue;
-
-                }
-            }
-
-            if (hasImageCapture) {
-                // If contains image capture, return still capture case.
-                return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE;
-            } else if (hasVideoCapture) {
-                // If contains video capture, return video record case.
-                return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD;
-            } else {
-                if (!hasPreview) {
-                    // If doesn't contain preview, we are not sure what's the situation. Return
-                    // default case.
-                    return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
-                }
-                // If contains only preview, return view finder case.
-                return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW;
-            }
-        }
+        return sUseCaseToStreamUseCaseMapping;
     }
 }

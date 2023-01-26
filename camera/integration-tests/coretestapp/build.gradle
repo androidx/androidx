@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -76,13 +73,19 @@ dependencies {
     implementation(libs.espressoIdlingResource)
     implementation("androidx.appcompat:appcompat:1.3.0")
     // MLKit library: Barcode scanner
-    implementation(libs.mlkitBarcode, excludes.mlkit)
+    implementation(libs.mlkitBarcode) {
+        exclude group: "androidx.fragment"
+        exclude group: "androidx.core"
+        exclude group: "androidx.exifinterface"
+    }
 
     // 3P library
     debugImplementation(libs.leakcanary)
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
     debugImplementation(libs.testCore)
+    // explicitly add runner here to force consistency with androidTestImplementation
+    debugImplementation(libs.testRunner)
 
     // Testing framework
     androidTestImplementation(libs.testCore)
@@ -96,6 +99,7 @@ dependencies {
     androidTestImplementation(libs.leakcanary)
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))

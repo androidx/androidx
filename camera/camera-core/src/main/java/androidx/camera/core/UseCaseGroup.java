@@ -16,16 +16,24 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
+import static androidx.camera.core.CameraEffect.PREVIEW;
+import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.core.util.Preconditions.checkArgument;
+
+import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Represents a collection of {@link UseCase}.
@@ -69,10 +77,7 @@ public final class UseCaseGroup {
 
     /**
      * Gets the {@link CameraEffect}s.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public List<CameraEffect> getEffects() {
         return mEffects;
@@ -82,9 +87,16 @@ public final class UseCaseGroup {
      * A builder for generating {@link UseCaseGroup}.
      */
     public static final class Builder {
+
+        // Allow-list effect targets supported by CameraX.
+        private static final List<Integer> SUPPORTED_TARGETS = Arrays.asList(
+                PREVIEW,
+                IMAGE_CAPTURE);
+
         private ViewPort mViewPort;
         private final List<UseCase> mUseCases;
         private final List<CameraEffect> mEffects;
+
 
         public Builder() {
             mUseCases = new ArrayList<>();
@@ -101,18 +113,73 @@ public final class UseCaseGroup {
         }
 
         /**
-         * Adds a {@link CameraEffect} to the collection
+         * Adds a {@link CameraEffect} to the collection.
+         *
+         * <p>The value of {@link CameraEffect#getTargets()} must be unique and must be one of
+         * the supported values below:
+         * <ul>
+         * <li>{@link CameraEffect#PREVIEW}
+         * <li>{@link CameraEffect#IMAGE_CAPTURE}
+         * </ul>
          *
          * <p>Once added, CameraX will use the {@link CameraEffect}s to process the outputs of
          * the {@link UseCase}s.
-         *
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public Builder addEffect(@NonNull CameraEffect cameraEffect) {
             mEffects.add(cameraEffect);
             return this;
+        }
+
+        /**
+         * Checks effect targets and throw {@link IllegalArgumentException}.
+         *
+         * <p>Throws exception if the effects 1) contains duplicate targets or 2) contains
+         * effects that is not in the allowlist.
+         */
+        private void checkEffectTargets() {
+            Map<Integer, CameraEffect> targetEffectMap = new HashMap<>();
+            for (CameraEffect effect : mEffects) {
+                int targets = effect.getTargets();
+                if (!SUPPORTED_TARGETS.contains(targets)) {
+                    throw new IllegalArgumentException(String.format(Locale.US,
+                            "Effects target %s is not in the supported list %s.",
+                            getHumanReadableTargets(targets),
+                            getHumanReadableSupportedTargets()));
+                }
+                if (targetEffectMap.containsKey(effect.getTargets())) {
+                    throw new IllegalArgumentException(String.format(Locale.US,
+                            "Effects %s and %s contain duplicate targets %s.",
+                            requireNonNull(
+                                    targetEffectMap.get(effect.getTargets())).getClass().getName(),
+                            effect.getClass().getName(),
+                            getHumanReadableTargets(targets)));
+                }
+                targetEffectMap.put(effect.getTargets(), effect);
+            }
+        }
+
+        static String getHumanReadableSupportedTargets() {
+            List<String> targetNameList = new ArrayList<>();
+            for (Integer targets : SUPPORTED_TARGETS) {
+                targetNameList.add(getHumanReadableTargets(targets));
+            }
+            return "[" + String.join(", ", targetNameList) + "]";
+        }
+
+        static String getHumanReadableTargets(int targets) {
+            List<String> names = new ArrayList<>();
+            if ((targets & IMAGE_CAPTURE) != 0) {
+                names.add("IMAGE_CAPTURE");
+            }
+            if ((targets & PREVIEW) != 0) {
+                names.add("PREVIEW");
+            }
+
+            if ((targets & VIDEO_CAPTURE) != 0) {
+                names.add("VIDEO_CAPTURE");
+            }
+            return String.join("|", names);
         }
 
         /**
@@ -130,6 +197,7 @@ public final class UseCaseGroup {
         @NonNull
         public UseCaseGroup build() {
             checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
+            checkEffectTargets();
             return new UseCaseGroup(mViewPort, mUseCases, mEffects);
         }
     }

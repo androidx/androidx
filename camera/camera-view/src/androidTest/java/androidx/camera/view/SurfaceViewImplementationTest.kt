@@ -24,6 +24,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.view.PreviewViewImplementation.OnSurfaceNotInUseListener
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -67,7 +68,7 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(mContext)
         setContentView(mParent)
 
-        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
+        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera()) {}
         mImplementation = SurfaceViewImplementation(mParent, PreviewTransformation())
     }
 
@@ -80,12 +81,41 @@ class SurfaceViewImplementationTest {
     fun surfaceProvidedSuccessfully() {
         CoreAppTestUtil.checkKeyguard(mContext)
 
-        mInstrumentation.runOnMainSync {
-            mImplementation.onSurfaceRequested(mSurfaceRequest, null)
-        }
+        mImplementation.testSurfaceRequest(mSurfaceRequest)
+    }
 
-        mSurfaceRequest.deferrableSurface.surface.get(1000, TimeUnit.MILLISECONDS)
-        mSurfaceRequest.deferrableSurface.close()
+    @Test
+    fun reuseSurfaceView_whenResolutionNotChanged() {
+        // Arrange.
+        CoreAppTestUtil.checkKeyguard(mContext)
+        mImplementation.testSurfaceRequest(mSurfaceRequest)
+        val previousSurfaceView = mImplementation.mSurfaceView
+
+        // Act.
+        val sameResolutionSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera()) {}
+        mImplementation.testSurfaceRequest(sameResolutionSurfaceRequest)
+        val newSurfaceView = mImplementation.mSurfaceView
+
+        // Assert.
+        assertThat(newSurfaceView).isEqualTo(previousSurfaceView)
+    }
+
+    @Test
+    fun notReuseSurfaceView_whenResolutionChanged() {
+        // Arrange.
+        CoreAppTestUtil.checkKeyguard(mContext)
+        mImplementation.testSurfaceRequest(mSurfaceRequest)
+        val previousSurfaceView = mImplementation.mSurfaceView
+
+        // Act.
+        val differentSize: Size by lazy { Size(720, 480) }
+        val differentResolutionSurfaceRequest =
+            SurfaceRequest(differentSize, FakeCamera()) {}
+        mImplementation.testSurfaceRequest(differentResolutionSurfaceRequest)
+        val newSurfaceView = mImplementation.mSurfaceView
+
+        // Assert.
+        assertThat(newSurfaceView).isNotEqualTo(previousSurfaceView)
     }
 
     @Test
@@ -97,11 +127,7 @@ class SurfaceViewImplementationTest {
             listenerLatch.countDown()
         }
 
-        mInstrumentation.runOnMainSync {
-            mImplementation.onSurfaceRequested(mSurfaceRequest, onSurfaceNotInUseListener)
-        }
-        mSurfaceRequest.deferrableSurface.surface.get(1000, TimeUnit.MILLISECONDS)
-        mSurfaceRequest.deferrableSurface.close()
+        mImplementation.testSurfaceRequest(mSurfaceRequest, onSurfaceNotInUseListener)
 
         assertThat(listenerLatch.await(300, TimeUnit.MILLISECONDS)).isTrue()
     }
@@ -136,5 +162,17 @@ class SurfaceViewImplementationTest {
     @Throws(Throwable::class)
     private fun setContentView(view: View) {
         mActivityScenario.onActivity { activity -> activity.setContentView(view) }
+    }
+
+    private fun SurfaceViewImplementation.testSurfaceRequest(
+        surfaceRequest: SurfaceRequest,
+        listener: OnSurfaceNotInUseListener? = null
+    ) {
+        mInstrumentation.runOnMainSync {
+            onSurfaceRequested(surfaceRequest, listener)
+        }
+
+        surfaceRequest.deferrableSurface.surface.get(1000, TimeUnit.MILLISECONDS)
+        surfaceRequest.deferrableSurface.close()
     }
 }

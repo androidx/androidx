@@ -46,7 +46,7 @@ buildMetalava
 
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=metalavaVersion=).*"`
 export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_DIR/src/main/resources/version.properties`
-export METALAVA_REPO="$CHECKOUT_ROOT/out/dist/repo/m2repository"
+export METALAVA_REPO="$DIST_DIR/repo/m2repository"
 
 function buildAndroidx() {
   ./frameworks/support/busytown/impl/build.sh $androidxArguments \

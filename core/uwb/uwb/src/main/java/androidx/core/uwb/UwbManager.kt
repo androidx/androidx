@@ -19,6 +19,7 @@ package androidx.core.uwb
 import android.content.Context
 import androidx.core.uwb.impl.UwbManagerImpl
 
+@JvmDefaultWithCompatibility
 /**
  * Interface for getting UWB capabilities and interacting with nearby UWB devices to perform
  * ranging.

@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
-private const val tracingPerfettoVersion = "1.0.0-alpha05" // TODO(224510255): get by 'reflection'
+private const val tracingPerfettoVersion = "1.0.0-alpha10" // TODO(224510255): get by 'reflection'
 private const val minSupportedSdk = Build.VERSION_CODES.R // TODO(234351579): Support API < 30
 
 @RunWith(Parameterized::class)
@@ -80,7 +80,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         assertPackageAlive(false)
 
         // clean target process app data to ensure a clean start
-        Shell.executeCommand("pm clear $targetPackage").let { response ->
+        Shell.executeScriptCaptureStdout("pm clear $targetPackage").let { response ->
             assertThat(response).matches("Success\r?\n")
         }
     }
@@ -206,12 +206,8 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
                     tmpLibFile,
                     Outputs.dirUsableByAppAndShell
                 ) { tmpFile, dstFile ->
-                    Shell.executeCommand("mkdir -p ${dstFile.parentFile!!.path}").also { response ->
-                        assertThat(response).isEmpty()
-                    }
-                    Shell.executeCommand("mv ${tmpFile.path} ${dstFile.path}").also { response ->
-                        assertThat(response).isEmpty()
-                    }
+                    Shell.executeScriptSilent("mkdir -p ${dstFile.parentFile!!.path}")
+                    Shell.executeScriptSilent("mv ${tmpFile.path} ${dstFile.path}")
                 }
             }
         }
@@ -229,7 +225,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
                     }
                 }.toMap()
             },
-            Shell::executeCommand
+            Shell::executeScriptCaptureStdout
         )
 
         /** perform a handshake using [androidx.tracing.perfetto.PerfettoHandshake] */
@@ -280,7 +276,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         val handshake = PerfettoHandshake(
             "package.does.not.exist.89e51176_bc28_41f1_ac73_ca717454b517",
             parseJsonMap = { emptyMap() },
-            Shell::executeCommand
+            Shell::executeScriptCaptureStdout
         )
 
         // try
@@ -305,7 +301,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         val handshake = PerfettoHandshake(
             targetPackage,
             parseJsonMap = { throw IllegalArgumentException(parsingException) },
-            Shell::executeCommand
+            Shell::executeScriptCaptureStdout
         )
 
         handshake.enableTracing(null).also { response ->

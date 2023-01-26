@@ -116,4 +116,12 @@ fi
 # check that no unexpected modifications were made to the source repository, such as new cache directories
 DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
 
+# copy configuration cache reports to DIST_DIR so we can see them b/250893051
+CONFIGURATION_CACHE_REPORTS_EXPORTED=$DIST_DIR/configuration-cache-reports
+CONFIGURATION_CACHE_REPORTS=$OUT_DIR/androidx/build/reports/configuration-cache
+if [ -d "$CONFIGURATION_CACHE_REPORTS" ]; then
+    rm -rf "$CONFIGURATION_CACHE_REPORTS_EXPORTED"
+    cp -r "$CONFIGURATION_CACHE_REPORTS" "$CONFIGURATION_CACHE_REPORTS_EXPORTED"
+fi
+
 exit "$BUILD_STATUS"

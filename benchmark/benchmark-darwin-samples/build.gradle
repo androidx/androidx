@@ -3,15 +3,17 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
     id("AndroidXPlugin")
+    id("androidx.benchmark.darwin")
 }
 
 androidXMultiplatform {
-
-    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinSampleBenchmarks")
+    // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
+    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
 
     ios {
         binaries.framework {
-            baseName = "AndroidXDarwinSampleBenchmarks"
+            // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
+            baseName = "AndroidXDarwinBenchmarks"
             // https://youtrack.jetbrains.com/issue/KT-48552
             embedBitcode = BitcodeEmbeddingMode.DISABLE
             export(project(":benchmark:benchmark-darwin"))
@@ -46,9 +48,18 @@ androidXMultiplatform {
     }
 }
 
+darwinBenchmark {
+    xcodeGenConfigFile = project.rootProject.file(
+            "benchmark/benchmark-darwin-xcode/projects/benchmark-darwin-samples-xcode.yml"
+    )
+    xcodeProjectName = "benchmark-darwin-samples-xcode"
+    scheme = "testapp-ios"
+    // ios 13, 15.2
+    destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
+}
+
 androidx {
     name = "AndroidX Benchmarks - Darwin Samples"
-    mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Samples"
 }

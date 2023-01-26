@@ -43,7 +43,7 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityInsertionAdapter(androidx.room.RoomDatabase database);
-    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement? statement, T? entity);
+    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T? entity);
     method public final void insert(T? entity);
     method public final void insert(T![] entities);
     method public final void insert(Iterable<? extends T> entities);
@@ -211,12 +211,12 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract static class RoomOpenHelper.Delegate {
     ctor public RoomOpenHelper.Delegate(int version);
-    method public abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase database);
+    method public abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public androidx.room.RoomOpenHelper.ValidationResult onValidateSchema(androidx.sqlite.db.SupportSQLiteDatabase db);
     method @Deprecated protected void validateMigration(androidx.sqlite.db.SupportSQLiteDatabase db);
     field public final int version;
@@ -276,12 +276,12 @@ package androidx.room {
 package androidx.room.migration {
 
   public interface AutoMigrationSpec {
-    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
   }
 
   public abstract class Migration {
-    ctor public Migration(int, int);
-    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase);
+    ctor public Migration(int startVersion, int endVersion);
+    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     field public final int endVersion;
     field public final int startVersion;
   }
@@ -339,6 +339,12 @@ package androidx.room.util {
   public static final class FtsTableInfo.Companion {
     method @VisibleForTesting public java.util.Set<java.lang.String> parseOptions(String createStatement);
     method public androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class RelationUtil {
+    method public static <K, V> void recursiveFetchArrayMap(androidx.collection.ArrayMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.ArrayMap<K,V>,kotlin.Unit> fetchBlock);
+    method public static <K, V> void recursiveFetchHashMap(java.util.HashMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.HashMap<K,V>,kotlin.Unit> fetchBlock);
+    method public static <V> void recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.LongSparseArray<V>,kotlin.Unit> fetchBlock);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {

@@ -16,6 +16,10 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
+
 /**
  * A request to save the user password credential with their password provider.
  *
@@ -28,9 +32,41 @@ package androidx.credentials
 class CreatePasswordRequest constructor(
     val id: String,
     val password: String,
-) : CreateCredentialRequest() {
+) : CreateCredentialRequest(
+    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    credentialData = toCredentialDataBundle(id, password),
+    // No credential data should be sent during the query phase.
+    candidateQueryData = Bundle(),
+    requireSystemProvider = false,
+) {
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
+    }
+
+    /** @hide */
+    companion object {
+        internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
+
+        @JvmStatic
+        internal fun toCredentialDataBundle(id: String, password: String): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_ID, id)
+            bundle.putString(BUNDLE_KEY_PASSWORD, password)
+            return bundle
+        }
+
+        @JvmStatic
+        internal fun createFrom(data: Bundle): CreatePasswordRequest {
+            try {
+                val id = data.getString(BUNDLE_KEY_ID)
+                val password = data.getString(BUNDLE_KEY_PASSWORD)
+                return CreatePasswordRequest(id!!, password!!)
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
+        }
     }
 }

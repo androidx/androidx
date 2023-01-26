@@ -62,14 +62,13 @@ dependencies {
         // project constraint on compose, even though compose is not within the 'MAIN'
         // project-set.
         // update syntax when b/239979823 is fixed.
-        implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:{androidx.LibraryVersions.LIFECYCLE}")
+        implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:${androidx.LibraryVersions.LIFECYCLE}")
     }
 }
 
 androidx {
     name = "Lifecycle ViewModel Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
     runApiTasks = new RunApiTasks.Yes()

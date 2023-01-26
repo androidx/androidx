@@ -117,10 +117,10 @@ package androidx.test.uiautomator {
     ctor public StaleObjectException();
   }
 
-  public class UiAutomatorInstrumentationTestRunner extends android.test.InstrumentationTestRunner {
-    ctor public UiAutomatorInstrumentationTestRunner();
-    method protected android.test.AndroidTestRunner! getAndroidTestRunner();
-    method protected void initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase!);
+  @Deprecated public class UiAutomatorInstrumentationTestRunner extends android.test.InstrumentationTestRunner {
+    ctor @Deprecated public UiAutomatorInstrumentationTestRunner();
+    method @Deprecated protected android.test.AndroidTestRunner! getAndroidTestRunner();
+    method @Deprecated protected void initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase!);
   }
 
   @Deprecated public class UiAutomatorTestCase extends android.test.InstrumentationTestCase {
@@ -180,6 +180,8 @@ package androidx.test.uiautomator {
     method public boolean pressHome();
     method public boolean pressKeyCode(int);
     method public boolean pressKeyCode(int, int);
+    method public boolean pressKeyCodes(int[]);
+    method public boolean pressKeyCodes(int[], int);
     method public boolean pressMenu();
     method public boolean pressRecentApps() throws android.os.RemoteException;
     method public boolean pressSearch();
@@ -187,7 +189,8 @@ package androidx.test.uiautomator {
     method public void removeWatcher(String?);
     method public void resetWatcherTriggers();
     method public void runWatchers();
-    method public void setCompressedLayoutHeirarchy(boolean);
+    method @Deprecated public void setCompressedLayoutHeirarchy(boolean);
+    method public void setCompressedLayoutHierarchy(boolean);
     method public void setOrientationLeft() throws android.os.RemoteException;
     method public void setOrientationNatural() throws android.os.RemoteException;
     method public void setOrientationRight() throws android.os.RemoteException;

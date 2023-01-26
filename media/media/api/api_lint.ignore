@@ -67,6 +67,12 @@ IntentName: android.support.v4.media.MediaBrowserCompat#CUSTOM_ACTION_DOWNLOAD:
     Intent action constant name must be ACTION_FOO: CUSTOM_ACTION_DOWNLOAD
 IntentName: android.support.v4.media.MediaBrowserCompat#CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE:
     Intent action constant name must be ACTION_FOO: CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE
+IntentName: androidx.media.utils.MediaConstants#BROWSER_ROOT_HINTS_KEY_CUSTOM_BROWSER_ACTION_LIMIT:
+    Intent action constant name must be ACTION_FOO: BROWSER_ROOT_HINTS_KEY_CUSTOM_BROWSER_ACTION_LIMIT
+IntentName: androidx.media.utils.MediaConstants#BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST:
+    Intent action constant name must be ACTION_FOO: BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST
+IntentName: androidx.media.utils.MediaConstants#DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST:
+    Intent action constant name must be ACTION_FOO: DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST
 
 
 InterfaceConstant: androidx.media.MediaBrowserServiceCompat#SERVICE_INTERFACE:

@@ -16,8 +16,12 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
+import androidx.camera.camera2.pipe.CameraError
+import androidx.camera.camera2.pipe.core.SystemTimeSource
+import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -123,11 +127,11 @@ internal class VirtualCameraStateTest {
                     testCamera.cameraId
                 )
             ),
-            CameraStateClosing,
+            CameraStateClosing(),
             CameraStateClosed(
                 cameraId,
                 ClosedReason.CAMERA2_ERROR,
-                cameraErrorCode = 5
+                cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
             )
         )
 
@@ -161,7 +165,8 @@ internal class AndroidCameraDeviceTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
-    private val now = Timestamps.now()
+    private val timeSource: TimeSource = SystemTimeSource()
+    private val now = Timestamps.now(timeSource)
 
     @After
     fun teardown() {
@@ -175,7 +180,8 @@ internal class AndroidCameraDeviceTest {
             testCamera.cameraId,
             testCamera.metadata,
             attemptNumber = 1,
-            attemptTimestampNanos = now
+            attemptTimestampNanos = now,
+            timeSource
         )
 
         assertThat(listener.state.value).isInstanceOf(CameraStateUnopened.javaClass)
@@ -185,7 +191,11 @@ internal class AndroidCameraDeviceTest {
         listener.onOpened(testCamera.cameraDevice)
 
         assertThat(listener.state.value).isInstanceOf(CameraStateOpen::class.java)
-        assertThat((listener.state.value as CameraStateOpen).cameraDevice.unwrap())
+        assertThat(
+            (listener.state.value as CameraStateOpen)
+                .cameraDevice
+                .unwrapAs(CameraDevice::class)
+        )
             .isSameInstanceAs(testCamera.cameraDevice)
 
         mainLooper.idleFor(1000, TimeUnit.MILLISECONDS)
@@ -214,11 +224,12 @@ internal class AndroidCameraDeviceTest {
             testCamera.cameraId,
             testCamera.metadata,
             attemptNumber = 1,
-            attemptTimestampNanos = now
+            attemptTimestampNanos = now,
+            timeSource
         )
 
         listener.onDisconnected(testCamera.cameraDevice)
-        listener.onError(testCamera.cameraDevice, 42)
+        listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
         listener.onClosed(testCamera.cameraDevice)
 
         mainLooper.idle()
@@ -233,7 +244,8 @@ internal class AndroidCameraDeviceTest {
             testCamera.cameraId,
             testCamera.metadata,
             attemptNumber = 1,
-            attemptTimestampNanos = now
+            attemptTimestampNanos = now,
+            timeSource
         )
 
         listener.close()
@@ -249,10 +261,11 @@ internal class AndroidCameraDeviceTest {
             testCamera.cameraId,
             testCamera.metadata,
             attemptNumber = 1,
-            attemptTimestampNanos = now
+            attemptTimestampNanos = now,
+            timeSource
         )
 
-        listener.closeWith(IllegalStateException("Test Exception"))
+        listener.closeWith(IllegalArgumentException("Test Exception"))
         mainLooper.idle()
 
         val closedState = listener.state.value as CameraStateClosed
@@ -265,15 +278,16 @@ internal class AndroidCameraDeviceTest {
             testCamera.cameraId,
             testCamera.metadata,
             attemptNumber = 1,
-            attemptTimestampNanos = now
+            attemptTimestampNanos = now,
+            timeSource
         )
 
-        listener.onError(testCamera.cameraDevice, 24)
+        listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
         mainLooper.idle()
 
         val closedState = listener.state.value as CameraStateClosed
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.CAMERA2_ERROR)
-        assertThat(closedState.cameraErrorCode).isEqualTo(24)
+        assertThat(closedState.cameraErrorCode).isEqualTo(CameraError.ERROR_CAMERA_SERVICE)
         assertThat(closedState.cameraException).isNull()
     }
 }

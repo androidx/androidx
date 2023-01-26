@@ -26,7 +26,11 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
+import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.StreamUseCase
+import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.core.Log
@@ -34,6 +38,7 @@ import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
 import java.util.concurrent.Executor
+import kotlin.reflect.KClass
 
 /**
  * A data class that mirrors the fields in [android.hardware.camera2.params.SessionConfiguration] so
@@ -77,7 +82,7 @@ internal data class InputConfigData(
  * [OutputConfiguration]'s are NOT immutable, and changing state of an [OutputConfiguration] may
  * require the CameraCaptureSession to be finalized or updated.
  */
-internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
+internal interface OutputConfigurationWrapper : UnsafeWrapper {
     /**
      * This method will return null if the output configuration was created without a Surface,
      * and until addSurface is called for the first time.
@@ -135,6 +140,10 @@ internal class AndroidOutputConfiguration(
         fun create(
             surface: Surface?,
             outputType: OutputType = OutputType.SURFACE,
+            mirrorMode: MirrorMode? = null,
+            timestampBase: TimestampBase? = null,
+            dynamicRangeProfile: DynamicRangeProfile? = null,
+            streamUseCase: StreamUseCase? = null,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -192,6 +201,52 @@ internal class AndroidOutputConfiguration(
             // Pass along the physicalCameraId, if set.
             if (physicalCameraId != null) {
                 configuration.setPhysicalCameraIdCompat(physicalCameraId)
+            }
+
+            if (mirrorMode != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setMirrorMode(configuration, mirrorMode.value)
+                } else {
+                    if (mirrorMode != MirrorMode.MIRROR_MODE_AUTO) {
+                        Log.warn { "Cannot set mirrorMode to a non-default value on API " +
+                            "${Build.VERSION.SDK_INT}. This may result in unexpected behavior. " +
+                            "Requested $mirrorMode"
+                        }
+                    }
+                }
+            }
+
+            if (timestampBase != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setTimestampBase(configuration, timestampBase.value)
+                } else {
+                    if (timestampBase != TimestampBase.TIMESTAMP_BASE_DEFAULT) {
+                        Log.info { "The timestamp base on API ${Build.VERSION.SDK_INT} will " +
+                            "default to TIMESTAMP_BASE_DEFAULT, with which the camera device" +
+                            " adjusts timestamps based on the output target. " +
+                            "Requested $timestampBase" }
+                    }
+                }
+            }
+
+            if (dynamicRangeProfile != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setDynamicRangeProfile(configuration, dynamicRangeProfile.value)
+                } else {
+                    if (dynamicRangeProfile != DynamicRangeProfile.STANDARD) {
+                        Log.warn {
+                            "Cannot set dynamicRangeProfile to a non-default value on API " +
+                                "${Build.VERSION.SDK_INT}. This may result in unexpected " +
+                                "behavior. Requested $dynamicRangeProfile"
+                        }
+                    }
+                }
+            }
+
+            if (streamUseCase != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
+                }
             }
 
             // Create and return the Android
@@ -252,7 +307,11 @@ internal class AndroidOutputConfiguration(
     override val surfaceGroupId: Int
         get() = output.surfaceGroupId
 
-    override fun unwrap(): OutputConfiguration = output
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        OutputConfiguration::class -> output as T
+        else -> null
+    }
 
     override fun toString(): String = output.toString()
 }

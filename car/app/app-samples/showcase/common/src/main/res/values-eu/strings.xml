@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Testua berdez dago"</string>
     <string name="example_3_text" msgid="977269832109695627">"Testua urdinez dago"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Testua horiz dago"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"Testua kolore primario batean dago"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Testua kolore sekundario batean dago"</string>
     <string name="color_demo" msgid="1822427636476178993">"Kolorearen demo-bertsioa"</string>
     <string name="list_limit" msgid="3023536401535417286">"Zerrenden muga"</string>
@@ -231,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Ostalaria ez da bateragarria"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Mezuen txantiloien demo-bertsioa"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Hemen idatzi behar da mezua.\nBigarren lerroan testu gehiago duzu."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Mezu laburren txantiloiaren demo-bertsioa"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Panelen txantiloien demo-bertsioa"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Tokien zerrenden txantiloien demo-bertsioa"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Arakatu tokiak"</string>
@@ -268,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Marraz daitekeen bektore tonudun bat"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Marraz daitekeen bektore bat, aplikazioaren gaiaren kolorearen atributua duena"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Baliabide gisa bidalitako PNG bat"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Bit-mapa gisa bidalitako PNG bat"</string>
     <string name="just_row_title" msgid="965700021568970725">"Izen bat baino ez"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Aplikazioaren ikonoa duen izena"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Baliabide IDaren irudia duen izena"</string>
@@ -281,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Errenkaden demo-bertsioa"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Testuen eta ikonoen demo-bertsioak"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Errenkada testudun eta ikonodunen demo-bertsioa"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Aukera-botoien zerrendaren demo-bertsioa"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Hauta daitezkeen zerrenden demo-bertsioa"</string>
     <string name="option_1_title" msgid="7221252541651471199">"1. aukera"</string>
     <string name="option_2_title" msgid="1905146448697963818">"2. aukera"</string>
@@ -296,8 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Zereginen mugara iritsi zara\nAurrera eginez gero, aplikazioa gelditzera behartuko duzu"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Zereginaren %1$d/%2$d urratsa"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Aurrera egiteko, sakatu hau"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Ikusi txantiloiak eta ziurtatu ibilgailua gidatze moduan dagoela"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Etengailuaren demo-bertsioa"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Etengailuaren proba"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Aldaketa egoeradunak egin daitezke"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Gaitu etengailuaren proba"</string>
@@ -310,15 +306,24 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Atzeko planoko eragiketak eguneratu egin daitezke."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Gaitu da etengailuaren proba"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Desgaitu da etengailuaren proba"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Bigarren mailako ekintzaren eta apainketaren demo-bertsioa"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Bigarren mailako ekintzaren proba"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Bigarren mailako ekintza soilik hauta daiteke"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Apainketaren proba"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Bigarren mailako ekintzak eta apainketa"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Errenkada ere hauta daiteke"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Bigarren mailako ekintza hautatuta dago"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Errenkadari dagokion ekintza nagusia hautatuta dago"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Bestelako txantiloien demo-bertsioak"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Erakutsi demo-bertsioak"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Txantiloi-diseinuen demo-bertsioak"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Sareten txantiloien demo-bertsioak"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Ahots bidezko sarbidearen demo-bertsioaren pantaila"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Erabiltzailearen interakzioak"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Baimen-eskaeren demo-bertsioak"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Aplikazioaren luzapen-menuen baliozkotzailea"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Egin txantiloi hauen probak"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"ibilgailua \"aparkatuta\" egoeratik \"gidatzen\" egoerara aldatu bitartean"</string>
     <string name="perm_group" msgid="3834918337351876270">"Baimenen taldea"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase aplikazioaren baimenen taldea"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Kokapen zehatzerako sarbidea"</string>
@@ -332,18 +337,16 @@
     <string name="location_3_description" msgid="3982142774088944850">"Koloreztatutako testu-markatzailea"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Irudiaren bit-mapa"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Testuaren etiketa"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Aparkatzeko eta gidatzeko moduak konparatzen dituen demo-bertsioa"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Autoaren pantailak"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Azken eginbideak"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Kargatze-prozesua gaituta dago"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Kargatze-prozesua desgaituta dago"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Pantaila kargatzen"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Kolorea gehitzeko/kentzeko etengailua"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Etengailuak dituen mapa-txantiloia"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Saihestu bidesariak"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Ibilbidearen aukerak"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Saihestu autobideak"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Saihestu ferryak"</string>
 </resources>

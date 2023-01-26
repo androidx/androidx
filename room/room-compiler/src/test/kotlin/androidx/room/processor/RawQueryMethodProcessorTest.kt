@@ -19,6 +19,9 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.RawQuery
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -35,9 +38,6 @@ import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVE
 import androidx.room.testing.context
 import androidx.room.vo.RawQueryMethod
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -51,19 +51,19 @@ class RawQueryMethodProcessorTest {
                 abstract public int[] foo(SupportSQLiteQuery query);
                 """
         ) { query, _ ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
             assertThat(
-                query.returnType.typeName,
-                `is`(ArrayTypeName.of(TypeName.INT) as TypeName)
+                query.returnType.asTypeName(),
+                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             )
         }
     }
@@ -90,13 +90,13 @@ class RawQueryMethodProcessorTest {
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
                 """
         ) { query, _ ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
@@ -113,13 +113,13 @@ class RawQueryMethodProcessorTest {
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
                 """
         ) { query, invocation ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
@@ -137,7 +137,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @RawQuery
-                abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, User> getOne();
+                abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY.canonicalName}<Integer, User> getOne();
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
@@ -179,7 +179,7 @@ class RawQueryMethodProcessorTest {
 
     @Test
     fun pojo() {
-        val pojo: TypeName = ClassName.get("foo.bar.MyClass", "MyPojo")
+        val pojo = XClassName.get("foo.bar.MyClass", "MyPojo")
         singleQueryMethod(
             """
                 public class MyPojo {
@@ -191,17 +191,17 @@ class RawQueryMethodProcessorTest {
                 abstract public MyPojo foo(SupportSQLiteQuery query);
                 """
         ) { query, _ ->
-            assertThat(query.name, `is`("foo"))
+            assertThat(query.element.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
-            assertThat(query.returnType.typeName, `is`(pojo))
+            assertThat(query.returnType.asTypeName(), `is`(pojo))
             assertThat(query.observedTableNames, `is`(emptySet()))
         }
     }
@@ -329,13 +329,13 @@ class RawQueryMethodProcessorTest {
     fun observed_notAnEntity() {
         singleQueryMethod(
             """
-                @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME}.class})
+                @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME.canonicalName}.class})
                 abstract public int[] foo(SupportSQLiteQuery query);
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
+                    ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME.canonicalName)
                 )
             }
         }
@@ -424,7 +424,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -442,7 +442,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -460,7 +460,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -477,9 +477,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -495,9 +493,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -513,9 +509,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -532,9 +526,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.keyMayNeedMapInfo(
-                        ClassName.get("java.util", "Date")
-                    )
+                    ProcessorErrors.keyMayNeedMapInfo("java.util.Date")
                 )
             }
         }
@@ -551,9 +543,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.util", "Date")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo("java.util.Date")
                 )
             }
         }
@@ -571,7 +561,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -581,21 +571,21 @@ class RawQueryMethodProcessorTest {
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE}",
-            "${RxJava3TypeNames.FLOWABLE}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE}<Int>",
-            "${RxJava3TypeNames.MAYBE}<Int>",
-            "${RxJava3TypeNames.SINGLE}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE}",
-            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
-            "${KotlinTypeNames.FLOW}<Int>"
+            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
         ).forEach { type ->
             singleQueryMethodKotlin(
                 """
@@ -607,6 +597,19 @@ class RawQueryMethodProcessorTest {
                     val rawTypeName = type.substringBefore("<")
                     hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
                 }
+            }
+        }
+    }
+    @Test
+    fun nonNullVoidGuava() {
+        singleQueryMethodKotlin(
+            """
+                @RawQuery
+                abstract fun foo(query: SupportSQLiteQuery): ListenableFuture<Void>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
             }
         }
     }
@@ -709,11 +712,11 @@ class RawQueryMethodProcessorTest {
                 import androidx.room.*
                 import java.util.*
                 import io.reactivex.*         
-                io.reactivex.rxjava3.core.*
-                androidx.lifecycle.*
-                com.google.common.util.concurrent.*
-                org.reactivestreams.*
-                kotlinx.coroutines.flow.*
+                import io.reactivex.rxjava3.core.*
+                import androidx.lifecycle.*
+                import com.google.common.util.concurrent.*
+                import org.reactivestreams.*
+                import kotlinx.coroutines.flow.*
                 
                 @Dao
                 abstract class MyClass {

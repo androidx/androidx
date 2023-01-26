@@ -50,7 +50,8 @@ class HealthConnectClientTest {
     fun noBackingImplementation_unavailable() {
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).removePackage(PROVIDER_PACKAGE_NAME)
-        assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+        assertThat(HealthConnectClient.isApiSupported()).isTrue()
+        assertThat(HealthConnectClient.isProviderAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
             .isFalse()
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
@@ -60,8 +61,8 @@ class HealthConnectClientTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
     fun backingImplementation_notEnabled_unavailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, enabled = false)
-        assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = false)
+        assertThat(HealthConnectClient.isProviderAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
             .isFalse()
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
@@ -71,8 +72,8 @@ class HealthConnectClientTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
     fun backingImplementation_enabledNoService_unavailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, enabled = true)
-        assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = true)
+        assertThat(HealthConnectClient.isProviderAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
             .isFalse()
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
@@ -81,26 +82,46 @@ class HealthConnectClientTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
-    fun backingImplementation_enabled_isAvailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, enabled = true)
+    fun backingImplementation_enabledUnsupportedVersion_unavailable() {
+        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35000, enabled = true)
+        assertThat(HealthConnectClient.isProviderAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+            .isFalse()
+        assertThrows(IllegalStateException::class.java) {
+            HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun backingImplementation_enabledSupportedVersion_isAvailable() {
+        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = true)
         installService(context, PROVIDER_PACKAGE_NAME)
-        assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isTrue()
+        assertThat(HealthConnectClient.isProviderAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+            .isTrue()
         HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     fun sdkVersionTooOld_unavailable() {
-        assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+        assertThat(HealthConnectClient.isApiSupported()).isFalse()
+        assertThat(HealthConnectClient.isProviderAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
             .isFalse()
         assertThrows(UnsupportedOperationException::class.java) {
             HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
         }
     }
 
-    private fun installPackage(context: Context, packageName: String, enabled: Boolean) {
+    private fun installPackage(
+        context: Context,
+        packageName: String,
+        versionCode: Int,
+        enabled: Boolean
+    ) {
         val packageInfo = PackageInfo()
         packageInfo.packageName = packageName
+        @Suppress("Deprecation")
+        packageInfo.versionCode = versionCode
         packageInfo.applicationInfo = ApplicationInfo()
         packageInfo.applicationInfo.enabled = enabled
         val packageManager = context.packageManager

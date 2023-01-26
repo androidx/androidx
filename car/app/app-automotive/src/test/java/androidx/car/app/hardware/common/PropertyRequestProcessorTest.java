@@ -34,9 +34,11 @@ import androidx.test.core.app.ApplicationProvider;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -52,12 +54,15 @@ import java.util.concurrent.TimeUnit;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class PropertyRequestProcessorTest extends MockedCarTestBase {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private static final int WAIT_CALLBACK_MS = 50;
     private PropertyRequestProcessor mRequestProcessor;
+
     @Before
     public void setUp() {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
 
         // Sets application's permission
         Application application = ApplicationProvider.getApplicationContext();

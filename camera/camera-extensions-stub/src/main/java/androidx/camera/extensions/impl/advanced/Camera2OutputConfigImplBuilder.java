@@ -33,6 +33,7 @@ public class Camera2OutputConfigImplBuilder {
     static AtomicInteger sLastId = new AtomicInteger(0);
     private OutputConfigImplImpl mOutputConfig;
     private int mSurfaceGroupId = OutputConfiguration.SURFACE_GROUP_ID_NONE;
+    private int mOutputConfigId = -1;
     private String mPhysicalCameraId;
     private List<Camera2OutputConfigImpl> mSurfaceSharingConfigs;
 
@@ -51,7 +52,7 @@ public class Camera2OutputConfigImplBuilder {
     public static Camera2OutputConfigImplBuilder newImageReaderConfig(
             Size size, int imageFormat, int maxImages) {
         return new Camera2OutputConfigImplBuilder(
-                new ImageReaderOutputConfigImplImpl(size, imageFormat, maxImages));
+            new ImageReaderOutputConfigImplImpl(size, imageFormat, maxImages));
     }
 
     /**
@@ -61,7 +62,7 @@ public class Camera2OutputConfigImplBuilder {
     public static Camera2OutputConfigImplBuilder newMultiResolutionImageReaderConfig(
             int imageFormat, int maxImages) {
         return new Camera2OutputConfigImplBuilder(
-                new MultiResolutionImageReaderOutputConfigImplImpl(imageFormat, maxImages));
+            new MultiResolutionImageReaderOutputConfigImplImpl(imageFormat, maxImages));
     }
 
     /**
@@ -101,10 +102,23 @@ public class Camera2OutputConfigImplBuilder {
     }
 
     /**
+     * Sets Output Config id (Optional: Atomic Integer will be used if this function is not called)
+     */
+    public Camera2OutputConfigImplBuilder setOutputConfigId(int outputConfigId) {
+        mOutputConfigId = outputConfigId;
+        return this;
+    }
+
+    /**
      * Build a {@link Camera2OutputConfigImpl} instance.
      */
     public Camera2OutputConfigImpl build() {
-        mOutputConfig.setId(getNextId());
+        // Sets an output config id otherwise an output config id will be generated
+        if (mOutputConfigId == -1) {
+            mOutputConfig.setId(getNextId());
+        } else {
+            mOutputConfig.setId(mOutputConfigId);
+        }
         mOutputConfig.setPhysicalCameraId(mPhysicalCameraId);
         mOutputConfig.setSurfaceGroup(mSurfaceGroupId);
         mOutputConfig.setSurfaceSharingConfigs(mSurfaceSharingConfigs);

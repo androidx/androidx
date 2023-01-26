@@ -20,6 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.layout.Measurable
 import androidx.constraintlayout.core.state.Transition
 
+@JvmDefaultWithCompatibility
 /**
  * Immutable description of the constraints used to layout the children of a [ConstraintLayout].
  */
@@ -38,6 +39,7 @@ interface ConstraintSet {
     fun isDirty(measurables: List<Measurable>): Boolean = true
 }
 
+@JvmDefaultWithCompatibility
 @Immutable
 internal interface DerivedConstraintSet : ConstraintSet {
     /**
@@ -49,8 +51,7 @@ internal interface DerivedConstraintSet : ConstraintSet {
     val extendFrom: ConstraintSet?
 
     override fun applyTo(state: State, measurables: List<Measurable>) {
-        buildMapping(state, measurables)
-        (extendFrom as? DerivedConstraintSet)?.applyTo(state, measurables)
+        extendFrom?.applyTo(state, measurables)
         applyToState(state)
     }
 

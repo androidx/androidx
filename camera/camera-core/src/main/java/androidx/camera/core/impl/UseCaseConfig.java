@@ -88,6 +88,12 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<Boolean> OPTION_ZSL_DISABLED =
             Option.create("camerax.core.useCase.zslDisabled", boolean.class);
 
+    /**
+     * Option: camerax.core.useCase.highResolutionDisabled
+     */
+    Option<Boolean> OPTION_HIGH_RESOLUTION_DISABLED =
+            Option.create("camerax.core.useCase.highResolutionDisabled", boolean.class);
+
 
     // *********************************************************************************************
 
@@ -297,6 +303,17 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     }
 
     /**
+     * Retrieves the flag whether high resolution is disabled.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration
+     */
+    default boolean isHigResolutionDisabled(boolean valueIfMissing) {
+        return retrieveOption(OPTION_HIGH_RESOLUTION_DISABLED, valueIfMissing);
+    }
+
+    /**
      * Builder for a {@link UseCase}.
      *
      * @param <T> The type of the object which will be built by {@link #build()}.
@@ -390,6 +407,17 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setZslDisabled(boolean disabled);
+
+        /**
+         * Sets high resolution disabled or not.
+         *
+         * <p> High resolution will be disabled when Extension is ON.
+         *
+         * @param disabled True if high resolution should be disabled. Otherwise, should not be
+         *                 disabled.
+         */
+        @NonNull
+        B setHighResolutionDisabled(boolean disabled);
 
         /**
          * Retrieves the configuration used by this builder.

@@ -60,28 +60,28 @@ public abstract class PassiveListenerService : Service() {
      *
      * @param dataPoints a list of new [DataPoint]s generated
      */
-    public fun onNewDataPointsReceived(dataPoints: DataPointContainer) {}
+    public open fun onNewDataPointsReceived(dataPoints: DataPointContainer) {}
 
     /**
      * Called when new [UserActivityInfo] is generated.
      *
      * @param info a new [UserActivityInfo] representing the current state
      */
-    public fun onUserActivityInfoReceived(info: UserActivityInfo) {}
+    public open fun onUserActivityInfoReceived(info: UserActivityInfo) {}
 
     /**
      * Called when a [PassiveGoal] has been completed.
      *
      * @param goal the [PassiveGoal] that has been completed
      */
-    public fun onGoalCompleted(goal: PassiveGoal) {}
+    public open fun onGoalCompleted(goal: PassiveGoal) {}
 
     /**
      * Called when a [HealthEvent] has been detected.
      *
      * @param event the [HealthEvent] that has been detected
      */
-    public fun onHealthEventReceived(event: HealthEvent) {}
+    public open fun onHealthEventReceived(event: HealthEvent) {}
 
     /**
      * Called when the client has lost permission for the passive listener request. If this happens,
@@ -89,9 +89,9 @@ public abstract class PassiveListenerService : Service() {
      * client can use this callback to detect the problem and either prompt the user to re-grant the
      * permissions or re-register while requesting only that which the app does have permission for.
      */
-    public fun onPermissionLost() {}
+    public open fun onPermissionLost() {}
 
-    private inner class IPassiveListenerServiceWrapper : IPassiveListenerService.Stub() {
+    internal inner class IPassiveListenerServiceWrapper : IPassiveListenerService.Stub() {
 
         override fun onPassiveListenerEvent(event: PassiveListenerEvent) {
             val proto = event.proto
@@ -130,6 +130,6 @@ public abstract class PassiveListenerService : Service() {
     }
 
     private companion object {
-        const val TAG = "PassiveListenerService"
+        private const val TAG = "PassiveListenerService"
     }
 }

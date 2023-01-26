@@ -16,7 +16,15 @@
 
 package androidx.webkit;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 
 /**
  * The Java representation of the HTML5 PostMessage event. See
@@ -25,32 +33,102 @@ import androidx.annotation.Nullable;
  */
 public class WebMessageCompat {
 
-    private String mData;
-    private WebMessagePortCompat[] mPorts;
+    /**
+     * Indicates the payload of WebMessageCompat is String.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int TYPE_STRING = 0;
+    /**
+     * Indicates the payload of WebMessageCompat is JavaScript ArrayBuffer.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int TYPE_ARRAY_BUFFER = 1;
+    private final @Nullable WebMessagePortCompat[] mPorts;
+    private final @Nullable String mString;
+    private final @Nullable byte[] mArrayBuffer;
+    private final @Type int mType;
 
     /**
-     * Creates a WebMessage.
-     * @param data  the data of the message.
+     * Creates a WebMessage with String payload.
+     *
+     * @param data the string of the message.
      */
     public WebMessageCompat(@Nullable String data) {
-        mData = data;
+        this(data, null);
     }
 
     /**
-     * Creates a WebMessage.
-     * @param data  the data of the message.
-     * @param ports  the ports that are sent with the message.
+     * Creates a WebMessage with String payload.
+     *
+     * @param data  the string data of the message.
+     * @param ports the ports that are sent with the message.
      */
     public WebMessageCompat(@Nullable String data, @Nullable WebMessagePortCompat[] ports) {
-        mData = data;
+        mString = data;
+        mArrayBuffer = null;
         mPorts = ports;
+        mType = TYPE_STRING;
     }
 
     /**
-     * Returns the data of the message.
+     * Creates a WebMessage with JavaScript ArrayBuffer payload.
+     *
+     * @param arrayBuffer the array buffer data of the message.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public WebMessageCompat(@NonNull byte[] arrayBuffer) {
+        this(arrayBuffer, null);
+    }
+
+    /**
+     * Creates a WebMessage with JavaScript ArrayBuffer payload.
+     *
+     * @param arrayBuffer the array buffer data of the message.
+     * @param ports       the ports that are sent with the message.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public WebMessageCompat(@NonNull byte[] arrayBuffer,
+            @Nullable WebMessagePortCompat[] ports) {
+        Objects.requireNonNull(arrayBuffer);
+        mArrayBuffer = arrayBuffer;
+        mString = null;
+        mPorts = ports;
+        mType = TYPE_ARRAY_BUFFER;
+    }
+
+    /**
+     * Returns the payload type of the message.
+     * @return the payload type of WebMessageCompat.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Type int getType() {
+        return mType;
+    }
+
+    /**
+     * Returns the ArrayBuffer data of message. A ArrayBuffer or Transferable ArrayBuffer can be
+     * received from JavaScript.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable byte[] getArrayBuffer() {
+        return mArrayBuffer;
+    }
+
+    /**
+     * Returns the String data of the message.
      */
     public @Nullable String getData() {
-        return mData;
+        return mString;
     }
 
     /**
@@ -61,4 +139,10 @@ public class WebMessageCompat {
     public WebMessagePortCompat[] getPorts() {
         return mPorts;
     }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef({TYPE_STRING, TYPE_ARRAY_BUFFER})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Type {}
 }

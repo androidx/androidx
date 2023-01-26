@@ -37,19 +37,13 @@ dependencies {
     lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
 
     constraints {
-        // this syntax mirrors the temporary workaround in lifecycle-livedata-core
-        // dependency constraints which allows lifecycle-livedata-core-ktx to have
-        // a project constraint on compose and wear, even though they are not within
-        // the 'MAIN' project-set.
-        // update syntax when b/239979823 is fixed.
-        implementation("androidx.lifecycle:lifecycle-livedata-core:{androidx.LibraryVersions.LIFECYCLE}")
+        implementation(project(":lifecycle:lifecycle-livedata-core"))
     }
 }
 
 androidx {
     name = "LiveData Core Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata-core' artifact"
 }

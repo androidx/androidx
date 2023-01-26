@@ -78,13 +78,13 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":benchmark:benchmark-common")) // for supported ABI checks
 }
 
 androidx {
     name = "AndroidX Tracing: Perfetto SDK Native Dependencies"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
-    mavenGroup = LibraryGroups.TRACING
     inceptionYear = "2022"
     description = "Provides native binaries required by AndroidX Tracing: Perfetto SDK " +
         "and is not intended to be used outside of that context."

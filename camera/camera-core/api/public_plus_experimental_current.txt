@@ -4,6 +4,7 @@ package androidx.camera.core {
   @RequiresApi(21) public class AspectRatio {
     field public static final int RATIO_16_9 = 1; // 0x1
     field public static final int RATIO_4_3 = 0; // 0x0
+    field public static final int RATIO_DEFAULT = -1; // 0xffffffff
   }
 
   @RequiresApi(21) public interface Camera {
@@ -23,6 +24,16 @@ package androidx.camera.core {
   public static final class CameraControl.OperationCanceledException extends java.lang.Exception {
   }
 
+  @RequiresApi(21) public abstract class CameraEffect {
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor);
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor);
+    method public java.util.concurrent.Executor getExecutor();
+    method public androidx.camera.core.SurfaceProcessor? getSurfaceProcessor();
+    method public int getTargets();
+    field public static final int IMAGE_CAPTURE = 4; // 0x4
+    field public static final int PREVIEW = 1; // 0x1
+  }
+
   @RequiresApi(21) public interface CameraFilter {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
   }
@@ -31,6 +42,8 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public androidx.camera.core.ExposureState getExposureState();
+    method @FloatRange(from=0, fromInclusive=false) public default float getIntrinsicZoomRatio();
+    method public default int getLensFacing();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
@@ -53,7 +66,9 @@ package androidx.camera.core {
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
     field public static final int LENS_FACING_BACK = 1; // 0x1
+    field @androidx.camera.core.ExperimentalLensFacing public static final int LENS_FACING_EXTERNAL = 2; // 0x2
     field public static final int LENS_FACING_FRONT = 0; // 0x0
+    field public static final int LENS_FACING_UNKNOWN = -1; // 0xffffffff
   }
 
   public static final class CameraSelector.Builder {
@@ -140,6 +155,9 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  }
+
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseApi {
@@ -307,6 +325,19 @@ package androidx.camera.core {
     method public long getTimestamp();
   }
 
+  public interface ImageProcessor {
+    method public androidx.camera.core.ImageProcessor.Response process(androidx.camera.core.ImageProcessor.Request) throws androidx.camera.core.ProcessingException;
+  }
+
+  public static interface ImageProcessor.Request {
+    method public androidx.camera.core.ImageProxy getInputImage();
+    method public int getOutputFormat();
+  }
+
+  public static interface ImageProcessor.Response {
+    method public androidx.camera.core.ImageProxy? getOutputImage();
+  }
+
   @RequiresApi(21) public interface ImageProxy extends java.lang.AutoCloseable {
     method public void close();
     method public android.graphics.Rect getCropRect();
@@ -362,6 +393,10 @@ package androidx.camera.core {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
   }
 
+  public class ProcessingException extends java.lang.Exception {
+    ctor public ProcessingException();
+  }
+
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class ResolutionInfo {
     method public abstract android.graphics.Rect getCropRect();
     method public abstract android.util.Size getResolution();
@@ -373,10 +408,31 @@ package androidx.camera.core {
     ctor public SurfaceOrientedMeteringPointFactory(float, float, androidx.camera.core.UseCase);
   }
 
+  public interface SurfaceOutput {
+    method public void close();
+    method public android.util.Size getSize();
+    method public android.view.Surface getSurface(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceOutput.Event!>);
+    method public int getTargets();
+    method public void updateTransformMatrix(float[], float[]);
+  }
+
+  @com.google.auto.value.AutoValue public abstract static class SurfaceOutput.Event {
+    ctor public SurfaceOutput.Event();
+    method public abstract int getEventCode();
+    method public abstract androidx.camera.core.SurfaceOutput getSurfaceOutput();
+    field public static final int EVENT_REQUEST_CLOSE = 0; // 0x0
+  }
+
+  public interface SurfaceProcessor {
+    method public void onInputSurface(androidx.camera.core.SurfaceRequest) throws androidx.camera.core.ProcessingException;
+    method public void onOutputSurface(androidx.camera.core.SurfaceOutput) throws androidx.camera.core.ProcessingException;
+  }
+
   @RequiresApi(21) public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
     method public void clearTransformationInfoListener();
     method public android.util.Size getResolution();
+    method public boolean invalidate();
     method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
     method public void setTransformationInfoListener(java.util.concurrent.Executor, androidx.camera.core.SurfaceRequest.TransformationInfoListener);
     method public boolean willNotProvideSurface();
@@ -410,12 +466,14 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public final class UseCaseGroup {
+    method public java.util.List<androidx.camera.core.CameraEffect!> getEffects();
     method public java.util.List<androidx.camera.core.UseCase!> getUseCases();
     method public androidx.camera.core.ViewPort? getViewPort();
   }
 
   public static final class UseCaseGroup.Builder {
     ctor public UseCaseGroup.Builder();
+    method public androidx.camera.core.UseCaseGroup.Builder addEffect(androidx.camera.core.CameraEffect);
     method public androidx.camera.core.UseCaseGroup.Builder addUseCase(androidx.camera.core.UseCase);
     method public androidx.camera.core.UseCaseGroup build();
     method public androidx.camera.core.UseCaseGroup.Builder setViewPort(androidx.camera.core.ViewPort);

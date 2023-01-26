@@ -22,6 +22,16 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SupportSQLiteQueryBuilderTest {
+
+    @Test
+    fun null_columns_should_not_throw_npe() {
+        val query = SupportSQLiteQueryBuilder.builder("Books")
+            .columns(null)
+            .groupBy("pages")
+            .having(">100")
+            .create()
+        assertThat(query.sql).isEqualTo("SELECT * FROM Books GROUP BY pages HAVING >100")
+    }
     @Test
     fun null_groupBy_and_having_throws_error() {
         val error = assertFails {
@@ -50,5 +60,18 @@ class SupportSQLiteQueryBuilderTest {
             .having(">100")
             .create()
         assertThat(query.sql).isEqualTo("SELECT * FROM Books GROUP BY pages HAVING >100")
+    }
+
+    @Test
+    fun subtypes_in_array_selection_does_not_throw_error() {
+        val bindArgs: Array<String?> = arrayOf("USA")
+
+        val query = SupportSQLiteQueryBuilder.builder("Books")
+            .columns(arrayOf("country_published"))
+            .selection("country_published=USA", bindArgs)
+            .create()
+        assertThat(query.sql).isEqualTo(
+            "SELECT country_published FROM Books WHERE country_published=USA"
+        )
     }
 }

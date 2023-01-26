@@ -25,7 +25,7 @@
     <string name="gl_background_init_watch_face_name"
         translatable="false">Background Init Watchface</string>
     <string name="hierarchical_watch_face_name"
-        translatable="false">Example Hierarchical Watchface</string>
+        translatable="false">Hierarchical Watchface (Needs T)</string>
 
     <!-- Name of watchface style [CHAR LIMIT=20] -->
     <string name="red_style_name">Red Style</string>
@@ -53,6 +53,45 @@
 
     <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
     <string name="colors_style_yellow">Yellow</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_red_screen_reader">Red color theme</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_green_screen_reader">Green color theme</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_blue_screen_reader">Blue color theme</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_yellow_screen_reader">Yellow color theme</string>
+
+    <!-- Name of watchface style category for selecting the hand style [CHAR LIMIT=20] -->
+    <string name="hand_style_setting" translatable="false">Hand Style</string>
+
+    <!-- Subtitle for the menu option to select the watch face hand style [CHAR LIMIT=20] -->
+    <string name="hand_style_setting_description" translatable="false">Hand visual look</string>
+
+    <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
+    <string name="hand_style_classic" translatable="false">Classic</string>
+
+    <!-- An option with the watch face hand style settings  for use by screen readers -->
+    <string name="hand_style_classic_screen_reader" translatable="false">Classic watch hand
+    style</string>
+
+    <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
+    <string name="hand_style_modern" translatable="false">Modern</string>
+
+    <!-- An option with the watch face hand style settings  for use by screen readers -->
+    <string name="hand_style_modern_screen_reader" translatable="false">Modern watch hand
+    style</string>
+
+    <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
+    <string name="hand_style_gothic" translatable="false">Gothic</string>
+
+    <!-- An option with the watch face hand style settings for use by screen readers -->
+    <string name="hand_style_gothic_screen_reader" translatable="false">Gothic watch hand
+    style</string>
 
     <!-- An option within the analog watch face to draw pips to mark each hour [CHAR LIMIT=20] -->
     <string name="watchface_pips_setting">Hour Pips</string>
@@ -101,6 +140,14 @@
     hours labeling [CHAR LIMIT=20] -->
     <string name="watchface_draw_hours_freq_setting_description">Labeling frequency</string>
 
+    <!-- Menu option to select a widget that lets us configure whether to show hour pips
+    [CHAR LIMIT=20] -->
+    <string name="watchface_draw_hours_setting">Hour pips</string>
+
+    <!-- Sub title for the menu option to select a widget that lets us configure whether to show
+    hour pips [CHAR LIMIT=20] -->
+    <string name="watchface_draw_hours_setting_description">Display on/off</string>
+
     <!-- Name of the left complication for use visually in the companion editor. [CHAR LIMIT=20] -->
     <string name="left_complication_screen_name">Left</string>
 
@@ -148,18 +195,81 @@
     <!-- Menu option for a 12 hour digital clock display. [CHAR LIMIT=20] -->
     <string name="digital_clock_style_12">12</string>
 
-    <!-- Menu option for a 24 hour digital clock display. [CHAR LIMIT=20] -->
+    <!-- Menu option for a 12 hour digital clock display. [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_12_screen_reader">12 hour clock</string>
+
+    <!-- Menu option for a 24 hour digital clock display used by screen reader. -->
     <string name="digital_clock_style_24">24</string>
+
+    <!-- Menu option for a 24 hour digital clock display used by screen reader.-->
+    <string name="digital_clock_style_24_screen_reader">24 hour clock</string>
 
     <!-- Menu option for selecting a digital clock [CHAR LIMIT=20] -->
     <string name="style_digital_watch">Digital</string>
 
+    <!-- Menu option for selecting a digital clock from a screen reader. -->
+    <string name="style_digital_watch_screen_reader">Digital watch style</string>
+
     <!-- Menu option for selecting an analog clock [CHAR LIMIT=20] -->
     <string name="style_analog_watch">Analog</string>
+
+    <!-- Menu option for selecting an analog clock  from a screen reader.-->
+    <string name="style_analog_watch_screen_reader">Analog watch style </string>
 
     <!-- Title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
     <string name="clock_type">Clock type</string>
 
     <!-- Sub title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
     <string name="clock_type_description">Select analog or digital</string>
+
+    <!-- A menu option to select a widget that lets us configure the Complications (a watch
+    making term) for the digital watch [CHAR LIMIT=20] -->
+    <string name="digital_complications_setting">Complication</string>
+
+    <!-- Sub title for the menu option to select a widget that lets us configure the Complications
+    (a watch making term) for the digital watch [CHAR LIMIT=20] -->
+    <string name="digital_complications_setting_description">On or off</string>
+
+    <!-- List entry, enabling the complication for the digital watch. [CHAR LIMIT=20] -->
+    <string name="digital_complication_on_screen_name">On</string>
+
+    <!-- List entry, disabling the complication for the digital watch. [CHAR LIMIT=20] -->
+    <string name="digital_complication_off_screen_name">Off</string>
+
+    <!-- List entry setting the number of complications enabled for the analog watch.
+    [CHAR LIMIT=20] -->
+    <string name="analog_complication_one_screen_name">One</string>
+
+    <!-- List entry setting the number of complications enabled for the analog watch.
+    [CHAR LIMIT=20] -->
+    <string name="analog_complication_two_screen_name">Two</string>
+
+    <!-- List entry setting the number of complications enabled for the analog watch.
+    [CHAR LIMIT=20] -->
+    <string name="analog_complication_three_screen_name">Three</string>
+
+    <!-- Name of a complication at the top of the screen, for use visually in the companion editor.
+    [CHAR LIMIT=20] -->
+    <string name="hierarchical_complication1_screen_name">Top</string>
+
+    <!-- Name of a complication at the top of the screen, for use by the companion editor screen
+    reader. -->
+    <string name="hierarchical_complication1_screen_reader_name">Top complication</string>
+
+    <!-- Name of a complication at the middle of the screen, for use visually in the companion editor.
+    [CHAR LIMIT=20] -->
+    <string name="hierarchical_complication2_screen_name">Middle</string>
+
+    <!-- Name of a complication at the middle of the screen, for use by the companion editor screen
+    reader. -->
+    <string name="hierarchical_complication2_screen_reader_name">Middle complication</string>
+
+    <!-- Name of a complication at the bottom of the screen, for use visually in the companion editor.
+    [CHAR LIMIT=20] -->
+    <string name="hierarchical_complication3_screen_name">Bottom</string>
+
+    <!-- Name of a complication at the bottom of the screen, for use by the companion editor screen
+    reader. -->
+    <string name="hierarchical_complication3_screen_reader_name">Bottom complication</string>
+
 </resources>

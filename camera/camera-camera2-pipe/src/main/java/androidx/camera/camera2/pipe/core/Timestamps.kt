@@ -21,6 +21,8 @@ package androidx.camera.camera2.pipe.core
 
 import android.os.SystemClock
 import androidx.annotation.RequiresApi
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * A nanosecond timestamp
@@ -44,11 +46,35 @@ public value class DurationNs(public val value: Long) {
 
     public inline operator fun plus(other: TimestampNs): TimestampNs =
         TimestampNs(value + other.value)
+
+    operator fun compareTo(other: DurationNs): Int {
+        return if (value == other.value) {
+            0
+        } else if (value < other.value) {
+            -1
+        } else {
+            1
+        }
+    }
+
+    companion object {
+        public inline fun fromMs(durationMs: Long) = DurationNs(durationMs * 1_000_000L)
+    }
+}
+
+interface TimeSource {
+    public fun now(): TimestampNs
+}
+
+@Singleton
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+public class SystemTimeSource @Inject constructor() : TimeSource {
+    override fun now() = TimestampNs(SystemClock.elapsedRealtimeNanos())
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public object Timestamps {
-    public inline fun now(): TimestampNs = TimestampNs(SystemClock.elapsedRealtimeNanos())
+    public inline fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
 
     public inline fun DurationNs.formatNs(): String = "$this ns"
     public inline fun DurationNs.formatMs(decimals: Int = 3): String =
@@ -56,6 +82,6 @@ public object Timestamps {
 
     public inline fun TimestampNs.formatNs(): String = "$this ns"
     public inline fun TimestampNs.formatMs(): String = "${this.value / 1_000_000} ms"
-
-    public inline fun TimestampNs.measureNow(): DurationNs = now() - this
+    public inline fun TimestampNs.measureNow(timeSource: TimeSource = SystemTimeSource()) =
+        now(timeSource) - this
 }

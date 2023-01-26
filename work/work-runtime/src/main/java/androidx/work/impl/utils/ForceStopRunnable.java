@@ -48,8 +48,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Consumer;
 import androidx.work.Configuration;
-import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
@@ -117,10 +117,10 @@ public class ForceStopRunnable implements Runnable {
                     Logger.get().error(TAG, message);
                     IllegalStateException exception =
                             new IllegalStateException(message, sqLiteException);
-                    InitializationExceptionHandler exceptionHandler =
+                    Consumer<Throwable> exceptionHandler =
                             mWorkManager.getConfiguration().getInitializationExceptionHandler();
                     if (exceptionHandler != null) {
-                        exceptionHandler.handleException(exception);
+                        exceptionHandler.accept(exception);
                         break;
                     } else {
                         throw exception;
@@ -152,13 +152,13 @@ public class ForceStopRunnable implements Runnable {
                         Logger.get().error(TAG, message, exception);
                         IllegalStateException throwable = new IllegalStateException(message,
                                 exception);
-                        InitializationExceptionHandler exceptionHandler =
+                        Consumer<Throwable> exceptionHandler =
                                 mWorkManager.getConfiguration().getInitializationExceptionHandler();
                         if (exceptionHandler != null) {
                             Logger.get().debug(TAG,
                                     "Routing exception to the specified exception handler",
                                     throwable);
-                            exceptionHandler.handleException(throwable);
+                            exceptionHandler.accept(throwable);
                             break;
                         } else {
                             throw throwable;

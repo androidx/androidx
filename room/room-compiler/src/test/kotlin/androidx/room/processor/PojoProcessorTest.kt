@@ -687,7 +687,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("uid")))
-            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME))
         }
     }
 
@@ -705,7 +705,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("name")))
-            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME))
         }
     }
 
@@ -1681,13 +1681,14 @@ class PojoProcessorTest {
     @Test
     fun dataClass_primaryConstructor() {
         listOf(
-            TestData.AllDefaultVals::class.java.canonicalName!!,
-            TestData.AllDefaultVars::class.java.canonicalName!!,
-            TestData.SomeDefaultVals::class.java.canonicalName!!,
-            TestData.SomeDefaultVars::class.java.canonicalName!!,
-            TestData.WithJvmOverloads::class.java.canonicalName!!
+            "foo.bar.TestData.AllDefaultVals",
+            "foo.bar.TestData.AllDefaultVars",
+            "foo.bar.TestData.SomeDefaultVals",
+            "foo.bar.TestData.SomeDefaultVars",
+            "foo.bar.TestData.WithJvmOverloads"
         ).forEach {
-            runProcessorTest { invocation ->
+            runProcessorTest(sources = listOf(TEST_DATA)) {
+                    invocation ->
                 PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(it),
@@ -1703,11 +1704,11 @@ class PojoProcessorTest {
 
     @Test
     fun dataClass_withJvmOverloads_primaryConstructor() {
-        runProcessorTest { invocation ->
+        runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
             PojoProcessor.createFor(
                 context = invocation.context,
                 element = invocation.processingEnv.requireTypeElement(
-                    TestData.WithJvmOverloads::class
+                    "foo.bar.TestData.WithJvmOverloads"
                 ),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
@@ -2097,15 +2098,18 @@ class PojoProcessorTest {
                 fields["isbn"]?.getter
             ).isEqualTo(
                 FieldGetter(
+                    fieldName = "isbn",
                     jvmName = "getIsbn",
                     type = stringType,
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD,
+                    isMutableField = true
                 )
             )
             Truth.assertThat(
                 fields["isbn"]?.setter
             ).isEqualTo(
                 FieldSetter(
+                    fieldName = "isbn",
                     jvmName = "isbn",
                     type = stringType,
                     callType = CallType.CONSTRUCTOR
@@ -2116,18 +2120,21 @@ class PojoProcessorTest {
                 fields["isbn2"]?.getter
             ).isEqualTo(
                 FieldGetter(
+                    fieldName = "isbn2",
                     jvmName = "getIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD,
+                    isMutableField = true
                 )
             )
             Truth.assertThat(
                 fields["isbn2"]?.setter
             ).isEqualTo(
                 FieldSetter(
+                    fieldName = "isbn2",
                     jvmName = "setIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD
                 )
             )
         }
@@ -2136,9 +2143,9 @@ class PojoProcessorTest {
     @Test
     fun embedded_nullability() {
         listOf(
-            TestData.SomeEmbeddedVals::class.java.canonicalName!!
+            "foo.bar.TestData.SomeEmbeddedVals"
         ).forEach {
-            runProcessorTest { invocation ->
+            runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
                 val result = PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(it),
@@ -2200,48 +2207,47 @@ class PojoProcessorTest {
     }
 
     // Kotlin data classes to verify the PojoProcessor.
-    private class TestData {
-        data class AllDefaultVals(
-            val name: String = "",
-            val number: Int = 0,
-            val bit: Boolean = false
-        )
-
-        data class AllDefaultVars(
-            var name: String = "",
-            var number: Int = 0,
-            var bit: Boolean = false
-        )
-
-        data class SomeDefaultVals(
-            val name: String,
-            val number: Int = 0,
-            val bit: Boolean
-        )
-
-        data class SomeDefaultVars(
-            var name: String,
-            var number: Int = 0,
-            var bit: Boolean
-        )
-
-        data class WithJvmOverloads @JvmOverloads constructor(
-            val name: String,
-            val lastName: String = "",
-            var number: Int = 0,
-            var bit: Boolean
-        )
-
-        data class AllNullableVals(
-            val name: String?,
-            val number: Int?,
-            val bit: Boolean?
-        )
-
-        data class SomeEmbeddedVals(
-            val id: String,
-            @Embedded(prefix = "non_nullable_") val nonNullableVal: AllNullableVals,
-            @Embedded(prefix = "nullable_") val nullableVal: AllNullableVals?
-        )
-    }
+    private val TEST_DATA = Source.kotlin("TestData.kt", """
+        package foo.bar
+        import ${Embedded::class.java.canonicalName}
+        private class TestData {
+            data class AllDefaultVals(
+                val name: String = "",
+                val number: Int = 0,
+                val bit: Boolean = false
+            )
+            data class AllDefaultVars(
+                var name: String = "",
+                var number: Int = 0,
+                var bit: Boolean = false
+            )
+            data class SomeDefaultVals(
+                val name: String,
+                val number: Int = 0,
+                val bit: Boolean
+            )
+            data class SomeDefaultVars(
+                var name: String,
+                var number: Int = 0,
+                var bit: Boolean
+            )
+            data class WithJvmOverloads @JvmOverloads constructor(
+                val name: String,
+                val lastName: String = "",
+                var number: Int = 0,
+                var bit: Boolean
+            )
+            data class AllNullableVals(
+                val name: String?,
+                val number: Int?,
+                val bit: Boolean?
+            )
+            data class SomeEmbeddedVals(
+                val id: String,
+                @Embedded(prefix = "non_nullable_") val nonNullableVal: AllNullableVals,
+                @Embedded(prefix = "nullable_") val nullableVal: AllNullableVals?
+            )
+        }
+        """
+    )
 }

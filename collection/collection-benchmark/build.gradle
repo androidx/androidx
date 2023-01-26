@@ -14,29 +14,110 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+
+import androidx.build.KmpPlatformsKt
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.benchmark")
-    id("org.jetbrains.kotlin.android")
+    id("androidx.benchmark.darwin")
 }
 
-dependencies {
-    androidTestImplementation(project(":collection:collection"))
-    androidTestImplementation(project(":collection:collection-ktx"))
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
+def macEnabled = KmpPlatformsKt.enableMac(project)
+
+androidXMultiplatform {
+    android()
+
+    // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
+    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
+    ios {
+        binaries.framework {
+            // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
+            baseName = "AndroidXDarwinBenchmarks"
+            // https://youtrack.jetbrains.com/issue/KT-48552
+            embedBitcode = BitcodeEmbeddingMode.DISABLE
+            export(project(":benchmark:benchmark-darwin"))
+            xcf.add(it)
+        }
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(project(":collection:collection"))
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(project(":collection:collection"))
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        androidTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+                implementation(libs.junit)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+            }
+        }
+
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(commonMain)
+                dependencies {
+                    api(project(":benchmark:benchmark-darwin"))
+                }
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+            }
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
+        }
+    }
 }
 
 androidx {
-    publish = Publish.NONE
+    name = "AndroidX Collections Benchmarks (Android / iOS)"
+    inceptionYear = "2022"
+    description = "AndroidX Collections Benchmarks (Android / iOS)"
+}
+
+darwinBenchmark {
+    xcodeGenConfigFile = project.rootProject.file(
+            "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml"
+    )
+    xcodeProjectName = "collection-benchmark-ios"
+    scheme = "testapp-ios"
+    // ios 13, 15.2
+    destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
 }
 
 android {

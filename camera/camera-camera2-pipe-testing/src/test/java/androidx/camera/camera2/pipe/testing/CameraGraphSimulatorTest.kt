@@ -21,24 +21,30 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -317,5 +323,59 @@ public class CameraGraphSimulatorTest {
             .isEqualTo(CaptureResult.LENS_STATE_STATIONARY)
 
         simulateCallbacks.join()
+    }
+
+    @Test
+    fun simulatorCanSimulateGraphState() = runTest {
+        val simulator = CameraGraphSimulator.create(
+            this,
+            context,
+            metadata,
+            graphConfig
+        )
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStopped)
+
+        simulator.cameraGraph.start()
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStarting)
+
+        simulator.simulateCameraStarted()
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStarted)
+
+        simulator.cameraGraph.stop()
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStopping)
+
+        simulator.simulateCameraStopped()
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStopped)
+    }
+
+    @Test
+    fun simulatorCanSimulateGraphError() = runTest {
+        val simulator = CameraGraphSimulator.create(
+            this,
+            context,
+            metadata,
+            graphConfig
+        )
+        val error = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+
+        simulator.simulateCameraError(error)
+        // The CameraGraph is stopped at this point, so the errors should be ignored.
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStopped)
+
+        simulator.cameraGraph.start()
+        simulator.simulateCameraError(error)
+        val graphState = simulator.cameraGraph.graphState.value
+        assertThat(graphState).isInstanceOf(GraphStateError::class.java)
+        val graphStateError = graphState as GraphStateError
+        assertThat(graphStateError.cameraError).isEqualTo(error.cameraError)
+        assertThat(graphStateError.willAttemptRetry).isEqualTo(error.willAttemptRetry)
+
+        simulator.simulateCameraStarted()
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStarted)
+
+        simulator.cameraGraph.stop()
+        simulator.simulateCameraStopped()
+        simulator.simulateCameraError(error)
+        assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStopped)
     }
 }

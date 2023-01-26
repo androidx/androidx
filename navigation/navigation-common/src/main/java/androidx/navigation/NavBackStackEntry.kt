@@ -221,22 +221,21 @@ public class NavBackStackEntry private constructor(
         return viewModelStoreProvider.getViewModelStore(id)
     }
 
-    public override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-        return defaultFactory
-    }
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory
 
-    override fun getDefaultViewModelCreationExtras(): CreationExtras {
-        val extras = MutableCreationExtras()
-        (context?.applicationContext as? Application)?.let { application ->
-            extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
+    override val defaultViewModelCreationExtras: CreationExtras
+        get() {
+            val extras = MutableCreationExtras()
+            (context?.applicationContext as? Application)?.let { application ->
+                extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
+            }
+            extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+            extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+            arguments?.let { args ->
+                extras[DEFAULT_ARGS_KEY] = args
+            }
+            return extras
         }
-        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
-        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-        arguments?.let { args ->
-            extras[DEFAULT_ARGS_KEY] = args
-        }
-        return extras
-    }
 
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry

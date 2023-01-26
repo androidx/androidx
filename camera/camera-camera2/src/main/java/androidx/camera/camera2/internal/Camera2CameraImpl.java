@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
@@ -78,6 +77,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -692,7 +692,7 @@ final class Camera2CameraImpl implements CameraInternal {
          * use count to recover the additional increment here.
          */
         mCameraControlInternal.incrementUseCount();
-        notifyStateAttachedToUseCases(new ArrayList<>(useCases));
+        notifyStateAttachedAndCameraControlReady(new ArrayList<>(useCases));
         List<UseCaseInfo> useCaseInfos = new ArrayList<>(toUseCaseInfos(useCases));
         try {
             mExecutor.execute(() -> {
@@ -798,7 +798,7 @@ final class Camera2CameraImpl implements CameraInternal {
         return mCameraConfig;
     }
 
-    private void notifyStateAttachedToUseCases(List<UseCase> useCases) {
+    private void notifyStateAttachedAndCameraControlReady(List<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             String useCaseId = getUseCaseId(useCase);
             if (mNotifyStateAttachedSet.contains(useCaseId)) {
@@ -807,6 +807,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             mNotifyStateAttachedSet.add(useCaseId);
             useCase.onStateAttached();
+            useCase.onCameraControlReady();
         }
     }
 
@@ -1127,13 +1128,12 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        if (!validatingBuilder.build().getImplementationOptions().containsOption(
-                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
-            validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION,
-                    StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(
-                            mUseCaseAttachState.getAttachedUseCaseConfigs(),
-                            mUseCaseAttachState.getAttachedSessionConfigs()));
-        }
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                mUseCaseAttachState.getAttachedSessionConfigs(),
+                streamUseCaseMap);
+
+        mCaptureSession.setStreamUseCaseMap(streamUseCaseMap);
 
         CaptureSessionInterface captureSession = mCaptureSession;
         ListenableFuture<Void> openCaptureSession = captureSession.open(validatingBuilder.build(),

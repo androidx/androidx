@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core.stresstest
 
+import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_ANALYSIS
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
@@ -33,8 +34,11 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class VideoCaptureSwitchCameraStressTest constructor(cameraId: String) :
-    SwitchCameraStressTestBase(cameraId) {
+class VideoCaptureSwitchCameraStressTest constructor(
+    implName: String,
+    cameraConfig: CameraXConfig,
+    cameraId: String
+) : SwitchCameraStressTestBase(implName, cameraConfig, cameraId) {
 
     @LabTestRule.LabTestOnly
     @Test

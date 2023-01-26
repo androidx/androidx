@@ -17,7 +17,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,7 +25,10 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.test:core:1.4.0")
+    implementation(libs.testCore)
+    // force runner 1.5.1 so implementation stays consistent with androidTestImplementation
+
+    implementation(libs.testRunner)
     implementation(libs.testRules)
     implementation(libs.testUiautomator)
     api("androidx.annotation:annotation:1.2.0")
@@ -35,9 +37,10 @@ dependencies {
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.test.espresso:espresso-core:3.3.0")
-    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
+    implementation("androidx.test.espresso:espresso-core:3.5.0")
+    implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
     implementation(libs.junit)
+    implementation(libs.truth)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
 
@@ -47,11 +50,23 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
+
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {
     defaultConfig {
         externalNativeBuild {
+            multiDexEnabled = true
             cmake {
                 cppFlags "-std=c++17"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -79,7 +94,6 @@ androidx {
     name = "Jetpack Camera Testing Library"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Testing components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +"" +

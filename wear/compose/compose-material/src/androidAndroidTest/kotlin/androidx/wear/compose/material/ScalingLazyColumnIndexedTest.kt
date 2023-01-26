@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 
+@Suppress("DEPRECATION")
 class ScalingLazyColumnIndexedTest {
 
     @get:Rule

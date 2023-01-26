@@ -18,6 +18,7 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -29,6 +30,20 @@ class EmittableRow : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
     var horizontalAlignment: Alignment.Horizontal = Alignment.Start
     var verticalAlignment: Alignment.Vertical = Alignment.Top
+
+    override fun copy(): Emittable = EmittableRow().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.verticalAlignment = verticalAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String = "EmittableRow(" +
+        "modifier=$modifier, " +
+        "horizontalAlignment=$horizontalAlignment, " +
+        "verticalAlignment=$verticalAlignment, " +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }
 
 /** Scope defining modifiers only available on rows. */

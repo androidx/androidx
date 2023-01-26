@@ -18,7 +18,7 @@ package androidx.room.solver.binderprovider
 
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -33,7 +33,7 @@ fun CoroutineFlowResultBinderProvider(context: Context): QueryResultBinderProvid
         context
     ).requireArtifact(
         context = context,
-        requiredType = RoomCoroutinesTypeNames.COROUTINES_ROOM,
+        requiredType = COROUTINES_ROOM,
         missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT
     )
 
@@ -69,9 +69,13 @@ private class CoroutineFlowResultBinderProviderImpl(
         if (declared.typeArguments.size != 1) {
             return false
         }
-        val typeName = declared.rawType.typeName
+        val typeName = declared.rawType.asTypeName()
         if (typeName in CHANNEL_TYPE_NAMES) {
-            context.logger.e(ProcessorErrors.invalidChannelType(typeName.toString()))
+            context.logger.e(
+                ProcessorErrors.invalidChannelType(
+                    typeName.toString(context.codeLanguage)
+                )
+            )
             return false
         }
         return typeName == KotlinTypeNames.FLOW

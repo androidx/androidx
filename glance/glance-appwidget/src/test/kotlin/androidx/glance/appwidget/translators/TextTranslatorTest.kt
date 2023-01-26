@@ -42,9 +42,11 @@ import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.runAndTranslateInRtl
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.toPixels
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -369,6 +371,23 @@ class TextTranslatorTest {
 
         assertIs<TextView>(view)
         assertThat(view.maxLines).isEqualTo(5)
+    }
+
+    @Test
+    fun canTranslateTextWithSemanticsModifier_contentDescription() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Text(
+                text = "Max line is set",
+                maxLines = 5,
+                modifier = GlanceModifier.semantics {
+                    contentDescription = "Custom text description"
+                },
+            )
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<TextView>(view)
+        assertThat(view.contentDescription).isEqualTo("Custom text description")
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].

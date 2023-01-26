@@ -1,6 +1,36 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBuffer implements java.lang.AutoCloseable {
+    ctor public FrameBuffer(androidx.graphics.opengl.egl.EGLSpec egl, android.hardware.HardwareBuffer hardwareBuffer);
+    method public void close();
+    method public android.hardware.HardwareBuffer getHardwareBuffer();
+    method public boolean isClosed();
+    method public void makeCurrent();
+    property public final android.hardware.HardwareBuffer hardwareBuffer;
+    property public final boolean isClosed;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBufferRenderer implements androidx.graphics.opengl.GLRenderer.RenderCallback {
+    ctor public FrameBufferRenderer(androidx.graphics.lowlatency.FrameBufferRenderer.RenderCallback frameBufferRendererCallbacks, optional androidx.graphics.lowlatency.SyncStrategy syncStrategy);
+    method public void clear();
+    method public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager);
+  }
+
+  public static interface FrameBufferRenderer.RenderCallback {
+    method public androidx.graphics.lowlatency.FrameBuffer obtainFrameBuffer(androidx.graphics.opengl.egl.EGLSpec egl);
+    method public void onDraw(androidx.graphics.opengl.egl.EGLManager eglManager);
+    method public void onDrawComplete(androidx.graphics.lowlatency.FrameBuffer frameBuffer, androidx.graphics.lowlatency.SyncFenceCompat? syncFenceCompat);
+  }
+
+  public final class FrontBufferSyncStrategy implements androidx.graphics.lowlatency.SyncStrategy {
+    ctor public FrontBufferSyncStrategy(long usageFlags);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.graphics.lowlatency.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    method public boolean isVisible();
+    method public void setVisible(boolean);
+    property public final boolean isVisible;
+  }
+
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
@@ -13,10 +43,10 @@ package androidx.graphics.lowlatency {
     field public static final androidx.graphics.lowlatency.GLFrontBufferedRenderer.Companion Companion;
   }
 
-  public static interface GLFrontBufferedRenderer.Callback<T> {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, java.util.Collection<? extends T> params);
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, T? param);
+    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, T? param);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 
@@ -28,7 +58,7 @@ package androidx.graphics.lowlatency {
     method public boolean awaitForever();
     method public void close();
     method public static androidx.graphics.lowlatency.SyncFenceCompat createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec egl);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public long getSignalTime();
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public long getSignalTimeNanos();
     method public boolean isValid();
     field public static final androidx.graphics.lowlatency.SyncFenceCompat.Companion Companion;
     field public static final long SIGNAL_TIME_INVALID = -1L; // 0xffffffffffffffffL
@@ -40,7 +70,16 @@ package androidx.graphics.lowlatency {
   }
 
   public final class SyncFenceCompatKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @kotlin.jvm.JvmSynthetic public static androidx.graphics.lowlatency.SyncFenceCompat! createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @kotlin.jvm.JvmSynthetic public static androidx.graphics.lowlatency.SyncFenceCompat createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec);
+  }
+
+  public interface SyncStrategy {
+    method public androidx.graphics.lowlatency.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    field public static final androidx.graphics.lowlatency.SyncStrategy ALWAYS;
+    field public static final androidx.graphics.lowlatency.SyncStrategy.Companion Companion;
+  }
+
+  public static final class SyncStrategy.Companion {
   }
 
 }
@@ -77,7 +116,7 @@ package androidx.graphics.opengl {
     method @WorkerThread public void onEGLContextDestroyed(androidx.graphics.opengl.egl.EGLManager eglManager);
   }
 
-  public static interface GLRenderer.RenderCallback {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLRenderer.RenderCallback {
     method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager);
     method @WorkerThread public default android.opengl.EGLSurface? onSurfaceCreated(androidx.graphics.opengl.egl.EGLSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
   }
@@ -119,7 +158,7 @@ package androidx.graphics.opengl.egl {
   }
 
   public final class EGLConfigAttributesKt {
-    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes! EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,? extends kotlin.Unit> block);
+    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,? extends kotlin.Unit> block);
   }
 
   public final class EGLException extends java.lang.RuntimeException {
@@ -161,7 +200,7 @@ package androidx.graphics.opengl.egl {
   public static final class EGLManager.Companion {
   }
 
-  public interface EGLSpec {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface EGLSpec {
     method public int eglClientWaitSyncKHR(androidx.opengl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method public android.opengl.EGLContext eglCreateContext(android.opengl.EGLConfig config);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.opengl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.hardware.HardwareBuffer hardwareBuffer);
@@ -239,7 +278,7 @@ package androidx.graphics.surface {
 
   public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
     ctor public SurfaceControlCompat.Transaction();
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
     method public void close();
     method public void commit();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);
@@ -298,6 +337,7 @@ package androidx.opengl {
     method public static void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
     method public static java.util.Set<java.lang.String> parseExtensions(String queryString);
     field public static final androidx.opengl.EGLExt.Companion Companion;
+    field public static final String EGL_ANDROID_CLIENT_BUFFER = "EGL_ANDROID_get_native_client_buffer";
     field public static final String EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer";
     field public static final String EGL_ANDROID_NATIVE_FENCE_SYNC = "EGL_ANDROID_native_fence_sync";
     field public static final int EGL_CONDITION_SATISFIED_KHR = 12534; // 0x30f6

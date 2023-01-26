@@ -35,7 +35,6 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 
 internal class ArraySetTest {
-
     private val set = ArraySet<String>()
 
     /**

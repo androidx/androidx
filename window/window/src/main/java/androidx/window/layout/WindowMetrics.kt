@@ -33,15 +33,17 @@ import androidx.window.core.ExperimentalWindowApi
  *
  * @see WindowMetricsCalculator
  */
-public class WindowMetrics internal constructor
-    (private val _bounds: Bounds, private val _windowInsetsCompat: WindowInsetsCompat) {
+class WindowMetrics internal constructor(
+    private val _bounds: Bounds,
+    private val _windowInsetsCompat: WindowInsetsCompat
+) {
 
     /**
      * An internal constructor for [WindowMetrics]
      * @suppress
      */
     @RestrictTo(TESTS)
-    public constructor(
+    constructor(
         bounds: Rect,
         insets: WindowInsetsCompat = WindowInsetsCompat.Builder().build()
         ) : this(Bounds(bounds), insets)
@@ -56,7 +58,7 @@ public class WindowMetrics internal constructor
      *
      * @return window bounds in pixels.
      */
-    public val bounds: Rect
+    val bounds: Rect
         get() = _bounds.toRect()
 
     override fun toString(): String {

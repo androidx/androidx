@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -128,6 +129,15 @@ class CameraControllerSimulator(
             if (captureSequenceProcessor != null && graphRequestProcessor != null) {
                 graphListener.onGraphStopped(graphRequestProcessor)
             }
+        }
+    }
+
+    fun simulateCameraError(graphStateError: GraphStateError) {
+        synchronized(lock) {
+            check(!closed) {
+                "Attempted to invoke simulateCameraError after the CameraController was closed."
+            }
+            graphListener.onGraphError(graphStateError)
         }
     }
 

@@ -45,6 +45,7 @@ import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
@@ -137,9 +138,14 @@ class VideoEncoderTest(
             Build.MODEL.contains("Cuttlefish") &&
                 (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
+        // Skip for b/241876294
+        assumeFalse(
+            "Skip test for devices with ExtraSupportedResolutionQuirk, since the extra" +
+                " resolutions cannot be used when the provided surface is an encoder surface.",
+            DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null
+        )
 
-        val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()
-        CameraXUtil.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraConfig).get()
 
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 

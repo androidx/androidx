@@ -58,7 +58,7 @@ import kotlinx.coroutines.MainScope
 @VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WatchFaceControlService : Service() {
-    private val watchFaceInstanceServiceStub by lazy { createServiceStub() }
+    private var watchFaceInstanceServiceStub: IWatchFaceInstanceServiceStub? = null
 
     /** @hide */
     public companion object {
@@ -69,11 +69,26 @@ public open class WatchFaceControlService : Service() {
     override fun onBind(intent: Intent?): IBinder? =
         TraceEvent("WatchFaceControlService.onBind").use {
             if (ACTION_WATCHFACE_CONTROL_SERVICE == intent?.action) {
+                if (watchFaceInstanceServiceStub == null) {
+                    watchFaceInstanceServiceStub = createServiceStub()
+                }
                 watchFaceInstanceServiceStub
             } else {
                 null
             }
         }
+
+    open fun createWatchFaceService(watchFaceName: ComponentName): WatchFaceService? {
+        return try {
+            val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
+            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+                return null
+            }
+            watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+        } catch (e: ClassNotFoundException) {
+            null
+        }
+    }
 
     @VisibleForTesting
     public open fun createServiceStub(): IWatchFaceInstanceServiceStub =
@@ -94,13 +109,19 @@ public open class WatchFaceControlService : Service() {
         HeadlessWatchFaceImpl.dump(indentingPrintWriter)
         indentingPrintWriter.flush()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        watchFaceInstanceServiceStub?.onDestroy()
+    }
 }
 
 /** @hide */
 @RequiresApi(27)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class IWatchFaceInstanceServiceStub(
-    private val service: Service,
+    // We need to explicitly null this object in onDestroy to avoid a memory leak.
+    private var service: WatchFaceControlService?,
     private val uiThreadCoroutineScope: CoroutineScope
 ) : IWatchFaceControlService.Stub() {
     override fun getApiVersion(): Int = IWatchFaceControlService.API_VERSION
@@ -155,42 +176,36 @@ public open class IWatchFaceInstanceServiceStub(
     ) = TraceEvent("IWatchFaceInstanceServiceStub.createEngine").use {
         // Attempt to construct the class for the specified watchFaceName, failing if it either
         // doesn't exist or isn't a [WatchFaceService].
-        try {
-            val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
-            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
-                null
-            } else {
-                val watchFaceService =
-                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+        val watchFaceService = service?.createWatchFaceService(watchFaceName)
 
-                // Set the context and if possible the application for watchFaceService.
-                try {
-                    val method = Service::class.java.declaredMethods.find { it.name == "attach" }
-                    method!!.isAccessible = true
-                    method.invoke(
-                        watchFaceService,
-                        service as Context,
-                        null,
-                        watchFaceService::class.qualifiedName,
-                        null,
-                        service.application,
-                        null
-                    )
-                } catch (e: Exception) {
-                    Log.w(
-                        TAG,
-                        "createServiceAndHeadlessEngine can't call attach by reflection, " +
-                            "falling back to setContext",
-                        e
-                    )
-                    watchFaceService.setContext(watchFaceService)
-                }
-                watchFaceService.onCreate()
-                val engine =
-                    watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
-                ServiceAndEngine(watchFaceService, engine)
+        if (watchFaceService != null) {
+            // Set the context and if possible the application for watchFaceService.
+            try {
+                val method = Service::class.java.declaredMethods.find { it.name == "attach" }
+                method!!.isAccessible = true
+                method.invoke(
+                    watchFaceService,
+                    service as Context,
+                    null,
+                    watchFaceService::class.qualifiedName,
+                    null,
+                    service!!.application,
+                    null
+                )
+            } catch (e: Exception) {
+                Log.w(
+                    TAG,
+                    "createServiceAndHeadlessEngine can't call attach by reflection, " +
+                        "falling back to setContext",
+                    e
+                )
+                watchFaceService.setContext(watchFaceService)
             }
-        } catch (e: ClassNotFoundException) {
+            watchFaceService.onCreate()
+            val engine =
+                watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            ServiceAndEngine(watchFaceService, engine)
+        } else {
             null
         }
     }
@@ -279,5 +294,9 @@ public open class IWatchFaceInstanceServiceStub(
             Log.e(TAG, "$functionName failed due to exception", e)
             throw e
         }
+    }
+
+    fun onDestroy() {
+        service = null
     }
 }

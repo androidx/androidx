@@ -19,6 +19,7 @@ package androidx.window.extensions.embedding;
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.window.extensions.WindowExtensions;
 
 import java.util.List;
 import java.util.Set;
@@ -45,8 +46,16 @@ public interface ActivityEmbeddingComponent {
      * re-posted to the executors provided by developers.
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
-    // TODO (b/241973352): Change setSplitInfoCallback to setSplitInfoListener
     void setSplitInfoCallback(@NonNull Consumer<List<SplitInfo>> consumer);
+
+    /**
+     * Clears the callback that was set in
+     * {@link ActivityEmbeddingComponent#setSplitInfoCallback(Consumer)}.
+     * Added in {@link WindowExtensions#getVendorApiLevel()} 2, calling an earlier version will
+     * throw {@link java.lang.NoSuchMethodError}.
+     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    void clearSplitInfoCallback();
 
     /**
      * Checks if an activity's' presentation is customized by its or any other process and only

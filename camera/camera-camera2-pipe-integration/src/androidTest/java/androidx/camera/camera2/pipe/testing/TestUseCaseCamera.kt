@@ -21,13 +21,12 @@ package androidx.camera.camera2.pipe.testing
 import android.content.Context
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -44,7 +43,10 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * Open a [CameraGraph] for the desired [cameraId] and [useCases]
@@ -62,13 +64,14 @@ class TestUseCaseCamera(
         cameraPipe,
     ),
 ) : UseCaseCamera {
-    val useCaseCameraGraphConfig = UseCaseCameraConfig(useCases).provideUseCaseGraphConfig(
-        callbackMap = callbackMap,
-        cameraConfig = cameraConfig,
-        cameraPipe = cameraPipe,
-        requestListener = ComboRequestListener(),
-        useCaseSurfaceManager = useCaseSurfaceManager,
-    )
+    val useCaseCameraGraphConfig =
+        UseCaseCameraConfig(useCases, CameraStateAdapter()).provideUseCaseGraphConfig(
+            callbackMap = callbackMap,
+            cameraConfig = cameraConfig,
+            cameraPipe = cameraPipe,
+            requestListener = ComboRequestListener(),
+            useCaseSurfaceManager = useCaseSurfaceManager,
+        )
 
     override val requestControl: UseCaseCameraRequestControl = UseCaseCameraRequestControlImpl(
         configAdapter = CaptureConfigAdapter(
@@ -97,7 +100,7 @@ class TestUseCaseCamera(
         }
     }
 
-    override var runningUseCases = useCases.toSet()
+    override val runningUseCasesLiveData = MutableLiveData(useCases.toSet())
 
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
@@ -114,16 +117,10 @@ class TestUseCaseCamera(
         throw NotImplementedError("Not implemented")
     }
 
-    override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
-    ): Deferred<Result3A> {
-        throw NotImplementedError("Not implemented")
-    }
-
-    override fun close() {
-        useCaseSurfaceManager.stopAsync()
-        useCaseCameraGraphConfig.graph.close()
+    override fun close(): Job {
+        return threads.scope.launch {
+            useCaseCameraGraphConfig.graph.close()
+            useCaseSurfaceManager.stopAsync().await()
+        }
     }
 }

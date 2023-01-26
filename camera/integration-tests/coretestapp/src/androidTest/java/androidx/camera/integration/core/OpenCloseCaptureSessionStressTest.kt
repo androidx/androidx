@@ -17,20 +17,23 @@
 package androidx.camera.integration.core
 
 import android.content.Context
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.impl.Camera2ImplConfig
-import androidx.camera.camera2.impl.CameraEventCallback
-import androidx.camera.camera2.impl.CameraEventCallbacks
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCaptureSession.StateCallback
+import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.integration.core.util.StressTestUtil
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
@@ -61,11 +64,18 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class OpenCloseCaptureSessionStressTest(
-    private val cameraId: String
+    val implName: String,
+    val cameraConfig: CameraXConfig,
+    val cameraId: String
 ) {
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -82,10 +92,14 @@ class OpenCloseCaptureSessionStressTest(
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
     private lateinit var lifecycleOwner: FakeLifecycleOwner
-    private val cameraEventMonitor = CameraEventMonitor()
+    private val sessionStateMonitor = CameraCaptureSessionStateMonitor()
 
     @Before
     fun setUp(): Unit = runBlocking {
+        // Skips CameraPipe part now and will open this when camera-pipe-integration can support
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+        // Configures the test target config
+        ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         cameraIdCameraSelector = createCameraSelectorById(cameraId)
@@ -96,9 +110,10 @@ class OpenCloseCaptureSessionStressTest(
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraIdCameraSelector)
         }
 
-        // Creates the Preview with the CameraEventMonitor to monitor whether the event callbacks
-        // are called.
-        preview = createPreviewWithCameraEventMonitor(cameraEventMonitor)
+        // Creates the Preview with the CameraCaptureSessionStateMonitor to monitor whether the
+        // event callbacks are called.
+        preview = createPreviewWithSessionStateMonitor(implName, sessionStateMonitor)
+
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
         }
@@ -109,7 +124,6 @@ class OpenCloseCaptureSessionStressTest(
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }
@@ -193,7 +207,7 @@ class OpenCloseCaptureSessionStressTest(
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
             // Arrange: resets the camera event monitor
-            cameraEventMonitor.reset()
+            sessionStateMonitor.reset()
 
             withContext(Dispatchers.Main) {
                 // VideoCapture needs to be recreated everytime until b/212654991 is fixed
@@ -215,16 +229,13 @@ class OpenCloseCaptureSessionStressTest(
                 )
             }
 
-            // Assert: checks the CameraEvent#onEnableSession callback function is called
-            cameraEventMonitor.awaitSessionEnabledAndAssert()
+            // Assert: checks the capture session opened callback function is called
+            sessionStateMonitor.awaitSessionConfiguredAndAssert()
 
             // Act: unbinds all use cases
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
             }
-
-            // Assert: checks the CameraEvent#onSessionDisabled callback function is called
-            cameraEventMonitor.awaitSessionDisabledAndAssert()
         }
     }
 
@@ -233,51 +244,49 @@ class OpenCloseCaptureSessionStressTest(
         @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}")
-        val parameters: Collection<String>
-            get() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+        @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
+        fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
     }
 
-    private fun createPreviewWithCameraEventMonitor(
-        cameraEventMonitor: CameraEventMonitor
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun createPreviewWithSessionStateMonitor(
+        implementationName: String,
+        sessionStateMonitor: CameraCaptureSessionStateMonitor
     ): Preview {
         val builder = Preview.Builder()
 
-        Camera2ImplConfig.Extender(builder)
-            .setCameraEventCallback(CameraEventCallbacks(cameraEventMonitor))
+        when (implementationName) {
+            CameraPipeConfig::class.simpleName -> {
+                androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(
+                    builder
+                ).setSessionStateCallback(sessionStateMonitor)
+            }
+            else -> Camera2Interop.Extender(builder).setSessionStateCallback(sessionStateMonitor)
+        }
 
         return builder.build()
     }
 
     /**
-     * An implementation of CameraEventCallback to monitor whether the camera event callbacks are
-     * called properly or not.
+     * An implementation of CameraCaptureSession.StateCallback to monitor whether the event
+     * callbacks are called properly or not.
      */
-    private class CameraEventMonitor : CameraEventCallback() {
-        private var sessionEnabledLatch = CountDownLatch(1)
-        private var sessionDisabledLatch = CountDownLatch(1)
-
-        override fun onEnableSession(): CaptureConfig? {
-            sessionEnabledLatch.countDown()
-            return null
+    private class CameraCaptureSessionStateMonitor : StateCallback() {
+        private var sessionConfiguredLatch = CountDownLatch(1)
+        override fun onConfigured(session: CameraCaptureSession) {
+            sessionConfiguredLatch.countDown()
         }
 
-        override fun onDisableSession(): CaptureConfig? {
-            sessionDisabledLatch.countDown()
-            return null
+        override fun onConfigureFailed(session: CameraCaptureSession) {
+            throw RuntimeException("Capture session configures failed!")
         }
 
         fun reset() {
-            sessionEnabledLatch = CountDownLatch(1)
-            sessionDisabledLatch = CountDownLatch(1)
+            sessionConfiguredLatch = CountDownLatch(1)
         }
 
-        fun awaitSessionEnabledAndAssert() {
-            assertThat(sessionEnabledLatch.await(15000, TimeUnit.MILLISECONDS)).isTrue()
-        }
-
-        fun awaitSessionDisabledAndAssert() {
-            assertThat(sessionDisabledLatch.await(15000, TimeUnit.MILLISECONDS)).isTrue()
+        fun awaitSessionConfiguredAndAssert() {
+            assertThat(sessionConfiguredLatch.await(15000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 }

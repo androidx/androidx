@@ -37,9 +37,9 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
 
 - Click on the `Actions` tab in the forked `androidx` repository, and enable the use of `Workflows`.
 
-- Download and install JDK 11, if you don’t have it already.
+- Download and install JDK 17, if you don’t have it already.
 
-  Note the installation directory. If you already have JDK 11 installed and set as default, you can 
+  Note the installation directory. If you already have JDK 17 installed and set as default, you can 
   find this with `which javac`.
 
 - Download and install [Android Studio](https://developer.android.com/studio) if you don't have it
@@ -60,7 +60,7 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
 
   ```bash
   # You could also add this to your .{bash|zsh}rc file.
-  export JAVA_HOME="location of JDK 11 directory"
+  export JAVA_HOME="location of JDK 17 directory"
   export ANDROID_SDK_ROOT="location of the Android SDK directory"
   ```
 

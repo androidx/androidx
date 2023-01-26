@@ -22,7 +22,6 @@ import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.processing.KnownTypeNames.KOTLIN_UNIT
 import androidx.room.compiler.processing.XNullability
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -31,12 +30,19 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import javax.lang.model.element.Modifier
 
 internal class JavaFunSpec(
+    override val name: String,
     internal val actual: MethodSpec
 ) : JavaLang(), XFunSpec {
 
     internal class Builder(
+        override val name: String,
         internal val actual: MethodSpec.Builder
     ) : JavaLang(), XFunSpec.Builder {
+
+        override fun addAnnotation(annotation: XAnnotationSpec) {
+            require(annotation is JavaAnnotationSpec)
+            actual.addAnnotation(annotation.actual)
+        }
 
         override fun addCode(code: XCodeBlock) = apply {
             require(code is JavaCodeBlock)
@@ -75,7 +81,7 @@ internal class JavaFunSpec(
         }
 
         override fun returns(typeName: XTypeName) = apply {
-            if (typeName.java == JTypeName.VOID || typeName.java == KOTLIN_UNIT) {
+            if (typeName.java == JTypeName.VOID) {
                 return@apply
             }
             // TODO(b/247242374) Add nullability annotations for non-private methods
@@ -89,12 +95,13 @@ internal class JavaFunSpec(
             actual.returns(typeName.java)
         }
 
-        override fun build() = JavaFunSpec(actual.build())
+        override fun build() = JavaFunSpec(name, actual.build())
     }
 }
 
 internal fun VisibilityModifier.toJavaVisibilityModifier() = when (this) {
     VisibilityModifier.PUBLIC -> Modifier.PUBLIC
     VisibilityModifier.PROTECTED -> Modifier.PROTECTED
+    VisibilityModifier.INTERNAL -> Modifier.PUBLIC
     VisibilityModifier.PRIVATE -> Modifier.PRIVATE
 }

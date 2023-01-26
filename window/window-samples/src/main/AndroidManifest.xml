@@ -18,6 +18,18 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <service android:name="androidx.window.sample.TestIme"
+            android:label="@string/test_ime"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im"
+                android:resource="@xml/method"/>
+        </service>
+
         <activity android:name=".demos.WindowDemosActivity"
             android:exported="true"
             android:label="@string/windowManagerDemos">
@@ -172,7 +184,14 @@
             android:taskAffinity="androidx.window.sample.split_pip">
         </activity>
 
-        <!-- ActivityEmbedding Initializer -->
+        <!-- The demo app that shows various IME-related use cases -->
+
+        <activity android:name=".ImeActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|screenSize"
+            android:label="@string/ime"/>
+
+        <!-- Activity embedding initializer -->
 
         <provider android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -183,7 +202,7 @@
                 android:value="androidx.startup" />
         </provider>
 
-        <!-- The app supports ActivityEmbedding itself, so it doesn't need system override. -->
+        <!-- The app itself supports activity embedding, so a system override is not needed. -->
         <property
             android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
             android:value="false" />

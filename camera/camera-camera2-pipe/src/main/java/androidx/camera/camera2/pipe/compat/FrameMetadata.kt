@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
+import kotlin.reflect.KClass
 
 /**
  * An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object
@@ -54,7 +55,11 @@ internal class AndroidFrameMetadata constructor(
 
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
 
-    override fun unwrap(): CaptureResult? = null
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        CaptureResult::class -> captureResult as T
+        else -> null
+    }
 }
 
 /**
@@ -83,7 +88,8 @@ internal class CorrectedFrameMetadata(
     override val frameNumber: FrameNumber
         get() = frameMetadata.frameNumber
 
-    override fun unwrap(): CaptureResult? = frameMetadata.unwrap()
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = frameMetadata.unwrapAs(type)
 }
 
 /**
@@ -135,5 +141,6 @@ internal class AndroidFrameInfo(
     override val frameNumber: FrameNumber
         get() = result.frameNumber
 
-    override fun unwrap(): TotalCaptureResult? = totalCaptureResult
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = totalCaptureResult as? T?
 }

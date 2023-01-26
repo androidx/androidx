@@ -16,6 +16,7 @@
 package androidx.constraintlayout.core.parser;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class CLKey extends CLContainer {
 
@@ -103,5 +104,25 @@ public class CLKey extends CLContainer {
             return mElements.get(0);
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof CLKey) {
+            CLKey objKey = (CLKey) obj;
+            if (!Objects.equals(this.getName(), objKey.getName())) {
+                return false;
+            }
+        }
+        // Delegate the rest to parent
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

@@ -15,14 +15,18 @@
  */
 package androidx.wear.compose.material
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
@@ -39,7 +43,6 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
@@ -51,6 +54,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
+import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 
@@ -59,13 +63,51 @@ import kotlinx.coroutines.isActive
  * that needs to be displayed in a component is not yet available, e.g. it is loading
  * asynchronously.
  *
+ * A [PlaceholderState] should be created for each component that has placeholder data. The
+ * state is used to coordinate all of the different placeholder effects and animations.
+ *
+ * Placeholder has a number of different effects designed to work together.
+ * [Modifier.placeholder] draws a placeholder shape on top of content that is waiting to load. There
+ * can be multiple placeholders in a component.
+ * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
+ * placeholders. There should only be one placeholderShimmer for each component.
+ *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ * @sample androidx.wear.compose.material.samples.TextPlaceholder
+ *
+ * Background placeholder effects are used to mask the background of components like chips and cards
+ * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
+ * [PlaceholderDefaults.placeholderBackgroundBrush] and
+ * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
+ * background.
+ *
+ * Once all of the components content is loaded the shimmer will stop and a wipe off animation will
+ * remove the placeholders.
  */
 @ExperimentalWearMaterialApi
 @Stable
 public class PlaceholderState internal constructor(
-    private val isContentReady: () -> Boolean,
+    private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
 ) {
+
+    /**
+     * The offset to apply for any background placeholder animations. This is the global offset of
+     * the component which is having its background painted with
+     * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush],
+     * [PlaceholderDefaults.placeholderBackgroundBrush] or
+     * [PlaceholderDefaults.placeholderChipColors].
+     *
+     * The offset values should be retrieved with [OnGloballyPositionedModifier].
+     *
+     * The offset is used to coordinate placeholder effects such as wipe-off between the difference
+     * placeholder layers.
+     */
+    internal var backgroundOffset: Offset = Offset.Zero
+
     /**
      * Start the animation of the placeholder state.
      */
@@ -80,22 +122,86 @@ public class PlaceholderState internal constructor(
     }
 
     /**
-     * The current value of the placeholder visual effect gradient progression. The progression
-     * is a 45 degree angle sweep across the whole screen running from outside of the Top|Left of
-     * the screen to Bottom|Right used as the anchor for shimmer and wipe-off gradient effects.
+     * The current value of the placeholder wipe-off visual effect gradient progression. The
+     * progression is a 45 degree angle sweep across the whole screen running from outside of the
+     * Top|Left of the screen to Bottom|Right used as the anchor for wipe-off gradient effects.
      *
      * The progression represents the x and y coordinates in pixels of the Top|Left part of the
-     * gradient that flows across the screen. The progression will start at -gradientWidth and
-     * progress to the maximum screen dimension (max of height/width to create a 45 degree angle).
+     * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
+     * of height/width to create a 45 degree angle) * 1.75f and progress to the
+     * maximumScreenDimension * 0.75f.
+     *
+     * The time taken for this progression to reach the edge of visible screen is
+     * [PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS]
+     */
+    internal val placeholderWipeOffProgression: Float by derivedStateOf {
+        val absoluteProgression = ((frameMillis.value - startOfWipeOffAnimation).coerceAtMost(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).toFloat() /
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
+        val easedProgression = wipeOffInterpolator.transform(absoluteProgression)
+        lerp(-maxScreenDimension * 1.75f, maxScreenDimension * 0.75f, easedProgression)
+    }
+
+    /**
+     * The current value of the placeholder wipe off visual effect gradient progression alpha. The
+     * progression is a 45 degree angle sweep across the whole screen running from outside of the
+     * Top|Left of the screen to Bottom|Right used as the anchor for wipe-off gradient effects.
+     *
+     * The progression represents the x and y coordinates in pixels of the Top|Left part of the
+     * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
+     * of height/width to create a 45 degree angle) and progress to the
+     * maximumScreenDimension.
+     *
+     * The time taken for this progression is [PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS]
+     */
+    @ExperimentalWearMaterialApi
+    internal val placeholderWipeOffAlpha: Float by derivedStateOf {
+        val absoluteProgression = ((frameMillis.value - startOfWipeOffAnimation).coerceAtMost(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).toFloat() /
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).coerceAtMost(1f)
+
+        val alpha =
+            lerp(0f, 1f, absoluteProgression)
+        wipeOffInterpolator.transform(alpha)
+    }
+
+    /**
+     * The current value of the placeholder visual effect gradient progression. The progression
+     * gives the x coordinate to be applied to the placeholder gradient as it moves across the
+     * screen. Starting off screen to the left and progressing across the screen and finishing off
+     * the screen to the right after [PLACEHOLDER_SHIMMER_DURATION_MS].
      */
     @ExperimentalWearMaterialApi
     public val placeholderProgression: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.value.mod(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
-                PLACEHOLDER_PROGRESSION_DURATION_MS).toFloat() /
-                PLACEHOLDER_PROGRESSION_DURATION_MS)
-        val progression = lerp(-maxScreenDimension, maxScreenDimension, absoluteProgression)
-        progression
+            (frameMillis.value.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
+                PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
+                PLACEHOLDER_SHIMMER_DURATION_MS)
+        val easedProgression = progressionInterpolator.transform(absoluteProgression)
+        lerp(-maxScreenDimension * 0.5f, maxScreenDimension * 1.5f, easedProgression)
+    }
+
+    /**
+     * The current value of the placeholder visual effect gradient progression alpha/opacity. The
+     * progression gives the alpha to apply during the period of the placeholder effect. This allows
+     * the effect to be faded in and then out during the [PLACEHOLDER_SHIMMER_DURATION_MS].
+     */
+    @ExperimentalWearMaterialApi
+    internal val placeholderShimmerAlpha: Float by derivedStateOf {
+        val absoluteProgression =
+            (frameMillis.value.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
+                PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
+                PLACEHOLDER_SHIMMER_DURATION_MS)
+
+        if (absoluteProgression <= 0.5f) {
+            val alpha =
+                lerp(0f, 0.15f, absoluteProgression * 2f)
+            progressionInterpolator.transform(alpha)
+        } else {
+            val alpha =
+                lerp(0.15f, 0f, (absoluteProgression - 0.5f) * 2f)
+            progressionInterpolator.transform(alpha)
+        }
     }
 
     /**
@@ -114,76 +220,82 @@ public class PlaceholderState internal constructor(
         placeholderStage == PlaceholderStage.WipeOff
     }
 
-     /**
-     * The width of the gradient to use for the placeholder shimmer and wipe-off effects
+    /**
+     * The width of the gradient to use for the placeholder shimmer and wipe-off effects. This is
+     * the value in pixels that should be used in either horizontal or vertical direction to
+     * be equivalent to a gradient width of 2 x maxScreenDimension rotated through 45 degrees.
      */
-    internal val gradientWidth: Float by derivedStateOf {
-        maxScreenDimension
+    internal val gradientXYWidth: Float by derivedStateOf {
+        maxScreenDimension * 2f.pow(1.5f)
     }
 
     internal var placeholderStage: PlaceholderStage =
-        if (isContentReady.invoke()) PlaceholderStage.ShowContent
+        if (isContentReady.value.invoke()) PlaceholderStage.ShowContent
         else PlaceholderStage.ShowPlaceholder
         get() {
             if (field != PlaceholderStage.ShowContent) {
-                if (startOfNextPlaceholderAnimation == 0L) {
-                    startOfNextPlaceholderAnimation =
-                        (frameMillis.value.div(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
-                            PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS
-                } else if (frameMillis.value >= startOfNextPlaceholderAnimation) {
-                    field = checkForStageTransition(
-                        field,
-                        isContentReady(),
-                    )
-                    startOfNextPlaceholderAnimation =
-                        (frameMillis.value.div(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
-                            PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS
+                // WipeOff
+                if (startOfWipeOffAnimation != 0L) {
+                    if ((frameMillis.value - startOfWipeOffAnimation) >=
+                        PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS) {
+                        field = PlaceholderStage.ShowContent
+                    }
+                    // Placeholder
+                } else if (isContentReady.value()) {
+                    startOfWipeOffAnimation = frameMillis.value
+                    field = PlaceholderStage.WipeOff
                 }
             }
             return field
         }
+
     /**
      * The frame time in milliseconds in the calling context of frame dispatch. Used to coordinate
      * the placeholder state and effects. Usually provided by [withInfiniteAnimationFrameMillis].
      */
     internal val frameMillis = mutableStateOf(0L)
 
-    private var startOfNextPlaceholderAnimation = 0L
+    private var startOfWipeOffAnimation = 0L
+
+    private val progressionInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f)
+    private val wipeOffInterpolator: Easing = CubicBezierEasing(0f, 0.2f, 1f, 0.6f)
 }
 
 /**
  * Creates a [PlaceholderState] that is remembered across compositions. To start placeholder
  * animations run [PlaceholderState.startPlaceholderAnimation].
  *
- * @param isContentReady a lambda to determine whether all of the data/content has been loaded
- * and is ready to be displayed.
+ *  A [PlaceholderState] should be created for each component that has placeholder data. The
+ * state is used to coordinate all of the different placeholder effects and animations.
+ *
+ * Placeholder has a number of different effects designed to work together.
+ * [Modifier.placeholder] draws a placeholder shape on top of content that is waiting to load. There
+ * can be multiple placeholders in a component.
+ * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
+ * placeholders. There should only be one placeholderShimmer for each component.
+ *
+ * Background placeholder effects are used to mask the background of components like chips and cards
+ * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
+ * [PlaceholderDefaults.placeholderBackgroundBrush] and
+ * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
+ * background.
+ *
+ * Once all of the components content is loaded, [isContentReady] is `true` the shimmer will stop
+ * and a wipe off animation will remove the placeholders to reveal the content.
+ *
+ * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
+ * given component and is ready to be displayed.
  */
 @ExperimentalWearMaterialApi
 @Composable
-public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
+public fun rememberPlaceholderState(
+    isContentReady: () -> Boolean
+): PlaceholderState {
     val maxScreenDimension = with(LocalDensity.current) {
         Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
     }
-    return remember { PlaceholderState(isContentReady, maxScreenDimension) }
-}
-
-/**
- * Method used to determine whether we should transition to a new [PlaceholderStage] based
- * on the current value and whether the content has loaded.
- *
- * @param placeholderStage the current stage of the placeholder
- * @param contentReady a flag to indicate whether all of content is now available
- */
-@OptIn(ExperimentalWearMaterialApi::class)
-private fun checkForStageTransition(
-    placeholderStage: PlaceholderStage,
-    contentReady: Boolean,
-): PlaceholderStage {
-    return if (placeholderStage == PlaceholderStage.ShowPlaceholder && contentReady) {
-        PlaceholderStage.WipeOff
-    } else if (placeholderStage == PlaceholderStage.WipeOff) {
-        PlaceholderStage.ShowContent
-    } else placeholderStage
+    val myLambdaState = rememberUpdatedState(isContentReady)
+    return remember { PlaceholderState(myLambdaState, maxScreenDimension) }
 }
 
 /**
@@ -198,6 +310,12 @@ private fun checkForStageTransition(
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
  *
  * The [placeholderState] determines when to 'show' and 'wipe off' the placeholder.
+ *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be first in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ * @sample androidx.wear.compose.material.samples.TextPlaceholder
  *
  * @param placeholderState determines whether the placeholder is visible and controls animation
  * effects for the placeholder.
@@ -242,6 +360,12 @@ public fun Modifier.placeholder(
  * the top of it when waiting for placeholder data to load and then draws a placeholder shimmer over
  * the top:
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
+ *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ * @sample androidx.wear.compose.material.samples.TextPlaceholder
  *
  * @param placeholderState the current placeholder state that determine whether the placeholder
  * shimmer should be shown.
@@ -309,7 +433,7 @@ public object PlaceholderDefaults {
     ): ChipColors {
         return if (! placeholderState.isShowContent) {
             ChipDefaults.chipColors(
-                backgroundPainter = PainterWithBrushOverlay(
+                backgroundPainter = PlaceholderBackgroundPainter(
                     painter = originalChipColors.background(enabled = true).value,
                     placeholderState = placeholderState,
                     color = color
@@ -318,7 +442,7 @@ public object PlaceholderDefaults {
                 secondaryContentColor = originalChipColors
                     .secondaryContentColor(enabled = true).value,
                 iconColor = originalChipColors.iconColor(enabled = true).value,
-                disabledBackgroundPainter = PainterWithBrushOverlay(
+                disabledBackgroundPainter = PlaceholderBackgroundPainter(
                     painter = originalChipColors.background(enabled = false).value,
                     placeholderState = placeholderState,
                     color = color
@@ -352,18 +476,23 @@ public object PlaceholderDefaults {
         placeholderState: PlaceholderState,
         color: Color = MaterialTheme.colors.surface,
     ): ChipColors {
-        return placeholderChipColors(
-            placeholderState = placeholderState,
-            color = color,
-            originalChipColors = ChipDefaults.chipColors(
-                backgroundColor = Color.Transparent,
-                contentColor = Color.Transparent,
-                secondaryContentColor = Color.Transparent,
-                iconColor = Color.Transparent,
-                disabledBackgroundColor = Color.Transparent,
-                disabledContentColor = Color.Transparent,
-                disabledSecondaryContentColor = Color.Transparent,
-                disabledIconColor = Color.Transparent)
+        return ChipDefaults.chipColors(
+            backgroundPainter = PlaceholderBackgroundPainter(
+                painter = null,
+                placeholderState = placeholderState,
+                color = color
+            ),
+            contentColor = Color.Transparent,
+            secondaryContentColor = Color.Transparent,
+            iconColor = Color.Transparent,
+            disabledBackgroundPainter = PlaceholderBackgroundPainter(
+                painter = null,
+                placeholderState = placeholderState,
+                color = color
+            ),
+            disabledContentColor = Color.Transparent,
+            disabledSecondaryContentColor = Color.Transparent,
+            disabledIconColor = Color.Transparent,
         )
     }
 
@@ -385,7 +514,7 @@ public object PlaceholderDefaults {
         color: Color = MaterialTheme.colors.surface,
     ): Painter {
         return if (! placeholderState.isShowContent) {
-            PainterWithBrushOverlay(
+            PlaceholderBackgroundPainter(
                 painter = painter,
                 placeholderState = placeholderState,
                 color = color
@@ -409,10 +538,10 @@ public object PlaceholderDefaults {
         placeholderState: PlaceholderState,
         color: Color = MaterialTheme.colors.surface,
     ): Painter {
-        return PainterWithBrushOverlay(
-            painter = ColorPainter(Color.Transparent),
+        return PlaceholderBackgroundPainter(
+            painter = null,
             placeholderState = placeholderState,
-            color = color
+            color = color,
         )
     }
 }
@@ -460,60 +589,63 @@ private fun wipeOffBrush(
     offset: Offset,
     placeholderState: PlaceholderState
 ): Brush {
+    val halfGradientWidth = placeholderState.gradientXYWidth / 2f
     return Brush.linearGradient(
-        colors = listOf(
-            Color.Transparent,
-            color
-        ),
+        colorStops = listOf(
+            0f to Color.Transparent,
+            0.75f to color,
+        ).toTypedArray(),
         start = Offset(
-            x = placeholderState.placeholderProgression - offset.x,
-            y = placeholderState.placeholderProgression - offset.y
+            x = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.x,
+            y = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.y
         ),
         end = Offset(
-            x = placeholderState.placeholderProgression - offset.x + placeholderState.gradientWidth,
-            y = placeholderState.placeholderProgression - offset.y + placeholderState.gradientWidth
-        )
+            x = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.x,
+            y = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.y
+        ),
     )
 }
 
 /**
- * A painter which takes wraps another [Painter] and takes a [Brush] which
- * is used to create an effect over the [Painter] such as a shim or a placeholder effect.
+ * A painter which wraps an optional [Painter] and is used to create an effect over the [Painter]
+ * such as a solid placeholder color or a placeholder wipe off effect.
  */
 @ExperimentalWearMaterialApi
-internal class PainterWithBrushOverlay(
-    val painter: Painter,
+internal class PlaceholderBackgroundPainter(
+    val painter: Painter?,
     private val placeholderState: PlaceholderState,
     val color: Color,
     private var alpha: Float = 1.0f
 ) : Painter() {
-
-    private var colorFilter: ColorFilter? = null
-
     override fun DrawScope.onDraw() {
-        val offset = Offset(
-            this.center.x - (this.size.width / 2f),
-            this.center.y - (this.size.height / 2f)
-        )
-        val brush = when (placeholderState.placeholderStage) {
-            PlaceholderStage.ShowPlaceholder -> {
-                SolidColor(color)
-            }
+        // Due to anti aliasing we can not use a SolidColor brush over the top of the background
+        // painter without seeing some background color bleeding through. As a result we use
+        // the colorFilter to tint the normal background painter instead - b/253667329
+        val (brush, colorFilter) = when (placeholderState.placeholderStage) {
             PlaceholderStage.WipeOff -> {
                 wipeOffBrush(
                     color,
-                    offset,
+                    placeholderState.backgroundOffset,
                     placeholderState
-                )
+                ) to null
+            }
+            PlaceholderStage.ShowPlaceholder -> {
+                if (painter == null) {
+                    SolidColor(color) to null
+                } else {
+                    null to ColorFilter.tint(color = color)
+                }
             }
             // For the ShowContent case
             else -> {
-                null
+                null to null
             }
         }
 
         val size = this.size
-        with(painter) { draw(size = size, alpha = alpha, colorFilter = colorFilter) }
+        if (painter != null) {
+            with(painter) { draw(size = size, alpha = alpha, colorFilter = colorFilter) }
+        }
         if (brush != null) {
             drawRect(brush = brush, alpha = alpha, colorFilter = colorFilter)
         }
@@ -522,21 +654,22 @@ internal class PainterWithBrushOverlay(
     override fun applyAlpha(alpha: Float): Boolean = true.also { this.alpha = alpha }
 
     override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
-        this.colorFilter = colorFilter
-        return true
+        // This is not a generic painter that we want to be configurable from the outside.
+        // We need to control the colorFilter to do the painting over of normal background color
+        // to avoid anti-aliasing
+        return false
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as PainterWithBrushOverlay
+        other as PlaceholderBackgroundPainter
 
         if (painter != other.painter) return false
         if (placeholderState != other.placeholderState) return false
         if (color != other.color) return false
         if (alpha != other.alpha) return false
-        if (colorFilter != other.colorFilter) return false
         if (intrinsicSize != other.intrinsicSize) return false
 
         return true
@@ -547,21 +680,20 @@ internal class PainterWithBrushOverlay(
         result = 31 * result + placeholderState.hashCode()
         result = 31 * result + color.hashCode()
         result = 31 * result + alpha.hashCode()
-        result = 31 * result + (colorFilter?.hashCode() ?: 0)
         result = 31 * result + intrinsicSize.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "PainterWithBrushOverlay(painter=$painter, placeholderState=$placeholderState, " +
-            "color=$color, alpha=$alpha, " +
-            "colorFilter=$colorFilter, intrinsicSize=$intrinsicSize)"
+        return "PlaceholderBackgroundPainter(painter=$painter, " +
+            "placeholderState=$placeholderState, color=$color, alpha=$alpha, " +
+            "intrinsicSize=$intrinsicSize)"
     }
 
     /**
      * Size of the combined painter, return Unspecified to allow us to fill the available space
      */
-    override val intrinsicSize: Size = painter.intrinsicSize
+    override val intrinsicSize: Size = painter?.intrinsicSize ?: Size.Unspecified
 }
 
 private abstract class AbstractPlaceholderModifier(
@@ -595,10 +727,6 @@ private abstract class AbstractPlaceholderModifier(
         }
     }
 
-    private fun ContentDrawScope.drawRect(brush: Brush) {
-        drawRect(brush = brush, alpha = alpha)
-    }
-
     private fun ContentDrawScope.drawOutline(brush: Brush) {
         val outline =
             if (size == lastSize && layoutDirection == lastLayoutDirection) {
@@ -620,15 +748,15 @@ private class PlaceholderModifier constructor(
     val shape: Shape
 ) : AbstractPlaceholderModifier(alpha, shape) {
     override fun generateBrush(offset: Offset): Brush? {
-        return when (placeholderState.placeholderStage) {
-            PlaceholderStage.ShowPlaceholder -> {
-                SolidColor(color)
-            }
-            PlaceholderStage.WipeOff -> {
-                wipeOffBrush(color, offset, placeholderState)
-            }
-            else -> {
-                null
+            return when (placeholderState.placeholderStage) {
+                PlaceholderStage.ShowPlaceholder -> {
+                    SolidColor(color)
+                }
+                PlaceholderStage.WipeOff -> {
+                    wipeOffBrush(color, offset, placeholderState)
+                }
+                else -> {
+                    null
             }
         }
     }
@@ -661,21 +789,26 @@ private class PlaceholderShimmerModifier constructor(
     alpha: Float = 1.0f,
     val shape: Shape
 ) : AbstractPlaceholderModifier(alpha, shape) {
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        placeholderState.backgroundOffset = coordinates.positionInRoot()
+        super.onGloballyPositioned(coordinates)
+    }
     override fun generateBrush(offset: Offset): Brush? {
         return if (placeholderState.placeholderStage == PlaceholderStage.ShowPlaceholder) {
+            val halfGradientWidth = placeholderState.gradientXYWidth / 2f
             Brush.linearGradient(
-                start = Offset(x = placeholderState.placeholderProgression - offset.x,
-                    y = placeholderState.placeholderProgression - offset.y),
+                start = Offset(
+                    x = placeholderState.placeholderProgression - halfGradientWidth - offset.x,
+                    y = placeholderState.placeholderProgression - halfGradientWidth - offset.y
+                ),
                 end = Offset(
-                    x = placeholderState.placeholderProgression - offset.x +
-                        placeholderState.gradientWidth,
-                    y = placeholderState.placeholderProgression - offset.y +
-                        placeholderState.gradientWidth
+                    x = placeholderState.placeholderProgression + halfGradientWidth - offset.x,
+                    y = placeholderState.placeholderProgression + halfGradientWidth - offset.y
                 ),
                 colorStops = listOf(
-                    0f to color.copy(alpha = 0f),
-                    0.65f to color.copy(alpha = 0.13f),
-                    1f to color.copy(alpha = 0f),
+                    0.1f to color.copy(alpha = 0f),
+                    0.65f to color.copy(alpha = placeholderState.placeholderShimmerAlpha),
+                    0.9f to color.copy(alpha = 0f),
                 ).toTypedArray()
             )
         } else {
@@ -704,7 +837,7 @@ private class PlaceholderShimmerModifier constructor(
     }
 }
 
-private const val PLACEHOLDER_PROGRESSION_DURATION_MS = 800L
-private const val PLACEHOLDER_DELAY_BETWEEN_PROGRESSIONS_MS = 800L
-private const val PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS =
-    PLACEHOLDER_PROGRESSION_DURATION_MS + PLACEHOLDER_DELAY_BETWEEN_PROGRESSIONS_MS
+internal const val PLACEHOLDER_SHIMMER_DURATION_MS = 800L
+internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS = 300L
+internal const val PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS = 2000L
+internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS = 80L

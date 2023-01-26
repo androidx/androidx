@@ -18,22 +18,25 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Volume
+import androidx.health.connect.client.units.liters
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures how much water a user drank in a single drink. */
 public class HydrationRecord(
-    /** Volume of water in [Volume] unit. Required field. Valid range: 0-100 liters. */
-    public val volume: Volume,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Volume of water in [Volume] unit. Required field. Valid range: 0-100 liters. */
+    public val volume: Volume,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {
         volume.requireNotLess(other = volume.zero(), name = "volume")
+        volume.requireNotMore(other = MAX_VOLUME, name = "volume")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -61,6 +64,8 @@ public class HydrationRecord(
     }
 
     companion object {
+        private val MAX_VOLUME = 100.liters
+
         /**
          * Metric identifier to retrieve total hydration from
          * [androidx.health.connect.client.aggregate.AggregationResult].

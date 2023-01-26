@@ -302,3 +302,55 @@ internal object Api28Compat {
         cameraManager.registerAvailabilityCallback(executor, callback)
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Suppress("DEPRECATION")
+internal object Api33Compat {
+    @JvmStatic
+    @DoNotInline
+    fun setDynamicRangeProfile(outputConfig: OutputConfiguration, dynamicRangeProfile: Long) {
+        outputConfig.dynamicRangeProfile = dynamicRangeProfile
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getDynamicRangeProfile(outputConfig: OutputConfiguration): Long {
+        return outputConfig.dynamicRangeProfile
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setMirrorMode(outputConfig: OutputConfiguration, mirrorMode: Int) {
+        outputConfig.mirrorMode = mirrorMode
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getMirrorMode(outputConfig: OutputConfiguration): Int {
+        return outputConfig.mirrorMode
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setStreamUseCase(outputConfig: OutputConfiguration, streamUseCase: Long) {
+        outputConfig.streamUseCase = streamUseCase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getStreamUseCase(outputConfig: OutputConfiguration): Long {
+        return outputConfig.streamUseCase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setTimestampBase(outputConfig: OutputConfiguration, timestampBase: Int) {
+        outputConfig.timestampBase = timestampBase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getTimestampBase(outputConfig: OutputConfiguration): Int {
+        return outputConfig.timestampBase
+    }
+}
