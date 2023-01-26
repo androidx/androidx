@@ -32,7 +32,7 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
+import androidx.appsearch.stats.SchemaMigrationStats;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -60,7 +60,7 @@ class AppSearchMigrationHelper implements Closeable {
     private final String mDatabaseName;
     private final File mFile;
     private final Set<String> mDestinationTypes;
-    private boolean mAreDocumentsMigrated = false;
+    private int mTotalNeedMigratedDocumentCount = 0;
 
     AppSearchMigrationHelper(@NonNull AppSearchImpl appSearchImpl,
             @NonNull String packageName,
@@ -97,7 +97,6 @@ class AppSearchMigrationHelper implements Closeable {
             int finalVersion, @Nullable SchemaMigrationStats.Builder schemaMigrationStatsBuilder)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
-        int migratedDocsCount = 0;
         try (FileOutputStream outputStream = new FileOutputStream(mFile, /*append=*/ true)) {
             CodedOutputStream codedOutputStream = CodedOutputStream.newInstance(outputStream);
             SearchResultPage searchResultPage = mAppSearchImpl.query(mPackageName, mDatabaseName,
@@ -143,15 +142,15 @@ class AppSearchMigrationHelper implements Closeable {
                     codedOutputStream.writeByteArrayNoTag(serializedMessage);
                 }
                 codedOutputStream.flush();
-                migratedDocsCount += searchResultPage.getResults().size();
+                mTotalNeedMigratedDocumentCount += searchResultPage.getResults().size();
                 searchResultPage = mAppSearchImpl.getNextPage(mPackageName,
-                        searchResultPage.getNextPageToken(), /*statsBuilder=*/ null);
+                        searchResultPage.getNextPageToken(), /*sStatsBuilder=*/ null);
                 outputStream.flush();
             }
         }
-        mAreDocumentsMigrated = true;
         if (schemaMigrationStatsBuilder != null) {
-            schemaMigrationStatsBuilder.setMigratedDocumentCount(migratedDocsCount);
+            schemaMigrationStatsBuilder.setTotalNeedMigratedDocumentCount(
+                    mTotalNeedMigratedDocumentCount);
         }
     }
 
@@ -176,12 +175,13 @@ class AppSearchMigrationHelper implements Closeable {
             SchemaMigrationStats.Builder schemaMigrationStatsBuilder)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
-        if (!mAreDocumentsMigrated) {
+        if (mTotalNeedMigratedDocumentCount == 0) {
             return responseBuilder.build();
         }
         try (InputStream inputStream = new FileInputStream(mFile)) {
             CodedInputStream codedInputStream = CodedInputStream.newInstance(inputStream);
             int savedDocsCount = 0;
+            int migrationFailureCount = 0;
             while (!codedInputStream.isAtEnd()) {
                 GenericDocument document = readDocumentFromInputStream(codedInputStream);
                 try {
@@ -200,11 +200,13 @@ class AppSearchMigrationHelper implements Closeable {
                                     document.getId(),
                                     document.getSchemaType(),
                                     throwableToFailedResult(t)));
+                    migrationFailureCount++;
                 }
             }
             mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
             if (schemaMigrationStatsBuilder != null) {
-                schemaMigrationStatsBuilder.setSavedDocumentCount(savedDocsCount);
+                schemaMigrationStatsBuilder.setTotalSuccessMigratedDocumentCount(savedDocsCount);
+                schemaMigrationStatsBuilder.setMigrationFailureCount(migrationFailureCount);
             }
         }
         return responseBuilder.build();

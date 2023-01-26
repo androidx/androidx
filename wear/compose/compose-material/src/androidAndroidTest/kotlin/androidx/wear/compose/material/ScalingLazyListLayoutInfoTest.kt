@@ -24,12 +24,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -50,6 +50,7 @@ import org.junit.runner.RunWith
 import kotlin.math.roundToInt
 import org.junit.Ignore
 
+@Suppress("DEPRECATION")
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class ScalingLazyListLayoutInfoTest {
@@ -93,6 +94,49 @@ public class ScalingLazyListLayoutInfoTest {
             assertThat(state.centerItemIndex).isEqualTo(1)
             assertThat(state.centerItemScrollOffset).isEqualTo(0)
             state.layoutInfo.assertVisibleItems(count = 4)
+        }
+    }
+
+    @Test
+    fun centerItemIndexIsCorrectAfterScrolling() {
+        lateinit var state: ScalingLazyListState
+        var itemSpacingPx: Int = -1
+        val itemSpacingDp = 20.dp
+        var scope: CoroutineScope? = null
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            itemSpacingPx = with(LocalDensity.current) { itemSpacingDp.roundToPx() }
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + itemSpacingDp * 2.5f
+                ),
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
+                autoCentering = AutoCenteringParams()
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.runOnIdle {
+            assertThat(state.centerItemIndex).isEqualTo(1)
+            assertThat(state.centerItemScrollOffset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 3, spacing = itemSpacingPx)
+        }
+
+        // Scroll so that the center item is just above the center line and check that it is still
+        // the correct center item
+        val scrollDistance = (itemSizePx / 2) + 1
+        scope!!.launch {
+            state.animateScrollBy(scrollDistance.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.centerItemIndex).isEqualTo(1)
+            assertThat(state.centerItemScrollOffset).isEqualTo(scrollDistance)
         }
     }
 
@@ -308,6 +352,94 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemZeroOddHeightViewportOddHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 41, false)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemZeroOddHeightViewportEvenHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 40, false)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemZeroEvenHeightViewportOddHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 41, true)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemZeroEvenHeightViewportEvenHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 40, true)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemOneOddHeightViewportOddHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 41, false)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemOneOddHeightViewportEvenHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 40, false)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemOneEvenHeightViewportOddHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 41, true)
+    }
+
+    @Test
+    fun itemsCorrectScrollPastStartEndAutoCenterItemOneEvenHeightViewportEvenHeightItems() {
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 40, true)
+    }
+
+    private fun visibleItemsAreCorrectAfterScrollingPastEndOfItems(
+        autoCenterItem: Int,
+        localItemSizePx: Int,
+        viewPortSizeEven: Boolean
+    ) {
+        lateinit var state: ScalingLazyListState
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            with(LocalDensity.current) {
+                val viewportSizePx =
+                    (((localItemSizePx * 4 + defaultItemSpacingPx * 3) / 2) * 2) +
+                        if (viewPortSizeEven) 0 else 1
+                scope = rememberCoroutineScope()
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState(
+                        initialCenterItemIndex = autoCenterItem
+                    ).also { state = it },
+                    modifier = Modifier.requiredSize(
+                        viewportSizePx.toDp()
+                    ),
+                    autoCentering = AutoCenteringParams(itemIndex = autoCenterItem)
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(localItemSizePx.toDp()))
+                    }
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        scope.launch {
+            state.animateScrollBy(localItemSizePx.toFloat() * 10)
+        }
+
+        rule.waitUntil { !state.isScrollInProgress }
+        assertThat(state.centerItemIndex).isEqualTo(4)
+        assertThat(state.centerItemScrollOffset).isEqualTo(0)
+
+        scope.launch {
+            state.animateScrollBy(- localItemSizePx.toFloat() * 10)
+        }
+
+        rule.waitUntil { !state.isScrollInProgress }
+        assertThat(state.centerItemIndex).isEqualTo(autoCenterItem)
+        assertThat(state.centerItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
     fun largeItemLargerThanViewPortDoesNotGetScaled() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
@@ -375,7 +507,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(centerItemIndex).also { state = it },
                 modifier = Modifier.requiredSize(
-                    itemSizeDp * 4
+                    itemSizeDp * 4 + defaultItemSpacingDp * 3
                 ),
             ) {
                 items(6) {
@@ -849,7 +981,7 @@ public class ScalingLazyListLayoutInfoTest {
     @Test
     fun isScrollInProgressIsObservableWhenWeScroll() {
         lateinit var state: ScalingLazyListState
-        var scope: CoroutineScope? = null
+        lateinit var scope: CoroutineScope
         val currentInfo = StableRef<Boolean?>(null)
         rule.setContent {
             scope = rememberCoroutineScope()
@@ -866,7 +998,7 @@ public class ScalingLazyListLayoutInfoTest {
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        scope!!.launch {
+        scope.launch {
             // empty it here and scrolling should invoke observingFun again
             currentInfo.value = null
             state.animateScrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
@@ -889,7 +1021,7 @@ public class ScalingLazyListLayoutInfoTest {
     @Test
     fun isCentralListItemIndexObservableWhenWeScroll() {
         lateinit var state: ScalingLazyListState
-        var scope: CoroutineScope? = null
+        lateinit var scope: CoroutineScope
         val currentInfo = StableRef<Int?>(null)
         rule.setContent {
             scope = rememberCoroutineScope()
@@ -907,7 +1039,7 @@ public class ScalingLazyListLayoutInfoTest {
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        scope!!.launch {
+        scope.launch {
             // empty it here and scrolling should invoke observingFun again
             currentInfo.value = null
             state.animateScrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
@@ -1110,6 +1242,3 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 }
-
-@Stable
-public class StableRef<T>(var value: T)

@@ -238,7 +238,9 @@ public class FromWireComplicationTextTest {
             ComplicationText.FORMAT_STYLE_DEFAULT,
             null
         )
-        val text = TimeDifferenceComplicationText(ComplicationText("test", tft))
+        val text = TimeDifferenceComplicationText(
+            ComplicationText("test", tft, /* stringExpression = */ null)
+        )
 
         assertNull(text.getMinimumTimeUnit())
     }

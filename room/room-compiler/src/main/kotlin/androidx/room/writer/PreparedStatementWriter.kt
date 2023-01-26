@@ -15,35 +15,36 @@
  */
 package androidx.room.writer
 
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 
 /**
  * Creates anonymous classes for RoomTypeNames#SHARED_SQLITE_STMT.
  */
 class PreparedStatementWriter(val queryWriter: QueryWriter) {
-    fun createAnonymous(typeWriter: TypeWriter, dbParam: FieldSpec): TypeSpec {
+    fun createAnonymous(typeWriter: TypeWriter, dbProperty: XPropertySpec): XTypeSpec {
         val scope = CodeGenScope(typeWriter)
-        @Suppress("RemoveSingleExpressionStringTemplate")
-        return TypeSpec.anonymousClassBuilder("$N", dbParam).apply {
+        return XTypeSpec.anonymousClassBuilder(scope.language, "%N", dbProperty).apply {
             superclass(RoomTypeNames.SHARED_SQLITE_STMT)
-            addMethod(
-                MethodSpec.methodBuilder("createQuery").apply {
-                    addAnnotation(Override::class.java)
-                    returns(ClassName.get("java.lang", "String"))
-                    addModifiers(Modifier.PUBLIC)
+            addFunction(
+                XFunSpec.builder(
+                    language = scope.language,
+                    name = "createQuery",
+                    visibility = VisibilityModifier.PUBLIC,
+                    isOverride = true
+                ).apply {
+                    returns(CommonTypeNames.STRING)
                     val queryName = scope.getTmpVar("_query")
                     val queryGenScope = scope.fork()
                     queryWriter.prepareQuery(queryName, queryGenScope)
-                    addCode(queryGenScope.builder().build())
-                    addStatement("return $L", queryName)
+                    addCode(queryGenScope.generate())
+                    addStatement("return %L", queryName)
                 }.build()
             )
         }.build()

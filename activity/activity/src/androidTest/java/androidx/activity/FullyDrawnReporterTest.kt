@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -31,6 +32,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -38,9 +41,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 class FullyDrawnReporterTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun findFullyDrawnReporterOwner() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val provider1 = object : FullyDrawnReporterOwner {
                 override val fullyDrawnReporter: FullyDrawnReporter
                     get() = withActivity { fullyDrawnReporter }
@@ -69,7 +76,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reportWhenComplete() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             lateinit var fullyDrawnReporter: FullyDrawnReporter
             withActivity {
                 val view = View(this)
@@ -99,7 +106,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun addReporter() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val fullyDrawnReporter = withActivity { fullyDrawnReporter }
             fullyDrawnReporter.addReporter()
             fullyDrawnReporter.addReporter()
@@ -117,7 +124,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reporterAndReportWhen() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val fullyDrawnReporter = withActivity { fullyDrawnReporter }
             fullyDrawnReporter.addReporter()
             val mutex = Mutex(true)
@@ -145,7 +152,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reportWhenAndReporter() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val fullyDrawnReporter = withActivity { fullyDrawnReporter }
             fullyDrawnReporter.addReporter()
             val mutex = Mutex(true)
@@ -173,7 +180,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reportListener() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             var report1 = false
             var report2 = false
             var report3 = false
@@ -205,7 +212,7 @@ class FullyDrawnReporterTest {
      */
     @Test
     fun fakeoutReport() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             withActivity {
                 setContentView(View(this))
             }
@@ -233,7 +240,7 @@ class FullyDrawnReporterTest {
      */
     @Test
     fun reportedInOnDraw() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             withActivity {
                 setContentView(View(this))
             }

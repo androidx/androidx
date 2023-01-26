@@ -184,6 +184,14 @@ class EGLExt private constructor() {
         const val EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base"
 
         /**
+         * Extension that allows creating an EGLClientBuffer from an Android [HardwareBuffer]
+         * object which can later be used to create an [EGLImageKHR] instance.
+         * See:
+         * https://registry.khronos.org/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
+         */
+        const val EGL_ANDROID_CLIENT_BUFFER = "EGL_ANDROID_get_native_client_buffer"
+
+        /**
          * Extension that defines a new EGL resource type that is suitable for
          * sharing 2D arrays of image data between client APIs, the EGLImage,
          * and allows creating EGLImages from EGL native pixmaps.
@@ -636,6 +644,7 @@ class EGLExt private constructor() {
  */
 internal class EGLBindings {
     companion object {
+        @JvmStatic
         external fun nCreateImageFromHardwareBuffer(
             eglDisplayPtr: Long,
             hardwareBuffer: HardwareBuffer
@@ -643,9 +652,16 @@ internal class EGLBindings {
 
         // Note this API is explicitly a GL API and not an EGL API which is the reason
         // why this has the GL prefix vs EGL
+        @JvmStatic
         external fun nImageTargetTexture2DOES(target: Int, eglImagePtr: Long)
+
+        @JvmStatic
         external fun nDupNativeFenceFDANDROID(eglDisplayPtr: Long, syncPtr: Long): Int
+
+        @JvmStatic
         external fun nCreateSyncKHR(eglDisplayPtr: Long, type: Int, attrs: IntArray?): Long
+
+        @JvmStatic
         external fun nGetSyncAttribKHR(
             eglDisplayPtr: Long,
             syncPtr: Long,
@@ -653,23 +669,48 @@ internal class EGLBindings {
             result: IntArray,
             offset: Int
         ): Boolean
+
+        @JvmStatic
         external fun nClientWaitSyncKHR(
             eglDisplayPtr: Long,
             syncPtr: Long,
             flags: Int,
             timeout: Long
         ): Int
+
+        @JvmStatic
         external fun nDestroySyncKHR(eglDisplayPtr: Long, syncPtr: Long): Boolean
+        @JvmStatic
         external fun nDestroyImageKHR(eglDisplayPtr: Long, eglImagePtr: Long): Boolean
+
+        @JvmStatic
         external fun nSupportsEglGetNativeClientBufferAndroid(): Boolean
+
+        @JvmStatic
         external fun nSupportsDupNativeFenceFDANDROID(): Boolean
+
+        @JvmStatic
         external fun nSupportsEglCreateImageKHR(): Boolean
+
+        @JvmStatic
         external fun nSupportsEglDestroyImageKHR(): Boolean
+
+        @JvmStatic
         external fun nSupportsGlImageTargetTexture2DOES(): Boolean
+
+        @JvmStatic
         external fun nSupportsEglCreateSyncKHR(): Boolean
+
+        @JvmStatic
         external fun nSupportsEglGetSyncAttribKHR(): Boolean
+
+        @JvmStatic
         external fun nSupportsEglClientWaitSyncKHR(): Boolean
+
+        @JvmStatic
         external fun nSupportsEglDestroySyncKHR(): Boolean
+
+        @JvmStatic
         external fun nEqualToNativeForeverTimeout(timeoutNanos: Long): Boolean
 
         init {

@@ -56,10 +56,11 @@ public class MasterKeySecureTest {
         final Context context = ApplicationProvider.getApplicationContext();
 
         KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
+        Assume.assumeTrue(keyguardManager != null);
+        // You need to enable screen lock to pass this assumption
         Assume.assumeTrue(keyguardManager != null && keyguardManager.isDeviceSecure());
 
         // Delete all previous keys and shared preferences.
-
         String filePath = context.getFilesDir().getParent() + "/shared_prefs/"
                 + "__androidx_security__crypto_encrypted_prefs__";
         File deletePrefFile = new File(filePath);

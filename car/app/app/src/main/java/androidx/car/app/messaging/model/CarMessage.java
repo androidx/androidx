@@ -18,35 +18,32 @@ package androidx.car.app.messaging.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
+import androidx.car.app.annotations.KeepFields;
 import androidx.core.app.Person;
 
 /** Represents a single message in a {@link ConversationItem} */
 @ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(6)
+@KeepFields
 public class CarMessage {
-    @Keep
     @NonNull
-    private final Person mSender;
-
-    @Keep
+    private final Bundle mSender;
     @NonNull
     private final CarText mBody;
-    @Keep
     private final long mReceivedTimeEpochMillis;
-
-    @Keep
     private final boolean mIsRead;
 
     CarMessage(@NonNull Builder builder) {
-        this.mSender = requireNonNull(builder.mSender);
+        this.mSender = requireNonNull(builder.mSender).toBundle();
         this.mBody = requireNonNull(builder.mBody);
         this.mReceivedTimeEpochMillis = builder.mReceivedTimeEpochMillis;
         this.mIsRead = builder.mIsRead;
@@ -54,7 +51,7 @@ public class CarMessage {
 
     /** Default constructor for serialization. */
     private CarMessage() {
-        this.mSender = new Person.Builder().setName("").build();
+        this.mSender = new Person.Builder().setName("").build().toBundle();
         this.mBody = new CarText.Builder("").build();
         this.mReceivedTimeEpochMillis = 0;
         this.mIsRead = false;
@@ -62,8 +59,9 @@ public class CarMessage {
 
 
     /** Returns a {@link Person} representing the message sender */
-    @NonNull public Person getSender() {
-        return mSender;
+    @NonNull
+    public Person getSender() {
+        return Person.fromBundle(mSender);
     }
 
     /** Returns a {@link CarText} representing the message body */

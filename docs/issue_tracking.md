@@ -47,8 +47,17 @@ information provided on Google Play.
 | Status   | Description                                                       |
 | -------- | ----------------------------------------------------------------- |
 | New      | The default for public bugs. Waiting for someone to validate,     |
-:          : reproduce, or otherwise confirm that this is actionable.          :
-| Assigned | Pending action from the assignee. May be reassigned.              |
+:          : reproduce, or otherwise confirm that this is actionable. Bugs in  :
+:          : this state can be either Untriaged or Triaged. Untriaged state    :
+:          : refers to a status where an issue has been filed against our      :
+:          : team, but the team/person responsible for fixing the issue has    :
+:          : not looked at it yet. Triaged state refers to a status where an   :
+:          : issue filed against the team has been reviewed by the             :
+:          : team/person, and they have accurately updated the priority of the :
+:          : issue.                                                            :
+| Assigned | In this state, the issue is ready to be added to an iteration     |
+:          : with a level of certainty that it will be completed within the    :
+:          : upcoming team iteration. Issues here should be >=P3               :
 | Accepted | Actively being worked on by the assignee. Do not reassign.        |
 | Fixed    | Fixed in the development branch. Do not re-open unless the fix is |
 :          : reverted.                                                         :
@@ -91,13 +100,13 @@ information provided on Google Play.
 ## Issue lifecycle
 
 1.  When an issue is reported, it is set to `Assigned` status for default
-    assignee (typically the [library owner](owners.md)) with a priority of
-    **P4**.
+    assignee (typically the [library owner](/company/teams/androidx/owners.md))
+    with a priority of **P4**.
 1.  Once an issue has been triaged by the assignee, its priority will be raised
     from **P4** according to severity.
 1.  The issue may still be reassigned at this point.
-    [Bug bounty](onboarding.md#bug-bounty) issues are likely to change
-    assignees.
+    [Bug bounty](/company/teams/androidx/onboarding.md#bug-bounty) issues are
+    likely to change assignees.
 1.  A status of **Accepted** means the assignee is actively working on the
     issue.
 1.  A status of **Fixed** means that the issue has been resolved in the

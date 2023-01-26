@@ -24,10 +24,6 @@ plugins {
 
 android {
     namespace "androidx.room.testing"
-
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
 
 dependencies {
@@ -43,7 +39,6 @@ dependencies {
 androidx {
     name = "Android Room Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room Testing"
 }

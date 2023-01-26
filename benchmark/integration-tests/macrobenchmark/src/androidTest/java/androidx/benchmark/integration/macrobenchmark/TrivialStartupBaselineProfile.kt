@@ -17,7 +17,6 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
-import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -29,7 +28,6 @@ import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalBaselineProfilesApi::class)
 class TrivialStartupBaselineProfile {
     @get:Rule
     val baselineRule = BaselineProfileRule()

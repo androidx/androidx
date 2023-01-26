@@ -24,12 +24,12 @@ import android.util.Size
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.internal.ViewPorts
+import androidx.camera.testing.ConstraintEnclosedTestRunner
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
-import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -39,7 +39,7 @@ import org.junit.runners.Parameterized
 @SmallTest
 @SuppressLint("UnsupportedTestRunner")
 @RunWith(
-    Enclosed::class
+    ConstraintEnclosedTestRunner::class
 )
 @SdkSuppress(minSdkVersion = 21)
 object ViewPortsTest {

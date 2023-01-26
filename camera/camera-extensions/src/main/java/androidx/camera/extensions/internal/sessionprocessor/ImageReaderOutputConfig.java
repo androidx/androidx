@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,6 +42,12 @@ public abstract class ImageReaderOutputConfig implements Camera2OutputConfig {
             @NonNull Size size, int imageFormat, int maxImages) {
         return new AutoValue_ImageReaderOutputConfig(id, surfaceGroupId, physicalCameraId,
                 sharedOutputConfigs, size, imageFormat, maxImages);
+    }
+
+    static ImageReaderOutputConfig create(
+            int id, @NonNull Size size, int imageFormat, int maxImages) {
+        return new AutoValue_ImageReaderOutputConfig(id, -1, null,
+                Collections.emptyList(), size, imageFormat, maxImages);
     }
     /**
      * Returns the size of the surface.

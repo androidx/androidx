@@ -23,12 +23,13 @@ import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
+import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.room.awaitPendingRefresh
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
@@ -47,7 +48,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -101,7 +101,7 @@ class MultiTypedPagingSourceTest(
     fun loadEverything() {
         // open db
         val items = createItems(startId = 15, count = 50)
-        db.dao.insert(items)
+        db.getDao().insert(items)
         runTest {
             val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
@@ -115,29 +115,29 @@ class MultiTypedPagingSourceTest(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(20)
+                assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             }
-            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
+
             // now access to the end of the list, it should load everything as we disabled jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(items.size - 1)
+                assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             }
-            assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
     }
 
     @Test
-    @Ignore("b/233214547")
     fun loadEverything_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
-        db.dao.insert(items)
+        db.getDao().insert(items)
         val pager = Pager(
             config = CONFIG,
             initialKey = 98
         ) {
-            db.dao.loadItems()
+            db.getDao().loadItems()
         }
         runTest(pager) {
             val initialLoad = itemStore.awaitInitialLoad()
@@ -153,14 +153,16 @@ class MultiTypedPagingSourceTest(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(40)
+                assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
             }
-            assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
+
             // now access to the beginning of the list, it should load everything as we don't
             // support jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(0)
+                assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             }
-            assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
+
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
@@ -169,13 +171,13 @@ class MultiTypedPagingSourceTest(
     @Test
     fun keyTooLarge_returnLastPage() {
         val items = createItems(startId = 0, count = 50)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         val pager = Pager(
             config = CONFIG,
             initialKey = 80
         ) {
-            db.dao.loadItems()
+            db.getDao().loadItems()
         }
         runTest(pager = pager) {
             val initialLoad = itemStore.awaitInitialLoad()
@@ -191,15 +193,15 @@ class MultiTypedPagingSourceTest(
             // now trigger a prepend
             withContext(Dispatchers.Main) {
                 itemStore.get(20)
+                assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             }
-            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
         }
     }
 
     @Test
     fun jumping() {
         val items = createItems(startId = 0, count = 200)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         val config = PagingConfig(
             pageSize = 3,
@@ -210,7 +212,7 @@ class MultiTypedPagingSourceTest(
         val pager = Pager(
             config = config,
         ) {
-            db.dao.loadItems()
+            db.getDao().loadItems()
         }
         runTest(pager = pager) {
             val initialLoad = itemStore.awaitInitialLoad()
@@ -245,12 +247,12 @@ class MultiTypedPagingSourceTest(
     @Test
     fun prependWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         val pager = Pager(
             config = CONFIG,
             initialKey = 20,
-            pagingSourceFactory = { db.dao.loadItems().also { pagingSources.add(it) } }
+            pagingSourceFactory = { db.getDao().loadItems().also { pagingSources.add(it) } }
         )
 
         runTest(pager) {
@@ -270,7 +272,7 @@ class MultiTypedPagingSourceTest(
             queryExecutor.filterFunction = { runnable ->
                 runnable !== db.invalidationTracker.refreshRunnable
             }
-            db.dao.deleteItems(
+            db.getDao().deleteItems(
                 items.subList(0, 60).map { it.id }
             )
             // make sure invalidation requests a refresh
@@ -303,16 +305,16 @@ class MultiTypedPagingSourceTest(
                 (0 until 10).forEach {
                     itemStore.get(it)
                 }
-            }
-            // now ensure all of them are loaded
-            // only waiting for 9 items because because the 10th item and onwards are nulls from
-            // placeholders
-            (0 until 9).forEach {
-                assertThat(
-                    itemStore.awaitItem(it)
-                ).isEqualTo(
-                    items[60 + it]
-                )
+                // now ensure all of them are loaded
+                // only waiting for 9 items because because the 10th item and onwards are nulls from
+                // placeholders
+                (0 until 9).forEach {
+                    assertThat(
+                        itemStore.awaitItem(it)
+                    ).isEqualTo(
+                        items[60 + it]
+                    )
+                }
             }
 
             // Runs the original invalidationTracker.refreshRunnable.
@@ -341,12 +343,12 @@ class MultiTypedPagingSourceTest(
     @Test
     fun prependWithBlockingObserver() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         val pager = Pager(
             config = CONFIG,
             initialKey = 20,
-            pagingSourceFactory = { db.dao.loadItems().also { pagingSources.add(it) } }
+            pagingSourceFactory = { db.getDao().loadItems().also { pagingSources.add(it) } }
         )
 
         // to block the PagingSource's observer, this observer needs to be registered first
@@ -375,7 +377,7 @@ class MultiTypedPagingSourceTest(
             )
             assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
 
-            db.dao.deleteItems(
+            db.getDao().deleteItems(
                 items.subList(0, 60).map { it.id }
             )
 
@@ -391,7 +393,9 @@ class MultiTypedPagingSourceTest(
             assertThat(expectError.message).isEqualTo("didn't complete in expected time")
 
             // and stale PagingSource would return item 70 instead of item 10
-            assertThat(itemStore.awaitItem(10)).isEqualTo(items[70])
+            withContext(Dispatchers.Main) {
+                assertThat(itemStore.awaitItem(10)).isEqualTo(items[70])
+            }
             assertFalse(pagingSources[0].invalid)
 
             // prepend again
@@ -405,10 +409,11 @@ class MultiTypedPagingSourceTest(
         }
     }
 
+    @FlakyTest(bugId = 261205680)
     @Test
     fun appendWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
         runTest {
             val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
@@ -425,7 +430,7 @@ class MultiTypedPagingSourceTest(
             queryExecutor.filterFunction = { runnable ->
                 runnable !== db.invalidationTracker.refreshRunnable
             }
-            db.dao.deleteItems(
+            db.getDao().deleteItems(
                 items.subList(0, 80).map { it.id }
             )
             // make sure invalidation requests a refresh
@@ -459,14 +464,14 @@ class MultiTypedPagingSourceTest(
                 (0 until 10).forEach {
                     itemStore.get(it)
                 }
-            }
-            // now ensure all of them are loaded
-            (0 until 10).forEach {
-                assertThat(
-                    itemStore.awaitItem(it)
-                ).isEqualTo(
-                    items[80 + it]
-                )
+                // now ensure all of them are loaded
+                (0 until 10).forEach {
+                    assertThat(
+                        itemStore.awaitItem(it)
+                    ).isEqualTo(
+                        items[80 + it]
+                    )
+                }
             }
 
             // Runs the original invalidationTracker.refreshRunnable.
@@ -506,7 +511,7 @@ class MultiTypedPagingSourceTest(
             assertThat(itemStore.peekItems()).isEmpty()
 
             val entity = PagingEntity(id = 1, value = "foo")
-            db.dao.insert(entity)
+            db.getDao().insert(entity)
             itemStore.awaitGeneration(2)
             itemStore.awaitInitialLoad()
             assertThat(itemStore.peekItems()).containsExactly(entity)
@@ -517,7 +522,9 @@ class MultiTypedPagingSourceTest(
         pager: Pager<Int, PagingEntity> =
             Pager(
                 config = CONFIG,
-                pagingSourceFactory = { pagingSourceFactory(db.dao).also { pagingSources.add(it) } }
+                pagingSourceFactory = {
+                    pagingSourceFactory(db.getDao()).also { pagingSources.add(it) }
+                }
             ),
         block: suspend () -> Unit
     ) {
@@ -575,7 +582,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
     fun loadEverythingRawQuery() {
         // open db
         val items = createItems(startId = 15, count = 50)
-        db.dao.insert(items)
+        db.getDao().insert(items)
         val query = SimpleSQLiteQuery(
             "SELECT * FROM PagingEntity ORDER BY id ASC"
         )
@@ -592,13 +599,13 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(20)
+                assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             }
-            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             // now access to the end of the list, it should load everything as we disabled jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(items.size - 1)
+                assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             }
-            assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
@@ -608,12 +615,12 @@ class MultiTypedPagingSourceTestWithRawQuery(
     fun loadEverythingRawQuery_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
-        db.dao.insert(items)
+        db.getDao().insert(items)
         val query = SimpleSQLiteQuery(
             "SELECT * FROM PagingEntity ORDER BY id ASC"
         )
         val pager = Pager(config = CONFIG, initialKey = 98) {
-            pagingSourceFactoryRaw(db.dao, query)
+            pagingSourceFactoryRaw(db.getDao(), query)
         }
         runTest(query, pager) {
             val initialLoad = itemStore.awaitInitialLoad()
@@ -629,14 +636,14 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(40)
+                assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
             }
-            assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
             // now access to the beginning of the list, it should load everything as we don't
             // support jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(0)
+                assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             }
-            assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
@@ -645,7 +652,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
     @Test
     fun rawQuery_userSuppliedLimitOffset() {
         val items = createItems(startId = 15, count = 70)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         val query = SimpleSQLiteQuery(
             "SELECT * FROM PagingEntity ORDER BY id ASC LIMIT 30 OFFSET 5"
@@ -665,9 +672,10 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(15)
+                // item 15 is offset by 5 = 20
+                assertThat(itemStore.awaitItem(15)).isEqualTo(items[20])
             }
-            // item 15 is offset by 5 = 20
-            assertThat(itemStore.awaitItem(15)).isEqualTo(items[20])
+
             // normally itemStore.get(50) is valid, but user-set LIMIT should bound item count to 30
             // itemStore.get(50) should now become invalid
             val expectedException = assertFailsWith<IndexOutOfBoundsException> {
@@ -683,7 +691,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
     @Test
     fun rawQuery_multipleArguments() {
         val items = createItems(startId = 0, count = 80)
-        db.dao.insert(items)
+        db.getDao().insert(items)
         val query = SimpleSQLiteQuery(
             "SELECT * " +
                 "FROM PagingEntity " +
@@ -706,9 +714,10 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(15)
+                // item 15 is offset by 50 because of `WHERE id > 49` arg
+                assertThat(itemStore.awaitItem(15)).isEqualTo(items[65])
             }
-            // item 15 is offset by 50 because of `WHERE id > 49` arg
-            assertThat(itemStore.awaitItem(15)).isEqualTo(items[65])
+
             // normally itemStore.get(50) is valid, but user-set LIMIT should bound item count to 20
             val expectedException = assertFailsWith<IndexOutOfBoundsException> {
                 withContext(Dispatchers.Main) {
@@ -725,7 +734,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
         pager: Pager<Int, PagingEntity> =
             Pager(
                 config = CONFIG,
-                pagingSourceFactory = { pagingSourceFactoryRaw(db.dao, query) }
+                pagingSourceFactory = { pagingSourceFactoryRaw(db.getDao(), query) }
             ),
         block: suspend () -> Unit
     ) {

@@ -642,6 +642,8 @@
         <enum name="startVertical" value="1" />
         <enum name="startHorizontal" value="2" />
         <enum name="flip" value="3" />
+        <enum name="below" value="4" />
+        <enum name="above" value="5" />
     </attr>
 
     <attr name="polarRelativeTo" format="reference" />
@@ -812,6 +814,21 @@
         <attr name="motionProgress" />
         <attr name="layout_constraintTag" />
 
+    </declare-styleable>
+
+    <!--    This is the api for logging constraints in JSON5 format -->
+    <declare-styleable name="LogJson">
+        <attr name="logJsonTo" format="enum|string">
+            <enum name="log" value="1" />
+            <enum name="console" value="2" />
+        </attr>
+        <attr name="logJsonMode" format="enum">
+            <enum name="periodic" value="1" />
+            <enum name="delayed" value="2" />
+            <enum name="layout" value="3" />
+            <enum name="api" value="4" />
+        </attr>
+        <attr name="logJsonDelay" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="Constraint">
@@ -1423,6 +1440,7 @@
             <enum name="deltaRelative" value="0" />
             <enum name="pathRelative" value="1" />
             <enum name="parentRelative" value="2" />
+            <enum name="axisRelative" value="3" />
         </attr>
 
         <!--  Percent distance from start to end along X axis (deltaRelative)

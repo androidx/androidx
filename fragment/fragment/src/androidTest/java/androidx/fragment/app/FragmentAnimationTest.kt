@@ -41,19 +41,22 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.rules.RuleChain
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentAnimationTest {
 
     @Suppress("DEPRECATION")
+    val activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     private lateinit var instrumentation: Instrumentation
 
@@ -1033,23 +1036,31 @@ class FragmentAnimationTest {
 
     // On Lollipop and earlier, animations are not allowed during window transitions
     private fun waitForAnimationReady() {
-        val view = arrayOfNulls<View>(1)
         val activity = activityRule.activity
-        // Add a view to the hierarchy
+        lateinit var drawView: DrawView
+        // Add view to the hierarchy
         activityRule.runOnUiThread {
-            view[0] = spy(View(activity))
+            drawView = DrawView(activity)
             val content = activity.findViewById<ViewGroup>(R.id.fragmentContainer)
-            content.addView(view[0])
+            content.addView(drawView)
         }
 
         // Wait for its draw method to be called so we know that drawing can happen after
         // the first frame (API 21 didn't allow it during Window transitions)
-        verify(view[0], within(1000))?.draw(ArgumentMatchers.any() as Canvas?)
+        assertThat(drawView.onDrawCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         // Remove the view that we just added
         activityRule.runOnUiThread {
             val content = activity.findViewById<ViewGroup>(R.id.fragmentContainer)
-            content.removeView(view[0])
+            content.removeView(drawView)
+        }
+    }
+
+    class DrawView(context: android.content.Context) : View(context) {
+        val onDrawCountDownLatch = CountDownLatch(1)
+        override fun onDraw(canvas: Canvas) {
+            super.onDraw(canvas)
+            onDrawCountDownLatch.countDown()
         }
     }
 

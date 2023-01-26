@@ -234,9 +234,13 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * Helper method to query properties of the given surface
      */
     private fun querySurface(surface: EGLSurface) {
-        val resultArray = mQueryResult ?: IntArray(1).also { mQueryResult = it }
-        if (eglSpec.eglQuerySurface(surface, EGL14.EGL_RENDER_BUFFER, resultArray, 0)) {
-            mIsSingleBuffered = resultArray[0] == EGL14.EGL_SINGLE_BUFFER
+        if (surface == EGL14.EGL_NO_SURFACE) {
+            mIsSingleBuffered = false
+        } else {
+            val resultArray = mQueryResult ?: IntArray(1).also { mQueryResult = it }
+            if (eglSpec.eglQuerySurface(surface, EGL14.EGL_RENDER_BUFFER, resultArray, 0)) {
+                mIsSingleBuffered = resultArray[0] == EGL14.EGL_SINGLE_BUFFER
+            }
         }
     }
 

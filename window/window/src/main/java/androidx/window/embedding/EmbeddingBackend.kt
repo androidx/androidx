@@ -18,27 +18,25 @@ package androidx.window.embedding
 
 import android.app.Activity
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 // TODO(b/191164045): Move to window-testing or adapt for testing otherwise.
-@ExperimentalWindowApi
 internal interface EmbeddingBackend {
-    fun setSplitRules(rules: Set<EmbeddingRule>)
+    fun setRules(rules: Set<EmbeddingRule>)
 
-    fun getSplitRules(): Set<EmbeddingRule>
+    fun getRules(): Set<EmbeddingRule>
 
-    fun registerRule(rule: EmbeddingRule)
+    fun addRule(rule: EmbeddingRule)
 
-    fun unregisterRule(rule: EmbeddingRule)
+    fun removeRule(rule: EmbeddingRule)
 
-    fun registerSplitListenerForActivity(
+    fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
     )
 
-    fun unregisterSplitListenerForActivity(
+    fun removeSplitListenerForActivity(
         consumer: Consumer<List<SplitInfo>>
     )
 

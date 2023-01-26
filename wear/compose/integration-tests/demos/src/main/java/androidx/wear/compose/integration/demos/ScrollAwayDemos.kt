@@ -33,7 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
@@ -41,10 +43,8 @@ import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.scrollAway
 
 @Composable
@@ -61,8 +61,8 @@ fun ScrollAwayLazyColumnDemo() {
 @Composable
 fun ScrollAwayLazyColumnDemo2() {
     LazyColumnCardDemo(
-        offset = -195.dp,
-        itemIndex = 2,
+        offset = -100.dp,
+        itemIndex = 1,
         initialVisibleItemIndex = 2
     )
 }
@@ -94,6 +94,15 @@ fun ScrollAwayScalingLazyColumnCardDemo2() {
 fun ScrollAwayScalingLazyColumnCardDemoMismatch() {
     ScalingLazyColumnCardDemo(
         itemIndex = 0,
+        offset = 75.dp,
+        initialCenterItemIndex = 1,
+    )
+}
+
+@Composable
+fun ScrollAwayScalingLazyColumnCardDemoOutOfRange() {
+    ScalingLazyColumnCardDemo(
+        itemIndex = 100,
         offset = 75.dp,
         initialCenterItemIndex = 1,
     )

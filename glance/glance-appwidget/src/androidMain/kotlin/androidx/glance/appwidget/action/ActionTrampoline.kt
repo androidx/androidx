@@ -59,12 +59,14 @@ internal fun createUniqueUri(
     translationContext: TranslationContext,
     viewId: Int,
     type: ActionTrampolineType,
+    extraData: String = "",
 ): Uri = Uri.Builder().apply {
     scheme(ActionTrampolineScheme)
     path(type.name)
     appendQueryParameter("appWidgetId", translationContext.appWidgetId.toString())
     appendQueryParameter("viewId", viewId.toString())
     appendQueryParameter("viewSize", translationContext.layoutSize.toString())
+    appendQueryParameter("extraData", extraData)
     if (translationContext.isLazyCollectionDescendant) {
         appendQueryParameter(
             "lazyCollection",

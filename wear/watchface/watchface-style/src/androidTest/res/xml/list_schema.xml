@@ -28,6 +28,7 @@
         <ListOption
             android:icon="@drawable/red_icon"
             app:displayName="@string/red_style_name"
+            app:nameForScreenReaders="@string/red_style_name_screen_reader"
             app:id="red">
             <OnWatchEditorData android:icon="@drawable/red_icon_wf"/>
         </ListOption>
@@ -45,9 +46,11 @@
         app:id="Thing2">
         <ListOption
             app:displayName="Foo"
+            app:nameForScreenReaders="Foo thing"
             app:id="foo" />
         <ListOption
             app:displayName="Bar"
+            app:nameForScreenReaders="Bar thing"
             app:id="bar" />
     </ListUserStyleSetting>
     <ListUserStyleSetting
@@ -57,11 +60,13 @@
         app:id="TopLevel">
         <ListOption
             app:displayName="A"
+            app:nameForScreenReaders="Option A"
             app:id="a">
             <ChildSetting app:id="ColorStyle" />
         </ListOption>
         <ListOption
             app:displayName="B"
+            app:nameForScreenReaders="Option B"
             app:id="b">
             <ChildSetting app:id="Thing2" />
         </ListOption>

@@ -19,7 +19,6 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
 }
 
 android{
@@ -28,27 +27,58 @@ android{
     }
     namespace "androidx.datastore.preferences"
 }
-
-dependencies {
-    api(libs.kotlinStdlib)
-    api(project(":datastore:datastore"))
-    api(project(":datastore:datastore-preferences-core"))
-
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
-
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testCore)
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+    android()
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api(project(":datastore:datastore"))
+                api(project(":datastore:datastore-preferences-core"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinTest)
+            }
+        }
+        androidMain {
+            dependsOn(jvmMain)
+        }
+        androidTest {
+            dependsOn(jvmTest)
+        }
+        androidAndroidTest {
+            dependsOn(androidTest)
+            dependencies {
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+        }
+    }
 }
+
 
 androidx {
     name = "Android Preferences DataStore"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
     legacyDisableKotlinStrictApiMode = true

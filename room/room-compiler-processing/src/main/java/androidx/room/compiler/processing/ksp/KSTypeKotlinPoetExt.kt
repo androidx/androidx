@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
@@ -27,6 +28,7 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeName
@@ -155,10 +157,59 @@ private fun KSType.asKTypeName(
 }
 
 /**
+ * See [KTypeVariableNameFactory.newInstance]
+ */
+private val typeVarNameCompanionInstance by lazy {
+    try {
+        KTypeVariableName::class.java.getDeclaredField("Companion")
+            .apply { trySetAccessible() }
+            .get(null)
+    } catch (ex: NoSuchFieldException) {
+        throw IllegalStateException(
+            """
+            Room couldn't find the field it is looking for in KotlinPoet.
+            Please file a bug at $ISSUE_TRACKER_LINK.
+            """.trimIndent(),
+            ex
+        )
+    }
+}
+
+/**
+ * See [KTypeVariableNameFactory.newInstance] and
+ * https://github.com/square/kotlinpoet/blob/1.12.0/kotlinpoet/src/main/java/com/squareup/kotlinpoet/TypeVariableName.kt#L70-L74
+ */
+private val typeVarNameFactoryMethod by lazy {
+    try {
+        typeVarNameCompanionInstance::class.java.methods.first {
+            it.name.startsWith("of") &&
+                it.parameterCount == 3 &&
+                it.parameters[0].type == String::class.java &&
+                it.parameters[1].type == List::class.java &&
+                it.parameters[2].type == KModifier::class.java
+        }.apply { trySetAccessible() }
+    } catch (ex: NoSuchElementException) {
+        throw IllegalStateException(
+            """
+            Room couldn't find the method it is looking for in KotlinPoet.
+            Please file a bug at $ISSUE_TRACKER_LINK.
+            """.trimIndent(),
+        )
+    }
+}
+
+/**
  * Creates a TypeVariableName where we can change the bounds after constructor.
  * This is used to workaround a case for self referencing type declarations.
  */
 private fun createModifiableTypeVariableName(
     name: String,
     bounds: List<KTypeName>
-): KTypeVariableName = KTypeVariableNameFactory.newInstance(name, bounds)
+): KTypeVariableName =
+    try {
+        KTypeVariableNameFactory.newInstance(name, bounds)
+    } catch (ex: NoSuchMethodError) {
+        typeVarNameFactoryMethod.invoke(
+            typeVarNameCompanionInstance, name, bounds, null
+        ) as KTypeVariableName
+    }

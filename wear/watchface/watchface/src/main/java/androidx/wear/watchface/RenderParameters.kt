@@ -384,6 +384,7 @@ public class RenderParameters @JvmOverloads constructor(
         if (watchFaceLayers != other.watchFaceLayers) return false
         if (highlightLayer != other.highlightLayer) return false
         if (lastComplicationTapDownEvents != other.lastComplicationTapDownEvents) return false
+        if (isForScreenshot != other.isForScreenshot) return false
 
         return true
     }
@@ -393,6 +394,7 @@ public class RenderParameters @JvmOverloads constructor(
         result = 31 * result + watchFaceLayers.hashCode()
         result = 31 * result + (highlightLayer?.hashCode() ?: 0)
         result = 31 * result + lastComplicationTapDownEvents.hashCode()
+        result = 31 * result + isForScreenshot.hashCode()
         return result
     }
 }

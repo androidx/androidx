@@ -82,7 +82,6 @@ class PerfettoTraceProcessorBenchmark {
                 // Note that this is an arbitrary number and the default cannot be used because
                 // the macrobenchmark instance of the server is running at the same time.
                 PerfettoTraceProcessor.runServer(
-                    httpServerPort = 10555,
                     absoluteTracePath = traceFile.absolutePath,
                     block = block
                 )

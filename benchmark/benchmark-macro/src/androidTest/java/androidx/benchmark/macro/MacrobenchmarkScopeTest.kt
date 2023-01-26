@@ -23,15 +23,18 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -68,6 +71,7 @@ class MacrobenchmarkScopeTest {
         assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
+    @RequiresDevice // b/264938965
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun compile_speedProfile() {
@@ -89,6 +93,7 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
+    @RequiresDevice // b/264938965
     @Test
     fun compile_full() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
@@ -212,4 +217,69 @@ class MacrobenchmarkScopeTest {
     /** Tests getFrameStats after launch which does nothing, as Activity already visible */
     @Test
     fun getFrameStats_noop() = validateLaunchAndFrameStats(pressHome = false)
+
+    private fun validateShaderCache(empty: Boolean, packageName: String) {
+        val path = MacrobenchmarkScope.getShaderCachePath(packageName)
+        println("validating shader path $path")
+        val fileCount = Shell.executeScriptCaptureStdout("find $path -type f | wc -l")
+            .trim()
+            .toInt()
+        if (empty) {
+            assertEquals(0, fileCount)
+        } else {
+            assertNotEquals(0, fileCount)
+        }
+    }
+
+    private fun validateDropShaderCacheWithRoot(
+        dropShaderCacheBlock: MacrobenchmarkScope.() -> Unit
+    ) {
+        // need root to inspect target app's code cache dir, and emulators
+        // don't seem to store shaders
+        assumeTrue(Shell.isSessionRooted() && !DeviceInfo.isEmulator)
+
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = false
+        )
+        // reset to empty to begin with
+        scope.killProcess()
+        scope.dropShaderCacheBlock()
+        validateShaderCache(empty = true, scope.packageName)
+
+        // start an activity, expecting shader compilation
+        scope.pressHome()
+        // NOTE: if platform fixes default activity to not compile shaders,
+        //   may need to update this test UI to trigger shader creation
+        scope.startActivityAndWait()
+        Thread.sleep(5000) // sleep to await flushing cache to disk
+        scope.killProcess()
+        validateShaderCache(empty = false, scope.packageName)
+
+        // verify deletion
+        scope.killProcess()
+        scope.dropShaderCacheBlock()
+        validateShaderCache(empty = true, scope.packageName)
+    }
+
+    @Test
+    fun dropShaderCacheBroadcast() = validateDropShaderCacheWithRoot {
+        // since this test runs on root and the public api falls back to
+        // a root impl, test the broadcast directly
+        assertNull(ProfileInstallBroadcast.dropShaderCache(packageName))
+    }
+
+    @Test
+    fun dropShaderCachePublicApi() = validateDropShaderCacheWithRoot {
+        dropShaderCache()
+    }
+
+    @Test
+    fun dropKernelPageCache() {
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = false
+        )
+        scope.dropKernelPageCache() // shouldn't crash
+    }
 }

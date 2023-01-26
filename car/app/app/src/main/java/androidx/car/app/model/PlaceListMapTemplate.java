@@ -24,13 +24,13 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,27 +57,20 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class PlaceListMapTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     private final boolean mShowCurrentLocation;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final ItemList mItemList;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     @Nullable
     private final Place mAnchor;
-    @Keep
     @Nullable
     private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
@@ -168,7 +161,7 @@ public final class PlaceListMapTemplate implements Template {
     public int hashCode() {
         return Objects.hash(
                 mShowCurrentLocation, mIsLoading, mTitle, mItemList, mHeaderAction, mActionStrip,
-                    mAnchor, mOnContentRefreshDelegate == null);
+                mAnchor, mOnContentRefreshDelegate == null);
     }
 
     @Override

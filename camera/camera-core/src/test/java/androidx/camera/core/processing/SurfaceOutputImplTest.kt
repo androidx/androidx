@@ -16,15 +16,12 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
-import androidx.camera.core.SurfaceOutput.GlTransformOptions
-import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import com.google.common.truth.Truth.assertThat
@@ -47,14 +44,13 @@ class SurfaceOutputImplTest {
 
     companion object {
         private const val TARGET = CameraEffect.PREVIEW
-        private const val FORMAT = PixelFormat.RGBA_8888
         private val OUTPUT_SIZE = Size(640, 480)
         private val INPUT_SIZE = Size(640, 480)
     }
 
     private lateinit var fakeSurface: Surface
     private lateinit var fakeSurfaceTexture: SurfaceTexture
-    private val surfacesToCleanup = mutableListOf<SettableSurface>()
+    private val surfacesToCleanup = mutableListOf<SurfaceEdge>()
     private val surfaceOutputsToCleanup = mutableListOf<SurfaceOutputImpl>()
 
     @Before
@@ -102,6 +98,27 @@ class SurfaceOutputImplTest {
     }
 
     @Test
+    fun updateMatrix_containsOpenGlFlipping() {
+        // Arrange.
+        val surfaceOut = createFakeSurfaceOutputImpl()
+        val input = FloatArray(16).also {
+            android.opengl.Matrix.setIdentityM(it, 0)
+        }
+
+        // Act.
+        val result = FloatArray(16)
+        surfaceOut.updateTransformMatrix(result, input)
+
+        // Assert: the result contains the flipping for OpenGL.
+        val expected = FloatArray(16).also {
+            android.opengl.Matrix.setIdentityM(it, 0)
+            android.opengl.Matrix.translateM(it, 0, 0f, 1f, 0f)
+            android.opengl.Matrix.scaleM(it, 0, 1f, -1f, 1f)
+        }
+        assertThat(result).usingTolerance(1E-4).containsExactly(expected)
+    }
+
+    @Test
     fun closedSurface_noLongerReceivesCloseRequest() {
         // Arrange.
         val surfaceOutImpl = createFakeSurfaceOutputImpl()
@@ -119,29 +136,10 @@ class SurfaceOutputImplTest {
         assertThat(hasRequestedClose).isFalse()
     }
 
-    @Test
-    fun updateMatrix_useSurfaceTextureTransform_sameResult() {
-        // Arrange.
-        val surfaceOut =
-            createFakeSurfaceOutputImpl(glTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM)
-
-        // Act.
-        val input = floatArrayOf(1f, 1f, 1f, 1f, 2f, 2f, 2f, 2f, 3f, 3f, 3f, 3f, 4f, 4f, 4f, 4f)
-        val result = FloatArray(16)
-        surfaceOut.updateTransformMatrix(result, input)
-
-        // Assert.
-        assertThat(result).isEqualTo(input)
-    }
-
-    private fun createFakeSurfaceOutputImpl(
-        glTransformOptions: GlTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM
-    ) = SurfaceOutputImpl(
+    private fun createFakeSurfaceOutputImpl() = SurfaceOutputImpl(
         fakeSurface,
         TARGET,
-        FORMAT,
         OUTPUT_SIZE,
-        glTransformOptions,
         INPUT_SIZE,
         sizeToRect(INPUT_SIZE),
         /*rotationDegrees=*/0,

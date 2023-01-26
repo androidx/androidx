@@ -71,7 +71,6 @@ android {
 androidx {
     name = "AndroidX Preference"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PREFERENCE
     inceptionYear = "2015"
     description = "AndroidX Preference"
 }

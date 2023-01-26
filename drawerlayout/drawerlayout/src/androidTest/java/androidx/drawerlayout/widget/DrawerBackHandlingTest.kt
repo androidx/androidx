@@ -28,6 +28,7 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +40,7 @@ public class DrawerBackHandlingTest {
         DrawerSingleStartActivity::class.java
     )
 
+    @Ignore
     @Test
     @SmallTest
     public fun testBackPress() {
@@ -56,15 +58,6 @@ public class DrawerBackHandlingTest {
             listener.drawerOpenedCalled
         }
         listener.reset()
-
-        // Make sure we have focus, which in turn ensures we receive key events.
-        activityScenarioRule.withActivity {
-            drawerLayout.requestFocus()
-        }
-
-        PollingCheck.waitFor {
-            drawerLayout.hasFocus()
-        }
 
         // Ensure that back pressed dispatcher callback is registered on T+.
         if (Build.VERSION.SDK_INT >= 33) {

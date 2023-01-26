@@ -30,9 +30,9 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformE
 dependencies {
 
     api(project(":glance:glance"))
-    api("androidx.compose.runtime:runtime:1.1.0-beta01")
-    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
-    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
+    api("androidx.compose.runtime:runtime:1.1.1")
+    api("androidx.compose.ui:ui-graphics:1.1.1")
+    api("androidx.compose.ui:ui-unit:1.1.1")
     api("androidx.wear.tiles:tiles:1.0.0")
 
     implementation(libs.kotlinStdlib)
@@ -50,8 +50,8 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.core:core-ktx:1.7.0")
     testImplementation("androidx.wear.tiles:tiles-testing:1.0.0")
 
@@ -77,6 +77,8 @@ android {
     lintOptions {
         // TODO(b/191286558): Remove when lint is fixed.
         disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
+        // protobuf generates unannotated methods
+        disable "UnknownNullness"
     }
 
     sourceSets {
@@ -89,7 +91,6 @@ android {
 androidx {
     name = "Glance for Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."

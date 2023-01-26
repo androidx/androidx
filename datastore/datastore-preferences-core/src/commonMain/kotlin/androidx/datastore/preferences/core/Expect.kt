@@ -16,7 +16,6 @@
 
 package androidx.datastore.preferences.core
 
-import androidx.datastore.core.okio.OkioSerializer
 import kotlinx.coroutines.CoroutineDispatcher
 
 internal expect fun <K, V> immutableMap(map: Map<K, V>): Map<K, V>
@@ -29,5 +28,3 @@ internal expect class AtomicBoolean {
     fun set(value: Boolean)
     fun get(): Boolean
 }
-
-internal expect fun getPreferencesSerializer(): OkioSerializer<Preferences>

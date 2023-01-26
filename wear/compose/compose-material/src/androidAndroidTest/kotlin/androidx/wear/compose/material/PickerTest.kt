@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
@@ -180,20 +181,42 @@ class PickerTest {
 
     @Test
     fun uses_positive_separation_correctly() =
-        uses_separation_correctly(1)
+        scroll_with_separation(1)
 
     @Test
     fun uses_negative_separation_correctly() =
-        uses_separation_correctly(-1)
+        scroll_with_separation(-1)
 
-    private fun uses_separation_correctly(separationSign: Int) {
+    /**
+     * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
+     * (itemSizePx + separationPx) and minus 1 pixel
+     * for making it definitely less than a half of an item
+     */
+    @Test
+    fun scroll_with_positive_separation_and_offset() =
+        scroll_with_separation(1, scrollOffset = (itemSizePx + separationPx) / 2 - 1)
+
+    /**
+     * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
+     * (itemSizePx - separationPx) and minus 1 pixel
+     * for making it definitely less than a half of an item
+     */
+    @Test
+    fun scroll_with_negative_separation_and_offset() =
+        scroll_with_separation(-1, scrollOffset = (itemSizePx - separationPx) / 2 - 1)
+
+    private fun scroll_with_separation(
+        separationSign: Int,
+        scrollOffset: Int = 0
+    ) {
         lateinit var state: PickerState
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(20).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
                     separation = separationDp * separationSign
                 ) {
@@ -206,12 +229,14 @@ class PickerTest {
         val itemsToScroll = 4
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            // Start at bottom - 2 to allow for 1.dp padding around the Picker
+            // Start at bottom - 5 to allow for around 2.dp padding around the Picker
             // (which was added to prevent jitter around the start of the gradient).
             swipeWithVelocity(
-                start = Offset(centerX, bottom - 2),
-                end = Offset(centerX, bottom - 2 -
-                    (itemSizePx + separationPx * separationSign) * itemsToScroll),
+                start = Offset(centerX, bottom - 5),
+                end = Offset(
+                    centerX, bottom - 5 - scrollOffset -
+                        (itemSizePx + separationPx * separationSign) * itemsToScroll
+                ),
                 endVelocity = NOT_A_FLING_SPEED
             )
         }
@@ -500,6 +525,7 @@ class PickerTest {
         assertThat(state.selectedOption).isNotEqualTo(initialOption)
     }
 
+    @Test
     fun scrolls_from_non_canonical_option_works() {
         lateinit var scope: CoroutineScope
         val pickerDriver = PickerDriver(separationSign = 1)
@@ -532,6 +558,27 @@ class PickerTest {
         rule.waitForIdle()
 
         pickerDriver.verifyCenterItemIsCentered()
+    }
+
+    @Test
+    fun rememberPickerState_updates_after_new_inputs() {
+        val numberOfOptions = 10
+        lateinit var selectedOption: MutableState<Int>
+        rule.setContent {
+            selectedOption = remember { mutableStateOf(1) }
+            val pickerState = rememberPickerState(
+                initialNumberOfOptions = numberOfOptions,
+                initiallySelectedOption = selectedOption.value
+            )
+            Text(text = "${pickerState.selectedOption}")
+        }
+
+        // Update selected option to a new value - should also update the PickerState instance,
+        // and then recompose with the new value in the Text element.
+        selectedOption.value = 2
+        rule.waitForIdle()
+
+        rule.onNodeWithText("2").assertExists()
     }
 
     private fun scroll_snaps(

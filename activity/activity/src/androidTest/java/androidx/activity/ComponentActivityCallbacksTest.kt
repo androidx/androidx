@@ -27,17 +27,24 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityCallbacksTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun onConfigurationChanged() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             var receivedFontScale = withActivity {
                 resources.configuration.fontScale
             }
@@ -59,7 +66,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onConfigurationChangedRemove() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             var receivedFontScale = withActivity {
                 resources.configuration.fontScale
             }
@@ -90,7 +97,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onConfigurationChangedReentrant() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val activity = withActivity { this }
             var receivedFontScale = withActivity {
                 resources.configuration.fontScale
@@ -123,7 +130,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onTrimMemory() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             var receivedLevel = -1
 
             val listener = Consumer<Int> { level ->
@@ -140,7 +147,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onTrimMemoryRemove() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             var receivedLevel = -1
 
             val listener = Consumer<Int> { level ->
@@ -165,7 +172,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onTrimMemoryRemoveReentrant() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val activity = withActivity { this }
             var receivedLevel = -1
 
@@ -191,7 +198,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onNewIntent() {
-        with(ActivityScenario.launch(SingleTopActivity::class.java)) {
+       withUse(ActivityScenario.launch(SingleTopActivity::class.java)) {
             val receivedIntents = mutableListOf<Intent>()
 
             val listener = Consumer<Intent> { intent ->
@@ -215,7 +222,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onNewIntentRemove() {
-        with(ActivityScenario.launch(SingleTopActivity::class.java)) {
+       withUse(ActivityScenario.launch(SingleTopActivity::class.java)) {
             val receivedIntents = mutableListOf<Intent>()
 
             val listener = Consumer<Intent> { intent ->
@@ -250,7 +257,7 @@ class ComponentActivityCallbacksTest {
 
     @Test
     fun onNewIntentReentrant() {
-        with(ActivityScenario.launch(SingleTopActivity::class.java)) {
+       withUse(ActivityScenario.launch(SingleTopActivity::class.java)) {
             val activity = withActivity { this }
             val receivedIntents = mutableListOf<Intent>()
 
@@ -286,7 +293,7 @@ class ComponentActivityCallbacksTest {
     @Suppress("DEPRECATION")
     @Test
     fun onMultiWindowModeChanged() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: MultiWindowModeChangedInfo
 
             val listener = Consumer<MultiWindowModeChangedInfo> { info ->
@@ -304,7 +311,7 @@ class ComponentActivityCallbacksTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onMultiWindowModeChangedWithConfig() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: MultiWindowModeChangedInfo
             var dispatchCount = 0
 
@@ -328,7 +335,7 @@ class ComponentActivityCallbacksTest {
     @Suppress("DEPRECATION")
     @Test
     fun onMultiWindowModeChangedRemove() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: MultiWindowModeChangedInfo
 
             val listener = Consumer<MultiWindowModeChangedInfo> { info ->
@@ -354,7 +361,7 @@ class ComponentActivityCallbacksTest {
     @Suppress("DEPRECATION")
     @Test
     fun onMultiWindowModeChangedRemoveReentrant() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val activity = withActivity { this }
             lateinit var receivedInfo: MultiWindowModeChangedInfo
 
@@ -381,7 +388,7 @@ class ComponentActivityCallbacksTest {
     @Suppress("DEPRECATION")
     @Test
     fun onPictureInPictureModeChanged() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: PictureInPictureModeChangedInfo
 
             val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
@@ -399,7 +406,7 @@ class ComponentActivityCallbacksTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onPictureInPictureModeChangedWithConfig() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: PictureInPictureModeChangedInfo
             var dispatchCount = 0
 
@@ -423,7 +430,7 @@ class ComponentActivityCallbacksTest {
     @Suppress("DEPRECATION")
     @Test
     fun onPictureInPictureModeChangedRemove() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: PictureInPictureModeChangedInfo
 
             val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
@@ -449,7 +456,7 @@ class ComponentActivityCallbacksTest {
     @Suppress("DEPRECATION")
     @Test
     fun onPictureInPictureModeChangedRemoveReentrant() {
-        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val activity = withActivity { this }
             lateinit var receivedInfo: PictureInPictureModeChangedInfo
 

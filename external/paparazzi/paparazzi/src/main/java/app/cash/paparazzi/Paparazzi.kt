@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -102,12 +102,20 @@ class Paparazzi @JvmOverloads constructor(
   val context: Context
     get() = RenderAction.getCurrentContext()
 
+  /**
+   * The root layout that test views will be placed into. The FrameLayout is dynamically set to
+   * `wrap_content` if the `renderMode` is `RenderingMode.SizeAction.SHRINK` in the appropriate
+   * direction, otherwise it is set to `match_parent`.
+   */
   private val contentRoot = """
         |<?xml version="1.0" encoding="utf-8"?>
         |<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        |              android:layout_width="match_parent"
-        |              android:layout_height="match_parent"/>
+        |              android:layout_width="${renderingMode.horizAction.toAttrValue()}"
+        |              android:layout_height="${renderingMode.vertAction.toAttrValue()}"/>
   """.trimMargin()
+
+  private fun RenderingMode.SizeAction.toAttrValue() =
+    if (this == RenderingMode.SizeAction.SHRINK) "wrap_content" else "match_parent"
 
   override fun apply(
     base: Statement,
@@ -195,7 +203,11 @@ class Paparazzi @JvmOverloads constructor(
     // CompositionContext, which requires first finding the "content view", then using that to
     // find a root view with a ViewTreeLifecycleOwner
     val parent = FrameLayout(context).apply { id = android.R.id.content }
-    parent.addView(hostView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    parent.addView(
+      hostView,
+      renderingMode.horizAction.toLayoutParams(),
+      renderingMode.vertAction.toLayoutParams()
+    )
     PaparazziComposeOwner.register(parent)
     hostView.setContent(composable)
 
@@ -205,6 +217,13 @@ class Paparazzi @JvmOverloads constructor(
       forceReleaseComposeReferenceLeaks()
     }
   }
+
+  private fun RenderingMode.SizeAction.toLayoutParams() =
+    if (this == RenderingMode.SizeAction.SHRINK) {
+      LayoutParams.WRAP_CONTENT
+    } else {
+      LayoutParams.MATCH_PARENT
+    }
 
   @JvmOverloads
   fun snapshot(view: View, name: String? = null) {
@@ -371,7 +390,8 @@ class Paparazzi @JvmOverloads constructor(
 
   private fun scaleImage(image: BufferedImage): BufferedImage {
     val scale = ImageUtils.getThumbnailScale(image)
-    return ImageUtils.scale(image, scale, scale)
+    // Only scale images down so we don't waste storage space enlarging smaller layouts.
+    return if (scale < 1f) ImageUtils.scale(image, scale, scale) else image
   }
 
   private fun Description.toTestName(): TestName {
@@ -548,11 +568,11 @@ class Paparazzi @JvmOverloads constructor(
       val compositionInvalidations = recomposer.javaClass
         .getDeclaredField("compositionInvalidations")
         .apply { isAccessible = true }
-        .get(recomposer) as MutableList<*>
+        .get(recomposer) as MutableCollection<*>
       val snapshotInvalidations = recomposer.javaClass
         .getDeclaredField("snapshotInvalidations")
         .apply { isAccessible = true }
-        .get(recomposer) as MutableList<*>
+        .get(recomposer) as MutableCollection<*>
       compositionInvalidations.clear()
       snapshotInvalidations.clear()
       applyObservers.clear()
@@ -591,7 +611,7 @@ class Paparazzi @JvmOverloads constructor(
         val owner = PaparazziComposeOwner()
         owner.savedStateRegistryController.performRestore(null)
         owner.lifecycleRegistry.currentState = Lifecycle.State.CREATED
-        ViewTreeLifecycleOwner.set(view, owner)
+        view.setViewTreeLifecycleOwner(owner)
         view.setViewTreeSavedStateRegistryOwner(owner)
       }
     }

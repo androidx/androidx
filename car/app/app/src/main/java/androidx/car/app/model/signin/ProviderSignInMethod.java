@@ -18,12 +18,12 @@ package androidx.car.app.model.signin;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ForegroundCarColorSpan;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -38,8 +38,8 @@ import java.util.Objects;
  * Sign-In into Your Android App</a>).
  */
 @RequiresCarApi(2)
+@KeepFields
 public final class ProviderSignInMethod implements SignInTemplate.SignInMethod {
-    @Keep
     @Nullable
     private final Action mAction;
 

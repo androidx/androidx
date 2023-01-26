@@ -21,7 +21,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 import org.junit.runner.RunWith
@@ -37,6 +39,9 @@ class FragmentStateManagerTest {
     private lateinit var fragmentStore: FragmentStore
     private val classLoader get() = InstrumentationRegistry.getInstrumentation()
         .targetContext.classLoader
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     fun setup() {

@@ -18,20 +18,19 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** A metadata class used for attaching additional properties to models. */
 @CarProtocol
+@KeepFields
 public final class Metadata {
     /** An empty {@link Metadata} instance. */
     public static final Metadata EMPTY_METADATA = new Builder().build();
-
-    @Keep
     @Nullable
     private final Place mPlace;
 

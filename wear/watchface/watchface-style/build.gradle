@@ -23,6 +23,34 @@ plugins {
     id("kotlin-android")
 }
 
+// This task copies the apks provided by the `apkAssets` configuration and places them in the
+// assets folder. This allows a build time generation of the sample apps.
+def copyApkTaskProvider = tasks.register("copyApkAssets", Copy) {
+    description = "Copies the asset apks provided by testfixture projects"
+    dependsOn(configurations.getByName("apkAssets"))
+    from(configurations.getByName("apkAssets").incoming.artifactView {}.files)
+    into(layout.buildDirectory.dir("intermediates/apkAssets"))
+
+    // Note that the artifact directory included contain multiple output-metadata.json files built
+    // with the apks. Since we're not interested in those we can simply exclude duplicates.
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+}
+
+// Define a configuration that can be resolved. This project is the consumer of test apks, i.e. it
+// contains the integration tests.
+configurations {
+    apkAssets {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'apkAssets')
+            )
+        }
+    }
+}
+
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":wear:watchface:watchface-complications"))
@@ -34,7 +62,7 @@ dependencies {
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
@@ -45,6 +73,14 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestApi(project(":wear:watchface:watchface-style-old-api-test-stub"))
+
+    apkAssets(project(":wear:watchface:watchface-style-old-api-test-service"))
+}
+
+// It makes sure that the apks are generated before the assets are packed.
+afterEvaluate {
+    tasks.named("generateDebugAndroidTestAssets").configure { it.dependsOn(copyApkTaskProvider) }
 }
 
 android {
@@ -54,13 +90,13 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    sourceSets.androidTest.assets.srcDir(copyApkTaskProvider)
     namespace "androidx.wear.watchface.style"
 }
 
 androidx {
     name = "Android Wear Watchface Style"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Watchface Style"
 }

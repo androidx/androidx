@@ -23,77 +23,33 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+// Disable multi-platform.
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:ui:ui-text"))
+    api(project(":compose:runtime:runtime"))
 
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api(project(":compose:foundation:foundation"))
-        api(project(":compose:ui:ui"))
-        api(project(":compose:ui:ui-text"))
-        api(project(":compose:runtime:runtime"))
+    implementation(libs.kotlinStdlib)
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:ui:ui-util"))
+    implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
-        implementation(libs.kotlinStdlib)
-        implementation(project(":compose:foundation:foundation-layout"))
-        implementation(project(":compose:ui:ui-util"))
-        implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
 
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.junit)
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 
-        androidTestImplementation(project(":compose:ui:ui-test"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(project(":compose:test-utils"))
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.kotlinTest)
-
-        samples(project(":wear:compose:compose-foundation-samples"))
-    }
+    samples(project(":wear:compose:compose-foundation-samples"))
 }
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
-                api(project(":compose:foundation:foundation"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-text"))
-                api(project(":compose:runtime:runtime"))
-
-                implementation(libs.kotlinStdlib)
-                implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:ui:ui-util"))
-            }
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-
-            commonTest.dependencies {
-                implementation(kotlin("test-junit"))
-            }
-            androidAndroidTest.dependencies {
-                implementation(project(":compose:ui:ui-test"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-                implementation(libs.testRunner)
-            }
-        }
-    }
-    dependencies {
-        samples(project(":wear:compose:compose-foundation-samples"))
-    }
-}
-
 
 android {
     defaultConfig {
@@ -103,13 +59,16 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/foundation"
+
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
     namespace "androidx.wear.compose.foundation"
 }
 
 androidx {
     name = "Android Wear Compose Foundation"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "WearOS Compose Foundation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +

@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -25,9 +26,21 @@ import com.google.common.util.concurrent.ListenableFuture
  */
 class FakeImageCaptureControl : ImageCaptureControl {
 
+    companion object {
+        // By default, this fake object returns an immediate successful result.
+        private val IMMEDIATE_RESULT: ListenableFuture<Void> = Futures.immediateFuture(null)
+    }
+
     val actions = arrayListOf<Action>()
     var latestCaptureConfigs: List<CaptureConfig?> = arrayListOf()
-    var response: ListenableFuture<Void> = Futures.immediateFuture(null)
+
+    // Flip this flag to return a custom result using pendingResultCompleter.
+    var shouldUsePendingResult = false
+    lateinit var pendingResultCompleter: CallbackToFutureAdapter.Completer<Void>
+    var pendingResult = CallbackToFutureAdapter.getFuture { completer ->
+        pendingResultCompleter = completer
+        "FakeImageCaptureControl's pendingResult"
+    }
 
     override fun lockFlashMode() {
         actions.add(Action.LOCK_FLASH)
@@ -42,7 +55,15 @@ class FakeImageCaptureControl : ImageCaptureControl {
     ): ListenableFuture<Void> {
         actions.add(Action.SUBMIT_REQUESTS)
         latestCaptureConfigs = captureConfigs
-        return response
+        if (shouldUsePendingResult) {
+            return pendingResult
+        }
+        return IMMEDIATE_RESULT
+    }
+
+    fun clear() {
+        // Cancel pending futures.
+        pendingResult.cancel(true)
     }
 
     enum class Action {

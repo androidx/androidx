@@ -23,13 +23,13 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -40,10 +40,9 @@ import androidx.car.app.utils.RemoteUtils;
  */
 @RestrictTo(LIBRARY)
 @CarProtocol
+@KeepFields
 public class OnItemVisibilityChangedDelegateImpl implements
         OnItemVisibilityChangedDelegate {
-
-    @Keep
     @Nullable
     private final IOnItemVisibilityChangedListener mStub;
 
@@ -77,7 +76,7 @@ public class OnItemVisibilityChangedDelegateImpl implements
     }
 
     /** Stub class for the {@link IOnItemVisibilityChangedListener} interface. */
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class OnItemVisibilityChangedListenerStub
             extends IOnItemVisibilityChangedListener.Stub {
         private final OnItemVisibilityChangedListener mListener;

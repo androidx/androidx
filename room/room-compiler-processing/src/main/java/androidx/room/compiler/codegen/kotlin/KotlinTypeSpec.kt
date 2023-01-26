@@ -20,24 +20,33 @@ import androidx.room.compiler.codegen.KTypeSpecBuilder
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.javapoet.KTypeSpec
 
 internal class KotlinTypeSpec(
-    override val className: XClassName,
+    private val _className: XClassName?,
     internal val actual: KTypeSpec
 ) : KotlinLang(), XTypeSpec {
 
+    override val className: XClassName
+        get() {
+            checkNotNull(_className) { "Anonymous classes have no name." }
+            return _className
+        }
+
     internal class Builder(
-        private val className: XClassName,
+        private val className: XClassName?,
         internal val actual: KTypeSpecBuilder
     ) : KotlinLang(), XTypeSpec.Builder {
         override fun superclass(typeName: XTypeName) = apply {
             actual.superclass(typeName.kotlin)
+        }
+
+        override fun addSuperinterface(typeName: XTypeName) = apply {
+            actual.addSuperinterface(typeName.kotlin)
         }
 
         override fun addAnnotation(annotation: XAnnotationSpec) {
@@ -45,30 +54,31 @@ internal class KotlinTypeSpec(
             actual.addAnnotation(annotation.actual)
         }
 
-        override fun addProperty(
-            typeName: XTypeName,
-            name: String,
-            visibility: VisibilityModifier,
-            isMutable: Boolean,
-            initExpr: XCodeBlock?,
-            annotations: List<XAnnotationSpec>
-        ) = apply {
-            actual.addProperty(
-                PropertySpec.builder(name, typeName.kotlin).apply {
-                    mutable(isMutable)
-                    addModifiers(visibility.toKotlinVisibilityModifier())
-                    initExpr?.let {
-                        require(it is KotlinCodeBlock)
-                        initializer(it.actual)
-                    }
-                    // TODO(b/247247439): Add other annotations
-                }.build()
-            )
+        override fun addProperty(propertySpec: XPropertySpec) = apply {
+            require(propertySpec is KotlinPropertySpec)
+            actual.addProperty(propertySpec.actual)
         }
 
         override fun addFunction(functionSpec: XFunSpec) = apply {
             require(functionSpec is KotlinFunSpec)
             actual.addFunction(functionSpec.actual)
+        }
+
+        override fun addType(typeSpec: XTypeSpec) = apply {
+            require(typeSpec is KotlinTypeSpec)
+            actual.addType(typeSpec.actual)
+        }
+
+        override fun setPrimaryConstructor(functionSpec: XFunSpec) = apply {
+            require(functionSpec is KotlinFunSpec)
+            actual.primaryConstructor(functionSpec.actual)
+            functionSpec.actual.delegateConstructorArguments.forEach {
+                actual.addSuperclassConstructorParameter(it)
+            }
+        }
+
+        override fun setVisibility(visibility: VisibilityModifier) {
+            actual.addModifiers(visibility.toKotlinVisibilityModifier())
         }
 
         override fun build(): XTypeSpec {

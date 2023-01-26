@@ -69,6 +69,7 @@
     <string name="renderer_unresponsive_description">WebView renderer has become unresponsive.</string>
     <string name="fullscreen_activity_title">Fullscreen web contents Demo</string>
     <string name="js_java_interaction_activity_title">JavaScript - Java communication</string>
+    <string name="web_message_compat_activity_title">WebMessageCompat Demo</string>
     <string name="web_message_listener_activity_title">WebMessageListener Demo</string>
     <string name="web_message_listener_malicious_website_activity_title">Malicious Website Demo</string>
     <string name="document_start_javascript_activity_title">DocumentStartJavaScript Demo</string>
@@ -83,6 +84,11 @@
     <string name="variations_header_activity_title">Variations Header</string>
     <string name="variations_header_message">Variations header is: "%1$s"</string>
     <string name="variations_header_unavailable">Variations Header not available</string>
+    <string name="cookie_manager_activity_title">Cookie Manager</string>
+    <string name="cookie_manager_old_api_text">Old cookie API: </string>
+    <string name="cookie_manager_new_api_text">New cookie API: </string>
+    <string name="cookie_manager_get_cookie_info_not_supported">CookieManagerCompat#getCookieInfo not supported.</string>
+    <string name="image_drag_drop_activity_title">Image Drag And Drop</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
@@ -94,5 +100,11 @@
 
     <!-- Process Global Config -->
     <string name="process_global_config_activity_title">Process Global Config</string>
+
+    <!-- Requested With Header -->
+    <string name="requested_with_activity_title">X-Requested-With header allow-list</string>
+    <string name="requested_with_header_mode">Allow-list</string>
+    <string name="requested_with_no_allow_list">Empty</string>
+    <string name="requested_with_use_allow_list">Containing the web server</string>
 
 </resources>

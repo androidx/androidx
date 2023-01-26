@@ -16,16 +16,13 @@
 
 package androidx.window.embedding
 
-import androidx.window.core.ExperimentalWindowApi
-
 /**
  * Layout configuration rules for individual activities with split layouts. Take precedence over
  * [SplitPairRule].
  */
-@ExperimentalWindowApi
 class ActivityRule internal constructor(
     /**
-     * Filters used to choose when to apply this rule. The rule may be used if any one of the
+     * Filters used to choose when to apply this rule. The rule will be applied if any one of the
      * provided filters matches.
      */
     val filters: Set<ActivityFilter>,
@@ -39,6 +36,7 @@ class ActivityRule internal constructor(
 
     /**
      * Builder for [ActivityRule].
+     *
      * @param filters See [ActivityRule.filters].
      */
     class Builder(

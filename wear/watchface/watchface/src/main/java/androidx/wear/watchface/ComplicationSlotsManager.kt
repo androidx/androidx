@@ -33,7 +33,6 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.data.ComplicationStateWireFormat
@@ -42,7 +41,6 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Instant
 
@@ -152,31 +150,47 @@ public class ComplicationSlotsManager(
         }
     }
 
+    private fun applyInitialComplicationConfig() {
+        for ((id, complication) in complicationSlots) {
+            val initialConfig = initialComplicationConfigs[id]!!
+            complication.complicationSlotBounds = initialConfig.complicationSlotBounds
+            complication.enabled = initialConfig.enabled
+            complication.accessibilityTraversalIndex = initialConfig.accessibilityTraversalIndex
+            complication.nameResourceId = initialConfig.nameResourceId
+            complication.screenReaderNameResourceId = initialConfig.screenReaderNameResourceId
+        }
+        onComplicationsUpdated()
+    }
+
     /** @hide */
     @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Suppress("Deprecation") // userStyleSettings
     public fun listenForStyleChanges(coroutineScope: CoroutineScope) {
-        val complicationsStyleCategory =
-            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
-                it is ComplicationSlotsUserStyleSetting
-            } ?: return
-
-        var previousOption: ComplicationSlotsOption = currentUserStyleRepository.userStyle.value[
-            complicationsStyleCategory
-        ]!! as ComplicationSlotsOption
+        var previousOption =
+            currentUserStyleRepository.schema.findComplicationSlotsOptionForUserStyle(
+                currentUserStyleRepository.userStyle.value
+            )
 
         // Apply the initial settings on the worker thread.
-        applyComplicationSlotsStyleCategoryOption(previousOption)
+        previousOption?.let {
+            applyComplicationSlotsStyleCategoryOption(it)
+        }
 
         // Add a listener so we can track changes and automatically apply them on the UIThread
         coroutineScope.launch {
-            currentUserStyleRepository.userStyle.collect { userStyle ->
+            currentUserStyleRepository.userStyle.collect {
                 val newlySelectedOption =
-                    userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
+                    currentUserStyleRepository.schema.findComplicationSlotsOptionForUserStyle(
+                        currentUserStyleRepository.userStyle.value
+                    )
+
                 if (previousOption != newlySelectedOption) {
                     previousOption = newlySelectedOption
-                    applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
+                    if (newlySelectedOption == null) {
+                        applyInitialComplicationConfig()
+                    } else {
+                        applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
+                    }
                 }
             }
         }
@@ -185,11 +199,9 @@ public class ComplicationSlotsManager(
     /** Finish initialization. */
     @WorkerThread
     internal fun init(
-        watchFaceHostApi: WatchFaceHostApi,
         renderer: Renderer,
         complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
     ) = TraceEvent("ComplicationSlotsManager.init").use {
-        this.watchFaceHostApi = watchFaceHostApi
         this.renderer = renderer
 
         for ((_, complication) in complicationSlots) {
@@ -338,13 +350,6 @@ public class ComplicationSlotsManager(
             return
         }
         complication.setComplicationData(data, false, instant)
-    }
-
-    @UiThread
-    internal fun clearComplicationData() {
-        for ((_, complication) in complicationSlots) {
-            complication.setComplicationData(NoDataComplicationData(), false, Instant.EPOCH)
-        }
     }
 
     /**

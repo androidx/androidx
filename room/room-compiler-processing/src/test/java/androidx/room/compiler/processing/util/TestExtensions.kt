@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 
 fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map {
@@ -42,3 +43,7 @@ fun XTypeElement.getMethodByJvmName(jvmName: String) = getAllMethods().firstOrNu
 fun XExecutableElement.getParameter(name: String) = parameters.firstOrNull {
     it.name == name
 } ?: throw AssertionError("cannot find parameter with name $name")
+
+fun XType.isCollection(): Boolean {
+    return isTypeOf(List::class) || isTypeOf(Set::class)
+}

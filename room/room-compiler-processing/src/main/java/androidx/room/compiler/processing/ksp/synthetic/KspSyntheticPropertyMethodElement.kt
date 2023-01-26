@@ -141,6 +141,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         return env.resolver.overrides(this, other)
     }
 
+    override fun isKotlinPropertyMethod() = true
+
     private class Getter(
         env: KspProcessingEnv,
         field: KspFieldElement,

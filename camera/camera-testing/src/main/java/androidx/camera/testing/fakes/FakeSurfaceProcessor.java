@@ -28,6 +28,8 @@ import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -44,12 +46,12 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
 
     @Nullable
     private SurfaceRequest mSurfaceRequest;
-    @Nullable
-    private SurfaceOutput mSurfaceOutput;
+    @NonNull
+    private final Map<Integer, SurfaceOutput> mSurfaceOutputs = new HashMap<>();
     boolean mIsInputSurfaceReleased;
-    boolean mIsOutputSurfaceRequestedToClose;
+    private final Map<Integer, Boolean> mIsOutputSurfaceRequestedToClose = new HashMap<>();
 
-    Surface mOutputSurface;
+    private final Map<Integer, Surface> mOutputSurfaces = new HashMap<>();
 
     /**
      * Creates a {@link SurfaceProcessor} that closes the {@link SurfaceOutput} automatically.
@@ -61,7 +63,7 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
     /**
      * @param autoCloseSurfaceOutput if true, automatically close the {@link SurfaceOutput} once
      *                               the close request is received. Otherwise, the test needs to
-     *                               get {@link #getSurfaceOutput()} and call
+     *                               get {@link #getSurfaceOutputs()} and call
      *                               {@link SurfaceOutput#close()} to avoid the "Completer GCed"
      *                               error in {@link DeferrableSurface}.
      */
@@ -70,7 +72,6 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
         mInputSurface = new Surface(mSurfaceTexture);
         mExecutor = executor;
         mIsInputSurfaceReleased = false;
-        mIsOutputSurfaceRequestedToClose = false;
         mAutoCloseSurfaceOutput = autoCloseSurfaceOutput;
     }
 
@@ -86,15 +87,15 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
 
     @Override
     public void onOutputSurface(@NonNull SurfaceOutput surfaceOutput) {
-        mSurfaceOutput = surfaceOutput;
-        mOutputSurface = surfaceOutput.getSurface(mExecutor,
+        mSurfaceOutputs.put(surfaceOutput.getTargets(), surfaceOutput);
+        mOutputSurfaces.put(surfaceOutput.getTargets(), surfaceOutput.getSurface(mExecutor,
                 output -> {
                     if (mAutoCloseSurfaceOutput) {
                         surfaceOutput.close();
                     }
-                    mIsOutputSurfaceRequestedToClose = true;
+                    mIsOutputSurfaceRequestedToClose.put(surfaceOutput.getTargets(), true);
                 }
-        );
+        ));
     }
 
     @Nullable
@@ -102,9 +103,9 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
         return mSurfaceRequest;
     }
 
-    @Nullable
-    public SurfaceOutput getSurfaceOutput() {
-        return mSurfaceOutput;
+    @NonNull
+    public Map<Integer, SurfaceOutput> getSurfaceOutputs() {
+        return mSurfaceOutputs;
     }
 
     @NonNull
@@ -113,15 +114,16 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
     }
 
     @NonNull
-    public Surface getOutputSurface() {
-        return mOutputSurface;
+    public Map<Integer, Surface> getOutputSurfaces() {
+        return mOutputSurfaces;
     }
 
     public boolean isInputSurfaceReleased() {
         return mIsInputSurfaceReleased;
     }
 
-    public boolean isOutputSurfaceRequestedToClose() {
+    @NonNull
+    public Map<Integer, Boolean> isOutputSurfaceRequestedToClose() {
         return mIsOutputSurfaceRequestedToClose;
     }
 
@@ -129,8 +131,8 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
      * Clear up the instance to avoid the "{@link DeferrableSurface} garbage collected" error.
      */
     public void cleanUp() {
-        if (mSurfaceOutput != null) {
-            mSurfaceOutput.close();
+        for (SurfaceOutput surfaceOutput : mSurfaceOutputs.values()) {
+            surfaceOutput.close();
         }
     }
 }

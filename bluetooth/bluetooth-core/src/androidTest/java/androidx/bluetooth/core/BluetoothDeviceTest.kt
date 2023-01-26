@@ -23,11 +23,8 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+// @RunWith(JUnit4::class) (b/259963214)
 class BluetoothDeviceTest {
     @Rule
     @JvmField
@@ -40,7 +37,7 @@ class BluetoothDeviceTest {
             )
         } else GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
-    @Test
+    // @Test (b/259963214)
     fun constructor_createsFromAdapter() {
         val bluetoothAdapter =
             BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter()

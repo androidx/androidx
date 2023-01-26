@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Percentage
+import androidx.health.connect.client.units.percent
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -25,15 +26,16 @@ import java.time.ZoneOffset
  * percentage of their total body mass.
  */
 public class BodyFatRecord(
-    /** Percentage. Required field. Valid range: 0-100. */
-    public val percentage: Percentage,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Percentage. Required field. Valid range: 0-100. */
+    public val percentage: Percentage,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
     init {
         requireNonNegative(value = percentage.value, name = "percentage")
+        percentage.requireNotMore(other = MAX_PERCENTAGE, name = "percentage")
     }
 
     /*
@@ -60,5 +62,9 @@ public class BodyFatRecord(
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    private companion object {
+        private val MAX_PERCENTAGE = 100.percent
     }
 }

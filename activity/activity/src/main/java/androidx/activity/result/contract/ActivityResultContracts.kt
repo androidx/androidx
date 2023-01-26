@@ -31,10 +31,11 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents.Companion.getClipDataUris
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.GMS_ACTION_PICK_IMAGES
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.GMS_EXTRA_PICK_IMAGES_MAX
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.ACTION_INTENT_SENDER_REQUEST
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
 import androidx.annotation.CallSuper
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 
@@ -616,15 +617,49 @@ class ActivityResultContracts private constructor() {
      * This can be extended to override [createIntent] if you wish to pass additional
      * extras to the Intent created by `super.createIntent()`.
      */
+    @RequiresApi(19)
     open class PickVisualMedia : ActivityResultContract<PickVisualMediaRequest, Uri?>() {
         companion object {
             /**
              * Check if the current device has support for the photo picker by checking the running
-             * Android version or the SDK extension version
+             * Android version or the SDK extension version (not including the picker
+             * provided by Google Play services)
+             */
+            @SuppressLint("ClassVerificationFailure", "NewApi")
+            @Deprecated(
+                message = "This method is deprecated in favor of isPhotoPickerAvailable(context) " +
+                    "to support the picker provided by Google Play services",
+                replaceWith = ReplaceWith("isPhotoPickerAvailable(context)")
+            )
+            @JvmStatic
+            fun isPhotoPickerAvailable(): Boolean {
+                return isSystemPickerAvailable()
+            }
+
+            internal const val GMS_ACTION_PICK_IMAGES =
+                "com.google.android.gms.provider.action.PICK_IMAGES"
+            internal const val GMS_EXTRA_PICK_IMAGES_MAX =
+                "com.google.android.gms.provider.extra.PICK_IMAGES_MAX"
+
+            /**
+             * Check if the current device has support for the photo picker by checking the running
+             * Android version, the SDK extension version or the picker provided by Google Play
+             * services
              */
             @SuppressLint("ClassVerificationFailure", "NewApi")
             @JvmStatic
-            fun isPhotoPickerAvailable(): Boolean {
+            fun isPhotoPickerAvailable(context: Context): Boolean {
+                return isSystemPickerAvailable() || isGmsPickerAvailable(context)
+            }
+
+            /**
+             * Check if the current device has support for the Android photo picker by checking the
+             * running Android version or the SDK extension version (not including the picker
+             * provided by Google Play services)
+             */
+            @SuppressLint("ClassVerificationFailure", "NewApi")
+            @JvmStatic
+            internal fun isSystemPickerAvailable(): Boolean {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     true
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -634,6 +669,15 @@ class ActivityResultContracts private constructor() {
                 } else {
                     false
                 }
+            }
+
+            @Suppress("DEPRECATION")
+            @JvmStatic
+            internal fun isGmsPickerAvailable(context: Context): Boolean {
+                return context.packageManager.resolveActivity(
+                    Intent(GMS_ACTION_PICK_IMAGES),
+                    PackageManager.MATCH_DEFAULT_ONLY
+                ) != null
             }
 
             internal fun getVisualMimeType(input: VisualMediaType): String? {
@@ -675,8 +719,12 @@ class ActivityResultContracts private constructor() {
         @CallSuper
         override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
             // Check if Photo Picker is available on the device
-            return if (isPhotoPickerAvailable()) {
+            return if (isSystemPickerAvailable()) {
                 Intent(MediaStore.ACTION_PICK_IMAGES).apply {
+                    type = getVisualMimeType(input.mediaType)
+                }
+            } else if (isGmsPickerAvailable(context)) {
+                Intent(GMS_ACTION_PICK_IMAGES).apply {
                     type = getVisualMimeType(input.mediaType)
                 }
             } else {
@@ -703,7 +751,11 @@ class ActivityResultContracts private constructor() {
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
-            return intent.takeIf { resultCode == Activity.RESULT_OK }?.data
+            return intent.takeIf { resultCode == Activity.RESULT_OK }?.run {
+                // Check both the data URI and ClipData since the GMS picker
+                // only returns results through getClipDataUris()
+                data ?: getClipDataUris().firstOrNull()
+            }
         }
     }
 
@@ -735,18 +787,22 @@ class ActivityResultContracts private constructor() {
         }
 
         @CallSuper
+        @SuppressLint("NewApi", "ClassVerificationFailure")
         override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
             // Check to see if the photo picker is available
-            return if (PickVisualMedia.isPhotoPickerAvailable()) {
+            return if (PickVisualMedia.isSystemPickerAvailable()) {
                 Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                     type = PickVisualMedia.getVisualMimeType(input.mediaType)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        require(maxItems <= Api33Impl.getPickImagesMaxLimit()) {
-                            "Max items must be less or equals MediaStore.getPickImagesMaxLimit()"
-                        }
+                    require(maxItems <= MediaStore.getPickImagesMaxLimit()) {
+                        "Max items must be less or equals MediaStore.getPickImagesMaxLimit()"
                     }
 
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
+                }
+            } else if (PickVisualMedia.isGmsPickerAvailable(context)) {
+                Intent(GMS_ACTION_PICK_IMAGES).apply {
+                    type = PickVisualMedia.getVisualMimeType(input.mediaType)
+                    putExtra(GMS_EXTRA_PICK_IMAGES_MAX, maxItems)
                 }
             } else {
                 // For older devices running KitKat and higher and devices running Android 12
@@ -780,27 +836,20 @@ class ActivityResultContracts private constructor() {
 
         internal companion object {
             /**
-             * The photo picker has a maximum limit of selectable items returned by
-             * [MediaStore.getPickImagesMaxLimit()]. On devices not supporting the photo picker, the
-             * limit is ignored.
+             * The system photo picker has a maximum limit of selectable items returned by
+             * [MediaStore.getPickImagesMaxLimit()]
+             * On devices supporting picker provided by Google Play services, the limit is ignored
+             * if it's higher than the allowed limit.
+             * On devices not supporting the photo picker, the limit is ignored.
              *
              * @see MediaStore.EXTRA_PICK_IMAGES_MAX
              */
-            internal fun getMaxItems() = if (PickVisualMedia.isPhotoPickerAvailable() &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                Api33Impl.getPickImagesMaxLimit()
+            @SuppressLint("NewApi", "ClassVerificationFailure")
+            internal fun getMaxItems() = if (PickVisualMedia.isSystemPickerAvailable()) {
+                MediaStore.getPickImagesMaxLimit()
             } else {
                 Integer.MAX_VALUE
             }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    internal object Api33Impl {
-
-        @DoNotInline
-        fun getPickImagesMaxLimit(): Int {
-            return MediaStore.getPickImagesMaxLimit()
         }
     }
 }

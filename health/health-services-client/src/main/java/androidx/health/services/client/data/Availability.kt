@@ -21,6 +21,7 @@ import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase
 import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvailability as DataTypeAvailabilityProto
 
+@JvmDefaultWithCompatibility
 /** Availability of a [DataType]. */
 public interface Availability {
     public val id: Int

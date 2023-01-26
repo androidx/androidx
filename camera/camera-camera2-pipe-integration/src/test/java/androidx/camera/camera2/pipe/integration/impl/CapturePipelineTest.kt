@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -47,6 +48,11 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -63,11 +69,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -123,6 +124,7 @@ class CapturePipelineTest {
             aeLockBehavior: Lock3ABehavior?,
             afLockBehavior: Lock3ABehavior?,
             awbLockBehavior: Lock3ABehavior?,
+            afTriggerStartAeMode: AeMode?,
             frameLimit: Int,
             timeLimitNs: Long
         ): Deferred<Result3A> {
@@ -199,6 +201,7 @@ class CapturePipelineTest {
             useCaseGraphConfig = UseCaseGraphConfig(
                 graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
                 surfaceToStreamMap = emptyMap(),
+                cameraStateAdapter = CameraStateAdapter(),
             ),
         )
     }

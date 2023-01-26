@@ -28,17 +28,18 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraBackendConfig
 import androidx.camera.camera2.pipe.CameraTimestamp
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.withTimeout
 
 /**
  * This class creates a [CameraPipe] and [CameraGraph] instance using a [FakeCameraBackend].
@@ -132,6 +133,9 @@ class CameraGraphSimulator private constructor(
     fun simulateCameraModified() {
         cameraController.simulateCameraModified()
     }
+
+    fun simulateCameraError(graphStateError: GraphStateError) =
+        cameraController.simulateCameraError(graphStateError)
 
     fun simulateFakeSurfaceConfiguration() {
         for (stream in cameraGraph.streams.streams) {

@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -199,7 +200,7 @@ public class ExploreByTouchHelperActivity extends Activity {
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
 
             final Paint paint = mPaint;
@@ -269,7 +270,8 @@ public class ExploreByTouchHelperActivity extends Activity {
             return mItems.get(index);
         }
 
-        protected static void scaleRectF(RectF in, Rect out, int width, int height) {
+        protected static void scaleRectF(
+                @NonNull RectF in, @NonNull Rect out, int width, int height) {
             out.top = (int) (in.top * height);
             out.bottom = (int) (in.bottom * height);
             out.left = (int) (in.left * width);

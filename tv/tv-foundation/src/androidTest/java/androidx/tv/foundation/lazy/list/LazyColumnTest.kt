@@ -56,6 +56,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tv.foundation.PivotOffsets
@@ -349,6 +350,7 @@ class LazyColumnTest {
             .assertPositionInRootIsEqualTo(30.dp, 50.dp)
     }
 
+    @FlakyTest(bugId = 259297305)
     @Test
     fun removalWithMutableStateListOf() {
         val items = mutableStateListOf("1", "2", "3")

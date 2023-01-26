@@ -22,7 +22,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.LocaleList
-import androidx.annotation.RequiresApi
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
@@ -53,7 +52,6 @@ class LocalesSyncToFrameworkTestCase {
     private lateinit var appLocalesComponent: ComponentName
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
-    @RequiresApi(33)
     @Before
     fun setUp() {
         // setting the app to follow system.
@@ -77,7 +75,6 @@ class LocalesSyncToFrameworkTestCase {
         )
     }
 
-    @RequiresApi(33)
     @Test
     fun testAutoSync_preTToPostT_syncsSuccessfully() {
         val firstActivity = rule.activity
@@ -137,7 +134,6 @@ class LocalesSyncToFrameworkTestCase {
     }
 
     @After
-    @RequiresApi(33)
     fun teardown() {
         val context = instrumentation.context
 

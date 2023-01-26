@@ -48,6 +48,15 @@ protobuf {
     }
 }
 
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated and synthetic accessor methods
+            disable("UnknownNullness", "SyntheticAccessor")
+        }
+    }
+}
+
 // Create export artifact for for JarJaring
 def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     archiveBaseName.set("export")
@@ -67,7 +76,6 @@ artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFi
 androidx {
     name = "Glance AppWidget Protos"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     runApiTasks = new RunApiTasks.No("No public API required for internal use with app widgets.")
     description = "Protos for use with glance app widgets."

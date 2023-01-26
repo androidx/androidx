@@ -269,19 +269,38 @@ public class StartupTimingLegacyMetric : Metric() {
 }
 
 /**
- * Captures the time taken by a trace section - a named begin / end pair matching the provided name.
+ * Captures the time taken by named trace section - a named begin / end pair matching the provided
+ * [sectionName].
  *
- * Always selects the first instance of a trace section captured during a measurement.
+ * Select how matching sections are resolved into a duration metric with [mode].
  *
  * @see androidx.tracing.Trace.beginSection
  * @see androidx.tracing.Trace.endSection
  * @see androidx.tracing.trace
  */
-@RequiresApi(29) // Remove once b/182386956 fixed, as app tag may be needed for this to work.
 @ExperimentalMetricApi
 public class TraceSectionMetric(
-    private val sectionName: String
+    private val sectionName: String,
+    private val mode: Mode = Mode.First
 ) : Metric() {
+    enum class Mode {
+        /**
+         * Captures the duration of the first instance of `sectionName` in the trace.
+         *
+         * When this mode is used, no measurement will be reported if the named section does
+         * not appear in the trace.
+         */
+        First,
+
+        /**
+         * Captures the sum of all instances of `sectionName` in the trace.
+         *
+         * When this mode is used, a measurement of `0` will be reported if the named section
+         * does not appear in the trace
+         */
+        Sum
+    }
+
     internal override fun configure(packageName: String) {
     }
 
@@ -296,16 +315,36 @@ public class TraceSectionMetric(
         captureInfo: CaptureInfo,
         perfettoTraceProcessor: PerfettoTraceProcessor
     ): IterationResult {
-        val slice = perfettoTraceProcessor.querySlices(sectionName).firstOrNull()
-        return if (slice == null) {
-            IterationResult.EMPTY
-        } else IterationResult(
-            singleMetrics = mapOf(
-                sectionName + "Ms" to slice.dur / 1_000_000.0
-            ),
-            sampledMetrics = emptyMap(),
-            timelineRangeNs = slice.ts..slice.endTs
-        )
+        val slices = perfettoTraceProcessor.querySlices(sectionName)
+
+        return when (mode) {
+            Mode.First -> {
+                val slice = slices.firstOrNull()
+                if (slice == null) {
+                    IterationResult.EMPTY
+                } else IterationResult(
+                    singleMetrics = mapOf(
+                        sectionName + "Ms" to slice.dur / 1_000_000.0
+                    ),
+                    sampledMetrics = emptyMap(),
+                    timelineRangeNs = slice.ts..slice.endTs
+                )
+            }
+            Mode.Sum -> {
+                // note, this duration assumes non-reentrant slices
+                val durMs = slices.sumOf { it.dur } / 1_000_000.0
+                IterationResult(
+                    singleMetrics = mapOf(sectionName + "Ms" to durMs),
+                    sampledMetrics = emptyMap(),
+                    timelineRangeNs = if (slices.isEmpty()) {
+                        null
+                    } else {
+                        // parens added to make ktlint happy
+                        (slices.minOf { it.ts })..(slices.maxOf { it.endTs })
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -316,7 +355,7 @@ public class TraceSectionMetric(
  * will also be generated for power and energy, as well as a metric which is the sum of all
  * unselected metrics.
  *
- * @param `type` - Either [Type.Energy] or [Type.Power], which can be configured to show components
+ * @param type Either [Type.Energy] or [Type.Power], which can be configured to show components
  * of system power usage, or [Type.Battery], which will halt charging of device to measure power
  * drain.
  *
@@ -361,7 +400,7 @@ public class TraceSectionMetric(
  * This measurement is not available prior to API 29.
  */
 @RequiresApi(29)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@ExperimentalMetricApi
 public class PowerMetric(
     private val type: Type
 ) : Metric() {
@@ -369,16 +408,19 @@ public class PowerMetric(
     companion object {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
 
+        @JvmStatic
         fun Battery(): Type.Battery {
             return Type.Battery()
         }
 
+        @JvmStatic
         fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ): Type.Energy {
             return Type.Energy(categories)
         }
 
+        @JvmStatic
         fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ): Type.Power {
@@ -389,7 +431,7 @@ public class PowerMetric(
     /**
      * Configures the PowerMetric request.
      *
-     * @param `categories` - A map which is used to configure which metrics are displayed.  The key
+     * @param categories A map which is used to configure which metrics are displayed.  The key
      * is a `PowerCategory` enum, which configures the subsystem category that will be displayed.
      * The value is a `PowerCategoryDisplayLevel`, which configures whether each subsystem in the
      * category will have metrics displayed independently or summed for a total metric of the
@@ -417,13 +459,13 @@ public class PowerMetric(
 
     internal override fun start() {
         if (type is Type.Battery) {
-            Shell.executeCommand("setprop power.battery_input.suspended true")
+            Shell.executeScriptSilent("setprop power.battery_input.suspended true")
         }
     }
 
     internal override fun stop() {
         if (type is Type.Battery) {
-            Shell.executeCommand("setprop power.battery_input.suspended false")
+            Shell.executeScriptSilent("setprop power.battery_input.suspended false")
         }
     }
 

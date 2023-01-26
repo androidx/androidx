@@ -42,14 +42,23 @@ public object Outputs {
     /**
      * The usable output directory, given permission issues with `adb shell` on Android R.
      * Both the app and the shell have access to this output folder.
+     *
+     * This dir can be read/written by app
+     * This dir can be read by shell (see [forceFilesForShellAccessible] for API 21/22!)
      */
     public val dirUsableByAppAndShell: File
+
+    /**
+     * Any file created by this process for the shell to use must be explicitly made filesystem
+     * globally readable, as prior to API 23 the shell didn't have access by default.
+     */
+    val forceFilesForShellAccessible: Boolean = Build.VERSION.SDK_INT in 21..22
 
     init {
         // Be explicit about the TimeZone for stable formatting
         formatter.timeZone = TimeZone.getTimeZone("UTC")
 
-        @Suppress("DEPRECATION")
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         @SuppressLint("NewApi")
         dirUsableByAppAndShell = when {
             Build.VERSION.SDK_INT >= 29 -> {
@@ -58,17 +67,25 @@ public object Outputs {
                 // Additionally, Benchmarks append user space traces to the ones produced
                 // by the Macro Benchmark run; and that is a lot simpler to do if we use the
                 // Media directory. (b/216588251)
-                InstrumentationRegistry.getInstrumentation().context.getFirstMountedMediaDir()
+                context.getFirstMountedMediaDir()
             }
             Build.VERSION.SDK_INT <= 22 -> {
                 // prior to API 23, shell didn't have access to externalCacheDir
-                InstrumentationRegistry.getInstrumentation().context.cacheDir
+                context.cacheDir
             }
-            else -> InstrumentationRegistry.getInstrumentation().context.externalCacheDir
+            else -> context.externalCacheDir
         } ?: throw IllegalStateException(
             "Unable to select a directory for writing files, " +
                 "additionalTestOutputDir argument required to declare output dir."
         )
+
+        if (forceFilesForShellAccessible) {
+            // By default, shell doesn't have access to app dirs on 21/22 so we need to modify
+            // this so that the shell can output here too
+            dirUsableByAppAndShell.setReadable(true, false)
+            dirUsableByAppAndShell.setWritable(true, false)
+            dirUsableByAppAndShell.setExecutable(true, false)
+        }
 
         Log.d(BenchmarkState.TAG, "Usable output directory: $dirUsableByAppAndShell")
 
@@ -76,6 +93,7 @@ public object Outputs {
             ?: dirUsableByAppAndShell
 
         Log.d(BenchmarkState.TAG, "Output Directory: $outputDirectory")
+        outputDirectory.mkdirs()
     }
 
     /**
@@ -93,47 +111,27 @@ public object Outputs {
         block: (file: File) -> Unit,
     ): String {
         val sanitizedName = sanitizeFilename(fileName)
+        val destination = File(outputDirectory, sanitizedName)
 
-        // We need to copy files over anytime `dirUsableByAppAndShell` is different from
-        // `outputDirectory`.
-        val override = dirUsableByAppAndShell != outputDirectory
         // We override the `additionalTestOutputDir` argument.
         // Context: b/181601156
         val file = File(dirUsableByAppAndShell, sanitizedName)
-        try {
-            block.invoke(file)
-        } finally {
-            var destination = file
-            if (override) {
-                // This respects the `additionalTestOutputDir` argument.
-                val actualOutputDirectory = outputDirectory
-                destination = File(actualOutputDirectory, sanitizedName)
-                Log.d(BenchmarkState.TAG, "Copying $file to $destination")
-                try {
-                    destination.mkdirs()
-                    file.copyTo(destination, overwrite = true)
-                } catch (exception: Throwable) {
-                    // This can happen when `additionalTestOutputDir` being passed in cannot
-                    // be written to. The shell does not have permissions to do the necessary
-                    // setup, and this can cause `adb pull` to fail.
-                    val message = """
-                        Unable to copy files to ${destination.absolutePath}.
-                        Please pull the Macrobenchmark results manually by using:
-                        adb pull ${file.absolutePath}
-                    """.trimIndent()
-                    Log.e(BenchmarkState.TAG, message, exception)
+        block.invoke(file)
+        check(file.exists()) { "File doesn't exist!" }
 
-                    // TODO(b/227510293): return failure/null to signal file isn't readable
-                    destination = file
-                }
-            }
-            InstrumentationResults.reportAdditionalFileToCopy(
-                key = reportKey,
-                absoluteFilePath = destination.absolutePath,
-                reportOnRunEndOnly = reportOnRunEndOnly
-            )
-            return destination.absolutePath
+        if (dirUsableByAppAndShell != outputDirectory) {
+            // We need to copy files over anytime `dirUsableByAppAndShell` is different from
+            // `outputDirectory`.
+            Log.d(BenchmarkState.TAG, "Copying $file to $destination")
+            file.copyTo(destination, overwrite = true)
         }
+
+        InstrumentationResults.reportAdditionalFileToCopy(
+            key = reportKey,
+            absoluteFilePath = destination.absolutePath,
+            reportOnRunEndOnly = reportOnRunEndOnly
+        )
+        return destination.absolutePath
     }
 
     public fun sanitizeFilename(filename: String): String {

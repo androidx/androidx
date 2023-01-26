@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.foldable
 
-import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -55,7 +54,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.MeteringPointFactory
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.integration.uiwidgets.databinding.ActivityFoldableCameraBinding
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
+import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.PERMISSIONS
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
@@ -78,8 +77,6 @@ class FoldableCameraActivity : AppCompatActivity() {
         private const val KEY_SCALETYPE = "ScaleType"
         private const val BACK_CAMERA_STR = "Back camera"
         private const val FRONT_CAMERA_STR = "Front camera"
-        val PERMISSIONS =
-            arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
     private lateinit var binding: ActivityFoldableCameraBinding
@@ -362,7 +359,7 @@ class FoldableCameraActivity : AppCompatActivity() {
     }
 
     private fun hasPermissions(): Boolean {
-        return CameraActivity.PERMISSIONS.all {
+        return PERMISSIONS.all {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
     }

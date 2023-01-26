@@ -20,13 +20,24 @@ import androidx.room.compiler.codegen.java.JavaFunSpec
 import androidx.room.compiler.codegen.java.toJavaVisibilityModifier
 import androidx.room.compiler.codegen.kotlin.KotlinFunSpec
 import androidx.room.compiler.codegen.kotlin.toKotlinVisibilityModifier
+import androidx.room.compiler.processing.FunSpecHelper
+import androidx.room.compiler.processing.MethodSpecHelper
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.MethodSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 
 interface XFunSpec : TargetLanguage {
 
+    val name: String
+
     interface Builder : TargetLanguage {
+
+        val name: String
+
+        fun addAnnotation(annotation: XAnnotationSpec)
+
         // TODO(b/247247442): Maybe make a XParameterSpec ?
         fun addParameter(
             typeName: XTypeName,
@@ -48,6 +59,22 @@ interface XFunSpec : TargetLanguage {
             fun Builder.addStatement(format: String, vararg args: Any?) = addCode(
                 XCodeBlock.builder(language).addStatement(format, *args).build()
             )
+
+            fun Builder.apply(
+                javaMethodBuilder: MethodSpec.Builder.() -> Unit,
+                kotlinFunctionBuilder: FunSpec.Builder.() -> Unit,
+            ): Builder = apply {
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        check(this is JavaFunSpec.Builder)
+                        this.actual.javaMethodBuilder()
+                    }
+                    CodeLanguage.KOTLIN -> {
+                        check(this is KotlinFunSpec.Builder)
+                        this.actual.kotlinFunctionBuilder()
+                    }
+                }
+            }
         }
     }
 
@@ -57,18 +84,19 @@ interface XFunSpec : TargetLanguage {
             name: String,
             visibility: VisibilityModifier,
             isOpen: Boolean = false,
-            isOverridden: Boolean = false
+            isOverride: Boolean = false
         ): Builder {
             return when (language) {
                 CodeLanguage.JAVA -> {
                     JavaFunSpec.Builder(
+                        name,
                         MethodSpec.methodBuilder(name).apply {
                             addModifiers(visibility.toJavaVisibilityModifier())
                             // TODO(b/247242374) Add nullability annotations for non-private params
                             // if (!isOpen) {
                             //    addModifiers(Modifier.FINAL)
                             // }
-                            if (isOverridden) {
+                            if (isOverride) {
                                 addAnnotation(Override::class.java)
                             }
                         }
@@ -76,12 +104,13 @@ interface XFunSpec : TargetLanguage {
                 }
                 CodeLanguage.KOTLIN -> {
                     KotlinFunSpec.Builder(
+                        name,
                         FunSpec.builder(name).apply {
                             addModifiers(visibility.toKotlinVisibilityModifier())
                             if (isOpen) {
                                 addModifiers(KModifier.OPEN)
                             }
-                            if (isOverridden) {
+                            if (isOverride) {
                                 addModifiers(KModifier.OVERRIDE)
                             }
                         }
@@ -94,9 +123,11 @@ interface XFunSpec : TargetLanguage {
             language: CodeLanguage,
             visibility: VisibilityModifier
         ): Builder {
+            val name = "<init>"
             return when (language) {
                 CodeLanguage.JAVA -> {
                     JavaFunSpec.Builder(
+                        name,
                         MethodSpec.constructorBuilder().apply {
                             addModifiers(visibility.toJavaVisibilityModifier())
                         }
@@ -104,11 +135,33 @@ interface XFunSpec : TargetLanguage {
                 }
                 CodeLanguage.KOTLIN -> {
                     KotlinFunSpec.Builder(
+                        name,
                         FunSpec.constructorBuilder().apply {
-                            addModifiers(visibility.toKotlinVisibilityModifier())
+                            // Workaround for the unreleased fix in
+                            // https://github.com/square/kotlinpoet/pull/1342
+                            if (visibility != VisibilityModifier.PUBLIC) {
+                                addModifiers(visibility.toKotlinVisibilityModifier())
+                            }
                         }
                     )
                 }
+            }
+        }
+
+        fun overridingBuilder(
+            language: CodeLanguage,
+            element: XMethodElement,
+            owner: XType
+        ): Builder {
+            return when (language) {
+                CodeLanguage.JAVA -> JavaFunSpec.Builder(
+                    name = element.jvmName,
+                    actual = MethodSpecHelper.overridingWithFinalParams(element, owner)
+                )
+                CodeLanguage.KOTLIN -> KotlinFunSpec.Builder(
+                    name = element.name,
+                    actual = FunSpecHelper.overriding(element, owner)
+                )
             }
         }
     }

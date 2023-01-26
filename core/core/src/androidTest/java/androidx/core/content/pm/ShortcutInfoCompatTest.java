@@ -517,4 +517,13 @@ public class ShortcutInfoCompatTest {
 
         assertEquals(locusId, ShortcutInfoCompat.getLocusId(shortcut));
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    public void testToShortcutInfo_ExcludedFromSurfaces() {
+        final ShortcutInfoCompat compat = mBuilder.setExcludedFromSurfaces(
+                ShortcutInfoCompat.SURFACE_LAUNCHER).build();
+        final ShortcutInfo shortcut = compat.toShortcutInfo();
+        assertTrue(shortcut.isExcludedFromSurfaces(ShortcutInfo.SURFACE_LAUNCHER));
+    }
 }

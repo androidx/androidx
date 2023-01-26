@@ -17,72 +17,37 @@
 package androidx.collection
 
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
-import kotlin.random.Random
 
 @RunWith(Parameterized::class)
 class SparseArrayFilledBenchmarkTest(size: Int, sparse: Boolean) {
-    private val map = SparseArrayCompat<String>().apply {
-        val keyFactory: () -> Int = if (sparse) {
-            // Despite the fixed seed, the algorithm which produces random values may vary across
-            // OS versions. Since we're not doing cross-device comparison this is acceptable.
-            val random = Random(0);
-            {
-                val key: Int
-                while (true) {
-                    val candidate = random.nextInt()
-                    if (candidate !in this) {
-                        key = candidate
-                        break
-                    }
-                }
-                key
-            }
-        } else {
-            var key = 0
-            { key++ }
-        }
-        repeat(size) {
-            val key = keyFactory()
-            put(key, "value$key")
-        }
-        check(size == size())
-    }
+    private val map = createFilledSparseArray(size, sparse)
 
     @get:Rule
     val benchmark = BenchmarkRule()
 
-    @Test fun get() {
-        val lastKey = map.keyAt(map.size() - 1)
-        benchmark.measureRepeated {
-            map.get(lastKey)
-        }
+    @Test
+    fun get() {
+        benchmark.runCollectionBenchmark(SparseArrayGetBenchmark(map))
     }
 
-    @Test fun containsKey() {
-        val lastKey = map.keyAt(map.size() - 1)
-        benchmark.measureRepeated {
-            map.containsKey(lastKey)
-        }
+    @Test
+    fun containsKey() {
+        benchmark.runCollectionBenchmark(SparseArrayContainsKeyBenchmark(map))
     }
 
-    @Test fun indexOfKey() {
-        val lastKey = map.keyAt(map.size() - 1)
-        benchmark.measureRepeated {
-            map.indexOfKey(lastKey)
-        }
+    @Test
+    fun indexOfKey() {
+        benchmark.runCollectionBenchmark(SparseArrayIndexOfKeyBenchmark(map))
     }
 
-    @Test fun indexOfValue() {
-        val lastValue = map.valueAt(map.size() - 1)
-        benchmark.measureRepeated {
-            map.indexOfValue(lastValue)
-        }
+    @Test
+    fun indexOfValue() {
+        benchmark.runCollectionBenchmark(SparseArrayIndexOfValueBenchmark(map))
     }
 
     companion object {

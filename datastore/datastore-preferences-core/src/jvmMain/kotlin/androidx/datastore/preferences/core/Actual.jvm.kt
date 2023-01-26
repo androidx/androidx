@@ -20,7 +20,6 @@ package androidx.datastore.preferences.core
 
 import androidx.annotation.RestrictTo
 
-import androidx.datastore.core.okio.OkioSerializer
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineDispatcher
@@ -45,8 +44,4 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
     init {
         delegate = AtomicBoolean(initialValue)
     }
-}
-
-internal actual fun getPreferencesSerializer(): OkioSerializer<Preferences> {
-    return PreferencesSerializer
 }

@@ -61,15 +61,29 @@ internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderI
 
 /**
  * Waits until an image has been saved and its idling resource has become idle.
+ *
+ * @param captureRequestsCount the capture requests count to issue to continuously take pictures
+ * without waiting for the previous capture requests to be done.
  */
-internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle() {
+internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle(
+    captureRequestsCount: Int = 1
+) {
     val idlingResource = withActivity {
+        cleanTakePictureErrorMessage()
         imageSavedIdlingResource
     }
     try {
-        IdlingRegistry.getInstance().register(idlingResource)
         // Perform click to take a picture.
-        Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(click())
+        Espresso.onView(ViewMatchers.withId(R.id.Picture)).apply {
+            repeat(captureRequestsCount) {
+                perform(click())
+            }
+        }
+        // Registers the idling resource and wait for it being idle after performing the click
+        // operations. So that the click operations can be performed continuously without wait for
+        // previous capture results.
+        IdlingRegistry.getInstance().register(idlingResource)
+        Espresso.onIdle()
     } finally { // Always release the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
         withActivity {

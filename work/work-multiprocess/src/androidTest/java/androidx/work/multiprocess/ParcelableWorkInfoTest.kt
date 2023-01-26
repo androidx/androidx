@@ -45,8 +45,8 @@ public class ParcelableWorkInfoTest {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
+            setOf("tag1", "tag2"),
             Data.EMPTY,
-            listOf("tag1", "tag2"),
             Data.EMPTY,
             1,
             1,
@@ -70,8 +70,8 @@ public class ParcelableWorkInfoTest {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
+            setOf("tag1", "tag2"),
             data,
-            listOf("tag1", "tag2"),
             Data.EMPTY,
             1,
             3,
@@ -95,8 +95,8 @@ public class ParcelableWorkInfoTest {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
+            setOf("tag1", "tag2"),
             data,
-            listOf("tag1", "tag2"),
             Data.EMPTY,
             1,
             0,

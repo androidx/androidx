@@ -17,6 +17,7 @@
 package androidx.test.uiautomator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -28,13 +29,17 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.app.UiAutomation;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.WindowManager;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -48,6 +53,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class UiDeviceTest {
+
+    private static final String WATCHER_NAME = "test_watcher";
 
     @Rule
     public TemporaryFolder mTmpDir = new TemporaryFolder();
@@ -76,8 +83,8 @@ public class UiDeviceTest {
     @Test
     public void testGetDisplaySizeDp() {
         DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
-                Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
+                .getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(Math.round(dm.widthPixels / dm.density), mDevice.getDisplaySizeDp().x);
         assertEquals(Math.round(dm.heightPixels / dm.density), mDevice.getDisplaySizeDp().y);
@@ -91,8 +98,8 @@ public class UiDeviceTest {
     @Test
     public void testGetDisplayWidth() {
         DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
-                Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
+                .getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(dm.widthPixels, mDevice.getDisplayWidth());
     }
@@ -100,10 +107,74 @@ public class UiDeviceTest {
     @Test
     public void testGetDisplayHeight() {
         DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
-                Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
+                .getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(dm.heightPixels, mDevice.getDisplayHeight());
+    }
+
+    @Test
+    public void testRegisterAndRunUiWatcher_conditionMet() {
+        // The watcher will return true when its watching condition is met.
+        UiWatcher watcher = () -> true;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+        mDevice.runWatchers();
+        assertTrue(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertTrue(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testRegisterAndRunUiWatcher_conditionNotMet() {
+        UiWatcher watcher = () -> false;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+        mDevice.runWatchers();
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testResetUiWatcher() {
+        UiWatcher watcher = () -> true;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+        mDevice.runWatchers();
+
+        assertTrue(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertTrue(mDevice.hasAnyWatcherTriggered());
+        mDevice.resetWatcherTriggers();
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testRemoveUiWatcher() {
+        UiWatcher watcher = () -> true;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+        mDevice.removeWatcher(WATCHER_NAME);
+        mDevice.runWatchers();
+
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testFreezeAndUnfreezeRotation() throws Exception {
+        ContentResolver resolver = ApplicationProvider.getApplicationContext().getContentResolver();
+
+        mDevice.freezeRotation();
+        // The value of `ACCELEROMETER_ROTATION` will be 0 if the accelerometer is NOT used for
+        // detecting rotation, and 1 otherwise.
+        assertEquals(0,
+                Settings.System.getInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0));
+
+        mDevice.unfreezeRotation();
+        assertEquals(1,
+                Settings.System.getInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0));
     }
 
     @Test

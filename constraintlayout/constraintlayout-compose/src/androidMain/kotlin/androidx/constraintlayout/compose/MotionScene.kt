@@ -21,13 +21,10 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLParser
 import androidx.constraintlayout.core.parser.CLParsingException
 import androidx.constraintlayout.core.state.ConstraintSetParser
 import androidx.constraintlayout.core.state.CoreMotionScene
-import androidx.constraintlayout.core.state.CorePixelDp
 import org.intellij.lang.annotations.Language
 
 /**
@@ -50,16 +47,16 @@ interface MotionScene : CoreMotionScene {
 @ExperimentalMotionApi
 @Composable
 fun MotionScene(@Language("json5") content: String): MotionScene {
-    val density = LocalDensity.current
+    // TODO: Explore if we can make this a non-Composable, we have to make sure that it doesn't
+    //  break Link functionality
     return remember(content) {
-        JSONMotionScene(content, CorePixelDp { with(density) { 1.dp.toPx() } })
+        JSONMotionScene(content)
     }
 }
 
 @ExperimentalMotionApi
 internal class JSONMotionScene(
-    @Language("json5") content: String,
-    private val dpToPx: CorePixelDp
+    @Language("json5") content: String
 ) : EditableJSONLayout(content), MotionScene {
 
     private val constraintSetsContent = HashMap<String, String>()
@@ -113,7 +110,7 @@ internal class JSONMotionScene(
                 null
             }
         } ?: return null
-        return TransitionImpl(parsed, dpToPx)
+        return TransitionImpl(parsed)
     }
 
     // endregion

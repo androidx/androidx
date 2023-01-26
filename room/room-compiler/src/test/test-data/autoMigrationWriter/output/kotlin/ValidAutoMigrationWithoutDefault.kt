@@ -8,8 +8,8 @@ import kotlin.Suppress
 import kotlin.Unit
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["unchecked", "deprecation"])
-public class MyDatabase_AutoMigration_1_2_Impl : Migration {
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+internal class MyDatabase_AutoMigration_1_2_Impl : Migration {
     private val callback: AutoMigrationSpec = ValidAutoMigrationWithoutDefault()
 
     public constructor() : super(1, 2)

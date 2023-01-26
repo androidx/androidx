@@ -16,6 +16,10 @@
 
 package androidx.wear.compose.material
 
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -194,6 +198,39 @@ public fun PositionIndicator(
     reverseDirection: Boolean = false
 ) = PositionIndicator(
     state = ScalingLazyColumnStateAdapter(
+        state = scalingLazyListState
+    ),
+    indicatorHeight = 50.dp,
+    indicatorWidth = 4.dp,
+    paddingHorizontal = 5.dp,
+    modifier = modifier,
+    reverseDirection = reverseDirection
+)
+
+/**
+ * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that
+ * a [ScalingLazyColumn] uses.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param scalingLazyListState the [ScalingLazyListState] to use as the basis for the
+ * PositionIndicatorState.
+ * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
+ */
+@Suppress("DEPRECATION")
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available which uses ScalingLazyListState from " +
+        "androidx.wear.compose.foundation.lazy package", level = DeprecationLevel.WARNING)
+@Composable
+public fun PositionIndicator(
+    scalingLazyListState: androidx.wear.compose.material.ScalingLazyListState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false
+) = PositionIndicator(
+    state = MaterialScalingLazyColumnStateAdapter(
         state = scalingLazyListState
     ),
     indicatorHeight = 50.dp,
@@ -462,63 +499,63 @@ public fun PositionIndicator(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .drawWithContent {
-                        // We need to invert reverseDirection when the screen is round and we are on
-                        // the left.
+                .fillMaxSize()
+                .drawWithContent {
+                    // We need to invert reverseDirection when the screen is round and we are on
+                    // the left.
                         val actualReverseDirection =
                             if (isScreenRound && !indicatorOnTheRight) {
-                                !reverseDirection
-                            } else {
-                                reverseDirection
-                            }
+                        !reverseDirection
+                    } else {
+                        reverseDirection
+                    }
 
-                        val indicatorPosition = if (actualReverseDirection) {
-                            1 - animatedDisplayState.value.position
-                        } else {
-                            animatedDisplayState.value.position
-                        }
+                    val indicatorPosition = if (actualReverseDirection) {
+                        1 - animatedDisplayState.value.position
+                    } else {
+                        animatedDisplayState.value.position
+                    }
 
-                        val indicatorWidthPx = indicatorWidth.toPx()
+                    val indicatorWidthPx = indicatorWidth.toPx()
 
-                        // We want position = 0 be the indicator aligned at the top of its area and
-                        // position = 1 be aligned at the bottom of the area.
+                    // We want position = 0 be the indicator aligned at the top of its area and
+                    // position = 1 be aligned at the bottom of the area.
                         val indicatorStart =
                             indicatorPosition * (1 - animatedDisplayState.value.size)
 
                         val diameter = max(containerSize.width, containerSize.height)
 
-                        val paddingHorizontalPx = paddingHorizontal.toPx()
-                        if (isScreenRound) {
-                            val usableHalf = diameter / 2f - paddingHorizontalPx
-                            val sweepDegrees =
-                                (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
+                    val paddingHorizontalPx = paddingHorizontal.toPx()
+                    if (isScreenRound) {
+                        val usableHalf = diameter / 2f - paddingHorizontalPx
+                        val sweepDegrees =
+                            (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
 
-                            drawCurvedIndicator(
-                                color,
-                                background,
-                                paddingHorizontalPx,
-                                indicatorOnTheRight,
-                                sweepDegrees,
-                                indicatorWidthPx,
-                                indicatorStart,
-                                animatedDisplayState.value.size,
-                                highlightAlpha.value
-                            )
-                        } else {
-                            drawStraightIndicator(
-                                color,
-                                background,
-                                paddingHorizontalPx,
-                                indicatorOnTheRight,
-                                indicatorWidthPx,
-                                indicatorHeightPx = indicatorHeight.toPx(),
-                                indicatorStart,
-                                animatedDisplayState.value.size,
-                                highlightAlpha.value
-                            )
-                        }
+                        drawCurvedIndicator(
+                            color,
+                            background,
+                            paddingHorizontalPx,
+                            indicatorOnTheRight,
+                            sweepDegrees,
+                            indicatorWidthPx,
+                            indicatorStart,
+                            animatedDisplayState.value.size,
+                            highlightAlpha.value
+                        )
+                    } else {
+                        drawStraightIndicator(
+                            color,
+                            background,
+                            paddingHorizontalPx,
+                            indicatorOnTheRight,
+                            indicatorWidthPx,
+                            indicatorHeightPx = indicatorHeight.toPx(),
+                            indicatorStart,
+                            animatedDisplayState.value.size,
+                            highlightAlpha.value
+                        )
                     }
+                }
             )
         }
     }
@@ -654,51 +691,13 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
  */
 internal class ScalingLazyColumnStateAdapter(
     private val state: ScalingLazyListState
-) : PositionIndicatorState {
-    override val positionFraction: Float
-        get() {
-            return if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
-                0.0f
-            } else {
-                val decimalFirstItemIndex = decimalFirstItemIndex()
-                val decimalLastItemIndex = decimalLastItemIndex()
-                val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
-                    decimalLastItemIndex
+) : BaseScalingLazyColumnStateAdapter() {
 
-                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
-                    0.0f
-                } else {
-                    decimalFirstItemIndex /
-                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
-                }
-            }
-        }
+    override fun noVisibleItems(): Boolean = state.layoutInfo.visibleItemsInfo.isEmpty()
 
-    override fun sizeFraction(scrollableContainerSizePx: Float) =
-        if (state.layoutInfo.totalItemsCount == 0) {
-            1.0f
-        } else {
-            val decimalFirstItemIndex = decimalFirstItemIndex()
-            val decimalLastItemIndex = decimalLastItemIndex()
+    override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
 
-            (decimalLastItemIndex - decimalFirstItemIndex) /
-                state.layoutInfo.totalItemsCount.toFloat()
-        }
-
-    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
-        val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() &&
-            (decimalFirstItemIndex() > 0 ||
-                decimalLastItemIndex() < state.layoutInfo.totalItemsCount)
-        return if (canScroll) {
-            if (state.isScrollInProgress) {
-                PositionIndicatorVisibility.Show
-            } else {
-                PositionIndicatorVisibility.AutoHide
-            }
-        } else {
-            PositionIndicatorVisibility.Hide
-        }
-    }
+    override fun isScrollInProgress(): Boolean = state.isScrollInProgress
 
     override fun hashCode(): Int {
         return state.hashCode()
@@ -717,7 +716,7 @@ internal class ScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    private fun decimalLastItemIndex(): Float {
+    override fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
         // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
@@ -728,10 +727,12 @@ internal class ScalingLazyColumnStateAdapter(
         // center of the viewport, it does not change viewport coordinates. As a result this
         // calculation needs to take the anchorType into account to calculate the correct end
         // of list item offset.
-        val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
-        val viewportEndOffset = state.viewportHeightPx.value!! / 2f
+        val lastItemEndOffset = lastItem.startOffset(state.layoutInfo.anchorType) + lastItem.size
+        val viewportEndOffset = state.layoutInfo.viewportSize.height / 2f
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleFraction =
-            (1f - ((lastItemEndOffset - viewportEndOffset) / lastItem.size)).coerceAtMost(1f)
+            (1f - ((lastItemEndOffset - viewportEndOffset) /
+                lastItem.size.coerceAtLeast(1))).coerceAtMost(1f)
 
         return lastItem.index.toFloat() + lastItemVisibleFraction
     }
@@ -746,16 +747,159 @@ internal class ScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    private fun decimalFirstItemIndex(): Float {
+    override fun decimalFirstItemIndex(): Float {
+        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val firstItem = state.layoutInfo.visibleItemsInfo.first()
+        val firstItemStartOffset = firstItem.startOffset(state.layoutInfo.anchorType)
+        val viewportStartOffset = - (state.layoutInfo.viewportSize.height / 2f)
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
+        val firstItemInvisibleFraction =
+            ((viewportStartOffset - firstItemStartOffset) /
+                firstItem.size.coerceAtLeast(1)).coerceAtLeast(0f)
+
+        return firstItem.index.toFloat() + firstItemInvisibleFraction
+    }
+}
+
+/**
+ * An implementation of [PositionIndicatorState] to display the amount and position of a
+ * [ScalingLazyColumn] component via its [ScalingLazyListState].
+ *
+ * Note that size and position calculations ignore spacing between list items both for determining
+ * the number and the number of visible items.
+
+ * @param state the [ScalingLazyListState] to adapt.
+ */
+@Deprecated("Use [ScalingLazyColumnStateAdapter] instead")
+internal class MaterialScalingLazyColumnStateAdapter(
+    @Suppress("DEPRECATION")
+    private val state: androidx.wear.compose.material.ScalingLazyListState
+) : BaseScalingLazyColumnStateAdapter() {
+
+    override fun noVisibleItems(): Boolean = state.layoutInfo.visibleItemsInfo.isEmpty()
+
+    override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
+
+    override fun isScrollInProgress(): Boolean = state.isScrollInProgress
+
+    override fun hashCode(): Int {
+        return state.hashCode()
+    }
+
+    @Suppress("DEPRECATION")
+    override fun equals(other: Any?): Boolean {
+        return (other as? MaterialScalingLazyColumnStateAdapter)?.state == state
+    }
+
+    /**
+     * Provide a float value that represents the index of the last visible list item in a scaling
+     * lazy column. The value should be in the range from [n,n+1] for a given index n, where n is
+     * the index of the last visible item and a value of n represents that only the very start|top
+     * of the item is visible, and n+1 means that whole of the item is visible in the viewport.
+     *
+     * Note that decimal index calculations ignore spacing between list items both for determining
+     * the number and the number of visible items.
+     */
+    override fun decimalLastItemIndex(): Float {
+        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val lastItem = state.layoutInfo.visibleItemsInfo.last()
+        // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
+        // 0 in the center of the visible viewport and +/-(state.viewportHeightPx / 2f) are the
+        // start and end of the viewport.
+        //
+        // Note that [ScalingLazyListAnchorType] determines how the list items are anchored to the
+        // center of the viewport, it does not change viewport coordinates. As a result this
+        // calculation needs to take the anchorType into account to calculate the correct end
+        // of list item offset.
+        val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
+        val viewportEndOffset = state.viewportHeightPx.value!! / 2f
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
+        val lastItemVisibleFraction =
+            (1f - ((lastItemEndOffset - viewportEndOffset) /
+                lastItem.size.coerceAtLeast(1))).coerceAtMost(1f)
+
+        return lastItem.index.toFloat() + lastItemVisibleFraction
+    }
+
+    /**
+     * Provide a float value that represents the index of first visible list item in a scaling lazy
+     * column. The value should be in the range from [n,n+1] for a given index n, where n is the
+     * index of the first visible item and a value of n represents that all of the item is visible
+     * in the viewport and a value of n+1 means that only the very end|bottom of the list item is
+     * visible at the start|top of the viewport.
+     *
+     * Note that decimal index calculations ignore spacing between list items both for determining
+     * the number and the number of visible items.
+     */
+    override fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
         val viewportStartOffset = - (state.viewportHeightPx.value!! / 2f)
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val firstItemInvisibleFraction =
-            ((viewportStartOffset - firstItemStartOffset) / firstItem.size).coerceAtLeast(0f)
+            ((viewportStartOffset - firstItemStartOffset) /
+                firstItem.size.coerceAtLeast(1)).coerceAtLeast(0f)
 
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
+}
+
+internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorState {
+    override val positionFraction: Float
+        get() {
+            return if (noVisibleItems()) {
+                0.0f
+            } else {
+                val decimalFirstItemIndex = decimalFirstItemIndex()
+                val decimalLastItemIndex = decimalLastItemIndex()
+                val decimalLastItemIndexDistanceFromEnd = totalItemsCount() -
+                    decimalLastItemIndex
+
+                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                    0.0f
+                } else {
+                    decimalFirstItemIndex /
+                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                }
+            }
+        }
+
+    override fun sizeFraction(scrollableContainerSizePx: Float) =
+        if (totalItemsCount() == 0) {
+            1.0f
+        } else {
+            val decimalFirstItemIndex = decimalFirstItemIndex()
+            val decimalLastItemIndex = decimalLastItemIndex()
+
+            (decimalLastItemIndex - decimalFirstItemIndex) /
+                totalItemsCount().toFloat()
+        }
+
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
+        val canScroll = !noVisibleItems() &&
+            (decimalFirstItemIndex() > 0 ||
+                decimalLastItemIndex() < totalItemsCount())
+        return if (canScroll) {
+            if (isScrollInProgress()) {
+                PositionIndicatorVisibility.Show
+            } else {
+                PositionIndicatorVisibility.AutoHide
+            }
+        } else {
+            PositionIndicatorVisibility.Hide
+        }
+    }
+
+    abstract fun noVisibleItems(): Boolean
+
+    abstract fun totalItemsCount(): Int
+
+    abstract fun isScrollInProgress(): Boolean
+
+    abstract fun decimalLastItemIndex(): Float
+
+    abstract fun decimalFirstItemIndex(): Float
 }
 
 /**
@@ -823,18 +967,22 @@ internal class LazyColumnStateAdapter(
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
+        // Coerce item sizes to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleSize =
-            (state.layoutInfo.viewportEndOffset - lastItem.offset).coerceAtMost(lastItem.size)
+            (state.layoutInfo.viewportEndOffset - lastItem.offset)
+                .coerceAtMost(lastItem.size).coerceAtLeast(1)
         return lastItem.index.toFloat() +
-            lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
+            lastItemVisibleSize.toFloat() / lastItem.size.coerceAtLeast(1).toFloat()
     }
 
     private fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         return firstItem.index.toFloat() -
-            firstItemOffset.coerceAtMost(0).toFloat() / firstItem.size.toFloat()
+            firstItemOffset.coerceAtMost(0).toFloat() /
+            firstItem.size.coerceAtLeast(1).toFloat()
     }
 }
 
@@ -965,3 +1113,13 @@ private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modif
 )
 
 private fun sqr(x: Float) = x * x
+
+/**
+ * Find the start offset of the list item w.r.t. the
+ */
+internal fun ScalingLazyListItemInfo.startOffset(anchorType: ScalingLazyListAnchorType) =
+    offset - if (anchorType == ScalingLazyListAnchorType.ItemCenter) {
+        (size / 2f)
+    } else {
+        0f
+    }

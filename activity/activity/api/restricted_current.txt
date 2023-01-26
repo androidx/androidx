@@ -44,12 +44,14 @@ package androidx.activity {
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
-  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner {
+  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
     ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     ctor public ComponentDialog(android.content.Context context);
     method public final androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method @CallSuper public void onBackPressed();
+    property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
   public final class FullyDrawnReporter {
@@ -72,11 +74,12 @@ package androidx.activity {
   }
 
   public abstract class OnBackPressedCallback {
-    ctor public OnBackPressedCallback(boolean);
+    ctor public OnBackPressedCallback(boolean enabled);
     method @MainThread public abstract void handleOnBackPressed();
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
+    property @MainThread public final boolean isEnabled;
   }
 
   public final class OnBackPressedDispatcher {
@@ -140,8 +143,8 @@ package androidx.activity.result {
     field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
   }
 
-  public interface ActivityResultCallback<O> {
-    method public void onActivityResult(O!);
+  public fun interface ActivityResultCallback<O> {
+    method public void onActivityResult(O? result);
   }
 
   public interface ActivityResultCaller {
@@ -288,17 +291,19 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
+  @RequiresApi(19) public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
-    method public static final boolean isPhotoPickerAvailable();
+    method @Deprecated public static final boolean isPhotoPickerAvailable();
+    method public static final boolean isPhotoPickerAvailable(android.content.Context context);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {
-    method public boolean isPhotoPickerAvailable();
+    method @Deprecated public boolean isPhotoPickerAvailable();
+    method public boolean isPhotoPickerAvailable(android.content.Context context);
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.ImageAndVideo implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {

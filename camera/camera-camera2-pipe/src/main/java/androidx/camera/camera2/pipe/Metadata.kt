@@ -70,7 +70,7 @@ public interface Metadata {
  * [CameraGraph]. This class will report the actual keys / values that were sent to camera2 (if
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
-public interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
+public interface RequestMetadata : Metadata, UnsafeWrapper {
     public operator fun <T> get(key: CaptureRequest.Key<T>): T?
     public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
 
@@ -97,7 +97,7 @@ public interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
 /**
  * [FrameInfo] is a wrapper around [TotalCaptureResult].
  */
-public interface FrameInfo : UnsafeWrapper<TotalCaptureResult> {
+public interface FrameInfo : UnsafeWrapper {
     public val metadata: FrameMetadata
 
     /**
@@ -114,7 +114,7 @@ public interface FrameInfo : UnsafeWrapper<TotalCaptureResult> {
 /**
  * [FrameMetadata] is a wrapper around [CaptureResult].
  */
-public interface FrameMetadata : Metadata, UnsafeWrapper<CaptureResult> {
+public interface FrameMetadata : Metadata, UnsafeWrapper {
     public operator fun <T> get(key: CaptureResult.Key<T>): T?
     public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
 

@@ -54,14 +54,13 @@ interface GlanceStateDefinition<T> {
 }
 
 /**
- * Data store for data specific to the glanceable view. Stored data should include information
- * relevant to the representation of views, but not surface specific view data. For example, the
- * month displayed on a calendar rather than actual calendar entries.
+ * Interface for an object that manages configuration for glanceables using the given
+ * GlanceStateDefinition.
  *
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object GlanceState {
+interface ConfigManager {
     /**
      * Returns the stored data associated with the given UI key string.
      *
@@ -73,7 +72,7 @@ object GlanceState {
         context: Context,
         definition: GlanceStateDefinition<T>,
         fileKey: String
-    ): T = getDataStore(context, definition, fileKey).data.first()
+    ): T
 
     /**
      * Updates the underlying data by applying the provided update block.
@@ -87,12 +86,41 @@ object GlanceState {
         definition: GlanceStateDefinition<T>,
         fileKey: String,
         updateBlock: suspend (T) -> T
-    ): T = getDataStore(context, definition, fileKey).updateData(updateBlock)
+    ): T
 
     /**
      * Delete the file underlying the [DataStore] and remove local references to the [DataStore].
      */
     suspend fun deleteStore(
+        context: Context,
+        definition: GlanceStateDefinition<*>,
+        fileKey: String
+    )
+}
+
+/**
+ * Data store for data specific to the glanceable view. Stored data should include information
+ * relevant to the representation of views, but not surface specific view data. For example, the
+ * month displayed on a calendar rather than actual calendar entries.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object GlanceState : ConfigManager {
+    override suspend fun <T> getValue(
+        context: Context,
+        definition: GlanceStateDefinition<T>,
+        fileKey: String
+    ): T = getDataStore(context, definition, fileKey).data.first()
+
+    override suspend fun <T> updateValue(
+        context: Context,
+        definition: GlanceStateDefinition<T>,
+        fileKey: String,
+        updateBlock: suspend (T) -> T
+    ): T = getDataStore(context, definition, fileKey).updateData(updateBlock)
+
+    override suspend fun deleteStore(
         context: Context,
         definition: GlanceStateDefinition<*>,
         fileKey: String

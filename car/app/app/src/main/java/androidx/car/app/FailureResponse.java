@@ -24,11 +24,11 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.serialization.BundlerException;
 
 import java.lang.annotation.Retention;
@@ -42,6 +42,7 @@ import java.util.Objects;
  * <p>This is used for the failure response for an {@link androidx.car.app.IOnDoneCallback}
  */
 @CarProtocol
+@KeepFields
 public final class FailureResponse {
     /**
      * The exception type of the failure.
@@ -71,10 +72,8 @@ public final class FailureResponse {
     public static final int RUNTIME_EXCEPTION = 5;
     public static final int REMOTE_EXCEPTION = 6;
 
-    @Keep
     @Nullable
     private final String mStackTrace;
-    @Keep
     @ErrorType
     private final int mErrorType;
 

@@ -104,6 +104,14 @@ class CameraHelper {
         activeRecording = null
     }
 
+    fun pauseRecording() {
+        activeRecording!!.pause()
+    }
+
+    fun resumeRecording() {
+        activeRecording!!.resume()
+    }
+
     private fun generateVideoFileOutputOptions(): FileOutputOptions {
         val videoFileName = "${generateVideoFileName()}.mp4"
         val videoFolder = Environment.getExternalStoragePublicDirectory(

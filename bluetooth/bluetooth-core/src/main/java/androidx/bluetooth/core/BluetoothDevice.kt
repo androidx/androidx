@@ -957,6 +957,7 @@ class BluetoothDevice internal constructor(private val fwkDevice: FwkBluetoothDe
         return impl.toBundle()
     }
 
+    @JvmDefaultWithCompatibility
     interface BluetoothDeviceImpl : Bundleable {
         fun connectGatt(
             context: Context,

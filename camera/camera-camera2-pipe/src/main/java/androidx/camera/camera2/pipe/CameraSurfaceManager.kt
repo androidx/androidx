@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraSurfaceManager.SurfaceListener
 import androidx.camera.camera2.pipe.CameraSurfaceManager.SurfaceToken
 import androidx.camera.camera2.pipe.core.Log
-import java.io.Closeable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.atomicfu.atomic
@@ -35,12 +34,13 @@ import kotlinx.atomicfu.atomic
  * Users of CameraSurfaceManager would register a [SurfaceListener] to receive updates when a
  * [Surface] is in use ("active") or no longer in use ("inactive") at CameraPipe.
  *
- * Internally, when and after a [CameraGraph] is started, all [Surface]s belonging to the
- * [CameraGraph] will be registered at CameraSurfaceManager where each [Surface] is given a
- * [SurfaceToken]. When a [Surface] is no longer in use, we close the [SurfaceToken] associated
- * with the [Surface].
+ * These callbacks are managed by acquiring and closing "usage tokens" for a given Surface.
+ * acquiring the first token causes [SurfaceListener.onSurfaceActive] to be invoked on all
+ * registered listeners. When a surface is no longer being used, the [SurfaceToken] must be closed.
+ * After all outstanding tokens have been closed, the listeners receive
+ * SurfaceListener.onSurfaceInactive] for that surface.
  *
- * Note if the same [Surface] is used in a subsequent [CameraGraph], it will be issued a different
+ * If the same [Surface] is used in a subsequent [CameraGraph], it will be issued a different
  * token. Essentially each token means a single use on a [Surface].
  */
 @Singleton
@@ -62,7 +62,7 @@ public class CameraSurfaceManager @Inject constructor() {
      */
     inner class SurfaceToken(
         internal val surface: Surface
-    ) : Closeable {
+    ) : AutoCloseable {
         private val closed = atomic(false)
         override fun close() {
             if (closed.compareAndSet(expect = false, update = true)) {
@@ -74,28 +74,30 @@ public class CameraSurfaceManager @Inject constructor() {
 
     interface SurfaceListener {
         /**
-         * Called when a [Surface] is active. A [Surface] is considered active when it's registered,
-         * which happens when:
-         *
-         *   1. A [CameraGraph] is started with an initial set of Surfaces.
-         *   2. A new [Surface] is set on the [CameraGraph] after it's started.
+         * Called when a [Surface] is in use by a [CameraGraph]. Calling [CameraGraph.setSurface]
+         * will cause [onSurfaceActive] to be called on any currently registered listener. The
+         * surface will remain active until the [CameraGraph] is closed AND any underlying usage has
+         * been released (Normally this means that it will remain in use until the camera device is
+         * closed, or until the CaptureSession that uses it is replaced).
          */
         fun onSurfaceActive(surface: Surface)
 
         /**
-         * Called when a [Surface] is no longer in use ("inactive"). This can happen when:
+         * Called when a [Surface] is considered "inactive" and no longer in use by [CameraGraph].
+         * This can happen under a few different scenarios:
          *
-         *   1. A [Surface] is unset from a [CameraGraph] after it's started.
-         *   2. Capture session is closed or configured unsuccessfully, and the [Surface] isn't in
-         *      use in another [CameraGraph].
-         *   3. [CameraGraph] is stopped, and the [Surface] isn't in use in another [CameraGraph].
+         *   1. A [Surface] is unset or replaced in a [CameraGraph].
+         *   2. A CaptureSession is closed or fails to configure and the [CameraGraph] has been
+         *      closed.
+         *   3. [CameraGraph] is closed, and the [Surface] isn't not in use by some other
+         *      camera subsystem.
          */
         fun onSurfaceInactive(surface: Surface)
     }
 
     /**
      * Adds a [SurfaceListener] to receive [Surface] lifetime updates. When a listener is added,
-     * it will receive onSurfaceActive() on all active Surfaces.
+     * it will receive [SurfaceListener.onSurfaceActive] for all active Surfaces.
      */
     public fun addListener(listener: SurfaceListener) {
         val activeSurfaces = synchronized(lock) {
@@ -115,7 +117,7 @@ public class CameraSurfaceManager @Inject constructor() {
         }
     }
 
-    internal fun registerSurface(surface: Surface): Closeable {
+    internal fun registerSurface(surface: Surface): AutoCloseable {
         check(surface.isValid) { "Surface $surface isn't valid!" }
         val surfaceToken: SurfaceToken
         var listenersToInvoke: List<SurfaceListener>? = null

@@ -3,7 +3,6 @@ package app.cash.paparazzi
 import sun.misc.Unsafe
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
-import java.security.AccessController
 import java.security.PrivilegedAction
 
 /**
@@ -23,7 +22,8 @@ internal fun Field.setStaticValue(value: Any) {
     this.isAccessible = true
     val isFinalModifierPresent = this.modifiers and Modifier.FINAL == Modifier.FINAL
     if (isFinalModifierPresent) {
-      AccessController.doPrivileged<Any?>(
+      @Suppress("DEPRECATION")
+      java.security.AccessController.doPrivileged<Any?>(
         PrivilegedAction {
           try {
             val unsafe = Unsafe::class.java.getFieldReflectively("theUnsafe").get(null) as Unsafe

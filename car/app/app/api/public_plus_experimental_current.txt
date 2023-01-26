@@ -38,6 +38,8 @@ package androidx.car.app {
     method public final boolean onUnbind(android.content.Intent);
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
     field @androidx.car.app.annotations.RequiresCarApi(6) public static final String CATEGORY_FEATURE_CLUSTER = "androidx.car.app.category.FEATURE_CLUSTER";
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_IOT_APP = "androidx.car.app.category.IOT";
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_MESSAGING_APP = "androidx.car.app.category.MESSAGING";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
     field @Deprecated public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
     field public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
@@ -842,6 +844,23 @@ package androidx.car.app.media {
 
 }
 
+package androidx.car.app.mediaextensions {
+
+  public final class MetadataExtras {
+    field public static final String KEY_DESCRIPTION_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
+    field public static final String KEY_SUBTITLE_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
+  }
+
+}
+
+package androidx.car.app.messaging {
+
+  @androidx.car.app.annotations.ExperimentalCarApi public class MessagingServiceConstants {
+    field public static final String ACTION_HANDLE_CAR_MESSAGING = "androidx.car.app.messaging.action.HANDLE_CAR_MESSAGING";
+  }
+
+}
+
 package androidx.car.app.messaging.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class CarMessage {
@@ -860,7 +879,18 @@ package androidx.car.app.messaging.model {
     method public androidx.car.app.messaging.model.CarMessage.Builder setSender(androidx.core.app.Person);
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface ConversationCallback {
+    method public void onMarkAsRead();
+    method public void onTextReply(String);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public interface ConversationCallbackDelegate {
+    method public void sendMarkAsRead(androidx.car.app.OnDoneCallback);
+    method public void sendTextReply(String, androidx.car.app.OnDoneCallback);
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class ConversationItem implements androidx.car.app.model.Item {
+    method public androidx.car.app.messaging.model.ConversationCallbackDelegate getConversationCallbackDelegate();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public String getId();
     method public java.util.List<androidx.car.app.messaging.model.CarMessage!> getMessages();
@@ -871,6 +901,7 @@ package androidx.car.app.messaging.model {
   public static final class ConversationItem.Builder {
     ctor public ConversationItem.Builder();
     method public androidx.car.app.messaging.model.ConversationItem build();
+    method public androidx.car.app.messaging.model.ConversationItem.Builder setConversationCallback(androidx.car.app.messaging.model.ConversationCallback);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setGroupConversation(boolean);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setId(String);
@@ -1023,7 +1054,7 @@ package androidx.car.app.model {
     method public double getLongitude();
   }
 
-  @Keep @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
+  @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
     ctor public CarSpan();
     method public void updateDrawState(android.text.TextPaint);
   }
@@ -1045,6 +1076,10 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public final class ClickableSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.ClickableSpan create(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.OnClickDelegate getOnClickDelegate();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public interface Content {
+    method public String getContentId();
   }
 
   @androidx.car.app.annotations.CarProtocol public final class DateTimeWithZone {
@@ -1161,12 +1196,14 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
     method public androidx.car.app.model.OnSelectedDelegate? getOnSelectedDelegate();
     method public int getSelectedIndex();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ItemList.Builder toBuilder();
   }
 
   public static final class ItemList.Builder {
     ctor public ItemList.Builder();
     method public androidx.car.app.model.ItemList.Builder addItem(androidx.car.app.model.Item);
     method public androidx.car.app.model.ItemList build();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ItemList.Builder clearItems();
     method public androidx.car.app.model.ItemList.Builder setNoItemsMessage(CharSequence);
     method public androidx.car.app.model.ItemList.Builder setOnItemsVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener);
     method public androidx.car.app.model.ItemList.Builder setOnSelectedListener(androidx.car.app.model.ItemList.OnSelectedListener);
@@ -1183,17 +1220,21 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class ListTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionedLists();
     method public androidx.car.app.model.ItemList? getSingleList();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder toBuilder();
   }
 
   public static final class ListTemplate.Builder {
     ctor public ListTemplate.Builder();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.ListTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder clearSectionedLists();
     method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder setLoading(boolean);
@@ -1375,7 +1416,7 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol public final class Row implements androidx.car.app.model.Item {
-    method @androidx.car.app.annotations.ExperimentalCarApi public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata? getMetadata();
     method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public int getNumericDecoration();
@@ -1396,7 +1437,7 @@ package androidx.car.app.model {
 
   public static final class Row.Builder {
     ctor public Row.Builder();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.Row.Builder addAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.Row.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Row.Builder addText(CharSequence);
     method public androidx.car.app.model.Row.Builder addText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Row build();
@@ -1449,6 +1490,59 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.CarText getHeader();
     method public androidx.car.app.model.ItemList getItemList();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
+    method public String getContentId();
+    method public androidx.car.app.model.CarIcon getIcon();
+    method public androidx.car.app.model.CarText getTitle();
+    method public boolean isActive();
+    method public androidx.car.app.model.Tab.Builder toBuilder();
+  }
+
+  public static final class Tab.Builder {
+    ctor public Tab.Builder();
+    method public androidx.car.app.model.Tab build();
+    method public androidx.car.app.model.Tab.Builder setActive(boolean);
+    method public androidx.car.app.model.Tab.Builder setContentId(String);
+    method public androidx.car.app.model.Tab.Builder setIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Tab.Builder setTitle(CharSequence);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public interface TabCallbackDelegate {
+    method public void sendTabSelected(String, androidx.car.app.OnDoneCallback);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class TabContents implements androidx.car.app.model.Content {
+    method public String getContentId();
+    method public androidx.car.app.model.Template getTemplate();
+    field public static final String CONTENT_ID = "TAB_CONTENTS_CONTENT_ID";
+  }
+
+  public static final class TabContents.Builder {
+    ctor public TabContents.Builder(androidx.car.app.model.Template);
+    method public androidx.car.app.model.TabContents build();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class TabTemplate implements androidx.car.app.model.Template {
+    method public androidx.car.app.model.Action getHeaderAction();
+    method public androidx.car.app.model.TabCallbackDelegate getTabCallbackDelegate();
+    method public androidx.car.app.model.TabContents getTabContents();
+    method public java.util.List<androidx.car.app.model.Tab!> getTabs();
+    method public boolean isLoading();
+  }
+
+  public static final class TabTemplate.Builder {
+    ctor public TabTemplate.Builder(androidx.car.app.model.TabTemplate.TabCallback);
+    method public androidx.car.app.model.TabTemplate.Builder addTab(androidx.car.app.model.Tab);
+    method public androidx.car.app.model.TabTemplate build();
+    method public androidx.car.app.model.TabTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.TabTemplate.Builder setLoading(boolean);
+    method public androidx.car.app.model.TabTemplate.Builder setTabContents(androidx.car.app.model.TabContents);
+  }
+
+  public static interface TabTemplate.TabCallback {
+    method public default void onTabSelected(String);
   }
 
   @androidx.car.app.annotations.CarProtocol public interface Template {

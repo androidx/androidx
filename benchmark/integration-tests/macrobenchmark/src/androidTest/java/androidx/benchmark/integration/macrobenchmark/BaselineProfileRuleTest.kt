@@ -17,9 +17,9 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
-import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -35,7 +35,6 @@ import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalBaselineProfilesApi::class)
 class BaselineProfileRuleTest {
 
     @get:Rule
@@ -57,20 +56,24 @@ class BaselineProfileRuleTest {
 
     @Test
     fun filter() {
-        assumeTrue(Shell.isSessionRooted())
+        // TODO: share this 'is supported' check with the one inside BaselineProfileRule, once this
+        //  test class is moved out of integration-tests, into benchmark-macro-junit4
+        assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
 
-        var nextIteration = 1
+        var expectedIteration = 0
         // Collects the baseline profile
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
-            packageFilters = listOf(PACKAGE_NAME),
+            filterPredicate = {
+                it.contains("^.*L${PACKAGE_NAME.replace(".", "/")}".toRegex())
+            },
             profileBlock = {
-                assertEquals(nextIteration++, iteration)
+                assertEquals(expectedIteration++, iteration)
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()
             }
         )
-        assertEquals(4, nextIteration)
+        assertEquals(3, expectedIteration)
 
         // Asserts the output of the baseline profile
         val lines = File(Outputs.outputDirectory, BASELINE_PROFILE_OUTPUT_FILE_NAME).readLines()

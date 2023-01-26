@@ -1,0 +1,1 @@
+./androidx_multiplatform_host_tests_mac.sh

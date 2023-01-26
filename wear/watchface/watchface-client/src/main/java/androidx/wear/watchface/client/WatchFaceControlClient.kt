@@ -501,7 +501,8 @@ internal class WatchFaceControlClientImpl internal constructor(
                             it.key,
                             it.value.asWireComplicationData()
                         )
-                    }
+                    },
+                    null
                 ),
                 object : IPendingInteractiveWatchFace.Stub() {
                     override fun getApiVersion() = API_VERSION

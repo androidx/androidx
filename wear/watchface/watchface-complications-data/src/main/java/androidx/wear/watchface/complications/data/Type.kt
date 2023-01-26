@@ -16,6 +16,8 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
 /**
@@ -36,18 +38,10 @@ public enum class ComplicationType(private val wireType: Int) {
     SMALL_IMAGE(WireComplicationData.TYPE_SMALL_IMAGE),
     PHOTO_IMAGE(WireComplicationData.TYPE_LARGE_IMAGE),
     NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION),
-
-    @ComplicationExperimental
-    PROTO_LAYOUT(WireComplicationData.TYPE_PROTO_LAYOUT),
-    @ComplicationExperimental
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     GOAL_PROGRESS(WireComplicationData.TYPE_GOAL_PROGRESS),
-    @ComplicationExperimental
-    DISCRETE_RANGED_VALUE(WireComplicationData.TYPE_DISCRETE_RANGED_VALUE),
-    @ComplicationExperimental
-    WEIGHTED_ELEMENTS(WireComplicationData.TYPE_WEIGHTED_ELEMENTS),
-
-    @ComplicationExperimental
-    LIST(WireComplicationData.TYPE_LIST);
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    WEIGHTED_ELEMENTS(WireComplicationData.TYPE_WEIGHTED_ELEMENTS);
 
     /**
      * Converts this value to the integer value used for serialization.
@@ -72,6 +66,7 @@ public enum class ComplicationType(private val wireType: Int) {
         @OptIn(ComplicationExperimental::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
+        @Suppress("NewApi")
         public fun fromWireType(wireType: Int): ComplicationType =
             when (wireType) {
                 NO_DATA.wireType -> NO_DATA
@@ -84,11 +79,8 @@ public enum class ComplicationType(private val wireType: Int) {
                 SMALL_IMAGE.wireType -> SMALL_IMAGE
                 PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
-                PROTO_LAYOUT.wireType -> PROTO_LAYOUT
                 GOAL_PROGRESS.wireType -> GOAL_PROGRESS
-                DISCRETE_RANGED_VALUE.wireType -> DISCRETE_RANGED_VALUE
                 WEIGHTED_ELEMENTS.wireType -> WEIGHTED_ELEMENTS
-                LIST.wireType -> LIST
                 else -> EMPTY
             }
 

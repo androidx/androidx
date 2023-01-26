@@ -45,7 +45,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.KClassName
 
@@ -89,17 +88,6 @@ internal sealed class KspTypeElement(
         )
     }
 
-    override val superTypes: List<XType> by lazy {
-        buildList {
-            if (isInterface() && superInterfaces.isEmpty()) {
-                add(env.requireType(TypeName.OBJECT))
-            } else {
-                superClass?.let { add(it) }
-                addAll(superInterfaces)
-            }
-        }
-    }
-
     override val superClass: XType? by lazy {
         if (isInterface()) {
             // interfaces don't have super classes (they do have super types)
@@ -133,6 +121,13 @@ internal sealed class KspTypeElement(
         }
     }
 
+    @Deprecated(
+        "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith = ReplaceWith(
+            "asClassName().toJavaPoet()",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
     override val className: ClassName by lazy {
         xClassName.java
     }

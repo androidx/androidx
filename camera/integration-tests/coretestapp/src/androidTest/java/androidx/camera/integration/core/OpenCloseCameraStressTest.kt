@@ -17,17 +17,22 @@
 package androidx.camera.integration.core
 
 import android.content.Context
-import androidx.camera.camera2.Camera2Config
+import android.hardware.camera2.CameraDevice
+import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraState
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.integration.core.util.StressTestUtil
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.LabTestRule
@@ -36,7 +41,6 @@ import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
-import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -60,11 +64,18 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class OpenCloseCameraStressTest(
-    private val cameraId: String
+    val implName: String,
+    val cameraConfig: CameraXConfig,
+    val cameraId: String
 ) {
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
+        PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -81,9 +92,14 @@ class OpenCloseCameraStressTest(
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
     private lateinit var lifecycleOwner: FakeLifecycleOwner
+    private val cameraDeviceStateMonitor = CameraDeviceStateMonitor()
 
     @Before
     fun setUp(): Unit = runBlocking {
+        // Skips CameraPipe part now and will open this when camera-pipe-integration can support
+        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+        // Configures the test target config
+        ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         cameraIdCameraSelector = createCameraSelectorById(cameraId)
@@ -94,7 +110,7 @@ class OpenCloseCameraStressTest(
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraIdCameraSelector)
         }
 
-        preview = Preview.Builder().build()
+        preview = createPreviewWithDeviceStateMonitor(implName, cameraDeviceStateMonitor)
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
         }
@@ -105,7 +121,6 @@ class OpenCloseCameraStressTest(
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }
@@ -116,16 +131,19 @@ class OpenCloseCameraStressTest(
         @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}")
-        val parameters: Collection<String>
-            get() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+        @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
+        fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
     }
 
     @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun openCloseCameraStressTest_withPreviewImageCapture(): Unit = runBlocking {
-        bindUseCase_unbindAll_toCheckCameraState_repeatedly(preview, imageCapture)
+        bindUseCase_unbindAll_toCheckCameraState_repeatedly(
+            preview,
+            imageCapture,
+            cameraDeviceStateMonitor = cameraDeviceStateMonitor
+        )
     }
 
     @LabTestRule.LabTestOnly
@@ -137,7 +155,8 @@ class OpenCloseCameraStressTest(
         bindUseCase_unbindAll_toCheckCameraState_repeatedly(
             preview,
             imageCapture,
-            imageAnalysis = imageAnalysis
+            imageAnalysis = imageAnalysis,
+            cameraDeviceStateMonitor = cameraDeviceStateMonitor
         )
     }
 
@@ -146,7 +165,11 @@ class OpenCloseCameraStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun openCloseCameraStressTest_withPreviewVideoCapture(): Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        bindUseCase_unbindAll_toCheckCameraState_repeatedly(preview, videoCapture = videoCapture)
+        bindUseCase_unbindAll_toCheckCameraState_repeatedly(
+            preview,
+            videoCapture = videoCapture,
+            cameraDeviceStateMonitor = cameraDeviceStateMonitor
+        )
     }
 
     @LabTestRule.LabTestOnly
@@ -158,7 +181,8 @@ class OpenCloseCameraStressTest(
         bindUseCase_unbindAll_toCheckCameraState_repeatedly(
             preview,
             videoCapture = videoCapture,
-            imageCapture = imageCapture
+            imageCapture = imageCapture,
+            cameraDeviceStateMonitor = cameraDeviceStateMonitor
         )
     }
 
@@ -172,7 +196,8 @@ class OpenCloseCameraStressTest(
         bindUseCase_unbindAll_toCheckCameraState_repeatedly(
             preview,
             videoCapture = videoCapture,
-            imageAnalysis = imageAnalysis
+            imageAnalysis = imageAnalysis,
+            cameraDeviceStateMonitor = cameraDeviceStateMonitor
         )
     }
 
@@ -188,23 +213,13 @@ class OpenCloseCameraStressTest(
         imageCapture: ImageCapture? = null,
         videoCapture: VideoCapture<Recorder>? = null,
         imageAnalysis: ImageAnalysis? = null,
+        cameraDeviceStateMonitor: CameraDeviceStateMonitor,
         repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
-            val openCameraLatch = CountDownLatch(1)
-            val closeCameraLatch = CountDownLatch(1)
-            val observer = Observer<CameraState> { state ->
-                if (state.type == CameraState.Type.OPEN) {
-                    openCameraLatch.countDown()
-                } else if (state.type == CameraState.Type.CLOSED) {
-                    closeCameraLatch.countDown()
-                }
-            }
+            cameraDeviceStateMonitor.reset()
 
             withContext(Dispatchers.Main) {
-                // Arrange: sets up CameraState observer
-                camera.cameraInfo.cameraState.observe(lifecycleOwner, observer)
-
                 // VideoCapture needs to be recreated everytime until b/212654991 is fixed
                 var newVideoCapture: VideoCapture<Recorder>? = null
                 videoCapture?.let {
@@ -224,21 +239,68 @@ class OpenCloseCameraStressTest(
                 )
             }
 
-            // Assert: checks the CameraState.Type.OPEN can be received
-            assertThat(openCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+            // Assert: checks the CameraDevice opened event can be received
+            cameraDeviceStateMonitor.awaitCameraOpenedAndAssert()
 
             // Act: unbinds all use cases
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
             }
 
-            // Assert: checks the CameraState.Type.CLOSED can be received
-            assertThat(closeCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+            // Assert: checks the CameraDevice closed event can be received
+            cameraDeviceStateMonitor.awaitCameraClosedAndAssert()
+        }
+    }
 
-            // Clean it up.
-            withContext(Dispatchers.Main) {
-                camera.cameraInfo.cameraState.removeObserver(observer)
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun createPreviewWithDeviceStateMonitor(
+        implementationName: String,
+        cameraDeviceStateMonitor: CameraDeviceStateMonitor
+    ): Preview {
+        val builder = Preview.Builder()
+
+        when (implementationName) {
+            CameraPipeConfig::class.simpleName -> {
+                androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(builder)
+                    .setDeviceStateCallback(cameraDeviceStateMonitor)
             }
+            else -> Camera2Interop.Extender(builder)
+                .setDeviceStateCallback(cameraDeviceStateMonitor)
+        }
+
+        return builder.build()
+    }
+
+    private class CameraDeviceStateMonitor : CameraDevice.StateCallback() {
+        private var openCameraLatch = CountDownLatch(1)
+        private var closeCameraLatch = CountDownLatch(1)
+        override fun onOpened(p0: CameraDevice) {
+            openCameraLatch.countDown()
+        }
+
+        override fun onClosed(camera: CameraDevice) {
+            closeCameraLatch.countDown()
+        }
+
+        override fun onDisconnected(p0: CameraDevice) {
+            // No op.
+        }
+
+        override fun onError(p0: CameraDevice, p1: Int) {
+            // No op.
+        }
+
+        fun reset() {
+            openCameraLatch = CountDownLatch(1)
+            closeCameraLatch = CountDownLatch(1)
+        }
+
+        fun awaitCameraOpenedAndAssert() {
+            assertThat(openCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun awaitCameraClosedAndAssert() {
+            assertThat(closeCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 }

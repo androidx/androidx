@@ -22,11 +22,15 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -55,23 +59,20 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class ListTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ItemList mSingleList;
-    @Keep
     private final List<SectionedItemList> mSectionedLists;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
+
+    private final List<Action> mActions;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -134,6 +135,18 @@ public final class ListTemplate implements Template {
         return CollectionUtils.emptyIfNull(mSectionedLists);
     }
 
+    /**
+     * Returns the list of additional actions.
+     *
+     * @see ListTemplate.Builder#addAction(Action)
+     */
+    @ExperimentalCarApi
+    @NonNull
+    @RequiresCarApi(6)
+    public List<Action> getActions() {
+        return mActions;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -161,7 +174,8 @@ public final class ListTemplate implements Template {
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
                 && Objects.equals(mSectionedLists, otherTemplate.mSectionedLists)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
+                && Objects.equals(mActions, otherTemplate.mActions);
     }
 
     ListTemplate(Builder builder) {
@@ -171,6 +185,7 @@ public final class ListTemplate implements Template {
         mSingleList = builder.mSingleList;
         mSectionedLists = CollectionUtils.unmodifiableCopy(builder.mSectionedLists);
         mActionStrip = builder.mActionStrip;
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -181,6 +196,16 @@ public final class ListTemplate implements Template {
         mSingleList = null;
         mSectionedLists = Collections.emptyList();
         mActionStrip = null;
+        mActions = Collections.emptyList();
+    }
+
+    /**
+     * Creates and returns a new {@link Builder} initialized with this {@link ListTemplate}'s data.
+     */
+    @ExperimentalCarApi
+    @NonNull
+    public ListTemplate.Builder toBuilder() {
+        return new ListTemplate.Builder(this);
     }
 
     /** A builder of {@link ListTemplate}. */
@@ -188,7 +213,7 @@ public final class ListTemplate implements Template {
         boolean mIsLoading;
         @Nullable
         ItemList mSingleList;
-        final List<SectionedItemList> mSectionedLists = new ArrayList<>();
+        final List<SectionedItemList> mSectionedLists;
         @Nullable
         CarText mTitle;
         @Nullable
@@ -196,6 +221,8 @@ public final class ListTemplate implements Template {
         @Nullable
         ActionStrip mActionStrip;
         boolean mHasSelectableList;
+
+        final List<Action> mActions;
 
         /**
          * Sets whether the template is in a loading state.
@@ -318,6 +345,17 @@ public final class ListTemplate implements Template {
         }
 
         /**
+         * Clears all of the {@link SectionedItemList}s added via
+         * {@link #addSectionedList(SectionedItemList)}
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder clearSectionedLists() {
+            mSectionedLists.clear();
+            return this;
+        }
+
+        /**
          * Sets the {@link ActionStrip} for this template or {@code null} to not display an {@link
          * ActionStrip}.
          *
@@ -336,6 +374,25 @@ public final class ListTemplate implements Template {
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
+            return this;
+        }
+
+        /**
+         * Adds a template scoped action outside the rows.
+         *
+         * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
+         *                                  exceeds the maximum number of allowed actions or does
+         *                                  not contain a valid {@link CarIcon} and background
+         *                                  {@link CarColor}.
+         */
+        @ExperimentalCarApi
+        @NonNull
+        @RequiresCarApi(6)
+        public Builder addAction(@NonNull Action action) {
+            List<Action> mActionsCopy = new ArrayList<>(mActions);
+            mActionsCopy.add(requireNonNull(action));
+            ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(mActionsCopy);
+            mActions.add(action);
             return this;
         }
 
@@ -380,6 +437,23 @@ public final class ListTemplate implements Template {
 
         /** Returns an empty {@link Builder} instance. */
         public Builder() {
+            mSectionedLists = new ArrayList<>();
+            mActions = new ArrayList<>();
+        }
+
+        /** Creates a new {@link Builder}, populated from the input {@link ListTemplate} */
+        @OptIn(markerClass = ExperimentalCarApi.class)
+        Builder(@NonNull ListTemplate listTemplate) {
+            mIsLoading = listTemplate.isLoading();
+            mHeaderAction = listTemplate.getHeaderAction();
+            mTitle = listTemplate.getTitle();
+            mSingleList = listTemplate.getSingleList();
+
+            // Must be mutable
+            mSectionedLists = new ArrayList<>(listTemplate.getSectionedLists());
+
+            mActionStrip = listTemplate.getActionStrip();
+            mActions = new ArrayList<>(listTemplate.getActions());
         }
     }
 }

@@ -28,34 +28,44 @@ import java.util.concurrent.Executor
 
 internal class JniBindings {
     companion object {
-        private external fun nLoadLibrary()
+        @JvmStatic
         external fun nCreate(surfaceControl: Long, debugName: String): Long
+        @JvmStatic
         external fun nCreateFromSurface(surface: Surface, debugName: String): Long
+        @JvmStatic
         external fun nRelease(surfaceControl: Long)
+        @JvmStatic
 
         external fun nTransactionCreate(): Long
+        @JvmStatic
         external fun nTransactionDelete(surfaceTransaction: Long)
+        @JvmStatic
         external fun nTransactionApply(surfaceTransaction: Long)
+        @JvmStatic
         external fun nTransactionReparent(
             surfaceTransaction: Long,
             surfaceControl: Long,
             newParent: Long
         )
 
+        @JvmStatic
         external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
             listener: SurfaceControlCompat.TransactionCompletedListener
         )
 
+        @JvmStatic
         external fun nTransactionSetOnCommit(
             surfaceTransaction: Long,
             listener: SurfaceControlCompat.TransactionCommittedListener
         )
 
-        external fun nExtractFenceFd(
+        @JvmStatic
+        external fun nDupFenceFd(
             syncFence: SyncFence
         ): Int
 
+        @JvmStatic
         external fun nSetBuffer(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -63,36 +73,54 @@ internal class JniBindings {
             acquireFieldFd: SyncFence
         )
 
+        @JvmStatic
+        external fun nSetGeometry(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            dstWidth: Int,
+            dstHeight: Int,
+            transformation: Int
+        )
+
+        @JvmStatic
         external fun nSetVisibility(
             surfaceTransaction: Long,
             surfaceControl: Long,
             visibility: Byte
         )
 
+        @JvmStatic
         external fun nSetZOrder(surfaceTransaction: Long, surfaceControl: Long, zOrder: Int)
+        @JvmStatic
         external fun nSetDamageRegion(
             surfaceTransaction: Long,
             surfaceControl: Long,
             rect: Rect?
         )
 
+        @JvmStatic
         external fun nSetDesiredPresentTime(
             surfaceTransaction: Long,
             desiredPresentTime: Long
         )
 
+        @JvmStatic
         external fun nSetBufferTransparency(
             surfaceTransaction: Long,
             surfaceControl: Long,
             transparency: Byte,
         )
 
+        @JvmStatic
         external fun nSetBufferAlpha(
             surfaceTransaction: Long,
             surfaceControl: Long,
             alpha: Float
         )
 
+        @JvmStatic
         external fun nSetCrop(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -102,6 +130,7 @@ internal class JniBindings {
             bottom: Int
         )
 
+        @JvmStatic
         external fun nSetPosition(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -109,6 +138,7 @@ internal class JniBindings {
             y: Float
         )
 
+        @JvmStatic
         external fun nSetScale(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -116,6 +146,7 @@ internal class JniBindings {
             scaleY: Float
         )
 
+        @JvmStatic
         external fun nSetBufferTransform(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -124,7 +155,6 @@ internal class JniBindings {
 
         init {
             System.loadLibrary("graphics-core")
-            nLoadLibrary()
         }
     }
 }
@@ -545,6 +575,26 @@ internal class SurfaceControlWrapper internal constructor(
             JniBindings.nSetBufferTransform(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
+                transformation
+            )
+            return this
+        }
+
+        fun setGeometry(
+            surfaceControl: SurfaceControlWrapper,
+            width: Int,
+            height: Int,
+            dstWidth: Int,
+            dstHeight: Int,
+            transformation: Int
+        ): Transaction {
+            JniBindings.nSetGeometry(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                width,
+                height,
+                dstWidth,
+                dstHeight,
                 transformation
             )
             return this

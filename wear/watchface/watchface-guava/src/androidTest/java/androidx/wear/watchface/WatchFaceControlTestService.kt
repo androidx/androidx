@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -53,7 +52,7 @@ internal const val TIMEOUT_MILLIS = 1000L
  * override the reported API version.
  */
 @RequiresApi(Build.VERSION_CODES.O_MR1)
-public class WatchFaceControlTestService : Service() {
+public class WatchFaceControlTestService : WatchFaceControlService() {
     public companion object {
         /**
          * If non-null this overrides the API version reported by [IWatchFaceInstanceServiceStub].
@@ -62,10 +61,8 @@ public class WatchFaceControlTestService : Service() {
     }
 
     private val realService =
-        @RequiresApi(Build.VERSION_CODES.O_MR1)
         object : WatchFaceControlService() {
             override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-                @RequiresApi(Build.VERSION_CODES.O_MR1)
                 object : IWatchFaceInstanceServiceStub(
                     this@WatchFaceControlTestService,
                     MainScope()
@@ -78,7 +75,6 @@ public class WatchFaceControlTestService : Service() {
             }
         }
 
-    @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)
 }
 

@@ -31,7 +31,7 @@ playground {
         if (name.startsWith(":navigation")) return true
         if (name.startsWith(":annotation")) return true
         if (name == ":compose:integration-tests:demos:common") return true
-        if (name.startsWith(":lifecycle")) return true
+        if (name.startsWith(":lifecycle") && !name.contains("integration-tests")) return true
         if (name.startsWith(":savedstate")) return true
         if (name == ":internal-testutils-navigation") return true
         if (name == ":internal-testutils-runtime") return true

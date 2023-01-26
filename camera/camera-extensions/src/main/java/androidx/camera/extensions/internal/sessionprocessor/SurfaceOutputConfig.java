@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +43,10 @@ public abstract class SurfaceOutputConfig implements Camera2OutputConfig {
             @NonNull Surface surface) {
         return new AutoValue_SurfaceOutputConfig(id, surfaceGroupId, physicalCameraId,
                 sharedOutputConfigs, surface);
+    }
+
+    static SurfaceOutputConfig create(int id, @NonNull Surface surface) {
+        return create(id, -1, null, Collections.emptyList(), surface);
     }
 
     /**

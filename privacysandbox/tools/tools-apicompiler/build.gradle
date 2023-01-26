@@ -55,7 +55,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools-apicompiler"
     type = LibraryType.ANNOTATION_PROCESSOR
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Compiler for Privacy Sandbox API annotations."
 }

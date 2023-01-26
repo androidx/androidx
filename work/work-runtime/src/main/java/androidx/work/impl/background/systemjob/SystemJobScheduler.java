@@ -36,8 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Consumer;
 import androidx.work.Logger;
-import androidx.work.SchedulingExceptionHandler;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
@@ -220,10 +220,10 @@ public class SystemJobScheduler implements Scheduler {
             IllegalStateException schedulingException = new IllegalStateException(message, e);
             // If a SchedulingExceptionHandler is defined, let the app handle the scheduling
             // exception.
-            SchedulingExceptionHandler handler =
+            Consumer<Throwable> handler =
                     mWorkManager.getConfiguration().getSchedulingExceptionHandler();
             if (handler != null) {
-                handler.handleException(schedulingException);
+                handler.accept(schedulingException);
             } else {
                 // Rethrow a more verbose exception.
                 throw schedulingException;

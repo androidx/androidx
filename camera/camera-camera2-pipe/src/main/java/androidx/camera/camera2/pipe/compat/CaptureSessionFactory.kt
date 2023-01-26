@@ -174,7 +174,20 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        TODO("Implement this")
+        try {
+            cameraDevice.createConstrainedHighSpeedCaptureSession(
+                surfaces.map { it.value },
+                captureSessionState,
+                threads.camera2Handler
+            )
+        } catch (e: Throwable) {
+            Log.warn {
+                "Failed to create ConstrainedHighSpeedCaptureSession " +
+                    "from $cameraDevice for $captureSessionState!"
+            }
+            captureSessionState.disconnect()
+        }
+        return emptyMap()
     }
 }
 
@@ -323,6 +336,10 @@ internal fun buildOutputConfigurations(
                 null,
                 size = outputConfig.size,
                 outputType = outputConfig.deferredOutputType!!,
+                mirrorMode = outputConfig.mirrorMode,
+                timestampBase = outputConfig.timestampBase,
+                dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+                streamUseCase = outputConfig.streamUseCase,
                 surfaceSharing = outputConfig.surfaceSharing,
                 surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
                 physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
@@ -350,6 +367,10 @@ internal fun buildOutputConfigurations(
         }
         val output = AndroidOutputConfiguration.create(
             outputSurfaces.first(),
+            mirrorMode = outputConfig.mirrorMode,
+            timestampBase = outputConfig.timestampBase,
+            dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+            streamUseCase = outputConfig.streamUseCase,
             size = outputConfig.size,
             surfaceSharing = outputConfig.surfaceSharing,
             surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,

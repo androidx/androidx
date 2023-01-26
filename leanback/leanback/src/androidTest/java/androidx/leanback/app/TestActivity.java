@@ -128,7 +128,8 @@ public class TestActivity extends Activity {
         super.onCreate(savedInstanceState);
         mProviderName = getIntent().getStringExtra(EXTRA_PROVIDER);
         try {
-            mProvider = (Provider) Class.forName(mProviderName).newInstance();
+            mProvider = (Provider) Class.forName(mProviderName)
+                    .getDeclaredConstructor().newInstance();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

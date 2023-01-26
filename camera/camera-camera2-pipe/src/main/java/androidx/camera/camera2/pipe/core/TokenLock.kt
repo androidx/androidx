@@ -22,7 +22,6 @@ package androidx.camera.camera2.pipe.core
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.TokenLock.Token
-import java.io.Closeable
 import java.util.ArrayDeque
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -47,7 +46,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * Access the methods and properties of the [TokenLock] are ThreadSafe, and closing this object
  * multiple times has no effect.
  */
-internal interface TokenLock : AutoCloseable, Closeable {
+internal interface TokenLock : AutoCloseable {
     val capacity: Long
     val available: Long
     val size: Long
@@ -75,7 +74,7 @@ internal interface TokenLock : AutoCloseable, Closeable {
      *
      * Closing this object multiple times has no effect.
      */
-    interface Token : AutoCloseable, Closeable {
+    interface Token : AutoCloseable {
         val value: Long
 
         /**

@@ -17,26 +17,33 @@
 package androidx.room.writer
 
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.compiler.processing.MethodSpecHelper
+import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.addOriginatingElement
-import androidx.room.compiler.processing.isVoid
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
+import androidx.room.ext.RoomTypeNames.INSERTION_ADAPTER
+import androidx.room.ext.RoomTypeNames.ROOM_DB
+import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
+import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.T
-import androidx.room.ext.W
 import androidx.room.ext.capitalize
-import androidx.room.ext.stripNonJava
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
+import androidx.room.solver.KotlinBoxedPrimitiveMethodDelegateBinder
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
@@ -52,22 +59,9 @@ import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import com.squareup.javapoet.WildcardTypeName
 import java.util.Arrays
 import java.util.Collections
 import java.util.Locale
-import javax.lang.model.element.Modifier.FINAL
-import javax.lang.model.element.Modifier.PRIVATE
-import javax.lang.model.element.Modifier.PUBLIC
-import javax.lang.model.element.Modifier.STATIC
 
 /**
  * Creates the implementation for a class annotated with Dao.
@@ -79,28 +73,29 @@ class DaoWriter(
 ) : TypeWriter(codeLanguage) {
     private val declaredDao = dao.element.type
 
+    // TODO nothing prevents this from conflicting, we should fix.
+    private val dbProperty: XPropertySpec = XPropertySpec
+        .builder(codeLanguage, DB_PROPERTY_NAME, ROOM_DB, VisibilityModifier.PRIVATE)
+        .build()
+
+    private val companionTypeBuilder = lazy {
+        XTypeSpec.companionObjectBuilder(codeLanguage)
+    }
+
     companion object {
         const val GET_LIST_OF_TYPE_CONVERTERS_METHOD = "getRequiredConverters"
 
-        // TODO nothing prevents this from conflicting, we should fix.
-        val dbField: FieldSpec = FieldSpec
-            .builder(RoomTypeNames.ROOM_DB, "__db", PRIVATE, FINAL)
-            .build()
+        const val DB_PROPERTY_NAME = "__db"
 
         private fun shortcutEntityFieldNamePart(shortcutEntity: ShortcutEntity): String {
-            return if (shortcutEntity.isPartialEntity) {
-                typeNameToFieldName(shortcutEntity.pojo.typeName.toJavaPoet()) + "As" +
-                    typeNameToFieldName(shortcutEntity.entityTypeName)
-            } else {
-                typeNameToFieldName(shortcutEntity.entityTypeName)
+            fun typeNameToFieldName(typeName: XClassName): String {
+                return typeName.simpleNames.last()
             }
-        }
-
-        private fun typeNameToFieldName(typeName: TypeName?): String {
-            return if (typeName is ClassName) {
-                typeName.simpleName()
+            return if (shortcutEntity.isPartialEntity) {
+                typeNameToFieldName(shortcutEntity.pojo.className) + "As" +
+                    typeNameToFieldName(shortcutEntity.entityClassName)
             } else {
-                typeName.toString().replace('.', '_').stripNonJava()
+                typeNameToFieldName(shortcutEntity.entityClassName)
             }
         }
     }
@@ -130,82 +125,120 @@ class DaoWriter(
             addAll(createUpsertMethods())
         }
 
-        builder.apply(
-            javaTypeBuilder = {
-                addOriginatingElement(dbElement)
-                addModifiers(PUBLIC)
-                addModifiers(FINAL)
-                if (dao.element.isInterface()) {
-                    addSuperinterface(dao.typeName.toJavaPoet())
+        builder.apply {
+            addOriginatingElement(dbElement)
+            setVisibility(
+                if (dao.element.isInternal()) {
+                    VisibilityModifier.INTERNAL
                 } else {
-                    superclass(dao.typeName.toJavaPoet())
+                    VisibilityModifier.PUBLIC
                 }
-                addField(dbField)
-                val dbParam = ParameterSpec
-                    .builder(dao.constructorParamType ?: dbField.type, dbField.name).build()
-
-                addMethod(
-                    createConstructor(
-                        dbParam,
-                        shortcutMethods,
-                        dao.constructorParamType != null
-                    )
-                )
-
-                shortcutMethods.forEach {
-                    addMethod(it.methodImpl)
-                }
-
-                dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
-                    addMethod(createSelectMethod(method))
-                }
-                oneOffPreparedQueries.forEach {
-                    addMethod(createPreparedQueryMethod(it))
-                }
-                dao.rawQueryMethods.forEach {
-                    addMethod(createRawQueryMethod(it))
-                }
-                dao.kotlinDefaultMethodDelegates.forEach {
-                    addMethod(createDefaultMethodDelegate(it))
-                }
-
-                dao.delegatingMethods.forEach {
-                    addMethod(createDelegatingMethod(it))
-                }
-                // keep this the last one to be generated because used custom converters will
-                // register fields with a payload which we collect in dao to report used
-                // Type Converters.
-                addMethod(createConverterListMethod())
-            },
-            kotlinTypeBuilder = {
-                TODO("Kotlin codegen not yet implemented!")
+            )
+            if (dao.element.isInterface()) {
+                addSuperinterface(dao.typeName)
+            } else {
+                superclass(dao.typeName)
             }
-        )
+            addProperty(dbProperty)
+
+            setPrimaryConstructor(
+                createConstructor(
+                    shortcutMethods,
+                    dao.constructorParamType != null
+                )
+            )
+
+            shortcutMethods.forEach {
+                addFunction(it.functionImpl)
+            }
+
+            dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
+                addFunction(createSelectMethod(method))
+            }
+            oneOffPreparedQueries.forEach {
+                addFunction(createPreparedQueryMethod(it))
+            }
+            dao.rawQueryMethods.forEach {
+                addFunction(createRawQueryMethod(it))
+            }
+            if (codeLanguage == CodeLanguage.JAVA) {
+                dao.kotlinDefaultMethodDelegates.forEach {
+                    addFunction(createDefaultImplMethodDelegate(it))
+                }
+                dao.kotlinBoxedPrimitiveMethodDelegates.forEach {
+                    addFunction(createBoxedPrimitiveBridgeMethodDelegate(it))
+                }
+            }
+            // Keep this the last one to be generated because used custom converters will
+            // register fields with a payload which we collect in dao to report used
+            // Type Converters.
+            addConverterListMethod(this)
+
+            if (companionTypeBuilder.isInitialized()) {
+                addType(companionTypeBuilder.value.build())
+            }
+        }
         return builder
     }
 
-    private fun createConverterListMethod(): MethodSpec {
-        return MethodSpec.methodBuilder(GET_LIST_OF_TYPE_CONVERTERS_METHOD).apply {
-            addModifiers(STATIC, PUBLIC)
-            returns(
-                ParameterizedTypeName.get(
-                    CommonTypeNames.LIST,
-                    ParameterizedTypeName.get(
-                        ClassName.get(Class::class.java),
-                        WildcardTypeName.subtypeOf(Object::class.java)
-                    )
-                )
-            )
+    private fun addConverterListMethod(typeSpecBuilder: XTypeSpec.Builder) {
+        when (codeLanguage) {
+            // For Java a static method is created
+            CodeLanguage.JAVA -> typeSpecBuilder.addFunction(createConverterListMethod())
+            // For Kotlin a function in the companion object is created
+            CodeLanguage.KOTLIN -> companionTypeBuilder.value
+                    .addFunction(createConverterListMethod())
+                    .build()
+        }
+    }
+
+    private fun createConverterListMethod(): XFunSpec {
+        val body = XCodeBlock.builder(codeLanguage).apply {
             val requiredTypeConverters = getRequiredTypeConverters()
             if (requiredTypeConverters.isEmpty()) {
-                addStatement("return $T.emptyList()", ClassName.get(Collections::class.java))
-            } else {
-                val placeholders = requiredTypeConverters.joinToString(",") {
-                    "$T.class"
+                when (language) {
+                    CodeLanguage.JAVA ->
+                        addStatement("return %T.emptyList()", Collections::class.asClassName())
+                    CodeLanguage.KOTLIN ->
+                        addStatement("return emptyList()")
                 }
-                val args = arrayOf(ClassName.get(Arrays::class.java)) + requiredTypeConverters
-                addStatement("return $T.asList($placeholders)", *args)
+            } else {
+                val placeholders = requiredTypeConverters.joinToString(",") { "%L" }
+                val requiredTypeConvertersLiterals = requiredTypeConverters.map {
+                    XCodeBlock.ofJavaClassLiteral(language, it)
+                }.toTypedArray()
+                when (language) {
+                    CodeLanguage.JAVA ->
+                        addStatement("return %T.asList($placeholders)",
+                            Arrays::class.asClassName(),
+                            *requiredTypeConvertersLiterals
+                        )
+                    CodeLanguage.KOTLIN ->
+                        addStatement(
+                            "return listOf($placeholders)",
+                            *requiredTypeConvertersLiterals
+                        )
+                }
             }
+        }.build()
+        return XFunSpec.builder(
+            codeLanguage,
+            GET_LIST_OF_TYPE_CONVERTERS_METHOD,
+            VisibilityModifier.PUBLIC
+        ).apply(
+            javaMethodBuilder = {
+                addModifiers(javax.lang.model.element.Modifier.STATIC)
+            },
+            kotlinFunctionBuilder = {
+                addAnnotation(kotlin.jvm.JvmStatic::class)
+            },
+        ).apply {
+            returns(
+                CommonTypeNames.LIST.parametrizedBy(
+                    CommonTypeNames.JAVA_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
+                )
+            )
+            addCode(body)
         }.build()
     }
 
@@ -213,17 +246,14 @@ class DaoWriter(
         preparedQueries: List<WriteQueryMethod>
     ): List<PreparedStmtQuery> {
         return preparedQueries.map { method ->
-            val fieldSpec = getOrCreateField(PreparedStatementField(method))
+            val fieldSpec = getOrCreateProperty(PreparedStatementProperty(method))
             val queryWriter = QueryWriter(method)
             val fieldImpl = PreparedStatementWriter(queryWriter)
-                .createAnonymous(this@DaoWriter, dbField)
+                .createAnonymous(this@DaoWriter, dbProperty)
             val methodBody =
                 createPreparedQueryMethodBody(method, fieldSpec, queryWriter)
             PreparedStmtQuery(
-                mapOf(
-                    PreparedStmtQuery.NO_PARAM_FIELD
-                        to (fieldSpec to fieldImpl)
-                ),
+                mapOf(PreparedStmtQuery.NO_PARAM_FIELD to (fieldSpec to fieldImpl)),
                 methodBody
             )
         }
@@ -231,28 +261,28 @@ class DaoWriter(
 
     private fun createPreparedQueryMethodBody(
         method: WriteQueryMethod,
-        preparedStmtField: FieldSpec,
+        preparedStmtField: XPropertySpec,
         queryWriter: QueryWriter
-    ): MethodSpec {
+    ): XFunSpec {
         val scope = CodeGenScope(this)
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
                 val stmtName = getTmpVar("_stmt")
-                builder().apply {
-                    addStatement(
-                        "final $T $L = $N.acquire()",
-                        SupportDbTypeNames.SQLITE_STMT, stmtName, preparedStmtField
-                    )
-                }
+                builder.addLocalVal(
+                    stmtName,
+                    SupportDbTypeNames.SQLITE_STMT,
+                    "%N.acquire()",
+                    preparedStmtField
+                )
                 queryWriter.bindArgs(stmtName, emptyList(), this)
                 stmtName
             },
-            preparedStmtField = preparedStmtField.name,
-            dbField = dbField,
+            preparedStmtProperty = preparedStmtField,
+            dbProperty = dbProperty,
             scope = scope
         )
         return overrideWithoutAnnotations(method.element, declaredDao)
-            .addCode(scope.builder().build())
+            .addCode(scope.generate())
             .build()
     }
 
@@ -262,33 +292,27 @@ class DaoWriter(
         }
     }
 
-    private fun createTransactionMethodBody(method: TransactionMethod): MethodSpec {
+    private fun createTransactionMethodBody(method: TransactionMethod): XFunSpec {
         val scope = CodeGenScope(this)
         method.methodBinder.executeAndReturn(
             returnType = method.returnType,
             parameterNames = method.parameterNames,
-            daoName = dao.typeName.toJavaPoet(),
-            daoImplName = dao.implTypeName.toJavaPoet(),
-            dbField = dbField,
+            daoName = dao.typeName,
+            daoImplName = dao.implTypeName,
+            dbProperty = dbProperty,
             scope = scope
         )
         return overrideWithoutAnnotations(method.element, declaredDao)
-            .addCode(scope.builder().build())
+            .addCode(scope.generate())
             .build()
     }
 
     private fun createConstructor(
-        dbParam: ParameterSpec,
         shortcutMethods: List<PreparedStmtQuery>,
         callSuper: Boolean
-    ): MethodSpec {
-        return MethodSpec.constructorBuilder().apply {
-            addParameter(dbParam)
-            addModifiers(PUBLIC)
-            if (callSuper) {
-                addStatement("super($N)", dbParam)
-            }
-            addStatement("this.$N = $N", dbField, dbParam)
+    ): XFunSpec {
+        val body = XCodeBlock.builder(codeLanguage).apply {
+            addStatement("this.%N = %L", dbProperty, dbProperty.name)
             shortcutMethods.asSequence().filterNot {
                 it.fields.isEmpty()
             }.map {
@@ -297,61 +321,64 @@ class DaoWriter(
                 it.first.name
             }.map {
                 it.value.first()
-            }.forEach {
-                addStatement("this.$N = $L", it.first, it.second)
+            }.forEach { (propertySpec, initExpression) ->
+                addStatement("this.%L = %L", propertySpec.name, initExpression)
             }
         }.build()
-    }
-
-    private fun createSelectMethod(method: ReadQueryMethod): MethodSpec {
-        return overrideWithoutAnnotations(method.element, declaredDao).apply {
-            addCode(createQueryMethodBody(method))
+        return XFunSpec.constructorBuilder(codeLanguage, VisibilityModifier.PUBLIC).apply {
+            addParameter(
+                typeName = dao.constructorParamType ?: ROOM_DB,
+                name = dbProperty.name
+            )
+            if (callSuper) {
+                callSuperConstructor(XCodeBlock.of(language, "%L", dbProperty.name))
+            }
+            addCode(body)
         }.build()
     }
 
-    private fun createRawQueryMethod(method: RawQueryMethod): MethodSpec {
-        return overrideWithoutAnnotations(method.element, declaredDao).apply {
+    private fun createSelectMethod(method: ReadQueryMethod): XFunSpec {
+        return overrideWithoutAnnotations(method.element, declaredDao)
+            .addCode(createQueryMethodBody(method))
+            .build()
+    }
+
+    private fun createRawQueryMethod(method: RawQueryMethod): XFunSpec {
+        val body = XCodeBlock.builder(codeLanguage).apply {
             val scope = CodeGenScope(this@DaoWriter)
             val roomSQLiteQueryVar: String
             val queryParam = method.runtimeQueryParam
             val shouldReleaseQuery: Boolean
-
-            when {
-                queryParam?.isString() == true -> {
-                    roomSQLiteQueryVar = scope.getTmpVar("_statement")
-                    shouldReleaseQuery = true
-                    addStatement(
-                        "$T $L = $T.acquire($L, 0)",
-                        RoomTypeNames.ROOM_SQL_QUERY,
-                        roomSQLiteQueryVar,
-                        RoomTypeNames.ROOM_SQL_QUERY,
+            if (queryParam?.isSupportQuery() == true) {
+                roomSQLiteQueryVar = queryParam.paramName
+                shouldReleaseQuery = false
+            } else if (queryParam?.isString() == true) {
+                roomSQLiteQueryVar = scope.getTmpVar("_statement")
+                shouldReleaseQuery = true
+                addLocalVariable(
+                    name = roomSQLiteQueryVar,
+                    typeName = RoomTypeNames.ROOM_SQL_QUERY,
+                    assignExpr = XCodeBlock.of(
+                        codeLanguage,
+                        "%M(%L, 0)",
+                        RoomMemberNames.ROOM_SQL_QUERY_ACQUIRE,
                         queryParam.paramName
-                    )
-                }
-                queryParam?.isSupportQuery() == true -> {
-                    shouldReleaseQuery = false
-                    roomSQLiteQueryVar = scope.getTmpVar("_internalQuery")
-                    // move it to a final variable so that the generated code can use it inside
-                    // callback blocks in java 7
-                    addStatement(
-                        "final $T $L = $N",
-                        queryParam.type,
-                        roomSQLiteQueryVar,
-                        queryParam.paramName
-                    )
-                }
-                else -> {
-                    // try to generate compiling code. we would've already reported this error
-                    roomSQLiteQueryVar = scope.getTmpVar("_statement")
-                    shouldReleaseQuery = false
-                    addStatement(
-                        "$T $L = $T.acquire($L, 0)",
-                        RoomTypeNames.ROOM_SQL_QUERY,
-                        roomSQLiteQueryVar,
-                        RoomTypeNames.ROOM_SQL_QUERY,
+                    ),
+                )
+            } else {
+                // try to generate compiling code. we would've already reported this error
+                roomSQLiteQueryVar = scope.getTmpVar("_statement")
+                shouldReleaseQuery = false
+                addLocalVariable(
+                    name = roomSQLiteQueryVar,
+                    typeName = RoomTypeNames.ROOM_SQL_QUERY,
+                    assignExpr = XCodeBlock.of(
+                        codeLanguage,
+                        "%M(%S, 0)",
+                        RoomMemberNames.ROOM_SQL_QUERY_ACQUIRE,
                         "missing query parameter"
-                    )
-                }
+                    ),
+                )
             }
             if (method.returnsValue) {
                 // don't generate code because it will create 1 more error. The original error is
@@ -359,19 +386,22 @@ class DaoWriter(
                 method.queryResultBinder.convertAndReturn(
                     roomSQLiteQueryVar = roomSQLiteQueryVar,
                     canReleaseQuery = shouldReleaseQuery,
-                    dbField = dbField,
+                    dbProperty = dbProperty,
                     inTransaction = method.inTransaction,
                     scope = scope
                 )
             }
-            addCode(scope.builder().build())
+            add(scope.generate())
         }.build()
+        return overrideWithoutAnnotations(method.element, declaredDao)
+            .addCode(body)
+            .build()
     }
 
-    private fun createPreparedQueryMethod(method: WriteQueryMethod): MethodSpec {
-        return overrideWithoutAnnotations(method.element, declaredDao).apply {
-            addCode(createPreparedQueryMethodBody(method))
-        }.build()
+    private fun createPreparedQueryMethod(method: WriteQueryMethod): XFunSpec {
+        return overrideWithoutAnnotations(method.element, declaredDao)
+            .addCode(createPreparedQueryMethodBody(method))
+            .build()
     }
 
     /**
@@ -385,9 +415,9 @@ class DaoWriter(
                 val entities = insertionMethod.entities
 
                 val fields = entities.mapValues {
-                    val spec = getOrCreateField(InsertionMethodField(it.value, onConflict))
+                    val spec = getOrCreateProperty(InsertionMethodProperty(it.value, onConflict))
                     val impl = EntityInsertionAdapterWriter.create(it.value, onConflict)
-                        .createAnonymous(this@DaoWriter, dbField.name)
+                        .createAnonymous(this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
@@ -402,20 +432,19 @@ class DaoWriter(
 
     private fun createInsertionMethodBody(
         method: InsertionMethod,
-        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>
-    ): CodeBlock {
+        insertionAdapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
+    ): XCodeBlock {
         if (insertionAdapters.isEmpty() || method.methodBinder == null) {
-            return CodeBlock.builder().build()
+            return XCodeBlock.builder(codeLanguage).build()
         }
         val scope = CodeGenScope(this)
-
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = insertionAdapters,
-            dbField = dbField,
+            dbProperty = dbProperty,
             scope = scope
         )
-        return scope.builder().build()
+        return scope.generate()
     }
 
     /**
@@ -424,7 +453,7 @@ class DaoWriter(
     private fun createDeletionMethods(): List<PreparedStmtQuery> {
         return createShortcutMethods(dao.deletionMethods, "deletion") { _, entity ->
             EntityDeletionAdapterWriter.create(entity)
-                .createAnonymous(this@DaoWriter, dbField.name)
+                .createAnonymous(this@DaoWriter, dbProperty.name)
         }
     }
 
@@ -435,14 +464,14 @@ class DaoWriter(
         return createShortcutMethods(dao.updateMethods, "update") { update, entity ->
             val onConflict = OnConflictProcessor.onConflictText(update.onConflictStrategy)
             EntityUpdateAdapterWriter.create(entity, onConflict)
-                .createAnonymous(this@DaoWriter, dbField.name)
+                .createAnonymous(this@DaoWriter, dbProperty.name)
         }
     }
 
     private fun <T : DeleteOrUpdateShortcutMethod> createShortcutMethods(
         methods: List<T>,
         methodPrefix: String,
-        implCallback: (T, ShortcutEntity) -> TypeSpec
+        implCallback: (T, ShortcutEntity) -> XTypeSpec
     ): List<PreparedStmtQuery> {
         return methods.mapNotNull { method ->
             val entities = method.entities
@@ -455,8 +484,8 @@ class DaoWriter(
                     ""
                 }
                 val fields = entities.mapValues {
-                    val spec = getOrCreateField(
-                        DeleteOrUpdateAdapterField(it.value, methodPrefix, onConflict)
+                    val spec = getOrCreateProperty(
+                        DeleteOrUpdateAdapterProperty(it.value, methodPrefix, onConflict)
                     )
                     val impl = implCallback(method, it.value)
                     spec to impl
@@ -471,20 +500,20 @@ class DaoWriter(
 
     private fun createDeleteOrUpdateMethodBody(
         method: DeleteOrUpdateShortcutMethod,
-        adapters: Map<String, Pair<FieldSpec, TypeSpec>>
-    ): CodeBlock {
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
+    ): XCodeBlock {
         if (adapters.isEmpty() || method.methodBinder == null) {
-            return CodeBlock.builder().build()
+            return XCodeBlock.builder(codeLanguage).build()
         }
         val scope = CodeGenScope(this)
 
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = adapters,
-            dbField = dbField,
+            dbProperty = dbProperty,
             scope = scope
         )
-        return scope.builder().build()
+        return scope.generate()
     }
 
     /**
@@ -496,9 +525,9 @@ class DaoWriter(
             .map { upsertionMethod ->
                 val entities = upsertionMethod.entities
                 val fields = entities.mapValues {
-                    val spec = getOrCreateField(UpsertionAdapterField(it.value))
+                    val spec = getOrCreateProperty(UpsertionAdapterProperty(it.value))
                     val impl = EntityUpsertionAdapterWriter.create(it.value)
-                        .createConcrete(it.value, this@DaoWriter, dbField.name)
+                        .createConcrete(it.value, this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
@@ -513,23 +542,23 @@ class DaoWriter(
 
     private fun createUpsertionMethodBody(
         method: UpsertionMethod,
-        upsertionAdapters: Map<String, Pair<FieldSpec, CodeBlock>>
-    ): CodeBlock {
+        upsertionAdapters: Map<String, Pair<XPropertySpec, XCodeBlock>>
+    ): XCodeBlock {
         if (upsertionAdapters.isEmpty() || method.methodBinder == null) {
-            return CodeBlock.builder().build()
+            return XCodeBlock.builder(codeLanguage).build()
         }
         val scope = CodeGenScope(this)
 
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = upsertionAdapters,
-            dbField = dbField,
+            dbProperty = dbProperty,
             scope = scope
         )
-        return scope.builder().build()
+        return scope.generate()
     }
 
-    private fun createPreparedQueryMethodBody(method: WriteQueryMethod): CodeBlock {
+    private fun createPreparedQueryMethodBody(method: WriteQueryMethod): XCodeBlock {
         val scope = CodeGenScope(this)
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
@@ -537,23 +566,24 @@ class DaoWriter(
                 val sqlVar = getTmpVar("_sql")
                 val stmtVar = getTmpVar("_stmt")
                 val listSizeArgs = queryWriter.prepareQuery(sqlVar, this)
-                builder().apply {
-                    addStatement(
-                        "final $T $L = $N.compileStatement($L)",
-                        SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar
-                    )
-                }
+                builder.addLocalVal(
+                    stmtVar,
+                    SupportDbTypeNames.SQLITE_STMT,
+                    "%N.compileStatement(%L)",
+                    dbProperty,
+                    sqlVar
+                )
                 queryWriter.bindArgs(stmtVar, listSizeArgs, this)
                 stmtVar
             },
-            preparedStmtField = null,
-            dbField = dbField,
+            preparedStmtProperty = null,
+            dbProperty = dbProperty,
             scope = scope
         )
-        return scope.builder().build()
+        return scope.builder.build()
     }
 
-    private fun createQueryMethodBody(method: ReadQueryMethod): CodeBlock {
+    private fun createQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
         val queryWriter = QueryWriter(method)
         val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")
@@ -562,65 +592,64 @@ class DaoWriter(
         method.queryResultBinder.convertAndReturn(
             roomSQLiteQueryVar = roomSQLiteQueryVar,
             canReleaseQuery = true,
-            dbField = dbField,
+            dbProperty = dbProperty,
             inTransaction = method.inTransaction,
             scope = scope
         )
-        return scope.builder().build()
+        return scope.generate()
     }
 
-    private fun createDefaultMethodDelegate(method: KotlinDefaultMethodDelegate): MethodSpec {
+    // TODO(b/251459654): Handle @JvmOverloads in delegating functions with Kotlin codegen.
+    private fun createDefaultImplMethodDelegate(method: KotlinDefaultMethodDelegate): XFunSpec {
         val scope = CodeGenScope(this)
         return overrideWithoutAnnotations(method.element, declaredDao).apply {
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
-                daoName = dao.typeName.toJavaPoet(),
-                daoImplName = dao.implTypeName.toJavaPoet(),
+                daoName = dao.typeName,
+                daoImplName = dao.implTypeName,
                 methodName = method.element.jvmName,
                 returnType = method.element.returnType,
                 parameterNames = method.element.parameters.map { it.name },
                 scope = scope
             )
-            addCode(scope.builder().build())
+            addCode(scope.generate())
         }.build()
     }
 
-    private fun createDelegatingMethod(method: KotlinBoxedPrimitiveMethodDelegate): MethodSpec {
+    private fun createBoxedPrimitiveBridgeMethodDelegate(
+        method: KotlinBoxedPrimitiveMethodDelegate
+    ): XFunSpec {
+        val scope = CodeGenScope(this)
         return overrideWithoutAnnotations(method.element, declaredDao).apply {
-
-            val args = method.concreteMethod.parameters.map {
-                val paramTypename = it.type.typeName
-                if (paramTypename.isBoxedPrimitive()) {
-                    CodeBlock.of("$L", paramTypename, it.name.toString())
-                } else {
-                    CodeBlock.of("($T) $L", paramTypename.unbox(), it.name.toString())
-                }
-            }
-            if (method.element.returnType.isVoid()) {
-                addStatement("$L($L)", method.element.jvmName, CodeBlock.join(args, ",$W"))
-            } else {
-                addStatement("return $L($L)", method.element.jvmName, CodeBlock.join(args, ",$W"))
-            }
+            KotlinBoxedPrimitiveMethodDelegateBinder.execute(
+                methodName = method.element.jvmName,
+                returnType = method.element.returnType,
+                parameters = method.concreteMethod.parameters.map {
+                    it.type.asTypeName() to it.name
+                },
+                scope = scope
+            )
+            addCode(scope.generate())
         }.build()
     }
 
     private fun overrideWithoutAnnotations(
         elm: XMethodElement,
         owner: XType
-    ): MethodSpec.Builder {
-        return MethodSpecHelper.overridingWithFinalParams(elm, owner)
+    ): XFunSpec.Builder {
+        return XFunSpec.overridingBuilder(codeLanguage, elm, owner)
     }
 
     /**
      * Represents a query statement prepared in Dao implementation.
      *
-     * @param fields This map holds all the member fields necessary for this query. The key is the
-     * corresponding parameter name in the defining query method. The value is a pair from the field
-     * declaration to definition.
-     * @param methodImpl The body of the query method implementation.
+     * @param fields This map holds all the member properties necessary for this query. The key is
+     * the corresponding parameter name in the defining query method. The value is a pair from the
+     * property declaration to definition.
+     * @param functionImpl The body of the query method implementation.
      */
     data class PreparedStmtQuery(
-        val fields: Map<String, Pair<FieldSpec, Any>>,
-        val methodImpl: MethodSpec
+        val fields: Map<String, Pair<XPropertySpec, Any>>,
+        val functionImpl: XFunSpec
     ) {
         companion object {
             // The key to be used in `fields` where the method requires a field that is not
@@ -629,68 +658,57 @@ class DaoWriter(
         }
     }
 
-    private class InsertionMethodField(
+    private class InsertionMethodProperty(
         val shortcutEntity: ShortcutEntity,
         val onConflictText: String
-    ) : SharedFieldSpec(
+    ) : SharedPropertySpec(
         baseName = "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = ParameterizedTypeName.get(
-            RoomTypeNames.INSERTION_ADAPTER, shortcutEntity.pojo.typeName.toJavaPoet()
-        )
+        type = INSERTION_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName.toJavaPoet()}-" +
-                "${shortcutEntity.entityTypeName}$onConflictText"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
         }
 
-        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
-            builder.addModifiers(FINAL, PRIVATE)
+        override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
         }
     }
 
-    class DeleteOrUpdateAdapterField(
+    class DeleteOrUpdateAdapterProperty(
         val shortcutEntity: ShortcutEntity,
         val methodPrefix: String,
         val onConflictText: String
-    ) : SharedFieldSpec(
+    ) : SharedPropertySpec(
         baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = ParameterizedTypeName.get(
-            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, shortcutEntity.pojo.typeName.toJavaPoet()
-        )
+        type = DELETE_OR_UPDATE_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
-        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
-            builder.addModifiers(PRIVATE, FINAL)
+        override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
         }
 
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName.toJavaPoet()}-${shortcutEntity.entityTypeName}" +
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
                 "$methodPrefix$onConflictText"
         }
     }
 
-    class UpsertionAdapterField(
+    class UpsertionAdapterProperty(
         val shortcutEntity: ShortcutEntity
-    ) : SharedFieldSpec(
+    ) : SharedPropertySpec(
         baseName = "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = ParameterizedTypeName.get(
-            RoomTypeNames.UPSERTION_ADAPTER, shortcutEntity.pojo.typeName.toJavaPoet()
-        )
+        type = UPSERTION_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName.toJavaPoet()}-${shortcutEntity.entityTypeName}"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"
         }
 
-        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
-            builder.addModifiers(PRIVATE, FINAL)
+        override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
         }
     }
 
-    class PreparedStatementField(val method: QueryMethod) : SharedFieldSpec(
-        "preparedStmtOf${method.element.jvmName.capitalize(Locale.US)}",
-        RoomTypeNames.SHARED_SQLITE_STMT
+    class PreparedStatementProperty(val method: QueryMethod) : SharedPropertySpec(
+        baseName = "preparedStmtOf${method.element.name.capitalize(Locale.US)}",
+        type = SHARED_SQLITE_STMT
     ) {
-        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
-            builder.addModifiers(PRIVATE, FINAL)
+        override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
         }
 
         override fun getUniqueKey(): String {

@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
+import androidx.glance.appwidget.action.LambdaActionBroadcasts
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -123,22 +124,35 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        val forceUpdateAllWidgets = intent.action == Intent.ACTION_LOCALE_CHANGED ||
-            intent.action == ACTION_DEBUG_UPDATE
-
         runAndLogExceptions {
-            if (forceUpdateAllWidgets) {
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val componentName =
-                    ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
-                onUpdate(
-                    context,
-                    appWidgetManager,
-                    appWidgetManager.getAppWidgetIds(componentName)
-                )
-                return
+            when (intent.action) {
+                Intent.ACTION_LOCALE_CHANGED, ACTION_DEBUG_UPDATE -> {
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val componentName =
+                        ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
+                    val ids = if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
+                        intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!
+                    } else {
+                        appWidgetManager.getAppWidgetIds(componentName)
+                    }
+                    onUpdate(
+                        context,
+                        appWidgetManager,
+                        ids,
+                    )
+                }
+                LambdaActionBroadcasts.ActionTriggerLambda -> {
+                    val actionKey = intent.getStringExtra(LambdaActionBroadcasts.ExtraActionKey)
+                            ?: error("Intent is missing ActionKey extra")
+                    val id = intent.getIntExtra(LambdaActionBroadcasts.ExtraAppWidgetId, -1)
+                    if (id == -1) error("Intent is missing AppWidgetId extra")
+                    goAsync {
+                        updateManager(context)
+                        glanceAppWidget.triggerAction(context, id, actionKey)
+                    }
+                }
+                else -> super.onReceive(context, intent)
             }
-            super.onReceive(context, intent)
         }
     }
 }

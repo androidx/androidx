@@ -4,7 +4,7 @@ go/androidx/team
 
 <!--*
 # Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'alanv' reviewed: '2022-06-10' }
+freshness: { owner: 'alanv' reviewed: '2022-12-09' }
 *-->
 
 ## What we do

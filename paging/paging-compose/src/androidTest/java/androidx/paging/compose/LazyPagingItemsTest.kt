@@ -99,6 +99,37 @@ class LazyPagingItemsTest {
     }
 
     @Test
+    fun lazyPagingLoadStateAfterRefresh() {
+        val pager = createPager()
+        val loadStates: MutableList<CombinedLoadStates> = mutableListOf()
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            loadStates.add(lazyPagingItems.loadState)
+        }
+
+        // we only want loadStates after manual refresh
+        loadStates.clear()
+        lazyPagingItems.refresh()
+        rule.waitForIdle()
+
+        assertThat(loadStates).isNotEmpty()
+        val expected = CombinedLoadStates(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(false),
+            append = LoadState.NotLoading(false),
+            source = LoadStates(
+                LoadState.Loading,
+                LoadState.NotLoading(false),
+                LoadState.NotLoading(false)
+            ),
+            mediator = null
+        )
+        assertThat(loadStates.first()).isEqualTo(expected)
+    }
+
+    @Test
     fun lazyPagingColumnShowsItems() {
         val pager = createPager()
         rule.setContent {

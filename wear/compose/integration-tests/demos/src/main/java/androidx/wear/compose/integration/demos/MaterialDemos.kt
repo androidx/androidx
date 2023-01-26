@@ -46,6 +46,7 @@ import androidx.wear.compose.material.samples.CompactChipWithLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.CurvedTextProviderDemo
 import androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material.samples.FixedFontSize
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
@@ -69,6 +70,7 @@ import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
+import androidx.wear.compose.material.samples.TextPlaceholder
 import androidx.wear.compose.material.samples.TimeTextAnimation
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TimeTextWithStatus
@@ -137,6 +139,9 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("SLC Cards offset>0") {
                     ScrollAwayScalingLazyColumnCardDemoMismatch()
                 },
+                ComposableDemo("Out of range") {
+                    ScrollAwayScalingLazyColumnCardDemoOutOfRange()
+                },
                 ComposableDemo("SLC Chips") {
                     ScrollAwayScalingLazyColumnChipDemo()
                 },
@@ -177,7 +182,28 @@ val WearMaterialDemos = DemoCategory(
                                 params.navigateBack()
                             },
                             date = datePickerDate
-
+                        )
+                    },
+                    ComposableDemo("From Date Picker") { params ->
+                        var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+                        DatePicker(
+                            onDateConfirm = {
+                                datePickerDate = it
+                                params.navigateBack()
+                            },
+                            date = datePickerDate,
+                            fromDate = datePickerDate
+                        )
+                    },
+                    ComposableDemo("To Date Picker") { params ->
+                        var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+                        DatePicker(
+                            onDateConfirm = {
+                                datePickerDate = it
+                                params.navigateBack()
+                            },
+                            date = datePickerDate,
+                            toDate = datePickerDate
                         )
                     },
                     ComposableDemo("Simple Picker") { SimplePicker() },
@@ -419,6 +445,11 @@ val WearMaterialDemos = DemoCategory(
                                 ChipWithIconAndLabelsAndOverlaidPlaceholder()
                             }
                         },
+                        ComposableDemo("Simple Text Placeholder") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                TextPlaceholder()
+                            }
+                        },
                      )
                 ),
                 DemoCategory(
@@ -630,7 +661,13 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Shared PI") { SharedPositionIndicator() }
             )
         ),
-        ComposableDemo("Curved Text") { CurvedTextDemo() },
+        DemoCategory(
+            "Curved Text",
+            listOf(
+                ComposableDemo("Basic Styling") { CurvedTextDemo() },
+                ComposableDemo("Provider Styling") { CurvedTextProviderDemo() },
+            )
+        ),
         DemoCategory(
             "Theme",
             listOf(

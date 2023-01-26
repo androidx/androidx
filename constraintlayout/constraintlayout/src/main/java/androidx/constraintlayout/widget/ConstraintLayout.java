@@ -18,6 +18,7 @@ package androidx.constraintlayout.widget;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_SPREAD;
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_WRAP;
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
@@ -561,7 +562,7 @@ public class ConstraintLayout extends ViewGroup {
     /**
      *
      */
-    public static final String VERSION = "ConstraintLayout-2.2.0-alpha03";
+    public static final String VERSION = "ConstraintLayout-2.2.0-alpha04";
     private static final String TAG = "ConstraintLayout";
 
     private static final boolean USE_CONSTRAINTS_HELPER = true;
@@ -2376,7 +2377,7 @@ public class ConstraintLayout extends ViewGroup {
         public static final int START = 6;
 
         /**
-         * The right side of a view in right to left languages.
+         * The right side of a view in left to right languages.
          * In right to left languages it corresponds to the left side of the view
          */
         public static final int END = 7;
@@ -2888,8 +2889,23 @@ public class ConstraintLayout extends ViewGroup {
          *
          * @param params the Layout Params to be copied
          */
+        @SuppressLint("ClassVerificationFailure")
         public LayoutParams(ViewGroup.LayoutParams params) {
             super(params);
+
+            // if the params is an instance of ViewGroup.MarginLayoutParams,
+            // we should also copy margin relevant properties.
+            if (params instanceof ViewGroup.MarginLayoutParams) {
+                MarginLayoutParams marginSource = (MarginLayoutParams) params;
+                this.leftMargin = marginSource.leftMargin;
+                this.rightMargin = marginSource.rightMargin;
+                this.topMargin = marginSource.topMargin;
+                this.bottomMargin = marginSource.bottomMargin;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    this.setMarginStart(marginSource.getMarginStart());
+                    this.setMarginEnd(marginSource.getMarginEnd());
+                }
+            }
 
             if (!(params instanceof LayoutParams)) {
                 return;

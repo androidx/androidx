@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.TypeConverter
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -35,13 +36,13 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
+import java.util.Date
+import javax.lang.model.element.Modifier
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Date
-import javax.lang.model.element.Modifier
 
 @RunWith(JUnit4::class)
 class CustomConverterProcessorTest {
@@ -62,32 +63,32 @@ class CustomConverterProcessorTest {
     @Test
     fun validCase() {
         singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box())) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
-            assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT.box()))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.CHAR.box()))
         }
     }
 
     @Test
     fun primitiveFrom() {
         singleClass(createConverter(TypeName.SHORT, TypeName.CHAR.box())) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
-            assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.CHAR.box()))
         }
     }
 
     @Test
     fun primitiveTo() {
         singleClass(createConverter(TypeName.INT.box(), TypeName.DOUBLE)) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.INT.box()))
-            assertThat(converter?.toTypeName, `is`(TypeName.DOUBLE))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.INT.box()))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.DOUBLE))
         }
     }
 
     @Test
     fun primitiveBoth() {
         singleClass(createConverter(TypeName.INT, TypeName.DOUBLE)) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.INT))
-            assertThat(converter?.toTypeName, `is`(TypeName.DOUBLE))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.INT))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.DOUBLE))
         }
     }
 
@@ -96,8 +97,8 @@ class CustomConverterProcessorTest {
         val string = String::class.typeName
         val date = Date::class.typeName
         singleClass(createConverter(string, date)) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(string as TypeName))
-            assertThat(converter?.toTypeName, `is`(date as TypeName))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(string as TypeName))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(date as TypeName))
         }
     }
 
@@ -121,8 +122,8 @@ class CustomConverterProcessorTest {
         val list = ParameterizedTypeName.get(List::class.typeName, string)
         val map = ParameterizedTypeName.get(Map::class.typeName, string, date)
         singleClass(createConverter(list, map)) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(list as TypeName))
-            assertThat(converter?.toTypeName, `is`(map as TypeName))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(list as TypeName))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(map as TypeName))
         }
     }
 
@@ -184,8 +185,8 @@ class CustomConverterProcessorTest {
                 """
             )
         ) { converter, _ ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
-            assertThat(converter?.toTypeName, `is`(TypeName.INT))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.INT))
             assertThat(converter?.isStatic, `is`(true))
         }
     }
@@ -206,8 +207,8 @@ class CustomConverterProcessorTest {
                 """
             )
         ) { converter, invocation ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
-            assertThat(converter?.toTypeName, `is`(TypeName.INT))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.INT))
             assertThat(converter?.isStatic, `is`(true))
             invocation.assertCompilationResult {
                 hasErrorContaining(TYPE_CONVERTER_MUST_BE_PUBLIC)
@@ -246,7 +247,7 @@ class CustomConverterProcessorTest {
             val converter = CustomConverterProcessor(invocation.context, element)
                 .process().firstOrNull()
             assertThat(
-                converter?.fromTypeName,
+                converter?.fromTypeName?.toJavaPoet(),
                 `is`(
                     ParameterizedTypeName.get(
                         List::class.typeName, String::class.typeName
@@ -254,7 +255,7 @@ class CustomConverterProcessorTest {
                 )
             )
             assertThat(
-                converter?.toTypeName,
+                converter?.toTypeName?.toJavaPoet(),
                 `is`(
                     ParameterizedTypeName.get(
                         Map::class.typeName,
@@ -270,8 +271,8 @@ class CustomConverterProcessorTest {
         singleClass(
             createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true)
         ) { converter, invocation ->
-            assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
-            assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
+            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT.box()))
+            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.CHAR.box()))
             invocation.assertCompilationResult {
                 hasErrorContaining("Multiple methods define the same conversion")
             }
@@ -337,7 +338,7 @@ class CustomConverterProcessorTest {
                     // instead of not running the code path in ksp tests
                     hasErrorContaining(TYPE_CONVERTER_EMPTY_CLASS)
                 } else {
-                    hasErrorContaining(ProcessorErrors.typeConverterMustBeDeclared(TypeName.INT))
+                    hasErrorContaining(ProcessorErrors.typeConverterMustBeDeclared("int"))
                 }
             }
         }

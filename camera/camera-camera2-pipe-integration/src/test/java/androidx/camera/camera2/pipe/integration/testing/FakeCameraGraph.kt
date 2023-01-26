@@ -18,8 +18,10 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import kotlinx.coroutines.flow.StateFlow
 
 class FakeCameraGraph(
     val fakeCameraGraphSession: FakeCameraGraphSession = FakeCameraGraphSession()
@@ -28,6 +30,9 @@ class FakeCameraGraph(
     val setSurfaceResults = mutableMapOf<StreamId, Surface?>()
 
     override val streams: StreamGraph
+        get() = throw NotImplementedError("Not used in testing")
+
+    override val graphState: StateFlow<GraphState>
         get() = throw NotImplementedError("Not used in testing")
 
     override suspend fun acquireSession(): CameraGraph.Session {

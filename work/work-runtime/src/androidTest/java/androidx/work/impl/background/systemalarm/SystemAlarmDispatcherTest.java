@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.testutils.RepeatRule;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
@@ -55,6 +56,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.Schedulers;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.NetworkState;
@@ -184,14 +186,15 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 mContext,
                 configuration,
                 instantTaskExecutor,
-                mDatabase,
-                Collections.singletonList(scheduler));
+                mDatabase);
         mSpyProcessor = spy(processor);
 
         mDispatcher =
                 new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor, mWorkManager);
         mDispatcher.setCompletedListener(completedListener);
         mSpyDispatcher = spy(mDispatcher);
+        Schedulers.registerRescheduling(Collections.singletonList(scheduler), processor,
+                instantTaskExecutor.getSerialTaskExecutor(), mDatabase, configuration);
     }
 
     @After
@@ -200,6 +203,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testSchedule() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)

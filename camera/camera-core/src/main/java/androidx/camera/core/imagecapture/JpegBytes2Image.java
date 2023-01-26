@@ -58,6 +58,7 @@ public class JpegBytes2Image implements Operation<Packet<byte[]>, Packet<ImagePr
                 requireNonNull(imageProxy),
                 requireNonNull(packet.getExif()),
                 packet.getCropRect(),
-                packet.getRotationDegrees(), packet.getSensorToBufferTransform());
+                packet.getRotationDegrees(), packet.getSensorToBufferTransform(),
+                packet.getCameraCaptureResult());
     }
 }

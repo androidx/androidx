@@ -22,13 +22,16 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.window.core.ConsumerAdapter
+import androidx.window.layout.adapter.WindowBackend
+import androidx.window.layout.adapter.extensions.ExtensionWindowLayoutInfoBackend
+import androidx.window.layout.adapter.sidecar.SidecarWindowBackend
 import kotlinx.coroutines.flow.Flow
 
 /**
  * An interface to provide all the relevant info about a [android.view.Window].
  * @see WindowInfoTracker.getOrCreate to get an instance.
  */
-public interface WindowInfoTracker {
+interface WindowInfoTracker {
 
     /**
      * A [Flow] of [WindowLayoutInfo] that contains all the available features. A [WindowLayoutInfo]
@@ -47,9 +50,9 @@ public interface WindowInfoTracker {
      * @see WindowLayoutInfo
      * @see DisplayFeature
      */
-    public fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo>
+    fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo>
 
-    public companion object {
+    companion object {
 
         private val DEBUG = false
         private val TAG = WindowInfoTracker::class.simpleName
@@ -83,7 +86,7 @@ public interface WindowInfoTracker {
          */
         @JvmName("getOrCreate")
         @JvmStatic
-        public fun getOrCreate(context: Context): WindowInfoTracker {
+        fun getOrCreate(context: Context): WindowInfoTracker {
             val backend = extensionBackend ?: SidecarWindowBackend.getInstance(context)
             val repo = WindowInfoTrackerImpl(WindowMetricsCalculatorCompat, backend)
             return decorator.decorate(repo)
@@ -91,25 +94,25 @@ public interface WindowInfoTracker {
 
         @JvmStatic
         @RestrictTo(LIBRARY_GROUP)
-        public fun overrideDecorator(overridingDecorator: WindowInfoTrackerDecorator) {
+        fun overrideDecorator(overridingDecorator: WindowInfoTrackerDecorator) {
             decorator = overridingDecorator
         }
 
         @JvmStatic
         @RestrictTo(LIBRARY_GROUP)
-        public fun reset() {
+        fun reset() {
             decorator = EmptyDecorator
         }
     }
 }
 
 @RestrictTo(LIBRARY_GROUP)
-public interface WindowInfoTrackerDecorator {
+interface WindowInfoTrackerDecorator {
     /**
      * Returns an instance of [WindowInfoTracker] associated to the [Activity]
      */
     @RestrictTo(LIBRARY_GROUP)
-    public fun decorate(tracker: WindowInfoTracker): WindowInfoTracker
+    fun decorate(tracker: WindowInfoTracker): WindowInfoTracker
 }
 
 private object EmptyDecorator : WindowInfoTrackerDecorator {

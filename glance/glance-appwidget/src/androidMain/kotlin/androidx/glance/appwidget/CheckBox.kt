@@ -16,18 +16,19 @@
 
 package androidx.glance.appwidget
 
-import androidx.annotation.ColorRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.GlanceTheme
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
+import androidx.glance.color.DynamicThemeColorProviders
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
@@ -42,17 +43,18 @@ internal data class CheckBoxColorsImpl(
 ) : CheckBoxColors()
 
 /**
- * [CheckBoxColors] that uses [checkedColor] or [uncheckedColor] depending ons the checked state of the
+ * [checkBoxColors] that uses [checkedColor] or [uncheckedColor] depending ons the checked state of the
  * CheckBox.
  *
  * @param checkedColor the [Color] to use when the CheckBox is checked
  * @param uncheckedColor the [Color] to use when the CheckBox is not checked
  */
-fun CheckBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxColors =
-    CheckBoxColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
+@Composable
+fun checkBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxColors =
+    checkBoxColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
 
 /**
- * [CheckBoxColors] that uses [checkedColor] or [uncheckedColor] depending on the checked state of
+ * [checkBoxColors] that uses [checkedColor] or [uncheckedColor] depending on the checked state of
  * the CheckBox.
  *
  * None of the [ColorProvider] parameters to this function can be created from resource ids. To use
@@ -63,35 +65,35 @@ fun CheckBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxColors =
  * @param uncheckedColor the [ColorProvider] to use when the check box is not checked, or null to
  * use the default tint
  */
-fun CheckBoxColors(
-    checkedColor: ColorProvider? = null,
-    uncheckedColor: ColorProvider? = null
+@Composable
+fun checkBoxColors(
+    checkedColor: ColorProvider,
+    uncheckedColor: ColorProvider
 ): CheckBoxColors =
     CheckBoxColorsImpl(
         createCheckableColorProvider(
             source = "CheckBoxColors",
             checked = checkedColor,
             unchecked = uncheckedColor,
-            fallback = R.color.glance_default_check_box
         )
     )
 
-/**
- * [CheckBoxColors] set to the color resource [checkBoxColor].
- *
- * This may be a fixed color or a color selector that selects color depending on
- * [android.R.attr.state_checked].
- *
- * @param checkBoxColor the resource to use to tint the check box. If an invalid resource id is
- * provided, the default check box colors will be used.
- */
-fun CheckBoxColors(@ColorRes checkBoxColor: Int): CheckBoxColors =
-    CheckBoxColorsImpl(
-        ResourceCheckableColorProvider(
-            resId = checkBoxColor,
-            fallback = R.color.glance_default_check_box
+@Composable
+fun checkBoxColors(): CheckBoxColors {
+    val colorProvider = if (GlanceTheme.colors == DynamicThemeColorProviders) {
+        // If using the m3 dynamic color theme, we need to create a color provider from xml
+        // because resource backed ColorStateLists cannot be created programmatically
+         ResourceCheckableColorProvider(R.color.glance_default_check_box)
+    } else {
+        createCheckableColorProvider(
+            source = "CheckBoxColors",
+            checked = GlanceTheme.colors.primary,
+            unchecked = GlanceTheme.colors.onSurface
         )
-    )
+    }
+
+    return CheckBoxColorsImpl(colorProvider)
+}
 
 /**
  * Adds a check box view to the glance view.
@@ -115,7 +117,7 @@ fun CheckBox(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: CheckBoxColors = CheckBoxColors(),
+    colors: CheckBoxColors = checkBoxColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (onCheckedChange != null) {
@@ -124,7 +126,7 @@ fun CheckBox(
         modifier
     }
     GlanceNode(
-        factory = ::EmittableCheckBox,
+        factory = { EmittableCheckBox(colors) },
         update = {
             this.set(checked) { this.checked = it }
             this.set(text) { this.text = it }
@@ -136,13 +138,22 @@ fun CheckBox(
     )
 }
 
-internal class EmittableCheckBox : Emittable {
+internal class EmittableCheckBox(
+    var colors: CheckBoxColors
+) : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var checked: Boolean = false
     var text: String = ""
     var style: TextStyle? = null
-    var colors: CheckBoxColors = CheckBoxColors()
     var maxLines: Int = Int.MAX_VALUE
+
+    override fun copy(): Emittable = EmittableCheckBox(colors = colors).also {
+        it.modifier = modifier
+        it.checked = checked
+        it.text = text
+        it.style = style
+        it.maxLines = maxLines
+    }
 
     override fun toString(): String = "EmittableCheckBox(" +
         "modifier=$modifier, " +

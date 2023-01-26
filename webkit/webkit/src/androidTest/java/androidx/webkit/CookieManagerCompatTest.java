@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 import android.webkit.CookieManager;

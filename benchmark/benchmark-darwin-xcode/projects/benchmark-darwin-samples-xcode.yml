@@ -1,0 +1,41 @@
+# XCodeGen for the :benchmark:benchmark-darwin-samples module..
+
+name: benchmark-darwin-samples-xcode
+targets:
+
+  testapp-ios:
+    type: application
+    platform: iOS
+    info:
+      path: App.plist
+    sources:
+      - path: '../iosSources/main'
+    scheme:
+      testTargets:
+        - testapp-ios-benchmarks
+      gatherCoverageData: false
+    dependencies:
+      - framework: "${PROJECT_DIR}/../../../../androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/release/AndroidXDarwinBenchmarks.xcframework"
+    settings:
+      PRODUCT_NAME: testapp-ios
+
+  testapp-ios-benchmarks:
+    type: bundle.unit-test
+    platform: iOS
+    info:
+      path: Benchmark.plist
+    sources:
+      - path: '../iosAppUnitTests/main'
+    scheme:
+      gatherCoverageData: false
+    settings:
+      PRODUCT_NAME: testapp-ios-benchmarks
+
+settings:
+  PRODUCT_BUNDLE_IDENTIFIER: androidx.benchmark
+  SWIFT_VERSION: 5
+  CODE_SIGN_IDENTITY: ''
+  CODE_SIGNING_REQUIRED: 'NO'
+  CODE_SIGN_ENTITLEMENTS: ''
+  CODE_SIGNING_ALLOWED: 'NO'
+  IPHONEOS_DEPLOYMENT_TARGET: 15.0

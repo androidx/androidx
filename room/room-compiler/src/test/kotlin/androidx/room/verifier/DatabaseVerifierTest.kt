@@ -39,9 +39,10 @@ import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
 import androidx.room.vo.PrimaryKey
 import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers.`is`
+import java.sql.Connection
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.hasItem
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -49,7 +50,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import java.sql.Connection
 
 @RunWith(Parameterized::class)
 class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
@@ -435,8 +435,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     }
 
     private fun assignGetterSetter(f: Field, name: String, type: XType) {
-        f.getter = FieldGetter(name, type, CallType.FIELD)
-        f.setter = FieldSetter(name, type, CallType.FIELD)
+        f.getter = FieldGetter(f.name, name, type, CallType.FIELD, true)
+        f.setter = FieldSetter(f.name, name, type, CallType.FIELD)
     }
 
     private fun primitive(context: Context, typeName: TypeName): XType {

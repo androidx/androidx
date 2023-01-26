@@ -32,10 +32,12 @@ import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
@@ -54,6 +56,9 @@ import java.util.Set;
 // API levels < 28.
 @SuppressWarnings("deprecation")
 public class AppSignatureVerifierTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private static final String TEST_PACKAGE_NAME = "com.android.testapp";
     private static final String TEST_PERMISSION_NAME = "com.android.testapp.TEST_PERMISSION";
     private static final long LAST_UPDATE_TIME = 1234;
@@ -78,7 +83,6 @@ public class AppSignatureVerifierTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         mBuilder = new AppSignatureVerifierTestBuilder(mMockContext);
     }

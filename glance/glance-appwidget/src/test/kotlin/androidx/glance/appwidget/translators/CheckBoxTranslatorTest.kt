@@ -21,8 +21,9 @@ import android.content.res.Configuration
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.CheckBox
-import androidx.glance.appwidget.CheckBoxColors
+import androidx.glance.appwidget.checkBoxColors
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
@@ -30,10 +31,13 @@ import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findViewByType
 import androidx.glance.appwidget.runAndTranslate
-import androidx.glance.appwidget.test.R
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.color.ColorProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
+import androidx.glance.unit.FixedColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -42,7 +46,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -66,7 +69,7 @@ class CheckBoxTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
+                colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
             )
         }
 
@@ -83,7 +86,7 @@ class CheckBoxTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
+                colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
             )
         }
 
@@ -100,7 +103,7 @@ class CheckBoxTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(
+                colors = checkBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -120,7 +123,7 @@ class CheckBoxTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(
+                colors = checkBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -140,7 +143,7 @@ class CheckBoxTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(
+                colors = checkBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -160,7 +163,7 @@ class CheckBoxTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(
+                colors = checkBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -180,13 +183,16 @@ class CheckBoxTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = CheckBoxColors(R.color.my_checkbox_colors)
+                colors = checkBoxColors(
+                    checkedColor = FixedColorProvider(Color.Red),
+                    uncheckedColor = FixedColorProvider(Color.Blue)
+                )
             )
         }
 
         val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter("#FF0000")
+        assertThat(icon).hasColorFilter(Color.Red)
     }
 
     @Config(sdk = [29])
@@ -218,4 +224,22 @@ class CheckBoxTranslatorTest {
         val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         assertThat(checkboxRoot.hasOnClickListeners()).isTrue()
     }
+
+    @Test
+    fun canTranslateCheckBoxWithSemanticsModifier_contentDescription() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                CheckBox(
+                    checked = true,
+                    onCheckedChange = actionRunCallback<ActionCallback>(),
+                    text = "CheckBox",
+                    modifier = GlanceModifier.semantics {
+                        contentDescription = "Custom checkbox description"
+                    },
+                )
+            }
+
+            val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(checkboxRoot.contentDescription).isEqualTo("Custom checkbox description")
+        }
 }

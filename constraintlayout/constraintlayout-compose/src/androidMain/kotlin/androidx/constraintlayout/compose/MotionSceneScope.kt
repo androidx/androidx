@@ -16,13 +16,11 @@
 
 package androidx.constraintlayout.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.core.state.CorePixelDp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.constraintlayout.core.parser.CLObject
 
 private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
 
@@ -34,22 +32,14 @@ private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
  * @see ConstraintSetScope
  */
 @ExperimentalMotionApi
-@Composable
 fun MotionScene(
     motionSceneContent: MotionSceneScope.() -> Unit
 ): MotionScene {
-    // TODO: Add a state listener
-    val dpToPixel = with(LocalDensity.current) { CorePixelDp { 1.dp.toPx() } }
-    val scope = remember { MotionSceneScope(dpToPixel) }
-    scope.reset()
-    scope.motionSceneContent()
-    return remember {
-        // Clone the elements to avoid issues with async mutability
-        MotionSceneDslImpl(
-            constraintSetsByName = scope.constraintSetsByName.toMap(),
-            transitionsByName = scope.transitionsByName.toMap()
-        )
-    }
+    val scope = MotionSceneScope().apply(motionSceneContent)
+    return MotionSceneDslImpl(
+        constraintSetsByName = scope.constraintSetsByName,
+        transitionsByName = scope.transitionsByName
+    )
 }
 
 @ExperimentalMotionApi
@@ -92,6 +82,24 @@ internal class MotionSceneDslImpl(
     override fun getTransitionInstance(name: String): Transition? {
         return transitionsByName[name]
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MotionSceneDslImpl
+
+        if (constraintSetsByName != other.constraintSetsByName) return false
+        if (transitionsByName != other.transitionsByName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = constraintSetsByName.hashCode()
+        result = 31 * result + transitionsByName.hashCode()
+        return result
+    }
 }
 
 /**
@@ -111,17 +119,24 @@ internal class MotionSceneDslImpl(
  * works as a fallback for undefined `from -> to` transitions.
  */
 @ExperimentalMotionApi
-class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) {
+class MotionSceneScope internal constructor() {
     /**
      * Count of generated ConstraintSet & Transition names.
      */
     private var generatedCount = 0
 
     /**
+     * Count of generated ConstraintLayoutReference IDs.
+     */
+    private var generatedIdCount = 0
+
+    /**
      * Returns a new unique name. Should be used when the user does not provide a specific name
      * for their ConstraintSets/Transitions.
      */
     private fun nextName() = UNDEFINED_NAME_PREFIX + generatedCount++
+
+    private fun nextId() = UNDEFINED_NAME_PREFIX + "id${generatedIdCount++}"
 
     internal var constraintSetsByName = HashMap<String, ConstraintSet>()
     internal var transitionsByName = HashMap<String, Transition>()
@@ -146,7 +161,7 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
         to: ConstraintSetRef,
         transitionContent: TransitionScope.() -> Unit = { }
     ) {
-        transition("default", from, to, transitionContent)
+        transition(from, to, "default", transitionContent)
     }
 
     /**
@@ -165,11 +180,11 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
         constraintSetContent: ConstraintSetScope.() -> Unit
     ): ConstraintSetRef {
         return addConstraintSet(
-            name = name,
             constraintSet = DslConstraintSet(
                 description = constraintSetContent,
                 extendFrom = extendConstraintSet?.let { constraintSetsByName[it.name] }
-            )
+            ),
+            name = name
         )
     }
 
@@ -180,9 +195,9 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      * Where [from] and [to] are the ConstraintSets handled by it.
      */
     fun transition(
-        name: String? = null,
         from: ConstraintSetRef,
         to: ConstraintSetRef,
+        name: String? = null,
         transitionContent: TransitionScope.() -> Unit
     ) {
         val transitionName = name ?: nextName()
@@ -190,8 +205,7 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
             parsedTransition = TransitionScope(
                 from = from.name,
                 to = to.name
-            ).apply(transitionContent).getObject(),
-            pixelDp = dpToPixel
+            ).apply(transitionContent).getObject()
         )
     }
 
@@ -203,8 +217,8 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      * as a parameter of [transition].
      */
     fun addConstraintSet(
-        name: String? = null,
-        constraintSet: ConstraintSet
+        constraintSet: ConstraintSet,
+        name: String? = null
     ): ConstraintSetRef {
         val cSetName = name ?: nextName()
         constraintSetsByName[cSetName] = constraintSet
@@ -222,8 +236,8 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      * @see [addConstraintSet]
      */
     fun addTransition(
-        name: String? = null,
-        transition: Transition
+        transition: Transition,
+        name: String? = null
     ) {
         val transitionName = name ?: nextName()
         transitionsByName[transitionName] = transition
@@ -236,22 +250,155 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
     fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
 
     /**
+     * Convenient way to create multiple [ConstrainedLayoutReference] with one statement, the [ids]
+     * provided should match Composables within ConstraintLayout using [androidx.compose.ui.Modifier.layoutId].
+     *
+     * Example:
+     * ```
+     * val (box, text, button) = createRefsFor("box", "text", "button")
+     * ```
+     * Note that the number of ids should match the number of variables assigned.
+     *
+     * &nbsp;
+     *
+     * To create a singular [ConstrainedLayoutReference] see [createRefFor].
+     */
+    fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
+        ConstrainedLayoutReferences(arrayOf(*ids))
+
+    inner class ConstrainedLayoutReferences internal constructor(
+        private val ids: Array<Any>
+    ) {
+        operator fun component1(): ConstrainedLayoutReference =
+            ConstrainedLayoutReference(ids.getOrElse(0) { nextId() })
+
+        operator fun component2(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(1) { nextId() })
+
+        operator fun component3(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(2) { nextId() })
+
+        operator fun component4(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(3) { nextId() })
+
+        operator fun component5(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(4) { nextId() })
+
+        operator fun component6(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(5) { nextId() })
+
+        operator fun component7(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(6) { nextId() })
+
+        operator fun component8(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(7) { nextId() })
+
+        operator fun component9(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(8) { nextId() })
+
+        operator fun component10(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(9) { nextId() })
+
+        operator fun component11(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(10) { nextId() })
+
+        operator fun component12(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(11) { nextId() })
+
+        operator fun component13(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(12) { nextId() })
+
+        operator fun component14(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(13) { nextId() })
+
+        operator fun component15(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(14) { nextId() })
+
+        operator fun component16(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(15) { nextId() })
+    }
+
+    /**
      * Declare a custom Float [value] addressed by [name].
      */
     fun ConstrainScope.customFloat(name: String, value: Float) {
-        tasks.add { state ->
-            state.constraints(id).addCustomFloat(name, value)
+        if (!containerObject.has("custom")) {
+            containerObject.put("custom", CLObject(charArrayOf()))
         }
+        val customPropsObject = containerObject.getObjectOrNull("custom") ?: return
+        customPropsObject.putNumber(name, value)
     }
 
     /**
      * Declare a custom Color [value] addressed by [name].
      */
     fun ConstrainScope.customColor(name: String, value: Color) {
-        tasks.add { state ->
-            state.constraints(id).addCustomColor(name, value.toArgb())
+        if (!containerObject.has("custom")) {
+            containerObject.put("custom", CLObject(charArrayOf()))
         }
+        val customPropsObject = containerObject.getObjectOrNull("custom") ?: return
+        customPropsObject.putString(name, value.toJsonHexString())
     }
+
+    /**
+     * Declare a custom Int [value] addressed by [name].
+     */
+    fun ConstrainScope.customInt(name: String, value: Int) {
+        customFloat(name, value.toFloat())
+    }
+
+    /**
+     * Declare a custom Dp [value] addressed by [name].
+     */
+    fun ConstrainScope.customDistance(name: String, value: Dp) {
+        customFloat(name, value.value)
+    }
+
+    /**
+     * Declare a custom TextUnit [value] addressed by [name].
+     */
+    fun ConstrainScope.customFontSize(name: String, value: TextUnit) {
+        customFloat(name, value.value)
+    }
+
+    /**
+     * Sets the custom Float [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customFloat(name: String, value: Float) {
+        customPropertiesValue[name] = value
+    }
+
+    /**
+     * Sets the custom Color [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customColor(name: String, value: Color) {
+        // Colors must be in the following format: "#AARRGGBB"
+        customPropertiesValue[name] = value.toJsonHexString()
+    }
+
+    /**
+     * Sets the custom Int [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customInt(name: String, value: Int) {
+        customPropertiesValue[name] = value
+    }
+
+    /**
+     * Sets the custom Dp [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customDistance(name: String, value: Dp) {
+        customPropertiesValue[name] = value.value
+    }
+
+    /**
+     * Sets the custom TextUnit [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customFontSize(name: String, value: TextUnit) {
+        customPropertiesValue[name] = value.value
+    }
+
+    private fun Color.toJsonHexString() =
+        "#${this.toArgb().toUInt().toString(16)}"
 }
 
 data class ConstraintSetRef internal constructor(

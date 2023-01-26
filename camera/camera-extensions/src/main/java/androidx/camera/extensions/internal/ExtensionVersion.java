@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.internal;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
@@ -73,6 +74,38 @@ public abstract class ExtensionVersion {
 
     public static boolean isAdvancedExtenderSupported() {
         return getInstance().isAdvancedExtenderSupportedInternal();
+    }
+
+    /**
+     * Check if the Runtime Version meets the minimum compatible version requirement. This implies
+     * that the runtime version is equal to or newer than the version.
+     *
+     * <p> The compatible version is comprised of the major and minor version numbers. The patch
+     * number is ignored.
+     *
+     * @param version The minimum compatible version required
+     * @return True if the Runtime version meets the minimum version requirement and False
+     * otherwise.
+     */
+    public static boolean isMinimumCompatibleVersion(@NonNull Version version) {
+        return ExtensionVersion.getRuntimeVersion()
+                .compareTo(version.getMajor(), version.getMinor()) >= 0;
+    }
+
+    /**
+     * Check if the Runtime Version meets the maximum compatible version requirement. This implies
+     * that the runtime version is equal to or older than the version.
+     *
+     * <p> The compatible version is comprised of the major and minor version numbers. The patch
+     * number is ignored.
+     *
+     * @param version The maximum compatible version required
+     * @return True if the Runtime version meets the maximum version requirement and False
+     * otherwise.
+     */
+    public static boolean isMaximumCompatibleVersion(@NonNull Version version) {
+        return ExtensionVersion.getRuntimeVersion()
+                .compareTo(version.getMajor(), version.getMinor()) <= 0;
     }
 
     abstract boolean isAdvancedExtenderSupportedInternal();

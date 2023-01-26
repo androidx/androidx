@@ -114,7 +114,7 @@ internal class FrameworkSQLiteDatabase(
     override val isExecPerConnectionSQLSupported: Boolean
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
-    override fun execPerConnectionSQL(sql: String, bindArgs: Array<Any?>?) {
+    override fun execPerConnectionSQL(sql: String, bindArgs: Array<out Any?>?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Api30Impl.execPerConnectionSQL(delegate, sql, bindArgs)
         } else {
@@ -135,7 +135,7 @@ internal class FrameworkSQLiteDatabase(
         return query(SimpleSQLiteQuery(query))
     }
 
-    override fun query(query: String, bindArgs: Array<Any?>): Cursor {
+    override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
         return query(SimpleSQLiteQuery(query, bindArgs))
     }
 
@@ -182,7 +182,7 @@ internal class FrameworkSQLiteDatabase(
         return delegate.insertWithOnConflict(table, null, values, conflictAlgorithm)
     }
 
-    override fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int {
+    override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int {
         val query = buildString {
             append("DELETE FROM ")
             append(table)
@@ -201,7 +201,7 @@ internal class FrameworkSQLiteDatabase(
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<Any?>?
+        whereArgs: Array<out Any?>?
     ): Int {
         // taken from SQLiteDatabase class.
         require(values.size() != 0) { "Empty values" }
@@ -247,7 +247,7 @@ internal class FrameworkSQLiteDatabase(
     }
 
     @Throws(SQLException::class)
-    override fun execSQL(sql: String, bindArgs: Array<Any?>) {
+    override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
         delegate.execSQL(sql, bindArgs)
     }
 
@@ -290,7 +290,8 @@ internal class FrameworkSQLiteDatabase(
     override val isWriteAheadLoggingEnabled: Boolean
         get() = SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(delegate)
 
-    override val attachedDbs: List<Pair<String, String>>? = delegate.attachedDbs
+    override val attachedDbs: List<Pair<String, String>>?
+        get() = delegate.attachedDbs
 
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
@@ -313,7 +314,7 @@ internal class FrameworkSQLiteDatabase(
         fun execPerConnectionSQL(
             sQLiteDatabase: SQLiteDatabase,
             sql: String,
-            bindArgs: Array<Any?>?
+            bindArgs: Array<out Any?>?
         ) {
             sQLiteDatabase.execPerConnectionSQL(sql, bindArgs)
         }

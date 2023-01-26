@@ -222,12 +222,16 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             return
         }
 
-        val storagePermission = activity?.let {
-            ContextCompat.checkSelfPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-        if (storagePermission != PackageManager.PERMISSION_GRANTED) {
-            requestStoragePermission()
-            return
+        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
+        // granted any more.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            val storagePermission = activity?.let {
+                ContextCompat.checkSelfPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+            if (storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestStoragePermission()
+                return
+            }
         }
 
         sendSurfaceRequest(false)

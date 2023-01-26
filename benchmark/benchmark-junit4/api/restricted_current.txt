@@ -20,14 +20,5 @@ package androidx.benchmark.junit4 {
     method public static inline void measureRepeated(androidx.benchmark.junit4.BenchmarkRule, kotlin.jvm.functions.Function1<? super androidx.benchmark.junit4.BenchmarkRule.Scope,kotlin.Unit> block);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PerfettoRule implements org.junit.rules.TestRule {
-    ctor public PerfettoRule(optional boolean enableAppTagTracing, optional boolean enableUserspaceTracing);
-    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
-    method public boolean getEnableAppTagTracing();
-    method public boolean getEnableUserspaceTracing();
-    property public final boolean enableAppTagTracing;
-    property public final boolean enableUserspaceTracing;
-  }
-
 }
 

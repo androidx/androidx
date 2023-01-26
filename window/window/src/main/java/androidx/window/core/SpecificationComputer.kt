@@ -17,9 +17,9 @@
 package androidx.window.core
 
 import android.util.Log
-import androidx.window.core.SpecificationComputer.VerificationMode.LOG
-import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
-import androidx.window.core.SpecificationComputer.VerificationMode.STRICT
+import androidx.window.core.VerificationMode.LOG
+import androidx.window.core.VerificationMode.QUIET
+import androidx.window.core.VerificationMode.STRICT
 
 /**
  * An [Exception] to signal that strict mode has been violated. This class should only be used
@@ -37,14 +37,6 @@ internal class WindowStrictModeException(message: String) : Exception(message)
  * specification is not met.
  */
 internal abstract class SpecificationComputer<T : Any> {
-    /**
-     * An enum to specify which [VerificationMode] should be used with the [SpecificationComputer]
-     */
-    enum class VerificationMode {
-        STRICT,
-        LOG,
-        QUIET
-    }
 
     /**
      * Checks if the required condition is met and returns a [SpecificationComputer] based on the

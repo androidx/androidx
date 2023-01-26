@@ -173,9 +173,8 @@ internal class PaddingWrapper(
     private var afterPx = 0f
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int {
+        measurables: Iterator<Measurable>
+    ) {
         outerPx = paddingValues.calculateOuterPadding(curvedLayoutDirection.radial).toPx()
         innerPx = paddingValues.calculateInnerPadding(curvedLayoutDirection.radial).toPx()
         beforePx = paddingValues.calculateBeforePadding(
@@ -186,8 +185,8 @@ internal class PaddingWrapper(
             curvedLayoutDirection.layoutDirection,
             curvedLayoutDirection.angular
         ).toPx()
-        return with(wrapped) {
-            initializeMeasure(measurables, index)
+        with(wrapped) {
+            initializeMeasure(measurables)
         }
     }
 

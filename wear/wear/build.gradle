@@ -13,6 +13,7 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.1.0")
     api("androidx.core:core:1.6.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
+    api('androidx.dynamicanimation:dynamicanimation:1.0.0')
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.kotlinStdlib)
@@ -31,8 +32,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRules)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
 
     implementation("androidx.core:core-ktx:1.6.0")
 
@@ -63,7 +63,6 @@ android {
 androidx {
     name = "Android Wear Support UI"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"

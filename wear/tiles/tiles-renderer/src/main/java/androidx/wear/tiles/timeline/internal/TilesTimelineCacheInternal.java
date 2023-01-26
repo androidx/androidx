@@ -19,9 +19,9 @@ package androidx.wear.tiles.timeline.internal;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.tiles.proto.TimelineProto.TimeInterval;
-import androidx.wear.tiles.proto.TimelineProto.Timeline;
-import androidx.wear.tiles.proto.TimelineProto.TimelineEntry;
+import androidx.wear.protolayout.proto.TimelineProto.TimeInterval;
+import androidx.wear.protolayout.proto.TimelineProto.Timeline;
+import androidx.wear.protolayout.proto.TimelineProto.TimelineEntry;
 
 /**
  * Timeline cache for Tiles. This will take in a full timeline, and return the appropriate entry for

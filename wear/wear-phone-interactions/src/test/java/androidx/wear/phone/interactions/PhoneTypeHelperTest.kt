@@ -47,9 +47,10 @@ class PhoneTypeHelperTest {
     var mockContentProvider: ContentProvider? = null
     private var contentResolver: ContentResolver? = null
 
+    @Suppress("DEPRECATION") // b/251211092
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         ShadowContentResolver.registerProviderInternal(
             PhoneTypeHelper.SETTINGS_AUTHORITY,
             mockContentProvider

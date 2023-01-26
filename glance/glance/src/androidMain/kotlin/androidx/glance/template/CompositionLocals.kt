@@ -17,10 +17,5 @@
 package androidx.glance.template
 
 import androidx.compose.runtime.compositionLocalOf
-import androidx.glance.color.ColorProviders
 
 val LocalTemplateMode = compositionLocalOf<TemplateMode> { error("No template mode provided") }
-
-val LocalTemplateColors = compositionLocalOf<ColorProviders> {
-    error("No template colors provided")
-}

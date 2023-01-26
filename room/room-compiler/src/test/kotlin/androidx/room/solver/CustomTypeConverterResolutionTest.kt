@@ -26,10 +26,11 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
@@ -41,10 +42,10 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.Modifier
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.lang.model.element.Modifier
 
 @RunWith(JUnit4::class)
 class CustomTypeConverterResolutionTest {
@@ -267,8 +268,8 @@ class CustomTypeConverterResolutionTest {
         runProcessorTest(
             sources = sources + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
                 CUSTOM_TYPE_SET_CONVERTER_JFO,
-            createProcessingStep = {
-                DatabaseProcessingStep()
+            createProcessingSteps = {
+                listOf(DatabaseProcessingStep())
             },
             onCompilationResult = onCompilationResult
         )
@@ -318,7 +319,7 @@ class CustomTypeConverterResolutionTest {
     ): TypeSpec {
         return TypeSpec.classBuilder(DB).apply {
             addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-            superclass(RoomTypeNames.ROOM_DB)
+            superclass(ROOM_DB.toJavaPoet())
             if (hasConverters) {
                 addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }

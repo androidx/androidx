@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    implementation("androidx.core:core:1.7.0")
+    implementation("androidx.core:core:1.8.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -36,7 +36,6 @@ androidx {
     name = "AndroidX AppDigest Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE_APPDIGEST
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2020"
     description = "AndroidX AppDigest Library"
 }

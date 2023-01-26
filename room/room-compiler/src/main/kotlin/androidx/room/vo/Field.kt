@@ -17,7 +17,6 @@
 package androidx.room.vo
 
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -28,7 +27,6 @@ import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
-import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 // used in cache matching, must stay as a data class or implement equals
@@ -103,8 +101,8 @@ data class Field(
             }
 
             if (
-                typeName.toJavaPoet() == TypeName.BOOLEAN ||
-                typeName.toJavaPoet() == TypeName.BOOLEAN.box()
+                typeName == XTypeName.PRIMITIVE_BOOLEAN ||
+                typeName == XTypeName.BOXED_BOOLEAN
             ) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
                     result.add(name.substring(2).decapitalize(Locale.US))
@@ -120,8 +118,8 @@ data class Field(
     val getterNameWithVariations by lazy {
         nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
             if (
-                typeName.toJavaPoet() == TypeName.BOOLEAN ||
-                typeName.toJavaPoet() == TypeName.BOOLEAN.box()
+                typeName == XTypeName.PRIMITIVE_BOOLEAN ||
+                typeName == XTypeName.BOXED_BOOLEAN
             ) {
                 nameWithVariations.flatMap {
                     listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")

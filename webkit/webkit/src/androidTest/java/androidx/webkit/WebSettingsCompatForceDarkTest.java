@@ -25,7 +25,6 @@ import android.os.Build.VERSION_CODES;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -134,7 +133,8 @@ public class WebSettingsCompatForceDarkTest extends
      * i.e. web contents are darkened only by web theme.
      */
     @SuppressWarnings("deprecation")
-    @FlakyTest(bugId = 240432254)
+    @Ignore("Disabled due to b/260586583")
+    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);

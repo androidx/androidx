@@ -159,7 +159,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
     private lateinit var textureView: TextureView
 
-    private lateinit var previewSurface: Surface
+    private var previewSurface: Surface? = null
 
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
 
@@ -552,7 +552,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy()++")
         super.onDestroy()
-        previewSurface.release()
+        previewSurface?.release()
 
         imageSaveTerminationFuture.addListener({ stillImageReader?.close() }, mainExecutor)
         normalModeCaptureThread.quitSafely()
@@ -735,7 +735,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
             val outputConfigs = arrayListOf<OutputConfiguration>()
             outputConfigs.add(OutputConfiguration(stillImageReader!!.surface))
-            outputConfigs.add(OutputConfiguration(previewSurface))
+            outputConfigs.add(OutputConfiguration(previewSurface!!))
 
             if (extensionModeEnabled) {
                 createCameraExtensionSession(cont, outputConfigs, extensionMode)
@@ -850,7 +850,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
         try {
             val captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-            captureBuilder.addTarget(previewSurface)
+            captureBuilder.addTarget(previewSurface!!)
 
             if (captureSession is CameraCaptureSession) {
                 captureSession.setRepeatingRequest(

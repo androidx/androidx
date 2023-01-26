@@ -61,7 +61,28 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>Contains requirements for surface characteristics along with methods for completing the
  * request and listening for request cancellation.
  *
- * @see Preview.SurfaceProvider#onSurfaceRequested(SurfaceRequest)
+ * <p>Acts as a bridge between the surface provider and the surface requester. The diagram below
+ * describes how it works:
+ * <ol>
+ * <li>The surface provider gives a reference to surface requester for providing {@link Surface}
+ * (e.g. {@link Preview#setSurfaceProvider(Preview.SurfaceProvider)}).
+ * <li>The surface requester uses the reference to send a {@code SurfaceRequest} to get a
+ * {@link Surface} (e.g. {@link Preview.SurfaceProvider#onSurfaceRequested(SurfaceRequest)}).
+ * <li>The surface provider can use {@link #provideSurface(Surface, Executor, Consumer)} to provide
+ * a {@link Surface} or inform the surface requester no {@link Surface} will be provided with
+ * {@link #willNotProvideSurface()}. If a {@link Surface} is provided, the connection between
+ * surface provider and surface requester is established.
+ * <li>If the connection is established, the surface requester can get the {@link Surface} through
+ * {@link #getDeferrableSurface()} and start to send frame data.
+ * <li>If for some reason the provided {@link Surface} is no longer valid (e.g. when the
+ * SurfaceView destroys its surface due to page being slid out in ViewPager2), the surface
+ * provider can use {@link #invalidate()} method to inform the surface requester and the
+ * established connection will be closed.
+ * <li>The surface requester will re-send a new {@code SurfaceRequest} to establish a new
+ * connection.
+ * </ol>
+ *
+ * <img src="/images/reference/androidx/camera/camera-core/surface_request_work_flow.svg"/>
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceRequest {
@@ -71,8 +92,6 @@ public final class SurfaceRequest {
 
     @Nullable
     private final Range<Integer> mExpectedFrameRate;
-    private final boolean mRGBA8888Required;
-
     private final CameraInternal mCamera;
 
     // For the camera to retrieve the surface from the user
@@ -83,6 +102,10 @@ public final class SurfaceRequest {
     // For the user to wait for the camera to be finished with the surface and retrieve errors
     // from the camera.
     private final ListenableFuture<Void> mSessionStatusFuture;
+
+    // For notification of surface recreated.
+    @NonNull
+    private final CallbackToFutureAdapter.Completer<Void> mSurfaceRecreationCompleter;
 
     // For notification of surface request cancellation. Should only be used to register
     // cancellation listeners.
@@ -110,25 +133,25 @@ public final class SurfaceRequest {
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
-            boolean isRGBA8888Required) {
-        this(resolution, camera, isRGBA8888Required, /*expectedFrameRate=*/null);
+            @NonNull Runnable onInvalidated) {
+        this(resolution, camera, /*expectedFrameRate=*/null, onInvalidated);
     }
 
     /**
      * Creates a new surface request with the given resolution, {@link Camera}, and an optional
      * expected frame rate.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
-            boolean isRGBA8888Required,
-            @Nullable Range<Integer> expectedFrameRate) {
+            @Nullable Range<Integer> expectedFrameRate,
+            @NonNull Runnable onInvalidated) {
         super();
         mResolution = resolution;
         mCamera = camera;
-        mRGBA8888Required = isRGBA8888Required;
         mExpectedFrameRate = expectedFrameRate;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
@@ -244,6 +267,9 @@ public final class SurfaceRequest {
         //    finished with the surface, so cancelling the surface future below will be a no-op.
         terminationFuture.addListener(() -> mSurfaceFuture.cancel(true),
                 CameraXExecutors.directExecutor());
+
+        mSurfaceRecreationCompleter = initialSurfaceRecreationCompleter(
+                CameraXExecutors.directExecutor(), onInvalidated);
     }
 
     /**
@@ -256,6 +282,20 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public DeferrableSurface getDeferrableSurface() {
         return mInternalDeferrableSurface;
+    }
+
+    /**
+     * Returns whether this surface request has been serviced.
+     *
+     * <p>A surface request is considered serviced if
+     * {@link #provideSurface(Surface, Executor, Consumer)} or {@link #willNotProvideSurface()}
+     * has been called.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isServiced() {
+        return mSurfaceFuture.isDone();
     }
 
     /**
@@ -311,17 +351,6 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public CameraInternal getCamera() {
         return mCamera;
-    }
-
-    /**
-     * Returns whether a surface of RGBA_8888 pixel format is required.
-     *
-     * @return true if a surface of RGBA_8888 pixel format is required.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isRGBA8888Required() {
-        return mRGBA8888Required;
     }
 
     /**
@@ -417,6 +446,69 @@ public final class SurfaceRequest {
         return mSurfaceCompleter.setException(
                 new DeferrableSurface.SurfaceUnavailableException("Surface request "
                         + "will not complete."));
+    }
+
+    /**
+     * Sets a {@link Runnable} that handles the situation where {@link Surface} is no longer valid
+     * and triggers the process to request a new {@link Surface}.
+     *
+     * @param executor Executor used to execute the {@code runnable}.
+     * @param runnable The code which will be run when {@link Surface} is no longer valid.
+     */
+    private CallbackToFutureAdapter.Completer<Void> initialSurfaceRecreationCompleter(
+            @NonNull Executor executor, @NonNull Runnable runnable) {
+        AtomicReference<CallbackToFutureAdapter.Completer<Void>> completerRef =
+                new AtomicReference<>(null);
+        final ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
+            completerRef.set(completer);
+            return "SurfaceRequest-surface-recreation(" + SurfaceRequest.this.hashCode() + ")";
+        });
+
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                runnable.run();
+            }
+
+            @Override
+            public void onFailure(@NonNull Throwable t) {
+                // Do nothing
+            }
+        }, executor);
+
+        return Preconditions.checkNotNull(completerRef.get());
+    }
+
+    /**
+     * Invalidates the previously provided {@link Surface} to provide a new {@link Surface}.
+     *
+     * <p>Call this method to inform the surface requester that the previously provided
+     * {@link Surface} is no longer valid (e.g. when the SurfaceView destroys its surface due to
+     * page being slid out in ViewPager2) and should re-send a {@link SurfaceRequest} to obtain a
+     * new {@link Surface}.
+     *
+     * <p>Calling this method will cause the camera to be reconfigured. The app should call this
+     * method when the surface provider is ready to provide a new {@link Surface}. (e.g. a
+     * SurfaceView's surface is created when its window is visible.)
+     *
+     * <p>If the provided {@link Surface} was already invalidated, invoking this method will return
+     * {@code false}, and will have no effect. The surface requester will not be notified again, so
+     * there will not be another {@link SurfaceRequest}.
+     *
+     * <p>Calling this method without {@link #provideSurface(Surface, Executor, Consumer)}
+     * (regardless of whether @link #willNotProvideSurface()} has been called) will still trigger
+     * the surface requester to re-send a {@link SurfaceRequest}.
+     *
+     * <p>Since calling this method also means that the {@link SurfaceRequest} will not be
+     * fulfilled, if the {@link SurfaceRequest} has not responded, it will respond as if calling
+     * {@link #willNotProvideSurface()}.
+     *
+     * @return true if the provided {@link Surface} is invalidated or false if it was already
+     * invalidated.
+     */
+    public boolean invalidate() {
+        willNotProvideSurface();
+        return mSurfaceRecreationCompleter.set(null);
     }
 
     /**
@@ -782,6 +874,29 @@ public final class SurfaceRequest {
         public abstract int getTargetRotation();
 
         /**
+         * Whether the {@link Surface} contains the camera transform.
+         *
+         * <p>The {@link Surface} may contain a transformation, which will be used by Android
+         * components such as {@link TextureView} and {@link SurfaceView} to transform the output.
+         * The app may need to handle the transformation differently based on whether this value
+         * exists.
+         *
+         * <ul>
+         * <li>If the producer is the camera, then the {@link Surface} will contain a
+         * transformation that represents the camera orientation. In that case, this method will
+         * return {@code true}.
+         * <li>If the producer is not the camera, for example, if the stream has been edited by
+         * CameraX, then the {@link Surface} will not contain any transformation. In that case,
+         * this method will return {@code false}.
+         * </ul>
+         *
+         * @return true if the producer writes the camera transformation to the {@link Surface}.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public abstract boolean hasCameraTransform();
+
+        /**
          * Creates new {@link TransformationInfo}
          *
          * <p> Internally public to be used in view artifact tests.
@@ -792,9 +907,10 @@ public final class SurfaceRequest {
         @NonNull
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
-                @ImageOutputConfig.OptionalRotationValue int targetRotation) {
+                @ImageOutputConfig.OptionalRotationValue int targetRotation,
+                boolean hasCameraTransform) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
-                    targetRotation);
+                    targetRotation, hasCameraTransform);
         }
 
         // Hides public constructor.

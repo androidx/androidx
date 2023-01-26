@@ -43,6 +43,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture;
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -127,6 +128,8 @@ class Camera2CapturePipeline {
     @NonNull
     private final UseTorchAsFlash mUseTorchAsFlash;
 
+    private final boolean mHasFlashUnit;
+
     @NonNull
     private final Quirks mCameraQuirk;
 
@@ -153,6 +156,7 @@ class Camera2CapturePipeline {
         mExecutor = executor;
         mCameraQuirk = cameraQuirks;
         mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
+        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics);
     }
 
     @ExecutedBy("mExecutor")
@@ -183,11 +187,13 @@ class Camera2CapturePipeline {
             pipeline.addTask(new AfTask(mCameraControl));
         }
 
-        if (isTorchAsFlash(flashType)) {
-            pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
-        } else {
-            pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
-        }
+        if (mHasFlashUnit) {
+            if (isTorchAsFlash(flashType)) {
+                pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
+            } else {
+                pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
+            }
+        } // If there is no flash unit, skip the flash related task instead of failing the pipeline.
 
         return Futures.nonCancellationPropagating(
                 pipeline.executeCapture(captureConfigs, flashMode));

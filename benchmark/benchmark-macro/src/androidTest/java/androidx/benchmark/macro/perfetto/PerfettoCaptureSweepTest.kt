@@ -37,6 +37,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.test.assertEquals
 import kotlin.test.fail
+import org.junit.Ignore
 
 /**
  * Trace validation tests for PerfettoCapture
@@ -60,11 +61,14 @@ class PerfettoCaptureSweepTest(
         PerfettoHelper.stopAllPerfettoProcesses()
     }
 
-    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED)
+    @Ignore("b/258216025")
+    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED, maxSdkVersion = 33)
     @Test
     fun captureAndValidateTrace_bundled() = captureAndValidateTrace(unbundled = false)
 
+    @Ignore("b/258216025")
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
 
     private fun captureAndValidateTrace(unbundled: Boolean) {

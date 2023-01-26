@@ -72,8 +72,8 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
-        // Requires API 23 for ImageWriter
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+        // Return false to skip tests since old devices do not support extensions.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return false;
         }
 

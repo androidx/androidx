@@ -112,7 +112,9 @@ class BasicColumnTypeAdaptersTest(
                     affinity = null,
                     skipDefaultConverter = false
                 )!!
-            val expected = if (input.isAlwaysCheckedForNull()) {
+            val expected = if (invocation.isKsp || input.isPrimitive) {
+                bindCode
+            } else {
                 """
                 if (inp == null) {
                   st.bindNull(6);
@@ -120,8 +122,6 @@ class BasicColumnTypeAdaptersTest(
                   $bindCode
                 }
                 """.trimIndent()
-            } else {
-                bindCode
             }
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.builder().build().toString().trim(), `is`(expected))
@@ -143,7 +143,7 @@ class BasicColumnTypeAdaptersTest(
                 skipDefaultConverter = false
             )!!
             adapter.bindToStmt("st", "6", "inp", scope)
-            val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
+            val expected = if (invocation.isKsp) {
                 bindCode
             } else {
                 """
@@ -229,7 +229,9 @@ class BasicColumnTypeAdaptersTest(
                 affinity = null,
                 skipDefaultConverter = false
             )!!
-            val expected = if (input.isAlwaysCheckedForNull()) {
+            val expected = if (invocation.isKsp || input.isPrimitive) {
+                cursorCode
+            } else {
                 """
                 if (crs.isNull(9)) {
                   out = null;
@@ -237,8 +239,6 @@ class BasicColumnTypeAdaptersTest(
                   $cursorCode
                 }
                 """.trimIndent()
-            } else {
-                cursorCode
             }
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.builder().build().toString().trim(), `is`(expected))
@@ -260,7 +260,7 @@ class BasicColumnTypeAdaptersTest(
                 skipDefaultConverter = false
             )!!
             adapter.readFromCursor("out", "crs", "9", scope)
-            val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
+            val expected = if (invocation.isKsp) {
                 cursorCode
             } else {
                 """
@@ -306,11 +306,4 @@ class BasicColumnTypeAdaptersTest(
             generateCode(invocation, scope, nullableType)
         }
     }
-
-    /*
-     * KSP knows when a boxed primitive type is non-null but for declared types (e.g. String) we
-     * still generate code that checks for null. If we start accounting for the nullability in
-     * the generated code for declared types, this function should be removed from this test.
-     */
-    private fun TypeName.isAlwaysCheckedForNull() = !this.isPrimitive
 }

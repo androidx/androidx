@@ -34,6 +34,7 @@ dependencies {
     implementation project(path: ':privacysandbox:tools:tools-core')
 
     testImplementation(project(":internal-testutils-truth"))
+    testImplementation(project(":privacysandbox:tools:tools-apipackager"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.kotlinCoroutinesCore)
@@ -60,7 +61,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools-apigenerator"
     type = LibraryType.OTHER_CODE_PROCESSOR
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
     runApiTasks = new RunApiTasks.No("API still under active development.")

@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -35,6 +36,17 @@ import kotlinx.coroutines.CoroutineScope
 public interface WatchFaceHostApi {
     /** The [WatchFaceService.SystemTimeProvider]. */
     public val systemTimeProvider: WatchFaceService.SystemTimeProvider
+
+    /**
+     * Equivalent to [android.os.Build.VERSION.SDK_INT], but allows override for any
+     * platform-independent versioning.
+     *
+     * This is meant to only be used in androidTest, which only support testing on one SDK. In
+     * Robolectric tests use `@Config(sdk = [Build.VERSION_CODES.*])`.
+     *
+     * Note that this cannot override platform-dependent versioning, which means inconsistency.
+     */
+    public val wearSdkVersion: Int
 
     /** Returns the watch face's [Context]. */
     public fun getContext(): Context
@@ -124,15 +136,13 @@ public interface WatchFaceHostApi {
     @UiThread
     public fun invalidate()
 
+    public fun postInvalidate(delay: Duration = Duration.ZERO)
+
     /** Intent to launch the complication permission denied activity. */
     public fun getComplicationDeniedIntent(): Intent?
 
     /** Intent to launch the complication permission rationale activity. */
     public fun getComplicationRationaleIntent(): Intent?
-
-    /** Schedules a call to serialize [ComplicationSlotsManager]'s [ComplicationData]. */
-    @UiThread
-    public fun scheduleWriteComplicationDataCache()
 
     /**
      * Sent by the system at the top of the minute. This may trigger rendering if SysUI hasn't sent

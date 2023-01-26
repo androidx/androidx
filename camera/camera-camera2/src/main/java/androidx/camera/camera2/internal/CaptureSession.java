@@ -129,6 +129,9 @@ final class CaptureSession implements CaptureSessionInterface {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mSessionLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
+    @NonNull
+    @GuardedBy("mSessionLock")
+    Map<DeferrableSurface, Long> mStreamUseCaseMap = new HashMap<>();
     final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
     final TorchStateReset mTorchStateReset = new TorchStateReset();
 
@@ -138,6 +141,13 @@ final class CaptureSession implements CaptureSessionInterface {
     CaptureSession() {
         mState = State.INITIALIZED;
         mCaptureSessionStateCallback = new StateCallback();
+    }
+
+    @Override
+    public void setStreamUseCaseMap(@NonNull Map<DeferrableSurface, Long> streamUseCaseMap) {
+        synchronized (mSessionLock) {
+            mStreamUseCaseMap = streamUseCaseMap;
+        }
     }
 
     /**
@@ -314,11 +324,9 @@ final class CaptureSession implements CaptureSessionInterface {
                                         outputConfig,
                                         mConfiguredSurfaceMap,
                                         physicalCameraIdForAllStreams);
-                        if (sessionConfig.getImplementationOptions().containsOption(
-                                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
+                        if (mStreamUseCaseMap.containsKey(outputConfig.getSurface())) {
                             outputConfiguration.setStreamUseCase(
-                                    sessionConfig.getImplementationOptions().retrieveOption(
-                                            Camera2ImplConfig.STREAM_USE_CASE_OPTION));
+                                    mStreamUseCaseMap.get(outputConfig.getSurface()));
                         }
                         outputConfigList.add(outputConfiguration);
                     }

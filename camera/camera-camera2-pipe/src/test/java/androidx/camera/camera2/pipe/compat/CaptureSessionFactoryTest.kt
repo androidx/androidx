@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.CameraPipeModules
 import androidx.camera.camera2.pipe.config.SharedCameraGraphModules
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
@@ -121,6 +122,7 @@ internal class CaptureSessionFactoryTest {
                         FakeCaptureSequenceProcessor()
                 },
                 CameraSurfaceManager(),
+                SystemTimeSource(),
                 this
             )
         )

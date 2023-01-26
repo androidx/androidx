@@ -17,9 +17,9 @@
 package androidx.room.vo
 
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import com.squareup.javapoet.TypeName
 
 data class Dao(
     val element: XTypeElement,
@@ -31,9 +31,9 @@ data class Dao(
     val updateMethods: List<UpdateMethod>,
     val upsertionMethods: List<UpsertionMethod>,
     val transactionMethods: List<TransactionMethod>,
-    val delegatingMethods: List<KotlinBoxedPrimitiveMethodDelegate>,
+    val kotlinBoxedPrimitiveMethodDelegates: List<KotlinBoxedPrimitiveMethodDelegate>,
     val kotlinDefaultMethodDelegates: List<KotlinDefaultMethodDelegate>,
-    val constructorParamType: TypeName?
+    val constructorParamType: XTypeName?
 ) {
     // parsed dao might have a suffix if it is used in multiple databases.
     private var suffix: String? = null

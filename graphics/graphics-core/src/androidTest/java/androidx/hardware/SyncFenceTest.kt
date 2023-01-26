@@ -17,18 +17,47 @@
 package androidx.hardware
 
 import android.os.Build
+import androidx.graphics.surface.JniBindings
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @SmallTest
 class SyncFenceTest {
+
+    @Test
+    fun testDupSyncFenceFd() {
+        val fileDescriptor = 7
+        val syncFence = SyncFence(7)
+        // If the file descriptor is valid dup'ing it should return a different fd
+        Assert.assertNotEquals(fileDescriptor, JniBindings.nDupFenceFd(syncFence))
+    }
+
+    @Test
+    fun testWaitMethodLink() {
+        try {
+            SyncFence(8).await(1000)
+        } catch (linkError: UnsatisfiedLinkError) {
+            fail("Unable to resolve wait method")
+        } catch (exception: Exception) {
+            // Ignore other exceptions
+        }
+    }
+
+    @Test
+    fun testDupSyncFenceFdWhenInvalid() {
+        // If the fence is invalid there should be no attempt to dup the fd it and -1
+        // should be returned
+        Assert.assertEquals(-1, JniBindings.nDupFenceFd(SyncFence(-1)))
+    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -47,7 +76,6 @@ class SyncFenceTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testIsValid() {
         assertFalse(SyncFence(-1).isValid())

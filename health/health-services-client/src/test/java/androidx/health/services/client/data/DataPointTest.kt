@@ -20,7 +20,6 @@ import android.os.Bundle
 import com.google.common.truth.Truth
 import java.time.Duration
 import java.time.Instant
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -125,18 +124,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithSteps_exception() {
-        val negativeOutOfRangeSteps = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidSteps_throwsNoException() {
+        val negativeOutOfRangeSteps =
             DataPoints.steps(-1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeSteps = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeSteps =
             DataPoints.steps(1000001, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeSteps).hasMessageThat()
-            .contains("steps value -1 is out of range")
-        Truth.assertThat(positiveOutOfRangeSteps).hasMessageThat()
-            .contains("steps value 1000001 is out of range")
+        Truth.assertThat(negativeOutOfRangeSteps).isNotNull()
+        Truth.assertThat(positiveOutOfRangeSteps).isNotNull()
     }
 
     @Test
@@ -147,18 +142,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithStepsPerMinute_exception() {
-        val negativeOutOfRangeStepsPerMinutes = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidStepsPerMinute_throwsNoException() {
+        val negativeOutOfRangeStepsPerMinutes =
             DataPoints.stepsPerMinute(-1, getStartDurationFromBoot())
-        }
-        val positiveOutOfRangeStepsPerMinutes = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeStepsPerMinutes =
             DataPoints.stepsPerMinute(1000001, getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeStepsPerMinutes).hasMessageThat()
-            .contains("stepsPerMinute value -1 is out of range")
-        Truth.assertThat(positiveOutOfRangeStepsPerMinutes).hasMessageThat()
-            .contains("stepsPerMinute value 1000001 is out of range")
+        Truth.assertThat(negativeOutOfRangeStepsPerMinutes).isNotNull()
+        Truth.assertThat(positiveOutOfRangeStepsPerMinutes).isNotNull()
     }
 
     @Test
@@ -170,19 +161,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithDistance_exception() {
-        val negativeOutOfRangeDistance = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidDistance_throwsNoException() {
+        val negativeOutOfRangeDistance =
             DataPoints.distance(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeDistance = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeDistance =
             DataPoints.distance(1000000.1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeDistance).hasMessageThat()
-            .contains("meters value -1.0 is out of range")
-
-        Truth.assertThat(positiveOutOfRangeDistance).hasMessageThat()
-            .contains("meters value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeDistance).isNotNull()
+        Truth.assertThat(positiveOutOfRangeDistance).isNotNull()
     }
 
     @Test
@@ -194,19 +180,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithDistanceTotal_exception() {
-        val negativeOutOfRangeDistanceTotal = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidDistanceTotal_throwsNoException() {
+        val negativeOutOfRangeDistanceTotal =
             DataPoints.distanceTotal(-1.0, getStartInstant(), getEndInstant())
-        }
-        val positiveOutOfRangeDistanceTotal = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeDistanceTotal =
             DataPoints.distanceTotal(1000000.1, getStartInstant(), getEndInstant())
-        }
 
-        Truth.assertThat(negativeOutOfRangeDistanceTotal).hasMessageThat()
-            .contains("meters value -1.0 is out of range")
-
-        Truth.assertThat(positiveOutOfRangeDistanceTotal).hasMessageThat()
-            .contains("meters value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeDistanceTotal).isNotNull()
+        Truth.assertThat(positiveOutOfRangeDistanceTotal).isNotNull()
     }
 
     @Test
@@ -218,22 +199,17 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithElevationGain_exception() {
-        val negativeOutOfRangeElevationGain = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidElevationGain_throwsNoException() {
+        val negativeOutOfRangeElevationGain =
             DataPoints.elevationGain(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeElevationGain = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.elevationGain(
-                1000000.1,
-                getStartDurationFromBoot(),
-                getEndDurationFromBoot()
-            )
-        }
+        val positiveOutOfRangeElevationGain = DataPoints.elevationGain(
+            1000000.1,
+            getStartDurationFromBoot(),
+            getEndDurationFromBoot()
+        )
 
-        Truth.assertThat(negativeOutOfRangeElevationGain).hasMessageThat()
-            .contains("meters value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeElevationGain).hasMessageThat()
-            .contains("meters value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeElevationGain).isNotNull()
+        Truth.assertThat(positiveOutOfRangeElevationGain).isNotNull()
     }
 
     @Test
@@ -245,22 +221,17 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithElevationLoss_exception() {
-        val negativeOutOfRangeElevationLoss = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidElevationLoss_throwsNoException() {
+        val negativeOutOfRangeElevationLoss =
             DataPoints.elevationLoss(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeElevationLoss = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.elevationLoss(
-                1000000.1,
-                getStartDurationFromBoot(),
-                getEndDurationFromBoot()
-            )
-        }
+        val positiveOutOfRangeElevationLoss = DataPoints.elevationLoss(
+            1000000.1,
+            getStartDurationFromBoot(),
+            getEndDurationFromBoot()
+        )
 
-        Truth.assertThat(negativeOutOfRangeElevationLoss).hasMessageThat()
-            .contains("meters value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeElevationLoss).hasMessageThat()
-            .contains("meters value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeElevationLoss).isNotNull()
+        Truth.assertThat(positiveOutOfRangeElevationLoss).isNotNull()
     }
 
     @Test
@@ -275,20 +246,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithAbsoluteElevation_exception() {
+    fun rangeValidationWithInvalidAbsoluteElevation_throwsNoException() {
         val negativeOutOfRangeAbsoluteElevation =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevation(-1000000.1, getStartDurationFromBoot())
-            }
+            DataPoints.absoluteElevation(-1000000.1, getStartDurationFromBoot())
         val positiveOutOfRangeAbsoluteElevation =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevation(1000000.1, getStartDurationFromBoot())
-            }
+            DataPoints.absoluteElevation(1000000.1, getStartDurationFromBoot())
 
-        Truth.assertThat(negativeOutOfRangeAbsoluteElevation).hasMessageThat()
-            .contains("meters value -1000000.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeAbsoluteElevation).hasMessageThat()
-            .contains("meters value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeAbsoluteElevation).isNotNull()
+        Truth.assertThat(positiveOutOfRangeAbsoluteElevation).isNotNull()
     }
 
     @Test
@@ -306,80 +271,56 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithAbsoluteElevationStats_exception() {
-        val negativeOutOfRangeMinAbsoluteElevationStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevationStats(
-                    -1000000.1,
-                    240.0,
-                    120.0,
-                    getStartInstant(),
-                    getEndInstant()
-                )
-            }
-        val negativeOutOfRangeMaxAbsoluteElevationStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevationStats(
-                    12.0,
-                    -1000000.1,
-                    120.0,
-                    getStartInstant(),
-                    getEndInstant()
-                )
-            }
-        val negativeOutOfRangeAvgAbsoluteElevationStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevationStats(
-                    12.0,
-                    240.0,
-                    -1000000.1,
-                    getStartInstant(),
-                    getEndInstant()
-                )
-            }
-        val positiveOutOfRangeMinAbsoluteElevationStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevationStats(
-                    1000001.0,
-                    240.0,
-                    120.0,
-                    getStartInstant(),
-                    getEndInstant()
-                )
-            }
-        val positiveOutOfRangeMaxAbsoluteElevationStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevationStats(
-                    12.0,
-                    1000001.0,
-                    120.0,
-                    getStartInstant(),
-                    getEndInstant()
-                )
-            }
-        val positiveOutOfRangeAvgAbsoluteElevationStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevationStats(
-                    12.0,
-                    240.0,
-                    1000001.0,
-                    getStartInstant(),
-                    getEndInstant()
-                )
-            }
+    fun rangeValidationWithInvalidAbsoluteElevationStats_throwsNoException() {
+        val negativeOutOfRangeMinAbsoluteElevationStats = DataPoints.absoluteElevationStats(
+            -1000000.1,
+            240.0,
+            120.0,
+            getStartInstant(),
+            getEndInstant()
+        )
+        val negativeOutOfRangeMaxAbsoluteElevationStats = DataPoints.absoluteElevationStats(
+            12.0,
+            -1000000.1,
+            120.0,
+            getStartInstant(),
+            getEndInstant()
+        )
+        val negativeOutOfRangeAvgAbsoluteElevationStats = DataPoints.absoluteElevationStats(
+            12.0,
+            240.0,
+            -1000000.1,
+            getStartInstant(),
+            getEndInstant()
+        )
+        val positiveOutOfRangeMinAbsoluteElevationStats = DataPoints.absoluteElevationStats(
+            1000001.0,
+            240.0,
+            120.0,
+            getStartInstant(),
+            getEndInstant()
+        )
+        val positiveOutOfRangeMaxAbsoluteElevationStats = DataPoints.absoluteElevationStats(
+            12.0,
+            1000001.0,
+            120.0,
+            getStartInstant(),
+            getEndInstant()
+        )
+        val positiveOutOfRangeAvgAbsoluteElevationStats = DataPoints.absoluteElevationStats(
+            12.0,
+            240.0,
+            1000001.0,
+            getStartInstant(),
+            getEndInstant()
+        )
 
-        Truth.assertThat(negativeOutOfRangeMinAbsoluteElevationStats).hasMessageThat()
-            .contains("minAbsoluteElevationMeters value -1000000.1 is out of range")
-        Truth.assertThat(negativeOutOfRangeMaxAbsoluteElevationStats).hasMessageThat()
-            .contains("maxAbsoluteElevationMeters value -1000000.1 is out of range")
-        Truth.assertThat(negativeOutOfRangeAvgAbsoluteElevationStats).hasMessageThat()
-            .contains("averageAbsoluteElevationMeters value -1000000.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeMinAbsoluteElevationStats).hasMessageThat()
-            .contains("minAbsoluteElevationMeters value 1000001.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeMaxAbsoluteElevationStats).hasMessageThat()
-            .contains("maxAbsoluteElevationMeters value 1000001.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeAvgAbsoluteElevationStats).hasMessageThat()
-            .contains("averageAbsoluteElevationMeters value 1000001.0 is out of range")
+        Truth.assertThat(negativeOutOfRangeMinAbsoluteElevationStats).isNotNull()
+        Truth.assertThat(negativeOutOfRangeMaxAbsoluteElevationStats).isNotNull()
+        Truth.assertThat(negativeOutOfRangeAvgAbsoluteElevationStats).isNotNull()
+        Truth.assertThat(positiveOutOfRangeMinAbsoluteElevationStats).isNotNull()
+        Truth.assertThat(positiveOutOfRangeMaxAbsoluteElevationStats).isNotNull()
+        Truth.assertThat(positiveOutOfRangeAvgAbsoluteElevationStats).isNotNull()
     }
 
     @Test
@@ -390,18 +331,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithFloors_exception() {
-        val negativeOutOfRangeFloors = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidFloors_throwsNoException() {
+        val negativeOutOfRangeFloors =
             DataPoints.floors(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeFloors = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeFloors =
             DataPoints.floors(1000001.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeFloors).hasMessageThat()
-            .contains("floors value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeFloors).hasMessageThat()
-            .contains("floors value 1000001.0 is out of range")
+        Truth.assertThat(negativeOutOfRangeFloors).isNotNull()
+        Truth.assertThat(positiveOutOfRangeFloors).isNotNull()
     }
 
     @Test
@@ -413,18 +350,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithCalories_exception() {
-        val negativeOutOfRangeCalories = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidCalories_throwsNoException() {
+        val negativeOutOfRangeCalories =
             DataPoints.calories(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeSCalories = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeSCalories =
             DataPoints.calories(1000001.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeCalories).hasMessageThat()
-            .contains("kilocalories value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeSCalories).hasMessageThat()
-            .contains("kilocalories value 1000001.0 is out of range")
+        Truth.assertThat(negativeOutOfRangeCalories).isNotNull()
+        Truth.assertThat(positiveOutOfRangeSCalories).isNotNull()
     }
 
     @Test
@@ -435,18 +368,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithCaloriesTotal_exception() {
-        val negativeOutOfRangeCaloriesTotal = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidCaloriesTotal_throwsNoException() {
+        val negativeOutOfRangeCaloriesTotal =
             DataPoints.caloriesTotal(-1.0, getStartInstant(), getEndInstant())
-        }
-        val positiveOutOfRangeCaloriesTotal = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeCaloriesTotal =
             DataPoints.caloriesTotal(1000001.0, getStartInstant(), getEndInstant())
-        }
 
-        Truth.assertThat(negativeOutOfRangeCaloriesTotal).hasMessageThat()
-            .contains("kilocalories value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeCaloriesTotal).hasMessageThat()
-            .contains("kilocalories value 1000001.0 is out of range")
+        Truth.assertThat(negativeOutOfRangeCaloriesTotal).isNotNull()
+        Truth.assertThat(positiveOutOfRangeCaloriesTotal).isNotNull()
     }
 
     @Test
@@ -458,22 +387,17 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithSwimmingStrokes_exception() {
-        val negativeOutOfRangeSwimmingStrokes = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidSwimmingStrokes_throwsNoException() {
+        val negativeOutOfRangeSwimmingStrokes =
             DataPoints.swimmingStrokes(-1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeSwimmingStrokes = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.swimmingStrokes(
-                1000001,
-                getStartDurationFromBoot(),
-                getEndDurationFromBoot()
-            )
-        }
+        val positiveOutOfRangeSwimmingStrokes = DataPoints.swimmingStrokes(
+            1000001,
+            getStartDurationFromBoot(),
+            getEndDurationFromBoot()
+        )
 
-        Truth.assertThat(negativeOutOfRangeSwimmingStrokes).hasMessageThat()
-            .contains("strokes value -1 is out of range")
-        Truth.assertThat(positiveOutOfRangeSwimmingStrokes).hasMessageThat()
-            .contains("strokes value 1000001 is out of range")
+        Truth.assertThat(negativeOutOfRangeSwimmingStrokes).isNotNull()
+        Truth.assertThat(positiveOutOfRangeSwimmingStrokes).isNotNull()
     }
 
     @Test
@@ -485,18 +409,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithGolfShotCount_exception() {
-        val negativeOutOfRangeGolfShotCount = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidGolfShotCount_throwsNoException() {
+        val negativeOutOfRangeGolfShotCount =
             DataPoints.golfShotCount(-1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeGolfShotCount = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeGolfShotCount =
             DataPoints.golfShotCount(1000001, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeGolfShotCount).hasMessageThat()
-            .contains("shots value -1 is out of range")
-        Truth.assertThat(positiveOutOfRangeGolfShotCount).hasMessageThat()
-            .contains("shots value 1000001 is out of range")
+        Truth.assertThat(negativeOutOfRangeGolfShotCount).isNotNull()
+        Truth.assertThat(positiveOutOfRangeGolfShotCount).isNotNull()
     }
 
     @Test
@@ -507,38 +427,26 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithLocation_exception() {
-        val negativeOutOfRangeLatitude = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidLocation_throwsNoException() {
+        val negativeOutOfRangeLatitude =
             DataPoints.location(-90.1, -179.99, getStartDurationFromBoot(), 25.0, 21.0)
-        }
-        val positiveOutOfRangeLatitude = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeLatitude =
             DataPoints.location(90.1, -179.99, getStartDurationFromBoot(), 25.0, 21.0)
-        }
-        val negativeOutOfRangeLongitude = assertThrows(IllegalArgumentException::class.java) {
+        val negativeOutOfRangeLongitude =
             DataPoints.location(89.0, -180.1, getStartDurationFromBoot(), 25.0, 21.0)
-        }
-        val positiveOutOfRangeLongitude = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeLongitude =
             DataPoints.location(89.0, 180.1, getStartDurationFromBoot(), 25.0, 21.0)
-        }
-        val negativeOutOfRangeBearing = assertThrows(IllegalArgumentException::class.java) {
+        val negativeOutOfRangeBearing =
             DataPoints.location(89.99, -179.99, getStartDurationFromBoot(), 25.0, -1.1)
-        }
-        val positiveOutOfRangeBearing = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeBearing =
             DataPoints.location(89.99, -179.99, getStartDurationFromBoot(), 25.0, 360.0)
-        }
 
-        Truth.assertThat(negativeOutOfRangeLatitude).hasMessageThat()
-            .contains("latitude value -90.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeLatitude).hasMessageThat()
-            .contains("latitude value 90.1 is out of range")
-        Truth.assertThat(negativeOutOfRangeLongitude).hasMessageThat()
-            .contains("longitude value -180.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeLongitude).hasMessageThat()
-            .contains("longitude value 180.1 is out of range")
-        Truth.assertThat(negativeOutOfRangeBearing).hasMessageThat()
-            .contains("bearing value -1.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeBearing).hasMessageThat()
-            .contains("bearing value 360.0 is out of range")
+        Truth.assertThat(negativeOutOfRangeLatitude).isNotNull()
+        Truth.assertThat(positiveOutOfRangeLatitude).isNotNull()
+        Truth.assertThat(negativeOutOfRangeLongitude).isNotNull()
+        Truth.assertThat(positiveOutOfRangeLongitude).isNotNull()
+        Truth.assertThat(negativeOutOfRangeBearing).isNotNull()
+        Truth.assertThat(positiveOutOfRangeBearing).isNotNull()
     }
 
     @Test
@@ -549,18 +457,12 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithSpeed_exception() {
-        val negativeOutOfRangeSpeed = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.speed(-1.0, getStartDurationFromBoot())
-        }
-        val positiveOutOfRangeSpeed = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.speed(1000000.1, getStartDurationFromBoot())
-        }
+    fun rangeValidationWithInvalidSpeed_throwsNoException() {
+        val negativeOutOfRangeSpeed = DataPoints.speed(-1.0, getStartDurationFromBoot())
+        val positiveOutOfRangeSpeed = DataPoints.speed(1000000.1, getStartDurationFromBoot())
 
-        Truth.assertThat(negativeOutOfRangeSpeed).hasMessageThat()
-            .contains("metersPerSecond value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeSpeed).hasMessageThat()
-            .contains("metersPerSecond value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeSpeed).isNotNull()
+        Truth.assertThat(positiveOutOfRangeSpeed).isNotNull()
     }
 
     @Test
@@ -571,18 +473,12 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithHeartRate_exception() {
-        val negativeOutOfRangeHeartRate = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.heartRate(-1.0, getStartDurationFromBoot())
-        }
-        val positiveOutOfRangeHeartRate = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.heartRate(300.1, getStartDurationFromBoot())
-        }
+    fun rangeValidationWithInvalidHeartRate_throwsNoException() {
+        val negativeOutOfRangeHeartRate = DataPoints.heartRate(-1.0, getStartDurationFromBoot())
+        val positiveOutOfRangeHeartRate = DataPoints.heartRate(300.1, getStartDurationFromBoot())
 
-        Truth.assertThat(negativeOutOfRangeHeartRate).hasMessageThat()
-            .contains("bpm value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeHeartRate).hasMessageThat()
-            .contains("bpm value 300.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeHeartRate).isNotNull()
+        Truth.assertThat(positiveOutOfRangeHeartRate).isNotNull()
     }
 
     @Test
@@ -594,44 +490,26 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithHeartRateStats_exception() {
+    fun rangeValidationWithInvalidHeartRateStats_throwsNoException() {
         val negativeOutOfRangeMinHeartRateStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.heartRateStats(-1.0, 225.0, 80.0, getStartInstant(), getEndInstant())
-            }
+            DataPoints.heartRateStats(-1.0, 225.0, 80.0, getStartInstant(), getEndInstant())
         val negativeOutOfRangeMaxHeartRateStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.heartRateStats(50.0, -1.0, 80.0, getStartInstant(), getEndInstant())
-            }
+            DataPoints.heartRateStats(50.0, -1.0, 80.0, getStartInstant(), getEndInstant())
         val negativeOutOfRangeAvgHeartRateStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.heartRateStats(50.0, 225.0, -1.0, getStartInstant(), getEndInstant())
-            }
+            DataPoints.heartRateStats(50.0, 225.0, -1.0, getStartInstant(), getEndInstant())
         val positiveOutOfRangeMinHeartRateStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.heartRateStats(300.1, 225.0, 80.0, getStartInstant(), getEndInstant())
-            }
+            DataPoints.heartRateStats(300.1, 225.0, 80.0, getStartInstant(), getEndInstant())
         val positiveOutOfRangeMaxHeartRateStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.heartRateStats(50.0, 300.1, 80.0, getStartInstant(), getEndInstant())
-            }
+            DataPoints.heartRateStats(50.0, 300.1, 80.0, getStartInstant(), getEndInstant())
         val positiveOutOfRangeAvgHeartRateStats =
-            assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.heartRateStats(50.0, 225.0, 300.1, getStartInstant(), getEndInstant())
-            }
+            DataPoints.heartRateStats(50.0, 225.0, 300.1, getStartInstant(), getEndInstant())
 
-        Truth.assertThat(negativeOutOfRangeMinHeartRateStats).hasMessageThat()
-            .contains("minBpm value -1.0 is out of range")
-        Truth.assertThat(negativeOutOfRangeMaxHeartRateStats).hasMessageThat()
-            .contains("maxBpm value -1.0 is out of range")
-        Truth.assertThat(negativeOutOfRangeAvgHeartRateStats).hasMessageThat()
-            .contains("averageBpm value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeMinHeartRateStats).hasMessageThat()
-            .contains("minBpm value 300.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeMaxHeartRateStats).hasMessageThat()
-            .contains("maxBpm value 300.1 is out of range")
-        Truth.assertThat(positiveOutOfRangeAvgHeartRateStats).hasMessageThat()
-            .contains("averageBpm value 300.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeMinHeartRateStats).isNotNull()
+        Truth.assertThat(negativeOutOfRangeMaxHeartRateStats).isNotNull()
+        Truth.assertThat(negativeOutOfRangeAvgHeartRateStats).isNotNull()
+        Truth.assertThat(positiveOutOfRangeMinHeartRateStats).isNotNull()
+        Truth.assertThat(positiveOutOfRangeMaxHeartRateStats).isNotNull()
+        Truth.assertThat(positiveOutOfRangeAvgHeartRateStats).isNotNull()
     }
 
     @Test
@@ -643,18 +521,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithDailySteps_exception() {
-        val negativeOutOfRangeDailySteps = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidDailySteps_throwsNoException() {
+        val negativeOutOfRangeDailySteps =
             DataPoints.dailySteps(-1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeDailySteps = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeDailySteps =
             DataPoints.dailySteps(1000001, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeDailySteps).hasMessageThat()
-            .contains("dailySteps value -1 is out of range")
-        Truth.assertThat(positiveOutOfRangeDailySteps).hasMessageThat()
-            .contains("dailySteps value 1000001 is out of range")
+        Truth.assertThat(negativeOutOfRangeDailySteps).isNotNull()
+        Truth.assertThat(positiveOutOfRangeDailySteps).isNotNull()
     }
 
     @Test
@@ -666,18 +540,14 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithDailyFloors_exception() {
-        val negativeOutOfRangeDailyFloors = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidDailyFloors_throwsNoException() {
+        val negativeOutOfRangeDailyFloors =
             DataPoints.dailyFloors(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeDailyFloors = assertThrows(IllegalArgumentException::class.java) {
+        val positiveOutOfRangeDailyFloors =
             DataPoints.dailyFloors(1000000.1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
 
-        Truth.assertThat(negativeOutOfRangeDailyFloors).hasMessageThat()
-            .contains("floors value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeDailyFloors).hasMessageThat()
-            .contains("floors value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeDailyFloors).isNotNull()
+        Truth.assertThat(positiveOutOfRangeDailyFloors).isNotNull()
     }
 
     fun rangeValidationWithDailyCalories_success() {
@@ -688,22 +558,17 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithDailyCalories_exception() {
-        val negativeOutOfRangeDailyCalories = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidDailyCalories_throwsNoException() {
+        val negativeOutOfRangeDailyCalories =
             DataPoints.dailyCalories(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeDailyCalories = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.dailyCalories(
-                1000000.1,
-                getStartDurationFromBoot(),
-                getEndDurationFromBoot()
-            )
-        }
+        val positiveOutOfRangeDailyCalories = DataPoints.dailyCalories(
+            1000000.1,
+            getStartDurationFromBoot(),
+            getEndDurationFromBoot()
+        )
 
-        Truth.assertThat(negativeOutOfRangeDailyCalories).hasMessageThat()
-            .contains("calories value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeDailyCalories).hasMessageThat()
-            .contains("calories value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeDailyCalories).isNotNull()
+        Truth.assertThat(positiveOutOfRangeDailyCalories).isNotNull()
     }
 
     @Test
@@ -715,22 +580,17 @@ internal class DataPointTest {
     }
 
     @Test
-    fun rangeValidationWithDailyDistance_exception() {
-        val negativeOutOfRangeDailyDistance = assertThrows(IllegalArgumentException::class.java) {
+    fun rangeValidationWithInvalidDailyDistance_throwsNoException() {
+        val negativeOutOfRangeDailyDistance =
             DataPoints.dailyDistance(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        }
-        val positiveOutOfRangeDailyDistance = assertThrows(IllegalArgumentException::class.java) {
-            DataPoints.dailyDistance(
-                1000000.1,
-                getStartDurationFromBoot(),
-                getEndDurationFromBoot()
-            )
-        }
+        val positiveOutOfRangeDailyDistance = DataPoints.dailyDistance(
+            1000000.1,
+            getStartDurationFromBoot(),
+            getEndDurationFromBoot()
+        )
 
-        Truth.assertThat(negativeOutOfRangeDailyDistance).hasMessageThat()
-            .contains("meters value -1.0 is out of range")
-        Truth.assertThat(positiveOutOfRangeDailyDistance).hasMessageThat()
-            .contains("meters value 1000000.1 is out of range")
+        Truth.assertThat(negativeOutOfRangeDailyDistance).isNotNull()
+        Truth.assertThat(positiveOutOfRangeDailyDistance).isNotNull()
     }
 
     private fun getStartDurationFromBoot() = Duration.ofSeconds(1)

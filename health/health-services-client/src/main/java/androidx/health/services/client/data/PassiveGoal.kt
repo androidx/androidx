@@ -21,14 +21,26 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.PassiveGoal.TriggerFrequency.Companion.toProto
 
-/** Defines an passive goal that will be triggered when the specified condition is met. */
+/**
+ * Defines a passive goal that will be triggered when the specified condition is met which will
+ * repeat daily.
+ */
 @Suppress("ParcelCreator")
-class PassiveGoal(
+class PassiveGoal private constructor(
     /** [DataTypeCondition] which must be met for the passive goal to be triggered. */
     val dataTypeCondition: DataTypeCondition<out Number, out DeltaDataType<out Number, *>>,
-    /** Frequency this goal should trigger, which is expected to be a  */
-    @TriggerFrequency val triggerFrequency: Int,
+    /** Frequency this goal should trigger, which is expected to be a [TriggerFrequency]. */
+    @TriggerFrequency internal val triggerFrequency: Int,
 ) {
+
+    /**
+     * Constructs a new [PassiveGoal] with the given [dataTypeCondition]. This goal will
+     * automatically repeat daily.
+     */
+    public constructor(
+        /** [DataTypeCondition] which must be met for the passive goal to be triggered. */
+        dataTypeCondition: DataTypeCondition<out Number, out DeltaDataType<out Number, *>>
+    ) : this(dataTypeCondition, TriggerFrequency.REPEATED)
 
     internal constructor(
         proto: PassiveGoalProto
@@ -69,7 +81,7 @@ class PassiveGoal(
         TriggerFrequency.ONCE,
         TriggerFrequency.REPEATED,
     )
-    annotation class TriggerFrequency {
+    internal annotation class TriggerFrequency {
 
         companion object {
             /** TriggerFrequency is an unknown or unexpected value. */

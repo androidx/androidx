@@ -20,6 +20,13 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME"/>
+        </intent>
+    </queries>
+
     <application android:label="UiAutomator Test App">
         <activity android:name=".MainActivity"
             android:exported="true"
@@ -181,7 +188,6 @@
         </activity>
         <activity android:name=".UiDeviceTestClickActivity"
             android:exported="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

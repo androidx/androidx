@@ -22,8 +22,6 @@ import android.provider.MediaStore
 import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.CameraEffect
-import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
@@ -37,6 +35,7 @@ import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakePreviewEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -107,14 +106,46 @@ class CameraControllerDeviceTest(
     fun tearDown() {
         instrumentation.runOnMainSync {
             controller?.shutDownForTests()
-            cameraProvider?.unbindAll()
             cameraProvider?.shutdown()?.get(10000, TimeUnit.MILLISECONDS)
             cameraProvider = null
         }
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun setInvalidEffectsCombination_throwsException() {
+        // Arrange: setup PreviewView and CameraController
+        var previewView: PreviewView? = null
+        activityScenario!!.onActivity {
+            // Arrange.
+            previewView = PreviewView(context)
+            it.setContentView(previewView)
+            previewView!!.controller = controller
+            controller!!.bindToLifecycle(FakeLifecycleOwner())
+            controller!!.initializationFuture.get()
+        }
+        waitUtilPreviewViewIsReady(previewView!!)
+
+        // Act: set the same effect twice, which is invalid.
+        val previewEffect1 = FakePreviewEffect(
+            mainThreadExecutor(),
+            FakeSurfaceProcessor(mainThreadExecutor())
+        )
+        val previewEffect2 = FakePreviewEffect(
+            mainThreadExecutor(),
+            FakeSurfaceProcessor(mainThreadExecutor())
+        )
+        instrumentation.runOnMainSync {
+            controller!!.setEffects(
+                setOf(
+                    previewEffect1,
+                    previewEffect2
+                )
+            )
+        }
+    }
+
     @Test
-    fun setEffectBundle_effectSetOnUseCase() {
+    fun setEffect_effectSetOnUseCase() {
         // Arrange: setup PreviewView and CameraController
         var previewView: PreviewView? = null
         activityScenario!!.onActivity {
@@ -128,16 +159,16 @@ class CameraControllerDeviceTest(
         waitUtilPreviewViewIsReady(previewView!!)
 
         // Act: set an effect
-        val effect = CameraEffect.Builder(PREVIEW).setSurfaceProcessor(
+        val effect = FakePreviewEffect(
             mainThreadExecutor(), FakeSurfaceProcessor(mainThreadExecutor())
-        ).build()
-        instrumentation.runOnMainSync { controller!!.setEffects(listOf(effect)) }
+        )
+        instrumentation.runOnMainSync { controller!!.setEffects(setOf(effect)) }
 
         // Assert: preview has effect
         assertThat(controller!!.mPreview.processor).isNotNull()
 
         // Act: clear the effects
-        instrumentation.runOnMainSync { controller!!.setEffects(listOf()) }
+        instrumentation.runOnMainSync { controller!!.setEffects(null) }
 
         // Assert: preview no longer has the effect.
         assertThat(controller!!.mPreview.processor).isNull()

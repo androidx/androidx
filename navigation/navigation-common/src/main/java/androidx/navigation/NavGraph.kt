@@ -76,6 +76,14 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     /**
+     * Only searches through deep links added directly to this graph. Does not recursively search
+     * through its children as [matchDeepLink] does.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLinkExcludingChildren(request: NavDeepLinkRequest): DeepLinkMatch? =
+        super.matchDeepLink(request)
+
+    /**
      * Adds a destination to this NavGraph. The destination must have an
      * [NavDestination.id] id} set.
      *

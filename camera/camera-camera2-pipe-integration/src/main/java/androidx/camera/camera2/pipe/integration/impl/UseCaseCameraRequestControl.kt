@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -43,9 +44,9 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
+import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import javax.inject.Inject
 
 private const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
@@ -152,7 +153,10 @@ interface UseCaseCameraRequestControl {
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
         awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode? = null
     ): Deferred<Result3A>
+
+    suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
 
     // Capture
     suspend fun issueSingleCaptureAsync(
@@ -273,14 +277,30 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> = graph.acquireSession().use {
         it.lock3A(
             aeRegions = aeRegions,
             afRegions = afRegions,
             awbRegions = awbRegions,
-            afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
+            afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+            afTriggerStartAeMode = afTriggerStartAeMode
         )
+    }
+
+    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+        graph.acquireSession().use {
+            it.unlock3A(ae = true, af = true, awb = true)
+        }.await()
+
+        return graph.acquireSession().use {
+            it.update3A(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = METERING_REGIONS_DEFAULT.asList(),
+                awbRegions = METERING_REGIONS_DEFAULT.asList()
+            )
+        }
     }
 
     override suspend fun issueSingleCaptureAsync(

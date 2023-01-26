@@ -241,7 +241,7 @@ internal class SurfaceControlV33 internal constructor(
          */
         override fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
-            transformation: Int
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
         ): SurfaceControlImpl.Transaction {
             mTransaction.setBufferTransform(
                 surfaceControl.asFrameworkSurfaceControl(),

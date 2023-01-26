@@ -79,10 +79,9 @@ def insert_stub(doc, java, both):
     if (java):
       file_path = doc[len(java_ref_root)+1:]
       stub = doc.replace(java_source_abs_path, kotlin_source_abs_path)
-      if (both):
-        slug1 = "sed -i 's/<\/h1>/{}/' {}".format("<\/h1>\\n{% setvar page_path %}_page_path_{% endsetvar %}\\n{% setvar can_switch %}1{% endsetvar %}\\n{% include \"reference\/_java_switcher2.md\" %}",doc)
-      else:
-        slug1 = "sed -i 's/<\/h1>/{}/' {}".format("<\/h1>\\n{% include \"reference\/_java_switcher2.md\" %}",doc)
+      # Always add the switcher for java files, switch to the package summary if
+      # the page itself doesn't exist in kotlin
+      slug1 = "sed -i 's/<\/h1>/{}/' {}".format("<\/h1>\\n{% setvar page_path %}_page_path_{% endsetvar %}\\n{% setvar can_switch %}1{% endsetvar %}\\n{% include \"reference\/_java_switcher2.md\" %}",doc)
     else:
       file_path = doc[len(kotlin_ref_root)+1:]
       stub = doc.replace(kotlin_source_abs_path, java_source_abs_path)
@@ -92,8 +91,13 @@ def insert_stub(doc, java, both):
         slug1 = "sed -i 's/<\/h1>/{}/' {}".format("<\/h1>\\n{% include \"reference\/_kotlin_switcher2.md\" %}",doc)
 
     os.system(slug1)
-    if (both):
-      page_path_slug = "sed -i 's/_page_path_/{}/' {}".format(file_path.replace("/","\/"),doc)
+    if both or java:
+      if both:
+        page_path = file_path
+      else:
+        page_path = os.path.join(os.path.dirname(file_path), "package-summary.html")
+
+      page_path_slug = "sed -i 's/_page_path_/{}/' {}".format(page_path.replace("/","\/"),doc)
       os.system(page_path_slug)
 
 

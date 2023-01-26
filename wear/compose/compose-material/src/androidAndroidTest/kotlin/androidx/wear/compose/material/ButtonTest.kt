@@ -178,7 +178,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun is_correctly_enabled_when_enabled_equals_true() {
+    public fun is_correctly_enabled() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -193,7 +193,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun is_correctly_disabled_when_enabled_equals_false() {
+    public fun is_correctly_disabled() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -208,7 +208,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun responds_to_click_when_enabled_on_compact_button() {
+    public fun compact_button_responds_to_click_when_enabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -229,7 +229,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun responds_to_click_when_enabled_on_button() {
+    public fun button_responds_to_click_when_enabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -250,7 +250,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun does_not_respond_to_click_when_disabled_on_compact_button() {
+    public fun compact_button_does_not_respond_to_click_when_disabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -271,7 +271,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun does_not_respond_to_click_when_disabled_on_button() {
+    public fun button_does_not_respond_to_click_when_disabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -1021,12 +1021,14 @@ private fun ComposeContentTestRule.isShape(
 
     setContentWithTheme {
         background = MaterialTheme.colors.surface
-        buttonColor = MaterialTheme.colors.primary
-        content(
-            Modifier
-                .testTag(TEST_TAG)
-                .padding(padding)
-                .background(background))
+        Box(Modifier.background(background)) {
+            buttonColor = MaterialTheme.colors.primary
+            content(
+                Modifier
+                    .testTag(TEST_TAG)
+                    .padding(padding)
+            )
+        }
     }
 
     onNodeWithTag(TEST_TAG)

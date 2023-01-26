@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.compat.Api33Compat
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
@@ -75,9 +76,22 @@ public class CameraStream internal constructor(
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                outputType: OutputStream.OutputType = OutputStream.OutputType.SURFACE
+                outputType: OutputStream.OutputType = OutputStream.OutputType.SURFACE,
+                mirrorMode: OutputStream.MirrorMode? = null,
+                timestampBase: OutputStream.TimestampBase? = null,
+                dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
+                streamUseCase: OutputStream.StreamUseCase? = null,
             ): Config = create(
-                OutputStream.Config.create(size, format, camera, outputType)
+                OutputStream.Config.create(
+                    size,
+                    format,
+                    camera,
+                    outputType,
+                    mirrorMode,
+                    timestampBase,
+                    dynamicRangeProfile,
+                    streamUseCase,
+                )
             )
 
             /**
@@ -118,6 +132,10 @@ public interface OutputStream {
     public val size: Size
     public val format: StreamFormat
     public val camera: CameraId
+    public val mirrorMode: MirrorMode?
+    public val timestampBase: TimestampBase?
+    public val dynamicRangeProfile: DynamicRangeProfile?
+    public val streamUseCase: StreamUseCase?
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
@@ -126,27 +144,52 @@ public interface OutputStream {
     sealed class Config(
         public val size: Size,
         public val format: StreamFormat,
-        public val camera: CameraId?
+        public val camera: CameraId?,
+        public val mirrorMode: MirrorMode?,
+        public val timestampBase: TimestampBase?,
+        public val dynamicRangeProfile: DynamicRangeProfile?,
+        public val streamUseCase: StreamUseCase?,
     ) {
         companion object {
             fun create(
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                outputType: OutputType = OutputType.SURFACE
+                outputType: OutputType = OutputType.SURFACE,
+                mirrorMode: MirrorMode? = null,
+                timestampBase: TimestampBase? = null,
+                dynamicRangeProfile: DynamicRangeProfile? = null,
+                streamUseCase: StreamUseCase? = null,
             ): Config =
                 if (
                     outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
                 ) {
-                    LazyOutputConfig(size, format, camera, outputType)
+                    LazyOutputConfig(
+                        size,
+                        format,
+                        camera,
+                        outputType,
+                        mirrorMode,
+                        timestampBase,
+                        dynamicRangeProfile,
+                        streamUseCase
+                    )
                 } else {
                     check(outputType == OutputType.SURFACE)
-                    SimpleOutputConfig(size, format, camera)
+                    SimpleOutputConfig(
+                        size,
+                        format,
+                        camera,
+                        mirrorMode,
+                        timestampBase,
+                        dynamicRangeProfile,
+                        streamUseCase,
+                    )
                 }
 
             /** Create a stream configuration from an externally created [OutputConfiguration] */
-            @RequiresApi(24)
+            @RequiresApi(33)
             fun external(
                 size: Size,
                 format: StreamFormat,
@@ -163,8 +206,20 @@ public interface OutputStream {
         internal class SimpleOutputConfig(
             size: Size,
             format: StreamFormat,
-            camera: CameraId?
-        ) : Config(size, format, camera)
+            camera: CameraId?,
+            mirrorMode: MirrorMode?,
+            timestampBase: TimestampBase?,
+            dynamicRangeProfile: DynamicRangeProfile?,
+            streamUseCase: StreamUseCase?,
+        ) : Config(
+                size,
+                format,
+                camera,
+                mirrorMode,
+                timestampBase,
+                dynamicRangeProfile,
+                streamUseCase
+            )
 
         /**
          * Used to configure an output with a surface that may be provided after the camera is running.
@@ -178,8 +233,20 @@ public interface OutputStream {
             size: Size,
             format: StreamFormat,
             camera: CameraId?,
-            internal val outputType: OutputType
-        ) : Config(size, format, camera)
+            internal val outputType: OutputType,
+            mirrorMode: MirrorMode?,
+            timestampBase: TimestampBase?,
+            dynamicRangeProfile: DynamicRangeProfile?,
+            streamUseCase: StreamUseCase?,
+        ) : Config(
+                size,
+                format,
+                camera,
+                mirrorMode,
+                timestampBase,
+                dynamicRangeProfile,
+                streamUseCase,
+            )
 
         /**
          * Used to define an output that comes from an externally managed OutputConfiguration object.
@@ -189,18 +256,109 @@ public interface OutputStream {
          * - Assumes [OutputConfiguration] surfaces will not be added / removed / changed.
          * - If the CameraCaptureSession must be recreated, the [OutputConfiguration] will be reused.
          */
+        @RequiresApi(33)
         internal class ExternalOutputConfig(
             size: Size,
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-        ) : Config(size, format, camera)
+        ) : Config(
+                size,
+                format,
+                camera,
+                MirrorMode(Api33Compat.getMirrorMode(output)),
+                TimestampBase(Api33Compat.getTimestampBase(output)),
+                DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output)),
+                StreamUseCase(Api33Compat.getStreamUseCase(output)),
+            )
     }
 
     enum class OutputType {
         SURFACE,
         SURFACE_VIEW,
         SURFACE_TEXTURE,
+    }
+
+    /**
+     * Adds the ability to define the mirrorMode of the OutputStream.
+     * [MIRROR_MODE_AUTO] is the default mirroring mode for the camera device.
+     * With this mode, the camera output is mirrored horizontally for front-facing cameras,
+     * and there is no mirroring for rear-facing and external cameras.
+     *
+     * See the documentation on [OutputConfiguration.setMirrorMode] for more details.
+     */
+    @JvmInline
+    value class MirrorMode(val value: Int) {
+        companion object {
+            val MIRROR_MODE_AUTO = MirrorMode(0)
+            val MIRROR_MODE_NONE = MirrorMode(1)
+            val MIRROR_MODE_H = MirrorMode(2)
+            val MIRROR_MODE_V = MirrorMode(3)
+        }
+    }
+
+    /**
+     * Adds the ability to define the timestamp base of the OutputStream.
+     * [TIMESTAMP_BASE_DEFAULT] is the default timestamp base, with which the
+     * camera device adjusts timestamps based on the output target.
+     *
+     * See the documentation on [OutputConfiguration.setTimestampBase] for more details.
+     */
+    @JvmInline
+    value class TimestampBase(val value: Int) {
+        companion object {
+            val TIMESTAMP_BASE_DEFAULT = TimestampBase(0)
+            val TIMESTAMP_BASE_SENSOR = TimestampBase(1)
+            val TIMESTAMP_BASE_MONOTONIC = TimestampBase(2)
+            val TIMESTAMP_BASE_REALTIME = TimestampBase(3)
+            val TIMESTAMP_BASE_CHOREOGRAPHER_SYNCED = TimestampBase(4)
+        }
+    }
+
+    /**
+     * Adds the ability to define the dynamic range profile of the OutputStream.
+     * [STANDARD] is the default dynamic range profile for the camera device, with which
+     * the camera device uses an 8-bit standard profile.
+     *
+     * See the documentation on [OutputConfiguration.setDynamicRangeProfile] for more details.
+     */
+    @JvmInline
+    value class DynamicRangeProfile(val value: Long) {
+        companion object {
+            val STANDARD = DynamicRangeProfile(1)
+            val HLG10 = DynamicRangeProfile(2)
+            val HDR10 = DynamicRangeProfile(4)
+            val HDR10_PLUS = DynamicRangeProfile(8)
+            val DOLBY_VISION_10B_HDR_REF = DynamicRangeProfile(16)
+            val DOLBY_VISION_10B_HDR_REF_PO = DynamicRangeProfile(32)
+            val DOLBY_VISION_10B_HDR_OEM = DynamicRangeProfile(64)
+            val DOLBY_VISION_10B_HDR_OEM_PO = DynamicRangeProfile(128)
+            val DOLBY_VISION_8B_HDR_REF = DynamicRangeProfile(256)
+            val DOLBY_VISION_8B_HDR_REF_PO = DynamicRangeProfile(512)
+            val DOLBY_VISION_8B_HDR_OEM = DynamicRangeProfile(1024)
+            val DOLBY_VISION_8B_HDR_OEM_PO = DynamicRangeProfile(2048)
+            val PUBLIC_MAX = DynamicRangeProfile(4096)
+        }
+    }
+
+    /**
+     * Adds the ability to define the stream specific use case of the OutputStream.
+     * [DEFAULT] is the default stream use case, with which
+     * the camera device uses the properties of the output target, such as format, dataSpace,
+     * or surface class type, to optimize the image processing pipeline.
+     *
+     * See the documentation on [OutputConfiguration.setStreamUseCase] for more details.
+     */
+    @JvmInline
+    value class StreamUseCase(val value: Long) {
+        companion object {
+            val DEFAULT = StreamUseCase(0)
+            val PREVIEW = StreamUseCase(1)
+            val STILL_CAPTURE = StreamUseCase(2)
+            val VIDEO_RECORD = StreamUseCase(3)
+            val PREVIEW_VIDEO_STILL = StreamUseCase(4)
+            val VIDEO_CALL = StreamUseCase(5)
+        }
     }
 }
 

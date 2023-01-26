@@ -22,8 +22,8 @@ import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROV
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
-import androidx.health.platform.client.permission.Permission as ProtoPermission
 import androidx.health.platform.client.impl.logger.Logger
+import androidx.health.platform.client.permission.Permission as ParcelablePermission
 import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION_REQUEST_PERMISSIONS
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_JETPACK
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_JETPACK
@@ -46,7 +46,7 @@ internal class HealthDataRequestPermissions(
         val protoPermissionList =
             input
                 .asSequence()
-                .map { ProtoPermission(it.toProtoPermission()) }
+                .map { ParcelablePermission(it.toProtoPermission()) }
                 .toCollection(ArrayList())
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Requesting ${input.size} permissions.")
         return Intent(ACTION_REQUEST_PERMISSIONS).apply {
@@ -59,12 +59,13 @@ internal class HealthDataRequestPermissions(
 
     @Suppress("Deprecation")
     override fun parseResult(resultCode: Int, intent: Intent?): Set<HealthPermission> {
-        val grantedPermissions = intent
-            ?.getParcelableArrayListExtra<ProtoPermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
-            ?.asSequence()
-            ?.map { it.proto.toJetpackPermission() }
-            ?.toSet()
-            ?: emptySet()
+        val grantedPermissions =
+            intent
+                ?.getParcelableArrayListExtra<ParcelablePermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
+                ?.asSequence()
+                ?.map { it.proto.toJetpackPermission() }
+                ?.toSet()
+                ?: emptySet()
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Granted ${grantedPermissions.size} permissions.")
         return grantedPermissions
     }
@@ -75,11 +76,4 @@ internal class HealthDataRequestPermissions(
     ): SynchronousResult<Set<HealthPermission>>? {
         return null
     }
-}
-
-@Suppress("Deprecation") // Utility to allow usage internally while suppressing deprecation.
-internal fun createHealthDataRequestPermissions(
-    providerPackageName: String
-): ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> {
-    return HealthDataRequestPermissions(providerPackageName = providerPackageName)
 }

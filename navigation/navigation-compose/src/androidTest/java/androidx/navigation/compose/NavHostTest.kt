@@ -323,61 +323,36 @@ class NavHostTest {
     }
 
     @Test
-    fun testSaveableStateClearedAfterConfigChange() {
+    fun testSaveableStateClearedAfterPop() {
         lateinit var navController: NavHostController
-        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
-        lateinit var state: MutableState<Int>
         var viewModel: BackStackEntryIdViewModel? = null
-        var savedState: Bundle? = null
         composeTestRule.setContent {
-            val context = LocalContext.current
-            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                state = remember { mutableStateOf(0) }
-                navController = if (savedState == null) {
-                    rememberNavController()
-                } else {
-                    NavHostController(context).apply {
-                        restoreState(savedState)
-                        setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                        navigatorProvider += ComposeNavigator()
-                        navigatorProvider += DialogNavigator()
-                    }
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "first") {
+                composable("first") {
                 }
-                if (state.value == 0) {
-                    NavHost(navController, startDestination = "first") {
-                        composable("first") {
-                            viewModel = viewModel()
-                        }
-                        composable("second") { }
-                    }
+                composable("second") {
+                    viewModel = viewModel()
                 }
             }
         }
-
-        assertThat(viewModel?.saveableStateHolder).isNotNull()
 
         composeTestRule.runOnIdle {
             navController.navigate("second")
         }
 
-        savedState = navController.saveState()
-
-        runOnUiThread {
-            // dispose the NavHost
-            state.value = 1
-            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
-        }
-
-        // wait for recompose without NavHost then recompose with the NavHost
         composeTestRule.runOnIdle {
-            state.value = 0
-            lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+            assertThat(viewModel?.saveableStateHolderRef?.get()).isNotNull()
         }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Second destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("second")
-            assertThat(viewModel?.saveableStateHolder).isNull()
+            navController.popBackStack()
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("First destination should be current")
+                .that(navController.currentDestination?.route).isEqualTo("first")
+            assertThat(viewModel?.saveableStateHolderRef?.get()).isNull()
         }
     }
 

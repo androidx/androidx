@@ -169,6 +169,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     private var initLatch = CountDownLatch(1)
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
+    @Suppress("DEPRECATION") // b/251211092
     @Before
     public fun setUp() {
         Assume.assumeTrue("This test suite assumes API 29", Build.VERSION.SDK_INT >= 29)
@@ -196,6 +197,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyleWireFormat(emptyMap()),
+                        null,
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
@@ -219,7 +221,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     }
 
     @Test
-    @Suppress("Deprecation") // userStyleSettings
+    @Suppress("Deprecation", "NewApi") // userStyleSettings
     public fun staticSchemaAndComplicationsRead() {
         val service = TestXmlWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
@@ -246,7 +248,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
             assertThat(
                 watchFaceImpl.complicationSlotsManager.complicationSlots.size
-            ).isEqualTo(4)
+            ).isEqualTo(5)
 
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
             assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
@@ -317,6 +319,40 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.NOT_CONFIGURED)
 
+            val slotD = watchFaceImpl.complicationSlotsManager.complicationSlots[40]!!
+            assertThat(slotD.supportedTypes).containsExactly(
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.SMALL_IMAGE
+            ).inOrder()
+            assertThat(slotD.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app.example1"))
+            assertThat(slotD.defaultDataSourcePolicy.primaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.SHORT_TEXT)
+            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app.example2"))
+            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.SMALL_IMAGE)
+            assertThat(slotD.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
+                SystemDataSources.DATA_SOURCE_WATCH_BATTERY
+            )
+            assertThat(slotD.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.RANGED_VALUE)
+
+            val slotE = watchFaceImpl.complicationSlotsManager.complicationSlots[50]!!
+            assertThat(slotE.supportedTypes).containsExactly(
+                ComplicationType.GOAL_PROGRESS, ComplicationType.WEIGHTED_ELEMENTS
+            ).inOrder()
+            assertThat(slotE.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app"))
+            assertThat(slotE.defaultDataSourcePolicy.primaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.GOAL_PROGRESS)
+            assertThat(slotE.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
+                SystemDataSources.DATA_SOURCE_WATCH_BATTERY
+            )
+            assertThat(slotE.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.WEIGHTED_ELEMENTS)
+
             val earlyInitDetails = wrapper.deferredEarlyInitDetails.await()
             val flavors = earlyInitDetails.userStyleFlavors
 
@@ -368,16 +404,6 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                     "primary(ComponentInfo{com.package/com.app}, SHORT_TEXT), " +
                     "secondary(null, null), " +
                     "system(16, SHORT_TEXT)]}]")
-            val slotD = watchFaceImpl.complicationSlotsManager.complicationSlots[40]!!
-            assertThat(slotD.supportedTypes).containsExactly(
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SMALL_IMAGE
-            ).inOrder()
-            assertThat(slotD.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app.example1"))
-            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSource).isEqualTo(
-                ComponentName("com.package", "com.app.example2"))
         }
     }
 }

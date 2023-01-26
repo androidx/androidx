@@ -16,138 +16,177 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
-import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.Entity
 import androidx.room.vo.columnNames
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
 import java.util.Arrays
-import java.util.HashMap
-import java.util.HashSet
 import java.util.Locale
 
 class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
 
     companion object {
         const val CREATED_FROM_ENTITY = "CREATED_FROM_ENTITY"
+        val ARRAY_TYPE_NAME = Arrays::class.asClassName()
     }
 
-    override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
+    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
-        scope.builder().apply {
+        scope.builder.apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(
-                HashMap::class.typeName,
-                CommonTypeNames.STRING, RoomTypeNames.TABLE_INFO_COLUMN
+            val columnListType = CommonTypeNames.HASH_MAP.parametrizedBy(
+                CommonTypeNames.STRING,
+                RoomTypeNames.TABLE_INFO_COLUMN
             )
-
-            addStatement(
-                "final $T $L = new $T($L)", columnListType, columnListVar,
-                columnListType, entity.fields.size
+            addLocalVariable(
+                name = columnListVar,
+                typeName = columnListType,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    columnListType,
+                    "%L",
+                    entity.fields.size
+                )
             )
             entity.fields.forEach { field ->
                 addStatement(
-                    "$L.put($S, new $T($S, $S, $L, $L, $S, $T.$L))",
-                    columnListVar, field.columnName, RoomTypeNames.TABLE_INFO_COLUMN,
-                    /*name*/ field.columnName,
-                    /*type*/ field.affinity?.name ?: SQLTypeAffinity.TEXT.name,
-                    /*nonNull*/ field.nonNull,
-                    /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1,
-                    /*defaultValue*/ field.defaultValue,
-                    /*createdFrom*/ RoomTypeNames.TABLE_INFO, CREATED_FROM_ENTITY
+                    "%L.put(%S, %L)",
+                    columnListVar,
+                    field.columnName,
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.TABLE_INFO_COLUMN,
+                        "%S, %S, %L, %L, %S, %T.%L",
+                        field.columnName, // name
+                        field.affinity?.name ?: SQLTypeAffinity.TEXT.name, // type
+                        field.nonNull, // nonNull
+                        entity.primaryKey.fields.indexOf(field) + 1, // pkeyPos
+                        field.defaultValue, // defaultValue
+                        RoomTypeNames.TABLE_INFO, CREATED_FROM_ENTITY // createdFrom
+                    )
                 )
             }
 
             val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")
-            val foreignKeySetType = ParameterizedTypeName.get(
-                HashSet::class.typeName,
-                RoomTypeNames.TABLE_INFO_FOREIGN_KEY
-            )
-            addStatement(
-                "final $T $L = new $T($L)", foreignKeySetType, foreignKeySetVar,
-                foreignKeySetType, entity.foreignKeys.size
+            val foreignKeySetType =
+                CommonTypeNames.HASH_SET.parametrizedBy(RoomTypeNames.TABLE_INFO_FOREIGN_KEY)
+            addLocalVariable(
+                name = foreignKeySetVar,
+                typeName = foreignKeySetType,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    foreignKeySetType,
+                    "%L",
+                    entity.foreignKeys.size
+                )
             )
             entity.foreignKeys.forEach {
-                val myColumnNames = it.childFields
-                    .joinToString(",") { "\"${it.columnName}\"" }
-                val refColumnNames = it.parentColumns
-                    .joinToString(",") { "\"$it\"" }
                 addStatement(
-                    "$L.add(new $T($S, $S, $S," +
-                        "$T.asList($L), $T.asList($L)))",
+                    "%L.add(%L)",
                     foreignKeySetVar,
-                    RoomTypeNames.TABLE_INFO_FOREIGN_KEY,
-                    /*parent table*/ it.parentTable,
-                    /*on delete*/ it.onDelete.sqlName,
-                    /*on update*/ it.onUpdate.sqlName,
-                    Arrays::class.typeName,
-                    /*parent names*/ myColumnNames,
-                    Arrays::class.typeName,
-                    /*parent column names*/ refColumnNames
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.TABLE_INFO_FOREIGN_KEY,
+                        "%S, %S, %S, %L, %L",
+                        it.parentTable, // parent table
+                        it.onDelete.sqlName, // on delete
+                        it.onUpdate.sqlName, // on update
+                        listOfStrings(it.childFields.map { it.columnName }), // parent names
+                        listOfStrings(it.parentColumns) // parent column names
+                    )
                 )
             }
 
             val indicesSetVar = scope.getTmpVar("_indices$suffix")
-            val indicesType = ParameterizedTypeName.get(
-                HashSet::class.typeName,
-                RoomTypeNames.TABLE_INFO_INDEX
-            )
-            addStatement(
-                "final $T $L = new $T($L)", indicesType, indicesSetVar,
-                indicesType, entity.indices.size
+            val indicesType =
+                CommonTypeNames.HASH_SET.parametrizedBy(RoomTypeNames.TABLE_INFO_INDEX)
+            addLocalVariable(
+                name = indicesSetVar,
+                typeName = indicesType,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    indicesType,
+                    "%L",
+                    entity.indices.size
+                )
             )
             entity.indices.forEach { index ->
-                val columnNames = index.columnNames.joinToString(",") { "\"$it\"" }
                 val orders = if (index.orders.isEmpty()) {
-                    index.columnNames.map { "ASC" }.joinToString(",") { "\"$it\"" }
+                    index.columnNames.map { "ASC" }
                 } else {
-                    index.orders.joinToString(",") { "\"$it\"" }
+                    index.orders.map { it.name }
                 }
                 addStatement(
-                    "$L.add(new $T($S, $L, $T.asList($L), $T.asList($L)))",
+                    "%L.add(%L)",
                     indicesSetVar,
-                    RoomTypeNames.TABLE_INFO_INDEX,
-                    index.name,
-                    index.unique,
-                    Arrays::class.typeName,
-                    columnNames,
-                    Arrays::class.typeName,
-                    orders,
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.TABLE_INFO_INDEX,
+                        "%S, %L, %L, %L",
+                        index.name, // name
+                        index.unique, // unique
+                        listOfStrings(index.columnNames), // columns
+                        listOfStrings(orders) // orders
+                    )
                 )
             }
 
-            addStatement(
-                "final $T $L = new $T($S, $L, $L, $L)",
-                RoomTypeNames.TABLE_INFO, expectedInfoVar, RoomTypeNames.TABLE_INFO,
-                entity.tableName, columnListVar, foreignKeySetVar, indicesSetVar
+            addLocalVariable(
+                name = expectedInfoVar,
+                typeName = RoomTypeNames.TABLE_INFO,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    RoomTypeNames.TABLE_INFO,
+                    "%S, %L, %L, %L",
+                    entity.tableName, columnListVar, foreignKeySetVar, indicesSetVar
+                )
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
-            addStatement(
-                "final $T $L = $T.read($N, $S)",
-                RoomTypeNames.TABLE_INFO, existingVar, RoomTypeNames.TABLE_INFO,
-                dbParam, entity.tableName
+            addLocalVal(
+                existingVar,
+                RoomTypeNames.TABLE_INFO,
+                "%M(%L, %S)",
+                RoomMemberNames.TABLE_INFO_READ, dbParamName, entity.tableName
             )
 
-            beginControlFlow("if (! $L.equals($L))", expectedInfoVar, existingVar).apply {
+            beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
                 addStatement(
-                    "return new $T(false, $S + $L + $S + $L)",
-                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
-                    "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
-                    expectedInfoVar, "\n Found:\n", existingVar
+                    "return %L",
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        "false, %S + %L + %S + %L",
+                        "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
+                        expectedInfoVar,
+                        "\n Found:\n",
+                        existingVar
+                    )
                 )
             }
             endControlFlow()
         }
+    }
+
+    private fun CodeBlockWrapper.listOfStrings(strings: List<String>): XCodeBlock {
+        val placeholders = List(strings.size) { "%S" }.joinToString()
+        val function: Any = when (language) {
+            CodeLanguage.JAVA -> XCodeBlock.of(language, "%T.asList", ARRAY_TYPE_NAME)
+            CodeLanguage.KOTLIN -> "listOf"
+        }
+        return XCodeBlock.of(
+            language,
+            "%L($placeholders)",
+            function, *strings.toTypedArray()
+        )
     }
 }

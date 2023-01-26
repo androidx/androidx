@@ -7,3 +7,8 @@
 
 # Keep all IInterfaces which are needed for host communications.
 -keep class androidx.car.app.** extends android.os.IInterface { *; }
+
+# Keep all private final fields from a class.
+-keepclasseswithmembers @androidx.car.app.annotations.KeepFields class * {
+  *;
+}

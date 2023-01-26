@@ -16,7 +16,6 @@
 
 package androidx.camera.core.processing;
 
-import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.utils.MatrixExt.preRotate;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
@@ -35,9 +34,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
-import androidx.camera.core.SurfaceProcessor;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 
@@ -49,7 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
- * A implementation of {@link SurfaceOutput} that wraps a {@link SettableSurface}.
+ * A implementation of {@link SurfaceOutput} that is connected to a {@link SurfaceEdge}.
  */
 @RequiresApi(21)
 final class SurfaceOutputImpl implements SurfaceOutput {
@@ -61,10 +60,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @NonNull
     private final Surface mSurface;
     private final int mTargets;
-    private final int mFormat;
     @NonNull
     private final Size mSize;
-    private final GlTransformOptions mGlTransformOptions;
     private final Size mInputSize;
     private final Rect mInputCropRect;
     private final int mRotationDegrees;
@@ -91,32 +88,19 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             @NonNull Surface surface,
             // TODO(b/238222270): annotate targets with IntDef.
             int targets,
-            int format,
             @NonNull Size size,
-            // TODO(b/241910577): remove this flag when PreviewView handles cropped stream.
-            @NonNull GlTransformOptions glTransformOptions,
             @NonNull Size inputSize,
             @NonNull Rect inputCropRect,
             int rotationDegree,
             boolean mirroring) {
         mSurface = surface;
         mTargets = targets;
-        mFormat = format;
         mSize = size;
-        mGlTransformOptions = glTransformOptions;
         mInputSize = inputSize;
         mInputCropRect = new Rect(inputCropRect);
         mMirroring = mirroring;
-
-        if (mGlTransformOptions == APPLY_CROP_ROTATE_AND_MIRRORING) {
-            mRotationDegrees = rotationDegree;
-            calculateGlTransform();
-        } else {
-            // TODO(b/241910577): remove this assignment when the PreviewView handles cropped
-            //  stream.
-            mRotationDegrees = 0;
-        }
-
+        mRotationDegrees = rotationDegree;
+        calculateGlTransform();
         mCloseFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mCloseFutureCompleter = completer;
@@ -144,8 +128,9 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     /**
-     * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
+     * @inheritDoc
      */
+    @Override
     public void requestClose() {
         AtomicReference<Consumer<Event>> eventListenerRef = new AtomicReference<>();
         Executor executor = null;
@@ -190,20 +175,24 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         return mSize;
     }
 
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public int getFormat() {
-        return mFormat;
+    @VisibleForTesting
+    public Rect getInputCropRect() {
+        return mInputCropRect;
     }
 
-    /**
-     * @inheritDoc
-     */
-    @Override
+    @VisibleForTesting
+    public Size getInputSize() {
+        return mInputSize;
+    }
+
+    @VisibleForTesting
     public int getRotationDegrees() {
         return mRotationDegrees;
+    }
+
+    @VisibleForTesting
+    public boolean getMirroring() {
+        return mMirroring;
     }
 
     /**
@@ -248,16 +237,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @AnyThread
     @Override
     public void updateTransformMatrix(@NonNull float[] output, @NonNull float[] input) {
-        switch (mGlTransformOptions) {
-            case USE_SURFACE_TEXTURE_TRANSFORM:
-                System.arraycopy(input, 0, output, 0, 16);
-                break;
-            case APPLY_CROP_ROTATE_AND_MIRRORING:
-                System.arraycopy(mGlTransform, 0, output, 0, 16);
-                break;
-            default:
-                throw new AssertionError("Unknown GlTransformOptions: " + mGlTransformOptions);
-        }
+        System.arraycopy(mGlTransform, 0, output, 0, 16);
     }
 
     /**

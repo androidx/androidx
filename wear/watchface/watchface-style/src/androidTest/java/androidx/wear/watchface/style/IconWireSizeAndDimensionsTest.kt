@@ -120,18 +120,21 @@ public class IconWireSizeAndDimensionsTest {
         val classicStyleOption = UserStyleSetting.ListUserStyleSetting.ListOption(
             UserStyleSetting.Option.Id("classic_style"),
             "Classic",
+            "Classic screen reader name",
             testIcon
         )
 
         val modernStyleOption = UserStyleSetting.ListUserStyleSetting.ListOption(
             UserStyleSetting.Option.Id("modern_style"),
             "Modern",
+            "Modern screen reader name",
             testIcon
         )
 
         val gothicStyleOption = UserStyleSetting.ListUserStyleSetting.ListOption(
             UserStyleSetting.Option.Id("gothic_style"),
             "Gothic",
+            "Gothic screen reader name",
             testIcon
         )
 
@@ -188,6 +191,7 @@ public class IconWireSizeAndDimensionsTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun estimateWireSizeInBytes_ComplicationSlotsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102
@@ -200,12 +204,14 @@ public class IconWireSizeAndDimensionsTest {
                 UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     UserStyleSetting.Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     "Both",
+                     "Both screen reader name",
                     testIcon,
                     listOf()
                 ),
                 UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     UserStyleSetting.Option.Id("NO_COMPLICATIONS"),
                     "None",
+                    "None screen reader name",
                     testIcon,
                     listOf(
                         UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -221,6 +227,7 @@ public class IconWireSizeAndDimensionsTest {
                 UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     UserStyleSetting.Option.Id("LEFT_COMPLICATION"),
                     "Left",
+                    "Left screen reader name",
                     testIcon,
                     listOf(
                         UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -232,6 +239,7 @@ public class IconWireSizeAndDimensionsTest {
                 UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     UserStyleSetting.Option.Id("RIGHT_COMPLICATION"),
                     "Right",
+                    "Right screen reader name",
                     testIcon,
                     listOf(
                         UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(

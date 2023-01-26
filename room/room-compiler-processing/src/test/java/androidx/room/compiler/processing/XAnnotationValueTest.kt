@@ -48,6 +48,7 @@ import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -199,9 +200,9 @@ class XAnnotationValueTest(
                     int[] intVarArgsParam(); // There's no varargs in java so use array
                 }
                 @MyAnnotation(
-                    intParam = 1,
-                    intArrayParam = {3, 5, 7},
-                    intVarArgsParam = {9, 11, 13}
+                    intParam = (short) 1,
+                    intArrayParam = {(byte) 3, (short) 5, 7},
+                    intVarArgsParam = {(byte) 9, (short) 11, 13}
                 )
                 class MyClass {}
                 """.trimIndent()
@@ -289,9 +290,9 @@ class XAnnotationValueTest(
                     short[] shortVarArgsParam(); // There's no varargs in java so use array
                 }
                 @MyAnnotation(
-                    shortParam = (short) 1,
-                    shortArrayParam = {(short) 3, (short) 5, (short) 7},
-                    shortVarArgsParam = {(short) 9, (short) 11, (short) 13}
+                    shortParam = (byte) 1,
+                    shortArrayParam = {(byte) 3, (short) 5, 7},
+                    shortVarArgsParam = {(byte) 9, (short) 11, 13}
                 )
                 class MyClass {}
                 """.trimIndent()
@@ -379,9 +380,9 @@ class XAnnotationValueTest(
                     long[] longVarArgsParam(); // There's no varargs in java so use array
                 }
                 @MyAnnotation(
-                    longParam = 1L,
-                    longArrayParam = {3L, 5L, 7L},
-                    longVarArgsParam = {9L, 11L, 13L}
+                    longParam = (byte) 1,
+                    longArrayParam = {(short) 3, (int) 5, 7L},
+                    longVarArgsParam = {(short) 9, (int) 11, 13L}
                 )
                 class MyClass {}
                 """.trimIndent()
@@ -469,9 +470,9 @@ class XAnnotationValueTest(
                     float[] floatVarArgsParam(); // There's no varargs in java so use array
                 }
                 @MyAnnotation(
-                    floatParam = 1.1F,
-                    floatArrayParam = {3.1F, 5.1F, 7.1F},
-                    floatVarArgsParam = {9.1F, 11.1F, 13.1F}
+                    floatParam = (byte) 1,
+                    floatArrayParam = {(short) 3, 5.1F, 7.1F},
+                    floatVarArgsParam = {9, 11.1F, 13.1F}
                 )
                 class MyClass {}
                 """.trimIndent()
@@ -486,9 +487,9 @@ class XAnnotationValueTest(
                     vararg val floatVarArgsParam: Float,
                 )
                 @MyAnnotation(
-                    floatParam = 1.1F,
-                    floatArrayParam = [3.1F, 5.1F, 7.1F],
-                    floatVarArgsParam = [9.1F, 11.1F, 13.1F],
+                    floatParam = 1F,
+                    floatArrayParam = [3F, 5.1F, 7.1F],
+                    floatVarArgsParam = [9F, 11.1F, 13.1F],
                 )
                 class MyClass
                 """.trimIndent()
@@ -529,20 +530,20 @@ class XAnnotationValueTest(
             assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
                 .isEqualTo("""
                     @test.MyAnnotation(
-                        floatParam = 1.1f,
-                        floatArrayParam = {3.1f, 5.1f, 7.1f},
-                        floatVarArgsParam = {9.1f, 11.1f, 13.1f}
+                        floatParam = 1.0f,
+                        floatArrayParam = {3.0f, 5.1f, 7.1f},
+                        floatVarArgsParam = {9.0f, 11.1f, 13.1f}
                     )
                     """.removeWhiteSpace())
 
             val floatParam = annotation.getAnnotationValue("floatParam")
-            checkSingleValue(floatParam, 1.1F)
+            checkSingleValue(floatParam, 1.0F)
 
             val floatArrayParam = annotation.getAnnotationValue("floatArrayParam")
-            checkListValues(floatArrayParam, 3.1F, 5.1F, 7.1F)
+            checkListValues(floatArrayParam, 3.0F, 5.1F, 7.1F)
 
             val floatVarArgsParam = annotation.getAnnotationValue("floatVarArgsParam")
-            checkListValues(floatVarArgsParam, 9.1F, 11.1F, 13.1F)
+            checkListValues(floatVarArgsParam, 9.0F, 11.1F, 13.1F)
         }
     }
 
@@ -559,9 +560,9 @@ class XAnnotationValueTest(
                     double[] doubleVarArgsParam(); // There's no varargs in java so use array
                 }
                 @MyAnnotation(
-                    doubleParam = 1.1,
-                    doubleArrayParam = {3.1, 5.1, 7.1},
-                    doubleVarArgsParam = {9.1, 11.1, 13.1}
+                    doubleParam = (byte) 1,
+                    doubleArrayParam = {(short) 3, 5.1F, 7.1},
+                    doubleVarArgsParam = {9, 11.1F, 13.1}
                 )
                 class MyClass {}
                 """.trimIndent()
@@ -576,9 +577,9 @@ class XAnnotationValueTest(
                     vararg val doubleVarArgsParam: Double,
                 )
                 @MyAnnotation(
-                    doubleParam = 1.1,
-                    doubleArrayParam = [3.1, 5.1, 7.1],
-                    doubleVarArgsParam = [9.1, 11.1, 13.1],
+                    doubleParam = 1.0,
+                    doubleArrayParam = [3.0, 5.1, 7.1],
+                    doubleVarArgsParam = [9.0, 11.1, 13.1],
                 )
                 class MyClass
                 """.trimIndent()
@@ -614,25 +615,57 @@ class XAnnotationValueTest(
             val annotation = invocation.processingEnv.requireTypeElement("test.MyClass")
                 .getAllAnnotations()
                 .single { it.qualifiedName == "test.MyAnnotation" }
+            annotation.getAnnotationValue("doubleParam").value
+            annotation.getAnnotationValue("doubleArrayParam").value
+            annotation.getAnnotationValue("doubleVarArgsParam").value
 
-            // Compare the AnnotationSpec string ignoring whitespace
-            assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
-                .isEqualTo("""
-                    @test.MyAnnotation(
-                        doubleParam = 1.1,
-                        doubleArrayParam = {3.1, 5.1, 7.1},
-                        doubleVarArgsParam = {9.1, 11.1, 13.1}
+            // The java source allows an interesting corner case where you can use a float,
+            // e.g. 5.1F, in place of a double and the value returned is converted to a double.
+            // Note that the kotlin source doesn't even allow this case so we've separated them
+            // into two separate checks below.
+            if (sourceKind == SourceKind.JAVA) {
+                // Compare the AnnotationSpec string ignoring whitespace
+                assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
+                    .isEqualTo(
+                        """
+                        @test.MyAnnotation(
+                            doubleParam = 1.0,
+                            doubleArrayParam = {3.0, 5.099999904632568, 7.1},
+                            doubleVarArgsParam = {9.0, 11.100000381469727, 13.1}
+                        )
+                        """.removeWhiteSpace()
                     )
-                    """.removeWhiteSpace())
 
-            val doubleParam = annotation.getAnnotationValue("doubleParam")
-            checkSingleValue(doubleParam, 1.1)
+                val doubleParam = annotation.getAnnotationValue("doubleParam")
+                checkSingleValue(doubleParam, 1.0)
 
-            val doubleArrayParam = annotation.getAnnotationValue("doubleArrayParam")
-            checkListValues(doubleArrayParam, 3.1, 5.1, 7.1)
+                val doubleArrayParam = annotation.getAnnotationValue("doubleArrayParam")
+                checkListValues(doubleArrayParam, 3.0, 5.099999904632568, 7.1)
 
-            val doubleVarArgsParam = annotation.getAnnotationValue("doubleVarArgsParam")
-            checkListValues(doubleVarArgsParam, 9.1, 11.1, 13.1)
+                val doubleVarArgsParam = annotation.getAnnotationValue("doubleVarArgsParam")
+                checkListValues(doubleVarArgsParam, 9.0, 11.100000381469727, 13.1)
+            } else {
+                // Compare the AnnotationSpec string ignoring whitespace
+                assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
+                    .isEqualTo(
+                        """
+                        @test.MyAnnotation(
+                            doubleParam = 1.0,
+                            doubleArrayParam = {3.0, 5.1, 7.1},
+                            doubleVarArgsParam = {9.0, 11.1, 13.1}
+                        )
+                        """.removeWhiteSpace()
+                    )
+
+                val doubleParam = annotation.getAnnotationValue("doubleParam")
+                checkSingleValue(doubleParam, 1.0)
+
+                val doubleArrayParam = annotation.getAnnotationValue("doubleArrayParam")
+                checkListValues(doubleArrayParam, 3.0, 5.1, 7.1)
+
+                val doubleVarArgsParam = annotation.getAnnotationValue("doubleVarArgsParam")
+                checkListValues(doubleVarArgsParam, 9.0, 11.1, 13.1)
+            }
         }
     }
 
@@ -869,8 +902,17 @@ class XAnnotationValueTest(
                 assertThat(annotationValue.valueType.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(String::class.asJClassName()))
                 if (invocation.isKsp) {
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(String::class.asKClassName()))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(String::class.asKClassName()))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(String::class.asKClassName()))
+                    }
                 }
                 assertThat(annotationValue.hasStringListValue()).isTrue()
                 // Check the list of values
@@ -966,8 +1008,17 @@ class XAnnotationValueTest(
                 assertThat(annotationValue.valueType.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(myEnumJTypeName))
                 if (invocation.isKsp) {
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(myEnumKTypeName))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(myEnumKTypeName))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(myEnumKTypeName))
+                    }
                 }
                 assertThat(annotationValue.hasEnumListValue()).isTrue()
                 // Check the list of values
@@ -1080,8 +1131,17 @@ class XAnnotationValueTest(
                 } else {
                     assertThat(annotationValue.valueType.asTypeName().java)
                         .isEqualTo(JArrayTypeName.of(kClassJTypeName))
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(kClassKTypeName))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(kClassKTypeName))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(kClassKTypeName))
+                    }
                 }
                 assertThat(annotationValue.hasTypeListValue()).isTrue()
                 // Check the list of values
@@ -1180,8 +1240,17 @@ class XAnnotationValueTest(
                 assertThat(annotationValue.valueType.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(aJTypeName))
                 if (invocation.isKsp) {
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(aKTypeName))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(aKTypeName))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(aKTypeName))
+                    }
                 }
                 assertThat(annotationValue.hasAnnotationListValue()).isTrue()
                 // Check the list of values

@@ -19,6 +19,7 @@ package androidx.camera.core.imagecapture
 import android.graphics.ImageFormat
 import android.os.Build
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
+import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -54,11 +55,19 @@ class SingleBundlingNodeTest {
     fun setRequestAndImageTwice_twoPacketsPropagated() {
         // Arrange: create 2 requests: A and B.
         val captureBundleA = createCaptureBundle(intArrayOf(1))
-        val requestA = FakeProcessingRequest(captureBundleA, FakeTakePictureCallback())
+        val requestA = FakeProcessingRequest(
+            captureBundleA,
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
+        )
         val tagBundleKeyA = captureBundleA.hashCode().toString()
         val imageA1 = Utils.createFakeImage(tagBundleKeyA, 1)
         val captureBundleB = createCaptureBundle(intArrayOf(1))
-        val requestB = FakeProcessingRequest(captureBundleB, FakeTakePictureCallback())
+        val requestB = FakeProcessingRequest(
+            captureBundleB,
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
+        )
         val tagBundleKeyB = captureBundleB.hashCode().toString()
         val imageB1 = Utils.createFakeImage(tagBundleKeyB, 1)
 

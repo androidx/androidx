@@ -22,9 +22,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.RadioButton
-import androidx.glance.appwidget.RadioButtonColors
+import androidx.glance.appwidget.radioButtonColors
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.applyRemoteViews
@@ -32,8 +33,9 @@ import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findView
 import androidx.glance.appwidget.findViewByType
 import androidx.glance.appwidget.runAndTranslate
-import androidx.glance.appwidget.test.R
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.color.ColorProvider
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -70,7 +72,7 @@ class RadioButtonTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
+                colors = radioButtonColors(
                     checkedColor = ColorProvider(Color.Blue),
                     uncheckedColor = ColorProvider(Color.Red),
                 )
@@ -88,7 +90,7 @@ class RadioButtonTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
+                colors = radioButtonColors(
                     checkedColor = ColorProvider(Color.Blue),
                     uncheckedColor = ColorProvider(Color.Red),
                 )
@@ -106,7 +108,7 @@ class RadioButtonTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
+                colors = radioButtonColors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -124,7 +126,7 @@ class RadioButtonTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
+                colors = radioButtonColors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -142,7 +144,7 @@ class RadioButtonTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
+                colors = radioButtonColors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -160,7 +162,7 @@ class RadioButtonTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
+                colors = radioButtonColors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -178,14 +180,15 @@ class RadioButtonTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
-                    color = R.color.my_switch_thumb_colors,
+                colors = radioButtonColors(
+                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
             )
         }
 
         val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter("#110FF0FF")
+        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Green)
     }
 
     @Test
@@ -195,14 +198,15 @@ class RadioButtonTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = RadioButtonColors(
-                    color = R.color.my_switch_thumb_colors,
+                colors = radioButtonColors(
+                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
             )
         }
 
         val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter("#11040040")
+        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
     }
 
     @Test
@@ -263,6 +267,25 @@ class RadioButtonTranslatorTest {
         val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         assertThat(radioButtonRoot.hasOnClickListeners()).isFalse()
     }
+
+    @Test
+    fun canTranslateRadioButtonWithSemanticsModifier_contentDescription() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                RadioButton(
+                    checked = true,
+                    onClick = actionRunCallback<ActionCallback>(),
+                    text = "RadioButton",
+                    modifier = GlanceModifier.semantics {
+                        contentDescription = "Custom radio button description"
+                    },
+                )
+            }
+
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.contentDescription)
+                .isEqualTo("Custom radio button description")
+        }
 
     private val ViewGroup.radioImageView: ImageView?
         get() = findView {

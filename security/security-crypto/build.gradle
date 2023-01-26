@@ -25,7 +25,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
-    implementation("com.google.crypto.tink:tink-android:1.5.0")
+    implementation("com.google.crypto.tink:tink-android:1.7.0")
 
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
@@ -49,7 +49,6 @@ androidx {
     name = "AndroidX Security"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY
-    mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2019"
     description = "AndroidX Security"
 }

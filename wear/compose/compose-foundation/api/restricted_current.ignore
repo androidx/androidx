@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.wear.compose.foundation.CurvedTextStyle#equals(Object):
-    Removed method androidx.wear.compose.foundation.CurvedTextStyle.equals(Object)

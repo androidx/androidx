@@ -518,6 +518,7 @@ package androidx.fragment.app.strictmode {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectSetUserVisibleHint();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectTargetFragmentUsage();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongFragmentContainer();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongNestedHierarchy();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener listener);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
@@ -566,6 +567,13 @@ package androidx.fragment.app.strictmode {
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
     method public android.view.ViewGroup getContainer();
     property public final android.view.ViewGroup container;
+  }
+
+  public final class WrongNestedHierarchyViolation extends androidx.fragment.app.strictmode.Violation {
+    method public int getContainerId();
+    method public androidx.fragment.app.Fragment getExpectedParentFragment();
+    property public final int containerId;
+    property public final androidx.fragment.app.Fragment expectedParentFragment;
   }
 
 }

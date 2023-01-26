@@ -68,55 +68,56 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
+import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.tiles.TileService;
-import androidx.wear.tiles.proto.ActionProto.Action;
-import androidx.wear.tiles.proto.ActionProto.AndroidActivity;
-import androidx.wear.tiles.proto.ActionProto.AndroidExtra;
-import androidx.wear.tiles.proto.ActionProto.LaunchAction;
-import androidx.wear.tiles.proto.ActionProto.LoadAction;
-import androidx.wear.tiles.proto.DimensionProto.ContainerDimension;
-import androidx.wear.tiles.proto.DimensionProto.ContainerDimension.InnerCase;
-import androidx.wear.tiles.proto.DimensionProto.DpProp;
-import androidx.wear.tiles.proto.DimensionProto.ExpandedDimensionProp;
-import androidx.wear.tiles.proto.DimensionProto.ImageDimension;
-import androidx.wear.tiles.proto.DimensionProto.ProportionalDimensionProp;
-import androidx.wear.tiles.proto.DimensionProto.SpProp;
-import androidx.wear.tiles.proto.DimensionProto.SpacerDimension;
-import androidx.wear.tiles.proto.DimensionProto.WrappedDimensionProp;
-import androidx.wear.tiles.proto.LayoutElementProto.Arc;
-import androidx.wear.tiles.proto.LayoutElementProto.ArcAnchorTypeProp;
-import androidx.wear.tiles.proto.LayoutElementProto.ArcLayoutElement;
-import androidx.wear.tiles.proto.LayoutElementProto.ArcLine;
-import androidx.wear.tiles.proto.LayoutElementProto.ArcSpacer;
-import androidx.wear.tiles.proto.LayoutElementProto.ArcText;
-import androidx.wear.tiles.proto.LayoutElementProto.Box;
-import androidx.wear.tiles.proto.LayoutElementProto.Column;
-import androidx.wear.tiles.proto.LayoutElementProto.ContentScaleMode;
-import androidx.wear.tiles.proto.LayoutElementProto.FontStyle;
-import androidx.wear.tiles.proto.LayoutElementProto.FontVariant;
-import androidx.wear.tiles.proto.LayoutElementProto.HorizontalAlignmentProp;
-import androidx.wear.tiles.proto.LayoutElementProto.Image;
-import androidx.wear.tiles.proto.LayoutElementProto.Layout;
-import androidx.wear.tiles.proto.LayoutElementProto.LayoutElement;
-import androidx.wear.tiles.proto.LayoutElementProto.Row;
-import androidx.wear.tiles.proto.LayoutElementProto.Spacer;
-import androidx.wear.tiles.proto.LayoutElementProto.Span;
-import androidx.wear.tiles.proto.LayoutElementProto.SpanImage;
-import androidx.wear.tiles.proto.LayoutElementProto.SpanText;
-import androidx.wear.tiles.proto.LayoutElementProto.SpanVerticalAlignmentProp;
-import androidx.wear.tiles.proto.LayoutElementProto.Spannable;
-import androidx.wear.tiles.proto.LayoutElementProto.Text;
-import androidx.wear.tiles.proto.LayoutElementProto.TextAlignmentProp;
-import androidx.wear.tiles.proto.LayoutElementProto.TextOverflowProp;
-import androidx.wear.tiles.proto.LayoutElementProto.VerticalAlignmentProp;
-import androidx.wear.tiles.proto.ModifiersProto.ArcModifiers;
-import androidx.wear.tiles.proto.ModifiersProto.Background;
-import androidx.wear.tiles.proto.ModifiersProto.Border;
-import androidx.wear.tiles.proto.ModifiersProto.Clickable;
-import androidx.wear.tiles.proto.ModifiersProto.Modifiers;
-import androidx.wear.tiles.proto.ModifiersProto.Padding;
-import androidx.wear.tiles.proto.ModifiersProto.SpanModifiers;
-import androidx.wear.tiles.proto.StateProto.State;
+import androidx.wear.protolayout.proto.ActionProto.Action;
+import androidx.wear.protolayout.proto.ActionProto.AndroidActivity;
+import androidx.wear.protolayout.proto.ActionProto.AndroidExtra;
+import androidx.wear.protolayout.proto.ActionProto.LaunchAction;
+import androidx.wear.protolayout.proto.ActionProto.LoadAction;
+import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension;
+import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension.InnerCase;
+import androidx.wear.protolayout.proto.DimensionProto.DpProp;
+import androidx.wear.protolayout.proto.DimensionProto.ExpandedDimensionProp;
+import androidx.wear.protolayout.proto.DimensionProto.ImageDimension;
+import androidx.wear.protolayout.proto.DimensionProto.ProportionalDimensionProp;
+import androidx.wear.protolayout.proto.DimensionProto.SpProp;
+import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
+import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
+import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
+import androidx.wear.protolayout.proto.AlignmentProto.ArcAnchorTypeProp;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcSpacer;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcText;
+import androidx.wear.protolayout.proto.LayoutElementProto.Box;
+import androidx.wear.protolayout.proto.LayoutElementProto.Column;
+import androidx.wear.protolayout.proto.LayoutElementProto.ContentScaleMode;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontVariant;
+import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
+import androidx.wear.protolayout.proto.LayoutElementProto.Image;
+import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
+import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.Row;
+import androidx.wear.protolayout.proto.LayoutElementProto.Spacer;
+import androidx.wear.protolayout.proto.LayoutElementProto.Span;
+import androidx.wear.protolayout.proto.LayoutElementProto.SpanImage;
+import androidx.wear.protolayout.proto.LayoutElementProto.SpanText;
+import androidx.wear.protolayout.proto.LayoutElementProto.SpanVerticalAlignmentProp;
+import androidx.wear.protolayout.proto.LayoutElementProto.Spannable;
+import androidx.wear.protolayout.proto.LayoutElementProto.Text;
+import androidx.wear.protolayout.proto.AlignmentProto.TextAlignmentProp;
+import androidx.wear.protolayout.proto.LayoutElementProto.TextOverflowProp;
+import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
+import androidx.wear.protolayout.proto.ModifiersProto.ArcModifiers;
+import androidx.wear.protolayout.proto.ModifiersProto.Background;
+import androidx.wear.protolayout.proto.ModifiersProto.Border;
+import androidx.wear.protolayout.proto.ModifiersProto.Clickable;
+import androidx.wear.protolayout.proto.ModifiersProto.Modifiers;
+import androidx.wear.protolayout.proto.ModifiersProto.Padding;
+import androidx.wear.protolayout.proto.ModifiersProto.SpanModifiers;
+import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.tiles.renderer.R;
 import androidx.wear.tiles.renderer.internal.ResourceResolvers.ResourceAccessException;
 import androidx.wear.widget.ArcLayout;
@@ -680,7 +681,7 @@ public final class TileRendererInternal {
         }
 
         if (modifiers.hasSemantics()) {
-            applyAudibleParams(view, modifiers.getSemantics().getContentDescription());
+            applyAudibleParams(view, modifiers.getSemantics().getObsoleteContentDescription());
         }
 
         if (modifiers.hasPadding()) {
@@ -721,7 +722,7 @@ public final class TileRendererInternal {
         }
 
         if (modifiers.hasSemantics()) {
-            applyAudibleParams(view, modifiers.getSemantics().getContentDescription());
+            applyAudibleParams(view, modifiers.getSemantics().getObsoleteContentDescription());
         }
 
         return view;
@@ -751,6 +752,7 @@ public final class TileRendererInternal {
                 return null;
             case TEXT_OVERFLOW_ELLIPSIZE_END:
                 return TruncateAt.END;
+            case TEXT_OVERFLOW_MARQUEE:
             case TEXT_OVERFLOW_UNDEFINED:
             case UNRECOGNIZED:
                 return TEXT_OVERFLOW_DEFAULT;
@@ -1253,10 +1255,11 @@ public final class TileRendererInternal {
             Log.wtf(TAG, "Exception tinting image " + protoResId, ex);
         }
 
-        if (image.hasFilter()) {
-            if (image.getFilter().hasTint() && canImageBeTinted) {
+        if (image.hasColorFilter()) {
+            if (image.getColorFilter().hasTint() && canImageBeTinted) {
                 // Only allow tinting for Android images.
-                ColorStateList tint = ColorStateList.valueOf(image.getFilter().getTint().getArgb());
+                ColorStateList tint =
+                        ColorStateList.valueOf(image.getColorFilter().getTint().getArgb());
                 imageView.setImageTintList(tint);
 
                 // SRC_IN throws away the colours in the drawable that we're tinting. Effectively,

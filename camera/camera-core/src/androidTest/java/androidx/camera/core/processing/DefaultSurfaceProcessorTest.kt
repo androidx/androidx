@@ -17,14 +17,13 @@
 package androidx.camera.core.processing
 
 import android.graphics.Rect
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
-import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
-import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.HandlerUtil
@@ -46,7 +45,6 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -92,6 +90,8 @@ class DefaultSurfaceProcessorTest {
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var renderOutput: RenderOutput<*>
     private val inputSurfaceRequestsToClose = mutableListOf<SurfaceRequest>()
+    private val surfacesToRelease = mutableListOf<Surface>()
+    private val surfaceTexturesToRelease = mutableListOf<SurfaceTexture>()
     private val fakeCamera = FakeCamera()
 
     @After
@@ -101,6 +101,12 @@ class DefaultSurfaceProcessorTest {
         }
         if (::renderOutput.isInitialized) {
             renderOutput.release()
+        }
+        for (surface in surfacesToRelease) {
+            surface.release()
+        }
+        for (surfaceTexture in surfaceTexturesToRelease) {
+            surfaceTexture.release()
         }
         if (::surfaceProcessor.isInitialized) {
             surfaceProcessor.release()
@@ -296,18 +302,16 @@ class DefaultSurfaceProcessorTest {
     }
 
     private fun createInputSurfaceRequest(): SurfaceRequest {
-        return SurfaceRequest(Size(WIDTH, HEIGHT), fakeCamera, false).apply {
+        return SurfaceRequest(Size(WIDTH, HEIGHT), fakeCamera) {}.apply {
             inputSurfaceRequestsToClose.add(this)
         }
     }
 
-    private fun createSurfaceOutput(surface: Surface = mock(Surface::class.java)) =
+    private fun createSurfaceOutput(surface: Surface = createAutoReleaseSurface()) =
         SurfaceOutputImpl(
             surface,
             CameraEffect.PREVIEW,
-            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             Size(WIDTH, HEIGHT),
-            USE_SURFACE_TEXTURE_TRANSFORM,
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
             /*rotationDegrees=*/0,
@@ -334,6 +338,16 @@ class DefaultSurfaceProcessorTest {
                 fragCoordsVarName ?: correctFragCoordsVarName
             )
         }
+    }
+
+    private fun createAutoReleaseSurface(): Surface {
+        val surfaceTexture = SurfaceTexture(0)
+        surfaceTexture.setDefaultBufferSize(WIDTH, HEIGHT)
+        surfaceTexturesToRelease.add(surfaceTexture)
+        val surface = Surface(surfaceTexture)
+        surfacesToRelease.add(surface)
+
+        return surface
     }
 
     private fun DefaultSurfaceProcessor.idle() {

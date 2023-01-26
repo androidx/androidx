@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.background
@@ -32,9 +34,10 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 
@@ -77,24 +80,30 @@ private fun WidgetLayoutCollapsed(data: ListTemplateData) {
 @Composable
 private fun WidgetLayoutExpanded(data: ListTemplateData) {
     Column(modifier = createTopLevelModifier()) {
-        if (data.listStyle == ListStyle.Full) {
+        if (data.listStyle == ListStyle.Full && data.headerBlock != null) {
             HeaderBlockTemplate(data.headerBlock)
-            // TODO(b/247613894): Do not add this spacing if header block is empty
             Spacer(modifier = GlanceModifier.height(16.dp))
         }
         LazyColumn {
             itemsIndexed(data.listContent) { _, item ->
                 val itemSpacer = if (data.listStyle == ListStyle.Full) 8.dp else 0.dp
                 val itemModifier = GlanceModifier.fillMaxSize().padding(vertical = itemSpacer)
+                var itemImageBlock: ImageBlock? = null
+                if (LocalSize.current.width > GlanceTemplateAppWidget.sizeMin &&
+                    LocalSize.current.height > GlanceTemplateAppWidget.sizeMin
+                ) {
+                    itemImageBlock = item.imageBlock
+                }
                 Row(
                     modifier = itemModifier,
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
                     TextAndImageBlockTemplate(
                         item.textBlock,
-                        item.imageBlock,
+                        itemImageBlock,
                         GlanceModifier.defaultWeight()
                     )
+                    Spacer(modifier = GlanceModifier.width(16.dp))
                     ActionBlockTemplate(item.actionBlock)
                 }
             }
@@ -105,5 +114,5 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
 @Composable
 private fun createTopLevelModifier(): GlanceModifier {
     return GlanceModifier.fillMaxSize().padding(16.dp)
-        .background(LocalTemplateColors.current.primaryContainer)
+        .background(GlanceTheme.colors.primaryContainer)
 }

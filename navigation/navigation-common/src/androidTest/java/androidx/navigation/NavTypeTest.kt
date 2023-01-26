@@ -18,6 +18,7 @@ package androidx.navigation
 
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.common.test.R
 import androidx.test.filters.SmallTest
@@ -252,5 +253,88 @@ class NavTypeTest {
 
         assertThat(enumNavType.parseValue(enStringCasing))
             .isEqualTo(en)
+    }
+
+    @Test
+    fun customType_defaultSerializeAsValue() {
+        val testItemType = object : NavType<TestItem> (false) {
+            override fun put(bundle: Bundle, key: String, value: TestItem) {
+                //
+            }
+
+            override fun get(bundle: Bundle, key: String): TestItem? {
+                return TestItem()
+            }
+
+            override fun parseValue(value: String): TestItem {
+                return TestItem()
+            }
+        }
+
+        val testItem = TestItem()
+        val serializedValue = testItemType.serializeAsValue(testItem)
+        assertThat(serializedValue).isEqualTo(testItem.toString())
+    }
+
+    @Test
+    fun customType_overrideSerializeAsValue() {
+        val testItemType = object : NavType<TestItem> (false) {
+            override fun put(bundle: Bundle, key: String, value: TestItem) {
+                //
+            }
+
+            override fun get(bundle: Bundle, key: String): TestItem? {
+                return TestItem()
+            }
+
+            override fun parseValue(value: String): TestItem {
+                return TestItem()
+            }
+
+            override fun serializeAsValue(value: TestItem): String {
+                return "MyTestItem"
+            }
+        }
+
+        val serializedValue = testItemType.serializeAsValue(TestItem())
+        assertThat(serializedValue).isEqualTo("MyTestItem")
+    }
+
+    @Test
+    fun stringType_defaultSerializeAsValue() {
+        val stringType = NavType.StringType
+        assertThat(stringType.serializeAsValue("test_string")).isEqualTo(
+            Uri.encode("test_string")
+        )
+    }
+
+    @Test
+    fun nullStringType_defaultSerializeAsValue() {
+        val stringType = NavType.StringType
+        assertThat(stringType.serializeAsValue(null)).isEqualTo(
+            "null"
+        )
+    }
+
+    @Test
+    fun nullStringType_parseValue() {
+        val stringType = NavType.StringType
+        assertThat(stringType.parseValue("null")).isEqualTo(
+            null
+        )
+    }
+
+    @Test
+    fun nullableType_defaultSerializeAsValue() {
+        val intArrayType = NavType.IntArrayType
+        assertThat(intArrayType.serializeAsValue(null)).isEqualTo(
+            "null"
+        )
+    }
+}
+
+private class TestItem {
+    override fun toString(): String {
+        return "TestItem"
     }
 }

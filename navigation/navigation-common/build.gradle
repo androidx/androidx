@@ -26,15 +26,18 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    defaultConfig {
+        multiDexEnabled true
+    }
     namespace "androidx.navigation.common"
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+    api(project(":lifecycle:lifecycle-runtime-ktx"))
+    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api("androidx.savedstate:savedstate-ktx:1.2.0")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
+    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.collection:collection-ktx:1.1.0")
 
@@ -42,11 +45,12 @@ dependencies {
     testImplementation(project(":navigation:navigation-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinCoroutinesTest)
 
+    androidTestImplementation(libs.kotlinTestJunit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -55,6 +59,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.multidex)
 
     lintPublish(project(':navigation:navigation-common-lint'))
 }
@@ -62,7 +67,6 @@ dependencies {
 androidx {
     name = "Android Navigation Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Common"
 }

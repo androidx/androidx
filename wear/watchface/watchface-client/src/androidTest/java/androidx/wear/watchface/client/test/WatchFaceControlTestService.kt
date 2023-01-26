@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.client.test
 
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -31,7 +30,8 @@ import kotlinx.coroutines.MainScope
  * Test shim to allow us to connect to WatchFaceControlService from
  * [WatchFaceControlClientTest] and to optionally override the reported API version.
  */
-public class WatchFaceControlTestService : Service() {
+@RequiresApi(Build.VERSION_CODES.O_MR1)
+public class WatchFaceControlTestService : WatchFaceControlService() {
     public companion object {
         /**
          * If non-null this overrides the API version reported by [IWatchFaceInstanceServiceStub].

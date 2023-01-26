@@ -35,7 +35,7 @@ import kotlin.coroutines.CoroutineContext
 public val Lifecycle.coroutineScope: LifecycleCoroutineScope
     get() {
         while (true) {
-            val existing = mInternalScopeRef.get() as LifecycleCoroutineScopeImpl?
+            val existing = internalScopeRef.get() as LifecycleCoroutineScopeImpl?
             if (existing != null) {
                 return existing
             }
@@ -43,7 +43,7 @@ public val Lifecycle.coroutineScope: LifecycleCoroutineScope
                 this,
                 SupervisorJob() + Dispatchers.Main.immediate
             )
-            if (mInternalScopeRef.compareAndSet(null, newScope)) {
+            if (internalScopeRef.compareAndSet(null, newScope)) {
                 newScope.register()
                 return newScope
             }
@@ -68,13 +68,15 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      *
      * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
      *
-     * Caution: This API is not recommended to use as it can lead to wasted resources in some
-     * cases. Please, use the [Lifecycle.repeatOnLifecycle] API instead. This API will be removed
-     * in a future release.
-     *
      * @see Lifecycle.whenCreated
      * @see Lifecycle.coroutineScope
      */
+    @Deprecated(
+        message = "launchWhenCreated is deprecated as it can lead to wasted resources " +
+            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
+            "the Lifecycle state is at least Lifecycle.State.CREATED."
+    )
+    @Suppress("DEPRECATION")
     public fun launchWhenCreated(block: suspend CoroutineScope.() -> Unit): Job = launch {
         lifecycle.whenCreated(block)
     }
@@ -85,14 +87,15 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      *
      * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
      *
-     * Caution: This API is not recommended to use as it can lead to wasted resources in some
-     * cases. Please, use the [Lifecycle.repeatOnLifecycle] API instead. This API will be removed
-     * in a future release.
-     *
      * @see Lifecycle.whenStarted
      * @see Lifecycle.coroutineScope
      */
-
+    @Deprecated(
+        message = "launchWhenStarted is deprecated as it can lead to wasted resources " +
+            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
+            "the Lifecycle state is at least Lifecycle.State.STARTED."
+    )
+    @Suppress("DEPRECATION")
     public fun launchWhenStarted(block: suspend CoroutineScope.() -> Unit): Job = launch {
         lifecycle.whenStarted(block)
     }
@@ -103,13 +106,15 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      *
      * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
      *
-     * Caution: This API is not recommended to use as it can lead to wasted resources in some
-     * cases. Please, use the [Lifecycle.repeatOnLifecycle] API instead. This API will be removed
-     * in a future release.
-     *
      * @see Lifecycle.whenResumed
      * @see Lifecycle.coroutineScope
      */
+    @Deprecated(
+        message = "launchWhenResumed is deprecated as it can lead to wasted resources " +
+            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
+            "the Lifecycle state is at least Lifecycle.State.RESUMED."
+    )
+    @Suppress("DEPRECATION")
     public fun launchWhenResumed(block: suspend CoroutineScope.() -> Unit): Job = launch {
         lifecycle.whenResumed(block)
     }

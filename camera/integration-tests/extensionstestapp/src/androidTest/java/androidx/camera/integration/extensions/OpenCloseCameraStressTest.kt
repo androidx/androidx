@@ -27,13 +27,11 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -41,7 +39,6 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.testutils.RepeatRule
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -60,20 +57,11 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class OpenCloseCameraStressTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class OpenCloseCameraStressTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
-
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
-
-    @get:Rule
-    val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -89,6 +77,7 @@ class OpenCloseCameraStressTest(
     @Before
     fun setUp(): Unit = runBlocking {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        val (cameraId, extensionMode) = config
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -120,7 +109,6 @@ class OpenCloseCameraStressTest(
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }
@@ -135,21 +123,17 @@ class OpenCloseCameraStressTest(
         @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
+        @get:Parameterized.Parameters(name = "config = {0}")
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
-    @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun openCloseCameraStressTest_withPreviewImageCapture(): Unit = runBlocking {
         bindUseCase_unbindAll_toCheckCameraState_repeatedly(preview, imageCapture)
     }
 
-    @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun openCloseCameraStressTest_withPreviewImageCaptureImageAnalysis(): Unit = runBlocking {
         val imageAnalysis = ImageAnalysis.Builder().build()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
@@ -162,7 +146,7 @@ class OpenCloseCameraStressTest(
      */
     private fun bindUseCase_unbindAll_toCheckCameraState_repeatedly(
         vararg useCases: UseCase,
-        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
     ): Unit = runBlocking {
         repeat(repeatCount) {
             val openCameraLatch = CountDownLatch(1)

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
-import androidx.build.SupportConfig
 import androidx.build.SdkHelperKt
+import androidx.build.SupportConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -103,6 +105,7 @@ dependencies {
     implementation(libs.apacheCommonsCodec)
     implementation(libs.intellijAnnotations)
     testImplementation(libs.truth)
+    testImplementation(libs.testParameterInjector)
     testImplementation(libs.autoValue) // to access the processor in tests
     testImplementation(libs.autoServiceAnnotations)
     testImplementation(libs.autoService) // to access the processor in tests
@@ -110,7 +113,7 @@ dependencies {
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.antlr4)
     testImplementation(libs.kotlinCompilerEmbeddable)
     testImplementation(fileTree(
@@ -278,7 +281,6 @@ tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
-                "-Xjvm-default=all",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
                 "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
@@ -298,7 +300,6 @@ tasks.withType(Test).configureEach {
 androidx {
     name = "Android Room Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room annotation processor"
 }

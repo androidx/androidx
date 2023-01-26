@@ -21,6 +21,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
@@ -36,33 +37,77 @@ import javax.inject.Inject
 @CameraGraphScope
 internal class SurfaceGraph @Inject constructor(
     private val streamGraph: StreamGraphImpl,
-    private val cameraController: CameraController
+    private val cameraController: CameraController,
+    private val surfaceManager: CameraSurfaceManager
 ) {
     private val lock = Any()
 
     @GuardedBy("lock")
     private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
 
-    operator fun set(stream: StreamId, surface: Surface?) {
-        Log.info {
-            if (surface != null) {
-                "Configured $stream to use $surface"
-            } else {
-                "Removed surface for $stream"
-            }
-        }
+    @GuardedBy("lock")
+    private val surfaceUsageMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
 
-        synchronized(lock) {
+    @GuardedBy("lock")
+    private val closed: Boolean = false
+
+    operator fun set(streamId: StreamId, surface: Surface?) {
+        val closeable = synchronized(lock) {
+            if (closed) {
+                Log.warn { "Attempted to set $streamId to $surface after close!" }
+                return
+            }
+
+            Log.info {
+                if (surface != null) {
+                    "Configured $streamId to use $surface"
+                } else {
+                    "Removed surface for $streamId"
+                }
+            }
+            var oldSurfaceToken: AutoCloseable? = null
+
             if (surface == null) {
                 // TODO: Tell the graph processor that it should resubmit the repeating request or
                 //  reconfigure the camera2 captureSession
-                surfaceMap.remove(stream)
+                val oldSurface = surfaceMap.remove(streamId)
+                if (oldSurface != null) {
+                    oldSurfaceToken = surfaceUsageMap.remove(oldSurface)
+                }
             } else {
-                surfaceMap[stream] = surface
+                val oldSurface = surfaceMap[streamId]
+                surfaceMap[streamId] = surface
+
+                if (oldSurface != surface) {
+                    check(!surfaceUsageMap.containsKey(surface)) {
+                        "Surface ($surface) is already in use!"
+                    }
+                    oldSurfaceToken = surfaceUsageMap.remove(oldSurface)
+                    val newToken = surfaceManager.registerSurface(surface)
+                    surfaceUsageMap[surface] = newToken
+                }
             }
+
+            return@synchronized oldSurfaceToken
+        }
+        maybeUpdateSurfaces()
+        closeable?.close()
+    }
+
+    fun close() {
+        val closeables = synchronized(lock) {
+            if (closed) {
+                return
+            }
+            surfaceMap.clear()
+            val tokensToClose = surfaceUsageMap.values.toList()
+            surfaceUsageMap.clear()
+            tokensToClose
         }
 
-        maybeUpdateSurfaces()
+        for (closeable in closeables) {
+            closeable.close()
+        }
     }
 
     private fun maybeUpdateSurfaces() {

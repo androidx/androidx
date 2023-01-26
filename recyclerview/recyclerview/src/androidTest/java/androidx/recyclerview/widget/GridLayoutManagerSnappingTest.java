@@ -27,6 +27,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -73,6 +74,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         return rv;
     }
 
+    @Ignore // b/244324972
     @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();

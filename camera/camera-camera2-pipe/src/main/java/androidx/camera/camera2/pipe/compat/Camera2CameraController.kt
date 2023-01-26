@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
+import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +47,8 @@ internal class Camera2CameraController @Inject constructor(
     private val captureSessionFactory: CaptureSessionFactory,
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
-    private val cameraSurfaceManager: CameraSurfaceManager
+    private val cameraSurfaceManager: CameraSurfaceManager,
+    private val timeSource: TimeSource
 ) : CameraController {
     private var closed = false
     private var currentCamera: VirtualCamera? = null
@@ -56,7 +58,8 @@ internal class Camera2CameraController @Inject constructor(
     override fun start() {
         val camera = virtualCameraManager.open(
             config.camera,
-            config.flags.allowMultipleActiveCameras
+            config.flags.allowMultipleActiveCameras,
+            graphListener
         )
         synchronized(this) {
             if (closed) {
@@ -72,6 +75,7 @@ internal class Camera2CameraController @Inject constructor(
                 captureSessionFactory,
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
+                timeSource,
                 scope
             )
             currentSession = session

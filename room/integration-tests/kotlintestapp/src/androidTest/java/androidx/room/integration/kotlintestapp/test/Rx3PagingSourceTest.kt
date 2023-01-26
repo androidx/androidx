@@ -94,11 +94,11 @@ class Rx3PagingSourceTest {
     @Test
     fun refresh_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(CONFIG) {
-            val baseSource = db.dao.loadItemsRx3()
+            val baseSource = db.getDao().loadItemsRx3()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params ->
@@ -135,11 +135,11 @@ class Rx3PagingSourceTest {
     @Test
     fun append_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(CONFIG) {
-            val baseSource = db.dao.loadItemsRx3()
+            val baseSource = db.getDao().loadItemsRx3()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params -> baseSource.loadSingle(params) },
@@ -185,11 +185,11 @@ class Rx3PagingSourceTest {
     @Test
     fun prepend_canceledCoroutine_disposesSingle() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         var isDisposed = false
         val pager = Pager(config = CONFIG, initialKey = 50) {
-            val baseSource = db.dao.loadItemsRx3()
+            val baseSource = db.getDao().loadItemsRx3()
             RxPagingSourceImpl(
                 baseSource = baseSource,
                 initialLoadSingle = { params -> baseSource.loadSingle(params) },

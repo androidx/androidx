@@ -43,6 +43,7 @@ private typealias WireComplicationTextTimeFormatBuilder =
 
 private typealias WireTimeDependentText = android.support.wearable.complications.TimeDependentText
 
+@JvmDefaultWithCompatibility
 /**
  * The text within a complication.
  *
@@ -563,13 +564,9 @@ private class DelegatingComplicationText(
         return false
     }
 
-    override fun hashCode(): Int {
-        return delegate.hashCode()
-    }
+    override fun hashCode() = delegate.hashCode()
 
-    override fun toString(): String {
-        return delegate.toString()
-    }
+    override fun toString() = delegate.toString()
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
@@ -626,16 +623,92 @@ private class DelegatingTimeDependentText(
         return true
     }
 
-    override fun hashCode(): Int {
-        return delegate.hashCode()
-    }
+    override fun hashCode() = delegate.hashCode()
 
-    override fun toString(): String {
-        return delegate.toString()
-    }
+    override fun toString() = delegate.toString()
 }
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
     DelegatingTimeDependentText(this)
+
+/**
+ * This is a placeholder for the tiles StringExpression which isn't currently available. We'll
+ * remove this later in favor of the real thing.
+ * @hide
+ */
+// TODO(b/260065006): Remove this in favor of the real thing when available.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class StringExpression(private val expression: ByteArray) {
+    fun asByteArray() = expression
+
+    override fun toString(): String {
+        return "StringExpression(expression=${expression.contentToString()})"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as StringExpression
+
+        if (!expression.contentEquals(other.expression)) return false
+
+        return true
+    }
+
+    override fun hashCode() = expression.contentHashCode()
+}
+
+/**
+ * A [ComplicationText] where the system evaluates a [StringExpression] on behalf of the watch face.
+ * By the time this reaches the watch face's Renderer, it'll have been converted to a plain
+ * ComplicationText.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class StringExpressionComplicationText(
+    public val expression: StringExpression
+) : ComplicationText {
+    private val delegate = DelegatingComplicationText(WireComplicationText(expression))
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as StringExpressionComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode() = delegate.hashCode()
+
+    override fun toString() = delegate.toString()
+}

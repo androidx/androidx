@@ -74,7 +74,9 @@ public class TestPager<Key : Any, Value : Any>(
      * However, other [TestPager] methods that does not invoke loads can still be called,
      * such as [getLastLoadedPage].
      */
-    public suspend fun refresh(initialKey: Key? = null): LoadResult<Key, Value> {
+    public suspend fun refresh(
+        initialKey: Key? = null
+    ): @JvmSuppressWildcards LoadResult<Key, Value> {
         if (!hasRefreshed.compareAndSet(false, true)) {
             pagingSource.invalidate()
             throw IllegalStateException("TestPager does not support multi-generational access " +
@@ -96,7 +98,7 @@ public class TestPager<Key : Any, Value : Any>(
      * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
      * such as when there is no more data to append, this append will be no-op by returning null.
      */
-    public suspend fun append(): LoadResult<Key, Value>? {
+    public suspend fun append(): @JvmSuppressWildcards LoadResult<Key, Value>? {
         return doLoad(APPEND)
     }
 
@@ -112,14 +114,16 @@ public class TestPager<Key : Any, Value : Any>(
      * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
      * such as when there is no more data to prepend, this prepend will be no-op by returning null.
      */
-    public suspend fun prepend(): LoadResult<Key, Value>? {
+    public suspend fun prepend(): @JvmSuppressWildcards LoadResult<Key, Value>? {
         return doLoad(PREPEND)
     }
 
     /**
      * Helper to perform REFRESH loads.
      */
-    private suspend fun doInitialLoad(initialKey: Key?): LoadResult<Key, Value> {
+    private suspend fun doInitialLoad(
+        initialKey: Key?
+    ): @JvmSuppressWildcards LoadResult<Key, Value> {
         return lock.withLock {
             pagingSource.load(
                 LoadParams.Refresh(initialKey, config.initialLoadSize, config.enablePlaceholders)
@@ -174,7 +178,7 @@ public class TestPager<Key : Any, Value : Any>(
      * no pages have been returned from [PagingSource]. For example, if PagingSource has
      * only returned [LoadResult.Error] or [LoadResult.Invalid].
      */
-    public suspend fun getLastLoadedPage(): LoadResult.Page<Key, Value>? {
+    public suspend fun getLastLoadedPage(): @JvmSuppressWildcards LoadResult.Page<Key, Value>? {
         return lock.withLock {
             pages.lastOrNull()
         }
@@ -183,7 +187,7 @@ public class TestPager<Key : Any, Value : Any>(
     /**
      * Returns the current list of [LoadResult.Page] loaded so far from the [PagingSource].
      */
-    public suspend fun getPages(): List<LoadResult.Page<Key, Value>> {
+    public suspend fun getPages(): @JvmSuppressWildcards List<LoadResult.Page<Key, Value>> {
         return lock.withLock {
             pages.toList()
         }
@@ -222,7 +226,9 @@ public class TestPager<Key : Any, Value : Any>(
      *
      * @throws IllegalStateException if anchorPosition is out of bounds.
      */
-    public suspend fun getPagingState(anchorPosition: Int): PagingState<Key, Value> {
+    public suspend fun getPagingState(
+        anchorPosition: Int
+    ): @JvmSuppressWildcards PagingState<Key, Value> {
         lock.withLock {
             checkWithinBoundary(anchorPosition)
             return PagingState(
@@ -262,8 +268,8 @@ public class TestPager<Key : Any, Value : Any>(
      * @throws IllegalArgumentException if the given predicate fails to match with an item.
      */
     public suspend fun getPagingState(
-        anchorPositionLookup: (item: Value) -> Boolean
-    ): PagingState<Key, Value> {
+        anchorPositionLookup: (item: @JvmSuppressWildcards Value) -> Boolean
+    ): @JvmSuppressWildcards PagingState<Key, Value> {
         lock.withLock {
             val indexInPages = pages.flatten().indexOfFirst {
                 anchorPositionLookup(it)

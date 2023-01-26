@@ -16,14 +16,14 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -61,13 +61,12 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
                 public void $setterName(int id) { this.$fieldName = id; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.typeName.toString(), `is`("foo.bar.MyEntity"))
-            assertThat(entity.fields.size, `is`(1))
+            assertThat(entity.type.asTypeName().toString(CodeLanguage.JAVA))
+                .isEqualTo("foo.bar.MyEntity")
+            assertThat(entity.fields.size).isEqualTo(1)
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)
-            assertThat(
-                field,
-                `is`(
+            assertThat(field).isEqualTo(
                     Field(
                         element = field.element,
                         name = fieldName,
@@ -76,9 +75,10 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
                         affinity = SQLTypeAffinity.INTEGER
                     )
                 )
-            )
-            assertThat(field.setter, `is`(FieldSetter(setterName, intType, CallType.METHOD)))
-            assertThat(field.getter, `is`(FieldGetter(getterName, intType, CallType.METHOD)))
+            assertThat(field.setter)
+                .isEqualTo(FieldSetter(field.name, setterName, intType, CallType.METHOD))
+            assertThat(field.getter)
+                .isEqualTo(FieldGetter(field.name, getterName, intType, CallType.METHOD, true))
         }
     }
 }

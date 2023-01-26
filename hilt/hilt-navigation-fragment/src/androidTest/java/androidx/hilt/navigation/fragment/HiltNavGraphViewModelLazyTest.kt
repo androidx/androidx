@@ -16,6 +16,7 @@
 
 package androidx.hilt.navigation.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,7 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
@@ -78,10 +80,9 @@ class HiltNavGraphViewModelLazyTest {
             assertThat(viewModel).isNotNull()
             assertThat(savedStateViewModel).isNotNull()
 
-            // First assert that we don't have any default value since the
-            // navigation graph wasn't sent any arguments
+            // First assert that we have the default value
             val initialState: String? = savedStateViewModel.savedStateHandle["test"]
-            assertThat(initialState).isNull()
+            assertThat(initialState).isEqualTo("first")
 
             // Now set arguments
             savedStateViewModel.savedStateHandle.set("test", "test")
@@ -131,6 +132,10 @@ class NavGraphActivity : FragmentActivity(R.layout.activity_nav_graph)
 class TestVMFragment : Fragment() {
     val viewModel: TestViewModel by hiltNavGraphViewModels(R.id.vm_graph)
     val savedStateViewModel: TestSavedStateViewModel by hiltNavGraphViewModels(R.id.vm_graph)
+    // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is resolved
+    @Inject @ApplicationContext
+    lateinit var applicationContext: Context
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

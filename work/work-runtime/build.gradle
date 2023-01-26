@@ -57,10 +57,10 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.6.0")
-    ksp(projectOrArtifact(":room:room-compiler"))
-    implementation(projectOrArtifact(":room:room-runtime"))
-    androidTestImplementation(projectOrArtifact(":room:room-testing"))
-    implementation(projectOrArtifact(":sqlite:sqlite-framework"))
+    ksp("androidx.room:room-compiler:2.5.0-beta01")
+    implementation("androidx.room:room-runtime:2.5.0-beta01")
+    androidTestImplementation("androidx.room:room-testing:2.5.0-beta01")
+    implementation("androidx.sqlite:sqlite-framework:2.3.0-beta01")
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.guavaListenableFuture)
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
@@ -80,6 +80,7 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"))
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
     lintPublish(project(":work:work-runtime-lint"))
 }
 
@@ -93,7 +94,6 @@ ksp {
 androidx {
     name = "Android WorkManager Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false

@@ -6,7 +6,7 @@ package androidx.navigation {
   }
 
   public final class ActivityNavArgsLazyKt {
-    method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args>! navArgs(android.app.Activity);
+    method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args> navArgs(android.app.Activity);
   }
 
   @androidx.navigation.Navigator.Name("activity") public class ActivityNavigator extends androidx.navigation.Navigator<androidx.navigation.ActivityNavigator.Destination> {

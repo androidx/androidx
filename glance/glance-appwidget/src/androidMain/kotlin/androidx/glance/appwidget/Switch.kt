@@ -16,17 +16,18 @@
 
 package androidx.glance.appwidget
 
-import androidx.annotation.ColorRes
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.GlanceTheme
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
+import androidx.glance.color.DynamicThemeColorProviders
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 
@@ -44,70 +45,52 @@ internal data class SwitchColorsImpl(
 /**
  * SwitchColors to tint the thumb and track of the [Switch] according to the checked state.
  *
- * None of the [ColorProvider] parameters to this function can be created from resource ids. To use
- * resources to tint the switch color, use `SwitchColors(Int, Int)` instead.
+ * None of the [ColorProvider] parameters to this function can be created from resource ids.
  *
- * @param checkedThumbColor the tint to apply to the thumb of the switch when it is checked, or null
- * to use the default tint
- * @param uncheckedThumbColor the tint to apply to the thumb of the switch when it is not checked,
- * or null to use the default tint
- * @param checkedTrackColor the tint to apply to the track of the switch when it is checked, or null
- * to use the default tints
- * @param uncheckedTrackColor the tint to apply to the track of the switch when it is not checked,
- * or null to use the default tint
+ * @param checkedThumbColor the tint to apply to the thumb of the switch when it is checked
+ * @param uncheckedThumbColor the tint to apply to the thumb of the switch when it is not checked
+ * @param checkedTrackColor the tint to apply to the track of the switch when it is checked
+ * @param uncheckedTrackColor the tint to apply to the track of the switch when it is not checked
  */
-fun SwitchColors(
-    checkedThumbColor: ColorProvider? = null,
-    uncheckedThumbColor: ColorProvider? = null,
-    checkedTrackColor: ColorProvider? = null,
-    uncheckedTrackColor: ColorProvider? = null,
+@Composable
+fun switchColors(
+    checkedThumbColor: ColorProvider,
+    uncheckedThumbColor: ColorProvider,
+    checkedTrackColor: ColorProvider,
+    uncheckedTrackColor: ColorProvider,
 ): SwitchColors {
     return SwitchColorsImpl(
         thumb = createCheckableColorProvider(
             source = "SwitchColors",
             checked = checkedThumbColor,
             unchecked = uncheckedThumbColor,
-            fallback = R.color.glance_default_switch_thumb
         ),
         track = createCheckableColorProvider(
             source = "SwitchColors",
             checked = checkedTrackColor,
             unchecked = uncheckedTrackColor,
-            fallback = R.color.glance_default_switch_track
         )
     )
 }
 
 /**
- * [SwitchColors] set to color resources.
- *
- * These may be fixed colors or a color selector that selects color depending on
- * [android.R.attr.state_checked].
- *
- * @param thumbColor the resource to use to tint the thumb. If an invalid resource id is provided,
- * the default switch colors will be used.
- * @param trackColor the resource to use to tint the track. If an invalid resource id is provided,
- * the default switch colors will be used.
+ * Create a default set of SwitchColors.
  */
-fun SwitchColors(
-    @ColorRes thumbColor: Int,
-    @ColorRes trackColor: Int = R.color.glance_default_switch_track
-): SwitchColors =
-    SwitchColorsImpl(
-        thumb = ResourceCheckableColorProvider(
-            resId = thumbColor,
-            fallback = R.color.glance_default_switch_thumb
-        ),
-        track = ResourceCheckableColorProvider(
-            resId = trackColor,
-            fallback = R.color.glance_default_switch_track
+@Composable
+fun switchColors(): SwitchColors {
+    return if (GlanceTheme.colors == DynamicThemeColorProviders) {
+        SwitchColorsImpl(
+            thumb = ResourceCheckableColorProvider(R.color.glance_default_switch_thumb),
+            track = ResourceCheckableColorProvider(R.color.glance_default_switch_track)
         )
-    )
-
-/** Defaults for the [Switch]. */
-object SwitchDefaults {
-    /** Default [SwitchColors] to apply. */
-    val colors: SwitchColors = SwitchColors()
+    } else {
+        switchColors(
+            checkedThumbColor = GlanceTheme.colors.onPrimary,
+            uncheckedThumbColor = GlanceTheme.colors.outline,
+            checkedTrackColor = GlanceTheme.colors.primary,
+            uncheckedTrackColor = GlanceTheme.colors.surfaceVariant,
+        )
+    }
 }
 
 /**
@@ -132,7 +115,7 @@ fun Switch(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: SwitchColors = SwitchDefaults.colors,
+    colors: SwitchColors = switchColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (onCheckedChange != null) {
@@ -141,7 +124,7 @@ fun Switch(
         modifier
     }
     GlanceNode(
-        factory = ::EmittableSwitch,
+        factory = { EmittableSwitch(colors) },
         update = {
             this.set(checked) { this.checked = it }
             this.set(text) { this.text = it }
@@ -149,17 +132,25 @@ fun Switch(
             this.set(style) { this.style = it }
             this.set(colors) { this.colors = it }
             this.set(maxLines) { this.maxLines = it }
-        }
-    )
+        })
 }
 
-internal class EmittableSwitch : Emittable {
+internal class EmittableSwitch(
+    var colors: SwitchColors
+) : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var checked: Boolean = false
     var text: String = ""
     var style: TextStyle? = null
-    var colors: SwitchColors = SwitchDefaults.colors
     var maxLines: Int = Int.MAX_VALUE
+
+    override fun copy(): Emittable = EmittableSwitch(colors = colors).also {
+        it.modifier = modifier
+        it.checked = checked
+        it.text = text
+        it.style = style
+        it.maxLines = maxLines
+    }
 
     override fun toString(): String = "EmittableSwitch(" +
         "$text, " +

@@ -46,10 +46,10 @@ internal class SyncFenceV19(syncFence: SyncFence) : SyncFenceImpl {
     }
 
     /**
-     * See [SyncFenceImpl.getSignalTime]
+     * See [SyncFenceImpl.getSignalTimeNanos]
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun getSignalTime(): Long {
+    override fun getSignalTimeNanos(): Long {
         return mSyncFence.getSignalTime()
     }
 

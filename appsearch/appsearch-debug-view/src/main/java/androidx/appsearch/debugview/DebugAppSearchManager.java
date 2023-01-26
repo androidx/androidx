@@ -20,13 +20,16 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -61,10 +64,21 @@ public class DebugAppSearchManager implements Closeable {
     private final ExecutorService mExecutor;
     private final SettableFuture<AppSearchSession> mAppSearchSessionFuture =
             SettableFuture.create();
+    private final SettableFuture<GlobalSearchSession> mGlobalSearchSessionFuture =
+            SettableFuture.create();
+    private final @AppSearchDebugActivity.SearchType int mSearchType;
+    private final @Nullable String mTargetPackageName;
+    private final String mTargetDatabase;
 
-    private DebugAppSearchManager(@NonNull Context context, @NonNull ExecutorService executor) {
+    private DebugAppSearchManager(@NonNull Context context, @NonNull ExecutorService executor,
+                                  @AppSearchDebugActivity.SearchType int searchType,
+                                  @Nullable String targetPackageName,
+                                  @NonNull String targetDatabaseName) {
         mContext = Preconditions.checkNotNull(context);
         mExecutor = Preconditions.checkNotNull(executor);
+        mSearchType = searchType;
+        mTargetPackageName = targetPackageName;
+        mTargetDatabase = Preconditions.checkNotNull(targetDatabaseName);
     }
 
     /**
@@ -84,37 +98,55 @@ public class DebugAppSearchManager implements Closeable {
     public static ListenableFuture<DebugAppSearchManager> createAsync(
             @NonNull Context context,
             @NonNull ExecutorService executor, @NonNull String databaseName,
-            @AppSearchDebugActivity.StorageType int storageType) throws AppSearchException {
+            @Nullable String targetPackageName,
+            @AppSearchDebugActivity.StorageType int storageType,
+            @AppSearchDebugActivity.SearchType int searchType) throws AppSearchException {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(databaseName);
+        if (searchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {
+            Preconditions.checkArgument(
+                    storageType == AppSearchDebugActivity.STORAGE_TYPE_PLATFORM);
+            Preconditions.checkNotNull(targetPackageName);
+        }
 
         DebugAppSearchManager debugAppSearchManager =
-                new DebugAppSearchManager(context, executor);
+                new DebugAppSearchManager(context, executor, searchType,
+                                          targetPackageName, databaseName);
 
         ListenableFuture<DebugAppSearchManager> debugAppSearchManagerListenableFuture;
 
-        switch (storageType) {
-            case AppSearchDebugActivity.STORAGE_TYPE_LOCAL:
-                debugAppSearchManagerListenableFuture =
-                        Futures.transform(
-                                debugAppSearchManager.initializeLocalStorageAsync(databaseName),
-                                unused -> debugAppSearchManager, executor);
-                break;
-            case AppSearchDebugActivity.STORAGE_TYPE_PLATFORM:
-                if (Build.VERSION.SDK_INT >= 31) {
+        if (searchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {
+            if (Build.VERSION.SDK_INT < 31) {
+                throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
+                        "Platform Storage debugging only valid for S+ devices.");
+            }
+            debugAppSearchManagerListenableFuture =
+                    Futures.transform(
+                            debugAppSearchManager.initializeGlobalSearchSessionAsync(),
+                            unused -> debugAppSearchManager, executor);
+        } else {
+            switch (storageType) {
+                case AppSearchDebugActivity.STORAGE_TYPE_LOCAL:
+                    debugAppSearchManagerListenableFuture =
+                            Futures.transform(
+                                    debugAppSearchManager.initializeLocalStorageAsync(databaseName),
+                                    unused -> debugAppSearchManager, executor);
+                    break;
+                case AppSearchDebugActivity.STORAGE_TYPE_PLATFORM:
+                    if (Build.VERSION.SDK_INT < 31) {
+                        throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
+                                "Platform Storage debugging only valid for S+ devices.");
+                    }
                     debugAppSearchManagerListenableFuture = Futures.transform(
                             debugAppSearchManager.initializePlatformStorageAsync(databaseName),
-                                    unused -> debugAppSearchManager, executor);
-                } else {
+                            unused -> debugAppSearchManager, executor);
+                    break;
+                default:
                     throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
-                            "Platform Storage debugging only valid for S+ devices.");
-                }
-                break;
-            default:
-                throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
-                        "Invalid storage type specified. Verify that the "
-                                + "storage type that has been passed in the intent is valid.");
+                            "Invalid storage type specified. Verify that the "
+                                    + "storage type that has been passed in the intent is valid.");
+            }
         }
         return debugAppSearchManagerListenableFuture;
     }
@@ -130,15 +162,22 @@ public class DebugAppSearchManager implements Closeable {
      */
     @NonNull
     public ListenableFuture<SearchResults> getAllDocumentsSearchResultsAsync() {
-        SearchSpec searchSpec = new SearchSpec.Builder()
+        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
                 .setResultCountPerPage(PAGE_SIZE)
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, Collections.emptyList())
-                .build();
+                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, Collections.emptyList());
         String retrieveAllQueryString = "";
 
-        return Futures.transform(mAppSearchSessionFuture,
-                session -> session.search(retrieveAllQueryString, searchSpec), mExecutor);
+        if (mSearchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {
+            searchSpecBuilder.addFilterPackageNames(mTargetPackageName);
+            return Futures.transform(mGlobalSearchSessionFuture,
+                    session -> session.search(retrieveAllQueryString, searchSpecBuilder.build()),
+                    mExecutor);
+        } else {
+            return Futures.transform(mAppSearchSessionFuture,
+                    session -> session.search(retrieveAllQueryString, searchSpecBuilder.build()),
+                    mExecutor);
+        }
     }
 
 
@@ -169,9 +208,24 @@ public class DebugAppSearchManager implements Closeable {
         GetByDocumentIdRequest request =
                 new GetByDocumentIdRequest.Builder(namespace).addIds(id).build();
 
-        return Futures.transformAsync(mAppSearchSessionFuture,
-                session -> Futures.transform(session.getByDocumentIdAsync(request),
-                        response -> response.getSuccesses().get(id), mExecutor), mExecutor);
+        if (mSearchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {
+            return Futures.transformAsync(mGlobalSearchSessionFuture,
+                    session -> {
+                        if (!session.getFeatures().isFeatureSupported(
+                                Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)) {
+                            return Futures.immediateFailedFuture(
+                                    new UnsupportedOperationException());
+                        }
+                        return Futures.transform(
+                                session.getByDocumentIdAsync(mTargetPackageName,
+                                                             mTargetDatabase, request),
+                                response -> response.getSuccesses().get(id), mExecutor);
+                    }, mExecutor);
+        } else {
+            return Futures.transformAsync(mAppSearchSessionFuture,
+                    session -> Futures.transform(session.getByDocumentIdAsync(request),
+                            response -> response.getSuccesses().get(id), mExecutor), mExecutor);
+        }
     }
 
     /**
@@ -179,8 +233,20 @@ public class DebugAppSearchManager implements Closeable {
      */
     @NonNull
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
-        return Futures.transformAsync(mAppSearchSessionFuture,
-                session -> session.getSchemaAsync(), mExecutor);
+        if (mSearchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {
+            return Futures.transformAsync(mGlobalSearchSessionFuture,
+                    session -> {
+                        if (!session.getFeatures().isFeatureSupported(
+                                Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)) {
+                            return Futures.immediateFailedFuture(
+                                    new UnsupportedOperationException());
+                        }
+                        return session.getSchemaAsync(mTargetPackageName, mTargetDatabase);
+                    }, mExecutor);
+        } else {
+            return Futures.transformAsync(mAppSearchSessionFuture,
+                    session -> session.getSchemaAsync(), mExecutor);
+        }
     }
 
     /**
@@ -188,10 +254,17 @@ public class DebugAppSearchManager implements Closeable {
      */
     @Override
     public void close() {
-        Futures.whenAllSucceed(mAppSearchSessionFuture).call(() -> {
-            Futures.getDone(mAppSearchSessionFuture).close();
-            return null;
-        }, mExecutor);
+        if (mSearchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {
+            Futures.whenAllSucceed(mGlobalSearchSessionFuture).call(() -> {
+                Futures.getDone(mGlobalSearchSessionFuture).close();
+                return null;
+            }, mExecutor);
+        } else {
+            Futures.whenAllSucceed(mAppSearchSessionFuture).call(() -> {
+                Futures.getDone(mAppSearchSessionFuture).close();
+                return null;
+            }, mExecutor);
+        }
     }
 
     @NonNull
@@ -213,6 +286,15 @@ public class DebugAppSearchManager implements Closeable {
                         .build())
         );
         return mAppSearchSessionFuture;
+    }
+
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.S)
+    private ListenableFuture<GlobalSearchSession> initializeGlobalSearchSessionAsync() {
+        mGlobalSearchSessionFuture.setFuture(PlatformStorage.createGlobalSearchSessionAsync(
+                new PlatformStorage.GlobalSearchContext.Builder(mContext).build())
+        );
+        return mGlobalSearchSessionFuture;
     }
 
     private static List<GenericDocument> convertResultsToGenericDocuments(

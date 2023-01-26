@@ -17,15 +17,21 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+import android.media.ImageReader
 import android.os.Build
+import android.util.Size
 import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
-import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
+import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeThreads
@@ -38,6 +44,10 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -51,12 +61,31 @@ internal class CameraGraphImplTest {
         mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
     )
     private val fakeGraphProcessor = FakeGraphProcessor()
+    private val imageReader1 = ImageReader.newInstance(1280, 720, ImageFormat.YUV_420_888, 4)
+    private val imageReader2 = ImageReader.newInstance(1920, 1080, ImageFormat.YUV_420_888, 4)
+    private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
+    private val cameraSurfaceManager = CameraSurfaceManager()
+
+    private val stream1Config = CameraStream.Config.create(
+        Size(1280, 720),
+        StreamFormat.YUV_420_888
+    )
+    private val stream2Config = CameraStream.Config.create(
+        Size(1920, 1080),
+        StreamFormat.YUV_420_888
+    )
+
     private lateinit var cameraController: CameraControllerSimulator
+    private lateinit var stream1: CameraStream
+    private lateinit var stream2: CameraStream
 
     private fun initializeCameraGraphImpl(scope: TestScope): CameraGraphImpl {
         val graphConfig = CameraGraph.Config(
             camera = metadata.camera,
-            streams = listOf(),
+            streams = listOf(
+                stream1Config,
+                stream2Config
+            ),
         )
         val threads = FakeThreads.fromTestScope(scope)
         val backend = FakeCameraBackend(
@@ -83,10 +112,12 @@ internal class CameraGraphImplTest {
             fakeGraphProcessor,
             streamGraph
         )
-        val surfaceGraph = SurfaceGraph(streamGraph, cameraController)
-        return CameraGraphImpl(
+        cameraSurfaceManager.addListener(fakeSurfaceListener)
+        val surfaceGraph = SurfaceGraph(streamGraph, cameraController, cameraSurfaceManager)
+        val graph = CameraGraphImpl(
             graphConfig,
             metadata,
+            fakeGraphProcessor,
             fakeGraphProcessor,
             streamGraph,
             surfaceGraph,
@@ -94,6 +125,14 @@ internal class CameraGraphImplTest {
             GraphState3A(),
             Listener3A()
         )
+        stream1 = checkNotNull(graph.streams[stream1Config]) {
+            "Failed to find stream for $stream1Config!"
+        }
+
+        stream2 = checkNotNull(graph.streams[stream2Config]) {
+            "Failed to find stream for $stream2Config!"
+        }
+        return graph
     }
 
     @Test
@@ -200,5 +239,18 @@ internal class CameraGraphImplTest {
         cameraGraph.close()
         assertThat(cameraController.started).isFalse()
         assertThat(fakeGraphProcessor.closed).isTrue()
+    }
+
+    @Test
+    fun closingCameraGraphClosesAssociatedSurfaces() = runTest {
+        val cameraGraph = initializeCameraGraphImpl(this)
+        cameraGraph.setSurface(stream1.id, imageReader1.surface)
+        cameraGraph.setSurface(stream2.id, imageReader2.surface)
+        cameraGraph.close()
+
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(imageReader1.surface))
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(imageReader2.surface))
+        verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(imageReader1.surface))
+        verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(imageReader1.surface))
     }
 }

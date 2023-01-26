@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="emoji_category_recent" msgid="7142376595414250279">"НЯДАЎНА ВЫКАРЫСТАНЫЯ"</string>
+    <string name="emoji_category_emotions" msgid="1570830970240985537">"СМАЙЛІКІ І ЭМОЦЫІ"</string>
+    <string name="emoji_category_people" msgid="7968173366822927025">"ЛЮДЗІ"</string>
+    <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ЖЫВЁЛЫ І ПРЫРОДА"</string>
+    <string name="emoji_category_food_drink" msgid="1189971856721244395">"ЕЖА І НАПОІ"</string>
+    <string name="emoji_category_travel_places" msgid="8105712773237012672">"ПАДАРОЖЖЫ І МЕСЦЫ"</string>
+    <string name="emoji_category_activity" msgid="4381135114947330911">"ДЗЕЯННІ І ПАДЗЕІ"</string>
+    <string name="emoji_category_objects" msgid="6106115586332708067">"АБ\'ЕКТЫ"</string>
+    <string name="emoji_category_symbols" msgid="5626171724310261787">"СІМВАЛЫ"</string>
+    <string name="emoji_category_flags" msgid="6185639503532784871">"СЦЯГІ"</string>
+    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Няма даступных эмодзі"</string>
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Вы пакуль не выкарыстоўвалі эмодзі"</string>
+</resources>

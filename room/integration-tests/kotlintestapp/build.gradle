@@ -122,7 +122,7 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.rxjava2)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 // KSP does not support argument per flavor so we set schema location globally, for other per

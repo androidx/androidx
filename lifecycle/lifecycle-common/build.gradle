@@ -15,17 +15,20 @@
  */
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("java-library")
+    id("kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 
     constraints {
         implementation(project(":lifecycle:lifecycle-common-java8"))
@@ -37,7 +40,6 @@ dependencies {
 androidx {
     name = "Android Lifecycle-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
 }

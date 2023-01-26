@@ -17,17 +17,15 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 
 /**
  * Adapter interface for different historical versions of activity embedding OEM interface in
  * [ActivityEmbeddingComponent].
  */
-@ExperimentalWindowApi
 internal interface EmbeddingInterfaceCompat {
 
-    fun setSplitRules(rules: Set<EmbeddingRule>)
+    fun setRules(rules: Set<EmbeddingRule>)
 
     fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface)
 

@@ -22,12 +22,16 @@ import androidx.room.compiler.codegen.KCodeBlockBuilder
 import androidx.room.compiler.codegen.TargetLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XMemberName
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 
 internal class KotlinCodeBlock(
     internal val actual: KCodeBlock
 ) : KotlinLang(), XCodeBlock {
+
+    override fun toString() = actual.toString()
 
     internal class Builder : KotlinLang(), XCodeBlock.Builder {
 
@@ -90,6 +94,14 @@ internal class KotlinCodeBlock(
             actual.endControlFlow()
         }
 
+        override fun indent() = apply {
+            actual.indent()
+        }
+
+        override fun unindent() = apply {
+            actual.unindent()
+        }
+
         override fun build(): XCodeBlock {
             return KotlinCodeBlock(actual.build())
         }
@@ -113,7 +125,9 @@ internal class KotlinCodeBlock(
                 }
                 when (arg) {
                     is XTypeName -> arg.kotlin
+                    is XMemberName -> arg.kotlin
                     is XTypeSpec -> (arg as KotlinTypeSpec).actual
+                    is XPropertySpec -> (arg as KotlinPropertySpec).actual
                     is XFunSpec -> (arg as KotlinFunSpec).actual
                     is XCodeBlock -> (arg as KotlinCodeBlock).actual
                     else -> arg

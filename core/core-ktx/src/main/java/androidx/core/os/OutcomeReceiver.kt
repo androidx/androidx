@@ -61,8 +61,7 @@ public fun <R, E : Throwable> Continuation<R>.asOutcomeReceiver(): OutcomeReceiv
 private class ContinuationOutcomeReceiver<R, E : Throwable>(
     private val continuation: Continuation<R>
 ) : OutcomeReceiver<R, E>, AtomicBoolean(false) {
-    @Suppress("WRONG_TYPE_PARAMETER_NULLABILITY_FOR_JAVA_OVERRIDE")
-    override fun onResult(result: R) {
+    override fun onResult(result: R & Any) {
         // Do not attempt to resume more than once, even if the caller of the returned
         // OutcomeReceiver is buggy and tries anyway.
         if (compareAndSet(false, true)) {

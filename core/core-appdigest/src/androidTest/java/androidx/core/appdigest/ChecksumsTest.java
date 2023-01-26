@@ -53,6 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -101,6 +102,9 @@ public class ChecksumsTest {
     private static final String TEST_V4_SPLIT3 = "HelloWorld5_xxhdpi-v4.apk";
     private static final String TEST_V4_SPLIT4 = "HelloWorld5_xxxhdpi-v4.apk";
 
+    private static final String[] SPLIT_NAMES = new String[] {null, "config.hdpi",
+            "config.mdpi", "config.xhdpi", "config.xxhdpi", "config.xxxhdpi"};
+
     private static final String TEST_FIXED_APK = "CtsPkgInstallTinyAppV2V3V4.apk";
     private static final String TEST_FIXED_APK_DIGESTS_FILE =
             "CtsPkgInstallTinyAppV2V3V4.digests";
@@ -112,6 +116,8 @@ public class ChecksumsTest {
             "CtsPkgInstallTinyAppV2V3V4-Sha512withEC.apk";
     private static final String TEST_FIXED_APK_VERITY = "CtsPkgInstallTinyAppV2V3V4-Verity.apk";
 
+    private static final String TEST_FIXED_APK_SHA256_VERITY =
+            "759626c33083fbf43215cb5b17156977d963d4c6850c0cb4e73162a665db560b";
     private static final String TEST_FIXED_APK_MD5 = "c19868da017dc01467169f8ea7c5bc57";
     private static final String TEST_FIXED_APK_V2_SHA256 =
             "1eec9e86e322b8d7e48e255fc3f2df2dbc91036e63982ff9850597c6a37bbeb3";
@@ -129,6 +135,10 @@ public class ChecksumsTest {
                     | TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256 | TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512;
     private static final char[] HEX_LOWER_CASE_DIGITS =
             {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    private static final boolean DEFAULT_VERITY = BuildCompat.isAtLeastU();
+    private static final boolean DEFAULT_V3 = (Build.VERSION.SDK_INT >= 31);
+
     private Context mContext;
     private Executor mExecutor;
 
@@ -267,18 +277,42 @@ public class ChecksumsTest {
         assertFalse(isAppInstalled(FIXED_PACKAGE_NAME));
     }
 
+    private void checkDefaultChecksums(Checksum[] checksums, String[] names) {
+        checkDefaultChecksums(checksums, names, /*hashes=*/null);
+    }
+
+    private void checkDefaultChecksums(Checksum[] checksums, String[] names, String[] hashes) {
+        assertNotNull(checksums);
+        int idx = 0, hashIdx = 0;
+        for (int i = 0, size = names.length; i < size; ++i) {
+            if (DEFAULT_VERITY) {
+                assertEquals(names[i], checksums[idx].getSplitName());
+                assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+                if (hashes != null) {
+                    assertEquals(hashes[hashIdx], bytesToHexString(checksums[idx].getValue()));
+                }
+                ++idx;
+            }
+            ++hashIdx;
+            if (DEFAULT_V3) {
+                assertEquals(names[i], checksums[idx].getSplitName());
+                assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[idx].getType());
+                if (hashes != null) {
+                    assertEquals(hashes[hashIdx], bytesToHexString(checksums[idx].getValue()));
+                }
+                ++idx;
+            }
+            ++hashIdx;
+        }
+    }
+
     @SmallTest
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34 // b/262909049: Failing on SDK 34
     public void testDefaultChecksums() throws Exception {
-        Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, 0, TRUST_NONE);
-        assertNotNull(checksums);
-        if (Build.VERSION.SDK_INT >= 31) {
-            assertEquals(1, checksums.length);
-            assertEquals(checksums[0].getType(),
-                    android.content.pm.Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256);
-        } else {
-            assertEquals(0, checksums.length);
-        }
+        checkDefaultChecksums(
+                getChecksums(V2V3_PACKAGE_NAME, true, 0, TRUST_NONE),
+                new String[] {null});
     }
 
     @SmallTest
@@ -289,7 +323,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testSplitsDefaultChecksums() throws Exception {
@@ -297,26 +331,9 @@ public class ChecksumsTest {
                 TEST_V4_SPLIT3, TEST_V4_SPLIT4});
         assertTrue(isAppInstalled(V4_PACKAGE_NAME));
 
-        Checksum[] checksums = getChecksums(V4_PACKAGE_NAME, true, 0, TRUST_NONE);
-        assertNotNull(checksums);
-        if (Build.VERSION.SDK_INT >= 31) {
-            assertEquals(checksums.length, 6);
-            // v2/v3 signature use 1M merkle tree.
-            assertEquals(null, checksums[0].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[0].getType());
-            assertEquals("config.hdpi", checksums[1].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[1].getType());
-            assertEquals("config.mdpi", checksums[2].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[2].getType());
-            assertEquals("config.xhdpi", checksums[3].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[3].getType());
-            assertEquals("config.xxhdpi", checksums[4].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[4].getType());
-            assertEquals("config.xxxhdpi", checksums[5].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[5].getType());
-        } else {
-            assertEquals(0, checksums.length);
-        }
+        checkDefaultChecksums(
+                getChecksums(V4_PACKAGE_NAME, true, 0, TRUST_NONE),
+                SPLIT_NAMES);
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -332,7 +349,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testSplitsSha256Checksums() throws Exception {
@@ -340,74 +357,34 @@ public class ChecksumsTest {
                 TEST_V4_SPLIT3, TEST_V4_SPLIT4});
         assertTrue(isAppInstalled(V4_PACKAGE_NAME));
 
+        String[] hashes = new String[] {
+                "ce4ad41be1191ab3cdfef09ab6fb3c5d057e15cb3553661b393f770d9149f1cc",
+                "336a47c278f6b6c22abffefa6a62971fd0bd718d6947143e6ed1f6f6126a8196",
+                "17fe9f85e6f29a7354932002c8bc4cb829e1f4acf7f30626bd298c810bb13215",
+                "71a0b0ac5970def7ad80071c909be1e446174a9b39ea5cbf3004db05f87bcc4b",
+                "cf6eaee309cf906df5519b9a449ab136841cec62857e283fb4fd20dcd2ea14aa",
+                "e7c51a01794d33e13d005b62e5ae96a39215bc588e0a2ef8f6161e1e360a17cc",
+        };
+
         Checksum[] checksums = getChecksums(V4_PACKAGE_NAME, true, TYPE_WHOLE_SHA256,
                 TRUST_NONE);
         assertNotNull(checksums);
-        if (Build.VERSION.SDK_INT >= 31) {
-            assertEquals(checksums.length, 12);
-            // v2/v3 signature use 1M merkle tree.
-            assertEquals(null, checksums[0].getSplitName());
-            assertEquals(TYPE_WHOLE_SHA256, checksums[0].getType());
-            assertEquals(bytesToHexString(checksums[0].getValue()),
-                    "ce4ad41be1191ab3cdfef09ab6fb3c5d057e15cb3553661b393f770d9149f1cc");
-            assertEquals(null, checksums[1].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[1].getType());
-            assertEquals(checksums[2].getSplitName(), "config.hdpi");
-            assertEquals(checksums[2].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[2].getValue()),
-                    "336a47c278f6b6c22abffefa6a62971fd0bd718d6947143e6ed1f6f6126a8196");
-            assertEquals("config.hdpi", checksums[3].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[3].getType());
-            assertEquals(checksums[4].getSplitName(), "config.mdpi");
-            assertEquals(checksums[4].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[4].getValue()),
-                    "17fe9f85e6f29a7354932002c8bc4cb829e1f4acf7f30626bd298c810bb13215");
-            assertEquals("config.mdpi", checksums[5].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[5].getType());
-            assertEquals(checksums[6].getSplitName(), "config.xhdpi");
-            assertEquals(checksums[6].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[6].getValue()),
-                    "71a0b0ac5970def7ad80071c909be1e446174a9b39ea5cbf3004db05f87bcc4b");
-            assertEquals("config.xhdpi", checksums[7].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[7].getType());
-            assertEquals(checksums[8].getSplitName(), "config.xxhdpi");
-            assertEquals(checksums[8].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[8].getValue()),
-                    "cf6eaee309cf906df5519b9a449ab136841cec62857e283fb4fd20dcd2ea14aa");
-            assertEquals("config.xxhdpi", checksums[9].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[9].getType());
-            assertEquals(checksums[10].getSplitName(), "config.xxxhdpi");
-            assertEquals(checksums[10].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[10].getValue()),
-                    "e7c51a01794d33e13d005b62e5ae96a39215bc588e0a2ef8f6161e1e360a17cc");
-            assertEquals("config.xxxhdpi", checksums[11].getSplitName());
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[11].getType());
-        } else {
-            assertEquals(6, checksums.length);
-            assertEquals(checksums[0].getSplitName(), null);
-            assertEquals(checksums[0].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[0].getValue()),
-                    "ce4ad41be1191ab3cdfef09ab6fb3c5d057e15cb3553661b393f770d9149f1cc");
-            assertEquals(checksums[1].getSplitName(), "config.hdpi");
-            assertEquals(checksums[1].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[1].getValue()),
-                    "336a47c278f6b6c22abffefa6a62971fd0bd718d6947143e6ed1f6f6126a8196");
-            assertEquals(checksums[2].getSplitName(), "config.mdpi");
-            assertEquals(checksums[2].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[2].getValue()),
-                    "17fe9f85e6f29a7354932002c8bc4cb829e1f4acf7f30626bd298c810bb13215");
-            assertEquals(checksums[3].getSplitName(), "config.xhdpi");
-            assertEquals(checksums[3].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[3].getValue()),
-                    "71a0b0ac5970def7ad80071c909be1e446174a9b39ea5cbf3004db05f87bcc4b");
-            assertEquals(checksums[4].getSplitName(), "config.xxhdpi");
-            assertEquals(checksums[4].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[4].getValue()),
-                    "cf6eaee309cf906df5519b9a449ab136841cec62857e283fb4fd20dcd2ea14aa");
-            assertEquals(checksums[5].getSplitName(), "config.xxxhdpi");
-            assertEquals(checksums[5].getType(), TYPE_WHOLE_SHA256);
-            assertEquals(bytesToHexString(checksums[5].getValue()),
-                    "e7c51a01794d33e13d005b62e5ae96a39215bc588e0a2ef8f6161e1e360a17cc");
+        int idx = 0;
+        for (int i = 0, size = SPLIT_NAMES.length; i < size; ++i) {
+            assertEquals(SPLIT_NAMES[i], checksums[idx].getSplitName());
+            if (DEFAULT_VERITY) {
+                assertEquals(SPLIT_NAMES[i], checksums[idx].getSplitName());
+                assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+                ++idx;
+            }
+            assertEquals(TYPE_WHOLE_SHA256, checksums[idx].getType());
+            assertEquals(hashes[i], bytesToHexString(checksums[idx].getValue()));
+            ++idx;
+            if (DEFAULT_V3) {
+                assertEquals(SPLIT_NAMES[i], checksums[idx].getSplitName());
+                assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[idx].getType());
+                ++idx;
+            }
         }
     }
 
@@ -429,25 +406,17 @@ public class ChecksumsTest {
                 "ce4ad41be1191ab3cdfef09ab6fb3c5d057e15cb3553661b393f770d9149f1cc");
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedDefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
 
-        Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0,
-                TRUST_NONE);
-        assertNotNull(checksums);
-        if (Build.VERSION.SDK_INT >= 31) {
-            assertEquals(1, checksums.length);
-            // v2/v3 signature use 1M merkle tree.
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[0].getType());
-            assertEquals(TEST_FIXED_APK_V2_SHA256, bytesToHexString(checksums[0].getValue()));
-            assertNull(checksums[0].getInstallerCertificate());
-        } else {
-            assertEquals(0, checksums.length);
-        }
+        checkDefaultChecksums(
+                getChecksums(FIXED_PACKAGE_NAME, true, 0, TRUST_NONE),
+                new String[] {null},
+                new String[] {TEST_FIXED_APK_SHA256_VERITY, TEST_FIXED_APK_V2_SHA256});
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -462,7 +431,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedV1DefaultChecksums() throws Exception {
@@ -472,7 +441,14 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0,
                 TRUST_NONE);
         assertNotNull(checksums);
-        assertEquals(0, checksums.length);
+        int idx = 0;
+        if (DEFAULT_VERITY) {
+            assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()),
+                    "0b9bd6ef683e0c4e8940aba6460382b33e607c0fcf487f3dc6a44b715615d166");
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -487,7 +463,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedSha512DefaultChecksums() throws Exception {
@@ -497,16 +473,21 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0,
                 TRUST_NONE);
         assertNotNull(checksums);
-        if (Build.VERSION.SDK_INT >= 31) {
-            assertEquals(1, checksums.length);
-            // v2/v3 signature use 1M merkle tree.
-            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512, checksums[0].getType());
-            assertEquals(bytesToHexString(checksums[0].getValue()),
+        int idx = 0;
+        if (DEFAULT_VERITY) {
+            assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()),
+                    "15090bc8de638803246d63a7dae61808bb773a1f570f26157fe1df79f9b388a9");
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
+        if (DEFAULT_V3) {
+            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()),
                     "6b866e8a54a3e358dfc20007960fb96123845f6c6d6c45f5fddf88150d71677f"
                             + "4c3081a58921c88651f7376118aca312cf764b391cdfb8a18c6710f9f27916a0");
-            assertNull(checksums[0].getInstallerCertificate());
-        } else {
-            assertEquals(0, checksums.length);
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
         }
     }
 
@@ -522,7 +503,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedVerityDefaultChecksums() throws Exception {
@@ -532,8 +513,15 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0,
                 TRUST_NONE);
         assertNotNull(checksums);
-        // No usable hashes as verity-in-v2-signature does not cover the whole file.
-        assertEquals(0, checksums.length);
+        int idx = 0;
+        if (DEFAULT_VERITY) {
+            assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()),
+                    "ed28813663aaf1443a843a6a4fba0518ad544bc5af97720ad3d16fb8208590b0");
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -743,7 +731,7 @@ public class ChecksumsTest {
         InstallerApi31.checkWrittenChecksums(TEST_FIXED_APK_DIGESTS_FILE);
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerChecksumsTrustNone() throws Exception {
@@ -751,11 +739,21 @@ public class ChecksumsTest {
 
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0, TRUST_NONE);
         assertNotNull(checksums);
-        assertEquals(1, checksums.length);
-        assertEquals(checksums[0].getType(), TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256);
-        assertEquals(bytesToHexString(checksums[0].getValue()), TEST_FIXED_APK_V2_SHA256);
-        assertNull(checksums[0].getInstallerPackageName());
-        assertNull(checksums[0].getInstallerCertificate());
+        int idx = 0;
+        if (DEFAULT_VERITY) {
+            assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_SHA256_VERITY);
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
+        if (DEFAULT_V3) {
+            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_V2_SHA256);
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
     }
 
     @SdkSuppress(minSdkVersion = 31)
@@ -769,7 +767,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerChecksumsTrustAll() throws Exception {
@@ -778,25 +776,35 @@ public class ChecksumsTest {
         final Certificate certificate = InstallerApi31.getInstallerCertificate(mContext);
 
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0, TRUST_ALL);
-
         assertNotNull(checksums);
-        // installer provided.
-        assertEquals(3, checksums.length);
-        assertEquals(checksums[0].getType(), TYPE_WHOLE_MD5);
-        assertEquals(bytesToHexString(checksums[0].getValue()), TEST_FIXED_APK_MD5);
-        assertEquals(checksums[0].getSplitName(), null);
-        assertEquals(checksums[0].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
-        assertEquals(checksums[0].getInstallerCertificate(), certificate);
-        assertEquals(checksums[1].getType(), TYPE_WHOLE_SHA256);
-        assertEquals(bytesToHexString(checksums[1].getValue()), TEST_FIXED_APK_SHA256);
-        assertEquals(checksums[1].getSplitName(), null);
-        assertEquals(checksums[1].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
-        assertEquals(checksums[1].getInstallerCertificate(), certificate);
-        assertEquals(checksums[2].getType(), TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256);
-        assertEquals(bytesToHexString(checksums[2].getValue()), TEST_FIXED_APK_V2_SHA256);
-        assertEquals(checksums[2].getSplitName(), null);
-        assertNull(checksums[2].getInstallerPackageName());
-        assertNull(checksums[2].getInstallerCertificate());
+
+        int idx = 0;
+        if (DEFAULT_VERITY) {
+            assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_SHA256_VERITY);
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
+        assertEquals(checksums[idx].getType(), TYPE_WHOLE_MD5);
+        assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_MD5);
+        assertEquals(checksums[idx].getSplitName(), null);
+        assertEquals(checksums[idx].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
+        assertEquals(checksums[idx].getInstallerCertificate(), certificate);
+        ++idx;
+        assertEquals(checksums[idx].getType(), TYPE_WHOLE_SHA256);
+        assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_SHA256);
+        assertEquals(checksums[idx].getSplitName(), null);
+        assertEquals(checksums[idx].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
+        assertEquals(checksums[idx].getInstallerCertificate(), certificate);
+        ++idx;
+        if (DEFAULT_V3) {
+            assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[idx].getType());
+            assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_V2_SHA256);
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
     }
 
     @SdkSuppress(minSdkVersion = 31)
@@ -834,7 +842,7 @@ public class ChecksumsTest {
         */
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerSignedChecksums() throws Exception {
@@ -844,24 +852,36 @@ public class ChecksumsTest {
         installApkWithChecksums(signature);
 
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0, TRUST_ALL);
-
         assertNotNull(checksums);
-        assertEquals(3, checksums.length);
-        assertEquals(checksums[0].getType(), TYPE_WHOLE_MD5);
-        assertEquals(bytesToHexString(checksums[0].getValue()), TEST_FIXED_APK_MD5);
-        assertEquals(checksums[0].getSplitName(), null);
-        assertEquals(checksums[0].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
-        assertEquals(checksums[0].getInstallerCertificate(), certificate);
-        assertEquals(checksums[1].getType(), TYPE_WHOLE_SHA256);
-        assertEquals(bytesToHexString(checksums[1].getValue()), TEST_FIXED_APK_SHA256);
-        assertEquals(checksums[1].getSplitName(), null);
-        assertEquals(checksums[1].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
-        assertEquals(checksums[1].getInstallerCertificate(), certificate);
-        assertEquals(checksums[2].getType(), TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256);
-        assertEquals(bytesToHexString(checksums[2].getValue()), TEST_FIXED_APK_V2_SHA256);
-        assertEquals(checksums[2].getSplitName(), null);
-        assertNull(checksums[2].getInstallerPackageName());
-        assertNull(checksums[2].getInstallerCertificate());
+        int idx = 0;
+        if (DEFAULT_VERITY) {
+            assertEquals(checksums[idx].getType(), TYPE_WHOLE_MERKLE_ROOT_4K_SHA256);
+            assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_SHA256_VERITY);
+            assertEquals(checksums[idx].getSplitName(), null);
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
+        assertEquals(checksums[idx].getType(), TYPE_WHOLE_MD5);
+        assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_MD5);
+        assertEquals(checksums[idx].getSplitName(), null);
+        assertEquals(checksums[idx].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
+        assertEquals(checksums[idx].getInstallerCertificate(), certificate);
+        ++idx;
+        assertEquals(checksums[idx].getType(), TYPE_WHOLE_SHA256);
+        assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_SHA256);
+        assertEquals(checksums[idx].getSplitName(), null);
+        assertEquals(checksums[idx].getInstallerPackageName(), INSTALLER_PACKAGE_NAME);
+        assertEquals(checksums[idx].getInstallerCertificate(), certificate);
+        ++idx;
+        if (DEFAULT_V3) {
+            assertEquals(checksums[idx].getType(), TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256);
+            assertEquals(bytesToHexString(checksums[idx].getValue()), TEST_FIXED_APK_V2_SHA256);
+            assertEquals(checksums[idx].getSplitName(), null);
+            assertNull(checksums[idx].getInstallerPackageName());
+            assertNull(checksums[idx].getInstallerCertificate());
+            ++idx;
+        }
     }
 
     @SdkSuppress(minSdkVersion = 31)

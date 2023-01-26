@@ -17,14 +17,34 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
-import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
+import androidx.privacysandbox.tools.core.generator.ClientBinderCodeConverter
+import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
+import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
+import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
+import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
+import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
+import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
+import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.getOnlyService
+import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
+import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
+import com.google.protobuf.InvalidProtocolBufferException
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
+import java.util.zip.ZipInputStream
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
+import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
+import kotlin.io.path.moveTo
+import kotlin.io.path.outputStream
+import kotlin.io.path.readBytes
 
 /** Generate source files for communicating with an SDK running in the Privacy Sandbox. */
 class PrivacySandboxApiGenerator {
@@ -48,30 +68,151 @@ class PrivacySandboxApiGenerator {
             "$outputDirectory is not a valid output path."
         }
 
+        val api = unzipDescriptorsFileAndParseStubs(sdkInterfaceDescriptors, outputDirectory)
         val output = outputDirectory.toFile()
-        val sdkApi = ApiStubParser.parse(sdkInterfaceDescriptors)
-        generateBinders(sdkApi, AidlCompiler(aidlCompiler), output)
 
-        sdkApi.services.forEach {
-            ServiceInterfaceFileGenerator(it).generate().writeTo(output)
-            ServiceFactoryFileGenerator(it).generate().writeTo(output)
-        }
+        val basePackageName = api.getOnlyService().type.packageName
+        val binderCodeConverter = ClientBinderCodeConverter(api)
+        val interfaceFileGenerator = InterfaceFileGenerator()
+
+        generateBinders(api, AidlCompiler(aidlCompiler), output)
+        generateServiceFactory(api, output)
+        generateStubDelegates(
+            api,
+            basePackageName,
+            binderCodeConverter,
+            interfaceFileGenerator,
+            output
+        )
+        generateClientProxies(
+            api,
+            basePackageName,
+            binderCodeConverter,
+            interfaceFileGenerator,
+            output
+        )
+        generateValueConverters(api, binderCodeConverter, output)
+        generateSuspendFunctionUtilities(api, basePackageName, output)
     }
 
-    private fun generateBinders(sdkApi: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
+    private fun generateBinders(api: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
         val aidlWorkingDir = output.resolve("tmp-aidl").also { it.mkdir() }
         try {
             val generatedFiles =
-                AidlGenerator.generate(aidlCompiler, sdkApi, aidlWorkingDir.toPath())
+                AidlGenerator.generate(aidlCompiler, api, aidlWorkingDir.toPath())
             generatedFiles.forEach {
                 val relativePath = aidlWorkingDir.toPath().relativize(it.file.toPath())
                 val source = it.file.toPath()
                 val dest = output.toPath().resolve(relativePath)
-                dest.toFile().parentFile.mkdirs()
-                Files.move(source, dest)
+                dest.parent.createDirectories()
+                source.moveTo(dest)
             }
         } finally {
             aidlWorkingDir.deleteRecursively()
         }
+    }
+
+    private fun generateServiceFactory(api: ParsedApi, output: File) {
+        val serviceFactoryFileGenerator = ServiceFactoryFileGenerator()
+        api.services.forEach {
+            serviceFactoryFileGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun generateStubDelegates(
+        api: ParsedApi,
+        basePackageName: String,
+        binderCodeConverter: BinderCodeConverter,
+        interfaceFileGenerator: InterfaceFileGenerator,
+        output: File
+    ) {
+        val stubDelegateGenerator = StubDelegatesGenerator(basePackageName, binderCodeConverter)
+        api.callbacks.forEach {
+            interfaceFileGenerator.generate(it).writeTo(output)
+            stubDelegateGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun generateClientProxies(
+        api: ParsedApi,
+        basePackageName: String,
+        binderCodeConverter: BinderCodeConverter,
+        interfaceFileGenerator: InterfaceFileGenerator,
+        output: File
+    ) {
+        val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
+        val annotatedInterfaces = api.services + api.interfaces
+        annotatedInterfaces.forEach {
+            interfaceFileGenerator.generate(it).writeTo(output)
+            clientProxyGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun generateValueConverters(
+        api: ParsedApi,
+        binderCodeConverter: BinderCodeConverter,
+        output: File
+    ) {
+        val valueFileGenerator = ValueFileGenerator()
+        val valueConverterFileGenerator = ValueConverterFileGenerator(binderCodeConverter)
+        api.values.forEach {
+            valueFileGenerator.generate(it).writeTo(output)
+            valueConverterFileGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun unzipDescriptorsFileAndParseStubs(
+        sdkInterfaceDescriptors: Path,
+        outputDirectory: Path,
+    ): ParsedApi {
+        val workingDirectory = outputDirectory.resolve("tmp-descriptors").createDirectories()
+        try {
+            ZipInputStream(sdkInterfaceDescriptors.inputStream()).use { input ->
+                generateSequence { input.nextEntry }
+                    .forEach { zipEntry ->
+                        val destination = workingDirectory.resolve(zipEntry.name)
+                        check(destination.startsWith(workingDirectory))
+                        destination.parent?.createDirectories()
+                        destination.createFile()
+                        input.copyTo(destination.outputStream())
+                    }
+            }
+
+            ensureValidMetadata(workingDirectory.resolve(Metadata.filePath))
+            return ApiStubParser.parse(workingDirectory)
+        } finally {
+            workingDirectory.toFile().deleteRecursively()
+        }
+    }
+
+    private fun ensureValidMetadata(metadataFile: Path) {
+        require(metadataFile.exists()) {
+            "Missing tool metadata in SDK API descriptor."
+        }
+
+        val metadata = try {
+            ToolMetadata.parseFrom(metadataFile.readBytes())
+        } catch (e: InvalidProtocolBufferException) {
+            throw IllegalArgumentException("Invalid Privacy Sandbox tool metadata.", e)
+        }
+
+        val sdkCodeGenerationVersion = metadata.codeGenerationVersion
+        val consumerVersion = Metadata.toolMetadata.codeGenerationVersion
+        require(sdkCodeGenerationVersion <= consumerVersion) {
+            "SDK uses incompatible Privacy Sandbox tooling " +
+                "(version $sdkCodeGenerationVersion). Current version is $consumerVersion."
+        }
+    }
+
+    private fun generateSuspendFunctionUtilities(
+        api: ParsedApi,
+        basePackageName: String,
+        output: File
+    ) {
+        if (!api.hasSuspendFunctions()) return
+        ThrowableParcelConverterFileGenerator(basePackageName).generate(
+            convertFromParcel = true
+        ).writeTo(output)
+        PrivacySandboxExceptionFileGenerator(basePackageName).generate().writeTo(output)
     }
 }

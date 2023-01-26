@@ -115,7 +115,7 @@ private fun XMethodElement.isAccessibleFrom(packageName: String): Boolean {
         return false
     }
     // check package
-    return packageName == closestMemberContainer.className.packageName()
+    return packageName == closestMemberContainer.asClassName().packageName
 }
 
 private fun XMethodElement.isStaticInterfaceMethod(): Boolean {

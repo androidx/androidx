@@ -20,7 +20,6 @@ import android.os.Build
 import android.text.TextPaint
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.PaintCompat
-import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.emoji2.text.EmojiCompat
 
 /**
@@ -29,6 +28,8 @@ import androidx.emoji2.text.EmojiCompat
 internal object UnicodeRenderableManager {
 
     private const val VARIATION_SELECTOR = "\uFE0F"
+
+    private const val YAWNING_FACE_EMOJI = "\uD83E\uDD71"
 
     private val paint = TextPaint()
 
@@ -57,12 +58,15 @@ internal object UnicodeRenderableManager {
      *
      * Note: For older API version, codepoints {@code U+0xFE0F} are removed.
      */
-    internal fun isEmojiRenderable(
-        emoji: String,
-        emojiCompatMetaData: EmojiPickerView.EmojiCompatMetadata
-    ) = emojiCompatMetaData.metaVersion?.run {
-        EmojiCompat.get().getEmojiMatch(emoji, this) > 0
-    } ?: (getClosestRenderable(emoji) != null)
+    internal fun isEmojiRenderable(emoji: String) =
+        if (EmojiCompat.isConfigured() &&
+            EmojiCompat.get().loadState == EmojiCompat.LOAD_STATE_SUCCEEDED)
+            EmojiCompat.get().getEmojiMatch(emoji, Int.MAX_VALUE) > 0
+        else getClosestRenderable(emoji) != null
+
+    // Yawning face is added in emoji 12 which is the first version starts to support gender
+    // inclusive emojis.
+    internal fun isEmoji12Supported() = isEmojiRenderable(YAWNING_FACE_EMOJI)
 
     @VisibleForTesting
     fun getClosestRenderable(emoji: String): String? {

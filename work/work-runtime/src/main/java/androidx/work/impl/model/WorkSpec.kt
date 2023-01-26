@@ -29,6 +29,7 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.Logger
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.OverwritingInputMerger
 import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_FLEX_MILLIS
 import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_INTERVAL_MILLIS
 import androidx.work.WorkInfo
@@ -59,7 +60,7 @@ data class WorkSpec(
 
     @JvmField
     @ColumnInfo(name = "input_merger_class_name")
-    var inputMergerClassName: String? = null,
+    var inputMergerClassName: String = OverwritingInputMerger::class.java.name,
 
     @JvmField
     @ColumnInfo(name = "input")
@@ -382,8 +383,8 @@ data class WorkSpec(
             return WorkInfo(
                 UUID.fromString(id),
                 state,
+                HashSet(tags),
                 output,
-                tags,
                 progress,
                 runAttemptCount,
                 generation

@@ -55,14 +55,13 @@ dependencies {
         // this syntax is a temporary workout to allow project dependency on cross-project-set
         // i.e. COMPOSE + MAIN project sets
         // update syntax when b/239979823 is fixed
-        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:{androidx.LibraryVersions.LIFECYCLE}")
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:${androidx.LibraryVersions.LIFECYCLE}")
     }
 }
 
 androidx {
     name = "Android Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
 }

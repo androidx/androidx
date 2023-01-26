@@ -41,7 +41,6 @@ internal fun measureLazyGrid(
     measuredLineProvider: LazyMeasuredLineProvider,
     measuredItemProvider: LazyMeasuredItemProvider,
     mainAxisAvailableSize: Int,
-    slotsPerLine: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,
     spaceBetweenLines: Int,
@@ -55,6 +54,7 @@ internal fun measureLazyGrid(
     reverseLayout: Boolean,
     density: Density,
     placementAnimator: LazyGridItemPlacementAnimator,
+    spanLayoutProvider: LazyGridSpanLayoutProvider,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): TvLazyGridMeasureResult {
     require(beforeContentPadding >= 0)
@@ -138,7 +138,11 @@ internal fun measureLazyGrid(
         // then composing visible lines forward until we fill the whole viewport.
         // we want to have at least one line in visibleItems even if in fact all the items are
         // offscreen, this can happen if the content padding is larger than the available size.
-        while (currentMainAxisOffset <= maxMainAxis || visibleLines.isEmpty()) {
+        while (index.value < itemsCount &&
+            (currentMainAxisOffset < maxMainAxis ||
+                currentMainAxisOffset <= 0 || // filling beforeContentPadding area
+                visibleLines.isEmpty())
+        ) {
             val measuredLine = measuredLineProvider.getAndMeasure(index)
             if (measuredLine.isEmpty()) {
                 --index
@@ -241,16 +245,17 @@ internal fun measureLazyGrid(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            slotsPerLine = slotsPerLine,
-            reverseLayout = reverseLayout,
             positionedItems = positionedItems,
-            measuredItemProvider = measuredItemProvider
+            itemProvider = measuredItemProvider,
+            spanLayoutProvider = spanLayoutProvider
         )
 
+        val lastVisibleItemIndex = visibleLines.lastOrNull()?.items?.lastOrNull()?.index?.value ?: 0
         return TvLazyGridMeasureResult(
             firstVisibleLine = firstLine,
             firstVisibleLineScrollOffset = currentFirstLineScrollOffset,
-            canScrollForward = currentMainAxisOffset > maxOffset,
+            canScrollForward =
+            lastVisibleItemIndex != itemsCount - 1 || currentMainAxisOffset > maxOffset,
             consumedScroll = consumedScroll,
             measureResult = layout(layoutWidth, layoutHeight) {
                 positionedItems.fastForEach { it.place(this) }
@@ -281,14 +286,14 @@ private fun calculateItemsOffsets(
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
     density: Density,
-): MutableList<TvLazyGridPositionedItem> {
+): MutableList<LazyGridPositionedItem> {
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < min(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
         check(firstLineScrollOffset == 0)
     }
 
-    val positionedItems = ArrayList<TvLazyGridPositionedItem>(lines.fastSumBy { it.items.size })
+    val positionedItems = ArrayList<LazyGridPositionedItem>(lines.fastSumBy { it.items.size })
 
     if (hasSpareSpace) {
         val linesCount = lines.size

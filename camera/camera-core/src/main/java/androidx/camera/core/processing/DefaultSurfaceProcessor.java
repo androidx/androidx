@@ -124,12 +124,17 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             surfaceOutput.close();
             return;
         }
-        mGlExecutor.execute(() ->
-                mOutputSurfaces.put(surfaceOutput, surfaceOutput.getSurface(mGlExecutor, event -> {
-                    surfaceOutput.close();
-                    mOutputSurfaces.remove(surfaceOutput);
-                }))
-        );
+        mGlExecutor.execute(() -> {
+            Surface surface = surfaceOutput.getSurface(mGlExecutor, event -> {
+                surfaceOutput.close();
+                Surface removedSurface = mOutputSurfaces.remove(surfaceOutput);
+                if (removedSurface != null) {
+                    mGlRenderer.unregisterOutputSurface(removedSurface);
+                }
+            });
+            mGlRenderer.registerOutputSurface(surface);
+            mOutputSurfaces.put(surfaceOutput, surface);
+        });
     }
 
     /**
@@ -159,9 +164,9 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         for (Map.Entry<SurfaceOutput, Surface> entry : mOutputSurfaces.entrySet()) {
             Surface surface = entry.getValue();
             SurfaceOutput surfaceOutput = entry.getKey();
-            mGlRenderer.setOutputSurface(surface);
+
             surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
-            mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix);
+            mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix, surface);
         }
     }
 

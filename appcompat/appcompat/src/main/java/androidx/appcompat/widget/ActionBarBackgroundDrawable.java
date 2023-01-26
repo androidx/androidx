@@ -34,7 +34,7 @@ class ActionBarBackgroundDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         if (mContainer.mIsSplit) {
             if (mContainer.mSplitBackground != null) {
                 mContainer.mSplitBackground.draw(canvas);

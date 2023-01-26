@@ -18,7 +18,7 @@ package androidx.glance.appwidget
 
 import android.os.Bundle
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
 
 /**
  * Option Bundle accessible when generating an App Widget.
@@ -26,4 +26,4 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * See [AppWidgetManager#getAppWidgetOptions] for details
  */
 val LocalAppWidgetOptions: ProvidableCompositionLocal<Bundle> =
-    staticCompositionLocalOf { error("No default app widget options") }
+    compositionLocalOf { Bundle() }

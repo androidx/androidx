@@ -34,6 +34,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJTypeName
 import androidx.room.compiler.processing.util.asKTypeName
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -49,6 +50,7 @@ import org.junit.runners.Parameterized
 
 // used in typealias test
 typealias OtherAnnotationTypeAlias = OtherAnnotation
+
 @RunWith(Parameterized::class)
 class XAnnotationTest(
     private val preCompiled: Boolean
@@ -960,6 +962,147 @@ class XAnnotationTest(
             // Also test reading theses values through getAs*() methods
             assertThat(annotation.getAsString("stringVal")).isEqualTo("test")
             assertThat(annotation.getAsInt("intVal")).isEqualTo(3)
+        }
+    }
+
+    // This is testing the workaround for https://github.com/google/ksp/issues/1198
+    @Test
+    fun paramTargetInPrimaryCtorProperty() {
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
+            class Subject(
+                @MyAnnotation field: String,
+                @MyAnnotation val valField: String,
+                @MyAnnotation var varField: String,
+            )
+            @Target(AnnotationTarget.VALUE_PARAMETER)
+            annotation class MyAnnotation
+            """.trimIndent()
+            )),
+        ) { invocation ->
+            // Verifies the KspRoundEnv side of the workaround.
+            if (!preCompiled) {
+                val annotatedElements =
+                    invocation.roundEnv.getElementsAnnotatedWith("test.MyAnnotation")
+                assertThat(annotatedElements.all { it is XExecutableParameterElement }).isTrue()
+                assertThat(annotatedElements.map { it.name })
+                    .containsExactly("field", "valField", "varField")
+            }
+
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val myAnnotation = invocation.processingEnv.requireTypeElement("test.MyAnnotation")
+
+            val constructorParameters = subject.getConstructors().single().parameters
+            assertThat(constructorParameters.map { it.name })
+                .containsExactly("field", "valField", "varField")
+            fun getCtorParameterAnnotationElements(paramName: String): List<XTypeElement> {
+                return constructorParameters
+                    .first { it.name == paramName }
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
+            assertThat(getCtorParameterAnnotationElements("field")).contains(myAnnotation)
+            assertThat(getCtorParameterAnnotationElements("valField")).contains(myAnnotation)
+            assertThat(getCtorParameterAnnotationElements("varField")).contains(myAnnotation)
+
+            assertThat(subject.getDeclaredFields().map(XFieldElement::name))
+                .containsExactly("valField", "varField")
+            fun getDeclaredFieldAnnotationElements(fieldName: String): List<XTypeElement> {
+                return subject.getDeclaredField(fieldName)
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
+            assertThat(getDeclaredFieldAnnotationElements("valField")).doesNotContain(myAnnotation)
+            assertThat(getDeclaredFieldAnnotationElements("varField")).doesNotContain(myAnnotation)
+        }
+    }
+
+    @Test
+    fun fieldTargetInPrimaryCtorProperty() {
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
+            class Subject(
+                @MyAnnotation val valField: String,
+                @MyAnnotation var varField: String,
+            )
+            @Target(AnnotationTarget.FIELD)
+            annotation class MyAnnotation
+            """.trimIndent()
+            )),
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val myAnnotation = invocation.processingEnv.requireTypeElement("test.MyAnnotation")
+
+            val constructorParameters = subject.getConstructors().single().parameters
+            assertThat(constructorParameters.map { it.name })
+                .containsExactly("valField", "varField")
+            fun getCtorParameterAnnotationElements(paramName: String): List<XTypeElement> {
+                return constructorParameters
+                    .first { it.name == paramName }
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
+            assertThat(getCtorParameterAnnotationElements("valField")).doesNotContain(myAnnotation)
+            assertThat(getCtorParameterAnnotationElements("varField")).doesNotContain(myAnnotation)
+
+            assertThat(subject.getDeclaredFields().map(XFieldElement::name))
+                .containsExactly("valField", "varField")
+            fun getDeclaredFieldAnnotationElements(fieldName: String): List<XTypeElement> {
+                return subject.getDeclaredField(fieldName)
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
+            assertThat(getDeclaredFieldAnnotationElements("valField")).contains(myAnnotation)
+            assertThat(getDeclaredFieldAnnotationElements("varField")).contains(myAnnotation)
+        }
+    }
+
+    @Test
+    fun propertyTargetInPrimaryCtorProperty() {
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
+            class Subject(
+                @MyAnnotation val valField: String,
+                @MyAnnotation var varField: String,
+            )
+            @Target(AnnotationTarget.PROPERTY)
+            annotation class MyAnnotation
+            """.trimIndent()
+            )),
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val myAnnotation = invocation.processingEnv.requireTypeElement("test.MyAnnotation")
+
+            val constructorParameters = subject.getConstructors().single().parameters
+            assertThat(constructorParameters.map { it.name })
+                .containsExactly("valField", "varField")
+            fun getCtorParameterAnnotationElements(paramName: String): List<XTypeElement> {
+                return constructorParameters
+                    .first { it.name == paramName }
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
+            assertThat(getCtorParameterAnnotationElements("valField")).doesNotContain(myAnnotation)
+            assertThat(getCtorParameterAnnotationElements("varField")).doesNotContain(myAnnotation)
+
+            assertThat(subject.getDeclaredFields().map(XFieldElement::name))
+                .containsExactly("valField", "varField")
+            fun getDeclaredFieldAnnotationElements(fieldName: String): List<XTypeElement> {
+                return subject.getDeclaredField(fieldName)
+                    .getAllAnnotations()
+                    .map(XAnnotation::typeElement)
+            }
+            assertThat(getDeclaredFieldAnnotationElements("valField")).doesNotContain(myAnnotation)
+            assertThat(getDeclaredFieldAnnotationElements("varField")).doesNotContain(myAnnotation)
         }
     }
 

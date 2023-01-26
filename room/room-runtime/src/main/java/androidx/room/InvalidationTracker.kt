@@ -60,7 +60,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     vararg tableNames: String
 ) {
     internal val tableIdLookup: Map<String, Int>
-    internal val tablesNames: Array<String>
+    internal val tablesNames: Array<out String>
 
     private var autoCloser: AutoCloser? = null
 
@@ -162,11 +162,11 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    // TODO: Close CleanupStatement
-    internal fun onAutoCloseCallback() {
+    private fun onAutoCloseCallback() {
         synchronized(trackerLock) {
             initialized = false
             observedTableTracker.resetTriggerState()
+            cleanupStatement?.close()
         }
     }
 
@@ -267,7 +267,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    private fun validateAndResolveTableNames(tableNames: Array<String>): Array<String> {
+    private fun validateAndResolveTableNames(tableNames: Array<out String>): Array<out String> {
         val resolved = resolveViews(tableNames)
         resolved.forEach { tableName ->
             require(tableIdLookup.containsKey(tableName.lowercase(Locale.US))) {
@@ -283,7 +283,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * @param names The names of tables or views.
      * @return The names of the underlying tables.
      */
-    private fun resolveViews(names: Array<String>): Array<String> {
+    private fun resolveViews(names: Array<out String>): Array<out String> {
         return buildSet {
             names.forEach { name ->
                 if (viewTables.containsKey(name.lowercase(Locale.US))) {
@@ -329,7 +329,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     }
 
     internal fun ensureInitialization(): Boolean {
-        if (!database.isOpen) {
+        if (!database.isOpenInternal) {
             return false
         }
         if (!initialized) {
@@ -526,7 +526,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * This api should eventually be public.
      */
     internal fun syncTriggers() {
-        if (!database.isOpen) {
+        if (!database.isOpenInternal) {
             return
         }
         syncTriggers(database.openHelper.writableDatabase)
@@ -548,7 +548,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("Use [createLiveData(String[], boolean, Callable)]")
     open fun <T> createLiveData(
-        tableNames: Array<String>,
+        tableNames: Array<out String>,
         computeFunction: Callable<T>
     ): LiveData<T> {
         return createLiveData(tableNames, false, computeFunction)
@@ -571,7 +571,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open fun <T> createLiveData(
-        tableNames: Array<String>,
+        tableNames: Array<out String>,
         inTransaction: Boolean,
         computeFunction: Callable<T>
     ): LiveData<T> {
@@ -589,7 +589,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     internal class ObserverWrapper(
         internal val observer: Observer,
         internal val tableIds: IntArray,
-        private val tableNames: Array<String>
+        private val tableNames: Array<out String>
     ) {
         private val singleTableSet = if (tableNames.isNotEmpty()) {
             setOf(tableNames[0])
@@ -663,7 +663,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     /**
      * An observer that can listen for changes in the database.
      */
-    abstract class Observer(internal val tables: Array<String>) {
+    abstract class Observer(internal val tables: Array<out String>) {
         /**
          * Observes the given list of tables and views.
          *

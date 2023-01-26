@@ -56,7 +56,6 @@ android {
 androidx {
     name = "Android Wear Compose Material Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Compose Material Classes"
 }

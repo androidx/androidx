@@ -28,17 +28,24 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.recreate
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
-import java.lang.ref.WeakReference
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class LoaderTest {
+
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(LoaderActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     /**
      * Test to ensure that there is no Activity leak due to Loader

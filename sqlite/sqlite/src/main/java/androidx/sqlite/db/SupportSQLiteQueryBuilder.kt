@@ -22,9 +22,9 @@ import java.util.regex.Pattern
  */
 class SupportSQLiteQueryBuilder private constructor(private val table: String) {
     private var distinct = false
-    private var columns: Array<String>? = null
+    private var columns: Array<out String>? = null
     private var selection: String? = null
-    private var bindArgs: Array<Any?>? = null
+    private var bindArgs: Array<out Any?>? = null
     private var groupBy: String? = null
     private var having: String? = null
     private var orderBy: String? = null
@@ -46,7 +46,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      *
      * @return this
      */
-    fun columns(columns: Array<String>?): SupportSQLiteQueryBuilder = apply {
+    fun columns(columns: Array<out String>?): SupportSQLiteQueryBuilder = apply {
         this.columns = columns
     }
 
@@ -58,7 +58,10 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      *
      * @return this
      */
-    fun selection(selection: String?, bindArgs: Array<Any?>?): SupportSQLiteQueryBuilder = apply {
+    fun selection(
+        selection: String?,
+        bindArgs: Array<out Any?>?
+    ): SupportSQLiteQueryBuilder = apply {
         this.selection = selection
         this.bindArgs = bindArgs
     }
@@ -126,7 +129,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
             if (distinct) {
                 append("DISTINCT ")
             }
-            if (columns?.size != 0) {
+            if (!columns.isNullOrEmpty()) {
                 appendColumns(columns!!)
             } else {
                 append("* ")
@@ -143,7 +146,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
     }
 
     private fun StringBuilder.appendClause(name: String, clause: String?) {
-        if (clause?.isNotEmpty() == true) {
+        if (!clause.isNullOrEmpty()) {
             append(name)
             append(clause)
         }
@@ -153,7 +156,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * Add the names that are non-null in columns to string, separating
      * them with commas.
      */
-    private fun StringBuilder.appendColumns(columns: Array<String>) {
+    private fun StringBuilder.appendColumns(columns: Array<out String>) {
         val n = columns.size
         for (i in 0 until n) {
             val column = columns[i]

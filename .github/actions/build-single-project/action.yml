@@ -28,11 +28,11 @@ runs:
         set -x
         TOOLS_JAR=$JAVA_HOME/lib/tools.jar
         echo "::set-output name=toolsJar::$TOOLS_JAR"
-    - name: "Setup JDK 11"
+    - name: "Setup JDK 17"
       id: setup-java
       uses: actions/setup-java@v1
       with:
-        java-version: "11"
+        java-version: "17"
     # TODO b/216535050: Implement task to install the exact AndroidX ndk
     # version in case it is not available.
     - name: "Install Cmake"

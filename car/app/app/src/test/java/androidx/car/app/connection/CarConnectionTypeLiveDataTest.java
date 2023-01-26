@@ -40,11 +40,13 @@ import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -56,6 +58,9 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarConnectionTypeLiveDataTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private Observer<Integer> mMockObserver;
 
@@ -66,8 +71,6 @@ public class CarConnectionTypeLiveDataTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         ProviderInfo info = new ProviderInfo();
         info.authority = CarConnectionTypeLiveData.CAR_CONNECTION_AUTHORITY;
         mContentProvider =

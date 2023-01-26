@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.CubicBezierEasing
@@ -35,32 +37,31 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import kotlinx.coroutines.flow.first
+import androidx.wear.compose.foundation.lazy.CombinedPaddingValues
+import androidx.wear.compose.foundation.lazy.verticalNegativePadding
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @ScalingLazyScopeMarker
 public sealed interface ScalingLazyListScope {
     /**
@@ -107,7 +108,9 @@ public sealed interface ScalingLazyListScope {
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> ScalingLazyListScope.items(
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
+public inline fun <T> ScalingLazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit
@@ -127,6 +130,8 @@ inline fun <T> ScalingLazyListScope.items(
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -147,6 +152,8 @@ inline fun <T> ScalingLazyListScope.itemsIndexed(
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 inline fun <T> ScalingLazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -167,6 +174,8 @@ inline fun <T> ScalingLazyListScope.items(
  * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -176,6 +185,8 @@ public inline fun <T> ScalingLazyListScope.itemsIndexed(
 }
 
 @Immutable
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @kotlin.jvm.JvmInline
 public value class ScalingLazyListAnchorType internal constructor(internal val type: Int) {
 
@@ -244,6 +255,8 @@ public value class ScalingLazyListAnchorType internal constructor(internal val t
  * For an example of a [ScalingLazyColumn] with an explicit itemOffset see:
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @Immutable
 public class AutoCenteringParams(
     // @IntRange(from = 0)
@@ -261,21 +274,6 @@ public class AutoCenteringParams(
         var result = itemIndex
         result = 31 * result + itemOffset
         return result
-    }
-}
-
-internal fun convertToCenterOffset(
-    anchorType: ScalingLazyListAnchorType,
-    itemScrollOffset: Int,
-    viewPortSizeInPx: Int,
-    beforeContentPaddingInPx: Int,
-    itemSizeInPx: Int
-): Int {
-    if (anchorType == ScalingLazyListAnchorType.ItemStart) {
-        return itemScrollOffset - (viewPortSizeInPx / 2) + beforeContentPaddingInPx
-    } else {
-        return itemScrollOffset + (itemSizeInPx / 2) -
-            (viewPortSizeInPx / 2) + beforeContentPaddingInPx
     }
 }
 
@@ -335,6 +333,8 @@ internal fun convertToCenterOffset(
  * null no automatic space will be added and instead the developer can use [contentPadding] to
  * manually arrange the items.
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 @Composable
 public fun ScalingLazyColumn(
     modifier: Modifier = Modifier,
@@ -408,7 +408,13 @@ public fun ScalingLazyColumn(
                     .clipToBounds()
                     .verticalNegativePadding(extraPadding)
                     .onGloballyPositioned {
-                        initialized = true
+                        val layoutInfo = state.layoutInfo
+                        if (!initialized &&
+                            layoutInfo is DefaultScalingLazyListLayoutInfo &&
+                            layoutInfo.readyForInitialScroll
+                        ) {
+                            initialized = true
+                        }
                     },
                 horizontalAlignment = horizontalAlignment,
                 contentPadding = combinedPaddingValues,
@@ -443,12 +449,6 @@ public fun ScalingLazyColumn(
             }
             if (initialized) {
                 LaunchedEffect(state) {
-                    snapshotFlow {
-                        (state.layoutInfo as DefaultScalingLazyListLayoutInfo)
-                            .readyForInitialScroll
-                    }.first {
-                        it
-                    }
                     state.scrollToInitialItem()
                 }
             }
@@ -459,6 +459,8 @@ public fun ScalingLazyColumn(
 /**
  * Contains the default values used by [ScalingLazyColumn]
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public object ScalingLazyColumnDefaults {
     /**
      * Creates a [ScalingParams] that represents the scaling and alpha properties for a
@@ -661,7 +663,7 @@ private fun ScalingLazyColumnItemWrapper(
         modifier = Modifier.graphicsLayer {
             val reverseLayout = state.reverseLayout.value!!
             val anchorType = state.anchorType.value!!
-            val items = state.layoutInfo.visibleItemsInfo
+            val items = state.layoutInfo.internalVisibleItemInfo()
             val currentItem = items.find { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha
@@ -685,66 +687,5 @@ private fun ScalingLazyColumnItemWrapper(
         }
     ) {
         itemScope.content()
-    }
-}
-
-@Immutable
-private class CombinedPaddingValues(
-    @Stable
-    val contentPadding: PaddingValues,
-    @Stable
-    val extraPadding: Dp
-) : PaddingValues {
-    override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
-        contentPadding.calculateLeftPadding(layoutDirection)
-
-    override fun calculateTopPadding(): Dp =
-        contentPadding.calculateTopPadding() + extraPadding
-
-    override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
-        contentPadding.calculateRightPadding(layoutDirection)
-
-    override fun calculateBottomPadding(): Dp =
-        contentPadding.calculateBottomPadding() + extraPadding
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null) return false
-        if (this::class != other::class) return false
-
-        other as CombinedPaddingValues
-
-        if (contentPadding != other.contentPadding) return false
-        if (extraPadding != other.extraPadding) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = contentPadding.hashCode()
-        result = 31 * result + extraPadding.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "CombinedPaddingValuesImpl(contentPadding=$contentPadding, " +
-            "extraPadding=$extraPadding)"
-    }
-}
-
-private fun Modifier.verticalNegativePadding(
-    extraPadding: Dp,
-) = layout { measurable, constraints ->
-    require(constraints.hasBoundedWidth)
-    require(constraints.hasBoundedHeight)
-    val topAndBottomPadding = (extraPadding * 2).roundToPx()
-    val placeable = measurable.measure(
-        constraints.copy(
-            minHeight = constraints.minHeight + topAndBottomPadding,
-            maxHeight = constraints.maxHeight + topAndBottomPadding
-        )
-    )
-
-    layout(placeable.measuredWidth, constraints.maxHeight) {
-        placeable.place(0, -extraPadding.roundToPx())
     }
 }

@@ -18,8 +18,18 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.hardware.camera2.CameraDevice
+import android.media.MediaCodec
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.pipe.OutputStream
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
@@ -34,11 +44,20 @@ import kotlinx.coroutines.launch
 class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
 ) {
+    val surfaceToStreamUseCaseMap: Map<DeferrableSurface, Long> by lazy {
+        val sessionConfigs = mutableListOf<SessionConfig>()
+        for (useCase in useCases) {
+            sessionConfigs.add(useCase.sessionConfig)
+        }
+        getSurfaceToStreamUseCaseMapping(sessionConfigs)
+    }
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
         val validatingBuilder = SessionConfig.ValidatingBuilder()
-        useCases.forEach {
-            validatingBuilder.add(it.sessionConfig)
+
+        for (useCase in useCases) {
+            validatingBuilder.add(useCase.sessionConfig)
         }
+
         validatingBuilder
     }
 
@@ -80,6 +99,65 @@ class SessionConfigAdapter(
                     SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
                 )
             }
+        }
+    }
+
+    /**
+     * Populates the mapping between surfaces of a capture session and the Stream Use Case of their
+     * associated stream.
+     *
+     * @param sessionConfigs collection of all session configs for this capture session
+     * @return the mapping between surfaces and Stream Use Case flag
+     */
+    @VisibleForTesting
+    fun getSurfaceToStreamUseCaseMapping(
+        sessionConfigs: Collection<SessionConfig>,
+    ): Map<DeferrableSurface, Long> {
+        if (sessionConfigs.any { it.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG }) {
+            // If is ZSL, do not populate anything.
+            Log.error { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
+            return emptyMap()
+        }
+
+        val mapping = mutableMapOf<DeferrableSurface, Long>()
+        for (sessionConfig in sessionConfigs) {
+            if (sessionConfig.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
+                // If is ZSL, stream use case is ignored.
+                Log.info { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
+                return emptyMap()
+            }
+
+            for (surface in sessionConfig.surfaces) {
+                if (sessionConfig.implementationOptions.containsOption(STREAM_USE_CASE_OPTION) &&
+                    sessionConfig.implementationOptions.retrieveOption(STREAM_USE_CASE_OPTION)
+                    != null
+                ) {
+                    mapping[surface] =
+                        sessionConfig.implementationOptions
+                            .retrieveOption(STREAM_USE_CASE_OPTION)!!
+                    continue
+                }
+
+                val streamUseCase = getStreamUseCaseForContainerClass(surface.containerClass)
+                mapping[surface] = streamUseCase
+            }
+        }
+        return mapping
+    }
+
+    private fun getStreamUseCaseForContainerClass(kClass: Class<*>?): Long {
+        return when (kClass) {
+            ImageAnalysis::class.java -> OutputStream.StreamUseCase.PREVIEW.value
+            Preview::class.java -> OutputStream.StreamUseCase.PREVIEW.value
+            ImageCapture::class.java -> OutputStream.StreamUseCase.STILL_CAPTURE.value
+            MediaCodec::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
+            else -> OutputStream.StreamUseCase.DEFAULT.value
+        }
+    }
+
+    companion object {
+        fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
+            return Camera2ImplConfig(implementationOptions)
         }
     }
 }

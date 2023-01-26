@@ -33,6 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val INVALID_TEMPLATE_TYPE = -1
 private const val INVALID_COLOR_CORRECTION_MODE = -1
+private const val PHYSICAL_CAMERA_ID = "0"
 private val SESSION_CAPTURE_CALLBACK = object : CameraCaptureSession.CaptureCallback() {
     // unused
 }
@@ -76,6 +77,35 @@ class Camera2InteropTest {
         // Assert
         assertThat(config.getCaptureRequestTemplate(INVALID_TEMPLATE_TYPE)).isEqualTo(
             CameraDevice.TEMPLATE_PREVIEW
+        )
+    }
+
+    @Test
+    fun canExtendWithStreamUseCase() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+        Camera2Interop.Extender(builder).setStreamUseCase(3)
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getStreamUseCase(-1)).isEqualTo(
+            3
+        )
+    }
+
+    @Test
+    fun defaultConfigDoesNotSetStreamUseCase() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getStreamUseCase(-1)).isEqualTo(
+            -1
         )
     }
 
@@ -205,5 +235,18 @@ class Camera2InteropTest {
             ).isEqualTo(androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE)
             true
         }
+    }
+
+    @Test
+    fun canExtendWithPhysicalCameraId() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+        Camera2Interop.Extender<FakeConfig>(builder).setPhysicalCameraId(PHYSICAL_CAMERA_ID)
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getPhysicalCameraId(null)).isEqualTo(PHYSICAL_CAMERA_ID)
     }
 }

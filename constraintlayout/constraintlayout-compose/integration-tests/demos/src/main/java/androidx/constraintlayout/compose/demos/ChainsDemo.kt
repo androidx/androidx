@@ -1,0 +1,97 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.constraintlayout.compose.demos
+
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.Dimension
+
+@Preview
+@Composable
+fun ChainsAnimatedOrientationDemo() {
+    val boxColors = listOf(Color.Red, Color.Blue, Color.Green)
+    var isHorizontal by remember { mutableStateOf(true) }
+
+    Column(Modifier.fillMaxSize()) {
+        ConstraintLayout(
+            constraintSet = ConstraintSet {
+                val (box0, box1, box2) = createRefsFor("box0", "box1", "box2")
+                box1.withChainParams(8.dp, 8.dp, 8.dp, 8.dp)
+
+                if (isHorizontal) {
+                    constrain(box0, box1, box2) {
+                        width = Dimension.fillToConstraints
+                        height = Dimension.value(20.dp)
+                        centerVerticallyTo(parent)
+                    }
+                    constrain(box1) {
+                        // Override height to be a ratio
+                        height = Dimension.ratio("2:1")
+                    }
+
+                    createHorizontalChain(box0, box1, box2)
+                } else {
+                    constrain(box0, box1, box2) {
+                        width = Dimension.value(20.dp)
+                        height = Dimension.fillToConstraints
+                        centerHorizontallyTo(parent)
+                    }
+                    constrain(box1) {
+                        // Override width to be a ratio
+                        width = Dimension.ratio("2:1")
+                    }
+
+                    createVerticalChain(box0, box1, box2)
+                }
+            },
+            animateChanges = true,
+            animationSpec = tween(800),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.0f, true)
+        ) {
+            boxColors.forEachIndexed { index, color ->
+                Box(
+                    modifier = Modifier
+                        .layoutId("box$index")
+                        .background(color)
+                )
+            }
+        }
+        Button(onClick = { isHorizontal = !isHorizontal }) {
+            Text(text = "Toggle Orientation")
+        }
+    }
+}

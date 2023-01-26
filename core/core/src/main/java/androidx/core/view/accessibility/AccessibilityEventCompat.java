@@ -93,6 +93,28 @@ public final class AccessibilityEventCompat {
 
     /**
      * Represents the event of an application making an announcement.
+     *
+     * <p>
+     * Note: This event carries no semantic meaning and is appropriate only in exceptional
+     * situations. Apps can generally achieve correct behavior for accessibility by
+     * accurately supplying the semantics of their UI. They should not need to specify what
+     * exactly is announced to users.
+     *
+     * <p>
+     * In general, only announce transitions that can't be handled by the following preferred
+     * alternatives:
+     * <ul>
+     *     <li>Label your controls concisely and precisely. Don’t generate a confirmation message
+     *     for simple actions like a button press.</li>
+     *     <li>For significant UI changes like window changes, use
+     *     {@link android.app.Activity#setTitle(CharSequence)} and
+     *     {@link androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)} )}.
+     *     </li>
+     *     <li>Use {@link androidx.core.view.ViewCompat#setAccessibilityLiveRegion(View, int)}
+     *     to inform the user of changes to critical views within the user interface. These
+     *     should still be used sparingly as they may generate announcements every time a View is
+     *     updated.</li>
+     * </ul>
      */
     public static final int TYPE_ANNOUNCEMENT = 0x00004000;
 

@@ -28,6 +28,32 @@
         <item>@raw/emoji_category_flags</item>
     </array>
 
+    <!-- The drawable resources to be used as emoji category icons. Order of the icons must match
+         order of the content descriptions below. -->
+    <array name="emoji_by_category_raw_resources_gender_inclusive">
+        <item>@raw/emoji_category_emotions</item>
+        <item>@raw/emoji_category_people_gender_inclusive</item>
+        <item>@raw/emoji_category_animals_nature</item>
+        <item>@raw/emoji_category_food_drink</item>
+        <item>@raw/emoji_category_travel_places</item>
+        <item>@raw/emoji_category_activity</item>
+        <item>@raw/emoji_category_objects</item>
+        <item>@raw/emoji_category_symbols</item>
+        <item>@raw/emoji_category_flags</item>
+    </array>
+
+    <integer-array name="emoji_categories_icons">
+        <item>@drawable/gm_filled_emoji_emotions_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_people_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_nature_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_food_beverage_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_transportation_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_events_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_objects_vd_theme_24</item>
+        <item>@drawable/gm_filled_emoji_symbols_vd_theme_24</item>
+        <item>@drawable/gm_filled_flag_vd_theme_24</item>
+    </integer-array>
+
     <string-array name="category_names">
         <item>@string/emoji_category_emotions</item>
         <item>@string/emoji_category_people</item>

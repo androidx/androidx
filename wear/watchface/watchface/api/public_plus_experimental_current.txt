@@ -16,7 +16,7 @@ package androidx.wear.watchface {
     property public final float totalAngle;
   }
 
-  public interface CanvasComplication {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface CanvasComplication {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color);
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public default void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color, androidx.wear.watchface.BoundingArc? boundingArc);
     method public androidx.wear.watchface.complications.data.ComplicationData getData();
@@ -55,7 +55,7 @@ package androidx.wear.watchface {
     method @UiThread public Integer? getNameResourceId();
     method public androidx.wear.watchface.CanvasComplication getRenderer();
     method @UiThread public Integer? getScreenReaderNameResourceId();
-    method @UiThread public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
+    method public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
     method public boolean isActiveAt(java.time.Instant instant);
     method @UiThread public boolean isEnabled();
@@ -77,7 +77,7 @@ package androidx.wear.watchface {
     property @UiThread public final Integer? nameResourceId;
     property public final androidx.wear.watchface.CanvasComplication renderer;
     property @UiThread public final Integer? screenReaderNameResourceId;
-    property @UiThread public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
+    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
     property public final androidx.wear.watchface.ComplicationTapFilter tapFilter;
     field public static final androidx.wear.watchface.ComplicationSlot.Companion Companion;
   }
@@ -127,7 +127,7 @@ package androidx.wear.watchface {
   public final class ComplicationSlotsManagerKt {
   }
 
-  public interface ComplicationTapFilter {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface ComplicationTapFilter {
     method public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y, boolean includeMargins);
     method @Deprecated public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }

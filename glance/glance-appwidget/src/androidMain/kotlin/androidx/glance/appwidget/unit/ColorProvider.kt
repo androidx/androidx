@@ -24,35 +24,17 @@ import androidx.annotation.ColorRes
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.glance.appwidget.GlanceAppWidgetTag
+import androidx.glance.appwidget.R
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-
-/**
- * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night
- * mode is on.
- */
-fun ColorProvider(day: Color, night: Color): ColorProvider {
-    return DayNightColorProvider(day, night)
-}
-
-internal data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
-    override fun getColor(context: Context) = getColor(context.isNightMode)
-
-    fun getColor(isNightMode: Boolean) = if (isNightMode) night else day
-}
-
-internal val Context.isNightMode: Boolean
-    get() =
-        resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
-            Configuration.UI_MODE_NIGHT_YES
 
 /** Provider of different colors depending on a checked state. */
 internal sealed interface CheckableColorProvider
 
 internal data class ResourceCheckableColorProvider(
     @ColorRes val resId: Int,
-    @ColorRes val fallback: Int
 ) : CheckableColorProvider
 
 /**
@@ -61,9 +43,8 @@ internal data class ResourceCheckableColorProvider(
  */
 internal data class CheckedUncheckedColorProvider private constructor(
     private val source: String,
-    private val checked: ColorProvider?,
-    private val unchecked: ColorProvider?,
-    @ColorRes private val fallback: Int
+    private val checked: ColorProvider,
+    private val unchecked: ColorProvider,
 ) : CheckableColorProvider {
 
     init {
@@ -72,43 +53,29 @@ internal data class CheckedUncheckedColorProvider private constructor(
         }
     }
 
-    private fun ColorProvider?.toDayNightColorProvider(
-        context: Context,
-        isChecked: Boolean
-    ) = when (this) {
-        is DayNightColorProvider -> this
-        is FixedColorProvider -> DayNightColorProvider(color, color)
-        else -> {
-            if (this != null) {
-                Log.w(GlanceAppWidgetTag, "Unexpected ColorProvider for $source: $this")
-            }
-            val day = resolveCheckedColor(context, fallback, isChecked, isNightMode = false)!!
-            val night = resolveCheckedColor(context, fallback, isChecked, isNightMode = true)!!
-            DayNightColorProvider(day = day, night = night)
-        }
-    }
-
     /**
      * Resolves the [CheckedUncheckedColorProvider] to a single [Color] given the night mode and
      * checked states.
      */
     fun getColor(context: Context, isNightMode: Boolean, isChecked: Boolean) = when {
-        isChecked -> checked.toDayNightColorProvider(context, isChecked).getColor(isNightMode)
-        else -> unchecked.toDayNightColorProvider(context, isChecked).getColor(isNightMode)
+        isChecked -> getColor(colorProvider = checked, isNightMode = isNightMode, context = context)
+        else -> getColor(colorProvider = unchecked, isNightMode = isNightMode, context = context)
     }
+
+    private fun getColor(colorProvider: ColorProvider, isNightMode: Boolean, context: Context) =
+        if (colorProvider is DayNightColorProvider) {
+            colorProvider.getColor(isNightMode)
+        } else {
+            colorProvider.getColor(context)
+        }
 
     companion object {
         fun createCheckableColorProvider(
             source: String,
-            checked: ColorProvider?,
-            unchecked: ColorProvider?,
-            @ColorRes fallback: Int
+            checked: ColorProvider,
+            unchecked: ColorProvider,
         ): CheckableColorProvider {
-            return if (checked == null && unchecked == null) {
-                ResourceCheckableColorProvider(fallback, fallback)
-            } else {
-                CheckedUncheckedColorProvider(source, checked, unchecked, fallback)
-            }
+            return CheckedUncheckedColorProvider(source, checked, unchecked)
         }
     }
 }
@@ -138,8 +105,7 @@ internal fun resolveCheckedColor(
     }
     return Color(
         colorStateList.getColorForState(
-            if (isChecked) CheckedStateSet else UncheckedStateSet,
-            colorStateList.defaultColor
+            if (isChecked) CheckedStateSet else UncheckedStateSet, colorStateList.defaultColor
         )
     )
 }

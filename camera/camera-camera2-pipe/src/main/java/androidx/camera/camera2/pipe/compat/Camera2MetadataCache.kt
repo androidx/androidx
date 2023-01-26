@@ -24,10 +24,12 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import javax.inject.Inject
@@ -43,10 +45,11 @@ import kotlinx.coroutines.withContext
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2MetadataCache @Inject constructor(
-    private val context: Context,
+    @CameraPipeContext private val cameraPipeContext: Context,
     private val threads: Threads,
     private val permissions: Permissions,
-    private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig
+    private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
+    private val timeSource: TimeSource
 ) : CameraMetadataProvider {
     @GuardedBy("cache")
     private val cache = ArrayMap<String, CameraMetadata>()
@@ -86,12 +89,12 @@ internal class Camera2MetadataCache @Inject constructor(
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {
-        val start = Timestamps.now()
+        val start = Timestamps.now(timeSource)
 
         return Debug.trace("Camera-${cameraId.value}#readCameraMetadata") {
             try {
                 val cameraManager =
-                    context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
 
@@ -122,7 +125,7 @@ internal class Camera2MetadataCache @Inject constructor(
                     )
 
                 Log.info {
-                    val duration = Timestamps.now() - start
+                    val duration = Timestamps.now(timeSource) - start
                     val redactedString = when (redacted) {
                         false -> ""
                         true -> " (redacted)"

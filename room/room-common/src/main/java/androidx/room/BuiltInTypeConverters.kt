@@ -47,6 +47,15 @@ public annotation class BuiltInTypeConverters(
      * value in a higher scope).
      */
     val uuid: State = State.INHERITED,
+
+    /**
+     * Controls whether Room can generate a TypeConverter for [java.nio.ByteBuffer] and use its
+     * `ByteBuffer` representation while saving it into database.
+     *
+     * By default, it is set to [State.INHERITED] (on by default unless set to another
+     * value in a higher scope).
+     */
+    val byteBuffer: State = State.INHERITED,
 ) {
     /**
      * Control flags for built in converters.

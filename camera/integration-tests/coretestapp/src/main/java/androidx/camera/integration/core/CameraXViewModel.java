@@ -106,6 +106,41 @@ public class CameraXViewModel extends AndroidViewModel {
 
     @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
+    public static boolean isCameraProviderUnInitializedOrSameAsParameter(
+            @NonNull String cameraImplementation) {
+
+        if (sConfiguredCameraXCameraImplementation == null) {
+            return true;
+        }
+        String currentCameraProvider = getCameraProviderName(
+                sConfiguredCameraXCameraImplementation);
+        cameraImplementation = getCameraProviderName(cameraImplementation);
+
+        if (currentCameraProvider.equals(cameraImplementation)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * convert null and IMPLICIT_IMPLEMENTATION_OPTION Camera Provider name to
+     * CAMERA2_IMPLEMENTATION_OPTION
+     */
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
+    private static String getCameraProviderName(String mCameraProvider) {
+        if (mCameraProvider == null) {
+            mCameraProvider = CAMERA2_IMPLEMENTATION_OPTION;
+        }
+        if (mCameraProvider.equals(IMPLICIT_IMPLEMENTATION_OPTION)) {
+            mCameraProvider = CAMERA2_IMPLEMENTATION_OPTION;
+        }
+        return mCameraProvider;
+    }
+
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
     static void configureCameraProvider(@NonNull String cameraImplementation) {
         configureCameraProvider(cameraImplementation, false);
     }

@@ -26,7 +26,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.DimensionProto;
+import androidx.wear.protolayout.proto.DimensionProto;
 
 /** Builders for dimensions for layout elements. */
 public final class DimensionBuilders {

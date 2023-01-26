@@ -21,6 +21,7 @@ import android.bluetooth.le.ScanResult as FwkScanResult
 
 import androidx.annotation.IntDef
 
+@JvmDefaultWithCompatibility
 /**
  * Bluetooth LE scan callbacks. Scan results are reported using these callbacks.
  *

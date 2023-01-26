@@ -217,23 +217,23 @@ public class FtsMigrationTest {
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Book RENAME TO Book_old");
-            database.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Book` USING FTS4("
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE Book RENAME TO Book_old");
+            db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Book` USING FTS4("
                     + "`title`, `author`, `numOfPages`, `text`, matchinfo=fts3)");
-            database.execSQL("INSERT INTO Book SELECT * FROM Book_old");
-            database.execSQL("DROP TABLE Book_old");
+            db.execSQL("INSERT INTO Book SELECT * FROM Book_old");
+            db.execSQL("DROP TABLE Book_old");
         }
     };
 
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL(
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL(
                     "CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, "
                             + "`firstName` TEXT, `lastName` TEXT, `line1` TEXT, `line2` TEXT, "
                             + "`state` TEXT, `zipcode` INTEGER, PRIMARY KEY(`id`))");
-            database.execSQL(
+            db.execSQL(
                     "CREATE VIRTUAL TABLE IF NOT EXISTS `AddressFts` USING FTS4(`line1` TEXT, "
                             + "`line2` TEXT, `state` TEXT, `zipcode` INTEGER, content=`Person`)");
         }
@@ -241,13 +241,13 @@ public class FtsMigrationTest {
 
     private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE `Person` RENAME TO `User`");
-            database.execSQL("DROP TABLE `AddressFts`");
-            database.execSQL(
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE `Person` RENAME TO `User`");
+            db.execSQL("DROP TABLE `AddressFts`");
+            db.execSQL(
                     "CREATE VIRTUAL TABLE IF NOT EXISTS `AddressFts` USING FTS4(`line1` TEXT, "
                             + "`line2` TEXT, `state` TEXT, `zipcode` INTEGER, content=`User`)");
-            database.execSQL(
+            db.execSQL(
                     "INSERT INTO `AddressFts` (`docid`, `line1`, `line2`, `state`, `zipcode`) "
                             + "SELECT `rowid`, `line1`, `line2`, `state`, `zipcode` FROM `User`");
         }
@@ -255,26 +255,26 @@ public class FtsMigrationTest {
 
     private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4("
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4("
                     + "`content` TEXT NOT NULL)");
         }
     };
 
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("DROP TABLE `Mail`");
-            database.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4("
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("DROP TABLE `Mail`");
+            db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4("
                     + "`content` TEXT NOT NULL, languageid=`lid`)");
         }
     };
 
     private static final Migration BAD_MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("DROP TABLE Book");
-            database.execSQL("CREATE VIRTUAL TABLE `Book` USING FTS4("
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("DROP TABLE Book");
+            db.execSQL("CREATE VIRTUAL TABLE `Book` USING FTS4("
                     + "`title`, `author`, `numOfPages`, `text`)");
         }
     };

@@ -17,14 +17,20 @@
 package androidx.camera.camera2.pipe.config
 
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.Camera2Backend
+import androidx.camera.camera2.pipe.compat.Camera2CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
-import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
+import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
+import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
+import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
+import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
+import androidx.camera.camera2.pipe.compat.CameraMetadataProvider
+import androidx.camera.camera2.pipe.compat.CameraOpener
 import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -45,8 +51,21 @@ import kotlinx.coroutines.CoroutineScope
 )
 internal abstract class Camera2Module {
     @Binds
-    @CameraPipeCameraBackend
+    @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
+
+    @Binds
+    abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
+
+    @Binds
+    abstract fun bindCameraMetadataProvider(
+        camera2MetadataCache: Camera2MetadataCache
+    ): CameraMetadataProvider
+
+    @Binds
+    abstract fun bindCameraAvailabilityMonitor(
+        camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
+    ): CameraAvailabilityMonitor
 }
 
 @Scope

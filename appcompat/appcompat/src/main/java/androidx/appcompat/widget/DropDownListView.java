@@ -413,7 +413,7 @@ class DropDownListView extends ListView {
         }
 
         @Override
-        public void draw(Canvas canvas) {
+        public void draw(@NonNull Canvas canvas) {
             if (mEnabled) {
                 super.draw(canvas);
             }

@@ -32,6 +32,7 @@ import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.DialogFragmentNavigator.Destination
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Navigator that uses [DialogFragment.show]. Every
@@ -75,6 +76,17 @@ public class DialogFragmentNavigator(
             }
         }
     }
+
+    /**
+     * Gets the backstack of [NavBackStackEntry] associated with this Navigator
+     */
+    internal val backStack: StateFlow<List<NavBackStackEntry>>
+        get() = state.backStack
+
+    /**
+     * Stores DialogFragments that have been created but pendingTransaction.
+     */
+    private val transitioningFragments: MutableMap<String, DialogFragment> = mutableMapOf()
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         if (fragmentManager.isStateSaved) {
@@ -122,6 +134,35 @@ public class DialogFragmentNavigator(
     private fun navigate(
         entry: NavBackStackEntry
     ) {
+        val dialogFragment = createDialogFragment(entry)
+        dialogFragment.show(fragmentManager, entry.id)
+        state.push(entry)
+    }
+
+    override fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
+        if (fragmentManager.isStateSaved) {
+            Log.i(
+                TAG,
+                "Ignoring onLaunchSingleTop() call: FragmentManager has already saved its state"
+            )
+            return
+        }
+
+        // Ensure previous fragment is dismissed. If it is in transition, we have to dismiss it
+        // here before its value with same key (entry.id) gets replaced by new fragment.
+        val oldFragment = transitioningFragments[backStackEntry.id]
+            ?: fragmentManager.findFragmentByTag(backStackEntry.id) as? DialogFragment
+        if (oldFragment != null) {
+            oldFragment.lifecycle.removeObserver(observer)
+            oldFragment.dismiss()
+        }
+
+        val newFragment = createDialogFragment(backStackEntry)
+        newFragment.show(fragmentManager, backStackEntry.id)
+        state.onLaunchSingleTop(backStackEntry)
+    }
+
+    private fun createDialogFragment(entry: NavBackStackEntry): DialogFragment {
         val destination = entry.destination as Destination
         var className = destination.className
         if (className[0] == '.') {
@@ -136,8 +177,12 @@ public class DialogFragmentNavigator(
         val dialogFragment = frag as DialogFragment
         dialogFragment.arguments = entry.arguments
         dialogFragment.lifecycle.addObserver(observer)
-        dialogFragment.show(fragmentManager, entry.id)
-        state.push(entry)
+        // For singleTop navigations, this will overwrite existing transitioning fragments with
+        // the same `entry.id`. This is fine because before the singleTop DialogFragment
+        // is recreated and replaces the old record inside transitioningFragments, we would
+        // have already dismissed the existing (old) fragment.
+        transitioningFragments[entry.id] = dialogFragment
+        return dialogFragment
     }
 
     override fun onAttach(state: NavigatorState) {
@@ -153,6 +198,7 @@ public class DialogFragmentNavigator(
             if (needToAddObserver) {
                 childFragment.lifecycle.addObserver(observer)
             }
+            transitioningFragments.remove(childFragment.tag)
         }
     }
 

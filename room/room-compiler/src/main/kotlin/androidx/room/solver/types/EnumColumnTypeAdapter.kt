@@ -16,25 +16,26 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XEnumTypeElement
-import androidx.room.ext.CommonTypeNames.ILLEGAL_ARG_EXCEPTION
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.S
-import androidx.room.ext.T
+import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.TypeWriter
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import javax.lang.model.element.Modifier
 
 /**
  * Uses enum string representation.
  */
 class EnumColumnTypeAdapter(
-    private val enumTypeElement: XEnumTypeElement
-) : ColumnTypeAdapter(enumTypeElement.type, TEXT) {
+    private val enumTypeElement: XEnumTypeElement,
+    out: XType
+) : ColumnTypeAdapter(out, TEXT) {
+
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
@@ -42,11 +43,26 @@ class EnumColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         val stringToEnumMethod = stringToEnumMethod(scope)
-        scope.builder()
-            .addStatement(
-                "$L = $N($L.getString($L))",
-                outVarName, stringToEnumMethod, cursorVarName, indexVarName
-            )
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addGetStringStatement() {
+                addStatement(
+                    "%L = %N(%L.getString(%L))",
+                    outVarName,
+                    stringToEnumMethod,
+                    cursorVarName,
+                    indexVarName
+                )
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addGetStringStatement()
+            } else {
+                beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName)
+                    .addStatement("%L = null", outVarName)
+                nextControlFlow("else")
+                    .addGetStringStatement()
+                endControlFlow()
+            }
+        }
     }
 
     override fun bindToStmt(
@@ -56,92 +72,163 @@ class EnumColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         val enumToStringMethod = enumToStringMethod(scope)
-        scope.builder().apply {
-            beginControlFlow("if ($L == null)", valueVarName)
-                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
-            nextControlFlow("else")
-                .addStatement(
-                    "$L.bindString($L, $N($L))",
-                    stmtName, indexVarName, enumToStringMethod, valueVarName
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addBindStringStatement() {
+                addStatement(
+                    "%L.bindString(%L, %N(%L))",
+                    stmtName, indexVarName, enumToStringMethod, valueVarName,
                 )
-            endControlFlow()
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addBindStringStatement()
+            } else {
+                beginControlFlow("if (%L == null)", valueVarName)
+                    .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
+                nextControlFlow("else")
+                addBindStringStatement()
+                endControlFlow()
+            }
         }
     }
 
-    private fun enumToStringMethod(scope: CodeGenScope): MethodSpec {
-        return scope.writer.getOrCreateMethod(object :
-            TypeWriter.SharedMethodSpec(out.typeElement!!.name + "_enumToString") {
+    private fun enumToStringMethod(scope: CodeGenScope): XFunSpec {
+        val funSpec = object : TypeWriter.SharedFunctionSpec(
+            out.typeElement!!.name + "_enumToString"
+        ) {
+            val paramName = "_value"
+
             override fun getUniqueKey(): String {
-                return "enumToString_" + out.typeName.toString()
+                return "enumToString_" + enumTypeElement.asClassName().toString()
             }
 
             override fun prepare(
                 methodName: String,
                 writer: TypeWriter,
-                builder: MethodSpec.Builder
+                builder: XFunSpec.Builder
             ) {
-                builder.apply {
-                        addModifiers(Modifier.PRIVATE)
-                        returns(String::class.java)
-                        val param = ParameterSpec.builder(
-                            out.typeName, "_value", Modifier.FINAL
-                        ).build()
-                        addParameter(param)
-                        beginControlFlow("if ($N == null)", param)
-                        addStatement("return null")
-                        nextControlFlow("switch ($N)", param)
-                        enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
-                            addStatement("case $L: return $S", enumConstantName, enumConstantName)
+                val body = XCodeBlock.builder(builder.language).apply {
+                    when (writer.codeLanguage) {
+                        // Use a switch control flow
+                        CodeLanguage.JAVA -> {
+                            beginControlFlow("switch (%L)", paramName)
+                            enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
+                                addStatement(
+                                    "case %L: return %S",
+                                    enumConstantName, enumConstantName
+                                )
+                            }
+                            addStatement(
+                                "default: throw new %T(%S + %L)",
+                                ILLEGAL_ARG_EXCEPTION,
+                                ENUM_TO_STRING_ERROR_MSG,
+                                paramName
+                            )
+                            endControlFlow()
                         }
-                        addStatement(
-                            "default: throw new $T($S + $N)",
-                            ILLEGAL_ARG_EXCEPTION,
-                            "Can't convert enum to string, unknown enum value: ",
-                            param
-                        )
-                        endControlFlow()
+                        // Use a when control flow, note that it is exhaustive and there is no need
+                        // or an `else` case.
+                        CodeLanguage.KOTLIN -> {
+                            beginControlFlow("return when (%L)", paramName)
+                            enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
+                                addStatement(
+                                    "%T.%L -> %S",
+                                    enumTypeElement.asClassName(),
+                                    enumConstantName,
+                                    enumConstantName
+                                )
+                            }
+                            endControlFlow()
+                        }
                     }
+                }.build()
+                builder.apply {
+                    returns(CommonTypeNames.STRING.copy(nullable = false))
+                    addParameter(
+                        enumTypeElement.asClassName(),
+                        paramName
+                    )
+                    addCode(body)
                 }
-            })
+            }
+        }
+        return scope.writer.getOrCreateFunction(funSpec)
     }
 
-    private fun stringToEnumMethod(scope: CodeGenScope): MethodSpec {
-        return scope.writer.getOrCreateMethod(object :
-            TypeWriter.SharedMethodSpec(out.typeElement!!.name + "_stringToEnum") {
+    private fun stringToEnumMethod(scope: CodeGenScope): XFunSpec {
+        val funSpec = object : TypeWriter.SharedFunctionSpec(
+            out.typeElement!!.name + "_stringToEnum"
+        ) {
+            val paramName = "_value"
+
             override fun getUniqueKey(): String {
-                return out.typeName.toString()
+                return "stringToEnum_" + enumTypeElement.asClassName().toString()
             }
 
             override fun prepare(
                 methodName: String,
                 writer: TypeWriter,
-                builder: MethodSpec.Builder
+                builder: XFunSpec.Builder
             ) {
-                builder.apply {
-                        addModifiers(Modifier.PRIVATE)
-                        returns(out.typeName)
-                        val param = ParameterSpec.builder(
-                            String::class.java, "_value", Modifier.FINAL
-                        ).build()
-                        addParameter(param)
-                        beginControlFlow("if ($N == null)", param)
-                        addStatement("return null")
-                        nextControlFlow("switch ($N)", param)
-                        enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
+                val body = XCodeBlock.builder(builder.language).apply {
+                    when (writer.codeLanguage) {
+                        // Use a switch control flow
+                        CodeLanguage.JAVA -> {
+                            beginControlFlow("switch (%L)", paramName)
+                            enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
+                                addStatement(
+                                    "case %S: return %T.%L",
+                                    enumConstantName,
+                                    enumTypeElement.asClassName(),
+                                    enumConstantName
+                                )
+                            }
                             addStatement(
-                                "case $S: return $T.$L",
-                                enumConstantName, out.typeName, enumConstantName
+                                "default: throw new %T(%S + %L)",
+                                ILLEGAL_ARG_EXCEPTION,
+                                STRING_TO_ENUM_ERROR_MSG,
+                                paramName
                             )
+                            endControlFlow()
                         }
-                        addStatement(
-                            "default: throw new $T($S + $N)",
-                            ILLEGAL_ARG_EXCEPTION,
-                            "Can't convert value to enum, unknown value: ",
-                            param
-                        )
-                        endControlFlow()
+                        // Use a when control flow
+                        CodeLanguage.KOTLIN -> {
+                            beginControlFlow("return when (%L)", paramName)
+                            enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
+                                addStatement(
+                                    "%S -> %T.%L",
+                                    enumConstantName,
+                                    enumTypeElement.asClassName(),
+                                    enumConstantName
+                                )
+                            }
+                            addStatement(
+                                "else -> throw %T(%S + %L)",
+                                ILLEGAL_ARG_EXCEPTION,
+                                STRING_TO_ENUM_ERROR_MSG,
+                                paramName
+                            )
+                            endControlFlow()
+                        }
                     }
+                }.build()
+                builder.apply {
+                    returns(enumTypeElement.asClassName())
+                    addParameter(
+                        CommonTypeNames.STRING.copy(nullable = false),
+                        paramName
+                    )
+                    addCode(body)
                 }
-            })
+            }
+        }
+        return scope.writer.getOrCreateFunction(funSpec)
+    }
+
+    companion object {
+        private val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
+        private const val ENUM_TO_STRING_ERROR_MSG =
+            "Can't convert enum to string, unknown enum value: "
+        private const val STRING_TO_ENUM_ERROR_MSG =
+            "Can't convert value to enum, unknown value: "
     }
 }

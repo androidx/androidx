@@ -39,6 +39,7 @@ import androidx.opengl.EGLExt.Companion.eglDestroySyncKHR
 import androidx.opengl.EGLImageKHR
 import androidx.opengl.EGLSyncKHR
 
+@JvmDefaultWithCompatibility
 /**
  * Interface for accessing various EGL facilities independent of EGL versions.
  * That is each EGL version implements this specification.

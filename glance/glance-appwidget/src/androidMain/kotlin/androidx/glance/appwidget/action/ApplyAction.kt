@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
+import androidx.glance.action.LambdaAction
 import androidx.glance.action.StartActivityAction
 import androidx.glance.action.StartActivityClassAction
 import androidx.glance.action.StartActivityComponentAction
@@ -52,7 +53,6 @@ internal fun applyAction(
                 getFillInIntentForAction(action, translationContext, targetId)
             if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, targetId, fillInIntent)
-                rv.setOnClickFillInIntent(targetId, null)
             } else {
                 rv.setOnClickFillInIntent(targetId, fillInIntent)
             }
@@ -61,37 +61,12 @@ internal fun applyAction(
                 getPendingIntentForAction(action, translationContext, targetId)
             if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, targetId, pendingIntent)
-                rv.setOnClickPendingIntent(targetId, null)
             } else {
                 rv.setOnClickPendingIntent(targetId, pendingIntent)
             }
         }
-        if (translationContext.isCompoundButton &&
-            action !is CompoundButtonAction &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ApplyActionApi31Impl.unsetOnCheckedChangeResponse(rv, targetId)
-        }
     } catch (t: Throwable) {
         Log.e(GlanceAppWidgetTag, "Unrecognized Action: $action", t)
-    }
-}
-
-internal fun unsetAction(
-    translationContext: TranslationContext,
-    rv: RemoteViews,
-    @IdRes viewId: Int,
-) {
-    // Calling setOnClickListener on AdapterView throws a RuntimeException.
-    if (translationContext.isAdapterView) return
-
-    val targetId = translationContext.actionTargetId ?: viewId
-    if (translationContext.isCompoundButton && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        ApplyActionApi31Impl.unsetOnCheckedChangeResponse(rv, targetId)
-        ApplyActionApi31Impl.unsetOnClickResponse(rv, targetId)
-    } else if (translationContext.isLazyCollectionDescendant) {
-        rv.setOnClickFillInIntent(targetId, null)
-    } else {
-        rv.setOnClickPendingIntent(targetId, null)
     }
 }
 
@@ -167,6 +142,29 @@ private fun getPendingIntentForAction(
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
+        is LambdaAction -> {
+            requireNotNull(translationContext.actionBroadcastReceiver) {
+                "In order to use LambdaAction, actionBroadcastReceiver must be provided"
+            }
+            return PendingIntent.getBroadcast(
+                translationContext.context,
+                0,
+                LambdaActionBroadcasts.createIntent(
+                    translationContext.actionBroadcastReceiver,
+                    action.key,
+                    translationContext.appWidgetId,
+                ).apply {
+                    data =
+                        createUniqueUri(
+                            translationContext,
+                            viewId,
+                            ActionTrampolineType.CALLBACK,
+                            action.key,
+                        )
+                },
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+        }
         is CompoundButtonAction -> {
             return getPendingIntentForAction(
                 action.innerAction,
@@ -226,6 +224,20 @@ private fun getFillInIntentForAction(
             callbackClass = action.callbackClass,
             appWidgetId = translationContext.appWidgetId,
             parameters = editParams(action.parameters)
+        ).applyTrampolineIntent(
+            translationContext,
+            viewId = viewId,
+            type = ActionTrampolineType.BROADCAST,
+        )
+    }
+    is LambdaAction -> {
+        requireNotNull(translationContext.actionBroadcastReceiver) {
+            "In order to use LambdaAction, actionBroadcastReceiver must be provided"
+        }
+        LambdaActionBroadcasts.createIntent(
+            receiver = translationContext.actionBroadcastReceiver,
+            actionKey = action.key,
+            appWidgetId = translationContext.appWidgetId,
         ).applyTrampolineIntent(
             translationContext,
             viewId = viewId,

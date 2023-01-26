@@ -93,7 +93,7 @@ class SystemForegroundDispatcherTest {
         taskExecutor = InstantWorkTaskExecutor()
         val scheduler = mock(Scheduler::class.java)
         workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
-        processor = spy(Processor(context, config, taskExecutor, workDatabase, listOf(scheduler)))
+        processor = spy(Processor(context, config, taskExecutor, workDatabase))
         workManager = spy(
             WorkManagerImpl(
                 context,

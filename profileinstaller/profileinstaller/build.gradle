@@ -24,6 +24,8 @@ plugins {
 dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.startup:startup-runtime:1.1.1")
+    api(libs.guavaListenableFuture)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -32,7 +34,6 @@ dependencies {
 androidx {
     name = "androidx.profileinstaller:profileinstaller"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PROFILEINSTALLER
     inceptionYear = "2021"
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
             " ART"

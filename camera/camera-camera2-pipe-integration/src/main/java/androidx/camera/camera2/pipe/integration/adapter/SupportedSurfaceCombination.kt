@@ -42,7 +42,8 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil
-import androidx.camera.core.impl.utils.AspectRatioUtil.CompareAspectRatiosByDistanceToTargetRatio
+import androidx.camera.core.impl.utils.AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace
+import androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.internal.utils.SizeUtil
@@ -85,6 +86,8 @@ class SupportedSurfaceCombination(
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+    private val activeArraySize =
+        cameraMetadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]
 
     init {
         checkCapabilities()
@@ -583,10 +586,90 @@ class SupportedSurfaceCombination(
     }
 
     /**
-     * Obtains the target aspect ratio from ImageOutputConfig
+     * Returns the aspect ratio group key of the target size when grouping the input resolution
+     * candidate list.
+     *
+     * The resolution candidate list will be grouped with mod 16 consideration. Therefore, we
+     * also need to consider the mod 16 factor to find which aspect ratio of group the target size
+     * might be put in. So that sizes of the group will be selected to use in the highest priority.
      */
-    private fun getTargetAspectRatio(imageOutputConfig: ImageOutputConfig): Rational? {
-        val targetSize = getTargetSize(imageOutputConfig)
+    private fun getAspectRatioGroupKeyOfTargetSize(
+        targetSize: Size?,
+        resolutionCandidateList: List<Size>
+    ): Rational? {
+        if (targetSize == null) {
+            return null
+        }
+
+        val aspectRatios = getResolutionListGroupingAspectRatioKeys(
+            resolutionCandidateList
+        )
+        aspectRatios.forEach {
+            if (hasMatchingAspectRatio(targetSize, it)) {
+                return it
+            }
+        }
+        return Rational(targetSize.width, targetSize.height)
+    }
+
+    /**
+     * Returns the grouping aspect ratio keys of the input resolution list.
+     *
+     * Some sizes might be mod16 case. When grouping, those sizes will be grouped into an
+     * existing aspect ratio group if the aspect ratio can match by the mod16 rule.
+     */
+    private fun getResolutionListGroupingAspectRatioKeys(
+        resolutionCandidateList: List<Size>
+    ): List<Rational> {
+        val aspectRatios: MutableList<Rational> = mutableListOf()
+
+        // Adds the default 4:3 and 16:9 items first to avoid their mod16 sizes to create
+        // additional items.
+        aspectRatios.add(AspectRatioUtil.ASPECT_RATIO_4_3)
+        aspectRatios.add(AspectRatioUtil.ASPECT_RATIO_16_9)
+
+        // Tries to find the aspect ratio which the target size belongs to.
+        resolutionCandidateList.forEach { size ->
+            val newRatio = Rational(size.width, size.height)
+            var aspectRatioFound = aspectRatios.contains(newRatio)
+
+            // The checking size might be a mod16 size which can be mapped to an existing aspect
+            // ratio group.
+            if (!aspectRatioFound) {
+                var hasMatchingAspectRatio = false
+                aspectRatios.forEach loop@{ aspectRatio ->
+                    if (hasMatchingAspectRatio(size, aspectRatio)) {
+                        hasMatchingAspectRatio = true
+                        return@loop
+                    }
+                }
+                if (!hasMatchingAspectRatio) {
+                    aspectRatios.add(newRatio)
+                }
+            }
+        }
+        return aspectRatios
+    }
+
+    /**
+     * Returns the target aspect ratio value corrected by quirks.
+     *
+     * The final aspect ratio is determined by the following order:
+     * 1. The aspect ratio returned by TargetAspectRatio quirk (not implemented yet).
+     * 2. The use case's original aspect ratio if TargetAspectRatio quirk returns RATIO_ORIGINAL
+     * and the use case has target aspect ratio setting.
+     * 3. The aspect ratio of use case's target size setting if TargetAspectRatio quirk returns
+     * RATIO_ORIGINAL and the use case has no target aspect ratio but has target size setting.
+     *
+     * @param imageOutputConfig       the image output config of the use case.
+     * @param resolutionCandidateList the resolution candidate list which will be used to
+     *                                determine the aspect ratio by target size when target
+     *                                aspect ratio setting is not set.
+     */
+    private fun getTargetAspectRatio(
+        imageOutputConfig: ImageOutputConfig,
+        resolutionCandidateList: List<Size>
+    ): Rational? {
         var outputRatio: Rational? = null
         // TODO(b/245622117) Get the corrected aspect ratio from quirks instead of always using
         //  TargetAspectRatio.RATIO_ORIGINAL
@@ -598,16 +681,23 @@ class SupportedSurfaceCombination(
                 AspectRatio.RATIO_16_9 -> outputRatio =
                     if (isSensorLandscapeResolution) AspectRatioUtil.ASPECT_RATIO_16_9
                     else AspectRatioUtil.ASPECT_RATIO_9_16
+                AspectRatio.RATIO_DEFAULT -> Unit
                 else -> Logger.e(
                     TAG,
                     "Undefined target aspect ratio: $aspectRatio"
                 )
             }
-        } else if (targetSize != null) {
-            // Target size is calculated from the target resolution. If target size is not
-            // null, sizes which aspect ratio is nearest to the aspect ratio of target size
-            // will be selected in priority.
-            outputRatio = Rational(targetSize.width, targetSize.height)
+        } else {
+            // The legacy resolution API will use the aspect ratio of the target size to
+            // be the fallback target aspect ratio value when the use case has no target
+            // aspect ratio setting.
+            val targetSize = getTargetSize(imageOutputConfig)
+            if (targetSize != null) {
+                outputRatio = getAspectRatioGroupKeyOfTargetSize(
+                    targetSize,
+                    resolutionCandidateList
+                )
+            }
         }
         return outputRatio
     }
@@ -656,32 +746,21 @@ class SupportedSurfaceCombination(
      * Groups sizes together according to their aspect ratios.
      */
     private fun groupSizesByAspectRatio(sizes: List<Size>): Map<Rational, MutableList<Size>> {
-        val aspectRatioSizeListMap: MutableMap<Rational, MutableList<Size>> = java.util.HashMap()
+        val aspectRatioSizeListMap: MutableMap<Rational, MutableList<Size>> = mutableMapOf()
 
-        // Add 4:3 and 16:9 entries first. Most devices should mainly have supported sizes of
-        // these two aspect ratios. Adding them first can avoid that if the first one 4:3 or 16:9
-        // size is a mod16 alignment size, the aspect ratio key may be different from the 4:3 or
-        // 16:9 value.
-        aspectRatioSizeListMap[AspectRatioUtil.ASPECT_RATIO_4_3] = ArrayList()
-        aspectRatioSizeListMap[AspectRatioUtil.ASPECT_RATIO_16_9] = ArrayList()
-        for (outputSize in sizes) {
-            var matchedKey: Rational? = null
-            for (key in aspectRatioSizeListMap.keys) {
+        val aspectRatioKeys = getResolutionListGroupingAspectRatioKeys(sizes)
+
+        aspectRatioKeys.forEach {
+            aspectRatioSizeListMap[it] = mutableListOf()
+        }
+
+        sizes.forEach { size ->
+            aspectRatioSizeListMap.keys.forEach { aspectRatio ->
                 // Put the size into all groups that is matched in mod16 condition since a size
                 // may match multiple aspect ratio in mod16 algorithm.
-                if (AspectRatioUtil.hasMatchingAspectRatio(outputSize, key)) {
-                    matchedKey = key
-                    val sizeList = aspectRatioSizeListMap[matchedKey]!!
-                    if (!sizeList.contains(outputSize)) {
-                        sizeList.add(outputSize)
-                    }
+                if (hasMatchingAspectRatio(size, aspectRatio)) {
+                    aspectRatioSizeListMap[aspectRatio]?.add(size)
                 }
-            }
-
-            // Create new item if no matching group is found.
-            if (matchedKey == null) {
-                aspectRatioSizeListMap[Rational(outputSize.width, outputSize.height)] =
-                    ArrayList(setOf(outputSize))
             }
         }
         return aspectRatioSizeListMap
@@ -693,6 +772,10 @@ class SupportedSurfaceCombination(
     internal fun getSupportedOutputSizes(config: UseCaseConfig<*>): List<Size> {
         val imageFormat = config.inputFormat
         val imageOutputConfig = config as ImageOutputConfig
+        val customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null)
+        if (customOrderedResolutions != null) {
+            return customOrderedResolutions
+        }
         var outputSizes: Array<Size>? =
             getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig)
         if (outputSizes == null) {
@@ -714,8 +797,8 @@ class SupportedSurfaceCombination(
         // result.
         Arrays.sort(outputSizes, CompareSizesByArea(true))
         var targetSize: Size? = getTargetSize(imageOutputConfig)
-        var minSize = SizeUtil.RESOLUTION_VGA
-        val defaultSizeArea = SizeUtil.getArea(SizeUtil.RESOLUTION_VGA)
+        var minSize = RESOLUTION_VGA
+        val defaultSizeArea = SizeUtil.getArea(RESOLUTION_VGA)
         val maxSizeArea = SizeUtil.getArea(maxSize)
         // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
         // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
@@ -742,7 +825,8 @@ class SupportedSurfaceCombination(
                     imageFormat
             )
         }
-        val aspectRatio: Rational? = getTargetAspectRatio(imageOutputConfig)
+
+        val aspectRatio: Rational? = getTargetAspectRatio(imageOutputConfig, outputSizeCandidates)
 
         // Check the default resolution if the target resolution is not set
         targetSize = targetSize ?: imageOutputConfig.getDefaultResolution(null)
@@ -773,9 +857,17 @@ class SupportedSurfaceCombination(
 
             // Sort the aspect ratio key set by the target aspect ratio.
             val aspectRatios: List<Rational?> = ArrayList(aspectRatioSizeListMap.keys)
+            val fullFovRatio = if (activeArraySize != null) {
+                Rational(activeArraySize.width(), activeArraySize.height())
+            } else {
+                null
+            }
             Collections.sort(
                 aspectRatios,
-                CompareAspectRatiosByDistanceToTargetRatio(aspectRatio)
+                CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
+                    aspectRatio,
+                    fullFovRatio
+                )
             )
 
             // Put available sizes into final result list by aspect ratio distance to target ratio.

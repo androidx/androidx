@@ -122,7 +122,6 @@ class PagingDataAdapterTest {
         // empty previous list.
         assertEvents(
             listOf(
-                localLoadStatesOf(),
                 localLoadStatesOf(refreshLocal = LoadState.Loading),
                 localLoadStatesOf(
                     refreshLocal = LoadState.NotLoading(endOfPaginationReached = false)

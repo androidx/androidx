@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinStdlib)
     lintPublish(project(":recyclerview:recyclerview-lint"))
 }
@@ -57,7 +57,6 @@ androidx {
     name = "Android Support RecyclerView"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW
-    mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView"
     failOnDeprecationWarnings = false
