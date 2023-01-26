@@ -5488,6 +5488,49 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun updateComplicationTimelineOnly_updatesComplication() {
+        // Arrange
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(leftComplication))
+        val defaultBase = WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+            .setLongText(WireComplicationText("default"))
+            .build()
+        val timelineEntryBase = WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+            .setLongText(WireComplicationText("timeline"))
+            .build()
+        val oldTimelineEntry = WireComplicationData.Builder(defaultBase).build().apply {
+            setTimelineEntryCollection(
+                listOf(
+                    WireComplicationData.Builder(timelineEntryBase).build().apply {
+                        timelineStartEpochSecond = 100
+                        timelineEndEpochSecond = 200
+                    }
+                )
+            )
+        }
+        val newTimelineEntry = WireComplicationData.Builder(defaultBase).build().apply {
+            setTimelineEntryCollection(
+                listOf(
+                    WireComplicationData.Builder(timelineEntryBase).build().apply {
+                        timelineStartEpochSecond = 200
+                        timelineEndEpochSecond = 300
+                    }
+                )
+            )
+        }
+        engineWrapper.setComplicationDataList(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, oldTimelineEntry))
+        )
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(150))
+        // Act
+        engineWrapper.setComplicationDataList(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, newTimelineEntry))
+        )
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(250))
+        // Assert
+        assertThat(getLeftLongTextComplicationDataText()).isEqualTo("timeline")
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun renderParameters_isScreenshot() {
         initWallpaperInteractiveWatchFaceInstance(
