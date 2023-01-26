@@ -17,14 +17,17 @@
 package androidx.health.connect.client
 
 import android.content.Context
+import android.os.Build.VERSION_CODES
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
 
@@ -39,30 +42,42 @@ class PermissionControllerTest {
     }
 
     @Test
-    fun createIntentTest() {
+    fun createIntent_legacy() {
         val requestPermissionContract =
             PermissionController.createRequestPermissionResultContractLegacy(PROVIDER_PACKAGE_NAME)
         val intent =
             requestPermissionContract.createIntent(
-                context,
-                setOf(HealthPermission.createReadPermissionLegacy(StepsRecord::class))
-            )
+                context, setOf(HealthPermission.createReadPermissionLegacy(StepsRecord::class)))
 
-        Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
-        Truth.assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
+        assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
+        assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
     }
 
     @Test
-    fun createIntentTest_permissionStrings() {
+    fun createIntent_permissionStrings() {
         val requestPermissionContract =
             PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
         val intent =
             requestPermissionContract.createIntent(
-                context,
-                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
-            )
+                context, setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED))
 
-        Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
-        Truth.assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
+        assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
+        assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
+    }
+
+    @Test
+    @Config(minSdk = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun createIntent_UpsideDownCake() {
+        val requestPermissionContract =
+            PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
+        val intent =
+            requestPermissionContract.createIntent(
+                context, setOf(HealthPermission.WRITE_STEPS, HealthPermission.READ_DISTANCE))
+
+        assertThat(intent.action).isEqualTo(RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS)
+        assertThat(intent.getStringArrayExtra(RequestMultiplePermissions.EXTRA_PERMISSIONS))
+            .asList()
+            .containsExactly(HealthPermission.WRITE_STEPS, HealthPermission.READ_DISTANCE)
+        assertThat(intent.`package`).isNull()
     }
 }
