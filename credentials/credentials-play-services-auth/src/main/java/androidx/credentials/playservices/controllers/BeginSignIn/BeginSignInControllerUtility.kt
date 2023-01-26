@@ -52,7 +52,7 @@ class BeginSignInControllerUtility {
             BeginSignInRequest {
             var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
-            for (option in request.getCredentialOptions) {
+            for (option in request.credentialOptions) {
                 if (option is GetPasswordOption) {
                     requestBuilder.setPasswordRequestOptions(
                         BeginSignInRequest.PasswordRequestOptions.Builder()

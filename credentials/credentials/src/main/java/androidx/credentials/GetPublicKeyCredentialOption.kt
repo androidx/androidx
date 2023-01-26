@@ -34,7 +34,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
     val requestJson: String,
     @get:JvmName("preferImmediatelyAvailableCredentials")
     val preferImmediatelyAvailableCredentials: Boolean = false,
-) : GetCredentialOption(
+) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     requestData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
     candidateQueryData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),

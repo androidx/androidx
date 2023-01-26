@@ -37,7 +37,7 @@ open class GetCustomCredentialOption(
     final override val requestData: Bundle,
     final override val candidateQueryData: Bundle,
     final override val isSystemProviderRequired: Boolean
-) : GetCredentialOption(
+) : CredentialOption(
     type,
     requestData,
     candidateQueryData,

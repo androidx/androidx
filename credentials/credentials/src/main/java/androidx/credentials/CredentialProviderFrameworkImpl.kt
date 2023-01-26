@@ -112,7 +112,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     private fun convertGetRequestToFrameworkClass(request: GetCredentialRequest):
         android.credentials.GetCredentialRequest {
         val builder = android.credentials.GetCredentialRequest.Builder(Bundle())
-        request.getCredentialOptions.forEach {
+        request.credentialOptions.forEach {
             builder.addGetCredentialOption(
                 android.credentials.GetCredentialOption(
                     it.type, it.requestData, it.candidateQueryData, it.isSystemProviderRequired

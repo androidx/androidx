@@ -104,7 +104,7 @@ public class CredentialManagerJavaTest {
 
         mCredentialManager.getCredentialAsync(
                 new GetCredentialRequest.Builder()
-                        .addGetCredentialOption(new GetPasswordOption())
+                        .addCredentialOption(new GetPasswordOption())
                         .build(),
                 new Activity(),
                 null,

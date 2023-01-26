@@ -43,7 +43,7 @@ public class GetPasswordOptionJavaTest {
     public void frameworkConversion_success() {
         GetPasswordOption option = new GetPasswordOption();
 
-        GetCredentialOption convertedOption = GetCredentialOption.createFrom(
+        CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(), option.getCandidateQueryData(),
                 option.isSystemProviderRequired());
 

@@ -83,7 +83,7 @@ class CredentialManagerTest {
             Looper.prepare()
         }
         val request = GetCredentialRequest.Builder()
-            .addGetCredentialOption(GetPasswordOption())
+            .addCredentialOption(GetPasswordOption())
             .build()
 
         if (!isPostFrameworkApiLevel()) {
@@ -161,7 +161,7 @@ class CredentialManagerTest {
 
         credentialManager.getCredentialAsync(
             request = GetCredentialRequest.Builder()
-                .addGetCredentialOption(GetPasswordOption())
+                .addCredentialOption(GetPasswordOption())
                 .build(),
             activity = Activity(),
             cancellationSignal = null,
