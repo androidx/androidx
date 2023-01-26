@@ -46,7 +46,6 @@ object ImportVersionCatalog {
             Interners.newStrongInterner(),
             Interners.newStrongInterner(),
             project.objects,
-            project.providers,
             { error("Not supported") },
             configurations
         )
