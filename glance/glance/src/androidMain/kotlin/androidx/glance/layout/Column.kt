@@ -69,6 +69,9 @@ private object ColumnScopeImplInstance : ColumnScope {
  * been provided. When children are smaller than the size of the [Column], they will be placed
  * within the available space subject to [horizontalAlignment] and [verticalAlignment].
  *
+ * Note for App Widgets: [Column] supports up to 10 child elements. Any additional elements will be
+ * truncated from the output.
+ *
  * @param modifier The modifier to be applied to the layout.
  * @param verticalAlignment The vertical alignment to apply to the set of children, when they do not
  *   consume the full height of the [Column] (i.e. whether to push the children towards the top,

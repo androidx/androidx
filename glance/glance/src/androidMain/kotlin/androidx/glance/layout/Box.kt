@@ -51,6 +51,9 @@ class EmittableBox : EmittableWithChildren() {
  * subject to the [contentAlignment]. When the [content] has more than one layout child, all of
  * the children will be stacked on top of each other in the composition order.
  *
+ * Note for App Widgets: [Box] supports up to 10 child elements. Any additional elements will be
+ * truncated from the output.
+ *
  * @param modifier The modifier to be applied to the layout.
  * @param contentAlignment The alignment of children within the [Box].
  * @param content The content inside the [Box].
