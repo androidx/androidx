@@ -89,11 +89,9 @@ open class ComponentDialog @JvmOverloads constructor(
     }
 
     @Suppress("DEPRECATION")
-    private val onBackPressedDispatcher = OnBackPressedDispatcher {
+    final override val onBackPressedDispatcher = OnBackPressedDispatcher {
         super.onBackPressed()
     }
-
-    final override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
 
     @CallSuper
     override fun onBackPressed() {

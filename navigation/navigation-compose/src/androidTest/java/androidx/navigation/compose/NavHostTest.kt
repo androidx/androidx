@@ -790,7 +790,7 @@ class NavHostTest {
         val onBackPressedDispatcher = OnBackPressedDispatcher()
         val dispatcherOwner = object : OnBackPressedDispatcherOwner {
             override fun getLifecycle() = lifecycleOwner.lifecycle
-            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
+            override val onBackPressedDispatcher = onBackPressedDispatcher
         }
         lateinit var navController: NavHostController
         lateinit var innerNavController: NavHostController
