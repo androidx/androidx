@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -22,15 +23,43 @@ plugins {
 }
 
 dependencies {
+    api(libs.autoValueAnnotations)
+    annotationProcessor(libs.autoValue)
+    implementation(libs.protobufLite)
+    implementation(libs.guavaListenableFuture)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation(project(":appactions:interaction:interaction-proto"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintTests)
+    testImplementation(libs.autoValueAnnotations)
+    testImplementation(libs.testRunner)
+    testAnnotationProcessor(libs.autoValue)
 }
 
 android {
+    defaultConfig {
+        // TODO(b/266649259): lower minSdk version to 19.
+        minSdkVersion 33
+    }
+
+    lintOptions {
+        // TODO(b/266849030): Remove when updating library.
+        disable("UnknownNullness", "SyntheticAccessor")
+    }
+
     namespace "androidx.appactions.interaction.capabilities.core"
 }
 
 androidx {
     name = "androidx.appactions.interaction:interaction-capabilities-core"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
     inceptionYear = "2023"
     description = "App Interaction library core capabilities API and implementation."
+    failOnDeprecationWarnings = false
 }
