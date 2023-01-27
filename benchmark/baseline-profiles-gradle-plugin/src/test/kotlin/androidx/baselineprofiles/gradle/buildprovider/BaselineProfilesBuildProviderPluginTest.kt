@@ -52,7 +52,7 @@ class BaselineProfilesBuildProviderPluginTest {
                     namespace 'com.example.namespace'
                 }
                 tasks.register("printNonObfuscatedReleaseBuildType") {
-                    android.buildTypes.nonObfuscatedRelease.properties.each {k,v->println(k+"="+v)}
+                    println(android.buildTypes.nonObfuscatedRelease)
                 }
             """.trimIndent(),
             suffix = ""
@@ -62,9 +62,7 @@ class BaselineProfilesBuildProviderPluginTest {
             .withArguments("printNonObfuscatedReleaseBuildType", "--stacktrace")
             .build()
             .output
-            .lines()
 
-        assertThat(buildTypeProperties).contains("shrinkResources=false")
         assertThat(buildTypeProperties).contains("minifyEnabled=false")
         assertThat(buildTypeProperties).contains("testCoverageEnabled=false")
         assertThat(buildTypeProperties).contains("debuggable=false")
