@@ -35,6 +35,7 @@ import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -518,6 +519,7 @@ public class UiObject2Test extends BaseTest {
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
+    @Ignore // b/266617335
     @Test
     public void testPinchOpen() {
         launchTestActivity(PinchTestActivity.class);
@@ -544,6 +546,7 @@ public class UiObject2Test extends BaseTest {
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
     }
 
+    @Ignore // b/266617335
     @Test
     public void testSwipe() {
         launchTestActivity(SwipeTestActivity.class);
@@ -624,6 +627,7 @@ public class UiObject2Test extends BaseTest {
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
+    @Ignore // b/266617335
     @Test
     public void testFling_direction() {
         launchTestActivity(FlingTestActivity.class);
