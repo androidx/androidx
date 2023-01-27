@@ -22,17 +22,17 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__deletionAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
+            protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
             }
         }
         this.__updateAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`data` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
                 statement.bindString(2, entity.data)
                 statement.bindLong(3, entity.pk)
