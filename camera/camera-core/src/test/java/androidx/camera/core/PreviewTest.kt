@@ -645,7 +645,7 @@ class PreviewTest {
         previewToDetach = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .build()
-        previewToDetach.setHasCameraTransform(hasCameraTransform)
+        previewToDetach.hasCameraTransform = hasCameraTransform
         previewToDetach.processor = surfaceProcessor
         previewToDetach.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(

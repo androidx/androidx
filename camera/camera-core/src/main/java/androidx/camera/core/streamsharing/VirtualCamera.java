@@ -96,6 +96,7 @@ class VirtualCamera implements CameraInternal {
 
     void bindChildren() {
         for (UseCase useCase : mChildren) {
+            useCase.setHasCameraTransform(false);
             useCase.bindToCamera(this, null,
                     useCase.getDefaultConfig(true, mUseCaseConfigFactory));
         }
