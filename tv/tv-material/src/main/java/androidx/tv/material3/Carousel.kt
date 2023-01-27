@@ -43,6 +43,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -147,7 +148,7 @@ fun Carousel(
         AnimatedContent(
             targetState = carouselState.activeSlideIndex,
             transitionSpec = { enterTransition.with(exitTransition) }
-        ) {
+        ) { slideIndex ->
             LaunchedEffect(Unit) {
                 this@AnimatedContent.onAnimationCompletion {
                     // Outer box is focused
@@ -157,7 +158,13 @@ fun Carousel(
                     }
                 }
             }
-            content.invoke(it)
+            // it is possible for the slideCount to have changed during the transition.
+            // This can cause the slideIndex to be greater than or equal to slideCount and cause
+            // IndexOutOfBoundsException. Guarding against this by checking against slideCount
+            // before invoking.
+            if (slideCount > 0) {
+                content.invoke(if (slideIndex < slideCount) slideIndex else 0)
+            }
         }
         this.carouselIndicator()
     }
@@ -186,6 +193,8 @@ private fun AutoScrollSideEffect(
     doAutoScroll: Boolean,
     onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
+    // Needed to ensure that the code within LaunchedEffect receives updates to the slideCount.
+    val updatedSlideCount by rememberUpdatedState(newValue = slideCount)
     if (doAutoScroll) {
         LaunchedEffect(carouselState) {
             while (true) {
@@ -195,7 +204,7 @@ private fun AutoScrollSideEffect(
                     snapshotFlow { carouselState.activePauseHandlesCount }
                         .first { pauseHandleCount -> pauseHandleCount == 0 }
                 }
-                carouselState.moveToNextSlide(slideCount)
+                carouselState.moveToNextSlide(updatedSlideCount)
             }
         }
     }

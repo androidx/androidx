@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
 
@@ -619,6 +620,7 @@ class CarouselTest {
         rule.onNodeWithText("Play ${finalSlide + 3}").assertIsFocused()
     }
 
+    @Test
     fun carousel_manualScrolling_onDpadLongPress() {
         rule.setContent {
             SampleCarousel(slideCount = 6) { index ->
@@ -756,6 +758,39 @@ class CarouselTest {
 
         // Assert that slide 1 is in view
         rule.onNodeWithText("Button 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun carousel_slideCountChangesDuringAnimation_shouldNotCrash() {
+        val slideDisplayDurationMs: Long = 100
+        var slideChanges = 0
+        // number of slides will fall from 4 to 2, but 4 slide transitions should happen without a
+        // crash
+        val minSuccessfulSlideChanges = 4
+        rule.setContent {
+            var slideCount by remember { mutableStateOf(4) }
+            LaunchedEffect(Unit) {
+                while (slideCount >= 2) {
+                    delay(slideDisplayDurationMs)
+                    slideCount--
+                }
+            }
+            SampleCarousel(
+                slideCount = slideCount,
+                timeToDisplaySlideMillis = slideDisplayDurationMs
+            ) { index ->
+                if (index >= slideCount) {
+                    // slideIndex requested should not be greater than slideCount. User could be
+                    // using a data-structure that could throw an IndexOutOfBoundsException.
+                    // This can happen when the slideCount changes during the transition between
+                    // slides.
+                    throw Exception("Index is larger, index=$index, slideCount=$slideCount")
+                }
+                slideChanges++
+            }
+        }
+
+        rule.waitUntil(timeoutMillis = 5000) { slideChanges > minSuccessfulSlideChanges }
     }
 }
 
