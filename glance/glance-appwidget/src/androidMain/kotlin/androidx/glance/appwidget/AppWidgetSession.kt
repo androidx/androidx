@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.glance.EmittableWithChildren
@@ -124,9 +125,9 @@ internal class AppWidgetSession(
     override suspend fun processEmittableTree(
         context: Context,
         root: EmittableWithChildren
-    ) {
+    ): Boolean {
+        if (root.shouldIgnoreResult()) return false
         root as RemoteViewsRoot
-        if (root.shouldIgnoreResult()) return
         val layoutConfig = LayoutConfiguration.load(context, id.appWidgetId)
         val appWidgetManager = context.appWidgetManager
         try {
@@ -160,14 +161,18 @@ internal class AppWidgetSession(
             layoutConfig.save()
             Tracing.endGlanceAppWidgetUpdate()
         }
+        return true
     }
 
     override suspend fun processEvent(context: Context, event: Any) {
         when (event) {
             is UpdateGlanceState -> {
                 if (DEBUG) Log.i(TAG, "Received UpdateGlanceState event for session($key)")
-                glanceState.value =
+                val newGlanceState =
                     configManager.getValue(context, PreferencesGlanceStateDefinition, key)
+                Snapshot.withMutableSnapshot {
+                    glanceState.value = newGlanceState
+                }
             }
             is UpdateAppWidgetOptions -> {
                 if (DEBUG) {
@@ -177,15 +182,15 @@ internal class AppWidgetSession(
                             "for session($key)"
                     )
                 }
-                options.value = event.newOptions
+                Snapshot.withMutableSnapshot {
+                    options.value = event.newOptions
+                }
             }
             is RunLambda -> {
-                Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
-                lambdas[event.key]?.map { it.block() }
-                    ?: Log.w(
-                        TAG,
-                        "Triggering Action(${event.key}) for session($key) failed"
-                    )
+                if (DEBUG) Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
+                Snapshot.withMutableSnapshot {
+                    lambdas[event.key]?.forEach { it.block() }
+                } ?: Log.w(TAG, "Triggering Action(${event.key}) for session($key) failed")
             }
             else -> {
                 throw IllegalArgumentException(
@@ -207,7 +212,7 @@ internal class AppWidgetSession(
         sendEvent(RunLambda(key))
     }
 
-    // Action types that this session supports.
+    // Event types that this session supports.
     @VisibleForTesting
     internal object UpdateGlanceState
     @VisibleForTesting
