@@ -9,14 +9,7 @@ package androidx.paging.testing {
     method public suspend Object? appendScrollWhile(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
     method public suspend Object? prependScrollWhile(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
     method public suspend Object? refresh(kotlin.coroutines.Continuation<kotlin.Unit>);
-    method public suspend Object? scrollTo(int index, optional androidx.paging.testing.SnapshotLoader.ScrollBehavior scrollBehavior, optional kotlin.coroutines.Continuation<kotlin.Unit>);
-  }
-
-  public enum SnapshotLoader.ScrollBehavior {
-    method public static androidx.paging.testing.SnapshotLoader.ScrollBehavior valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.paging.testing.SnapshotLoader.ScrollBehavior[] values();
-    enum_constant public static final androidx.paging.testing.SnapshotLoader.ScrollBehavior ScrollIntoPlaceholders;
-    enum_constant public static final androidx.paging.testing.SnapshotLoader.ScrollBehavior WaitForPlaceholdersToLoad;
+    method public suspend Object? scrollTo(int index, kotlin.coroutines.Continuation<kotlin.Unit>);
   }
 
   public final class StaticListPagingSourceFactoryKt {

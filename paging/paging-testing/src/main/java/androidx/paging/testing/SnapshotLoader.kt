@@ -17,15 +17,16 @@
 package androidx.paging.testing
 
 import androidx.paging.DifferCallback
-import androidx.paging.PagingData
-import androidx.paging.PagingDataDiffer
-import androidx.paging.PagingSource
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingDataDiffer
+import androidx.paging.PagingSource
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -123,7 +124,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
     }
 
     /**
-     * Imitates scrolling from current index to the target index.
+     * Imitates scrolling from current index to the target index. It waits for an item to be loaded
+     * in before triggering load on next item. Returns all available data that has been scrolled
+     * through.
      *
      * The scroll direction (prepend or append) is dependent on current index and target index. In
      * general, scrolling to a smaller index triggers [PREPEND] while scrolling to a larger
@@ -146,16 +149,10 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * distance if there are no more data to load from.
      *
      * @param [index] The target index to scroll to
-     *
-     * @param [scrollBehavior] The default scroll behavior is
-     * [ScrollBehavior.WaitForPlaceholdersToLoad]. See [ScrollBehavior] for all scroll types.
      */
-    public suspend fun scrollTo(
-        index: Int,
-        scrollBehavior: ScrollBehavior = ScrollBehavior.WaitForPlaceholdersToLoad
-    ): @JvmSuppressWildcards Unit {
+    public suspend fun scrollTo(index: Int): @JvmSuppressWildcards Unit {
         differ.awaitNotLoading()
-        appendOrPrependScrollTo(index, scrollBehavior)
+        appendOrPrependScrollTo(index)
         differ.awaitNotLoading()
     }
 
@@ -168,47 +165,10 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * direction and placeholders. Therefore we try to fulfill the expected amount of scrolling
      * rather than the actual requested index.
      */
-    private suspend fun appendOrPrependScrollTo(
-        index: Int,
-        scrollBehavior: ScrollBehavior,
-    ) {
+    private suspend fun appendOrPrependScrollTo(index: Int) {
         val startIndex = generations.value.lastAccessedIndex.get()
         val loadType = if (startIndex > index) LoadType.PREPEND else LoadType.APPEND
-        when (loadType) {
-            LoadType.PREPEND -> prependScrollTo(index, startIndex, scrollBehavior)
-            LoadType.APPEND -> appendScrollTo(index, startIndex, scrollBehavior)
-        }
-    }
-
-    private suspend fun prependScrollTo(
-        index: Int,
-        startIndex: Int,
-        scrollBehavior: ScrollBehavior
-    ) {
-        val scrollCount = startIndex - index
-        when (scrollBehavior) {
-            ScrollBehavior.WaitForPlaceholdersToLoad -> awaitScrollTo(LoadType.PREPEND, scrollCount)
-            ScrollBehavior.ScrollIntoPlaceholders -> {
-                // TODO
-            }
-        }
-    }
-
-    private suspend fun appendScrollTo(
-        index: Int,
-        startIndex: Int,
-        scrollBehavior: ScrollBehavior
-    ) {
-        val scrollCount = index - startIndex
-        when (scrollBehavior) {
-            ScrollBehavior.WaitForPlaceholdersToLoad -> awaitScrollTo(LoadType.APPEND, scrollCount)
-            ScrollBehavior.ScrollIntoPlaceholders -> {
-                // TODO
-            }
-        }
-    }
-
-    private suspend fun awaitScrollTo(loadType: LoadType, scrollCount: Int) {
+        val scrollCount = abs(startIndex - index)
         repeat(scrollCount) {
             awaitNextItem(loadType) ?: return
         }
@@ -320,29 +280,6 @@ public class SnapshotLoader<Value : Any> internal constructor(
     private enum class LoadType {
         PREPEND,
         APPEND
-    }
-
-    /**
-     * Determines whether the fake scroll will wait for asynchronous data to be loaded in or not.
-     *
-     * @see scrollTo
-     */
-    public enum class ScrollBehavior {
-        /**
-         * Imitates slow scrolls by waiting for item to be loaded in before triggering
-         * load on next item. A scroll with this behavior will return all available data
-         * that has been scrolled through.
-         */
-        ScrollIntoPlaceholders,
-
-        /**
-         * Imitates fast scrolling that will continue scrolling as data is being loaded in
-         * asynchronously. A scroll with this behavior will return only the data that has been
-         * loaded in by the time scrolling ends. This mode can also be used to trigger paging
-         * jumps if the number of placeholders scrolled through is larger than
-         * [PagingConfig.jumpThreshold].
-         */
-        WaitForPlaceholdersToLoad
     }
 }
 
