@@ -102,7 +102,10 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
         }
 
         mPaint.setColor(Color.WHITE);
-        int hour = zonedDateTime.getHour() % 12;
+        int hour = zonedDateTime.getHour();
+        if (hour != 12) {
+            hour %= 12;
+        }
         int minute = zonedDateTime.getMinute();
         int second = zonedDateTime.getSecond();
         mTime[0] = DIGITS[hour / 10];
