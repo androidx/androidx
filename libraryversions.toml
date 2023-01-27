@@ -232,7 +232,6 @@ PRINT = { group = "androidx.print", atomicGroupVersion = "versions.PRINT" }
 PRIVACYSANDBOX_ADS = { group = "androidx.privacysandbox.ads", atomicGroupVersion = "versions.PRIVACYSANDBOX_ADS" }
 PRIVACYSANDBOX_SDKRUNTIME = { group = "androidx.privacysandbox.sdkruntime", atomicGroupVersion = "versions.PRIVACYSANDBOX_SDKRUNTIME" }
 PRIVACYSANDBOX_TOOLS = { group = "androidx.privacysandbox.tools", atomicGroupVersion = "versions.PRIVACYSANDBOX_TOOLS" }
-PRIVACYSANDBOX_ADS = { group = "androidx.privacysandbox.ads", atomicGroupVersion = "versions.PRIVACYSANDBOX_ADS" }
 PRIVACYSANDBOX_UI = { group = "androidx.privacysandbox.ui", atomicGroupVersion = "versions.PRIVACYSANDBOX_UI" }
 PROFILEINSTALLER = { group = "androidx.profileinstaller", atomicGroupVersion = "versions.PROFILEINSTALLER" }
 RECOMMENDATION = { group = "androidx.recommendation", atomicGroupVersion = "versions.RECOMMENDATION" }
