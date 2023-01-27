@@ -96,10 +96,10 @@ public final class CameraUseCaseAdapter implements Camera {
 
     // UseCases from the app. This does not include internal UseCases created by CameraX.
     @GuardedBy("mLock")
-    private final Set<UseCase> mUseCases = new HashSet<>();
+    private final List<UseCase> mUseCases = new ArrayList<>();
     // UseCases sent to the camera including internal UseCases created by CameraX.
     @GuardedBy("mLock")
-    private final Set<UseCase> mCameraUseCases = new HashSet<>();
+    private final List<UseCase> mCameraUseCases = new ArrayList<>();
 
     @GuardedBy("mLock")
     @Nullable
@@ -206,7 +206,9 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void addUseCases(@NonNull Collection<UseCase> appUseCasesToAdd) throws CameraException {
         synchronized (mLock) {
-            Set<UseCase> appUseCasesAfter = new HashSet<>(mUseCases);
+            List<UseCase> appUseCasesAfter = new ArrayList<>(mUseCases);
+            // Removing new from existing to avoid duplicate UseCases.
+            appUseCasesAfter.removeAll(appUseCasesToAdd);
             appUseCasesAfter.addAll(appUseCasesToAdd);
             try {
                 updateUseCases(appUseCasesAfter);
@@ -221,7 +223,7 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void removeUseCases(@NonNull Collection<UseCase> useCasesToRemove) {
         synchronized (mLock) {
-            Set<UseCase> appUseCasesAfter = new HashSet<>(mUseCases);
+            List<UseCase> appUseCasesAfter = new ArrayList<>(mUseCases);
             appUseCasesAfter.removeAll(useCasesToRemove);
             updateUseCases(appUseCasesAfter);
         }
@@ -230,7 +232,7 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Updates the states based the new app UseCases.
      */
-    void updateUseCases(@NonNull Set<UseCase> appUseCases) {
+    void updateUseCases(@NonNull Collection<UseCase> appUseCases) {
         // TODO(b/265820449): set applyStreamSharing to true if Effects requires it..
         updateUseCases(appUseCases, /*applyStreamSharing*/false);
     }
@@ -245,22 +247,22 @@ public final class CameraUseCaseAdapter implements Camera {
      * @throws IllegalArgumentException if the UseCase combination is not supported. In that case,
      *                                  it will not update the internal states.
      */
-    void updateUseCases(@NonNull Set<UseCase> appUseCases, boolean applyStreamSharing) {
+    void updateUseCases(@NonNull Collection<UseCase> appUseCases, boolean applyStreamSharing) {
         synchronized (mLock) {
             // Calculate camera UseCases and keep the result in local variables in case they don't
             // meet the stream combination rules.
             UseCase placeholderForExtensions = calculatePlaceholderForExtensions(appUseCases);
             StreamSharing streamSharing = applyStreamSharing
                     ? createOrReuseStreamSharing(appUseCases) : null;
-            Set<UseCase> cameraUseCases =
+            Collection<UseCase> cameraUseCases =
                     calculateCameraUseCases(appUseCases, placeholderForExtensions, streamSharing);
 
             // Calculate the action items.
-            Set<UseCase> cameraUseCasesToAttach = new HashSet<>(cameraUseCases);
+            List<UseCase> cameraUseCasesToAttach = new ArrayList<>(cameraUseCases);
             cameraUseCasesToAttach.removeAll(mCameraUseCases);
-            Set<UseCase> cameraUseCasesToKeep = new HashSet<>(cameraUseCases);
+            List<UseCase> cameraUseCasesToKeep = new ArrayList<>(cameraUseCases);
             cameraUseCasesToKeep.retainAll(mCameraUseCases);
-            Set<UseCase> cameraUseCasesToDetach = new HashSet<>(mCameraUseCases);
+            List<UseCase> cameraUseCasesToDetach = new ArrayList<>(mCameraUseCases);
             cameraUseCasesToDetach.removeAll(cameraUseCases);
 
             // Calculate suggested resolutions. This step throws exception if the camera UseCases
@@ -335,7 +337,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * Returns {@link UseCase}s qualified for {@link StreamSharing}.
      */
     @NonNull
-    private Set<UseCase> getStreamSharingChildren(@NonNull Set<UseCase> appUseCases) {
+    private Set<UseCase> getStreamSharingChildren(@NonNull Collection<UseCase> appUseCases) {
         Set<UseCase> useCases = new HashSet<>();
         for (UseCase useCase : appUseCases) {
             checkArgument(!isStreamSharing(useCase), "Only support one level of sharing for now.");
@@ -357,7 +359,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * {@link StreamSharing} children({@link Preview} and VideoCapture).
      */
     @Nullable
-    private StreamSharing createOrReuseStreamSharing(@NonNull Set<UseCase> appUseCases) {
+    private StreamSharing createOrReuseStreamSharing(@NonNull Collection<UseCase> appUseCases) {
         synchronized (mLock) {
             Set<UseCase> newChildren = getStreamSharingChildren(appUseCases);
             if (newChildren.size() < 2) {
@@ -375,10 +377,10 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Returns {@link UseCase} that connects to the camera.
      */
-    static Set<UseCase> calculateCameraUseCases(@NonNull Set<UseCase> appUseCases,
+    static Collection<UseCase> calculateCameraUseCases(@NonNull Collection<UseCase> appUseCases,
             @Nullable UseCase placeholderForExtensions,
             @Nullable StreamSharing streamSharing) {
-        Set<UseCase> useCases = new HashSet<>(appUseCases);
+        List<UseCase> useCases = new ArrayList<>(appUseCases);
         if (placeholderForExtensions != null) {
             useCases.add(placeholderForExtensions);
         }
@@ -404,9 +406,9 @@ public final class CameraUseCaseAdapter implements Camera {
 
     @VisibleForTesting
     @NonNull
-    Set<UseCase> getCameraUseCases() {
+    Collection<UseCase> getCameraUseCases() {
         synchronized (mLock) {
-            return new HashSet<>(mCameraUseCases);
+            return new ArrayList<>(mCameraUseCases);
         }
     }
 
@@ -758,7 +760,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * @param appUseCases UseCase provided by the app.
      */
     @Nullable
-    UseCase calculatePlaceholderForExtensions(@NonNull Set<UseCase> appUseCases) {
+    UseCase calculatePlaceholderForExtensions(@NonNull Collection<UseCase> appUseCases) {
         synchronized (mLock) {
             UseCase placeholder = null;
             if (isCoexistingPreviewImageCaptureRequired()) {
