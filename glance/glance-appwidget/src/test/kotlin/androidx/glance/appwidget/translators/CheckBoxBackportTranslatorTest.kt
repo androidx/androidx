@@ -47,9 +47,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@Config(minSdk = 23, maxSdk = 30)
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class CheckBoxTranslatorTest {
+class CheckBoxBackportTranslatorTest {
 
     private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -61,7 +62,6 @@ class CheckBoxTranslatorTest {
         fakeCoroutineScope = TestScope()
     }
 
-    @Config(sdk = [21, 23])
     @Test
     fun canTranslateCheckBox_resolved_unchecked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
@@ -78,7 +78,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Blue)
     }
 
-    @Config(sdk = [21, 23])
     @Test
     fun canTranslateCheckBox_resolved_checked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
@@ -95,7 +94,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Red)
     }
 
-    @Config(sdk = [29])
     @Test
     fun canTranslateCheckBox_dayNight_unchecked_day() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
@@ -115,7 +113,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Yellow)
     }
 
-    @Config(sdk = [29])
     @Test
     fun canTranslateCheckBox_dayNight_unchecked_night() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
@@ -135,7 +132,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Green)
     }
 
-    @Config(sdk = [29])
     @Test
     fun canTranslateCheckBox_dayNight_checked_day() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
@@ -155,7 +151,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Red)
     }
 
-    @Config(sdk = [29])
     @Test
     fun canTranslateCheckBox_dayNight_checked_night() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
@@ -175,7 +170,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Blue)
     }
 
-    @Config(sdk = [21, 23])
     @Test
     fun canTranslateCheckBox_resource_checked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
@@ -195,7 +189,6 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Red)
     }
 
-    @Config(sdk = [29])
     @Test
     fun canTranslateCheckBox_onCheckedChange_null() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
@@ -210,7 +203,6 @@ class CheckBoxTranslatorTest {
         assertThat(checkboxRoot.hasOnClickListeners()).isFalse()
     }
 
-    @Config(sdk = [29])
     @Test
     fun canTranslateCheckBox_onCheckedChange_withAction() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {

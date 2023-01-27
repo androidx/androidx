@@ -48,10 +48,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-@Config(sdk = [29])
+@Config(minSdk = 23, maxSdk = 30)
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class SwitchTranslatorTest {
+class SwitchBackportTranslatorTest {
 
     private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
