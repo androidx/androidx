@@ -156,6 +156,7 @@ public class UiObject2Test extends BaseTest {
                 TIMEOUT_MS));
     }
 
+    @Ignore // b/266617335
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_dest() {
