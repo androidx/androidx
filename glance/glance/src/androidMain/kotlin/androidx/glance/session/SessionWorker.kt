@@ -82,11 +82,11 @@ internal class SessionWorker(
                         // Also update the session if we have not sent an initial tree yet.
                         if (recomposer.changeCount > lastRecomposeCount || !uiReady.value) {
                             if (DEBUG) Log.d(TAG, "UI tree updated (${session.key})")
-                            session.processEmittableTree(
+                            val processed = session.processEmittableTree(
                                 applicationContext,
                                 root.copy() as EmittableWithChildren
                             )
-                            if (!uiReady.value) uiReady.emit(true)
+                            if (!uiReady.value && processed) uiReady.emit(true)
                         }
                         lastRecomposeCount = recomposer.changeCount
                     }
