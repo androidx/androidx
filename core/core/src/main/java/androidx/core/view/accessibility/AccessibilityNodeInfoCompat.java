@@ -654,6 +654,40 @@ public class AccessibilityNodeInfoCompat {
                         :   null, android.R.id.accessibilityActionShowTextSuggestions, null,
                         null, null);
 
+        /**
+         * Action that brings fully on screen the next node in the specified direction.
+         *
+         * <p>
+         *     This should include wrapping around to the next/previous row, column, etc. in a
+         *     collection if one is available. If there is no node in that direction, the action
+         *     should fail and return false.
+         * </p>
+         * <p>
+         *     This action should be used instead of
+         *     {@link AccessibilityActionCompat#ACTION_SCROLL_TO_POSITION} when a widget does not
+         *     have clear row and column semantics or if a directional search is needed to find a
+         *     node in a complex ViewGroup where individual nodes may span multiple rows or
+         *     columns. The implementing widget must send a
+         *     {@link AccessibilityEventCompat#TYPE_VIEW_TARGETED_BY_SCROLL} accessibility event
+         *     with the scroll target as the source.  An accessibility service can listen for this
+         *     event, inspect its source, and use the result when determining where to place
+         *     accessibility focus.
+         * <p>
+         *     <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_DIRECTION_INT}. This is a
+         *     required argument.<br>
+         * </p>
+         */
+        @NonNull
+        @RequiresApi(34)
+        public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 34
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION
+                        : null,
+                        // TODO (267511848): update ID value once U resources are finalized.
+                        Build.VERSION.SDK_INT >= 34
+                                ? android.R.id.accessibilityActionScrollInDirection : -1,
+                        null, null, null);
+
         final Object mAction;
         private final int mId;
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
@@ -1714,6 +1748,25 @@ public class AccessibilityNodeInfoCompat {
     @SuppressLint("ActionValue")
     public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT =
             "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
+
+    /**
+     * <p>Argument to represent the direction when using
+     * {@link AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.</p>
+     *
+     * <p>
+     *     The value of this argument can be one of:
+     *     <ul>
+     *         <li>{@link View#FOCUS_DOWN}</li>
+     *         <li>{@link View#FOCUS_UP}</li>
+     *         <li>{@link View#FOCUS_LEFT}</li>
+     *         <li>{@link View#FOCUS_RIGHT}</li>
+     *         <li>{@link View#FOCUS_FORWARD}</li>
+     *         <li>{@link View#FOCUS_BACKWARD}</li>
+     *     </ul>
+     * </p>
+     */
+    public static final String ACTION_ARGUMENT_DIRECTION_INT =
+            "androidx.core.view.accessibility.action.ARGUMENT_DIRECTION_INT";
 
     // Focus types
 
@@ -4575,6 +4628,11 @@ public class AccessibilityNodeInfoCompat {
             case android.R.id.accessibilityActionDragCancel:
                 return "ACTION_DRAG_CANCEL";
             default:
+                // TODO (b/267511848): fix after Android U constants are finalized.
+                if (Build.VERSION.SDK_INT >= 34
+                        && action == android.R.id.accessibilityActionScrollInDirection) {
+                    return "ACTION_SCROLL_IN_DIRECTION";
+                }
                 return "ACTION_UNKNOWN";
         }
     }

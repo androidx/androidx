@@ -325,4 +325,16 @@ public class AccessibilityNodeInfoCompatTest {
         accessibilityNodeInfoCompat.setTextSelectable(true);
         assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
     }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @SmallTest
+    @Test
+    public void testActionScrollInDirection() {
+        AccessibilityActionCompat actionCompat =
+                AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION;
+        assertThat(actionCompat.getId(),
+                is(getExpectedActionId(android.R.id.accessibilityActionScrollInDirection)));
+        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: "
+                + "ACTION_SCROLL_IN_DIRECTION"));
+    }
 }
