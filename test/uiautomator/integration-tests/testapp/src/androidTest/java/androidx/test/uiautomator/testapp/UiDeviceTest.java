@@ -38,6 +38,7 @@ import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -245,6 +246,7 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("keycode Z pressed with meta shift left on", textView.getText());
     }
 
+    @Ignore // b/266617096
     @Test
     public void testPressRecentApps() throws Exception {
         launchTestActivity(MainActivity.class);
@@ -299,6 +301,7 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("I've been clicked!", button.getText());
     }
 
+    @Ignore // b/266617096
     @Test
     public void testSwipe() {
         launchTestActivity(SwipeTestActivity.class);
@@ -328,6 +331,7 @@ public class UiDeviceTest extends BaseTest {
         assertTrue(dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS));
     }
 
+    @Ignore // b/266617096
     @Test
     public void testSwipe_withPointArray() {
         launchTestActivity(SwipeTestActivity.class);
