@@ -150,17 +150,20 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
     }
 
     @Override
-    public void getStatus(@NonNull final PlaylistItem item, final boolean update) {
+    public void getStatus(@NonNull final PlaylistItem item, final boolean shouldUpdate) {
         if (mState == STATE_PLAYING || mState == STATE_PAUSED) {
-            // use mSeekToPos if we're currently seeking (mSeekToPos is reset
-            // when seeking is completed)
             item.setDuration(mMediaPlayer.getDuration());
-            item.setPosition(mSeekToPos > 0 ? mSeekToPos : mMediaPlayer.getCurrentPosition());
+            item.setPosition(getCurrentPosition());
             item.setTimestamp(SystemClock.elapsedRealtime());
         }
-        if (update && mCallback != null) {
+        if (shouldUpdate && mCallback != null) {
             mCallback.onPlaylistReady();
         }
+    }
+
+    private int getCurrentPosition() {
+        // Use mSeekToPos if we're currently seeking (mSeekToPos is reset when seeking is completed)
+        return mSeekToPos > 0 ? mSeekToPos : mMediaPlayer.getCurrentPosition();
     }
 
     @Override

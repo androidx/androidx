@@ -161,7 +161,7 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public void getStatus(final @NonNull PlaylistItem item, final boolean update) {
+    public void getStatus(final @NonNull PlaylistItem item, final boolean shouldUpdate) {
         if (!mClient.hasSession() || item.getRemoteItemId() == null) {
             // if session is not valid or item id not assigend yet.
             // just return, it's not fatal
@@ -169,8 +169,12 @@ public class RemotePlayer extends Player {
         }
 
         if (DEBUG) {
-            Log.d(TAG, "getStatus: item=" + item + ", update=" + update);
+            Log.d(TAG, "getStatus: item=" + item + ", shouldUpdate=" + shouldUpdate);
         }
+        updateStatus(item, shouldUpdate);
+    }
+
+    private void updateStatus(@NonNull PlaylistItem item, boolean shouldUpdate) {
         mClient.getStatus(item.getRemoteItemId(), null, new ItemActionCallback() {
             @Override
             public void onResult(@NonNull Bundle data, @NonNull String sessionId,
@@ -186,7 +190,7 @@ public class RemotePlayer extends Player {
                     item.setDuration(itemStatus.getContentDuration());
                     item.setTimestamp(itemStatus.getTimestamp());
                 }
-                if (update && mCallback != null) {
+                if (shouldUpdate && mCallback != null) {
                     mCallback.onPlaylistReady();
                 }
             }
@@ -194,7 +198,7 @@ public class RemotePlayer extends Player {
             @Override
             public void onError(String error, int code, Bundle data) {
                 logError("getStatus: failed", error, code);
-                if (update && mCallback != null) {
+                if (shouldUpdate && mCallback != null) {
                     mCallback.onPlaylistReady();
                 }
             }
