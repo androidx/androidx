@@ -349,6 +349,9 @@ public class StyleParcelableTest {
                 styleSetting2
             )
         )
+        assertThat(srcSchema.rootUserStyleSettings.map { it.id }).containsExactly(
+            UserStyleSetting.Id("clock_type")
+        )
 
         val parcel = Parcel.obtain()
         srcSchema.toWireFormat().writeToParcel(parcel, 0)
@@ -360,6 +363,9 @@ public class StyleParcelableTest {
         parcel.recycle()
 
         assertThat(schema.userStyleSettings.size).isEqualTo(4)
+        assertThat(schema.rootUserStyleSettings.map { it.id }).containsExactly(
+            UserStyleSetting.Id("clock_type")
+        )
 
         val deserializedWatchFaceType = schema.userStyleSettings[0] as ListUserStyleSetting
         assertThat(deserializedWatchFaceType.id)
