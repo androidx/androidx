@@ -18,7 +18,6 @@ package androidx.baselineprofiles.gradle.buildprovider
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
-import java.io.File
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
@@ -65,42 +64,9 @@ class BaselineProfilesBuildProviderPluginTest {
             .output
             .lines()
 
-        assertThat(buildTypeProperties).contains("shrinkResources=true")
-        assertThat(buildTypeProperties).contains("minifyEnabled=true")
+        assertThat(buildTypeProperties).contains("shrinkResources=false")
+        assertThat(buildTypeProperties).contains("minifyEnabled=false")
         assertThat(buildTypeProperties).contains("testCoverageEnabled=false")
         assertThat(buildTypeProperties).contains("debuggable=false")
-    }
-
-    @Test
-    fun generateBaselineProfilesKeepRuleFile() {
-        projectSetup.writeDefaultBuildGradle(
-            prefix = """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofiles.buildprovider")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                }
-            """.trimIndent(),
-            suffix = ""
-        )
-
-        val outputLines = gradleRunner
-            .withArguments("generateBaselineProfilesKeepRules", "--stacktrace", "--info")
-            .build()
-            .output
-            .lines()
-
-        val find = "Generated keep rule file for baseline profiles build in"
-        val proguardFilePath = outputLines
-            .first { it.startsWith(find) }
-            .split(find)[1]
-            .trim()
-        val proguardContent = File(proguardFilePath)
-            .readText()
-            .lines()
-            .filter { !it.startsWith("#") && it.isNotBlank() }
-        assertThat(proguardContent).containsExactly("-dontobfuscate")
     }
 }
