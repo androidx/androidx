@@ -111,6 +111,43 @@ val syntheticUiLibraryStubs = listOf(
         |}
         |""".trimMargin()
     ),
+    Source.kotlin(
+        "androidx/privacysandbox/ui/client/SandboxedUiAdapterFactory.kt", """
+        |package androidx.privacysandbox.ui.client
+        |import android.content.Context
+        |import android.hardware.display.DisplayManager
+        |import android.os.Binder
+        |import android.os.Build
+        |import android.os.Bundle
+        |import android.view.Display
+        |import android.view.SurfaceControlViewHost
+        |import android.view.SurfaceView
+        |import android.view.View
+        |import androidx.annotation.NonNull
+        |import androidx.annotation.RequiresApi
+        |import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+        |import java.util.concurrent.Executor
+        |@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        |object SandboxedUiAdapterFactory {
+        |    fun createFromCoreLibInfo(coreLibInfo: Bundle): SandboxedUiAdapter {
+        |        return RemoteAdapter(coreLibInfo)
+        |    }
+        |    private class RemoteAdapter(private val coreLibInfo: Bundle) :
+        |        SandboxedUiAdapter {
+        |        override fun openSession(
+        |            context: Context,
+        |            initialWidth: Int,
+        |            initialHeight: Int,
+        |            isZOrderOnTop: Boolean,
+        |            clientExecutor: Executor,
+        |            client: SandboxedUiAdapter.SessionClient
+        |        ) {
+        |            // This space intentionally left blank
+        |        }
+        |    }
+        |}
+        |""".trimMargin()
+    ),
 )
 
 val allTestLibraryStubs = syntheticSdkRuntimeLibraryStubs + syntheticUiLibraryStubs

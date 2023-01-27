@@ -190,6 +190,9 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         val sandboxInterface = api.interfaceMap[type]
         if (sandboxInterface != null) {
+            if (sandboxInterface.inheritsSandboxedUiAdapter) {
+                return sandboxInterface.uiAdapterAidlWrapper().poetTypeName()
+            }
             return sandboxInterface.aidlType().innerType.poetTypeName()
         }
         if (type.qualifiedName == List::class.qualifiedName)
