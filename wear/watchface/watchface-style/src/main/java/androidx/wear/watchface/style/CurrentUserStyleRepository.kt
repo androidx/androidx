@@ -497,6 +497,37 @@ public class UserStyleSchema constructor(
 
             return UserStyleSchema(userStyleSettings)
         }
+
+        internal fun UserStyleSchemaWireFormat.toApiFormat(): List<UserStyleSetting> {
+            val userStyleSettings = mSchema.map {
+                UserStyleSetting.createFromWireFormat(it)
+            }
+            val wireUserStyleSettingsIterator = mSchema.iterator()
+            for (setting in userStyleSettings) {
+                val wireUserStyleSetting = wireUserStyleSettingsIterator.next()
+                wireUserStyleSetting.mOptionChildIndices?.let {
+                    // Unfortunately due to VersionedParcelable limitations, we can not extend the
+                    // Options wire format (extending the contents of a list is not supported!!!).
+                    // This means we need to encode/decode the childSettings in a round about way.
+                    val optionsIterator = setting.options.iterator()
+                    var option: Option? = null
+                    for (childIndex in it) {
+                        if (option == null) {
+                            option = optionsIterator.next()
+                        }
+                        if (childIndex == -1) {
+                            option = null
+                        } else {
+                            val childSettings = option.childSettings as ArrayList
+                            val child = userStyleSettings[childIndex]
+                            childSettings.add(child)
+                            child.hasParent = true
+                        }
+                    }
+                }
+            }
+            return userStyleSettings
+        }
     }
 
     init {
@@ -562,7 +593,9 @@ public class UserStyleSchema constructor(
         }
         for (setting in settings) {
             for (option in setting.options) {
-                validateComplicationSettings(option.childSettings, prevSetting)
+                if (option.childSettings.isNotEmpty()) {
+                    validateComplicationSettings(option.childSettings, prevSetting)
+                }
             }
         }
     }
@@ -570,34 +603,7 @@ public class UserStyleSchema constructor(
     /** @hide */
     @Suppress("Deprecation") // userStyleSettings
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
-        wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
-    ) {
-        val wireUserStyleSettingsIterator = wireFormat.mSchema.iterator()
-        for (userStyle in userStyleSettings) {
-            val wireUserStyleSetting = wireUserStyleSettingsIterator.next()
-            wireUserStyleSetting.mOptionChildIndices?.let {
-                // Unfortunately due to VersionedParcelable limitations, we can not extend the
-                // Options wire format (extending the contents of a list is not supported!!!).
-                // This means we need to encode/decode the childSettings in a round about way.
-                val optionsIterator = userStyle.options.iterator()
-                var option: Option? = null
-                for (childIndex in it) {
-                    if (option == null) {
-                        option = optionsIterator.next()
-                    }
-                    if (childIndex == -1) {
-                        option = null
-                    } else {
-                        val childSettings = option.childSettings as ArrayList
-                        val child = userStyleSettings[childIndex]
-                        childSettings.add(child)
-                        child.hasParent = true
-                    }
-                }
-            }
-        }
-    }
+    public constructor(wireFormat: UserStyleSchemaWireFormat) : this(wireFormat.toApiFormat())
 
     /** @hide */
     @Suppress("Deprecation") // userStyleSettings
