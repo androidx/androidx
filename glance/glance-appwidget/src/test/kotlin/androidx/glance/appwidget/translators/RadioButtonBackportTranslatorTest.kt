@@ -50,10 +50,10 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.test.assertIs
 
-@Config(sdk = [29])
+@Config(minSdk = 23, maxSdk = 30)
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class RadioButtonTranslatorTest {
+class RadioButtonBackportTranslatorTest {
 
     private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
