@@ -40,85 +40,30 @@ class BaselineProfilesBuildProviderPlugin : Plugin<Project> {
 
     private fun configureWithAndroidPlugin(project: Project) {
 
-        // Prepares extensions used by the plugin
-        val baselineProfilesExtension =
-            BaselineProfilesApkProviderExtension.registerExtension(project)
-
-        val androidComponent = project.extensions.getByType(
-            ApplicationAndroidComponentsExtension::class.java
-        )
-
         // Create the non obfuscated release build types from the existing release ones.
         // We want to extend all the current release build types based on isDebuggable flag.
-        // The map created here maps the non obfuscated build types newly created to the release
-        // ones.
-        val extendedTypeToOriginalTypeMapping = mutableMapOf<String, String>()
-        androidComponent.finalizeDsl { applicationExtension ->
+        project
+            .extensions
+            .getByType(ApplicationAndroidComponentsExtension::class.java)
+            .finalizeDsl { applicationExtension ->
 
-            val debugBuildType = applicationExtension.buildTypes.getByName("debug")
-            createNonObfuscatedBuildTypes(
-                project = project,
-                extension = applicationExtension,
-                extendedBuildTypeToOriginalBuildTypeMapping = extendedTypeToOriginalTypeMapping,
-                filterBlock = { !it.isDebuggable },
-                configureBlock = {
-                    isJniDebuggable = false
-                    isDebuggable = false
-                    isMinifyEnabled = true
-                    isShrinkResources = true
-                    isProfileable = true
-                    signingConfig = debugBuildType.signingConfig
-                    enableAndroidTestCoverage = false
-                    enableUnitTestCoverage = false
-
-                    // The keep rule file is added later in the variants callback so that we can
-                    // generate it on-the-fly in the intermediates folder, if it wasn't specified in
-                    // the config.
-                }
-            )
-        }
-
-        // Creates a task to generate the keep rule file
-        val genKeepRuleTaskProvider = project
-            .tasks
-            .register(
-                "generateBaselineProfilesKeepRules",
-                GenerateKeepRulesForBaselineProfilesTask::class.java
-            ) {
-                it.keepRuleFile.set(
-                    project.layout.buildDirectory.file(
-                        "intermediates/baselineprofiles/baseline-profile-keep-rules.pro"
-                    )
+                val debugBuildType = applicationExtension.buildTypes.getByName("debug")
+                createNonObfuscatedBuildTypes(
+                    project = project,
+                    extension = applicationExtension,
+                    extendedBuildTypeToOriginalBuildTypeMapping = mutableMapOf(),
+                    filterBlock = { !it.isDebuggable },
+                    configureBlock = {
+                        isJniDebuggable = false
+                        isDebuggable = false
+                        isMinifyEnabled = false
+                        isShrinkResources = false
+                        isProfileable = true
+                        signingConfig = debugBuildType.signingConfig
+                        enableAndroidTestCoverage = false
+                        enableUnitTestCoverage = false
+                    }
                 )
             }
-
-        val keepRuleFileProvider = genKeepRuleTaskProvider.flatMap { it.keepRuleFile }
-
-        // Sets the keep rule file for the baseline profile variants
-        androidComponent.apply {
-
-            onVariants {
-
-                // We can skip the build types that were NOT created by this plugin.
-                if (it.buildType !in extendedTypeToOriginalTypeMapping.keys) {
-                    return@onVariants
-                }
-
-                // If the keep rule file was manually specified, then use that one
-                if (baselineProfilesExtension.keepRulesFile != null) {
-                    it.proguardFiles.add(
-                        project
-                            .layout
-                            .projectDirectory
-                            .file(baselineProfilesExtension.keepRulesFile!!)
-                    )
-                    return@onVariants
-                }
-
-                // Otherwise the keep rule file is generated and added to the list of keep rule
-                // files for the variant.
-                it.proguardFiles.add(keepRuleFileProvider)
-            }
-        }
     }
 }
