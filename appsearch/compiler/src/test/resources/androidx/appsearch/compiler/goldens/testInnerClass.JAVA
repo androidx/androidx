@@ -24,6 +24,7 @@ public final class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFact
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .build();
   }

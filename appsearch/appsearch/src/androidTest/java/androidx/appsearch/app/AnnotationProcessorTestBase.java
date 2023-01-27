@@ -17,15 +17,23 @@
 package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.util.DocumentIdUtil;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,6 +48,8 @@ import java.util.List;
 
 public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
+    private static final String TEST_PACKAGE_NAME =
+            ApplicationProvider.getApplicationContext().getPackageName();
     private static final String DB_NAME_1 = "";
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
@@ -241,7 +251,7 @@ public abstract class AnnotationProcessorTestBase {
             assertThat(first.toArray()).isEqualTo(second.toArray());
         }
 
-        public static Gift createPopulatedGift() {
+        public static Gift createPopulatedGift() throws AppSearchException {
             Gift gift = new Gift();
             gift.mNamespace = "gift.namespace";
             gift.mId = "gift.id";
@@ -295,6 +305,33 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+
+    @Document
+    static class CardAction {
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+        @Document.StringProperty(name = "cardRef",
+                joinableValueType = JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+        String mCardReference; // 3a
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof CardAction)) {
+                return false;
+            }
+            CardAction otherGift = (CardAction) other;
+            assertThat(otherGift.mNamespace).isEqualTo(this.mNamespace);
+            assertThat(otherGift.mId).isEqualTo(this.mId);
+            assertThat(otherGift.mCardReference).isEqualTo(this.mCardReference);
+            return true;
+        }
+    }
+
     @Test
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
@@ -323,9 +360,9 @@ public abstract class AnnotationProcessorTestBase {
     @Test
     public void testAnnotationProcessor_queryByType() throws Exception {
         mSession.setSchemaAsync(
-                new SetSchemaRequest.Builder()
-                        .addDocumentClasses(Card.class, Gift.class)
-                        .addSchemas(AppSearchEmail.SCHEMA).build())
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(Card.class, Gift.class)
+                                .addSchemas(AppSearchEmail.SCHEMA).build())
                 .get();
 
         // Create documents and index them
@@ -374,6 +411,61 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
+    }
+
+    @Test
+    public void testAnnotationProcessor_simpleJoin() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        mSession.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(Card.class, CardAction.class)
+                                .build())
+                .get();
+
+        // Index a Card and a Gift referencing it.
+        Card peetsCard = new Card();
+        peetsCard.mNamespace = "personal";
+        peetsCard.mId = "peets1";
+        CardAction bdayGift = new CardAction();
+        bdayGift.mNamespace = "personal";
+        bdayGift.mId = "2023-jan-31";
+        bdayGift.mCardReference = DocumentIdUtil.createQualifiedId(TEST_PACKAGE_NAME, DB_NAME_1,
+                GenericDocument.fromDocumentClass(peetsCard));
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addDocuments(peetsCard, bdayGift).build()));
+
+        // Retrieve cards with any given gifts.
+        SearchSpec innerSpec = new SearchSpec.Builder()
+                .addFilterDocumentClasses(CardAction.class)
+                .build();
+        JoinSpec js = new JoinSpec.Builder("cardRef")
+                .setNestedSearch(/*nestedQuery*/ "", innerSpec)
+                .build();
+        SearchResults resultsIter = mSession.search(/*queryExpression*/ "",
+                new SearchSpec.Builder()
+                        .addFilterDocumentClasses(Card.class)
+                        .setJoinSpec(js)
+                        .build());
+
+        // Verify that search results include card(s) joined with gift(s).
+        List<SearchResult> results = resultsIter.getNextPageAsync().get();
+        assertThat(results).hasSize(1);
+        GenericDocument cardResultDoc = results.get(0).getGenericDocument();
+        assertThat(cardResultDoc.getId()).isEqualTo(peetsCard.mId);
+        List<SearchResult> joinedCardResults = results.get(0).getJoinedResults();
+        assertThat(joinedCardResults).hasSize(1);
+        GenericDocument giftResultDoc = joinedCardResults.get(0).getGenericDocument();
+        assertThat(giftResultDoc.getId()).isEqualTo(bdayGift.mId);
+    }
+
+    @Test
+    public void testAnnotationProcessor_onTAndBelow_joinNotSupported() throws Exception {
+        assumeFalse(mSession.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        Exception e = assertThrows(UnsupportedOperationException.class,
+                () -> mSession.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(Card.class, CardAction.class)
+                                .build()));
     }
 
     @Test

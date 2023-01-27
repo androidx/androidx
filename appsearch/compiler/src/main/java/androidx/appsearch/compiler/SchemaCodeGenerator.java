@@ -227,6 +227,28 @@ class SchemaCodeGenerator {
             }
             codeBlock.add("\n.setIndexingType($T)", indexingEnum);
 
+            int joinableValueType = Integer.parseInt(params.get("joinableValueType").toString());
+            ClassName joinableEnum;
+            if (joinableValueType == 0) { // JOINABLE_VALUE_TYPE_NONE
+                joinableEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "JOINABLE_VALUE_TYPE_NONE");
+
+            } else if (joinableValueType == 1) { // JOINABLE_VALUE_TYPE_QUALIFIED_ID
+                if (repeated) {
+                    throw new ProcessingException(
+                            "Joinable value type " + joinableValueType + " not allowed on repeated "
+                                    + "properties.", property);
+
+                }
+                joinableEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig",
+                        "JOINABLE_VALUE_TYPE_QUALIFIED_ID");
+            } else {
+                throw new ProcessingException(
+                        "Unknown joinable value type " + joinableValueType, property);
+            }
+            codeBlock.add("\n.setJoinableValueType($T)", joinableEnum);
+
         } else if (isPropertyDocument) {
             if (params.containsKey("indexNestedProperties")) {
                 boolean indexNestedProperties = Boolean.parseBoolean(

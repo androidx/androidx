@@ -1190,6 +1190,38 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testStringPropertyJoinableType() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty(joinableValueType=1)\n"
+                        + "  String object;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testRepeatedPropertyJoinableType_throwsError() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty(joinableValueType=1)\n"
+                        + "  List<String> object;\n"
+                        + "}\n");
+
+        assertThat(compilation).hadErrorContaining(
+                "Joinable value type 1 not allowed on repeated properties.");
+    }
+
+    @Test
     public void testPropertyName() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
