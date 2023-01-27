@@ -119,8 +119,7 @@ class ViewTreeOnBackPressedDispatcherTest {
             throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
         }
 
-        override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher {
-            throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
-        }
+        override val onBackPressedDispatcher
+            get() = throw UnsupportedOperationException("not a real OnBackPressedDispatcherOwner")
     }
 }

@@ -52,6 +52,7 @@ package androidx.activity {
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method @CallSuper public void onBackPressed();
+    property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
@@ -99,6 +100,7 @@ package androidx.activity {
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
   }
 
   public final class ViewTreeFullyDrawnReporterOwner {
