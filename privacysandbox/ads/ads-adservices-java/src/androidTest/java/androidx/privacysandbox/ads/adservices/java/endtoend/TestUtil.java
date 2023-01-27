@@ -104,6 +104,14 @@ public class TestUtil {
         }
     }
 
+    public void overrideAppSetIdKillSwitch(boolean override) {
+        if (override) {
+            runShellCommand("setprop debug.adservices.appsetid_kill_switch " + false);
+        } else {
+            runShellCommand("setprop debug.adservices.appsetid_kill_switch " + null);
+        }
+    }
+
     // Override measurement related kill switch to ignore the effect of actual PH values.
     // If isOverride = true, override measurement related kill switch to OFF to allow adservices
     // If isOverride = false, override measurement related kill switch to meaningless value so that
