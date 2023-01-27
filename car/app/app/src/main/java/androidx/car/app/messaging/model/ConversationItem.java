@@ -35,6 +35,7 @@ import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /** Represents a conversation */
 @ExperimentalCarApi
@@ -53,6 +54,36 @@ public class ConversationItem implements Item {
     private final List<CarMessage> mMessages;
     @NonNull
     private final ConversationCallbackDelegate mConversationCallbackDelegate;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                mId,
+                mTitle,
+                mIcon,
+                mIsGroupConversation,
+                mMessages
+        );
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ConversationItem)) {
+            return false;
+        }
+        ConversationItem otherConversationItem = (ConversationItem) other;
+
+        return
+                Objects.equals(mId, otherConversationItem.mId)
+                        && Objects.equals(mTitle, otherConversationItem.mTitle)
+                        && Objects.equals(mIcon, otherConversationItem.mIcon)
+                        && mIsGroupConversation == otherConversationItem.mIsGroupConversation
+                        && Objects.equals(mMessages, otherConversationItem.mMessages)
+                ;
+    }
 
     ConversationItem(@NonNull Builder builder) {
         this.mId = requireNonNull(builder.mId);
