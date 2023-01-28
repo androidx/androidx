@@ -16,68 +16,87 @@
 
 package androidx.credentials
 
+import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.credentials.CreateCredentialRequest.Companion.createFrom
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_ALLOW_HYBRID
+import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
+import androidx.credentials.internal.FrameworkImplHelper.Companion.getFinalCreateCredentialData
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class CreatePublicKeyCredentialRequestTest {
+    private val mContext = InstrumentationRegistry.getInstrumentation().context
+    companion object Constant {
+        private const val TEST_USERNAME = "test-user-name@gmail.com"
+        private const val TEST_USER_DISPLAYNAME = "Test User"
+        private const val TEST_REQUEST_JSON = "{\"rp\":{\"name\":true,\"id\":\"app-id\"}," +
+            "\"user\":{\"name\":\"$TEST_USERNAME\",\"id\":\"id-value\",\"displayName" +
+            "\":\"$TEST_USER_DISPLAYNAME\",\"icon\":true}, \"challenge\":true," +
+            "\"pubKeyCredParams\":true,\"excludeCredentials\":true," + "\"attestation\":true}"
+    }
 
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
-        Assert.assertThrows(
+        assertThrows(
             "Expected empty Json to throw error",
             IllegalArgumentException::class.java
         ) { CreatePublicKeyCredentialRequest("") }
     }
 
     @Test
-    fun constructor_success() {
-        CreatePublicKeyCredentialRequest(
-            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        )
+    fun constructor_jsonMissingUserName_throwsIllegalArgumentException() {
+        assertThrows(
+            IllegalArgumentException::class.java
+        ) { CreatePublicKeyCredentialRequest("json") }
     }
 
     @Test
-    fun constructor_setsAllowHybridToTrueByDefault() {
+    fun constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
-            "JSON"
+            TEST_REQUEST_JSON
         )
-        val allowHybridActual = createPublicKeyCredentialRequest.allowHybrid
-        assertThat(allowHybridActual).isTrue()
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequest.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse()
     }
 
     @Test
-    fun constructor_setsAllowHybridToFalse() {
-        val allowHybridExpected = false
+    fun constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
+        val preferImmediatelyAvailableCredentialsExpected = true
         val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
-            "testJson",
-            allowHybridExpected
+            TEST_REQUEST_JSON,
+            preferImmediatelyAvailableCredentialsExpected
         )
-        val allowHybridActual = createPublicKeyCredentialRequest.allowHybrid
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequest.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual)
+            .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
     }
 
     @Test
     fun getter_requestJson_success() {
-        val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+        val testJsonExpected = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}"
         val createPublicKeyCredentialReq = CreatePublicKeyCredentialRequest(testJsonExpected)
         val testJsonActual = createPublicKeyCredentialReq.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
 
+    @SdkSuppress(minSdkVersion = 28)
+    @Suppress("DEPRECATION") // bundle.get(key)
     @Test
     fun getter_frameworkProperties_success() {
-        val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        val allowHybridExpected = false
+        val requestJsonExpected = TEST_REQUEST_JSON
+        val preferImmediatelyAvailableCredentialsExpected = false
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -88,27 +107,57 @@ class CreatePublicKeyCredentialRequestTest {
             BUNDLE_KEY_REQUEST_JSON, requestJsonExpected
         )
         expectedData.putBoolean(
-            BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected
+            BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         val request = CreatePublicKeyCredentialRequest(
             requestJsonExpected,
-            allowHybridExpected
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
-        assertThat(equals(request.credentialData, expectedData)).isTrue()
         assertThat(equals(request.candidateQueryData, expectedData)).isTrue()
-        assertThat(request.requireSystemProvider).isFalse()
+        assertThat(request.isSystemProviderRequired).isFalse()
+        val credentialData = getFinalCreateCredentialData(
+            request, mContext
+        )
+        assertThat(credentialData.keySet())
+            .hasSize(expectedData.size() + /* added request info */1)
+        for (key in expectedData.keySet()) {
+            assertThat(credentialData[key]).isEqualTo(credentialData[key])
+        }
+        val displayInfoBundle = credentialData.getBundle(
+            CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO
+        )!!
+        assertThat(displayInfoBundle.keySet()).hasSize(3)
+        assertThat(
+            displayInfoBundle.getString(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_USER_ID
+            )
+        ).isEqualTo(TEST_USERNAME)
+        assertThat(
+            displayInfoBundle.getString(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_USER_DISPLAY_NAME
+            )
+        ).isEqualTo(TEST_USER_DISPLAYNAME)
+        assertThat(
+            (displayInfoBundle.getParcelable<Parcelable>(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON
+            ) as Icon?)!!.resId
+        ).isEqualTo(R.drawable.ic_passkey)
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun frameworkConversion_success() {
-        val request = CreatePublicKeyCredentialRequest("json", true)
+        val request = CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON, true)
 
         val convertedRequest = createFrom(
-            request.type, request.credentialData,
-            request.candidateQueryData, request.requireSystemProvider
+            request.type, getFinalCreateCredentialData(
+                request, mContext
+            ),
+            request.candidateQueryData, request.isSystemProviderRequired
         )
 
         assertThat(convertedRequest).isInstanceOf(
@@ -116,6 +165,12 @@ class CreatePublicKeyCredentialRequestTest {
         )
         val convertedSubclassRequest = convertedRequest as CreatePublicKeyCredentialRequest
         assertThat(convertedSubclassRequest.requestJson).isEqualTo(request.requestJson)
-        assertThat(convertedSubclassRequest.allowHybrid).isEqualTo(request.allowHybrid)
+        assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials)
+            .isEqualTo(request.preferImmediatelyAvailableCredentials)
+        val displayInfo = convertedRequest.displayInfo
+        assertThat(displayInfo.userDisplayName).isEqualTo(TEST_USER_DISPLAYNAME)
+        assertThat(displayInfo.userId).isEqualTo(TEST_USERNAME)
+        assertThat(displayInfo.credentialTypeIcon?.resId)
+            .isEqualTo(R.drawable.ic_passkey)
     }
 }

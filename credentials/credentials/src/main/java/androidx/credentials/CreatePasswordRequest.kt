@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -25,20 +26,30 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property id the user id associated with the password
  * @property password the password
- * @throws NullPointerException If [id] is null
- * @throws NullPointerException If [password] is null
- * @throws IllegalArgumentException If [password] is empty
  */
-class CreatePasswordRequest constructor(
+class CreatePasswordRequest private constructor(
     val id: String,
     val password: String,
+    displayInfo: DisplayInfo,
 ) : CreateCredentialRequest(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     credentialData = toCredentialDataBundle(id, password),
-    // No credential data should be sent during the query phase.
-    candidateQueryData = Bundle(),
-    requireSystemProvider = false,
+    candidateQueryData = toCandidateDataBundle(),
+    isSystemProviderRequired = false,
+    displayInfo
 ) {
+
+    /**
+     * Constructs a [CreatePasswordRequest] to save the user password credential with their
+     * password provider.
+     *
+     * @param id the user id associated with the password
+     * @param password the password
+     * @throws NullPointerException If [id] is null
+     * @throws NullPointerException If [password] is null
+     * @throws IllegalArgumentException If [password] is empty
+     */
+    constructor(id: String, password: String) : this(id, password, DisplayInfo(id, null))
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
@@ -47,6 +58,7 @@ class CreatePasswordRequest constructor(
     /** @hide */
     companion object {
         internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
 
@@ -58,12 +70,23 @@ class CreatePasswordRequest constructor(
             return bundle
         }
 
+        // No credential data should be sent during the query phase.
         @JvmStatic
+        internal fun toCandidateDataBundle(): Bundle {
+            return Bundle()
+        }
+
+        @JvmStatic
+        @RequiresApi(23)
         internal fun createFrom(data: Bundle): CreatePasswordRequest {
             try {
                 val id = data.getString(BUNDLE_KEY_ID)
                 val password = data.getString(BUNDLE_KEY_PASSWORD)
-                return CreatePasswordRequest(id!!, password!!)
+                val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
+                return if (displayInfo == null) CreatePasswordRequest(
+                    id!!,
+                    password!!
+                ) else CreatePasswordRequest(id!!, password!!, displayInfo)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

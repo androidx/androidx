@@ -16,17 +16,22 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_ALLOW_HYBRID;
+import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_REQUEST_JSON;
+import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,12 +39,30 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CreatePublicKeyCredentialRequestJavaTest {
+    private static final String TEST_USERNAME = "test-user-name@gmail.com";
+    private static final String TEST_USER_DISPLAYNAME = "Test User";
+    private static final String TEST_REQUEST_JSON = String.format("{\"rp\":{\"name\":true,"
+                    + "\"id\":\"app-id\"},\"user\":{\"name\":\"%s\",\"id\":\"id-value\","
+                    + "\"displayName\":\"%s\",\"icon\":true}, \"challenge\":true,"
+                    + "\"pubKeyCredParams\":true,\"excludeCredentials\":true,"
+                    + "\"attestation\":true}", TEST_USERNAME,
+            TEST_USER_DISPLAYNAME);
+
+    private Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
 
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
         assertThrows("Expected empty Json to throw error",
                 IllegalArgumentException.class,
                 () -> new CreatePublicKeyCredentialRequest("")
+        );
+    }
+
+    @Test
+    public void constructor_jsonMissingUserName_throwsIllegalArgumentException() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CreatePublicKeyCredentialRequest("json")
         );
     }
 
@@ -52,33 +75,35 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     }
 
     @Test
-    public void constructor_success()  {
+    public void constructor_success() {
         new CreatePublicKeyCredentialRequest(
-                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
+                "{\"user\":{\"name\":{\"lol\":\"Value\"}}}");
     }
 
     @Test
-    public void constructor_setsAllowHybridToTrueByDefault()  {
+    public void constructor_setsPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
-                new CreatePublicKeyCredentialRequest(
-                        "JSON");
-        boolean allowHybridActual = createPublicKeyCredentialRequest.allowHybrid();
-        assertThat(allowHybridActual).isTrue();
+                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON);
+        boolean preferImmediatelyAvailableCredentialsActual =
+                createPublicKeyCredentialRequest.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse();
     }
 
     @Test
-    public void constructor_setsAllowHybridToFalse()  {
-        boolean allowHybridExpected = false;
+    public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
         CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
-                new CreatePublicKeyCredentialRequest("testJson",
-                        allowHybridExpected);
-        boolean allowHybridActual = createPublicKeyCredentialRequest.allowHybrid();
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected);
+                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON,
+                        preferImmediatelyAvailableCredentialsExpected);
+        boolean preferImmediatelyAvailableCredentialsActual =
+                createPublicKeyCredentialRequest.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+                preferImmediatelyAvailableCredentialsExpected);
     }
 
     @Test
     public void getter_requestJson_success() {
-        String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+        String testJsonExpected = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}";
         CreatePublicKeyCredentialRequest createPublicKeyCredentialReq =
                 new CreatePublicKeyCredentialRequest(testJsonExpected);
 
@@ -86,10 +111,12 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
     }
 
+    @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation") // bundle.get(key)
     @Test
     public void getter_frameworkProperties_success() {
-        String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-        boolean allowHybridExpected = false;
+        String requestJsonExpected = TEST_REQUEST_JSON;
+        boolean preferImmediatelyAvailableCredentialsExpected = false;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -98,31 +125,59 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         expectedData.putString(
                 BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putBoolean(
-                BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
+                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentialsExpected);
 
-        CreatePublicKeyCredentialRequest request =
-                new CreatePublicKeyCredentialRequest(requestJsonExpected, allowHybridExpected);
+        CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
+                requestJsonExpected, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedData)).isTrue();
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedData)).isTrue();
-        assertThat(request.getRequireSystemProvider()).isFalse();
+        assertThat(request.isSystemProviderRequired()).isFalse();
+        Bundle credentialData = getFinalCreateCredentialData(
+                request, mContext);
+        assertThat(credentialData.keySet())
+                .hasSize(expectedData.size() + /* added request info */ 1);
+        for (String key : expectedData.keySet()) {
+            assertThat(credentialData.get(key)).isEqualTo(credentialData.get(key));
+        }
+        Bundle displayInfoBundle =
+                credentialData.getBundle(
+                        CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO);
+        assertThat(displayInfoBundle.keySet()).hasSize(3);
+        assertThat(displayInfoBundle.getString(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_USER_ID)).isEqualTo(TEST_USERNAME);
+        assertThat(displayInfoBundle.getString(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_USER_DISPLAY_NAME
+        )).isEqualTo(TEST_USER_DISPLAYNAME);
+        assertThat(((Icon) (displayInfoBundle.getParcelable(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON))).getResId()
+        ).isEqualTo(R.drawable.ic_passkey);
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     public void frameworkConversion_success() {
         CreatePublicKeyCredentialRequest request =
-                new CreatePublicKeyCredentialRequest("json", true);
+                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON, true);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
-                request.getType(), request.getCredentialData(),
-                request.getCandidateQueryData(), request.getRequireSystemProvider()
+                request.getType(), getFinalCreateCredentialData(
+                        request, mContext),
+                request.getCandidateQueryData(), request.isSystemProviderRequired()
         );
 
         assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequest.class);
         CreatePublicKeyCredentialRequest convertedSubclassRequest =
                 (CreatePublicKeyCredentialRequest) convertedRequest;
         assertThat(convertedSubclassRequest.getRequestJson()).isEqualTo(request.getRequestJson());
-        assertThat(convertedSubclassRequest.allowHybrid()).isEqualTo(request.allowHybrid());
+        assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials())
+                .isEqualTo(request.preferImmediatelyAvailableCredentials());
+        CreateCredentialRequest.DisplayInfo displayInfo =
+                convertedRequest.getDisplayInfo$credentials_debug();
+        assertThat(displayInfo.getUserDisplayName()).isEqualTo(TEST_USER_DISPLAYNAME);
+        assertThat(displayInfo.getUserId()).isEqualTo(TEST_USERNAME);
+        assertThat(displayInfo.getCredentialTypeIcon().getResId())
+                .isEqualTo(R.drawable.ic_passkey);
     }
 }

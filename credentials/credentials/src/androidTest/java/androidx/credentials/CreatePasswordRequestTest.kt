@@ -16,10 +16,14 @@
 
 package androidx.credentials
 
+import android.graphics.drawable.Icon
 import android.os.Bundle
 import androidx.credentials.CreateCredentialRequest.Companion.createFrom
+import androidx.credentials.internal.FrameworkImplHelper.Companion.getFinalCreateCredentialData
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -28,6 +32,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class CreatePasswordRequestTest {
+
+    private val mContext = InstrumentationRegistry.getInstrumentation().context
+
     @Test
     fun constructor_emptyPassword_throws() {
         assertThrows<IllegalArgumentException> {
@@ -49,29 +56,56 @@ class CreatePasswordRequestTest {
         assertThat(request.password).isEqualTo(passwordExpected)
     }
 
+    @SdkSuppress(minSdkVersion = 28)
+    @Suppress("DEPRECATION") // bundle.get(key)
     @Test
     fun getter_frameworkProperties() {
         val idExpected = "id"
         val passwordExpected = "pwd"
-        val expectedData = Bundle()
-        expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected)
-        expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD, passwordExpected)
+        val expectedCredentialData = Bundle()
+        expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected)
+        expectedCredentialData.putString(
+            CreatePasswordRequest.BUNDLE_KEY_PASSWORD,
+            passwordExpected
+        )
 
         val request = CreatePasswordRequest(idExpected, passwordExpected)
 
         assertThat(request.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        assertThat(equals(request.credentialData, expectedData)).isTrue()
         assertThat(equals(request.candidateQueryData, Bundle.EMPTY)).isTrue()
-        assertThat(request.requireSystemProvider).isFalse()
+        assertThat(request.isSystemProviderRequired).isFalse()
+        assertThat(request.displayInfo.userDisplayName).isNull()
+        assertThat(request.displayInfo.userId).isEqualTo(idExpected)
+        val credentialData = getFinalCreateCredentialData(
+            request, mContext
+        )
+        assertThat(credentialData.keySet())
+            .hasSize(expectedCredentialData.size() + /* added request info */ 1)
+        for (key in expectedCredentialData.keySet()) {
+            assertThat(expectedCredentialData.get(key)).isEqualTo(credentialData.get(key))
+        }
+        val displayInfoBundle =
+            credentialData.getBundle(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO)!!
+        assertThat(displayInfoBundle.keySet()).hasSize(2)
+        assertThat(displayInfoBundle.getString(
+            CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_USER_ID)).isEqualTo(idExpected)
+        assertThat((displayInfoBundle.getParcelable(
+            CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON) as Icon?)!!.resId
+        ).isEqualTo(R.drawable.ic_password)
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun frameworkConversion_success() {
-        val request = CreatePasswordRequest("id", "password")
+        val idExpected = "id"
+        val request = CreatePasswordRequest(idExpected, "password")
 
         val convertedRequest = createFrom(
-            request.type, request.credentialData,
-            request.candidateQueryData, request.requireSystemProvider
+            request.type, getFinalCreateCredentialData(
+                request, mContext
+            ),
+            request.candidateQueryData, request.isSystemProviderRequired
         )
 
         assertThat(convertedRequest).isInstanceOf(
@@ -80,5 +114,9 @@ class CreatePasswordRequestTest {
         val convertedCreatePasswordRequest = convertedRequest as CreatePasswordRequest
         assertThat(convertedCreatePasswordRequest.password).isEqualTo(request.password)
         assertThat(convertedCreatePasswordRequest.id).isEqualTo(request.id)
+        assertThat(convertedCreatePasswordRequest.displayInfo.userDisplayName).isNull()
+        assertThat(convertedCreatePasswordRequest.displayInfo.userId).isEqualTo(idExpected)
+        assertThat(convertedCreatePasswordRequest.displayInfo.credentialTypeIcon?.resId)
+            .isEqualTo(R.drawable.ic_password)
     }
 }
