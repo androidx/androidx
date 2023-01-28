@@ -308,10 +308,10 @@ class InteractionController {
         Direction direction;
         if (Math.abs(downX - upX) > Math.abs(downY - upY)) {
             // Horizontal.
-            direction = downX < upX ? Direction.RIGHT : Direction.LEFT;
+            direction = downX > upX ? Direction.RIGHT : Direction.LEFT;
         } else {
             // Vertical.
-            direction = downY < upY ? Direction.DOWN : Direction.UP;
+            direction = downY > upY ? Direction.DOWN : Direction.UP;
         }
         EventCondition<Boolean> condition = Until.scrollFinished(direction);
         runAndWaitForEvents(command,
