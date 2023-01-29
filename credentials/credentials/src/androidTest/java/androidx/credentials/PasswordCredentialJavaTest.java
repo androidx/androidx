@@ -77,10 +77,10 @@ public class PasswordCredentialJavaTest {
         expectedData.putString(PasswordCredential.BUNDLE_KEY_ID, idExpected);
         expectedData.putString(PasswordCredential.BUNDLE_KEY_PASSWORD, passwordExpected);
 
-        CreatePasswordRequest credential = new CreatePasswordRequest(idExpected, passwordExpected);
+        PasswordCredential credential = new PasswordCredential(idExpected, passwordExpected);
 
         assertThat(credential.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(credential.getCredentialData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(credential.getData(), expectedData)).isTrue();
     }
 
     @Test

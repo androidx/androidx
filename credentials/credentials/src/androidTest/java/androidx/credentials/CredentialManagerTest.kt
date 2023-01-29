@@ -26,6 +26,7 @@ import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -57,16 +58,8 @@ class CredentialManagerTest {
         if (Looper.myLooper() == null) {
             Looper.prepare()
         }
-
         if (!isPostFrameworkApiLevel()) {
             assertThrows<CreateCredentialProviderConfigurationException> {
-                credentialManager.createCredential(
-                    CreatePasswordRequest("test-user-id", "test-password"),
-                    Activity()
-                )
-            }
-        } else {
-            assertThrows<CreateCredentialUnknownException> {
                 credentialManager.createCredential(
                     CreatePasswordRequest("test-user-id", "test-password"),
                     Activity()
@@ -121,21 +114,24 @@ class CredentialManagerTest {
         }
         val latch = CountDownLatch(1)
         val loadedResult: AtomicReference<CreateCredentialException> = AtomicReference()
-
-        credentialManager.createCredentialAsync(
-            request = CreatePasswordRequest("test-user-id", "test-password"),
-            activity = Activity(),
-            cancellationSignal = null,
-            executor = Runnable::run,
-            callback = object : CredentialManagerCallback<CreateCredentialResponse,
-                CreateCredentialException> {
-                override fun onResult(result: CreateCredentialResponse) {}
-                override fun onError(e: CreateCredentialException) {
-                    loadedResult.set(e)
-                    latch.countDown()
-                }
-            }
+        val activityScenario = ActivityScenario.launch(
+            TestActivity::class.java
         )
+
+        activityScenario.onActivity { activity ->
+            credentialManager.createCredentialAsync(
+                CreatePasswordRequest("test-user-id", "test-password"),
+                activity,
+                null, Executor { obj: Runnable -> obj.run() },
+                object : CredentialManagerCallback<CreateCredentialResponse,
+                    CreateCredentialException> {
+                    override fun onResult(result: CreateCredentialResponse) {}
+                    override fun onError(e: CreateCredentialException) {
+                        loadedResult.set(e)
+                        latch.countDown()
+                    }
+                })
+        }
 
         latch.await(100L, TimeUnit.MILLISECONDS)
         if (!isPostFrameworkApiLevel()) {

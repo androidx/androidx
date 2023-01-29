@@ -33,6 +33,7 @@ import androidx.credentials.exceptions.CreateCredentialUnknownException;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.GetCredentialUnknownException;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -65,21 +66,26 @@ public class CredentialManagerJavaTest {
         }
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<CreateCredentialException> loadedResult = new AtomicReference<>();
-        mCredentialManager.createCredentialAsync(
-                new CreatePasswordRequest("test-user-id", "test-password"),
-                new Activity(),
-                null,
-                Runnable::run,
-                new CredentialManagerCallback<CreateCredentialResponse,
-                        CreateCredentialException>() {
-                    @Override
-                    public void onError(@NonNull CreateCredentialException e) {
-                        loadedResult.set(e);
-                        latch.countDown();
-                    }
-                    @Override
-                    public void onResult(@NonNull CreateCredentialResponse result) {}
-            });
+        ActivityScenario<TestActivity> activityScenario =
+                ActivityScenario.launch(TestActivity.class);
+        activityScenario.onActivity(activity -> {
+            mCredentialManager.createCredentialAsync(
+                    new CreatePasswordRequest("test-user-id", "test-password"),
+                    activity,
+                    null,
+                    Runnable::run,
+                    new CredentialManagerCallback<CreateCredentialResponse,
+                            CreateCredentialException>() {
+                        @Override
+                        public void onError(@NonNull CreateCredentialException e) {
+                            loadedResult.set(e);
+                            latch.countDown();
+                        }
+
+                        @Override
+                        public void onResult(@NonNull CreateCredentialResponse result) {}
+                    });
+        });
 
         latch.await(100L, TimeUnit.MILLISECONDS);
         if (!isPostFrameworkApiLevel()) {
