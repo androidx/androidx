@@ -18,6 +18,9 @@ package androidx.window.extensions;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.app.ActivityOptions;
+import android.os.IBinder;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.area.WindowAreaComponent;
@@ -92,6 +95,8 @@ public interface WindowExtensions {
      * <ul>
      *     <li>{@link ActivityStack#getToken()}</li>
      *     <li>{@link SplitInfo#getToken()}</li>
+     *     <li>{@link ActivityEmbeddingComponent#setLaunchingActivityStack(ActivityOptions,
+     *     IBinder)}</li>
      * </ul>
      * </p>
      * @hide

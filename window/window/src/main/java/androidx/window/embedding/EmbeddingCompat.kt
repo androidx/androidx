@@ -18,7 +18,9 @@ package androidx.window.embedding
 
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.os.IBinder
 import android.util.Log
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
@@ -105,6 +107,13 @@ internal class EmbeddingCompat constructor(
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
         ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
+
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions {
+        return embeddingExtension.setLaunchingActivityStack(options, token)
+    }
 
     companion object {
         const val DEBUG = true

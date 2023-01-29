@@ -17,7 +17,9 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.os.IBinder
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
@@ -337,4 +339,9 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
             return null
         }
     }
+
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
 }
