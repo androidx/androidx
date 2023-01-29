@@ -31,6 +31,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
+import java.time.Instant
 import java.util.Collections
 
 /**
@@ -48,13 +49,15 @@ class CreateEntry internal constructor(
     val accountName: CharSequence,
     val pendingIntent: PendingIntent,
     val icon: Icon?,
-    val lastUsedTimeMillis: Long,
+    val description: CharSequence?,
+    val lastUsedTime: Instant?,
     private val credentialCountInformationMap: Map<String, Int>
     ) : android.service.credentials.CreateEntry(
     toSlice(
         accountName,
         icon,
-        lastUsedTimeMillis,
+        description,
+        lastUsedTime,
         credentialCountInformationMap,
         pendingIntent)
 ) {
@@ -109,7 +112,8 @@ class CreateEntry internal constructor(
         private var credentialCountInformationMap: MutableMap<String, Int> =
             mutableMapOf()
         private var icon: Icon? = null
-        private var lastUsedTimeMillis: Long = 0
+        private var description: CharSequence? = null
+        private var lastUsedTime: Instant? = null
 
         /** Sets the password credential count, denoting how many credentials of type
          * [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] does the provider have stored.
@@ -153,9 +157,24 @@ class CreateEntry internal constructor(
             return this
         }
 
+        /**
+         * Sets a description to be displayed on the UI at the time of credential creation.
+         *
+         * Typically this description should contain information informing the user of the
+         * credential being created, and where it is being stored. Providers are free
+         * to phrase this however they see fit.
+         *
+         * This description must be no more than 150 characters long. Any characters beyond
+         * that limit will be trimmed off.
+         */
+        fun setDescription(description: CharSequence?): Builder {
+            this.description = description
+            return this
+        }
+
         /** Sets the last time this account was used */
-        fun setLastUsedTimeMillis(lastUsedTimeMillis: Long): Builder {
-            this.lastUsedTimeMillis = lastUsedTimeMillis
+        fun setLastUsedTime(lastUsedTime: Instant?): Builder {
+            this.lastUsedTime = lastUsedTime
             return this
         }
 
@@ -166,7 +185,7 @@ class CreateEntry internal constructor(
          */
         fun build(): CreateEntry {
             return CreateEntry(
-                accountName, pendingIntent, icon, lastUsedTimeMillis,
+                accountName, pendingIntent, icon, description, lastUsedTime,
                 credentialCountInformationMap
             )
         }
@@ -180,6 +199,9 @@ class CreateEntry internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ACCOUNT_NAME =
             "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_NOTE =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_NOTE"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ICON =
@@ -202,7 +224,8 @@ class CreateEntry internal constructor(
         fun toSlice(
             accountName: CharSequence,
             icon: Icon?,
-            lastUsedTimeMillis: Long,
+            description: CharSequence?,
+            lastUsedTime: Instant?,
             credentialCountInformationMap: Map<String, Int>,
             pendingIntent: PendingIntent
         ): Slice {
@@ -212,11 +235,20 @@ class CreateEntry internal constructor(
                 accountName, /*subType=*/null,
                 listOf(SLICE_HINT_ACCOUNT_NAME)
             )
-                .addLong(
-                    lastUsedTimeMillis, /*subType=*/null, listOf(
-                        SLICE_HINT_LAST_USED_TIME_MILLIS
-                    )
+
+            if (lastUsedTime != null) {
+                sliceBuilder.addLong(
+                    lastUsedTime.toEpochMilli(),
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
                 )
+            }
+
+            if (description != null) {
+                sliceBuilder.addText(description, null,
+                    listOf(SLICE_HINT_NOTE))
+            }
+
             if (icon != null) {
                 sliceBuilder.addIcon(
                     icon, /*subType=*/null,
@@ -260,7 +292,8 @@ class CreateEntry internal constructor(
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
             var credentialCountInfo: Map<String, Int> = mapOf()
-            var lastUsedTimeMillis: Long = 0
+            var description: CharSequence? = null
+            var lastUsedTime: Instant? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
                     accountName = it.text
@@ -271,13 +304,16 @@ class CreateEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)) {
                     credentialCountInfo = convertBundleToCredentialCountInfo(it.bundle)
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
-                    lastUsedTimeMillis = it.long
+                    lastUsedTime = Instant.ofEpochMilli(it.long)
+                } else if (it.hasHint(SLICE_HINT_NOTE)) {
+                    description = it.text
                 }
             }
             return try {
                 CreateEntry(
-                    accountName, pendingIntent!!, icon,
-                    lastUsedTimeMillis, credentialCountInfo
+
+                    accountName, pendingIntent!!, icon, description,
+                    lastUsedTime, credentialCountInfo
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

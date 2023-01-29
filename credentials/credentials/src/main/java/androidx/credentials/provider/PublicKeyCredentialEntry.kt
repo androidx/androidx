@@ -69,7 +69,7 @@ class PublicKeyCredentialEntry internal constructor(
     val isAutoSelectAllowed: Boolean
 ) : CredentialEntry(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    CustomCredentialEntry.toSlice(
+    toSlice(
         PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
         username,
         displayName,

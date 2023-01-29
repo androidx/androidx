@@ -71,7 +71,7 @@ class PasswordCredentialEntry internal constructor(
     val isAutoSelectAllowed: Boolean
 ) : CredentialEntry(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    CustomCredentialEntry.toSlice(
+    toSlice(
         PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
         username,
         displayName,
