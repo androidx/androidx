@@ -132,6 +132,10 @@ package androidx.activity.contextaware {
     method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
+  public final class ContextAwareKt {
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<android.content.Context,R> onContextAvailable, kotlin.coroutines.Continuation<R>);
+  }
+
   public fun interface OnContextAvailableListener {
     method public void onContextAvailable(android.content.Context context);
   }
