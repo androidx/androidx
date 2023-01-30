@@ -116,6 +116,16 @@ public class MainActivity extends AppCompatActivity {
     final SessionManager mSessionManager = new SessionManager("app");
     Player mPlayer;
 
+    private final MediaRouter.OnPrepareTransferListener mOnPrepareTransferListener =
+            (fromRoute, toRoute) -> {
+                Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                        + ", to=" + toRoute.getId());
+                return CallbackToFutureAdapter.getFuture(completer -> {
+                    mHandler.postDelayed(() -> completer.set(null), 3000);
+                    return "onPrepareTransfer";
+                });
+            };
+
     private final MediaRouter.Callback mMediaRouterCB = new MediaRouter.Callback() {
         // Return a custom callback that will simply log all of the route events
         // for demonstration purposes.
@@ -229,14 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
 
-        mMediaRouter.setOnPrepareTransferListener((fromRoute, toRoute) -> {
-            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
-                    + ", to=" + toRoute.getId());
-            return CallbackToFutureAdapter.getFuture(completer -> {
-                mHandler.postDelayed(() -> completer.set(null), 3000);
-                return "onPrepareTransfer";
-            });
-        });
+        mMediaRouter.setOnPrepareTransferListener(mOnPrepareTransferListener);
 
         // Add a fragment to take care of media route discovery.
         // This fragment automatically adds or removes a callback whenever the activity

@@ -129,9 +129,9 @@ public abstract class Player {
     /**
      * Get player status of an item.
      * @param item
-     * @param update
+     * @param shouldUpdate
      */
-    public abstract void getStatus(@NonNull PlaylistItem item, boolean update);
+    public abstract void getStatus(@NonNull PlaylistItem item, boolean shouldUpdate);
 
     /**
      * Player pause operation.
