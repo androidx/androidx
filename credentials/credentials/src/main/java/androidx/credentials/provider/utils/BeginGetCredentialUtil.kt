@@ -24,7 +24,6 @@ import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.GetPublicKeyCredentialOptionPrivileged
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
-import androidx.credentials.provider.BeginGetCustomCredentialOption
 import androidx.credentials.provider.BeginGetPasswordOption
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOptionPrivileged
@@ -72,12 +71,12 @@ class BeginGetCredentialUtil {
                                 .createFrom(candidateQueryData)
                         }
                         else -> {
-                            BeginGetCustomCredentialOption(type, candidateQueryData)
+                            BeginGetCredentialOption(type, candidateQueryData)
                         }
                     }
                 }
                 else -> {
-                    BeginGetCustomCredentialOption(type, candidateQueryData)
+                    BeginGetCredentialOption(type, candidateQueryData)
                 }
             }
         }
