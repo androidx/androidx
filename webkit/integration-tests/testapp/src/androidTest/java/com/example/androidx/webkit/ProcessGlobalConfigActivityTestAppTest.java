@@ -44,8 +44,8 @@ import java.io.File;
 @LargeTest
 public class ProcessGlobalConfigActivityTestAppTest {
     @Rule
-    public ActivityScenarioRule<MainActivity> mRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenarioRule<ProcessGlobalConfigActivity> mRule =
+            new ActivityScenarioRule<>(ProcessGlobalConfigActivity.class);
 
     @Before
     public void setUp() {
@@ -70,8 +70,9 @@ public class ProcessGlobalConfigActivityTestAppTest {
                     + "delete it");
         }
         WebkitTestHelpers.clickMenuListItemWithString(
-                R.string.process_global_config_activity_title);
-        onView(withId(R.id.process_global_textview)).check(matches(withText("WebView Loaded!")));
+                R.string.data_directory_suffix_activity_title);
+        onView(withId(R.id.data_directory_config_textview))
+                .check(matches(withText("WebView Loaded!")));
 
         assertTrue(file.exists());
     }
