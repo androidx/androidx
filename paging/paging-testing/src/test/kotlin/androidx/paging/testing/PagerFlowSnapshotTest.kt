@@ -1637,6 +1637,399 @@ class PagerFlowSnapshotTest(
         }
     }
 
+    @Test
+    fun prependFling() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(42)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [41-46]
+            // prefetched [38-40]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_withDrops() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_WITH_DROPS,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(42)
+            }
+            // dropped [47-57]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(38, 39, 40, 41, 42, 43, 44, 45, 46)
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_withSeparators() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        ).flow.map { pagingData ->
+            pagingData.insertSeparators { before: Int?, _ ->
+                if (before == 42 || before == 49) "sep" else null
+            }
+        }
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                flingTo(42)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [41-46]
+            // prefetched [38-40]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    38, 39, 40, 41, 42, "sep", 43, 44, 45, 46, 47, 48, 49, "sep", 50, 51, 52,
+                    53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun consecutivePrependFling() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(42)
+                flingTo(38)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [38-46]
+            // prefetched [35-37]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+                    51, 52, 53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun consecutivePrependFling_multiSnapshots() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(42)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [41-46]
+            // prefetched [38-40]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57
+                )
+            )
+
+            val snapshot2 = pager.flow.asSnapshot(this) {
+                flingTo(38)
+            }
+            // prefetched [35-37]
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(
+                    35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+                    51, 52, 53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+    @Test
+    fun prependFling_jump() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 3,
+                initialLoadSize = 5,
+                jumpThreshold = 5
+            ),
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(30)
+                // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
+            }
+            // initial load [28-32]
+            // prefetched [25-27], [33-35]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35)
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_scrollThenJump() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 3,
+                initialLoadSize = 5,
+                jumpThreshold = 5
+            ),
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                scrollTo(43)
+                flingTo(30)
+                // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
+            }
+            // initial load [28-32]
+            // prefetched [25-27], [33-35]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35)
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_indexOutOfBounds() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 10,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(-3)
+            }
+            // initial load [10-14]
+            // prefetched [7-9], [15-17]
+            // flingTo prepended [0-6]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_accessPageBoundary() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                // page boundary
+                flingTo(44)
+            }
+            // ensure that SnapshotLoader waited for last prefetch before returning
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [44-46] - expect only one extra page to be prefetched after this
+            // prefetched [41-43]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_withoutPlaceholders() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                // Without placeholders, first loaded page always starts at index[0]
+                flingTo(0)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [44-46]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_withoutPlaceholders_indexOutOfBounds() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                flingTo(-8)
+            }
+            // ensure we honor negative indices if there is data to load
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // prepended [38-46]
+            // prefetched [35-37]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
+                    54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_withoutPlaceholders_indexOutOfBoundsIsCapped() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 5,
+            pagingSourceFactory = createFactory(dataFlow),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                flingTo(-20)
+            }
+            // ensure index is capped when no more data to load
+            // initial load [5-9]
+            // prefetched [2-4], [10-12]
+            // flingTo prepended [0-1]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+            )
+        }
+    }
+
+    @Test
+    fun consecutivePrependFling_withoutPlaceholders() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                // Without placeholders, first loaded page always starts at index[0]
+                flingTo(-1)
+                // Without placeholders, first loaded page always starts at index[0]
+                flingTo(-5)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // first flingTo prepended [41-46]
+            // index[0] is now anchored to [41]
+            // second flingTo prepended [35-40]
+            // prefetched [32-34]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(
+                    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                    50, 51, 52, 53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun consecutivePrependFling_withoutPlaceholders_multiSnapshot() {
+        val dataFlow = flowOf(List(100) { it })
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                // Without placeholders, first loaded page always starts at index[0]
+                flingTo(-1)
+            }
+            // initial load [50-54]
+            // prefetched [47-49], [55-57]
+            // flingTo prepended [44-46]
+            // prefetched [41-43]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
+            )
+
+            val snapshot2 = pager.asSnapshot(this) {
+                // Without placeholders, first loaded page always starts at index[0]
+                flingTo(-5)
+            }
+            // flingTo prepended [35-40]
+            // prefetched [32-34]
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(
+                    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                    50, 51, 52, 53, 54, 55, 56, 57
+                )
+            )
+        }
+    }
+
+    @Test
+    fun prependFling_withoutPlaceholders_indexPrecision() {
+        val dataFlow = flowOf(List(100) { it })
+        // load sizes and prefetch set to 1 to test precision of flingTo indexing
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 1,
+                initialLoadSize = 1,
+                enablePlaceholders = false,
+                prefetchDistance = 1
+            ),
+            initialKey = 50,
+            pagingSourceFactory = createFactory(dataFlow),
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                // after refresh, lastAccessedIndex == index[2] == item(9)
+                flingTo(-1)
+            }
+            // initial load [50]
+            // prefetched [49], [51]
+            // prepended [48]
+            // prefetched [47]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(47, 48, 49, 50, 51)
+            )
+        }
+    }
+
     val CONFIG = PagingConfig(
         pageSize = 3,
         initialLoadSize = 5,
