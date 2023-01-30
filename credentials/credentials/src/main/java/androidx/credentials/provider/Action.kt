@@ -42,10 +42,10 @@ import java.util.Collections
 @RequiresApi(34)
 class Action internal constructor(
     val title: CharSequence,
-    val subTitle: CharSequence?,
+    val subtitle: CharSequence?,
     val pendingIntent: PendingIntent,
     ) : android.service.credentials.Action(
-    toSlice(title, subTitle, pendingIntent)) {
+    toSlice(title, subtitle, pendingIntent)) {
 
     init {
         require(title.isNotEmpty()) { "title must not be empty" }
@@ -70,11 +70,11 @@ class Action internal constructor(
         private val title: CharSequence,
         private val pendingIntent: PendingIntent
     ) {
-        private var subTitle: CharSequence? = null
+        private var subtitle: CharSequence? = null
 
         /** Sets a sub title to be shown on the UI with this entry */
-        fun setSubTitle(subTitle: CharSequence?): Builder {
-            this.subTitle = subTitle
+        fun setSubtitle(subtitle: CharSequence?): Builder {
+            this.subtitle = subtitle
             return this
         }
 
@@ -84,7 +84,7 @@ class Action internal constructor(
          * @throws IllegalArgumentException If [title] is empty
          */
         fun build(): Action {
-            return Action(title, subTitle, pendingIntent)
+            return Action(title, subtitle, pendingIntent)
         }
     }
 
@@ -107,14 +107,14 @@ class Action internal constructor(
         @JvmStatic
         internal fun toSlice(
             title: CharSequence,
-            subTitle: CharSequence?,
+            subtitle: CharSequence?,
             pendingIntent: PendingIntent
         ): Slice {
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(
                 SLICE_SPEC_TYPE, SLICE_SPEC_REVISION))
                 .addText(title, /*subType=*/null,
                     listOf(SLICE_HINT_TITLE))
-                .addText(subTitle, /*subType=*/null,
+                .addText(subtitle, /*subType=*/null,
                     listOf(SLICE_HINT_SUBTITLE))
             sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
@@ -135,21 +135,21 @@ class Action internal constructor(
         @JvmStatic
         fun fromSlice(slice: Slice): Action? {
             var title: CharSequence = ""
-            var subTitle: CharSequence? = null
+            var subtitle: CharSequence? = null
             var pendingIntent: PendingIntent? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TITLE)) {
                     title = it.text
                 } else if (it.hasHint(SLICE_HINT_SUBTITLE)) {
-                    subTitle = it.text
+                    subtitle = it.text
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
                 }
             }
 
             return try {
-                Action(title, subTitle, pendingIntent!!)
+                Action(title, subtitle, pendingIntent!!)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
