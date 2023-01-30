@@ -335,7 +335,6 @@ fun BottomSheetScaffold(
                 bottomSheet = {
                     Surface(
                         swipeable
-                            .fillMaxWidth()
                             .requiredHeightIn(min = sheetPeekHeight)
                             .onGloballyPositioned {
                                 bottomSheetHeight = it.size.height.toFloat()
