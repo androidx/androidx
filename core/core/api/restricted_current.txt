@@ -2373,6 +2373,26 @@ package androidx.core.provider {
 
 }
 
+package androidx.core.service.quicksettings {
+
+  public class PendingIntentActivityWrapper {
+    ctor public PendingIntentActivityWrapper(android.content.Context, int, android.content.Intent, int, boolean);
+    ctor public PendingIntentActivityWrapper(android.content.Context, int, android.content.Intent, int, android.os.Bundle?, boolean);
+    method public android.content.Context getContext();
+    method public int getFlags();
+    method public android.content.Intent getIntent();
+    method public android.os.Bundle getOptions();
+    method public android.app.PendingIntent? getPendingIntent();
+    method public int getRequestCode();
+    method public boolean isMutable();
+  }
+
+  public class TileServiceCompat {
+    method public static void startActivityAndCollapse(android.service.quicksettings.TileService, androidx.core.service.quicksettings.PendingIntentActivityWrapper);
+  }
+
+}
+
 package androidx.core.telephony {
 
   @RequiresApi(22) public class SubscriptionManagerCompat {
