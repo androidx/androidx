@@ -238,9 +238,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
 
         when (loadType) {
             LoadType.PREPEND -> prependFlingTo(startIndex, index)
-            LoadType.APPEND -> {
-                // TODO
-            }
+            LoadType.APPEND -> appendFlingTo(startIndex, index)
         }
     }
 
@@ -248,27 +246,51 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * Prepend flings to target index.
      *
      * If target index is negative, from index[0] onwards it will normal scroll until it fulfills
-     * requested scroll distance.
+     * remaining distance.
      */
     private suspend fun prependFlingTo(startIndex: Int, index: Int) {
         var lastAccessedIndex = startIndex
         val endIndex = maxOf(0, index)
-        // first fast scroll to index or zero
+        // first, fast scroll to index or zero
         for (i in startIndex - 1 downTo endIndex) {
             differ[i]
             lastAccessedIndex = i
         }
         setLastAccessedIndex(lastAccessedIndex)
-        // for negative indices, we delegate remainder of scrolling required to
-        // the awaiting version.
+        // for negative indices, we delegate remainder of scrolling (distance below zero)
+        // to the awaiting version.
         if (index < 0) {
-            flingToOutOfBounds(LoadType.PREPEND, lastAccessedIndex, index)
+            val scrollCount = abs(index)
+            flingToOutOfBounds(LoadType.PREPEND, lastAccessedIndex, scrollCount)
+        }
+    }
+
+    /**
+     * Append flings to target index.
+     *
+     * If target index is beyond [PagingDataDiffer.size] - 1, from index(differ.size) and onwards,
+     * it will normal scroll until it fulfills remaining distance.
+     */
+    private suspend fun appendFlingTo(startIndex: Int, index: Int) {
+        var lastAccessedIndex = startIndex
+        val endIndex = minOf(index, differ.size - 1)
+        // first, fast scroll to endIndex
+        for (i in startIndex + 1..endIndex) {
+            differ[i]
+            lastAccessedIndex = i
+        }
+        setLastAccessedIndex(lastAccessedIndex)
+        // for indices at or beyond differ.size, we delegate remainder of scrolling (distance
+        // beyond differ.size) to the awaiting version.
+        if (index >= differ.size) {
+            val scrollCount = index - lastAccessedIndex
+            flingToOutOfBounds(LoadType.APPEND, lastAccessedIndex, scrollCount)
         }
     }
 
     /**
      * Delegated work from [flingTo] that is responsible for scrolling to indices that is
-     * beyond [0 to differ.size-1].
+     * beyond the range of [0 to differ.size-1].
      *
      * When [PagingConfig.enablePlaceholders] is true, this function is no-op because
      * there is no more data to load from.
@@ -280,7 +302,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
     private suspend fun flingToOutOfBounds(
         loadType: LoadType,
         lastAccessedIndex: Int,
-        index: Int
+        scrollCount: Int
     ) {
         // Wait for the page triggered by differ[lastAccessedIndex] to load in. This gives us the
         // offsetIndex for next differ.get() because the current lastAccessedIndex is already the
@@ -288,8 +310,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
         val (_, offsetIndex) = awaitLoad(lastAccessedIndex)
         setLastAccessedIndex(offsetIndex)
         // starts loading from the offsetIndex and scrolls the remaining requested distance
-        // below zero which is abs(index)
-        awaitScroll(loadType, abs(index))
+        awaitScroll(loadType, scrollCount)
     }
 
     private suspend fun awaitScroll(loadType: LoadType, scrollCount: Int) {
