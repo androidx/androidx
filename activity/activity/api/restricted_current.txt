@@ -179,6 +179,7 @@ package androidx.activity.result {
 
   public interface ActivityResultRegistryOwner {
     method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    property public abstract androidx.activity.result.ActivityResultRegistry activityResultRegistry;
   }
 
   public final class IntentSenderRequest implements android.os.Parcelable {
