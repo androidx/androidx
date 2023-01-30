@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.testing;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.ActionExecutor;
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
@@ -199,5 +200,11 @@ public final class TestingUtils {
         public TouchEventResult getLastResult() {
             return mResultRef.get();
         }
+    }
+
+    public static <ArgumentT, OutputT>
+            ActionExecutor<ArgumentT, OutputT> createFakeActionExecutor() {
+        return (args) ->
+                Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstanceWithOutput());
     }
 }
