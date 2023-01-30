@@ -679,6 +679,7 @@ public class UiObject2Test extends BaseTest {
                 () -> flingRegion.fling(Direction.DOWN, speed));
     }
 
+    @Ignore // b/267208902
     @Test
     public void testSetGestureMargin() {
         launchTestActivity(PinchTestActivity.class);
