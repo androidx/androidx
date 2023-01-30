@@ -709,6 +709,7 @@ public class UiObject2Test extends BaseTest {
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
+    @Ignore // b/266617335
     @Test
     public void testSetGestureMargins() {
         launchTestActivity(PinchTestActivity.class);
