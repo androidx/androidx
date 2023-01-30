@@ -206,6 +206,9 @@ object ProcessorErrors {
         "private, final, or abstract. It can be abstract only if the method is also" +
         " annotated with @Query."
 
+    fun nullableParamInShortcutMethod(param: String) = "Methods annotated with [@Insert, " +
+        "@Upsert, @Update, @Delete] shouldn't declare nullable parameters ($param)."
+
     fun transactionMethodAsync(returnTypeName: String) = "Method annotated with @Transaction must" +
         " not return deferred/async return type $returnTypeName. Since transactions are" +
         " thread confined and Room cannot guarantee that all queries in the method" +
