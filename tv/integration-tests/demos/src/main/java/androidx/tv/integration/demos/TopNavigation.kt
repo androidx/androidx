@@ -40,6 +40,7 @@ enum class Navigation(val displayName: String, val action: @Composable () -> Uni
   FeaturedCarousel("Featured Carousel", { FeaturedCarouselContent() }),
   ImmersiveList("Immersive List", { ImmersiveListContent() }),
   StickyHeader("Sticky Header", { StickyHeaderContent() }),
+  TextField("Text Field", { TextFieldContent() }),
 }
 
 @Composable
