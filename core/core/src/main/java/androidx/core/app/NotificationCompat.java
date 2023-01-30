@@ -1073,7 +1073,7 @@ public class NotificationCompat {
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
         boolean mSilent;
-        Icon mSmallIcon;
+        Object mSmallIcon; // Icon
 
         /**
          * @deprecated This field was not meant to be public.
@@ -4101,8 +4101,7 @@ public class NotificationCompat {
                     Api28Impl.setGroupConversation((Notification.MessagingStyle) frameworkStyle,
                             mIsGroupConversation);
                 }
-                Api16Impl.setBuilder((Notification.MessagingStyle) frameworkStyle,
-                        builder.getBuilder());
+                Api16Impl.setBuilder((Notification.Style) frameworkStyle, builder.getBuilder());
             } else {
                 Message latestIncomingMessage = findLatestIncomingMessage();
                 // Set the title
@@ -5057,7 +5056,7 @@ public class NotificationCompat {
                 }
                 if (style != null) {
                     // Before applying the style, we clear the actions.
-                    Api24Impl.setActions(builderAccessor.getBuilder());
+                    Api24Impl.clearActions(builderAccessor.getBuilder());
 
                     Api16Impl.setBuilder(style, builderAccessor.getBuilder());
                     if (mAnswerButtonColor != null) {
@@ -5116,7 +5115,7 @@ public class NotificationCompat {
                     List<Action> actionsList = getActionsListWithSystemActions();
                     // Clear any existing actions.
                     if (Build.VERSION.SDK_INT >= 24) {
-                        Api24Impl.setActions(builder);
+                        Api24Impl.clearActions(builder);
                     }
                     // Adds the actions to the builder in the proper order.
                     for (Action action : actionsList) {
@@ -5429,10 +5428,12 @@ public class NotificationCompat {
             private Api24Impl() {
             }
 
+            /**
+             * Clears actions by calling setActions() with an empty list of arguments.
+             */
             @DoNotInline
-            static Notification.Builder setActions(Notification.Builder builder,
-                    Notification.Action... actions) {
-                return builder.setActions(actions);
+            static Notification.Builder clearActions(Notification.Builder builder) {
+                return builder.setActions();
             }
 
             @DoNotInline
@@ -7076,8 +7077,7 @@ public class NotificationCompat {
                     Action[] actions = new Action[parcelables.size()];
                     for (int i = 0; i < actions.length; i++) {
                         if (Build.VERSION.SDK_INT >= 20) {
-                            actions[i] = NotificationCompat.getActionCompatFromAction(
-                                    (Notification.Action) parcelables.get(i));
+                            actions[i] = Api20Impl.getActionCompatFromAction(parcelables, i);
                         } else if (Build.VERSION.SDK_INT >= 16) {
                             actions[i] = NotificationCompatJellybean.getActionFromBundle(
                                     (Bundle) parcelables.get(i));
@@ -7881,6 +7881,14 @@ public class NotificationCompat {
             @DoNotInline
             static Notification.Action build(Notification.Action.Builder builder) {
                 return builder.build();
+            }
+
+            @DoNotInline
+            public static Action getActionCompatFromAction(ArrayList<Parcelable> parcelables,
+                    int i) {
+                // Cast to Notification.Action (added in API 19) must happen in static inner class.
+                return NotificationCompat.getActionCompatFromAction(
+                        (Notification.Action) parcelables.get(i));
             }
         }
 
