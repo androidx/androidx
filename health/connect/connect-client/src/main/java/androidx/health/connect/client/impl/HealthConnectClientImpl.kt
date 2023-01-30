@@ -64,7 +64,6 @@ import kotlinx.coroutines.guava.await
  */
 class HealthConnectClientImpl
 internal constructor(
-    private val providerPackageName: String,
     private val delegate: HealthDataAsyncClient,
     private val allPermissions: List<String> =
         HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
