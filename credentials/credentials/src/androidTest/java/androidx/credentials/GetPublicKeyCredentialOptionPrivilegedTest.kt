@@ -17,7 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.credentials.GetCredentialOption.Companion.createFrom
+import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -40,51 +40,65 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
     }
 
     @Test
-    fun constructor_setsAllowHybridToTrueByDefault() {
+    fun constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         val getPublicKeyCredentialOptionPrivileged = GetPublicKeyCredentialOptionPrivileged(
             "JSON", "RelyingParty", "HASH"
         )
-        val allowHybridActual = getPublicKeyCredentialOptionPrivileged.allowHybrid
-        assertThat(allowHybridActual).isTrue()
+        val preferImmediatelyAvailableCredentialsActual =
+            getPublicKeyCredentialOptionPrivileged.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse()
     }
 
     @Test
-    fun constructor_setsAllowHybridFalse() {
-        val allowHybridExpected = false
+    fun constructor_setPreferImmediatelyAvailableCredentialsTrue() {
+        val preferImmediatelyAvailableCredentialsExpected = true
         val getPublicKeyCredentialOptPriv = GetPublicKeyCredentialOptionPrivileged(
-            "JSON", "RelyingParty", "HASH", allowHybridExpected
+            "JSON",
+            "RelyingParty",
+            "HASH",
+            preferImmediatelyAvailableCredentialsExpected
         )
-        val getAllowHybridActual = getPublicKeyCredentialOptPriv.allowHybrid
-        assertThat(getAllowHybridActual).isEqualTo(allowHybridExpected)
+        val preferImmediatelyAvailableCredentialsActual =
+            getPublicKeyCredentialOptPriv.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+            preferImmediatelyAvailableCredentialsExpected
+        )
     }
 
     @Test
-    fun builder_build_nonDefaultAllowHybrid_false() {
-        val allowHybridExpected = false
+    fun builder_build_nonDefaultPreferImmediatelyAvailableCredentials_true() {
+        val preferImmediatelyAvailableCredentialsExpected = true
         val getPublicKeyCredentialOptionPrivileged = GetPublicKeyCredentialOptionPrivileged
             .Builder(
                 "testJson",
                 "RelyingParty", "Hash",
-            ).setAllowHybrid(allowHybridExpected).build()
-        val getAllowHybridActual = getPublicKeyCredentialOptionPrivileged.allowHybrid
-        assertThat(getAllowHybridActual).isEqualTo(allowHybridExpected)
+            )
+            .setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentialsExpected)
+            .build()
+        val preferImmediatelyAvailableCredentialsActual =
+            getPublicKeyCredentialOptionPrivileged.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+            preferImmediatelyAvailableCredentialsExpected
+        )
     }
 
     @Test
-    fun builder_build_defaultAllowHybrid_true() {
+    fun builder_build_defaultPreferImmediatelyAvailableCredentials_false() {
         val defaultPrivilegedRequest = GetPublicKeyCredentialOptionPrivileged.Builder(
             "{\"Data\":5}",
             "RelyingParty", "HASH"
         ).build()
-        assertThat(defaultPrivilegedRequest.allowHybrid).isTrue()
+        assertThat(defaultPrivilegedRequest.preferImmediatelyAvailableCredentials).isFalse()
     }
 
     @Test
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val getPublicKeyCredentialOptionPrivileged =
-            GetPublicKeyCredentialOptionPrivileged(testJsonExpected, "RelyingParty",
-                "HASH")
+            GetPublicKeyCredentialOptionPrivileged(
+                testJsonExpected, "RelyingParty",
+                "HASH"
+            )
         val testJsonActual = getPublicKeyCredentialOptionPrivileged.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
@@ -116,7 +130,7 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val relyingPartyExpected = "RelyingParty"
         val clientDataHashExpected = "X342%4dfd7&"
-        val allowHybridExpected = false
+        val preferImmediatelyAvailableCredentialsExpected = false
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -127,26 +141,29 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
             GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
-        expectedData.putString(GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RELYING_PARTY,
-            relyingPartyExpected)
+        expectedData.putString(
+            GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RELYING_PARTY,
+            relyingPartyExpected
+        )
         expectedData.putString(
             GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHashExpected
         )
         expectedData.putBoolean(
-            GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_ALLOW_HYBRID,
-            allowHybridExpected
+            GetPublicKeyCredentialOptionPrivileged
+                .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         val option = GetPublicKeyCredentialOptionPrivileged(
             requestJsonExpected, relyingPartyExpected, clientDataHashExpected,
-            allowHybridExpected
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.requestData, expectedData)).isTrue()
         assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
-        assertThat(option.requireSystemProvider).isFalse()
+        assertThat(option.isSystemProviderRequired).isFalse()
     }
 
     @Test
@@ -154,7 +171,10 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         val option = GetPublicKeyCredentialOptionPrivileged("json", "rp", "clientDataHash", true)
 
         val convertedOption = createFrom(
-            option.type, option.requestData, option.candidateQueryData, option.requireSystemProvider
+            option.type,
+            option.requestData,
+            option.candidateQueryData,
+            option.isSystemProviderRequired
         )
 
         assertThat(convertedOption).isInstanceOf(
@@ -162,7 +182,8 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         )
         val convertedSubclassOption = convertedOption as GetPublicKeyCredentialOptionPrivileged
         assertThat(convertedSubclassOption.requestJson).isEqualTo(option.requestJson)
-        assertThat(convertedSubclassOption.allowHybrid).isEqualTo(option.allowHybrid)
+        assertThat(convertedSubclassOption.preferImmediatelyAvailableCredentials)
+            .isEqualTo(option.preferImmediatelyAvailableCredentials)
         assertThat(convertedSubclassOption.clientDataHash)
             .isEqualTo(option.clientDataHash)
         assertThat(convertedSubclassOption.relyingParty).isEqualTo(option.relyingParty)

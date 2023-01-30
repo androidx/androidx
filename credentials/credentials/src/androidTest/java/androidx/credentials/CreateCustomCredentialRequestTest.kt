@@ -17,55 +17,53 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.CreateCredentialRequest.DisplayInfo
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class CreateCustomCredentialRequestTest {
     @Test
     fun constructor_emptyType_throws() {
-        Assert.assertThrows(
+        assertThrows(
             "Expected empty type to throw IAE",
             IllegalArgumentException::class.java
         ) {
             CreateCustomCredentialRequest(
-                "",
-                Bundle(),
-                Bundle(),
-                true
+                "", Bundle(), Bundle(), false,
+                DisplayInfo("userId")
             )
         }
     }
 
     @Test
-    fun constructor_nonEmptyTypeNonNullBundle_success() {
-        CreateCustomCredentialRequest("T", Bundle(), Bundle(), false)
-    }
-
-    @Test
-    fun getter_frameworkProperties() {
+    fun getter() {
         val expectedType = "TYPE"
         val expectedCredentialDataBundle = Bundle()
         expectedCredentialDataBundle.putString("Test", "Test")
         val expectedCandidateQueryDataBundle = Bundle()
         expectedCandidateQueryDataBundle.putBoolean("key", true)
-
+        val expectedDisplayInfo = DisplayInfo("userId")
         val expectedSystemProvider = true
-        val option = CreateCustomCredentialRequest(
+
+        val request = CreateCustomCredentialRequest(
             expectedType,
-            expectedCredentialDataBundle, expectedCandidateQueryDataBundle,
-            expectedSystemProvider
+            expectedCredentialDataBundle,
+            expectedCandidateQueryDataBundle,
+            expectedSystemProvider,
+            expectedDisplayInfo
         )
 
-        assertThat(option.type).isEqualTo(expectedType)
-        assertThat(equals(option.credentialData, expectedCredentialDataBundle))
+        assertThat(request.type).isEqualTo(expectedType)
+        assertThat(equals(request.credentialData, expectedCredentialDataBundle))
             .isTrue()
         assertThat(
             equals(
-                option.candidateQueryData,
+                request.candidateQueryData,
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
-        assertThat(option.requireSystemProvider).isEqualTo(expectedSystemProvider)
+        assertThat(request.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
+        assertThat(request.displayInfo).isEqualTo(expectedDisplayInfo)
     }
 }

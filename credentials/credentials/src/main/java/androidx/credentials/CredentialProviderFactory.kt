@@ -84,8 +84,10 @@ class CredentialProviderFactory {
         @Suppress("deprecation")
         private fun getAllowedProvidersFromManifest(context: Context): List<String> {
             val packageInfo = context.packageManager
-                .getPackageInfo(context.packageName, PackageManager.GET_META_DATA or
-                        PackageManager.GET_SERVICES)
+                .getPackageInfo(
+                    context.packageName, PackageManager.GET_META_DATA or
+                        PackageManager.GET_SERVICES
+                )
 
             val classNames = mutableListOf<String>()
             if (packageInfo.services != null) {

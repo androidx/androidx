@@ -19,39 +19,39 @@ package androidx.credentials
 /**
  * Encapsulates a request to get a user credential.
  *
- * An application can construct such a request by adding one or more types of [GetCredentialOption],
- * and then call [CredentialManager.executeGetCredential] to launch framework UI flows to allow the user
+ * An application can construct such a request by adding one or more types of [CredentialOption],
+ * and then call [CredentialManager.getCredential] to launch framework UI flows to allow the user
  * to consent to using a previously saved credential for the given application.
  *
- * @property getCredentialOptions the list of [GetCredentialOption] from which the user can choose
+ * @property credentialOptions the list of [CredentialOption] from which the user can choose
  * one to authenticate to the app
  * @property isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
  * the only one, false by default
- * @throws IllegalArgumentException If [getCredentialOptions] is empty
+ * @throws IllegalArgumentException If [credentialOptions] is empty
  */
 class GetCredentialRequest @JvmOverloads constructor(
-    val getCredentialOptions: List<GetCredentialOption>,
+    val credentialOptions: List<CredentialOption>,
     val isAutoSelectAllowed: Boolean = false,
 ) {
 
     init {
-        require(getCredentialOptions.isNotEmpty()) { "credentialRequests should not be empty" }
+        require(credentialOptions.isNotEmpty()) { "credentialOptions should not be empty" }
     }
 
     /** A builder for [GetCredentialRequest]. */
     class Builder {
-        private var getCredentialOptions: MutableList<GetCredentialOption> = mutableListOf()
+        private var credentialOptions: MutableList<CredentialOption> = mutableListOf()
         private var autoSelectAllowed: Boolean = false
 
-        /** Adds a specific type of [GetCredentialOption]. */
-        fun addGetCredentialOption(getCredentialOption: GetCredentialOption): Builder {
-            getCredentialOptions.add(getCredentialOption)
+        /** Adds a specific type of [CredentialOption]. */
+        fun addCredentialOption(credentialOption: CredentialOption): Builder {
+            credentialOptions.add(credentialOption)
             return this
         }
 
-        /** Sets the list of [GetCredentialOption]. */
-        fun setGetCredentialOptions(getCredentialOptions: List<GetCredentialOption>): Builder {
-            this.getCredentialOptions = getCredentialOptions.toMutableList()
+        /** Sets the list of [CredentialOption]. */
+        fun setCredentialOptions(credentialOptions: List<CredentialOption>): Builder {
+            this.credentialOptions = credentialOptions.toMutableList()
             return this
         }
 
@@ -67,10 +67,10 @@ class GetCredentialRequest @JvmOverloads constructor(
         /**
          * Builds a [GetCredentialRequest].
          *
-         * @throws IllegalArgumentException If [getCredentialOptions] is empty
+         * @throws IllegalArgumentException If [credentialOptions] is empty
          */
         fun build(): GetCredentialRequest {
-            return GetCredentialRequest(getCredentialOptions.toList(),
+            return GetCredentialRequest(credentialOptions.toList(),
                 autoSelectAllowed)
         }
     }
