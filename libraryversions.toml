@@ -168,7 +168,7 @@ BENCHMARK = { group = "androidx.benchmark", atomicGroupVersion = "versions.BENCH
 BIOMETRIC = { group = "androidx.biometric", atomicGroupVersion = "versions.BIOMETRIC" }
 BLUETOOTH = { group = "androidx.bluetooth", atomicGroupVersion = "versions.BLUETOOTH" }
 BROWSER = { group = "androidx.browser", atomicGroupVersion = "versions.BROWSER" }
-BUILDSRC_TESTS = { group = "androidx.buildSrc-tests", atomicGroupVersion = "versions.BUILDSRC_TESTS", overrideInclude = [ ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main",] }
+BUILDSRC_TESTS = { group = "androidx.buildSrc-tests", atomicGroupVersion = "versions.BUILDSRC_TESTS", overrideInclude = [ ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main"] }
 CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
@@ -211,7 +211,7 @@ HEIFWRITER = { group = "androidx.heifwriter", atomicGroupVersion = "versions.HEI
 HILT = { group = "androidx.hilt" }
 INPUT = { group = "androidx.input" }
 INSPECTION = { group = "androidx.inspection", atomicGroupVersion = "versions.INSPECTION" }
-INSPECTION_EXTENSIONS = { group = "androidx.inspection.extensions", atomicGroupVersion = "versions.SQLITE_INSPECTOR", overrideInclude = [ ":sqlite:sqlite-inspection",] }
+INSPECTION_EXTENSIONS = { group = "androidx.inspection.extensions", atomicGroupVersion = "versions.SQLITE_INSPECTOR", overrideInclude = [ ":sqlite:sqlite-inspection"] }
 INTERPOLATOR = { group = "androidx.interpolator", atomicGroupVersion = "versions.INTERPOLATOR" }
 JAVASCRIPTENGINE = { group = "androidx.javascriptengine", atomicGroupVersion = "versions.JAVASCRIPTENGINE" }
 LEANBACK = { group = "androidx.leanback" }
