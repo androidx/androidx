@@ -134,14 +134,20 @@ public class SnapshotLoader<Value : Any> internal constructor(
      *
      * When [PagingConfig.enablePlaceholders] is false, the [index] is scoped within currently
      * loaded items. For example, in a list of items(0-20) with currently loaded items(10-15),
-     * index[2] = item(12). However, this function does supports an [index] beyond
-     * currently loaded items. For prepends, this means it supports negative indices for as long
-     * as there are still available data to load from. Note that in the case of prepend, each call
-     * to [scrollTo] will anchor the last prepended item to index[0]. For example, in a list of
-     * items(0-20) with currently loaded items(10-15), index[0] = item(10). The first `scrollTo(-2)`
-     * will scroll to item(8) and update index[0] = item(8). The next `scrollTo(-2)` will scroll
-     * to item(6) with index[0] = item(6). This example does not account for prefetches.
+     * index[0] = item(10), index[4] = item(15).
      *
+     * Supports [index] beyond currently loaded items when [PagingConfig.enablePlaceholders]
+     * is false:
+     * 1. For prepends, it supports negative indices for as long as there are still available
+     * data to load from. For example, take a list of items(0-20), pageSize = 1, with currently
+     * loaded items(10-15). With index[0] = item(10), a `scrollTo(-4)` will scroll to item(6) and
+     * update index[0] = item(6).
+     * 2. For appends, it supports indices >= loadedDataSize. For example, take a list of
+     * items(0-20), pageSize = 1, with currently loaded items(10-15). With
+     * index[4] = item(15), a `scrollTo(7)` will scroll to item(18) and update
+     * index[7] = item(18).
+     * Note that both examples does not account for prefetches.
+
      * The [index] accounts for separators/headers/footers where each one of those consumes one
      * scrolled index.
      *
@@ -149,6 +155,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * distance if there are no more data to load from.
      *
      * @param [index] The target index to scroll to
+     *
+     * @see [flingTo] for faking a scroll that continues scrolling without waiting for items to
+     * be loaded in. Supports jumping.
      */
     public suspend fun scrollTo(index: Int): @JvmSuppressWildcards Unit {
         differ.awaitNotLoading()
@@ -169,6 +178,121 @@ public class SnapshotLoader<Value : Any> internal constructor(
         val startIndex = generations.value.lastAccessedIndex.get()
         val loadType = if (startIndex > index) LoadType.PREPEND else LoadType.APPEND
         val scrollCount = abs(startIndex - index)
+        awaitScroll(loadType, scrollCount)
+    }
+
+    /**
+     * Imitates flinging from current index to the target index. It will continue scrolling
+     * even as data is being loaded in. Returns all available data that has been scrolled
+     * through.
+     *
+     * The scroll direction (prepend or append) is dependent on current index and target index. In
+     * general, scrolling to a smaller index triggers [PREPEND] while scrolling to a larger
+     * index triggers [APPEND].
+     *
+     * This function will scroll into placeholders. This means jumping is supported when
+     * [PagingConfig.enablePlaceholders] is true and the amount of placeholders traversed
+     * has reached [PagingConfig.jumpThreshold]. Jumping is disabled when
+     * [PagingConfig.enablePlaceholders] is false.
+     *
+     * When [PagingConfig.enablePlaceholders] is false, the [index] is scoped within currently
+     * loaded items. For example, in a list of items(0-20) with currently loaded items(10-15),
+     * index[0] = item(10), index[4] = item(15).
+     *
+     * Supports [index] beyond currently loaded items when [PagingConfig.enablePlaceholders]
+     * is false:
+     * 1. For prepends, it supports negative indices for as long as there are still available
+     * data to load from. For example, take a list of items(0-20), pageSize = 1, with currently
+     * loaded items(10-15). With index[0] = item(10), a `scrollTo(-4)` will scroll to item(6) and
+     * update index[0] = item(6).
+     * 2. For appends, it supports indices >= loadedDataSize. For example, take a list of
+     * items(0-20), pageSize = 1, with currently loaded items(10-15). With
+     * index[4] = item(15), a `scrollTo(7)` will scroll to item(18) and update
+     * index[7] = item(18).
+     * Note that both examples does not account for prefetches.
+
+     * The [index] accounts for separators/headers/footers where each one of those consumes one
+     * scrolled index.
+     *
+     * For both append/prepend, this function stops loading prior to fulfilling requested scroll
+     * distance if there are no more data to load from.
+     *
+     * @param [index] The target index to scroll to
+     *
+     * @see [scrollTo] for faking scrolls that awaits for placeholders to load before continuing
+     * to scroll.
+     */
+    public suspend fun flingTo(index: Int): @JvmSuppressWildcards Unit {
+        differ.awaitNotLoading()
+        appendOrPrependFlingTo(index)
+        differ.awaitNotLoading()
+    }
+
+    /**
+     * We start scrolling from startIndex +/- 1 so we don't accidentally trigger
+     * a prefetch on the opposite direction.
+     */
+    private suspend fun appendOrPrependFlingTo(index: Int) {
+        val startIndex = generations.value.lastAccessedIndex.get()
+        val loadType = if (startIndex > index) LoadType.PREPEND else LoadType.APPEND
+
+        when (loadType) {
+            LoadType.PREPEND -> prependFlingTo(startIndex, index)
+            LoadType.APPEND -> {
+                // TODO
+            }
+        }
+    }
+
+    /**
+     * Prepend flings to target index.
+     *
+     * If target index is negative, from index[0] onwards it will normal scroll until it fulfills
+     * requested scroll distance.
+     */
+    private suspend fun prependFlingTo(startIndex: Int, index: Int) {
+        var lastAccessedIndex = startIndex
+        val endIndex = maxOf(0, index)
+        // first fast scroll to index or zero
+        for (i in startIndex - 1 downTo endIndex) {
+            differ[i]
+            lastAccessedIndex = i
+        }
+        setLastAccessedIndex(lastAccessedIndex)
+        // for negative indices, we delegate remainder of scrolling required to
+        // the awaiting version.
+        if (index < 0) {
+            flingToOutOfBounds(LoadType.PREPEND, lastAccessedIndex, index)
+        }
+    }
+
+    /**
+     * Delegated work from [flingTo] that is responsible for scrolling to indices that is
+     * beyond [0 to differ.size-1].
+     *
+     * When [PagingConfig.enablePlaceholders] is true, this function is no-op because
+     * there is no more data to load from.
+     *
+     * When [PagingConfig.enablePlaceholders] is false, its delegated work to [awaitScroll]
+     * essentially loops (trigger next page --> await for next page) until
+     * it fulfills remaining (out of bounds) requested scroll distance.
+     */
+    private suspend fun flingToOutOfBounds(
+        loadType: LoadType,
+        lastAccessedIndex: Int,
+        index: Int
+    ) {
+        // Wait for the page triggered by differ[lastAccessedIndex] to load in. This gives us the
+        // offsetIndex for next differ.get() because the current lastAccessedIndex is already the
+        // boundary index, such that differ[lastAccessedIndex +/- 1] will throw IndexOutOfBounds.
+        val (_, offsetIndex) = awaitLoad(lastAccessedIndex)
+        setLastAccessedIndex(offsetIndex)
+        // starts loading from the offsetIndex and scrolls the remaining requested distance
+        // below zero which is abs(index)
+        awaitScroll(loadType, abs(index))
+    }
+
+    private suspend fun awaitScroll(loadType: LoadType, scrollCount: Int) {
         repeat(scrollCount) {
             awaitNextItem(loadType) ?: return
         }
