@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.activity.result;
-
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.annotation.NonNull;
+package androidx.activity.result
 
 /**
- * A class that has an {@link ActivityResultRegistry} that allows you to register a
- * {@link ActivityResultCallback} for handling an
- * {@link androidx.activity.result.contract.ActivityResultContract}.
+ * A class that has an [ActivityResultRegistry] that allows you to register a
+ * [ActivityResultCallback] for handling an
+ * [androidx.activity.result.contract.ActivityResultContract].
  *
- * If it is not safe to call
- * {@link ActivityResultRegistry#register(String, ActivityResultContract, ActivityResultCallback)}
- * in the constructor, it is strongly recommended to also implement {@link ActivityResultCaller}.
+ * If it is not safe to call [ActivityResultRegistry.register]
+ * in the constructor, it is strongly recommended to also implement [ActivityResultCaller].
  *
  * @see ActivityResultRegistry
  */
-public interface ActivityResultRegistryOwner {
-
+interface ActivityResultRegistryOwner {
     /**
      * Returns the ActivityResultRegistry of the provider.
      *
      * @return The activity result registry of the provider.
      */
-    @NonNull
-    ActivityResultRegistry getActivityResultRegistry();
+    val activityResultRegistry: ActivityResultRegistry
 }
