@@ -53,6 +53,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(project(":internal-testutils-truth"))
     testImplementation(gradleTestKit())
     testImplementation(libs.checkmark)
     testImplementation(libs.kotlinGradlePluginz)
