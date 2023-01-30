@@ -13,57 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity.contextaware
 
-package androidx.activity.contextaware;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.content.Context
 
 /**
- * A <code>ContextAware</code> class is associated with a {@link Context} sometime after
- * the class is instantiated. By adding a {@link OnContextAvailableListener}, you can
+ * A `ContextAware` class is associated with a [Context] sometime after
+ * the class is instantiated. By adding a [OnContextAvailableListener], you can
  * receive a callback for that event.
- * <p>
- * Classes implementing {@link ContextAware} are strongly recommended to also implement
- * {@link androidx.lifecycle.LifecycleOwner} for providing a more general purpose API for
+ *
+ * Classes implementing [ContextAware] are strongly recommended to also implement
+ * [androidx.lifecycle.LifecycleOwner] for providing a more general purpose API for
  * listening for creation and destruction events.
  *
  * @see ContextAwareHelper
  */
-public interface ContextAware {
-
+interface ContextAware {
     /**
-     * Get the {@link Context} if it is currently available. If this returns
-     * <code>null</code>, you can use
-     * {@link #addOnContextAvailableListener(OnContextAvailableListener)} to receive
+     * Get the [Context] if it is currently available. If this returns
+     * `null`, you can use [addOnContextAvailableListener] to receive
      * a callback for when it available.
      *
      * @return the Context if it is currently available.
      */
-    @Nullable
-    Context peekAvailableContext();
+    fun peekAvailableContext(): Context?
 
     /**
-     * Add a new {@link OnContextAvailableListener} for receiving a callback for when
-     * this class is associated with a {@link android.content.Context}.
-     * <p>
+     * Add a new [OnContextAvailableListener] for receiving a callback for when
+     * this class is associated with a [android.content.Context].
+     *
      * Listeners are triggered in the order they are added when added before the Context is
      * available. Listeners added after the context has been made available will have the Context
      * synchronously delivered to them as part of this call.
      *
      * @param listener The listener that should be added.
-     * @see #removeOnContextAvailableListener(OnContextAvailableListener)
+     * @see removeOnContextAvailableListener
      */
-    void addOnContextAvailableListener(@NonNull OnContextAvailableListener listener);
+    fun addOnContextAvailableListener(listener: OnContextAvailableListener)
 
     /**
-     * Remove a {@link OnContextAvailableListener} previously added via
-     * {@link #addOnContextAvailableListener(OnContextAvailableListener)}.
+     * Remove a [OnContextAvailableListener] previously added via
+     * [addOnContextAvailableListener].
      *
      * @param listener The listener that should be removed.
-     * @see #addOnContextAvailableListener(OnContextAvailableListener)
+     * @see addOnContextAvailableListener
      */
-    void removeOnContextAvailableListener(@NonNull OnContextAvailableListener listener);
+    fun removeOnContextAvailableListener(listener: OnContextAvailableListener)
 }

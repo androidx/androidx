@@ -13,98 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity.contextaware
 
-package androidx.activity.contextaware;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import android.content.Context
+import java.util.concurrent.CopyOnWriteArraySet
 
 /**
- * Helper class for implementing {@link ContextAware}. Classes using this helper should
- * call {@link #addOnContextAvailableListener(OnContextAvailableListener)} and
- * {@link #removeOnContextAvailableListener(OnContextAvailableListener)} as the respective
- * methods of {@link ContextAware} are called.
- * <p>
- * You must call {@link #dispatchOnContextAvailable(Context)} once the
- * {@link Context} is available to dispatch the callbacks to all registered listeners.
- * <p>
+ * Helper class for implementing [ContextAware]. Classes using this helper should
+ * call [addOnContextAvailableListener] and [removeOnContextAvailableListener] as the respective
+ * methods of [ContextAware] are called.
+ *
+ * You must call [dispatchOnContextAvailable] once the
+ * [Context] is available to dispatch the callbacks to all registered listeners.
+ *
  * Listeners added after the context has been made available via
- * {@link #dispatchOnContextAvailable(Context)} will have the Context synchronously
- * delivered to them up until {@link #clearAvailableContext()} is called.
+ * [dispatchOnContextAvailable] will have the Context synchronously
+ * delivered to them up until [clearAvailableContext] is called.
  */
-public final class ContextAwareHelper {
+class ContextAwareHelper {
+    private val listeners: MutableSet<OnContextAvailableListener> = CopyOnWriteArraySet()
 
-    private final Set<OnContextAvailableListener> mListeners = new CopyOnWriteArraySet<>();
-
-    private volatile Context mContext;
-
-    /**
-     * Construct a new ContextAwareHelper.
-     */
-    public ContextAwareHelper() {
-    }
+    @Volatile
+    private var context: Context? = null
 
     /**
-     * Get the {@link Context} if it is currently available. If this returns
-     * <code>null</code>, you can use
-     * {@link #addOnContextAvailableListener(OnContextAvailableListener)} to receive
+     * Get the [Context] if it is currently available. If this returns
+     * `null`, you can use [addOnContextAvailableListener] to receive
      * a callback for when it available.
      *
      * @return the Context if it is currently available.
      */
-    @Nullable
-    public Context peekAvailableContext() {
-        return mContext;
+    fun peekAvailableContext(): Context? {
+        return context
     }
 
     /**
-     * Add a new {@link OnContextAvailableListener} for receiving a callback for when
-     * this class is associated with a {@link android.content.Context}.
+     * Add a new [OnContextAvailableListener] for receiving a callback for when
+     * this class is associated with a [android.content.Context].
      *
      * @param listener The listener that should be added.
-     * @see #removeOnContextAvailableListener(OnContextAvailableListener)
+     * @see removeOnContextAvailableListener
      */
-    public void addOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
-        if (mContext != null) {
-            listener.onContextAvailable(mContext);
+    fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
+        context?.let {
+            listener.onContextAvailable(it)
         }
-        mListeners.add(listener);
+        listeners.add(listener)
     }
 
     /**
-     * Remove a {@link OnContextAvailableListener} previously added via
-     * {@link #addOnContextAvailableListener(OnContextAvailableListener)}.
+     * Remove a [OnContextAvailableListener] previously added via
+     * [addOnContextAvailableListener].
      *
      * @param listener The listener that should be removed.
-     * @see #addOnContextAvailableListener(OnContextAvailableListener)
+     * @see addOnContextAvailableListener
      */
-    public void removeOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
-        mListeners.remove(listener);
+    fun removeOnContextAvailableListener(listener: OnContextAvailableListener) {
+        listeners.remove(listener)
     }
 
     /**
-     * Dispatch the callback of {@link OnContextAvailableListener#onContextAvailable} to
+     * Dispatch the callback of [OnContextAvailableListener.onContextAvailable] to
      * all currently added listeners in the order they were added.
      *
-     * @param context The {@link Context} the {@link ContextAware} object is now associated with.
+     * @param context The [Context] the [ContextAware] object is now associated with.
      */
-    public void dispatchOnContextAvailable(@NonNull Context context) {
-        mContext = context;
-        for (OnContextAvailableListener listener : mListeners) {
-            listener.onContextAvailable(context);
+    fun dispatchOnContextAvailable(context: Context) {
+        this.context = context
+        for (listener in listeners) {
+            listener.onContextAvailable(context)
         }
     }
 
     /**
-     * Clear any {@link Context} previously made available via
-     * {@link #dispatchOnContextAvailable(Context)}.
+     * Clear any [Context] previously made available via
+     * [dispatchOnContextAvailable].
      */
-    public void clearAvailableContext() {
-        mContext = null;
+    fun clearAvailableContext() {
+        context = null
     }
 }
