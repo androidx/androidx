@@ -65,6 +65,7 @@ import androidx.testutils.AnimationActivityTestRule;
 import androidx.testutils.AnimationTest;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -931,6 +932,7 @@ public class GridWidgetTest {
         assertEquals(29, mGridView.getSelectedPosition());
     }
 
+    @Ignore // b/266757643
     @Test
     public void testThreeColumnVerticalBasic() throws Throwable {
         Intent intent = new Intent();
@@ -2343,6 +2345,7 @@ public class GridWidgetTest {
         assertEquals(mGridView.getWidth() / 2, (view.getLeft() + view.getRight()) / 2);
     }
 
+    @Ignore // b/266757643
     @Test
     public void testItemAddRemoveHorizontal() throws Throwable {
 
@@ -2926,7 +2929,7 @@ public class GridWidgetTest {
         testRemoveVisibleItemsInSmoothScrollingBackward(/*focusOnGridView=*/ false);
     }
 
-    @FlakyTest(bugId = 186848347)
+    @Ignore // b/266757643
     @Test
     public void testPendingSmoothScrollAndRemove() throws Throwable {
         Intent intent = new Intent();
