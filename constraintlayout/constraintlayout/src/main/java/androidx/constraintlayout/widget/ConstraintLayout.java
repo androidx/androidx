@@ -67,33 +67,15 @@ import java.util.HashMap;
  * <p>
  * There are currently various types of constraints that you can use:
  * <ul>
- * <li>
- * <a href="#RelativePositioning">Relative positioning</a>
- * </li>
- * <li>
- * <a href="#Margins">Margins</a>
- * </li>
- * <li>
- * <a href="#CenteringPositioning">Centering positioning</a>
- * </li>
- * <li>
- * <a href="#CircularPositioning">Circular positioning</a>
- * </li>
- * <li>
- * <a href="#VisibilityBehavior">Visibility behavior</a>
- * </li>
- * <li>
- * <a href="#DimensionConstraints">Dimension constraints</a>
- * </li>
- * <li>
- * <a href="#Chains">Chains</a>
- * </li>
- * <li>
- * <a href="#VirtualHelpers">Virtual Helpers objects</a>
- * </li>
- * <li>
- * <a href="#Optimizer">Optimizer</a>
- * </li>
+ * <li>Relative positioning</li>
+ * <li>Margins</li>
+ * <li>Centering positioning</li>
+ * <li>Circular positioning</li>
+ * <li>Visibility behavior</li>
+ * <li>Dimension constraints</li>
+ * <li>Chains</li>
+ * <li>Virtual Helpers objects</li>
+ * <li>Optimizer</li>
  * </ul>
  * </p>
  *
@@ -105,9 +87,9 @@ import java.util.HashMap;
  * ConstraintLayout.LayoutParams} for layout attributes
  * </p>
  *
- * <h3>Developer Guide</h3>
+ * <h2>Developer Guide</h2>
  *
- * <h4 id="RelativePositioning"> Relative positioning </h4>
+ * <h3 id="RelativePositioning"> Relative positioning </h3>
  * <p>
  * Relative positioning is one of the basic building blocks of creating layouts in ConstraintLayout.
  * Those constraints allow you to position a given widget relative to another one. You can constrain
@@ -170,7 +152,7 @@ import java.util.HashMap;
  *
  * </p>
  *
- * <h4 id="Margins"> Margins </h4>
+ * <h3 id="Margins"> Margins </h3>
  * <p>
  * <div align="center" >
  * <img width="325px" src="resources/images/relative-positioning-margin.png">
@@ -190,7 +172,7 @@ import java.util.HashMap;
  * </ul>
  * <p>Note that a margin can only be positive or equal to zero,
  * and takes a {@code Dimension}.</p>
- * <h4 id="GoneMargin"> Margins when connected to a GONE widget</h4>
+ * <h3 id="GoneMargin"> Margins when connected to a GONE widget</h3>
  * <p>When a position constraint target's visibility is {@code View.GONE},
  * you can also indicate a different
  * margin value to be used using the following attributes:</p>
@@ -206,7 +188,7 @@ import java.util.HashMap;
  * </p>
  *
  * </p>
- * <h4 id="CenteringPositioning"> Centering positioning and bias</h4>
+ * <h3 id="CenteringPositioning"> Centering positioning and bias</h3>
  * <p>
  * A useful aspect of {@code ConstraintLayout} is in how it deals with "impossible" constraints.
  * For example, if
@@ -234,7 +216,7 @@ import java.util.HashMap;
  * in the parent container.
  * This will apply similarly for vertical constraints.
  * </p>
- * <h5 id="Bias">Bias</h5>
+ * <b>Bias</b>
  * <p>
  * The default when encountering such opposite constraints is to center the widget;
  * but you can tweak
@@ -265,7 +247,7 @@ import java.util.HashMap;
  * </p>
  * </p>
  *
- * <h4 id="CircularPositioning"> Circular positioning (<b>Added in 1.1</b>)</h4>
+ * <h3 id="CircularPositioning"> Circular positioning (<b>Added in 1.1</b>)</h3>
  * <p>
  * You can constrain a widget center relative to another widget center,
  * at an angle and a distance. This allows
@@ -291,7 +273,7 @@ import java.util.HashMap;
  *         }
  *     </pre>
  * </p>
- * <h4 id="VisibilityBehavior"> Visibility behavior </h4>
+ * <h3 id="VisibilityBehavior"> Visibility behavior </h3>
  * <p>
  * {@code ConstraintLayout} has a specific handling of widgets being marked as {@code View.GONE}.
  * <p>{@code GONE} widgets, as usual, are not going to be displayed and
@@ -326,8 +308,8 @@ import java.util.HashMap;
  * (see <a href="#GoneMargin">the section above about the gone margin attributes</a>).
  * </p>
  *
- * <h4 id="DimensionConstraints"> Dimensions constraints </h4>
- * <h5>Minimum dimensions on ConstraintLayout</h5>
+ * <h3 id="DimensionConstraints"> Dimensions constraints </h3>
+ * <b>Minimum dimensions on ConstraintLayout</b>
  * <p>
  * You can define minimum and maximum sizes for the {@code ConstraintLayout} itself:
  * <ul>
@@ -339,7 +321,7 @@ import java.util.HashMap;
  * Those minimum and maximum dimensions will be used by
  * {@code ConstraintLayout} when its dimensions are set to {@code WRAP_CONTENT}.
  * </p>
- * <h5>Widgets dimension constraints</h5>
+ * <b>Widgets dimension constraints</b>
  * <p>
  * The dimension of the widgets can be specified by setting the
  * {@code android:layout_width} and
@@ -366,7 +348,7 @@ import java.util.HashMap;
  * left/right or top/bottom constraints being set to {@code "parent"}.
  * </p>
  * </p>
- * <h5>WRAP_CONTENT : enforcing constraints (<i><b>Added in 1.1</b></i>)</h5>
+ * <b>WRAP_CONTENT : enforcing constraints (<i>Added in 1.1</i>)</b>
  * <p>
  * If a dimension is set to {@code WRAP_CONTENT}, in versions before 1.1
  * they will be treated as a literal dimension -- meaning, constraints will
@@ -379,11 +361,12 @@ import java.util.HashMap;
  * <li>{@code app:layout_constrainedHeight="true|false"}</li>
  * </ul>
  * </p>
- * <h5>MATCH_CONSTRAINT dimensions (<i><b>Added in 1.1</b></i>)</h5>
+ * <b>MATCH_CONSTRAINT dimensions (<i>Added in 1.1</i>)</b>
  * <p>
  * When a dimension is set to {@code MATCH_CONSTRAINT},
  * the default behavior is to have the resulting size take all the available space.
  * Several additional modifiers are available:
+ * </p>
  * <ul>
  * <li>{@code layout_constraintWidth_min} and {@code layout_constraintHeight_min} :
  * will set the minimum size for this dimension</li>
@@ -392,11 +375,11 @@ import java.util.HashMap;
  * <li>{@code layout_constraintWidth_percent} and {@code layout_constraintHeight_percent} :
  * will set the size of this dimension as a percentage of the parent</li>
  * </ul>
- * <h6>Min and Max</h6>
- * The value indicated for min and max can be either a dimension in Dp,
- * or "wrap", which will use the same value as what {@code WRAP_CONTENT} would do.
- * <h6>Percent dimension</h6>
- * To use percent, you need to set the following:
+ * <b>Min and Max</b>
+ * <p>The value indicated for min and max can be either a dimension in Dp,
+ * or "wrap", which will use the same value as what {@code WRAP_CONTENT} would do.</p>
+ * <b>Percent dimension</b>
+ * <p>To use percent, you need to set the following</p>
  * <ul>
  * <li>The dimension should be set to {@code MATCH_CONSTRAINT} (0dp)</li>
  * <li>The default should be set to percent {@code app:layout_constraintWidth_default="percent"}
@@ -404,8 +387,7 @@ import java.util.HashMap;
  * <li>Then set the {@code layout_constraintWidth_percent}
  * or {@code layout_constraintHeight_percent} attributes to a value between 0 and 1</li>
  * </ul>
- * </p>
- * <h5>Ratio</h5>
+ * <b>Ratio</b>
  * <p>
  * You can also define one dimension of a widget as a ratio of the other one.
  * In order to do that, you
@@ -458,10 +440,10 @@ import java.util.HashMap;
  *
  * </p>
  *
- * <h4 id="Chains">Chains</h4>
+ * <h3 id="Chains">Chains</h3>
  * <p>Chains provide group-like behavior in a single axis (horizontally or vertically).
  * The other axis can be constrained independently.</p>
- * <h5>Creating a chain</h5>
+ * <b>Creating a chain</b>
  * <p>
  * A set of widgets are considered a chain if they are linked together via a
  * bi-directional connection (see Fig. 9, showing a minimal chain, with two widgets).
@@ -471,7 +453,7 @@ import java.util.HashMap;
  * <br><b><i>Fig. 9 - Chain</i></b>
  * </div>
  * <p>
- * <h5>Chain heads</h5>
+ * <b>Chain heads</b>
  * <p>
  * Chains are controlled by attributes set on the first element of the chain
  * (the "head" of the chain):
@@ -482,10 +464,10 @@ import java.util.HashMap;
  * </div>
  * <p>The head is the left-most widget for horizontal chains,
  * and the top-most widget for vertical chains.</p>
- * <h5>Margins in chains</h5>
+ * <b>Margins in chains</b>
  * <p>If margins are specified on connections, they will be taken into account.
  * In the case of spread chains, margins will be deducted from the allocated space.</p>
- * <h5>Chain Style</h5>
+ * <b>Chain Style</b>
  * <p>When setting the attribute {@code layout_constraintHorizontal_chainStyle} or
  * {@code layout_constraintVertical_chainStyle} on the first element of a chain,
  * the behavior of the chain will change according to the specified style
@@ -505,7 +487,7 @@ import java.util.HashMap;
  * <br><b><i>Fig. 11 - Chains Styles</i></b>
  * </div>
  * </p>
- * <h5>Weighted chains</h5>
+ * <b>Weighted chains</b>
  * <p>The default behavior of a chain is to spread the elements equally in the available space.
  * If one or more elements are using {@code MATCH_CONSTRAINT}, they
  * will use the available empty space (equally divided among themselves).
@@ -517,7 +499,7 @@ import java.util.HashMap;
  * with the first element using a weight of 2 and the second a weight of 1,
  * the space occupied by the first element will be twice that of the second element.</p>
  *
- * <h5>Margins and chains (<i><b>in 1.1</b></i>)</h5>
+ * <b>Margins and chains (<i>in 1.1</i>)</b>
  * <p>When using margins on elements in a chain, the margins are additive.</p>
  * <p>For example, on a horizontal chain, if one element defines
  * a right margin of 10dp and the next element
@@ -527,7 +509,7 @@ import java.util.HashMap;
  * leftover space used by chains
  * to position items. The leftover space does not contain the margins.</p>
  *
- * <h4 id="VirtualHelpers"> Virtual Helper objects </h4>
+ * <h3 id="VirtualHelpers"> Virtual Helper objects </h3>
  * <p>In addition to the intrinsic capabilities detailed previously,
  * you can also use special helper objects
  * in {@code ConstraintLayout} to help you with your layout. Currently, the
@@ -537,7 +519,7 @@ import java.util.HashMap;
  * then be positioned by constraining them to such guidelines. In <b>1.1</b>,
  * {@code Barrier} and {@code Group} were added too.</p>
  *
- * <h4 id="Optimizer">Optimizer (<i><b>in 1.1</b></i>)</h4>
+ * <h3 id="Optimizer">Optimizer (<i><b>in 1.1</b></i>)</h3>
  * <p>
  * In 1.1 we exposed the constraints optimizer. You can decide which optimizations
  * are applied by adding the tag <i>app:layout_optimizationLevel</i>
