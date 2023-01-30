@@ -418,125 +418,123 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun iterableContainsNoneOf() {
-//        assertThat(listOf(1, 2, 3)).containsNoneOf(4, 5, 6)
-//    }
-//
-//    @Test
-//    fun iterableContainsNoneOfFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsNoneOf(1, 2, 4)
-//        assertFailureKeys("expected not to contain any of", "but contained", "full contents")
-//        assertFailureValue("expected not to contain any of", "[1, 2, 4]")
-//        assertFailureValue("but contained", "[1, 2]")
-//        assertFailureValue("full contents", "[1, 2, 3]")
-//    }
-//
-//    @Test
-//    fun iterableContainsNoneOfFailureWithDuplicateInSubject() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 2, 3)).containsNoneOf(1, 2, 4)
-//        assertFailureValue("but contained", "[1, 2]")
-//    }
-//
-//    @Test
-//    fun iterableContainsNoneOfFailureWithDuplicateInExpected() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsNoneOf(1, 2, 2, 4)
-//        assertFailureValue("but contained", "[1, 2]")
-//    }
-//
-//    @Test
-//    fun iterableContainsNoneOfFailureWithEmptyString() {
-//        expectFailureWhenTestingThat(listOf("")).containsNoneOf("", null)
-//        assertFailureKeys("expected not to contain any of", "but contained", "full contents")
-//        assertFailureValue("expected not to contain any of", "[\"\" (empty String), null]")
-//        assertFailureValue("but contained", "[\"\" (empty String)]")
-//        assertFailureValue("full contents", "[]")
-//    }
-//
-//    @Test
-//    fun iterableContainsNoneInIterable() {
-//        assertThat(listOf(1, 2, 3)).containsNoneIn(listOf(4, 5, 6))
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsNoneIn(listOf(1, 2, 4))
-//        assertFailureKeys("expected not to contain any of", "but contained", "full contents")
-//        assertFailureValue("expected not to contain any of", "[1, 2, 4]")
-//        assertFailureValue("but contained", "[1, 2]")
-//        assertFailureValue("full contents", "[1, 2, 3]")
-//    }
-//
-//    @Test
-//    fun iterableContainsNoneInArray() {
-//        assertThat(listOf(1, 2, 3)).containsNoneIn(arrayOf(4, 5, 6))
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsNoneIn(arrayOf(1, 2, 4))
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyArray() {
-//        val stringArray = arrayOf("a", "b")
-//        val iterable: ImmutableList<Array<String>> = listOf(stringArray)
-//        // This test fails w/o the explicit cast
-//        assertThat(iterable).containsExactly(stringArray as Any)
-//    }
-//
-//    @Test
-//    fun arrayContainsExactly() {
-//        val iterable: ImmutableList<String> = listOf("a", "b")
-//        val array = arrayOf("a", "b")
-//        assertThat(iterable).containsExactly(array as Array<Any>)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithMany() {
-//        assertThat(listOf(1, 2, 3)).containsExactly(1, 2, 3)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyOutOfOrder() {
-//        assertThat(listOf(1, 2, 3, 4)).containsExactly(3, 1, 4, 2)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicates() {
-//        assertThat(listOf(1, 2, 2, 2, 3)).containsExactly(1, 2, 2, 2, 3)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicatesOutOfOrder() {
-//        assertThat(listOf(1, 2, 2, 2, 3)).containsExactly(2, 1, 2, 3, 2)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithOnlyNullPassedAsNullArray() {
-//        // Truth is tolerant of this erroneous varargs call.
-//        val actual: Iterable<Any> = listOf(null as Any?)
-//        assertThat(actual).containsExactly(null as Array<Any?>?)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithOnlyNull() {
-//        val actual: Iterable<Any> = listOf(null as Any?)
-//        assertThat(actual).containsExactly(null as Any?)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithNullSecond() {
-//        assertThat(listOf(1, null)).containsExactly(1, null)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithNullThird() {
-//        assertThat(listOf(1, 2, null)).containsExactly(1, 2, null)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithNull() {
-//        assertThat(listOf(1, null, 3)).containsExactly(1, null, 3)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithNullOutOfOrder() {
-//        assertThat(listOf(1, null, 3)).containsExactly(1, 3, null as Int?)
-//    }
-//
+    @Test
+    fun iterableContainsNoneOf() {
+        assertThat(listOf(1, 2, 3)).containsNoneOf(4, 5, 6)
+    }
+
+    @Test
+    fun iterableContainsNoneOfFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsNoneOf(1, 2, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsNoneOfFailureWithDuplicateInSubject() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 2, 3)).containsNoneOf(1, 2, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsNoneOfFailureWithDuplicateInExpected() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsNoneOf(1, 2, 2, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsNoneOfFailureWithEmptyString() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("")).containsNoneOf("", null)
+        }
+    }
+
+    @Test
+    fun iterableContainsNoneInIterable() {
+        assertThat(listOf(1, 2, 3)).containsNoneIn(listOf(4, 5, 6))
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsNoneIn(listOf(1, 2, 4))
+        }
+    }
+
+    @Test
+    fun iterableContainsNoneInArray() {
+        assertThat(listOf(1, 2, 3)).containsNoneIn(arrayOf(4, 5, 6))
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsNoneIn(arrayOf(1, 2, 4))
+        }
+    }
+
+        @Test
+    fun iterableContainsExactlyArray() {
+        val stringArray = arrayOf("a", "b")
+        val iterable = listOf(stringArray)
+        // This test fails w/o the explicit cast
+        assertThat(iterable).containsExactly(stringArray as Any)
+    }
+
+    @Test
+    fun arrayContainsExactly() {
+        val iterable = listOf("a", "b")
+        val array = arrayOf("a", "b")
+        assertThat(iterable).containsExactly(*array)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithMany() {
+        assertThat(listOf(1, 2, 3)).containsExactly(1, 2, 3)
+    }
+
+    @Test
+    fun iterableContainsExactlyOutOfOrder() {
+        assertThat(listOf(1, 2, 3, 4)).containsExactly(3, 1, 4, 2)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicates() {
+        assertThat(listOf(1, 2, 2, 2, 3)).containsExactly(1, 2, 2, 2, 3)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicatesOutOfOrder() {
+        assertThat(listOf(1, 2, 2, 2, 3)).containsExactly(2, 1, 2, 3, 2)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithOnlyNullPassedAsNullArray() {
+        // Truth is tolerant of this erroneous varargs call.
+        val actual = listOf(null as Any?)
+        assertThat(actual).containsExactly(null as Array<Any?>?)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithOnlyNull() {
+        val actual = listOf(null as Any?)
+        assertThat(actual).containsExactly(null as Any?)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithNullSecond() {
+        assertThat(listOf(1, null)).containsExactly(1, null)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithNullThird() {
+        assertThat(listOf(1, 2, null)).containsExactly(1, 2, null)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithNull() {
+        assertThat(listOf(1, null, 3)).containsExactly(1, null, 3)
+    }
+
+    @Test
+    fun iterableContainsExactlyWithNullOutOfOrder() {
+        assertThat(listOf(1, null, 3)).containsExactly(1, 3, null as Int?)
+    }
+
     @Test
     fun iterableContainsExactlyOutOfOrderDoesNotStringify() {
         val o = CountsToStringCalls()
@@ -552,90 +550,77 @@ class IterableSubjectTest {
         assertTrue(o.calls > 0)
     }
 
-//    @Test
-//    fun iterableContainsExactlyWithEmptyString() {
-//        expectFailureWhenTestingThat(listOf()).containsExactly("")
-//        assertFailureValue("missing (1)", "")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithEmptyStringAndUnexpectedItem() {
-//        expectFailureWhenTestingThat(listOf("a", null)).containsExactly("")
-//        assertFailureKeys("missing (1)", "unexpected (2)", "---", "expected", "but was")
-//        assertFailureValue("missing (1)", "")
-//        assertFailureValue("unexpected (2)", "a, null")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithEmptyStringAndMissingItem() {
-//        expectFailureWhenTestingThat(listOf("")).containsExactly("a", null)
-//        assertFailureValue("missing (2)", "a, null")
-//        assertFailureValue("unexpected (1)", "")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithEmptyStringAmongMissingItems() {
-//        expectFailureWhenTestingThat(listOf("a")).containsExactly("", "b")
-//        assertFailureKeys(
-//            "missing (2)", "#1", "#2", "", "unexpected (1)", "#1", "---", "expected", "but was"
-//        )
-//        assertFailureValueIndexed("#1", 0, "")
-//        assertFailureValueIndexed("#2", 0, "b")
-//        assertFailureValueIndexed("#1", 1, "a")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlySingleElement() {
-//        assertThat(listOf(1)).containsExactly(1)
-//        expectFailureWhenTestingThat(listOf(1)).containsExactly(2)
-//        assertFailureKeys("value of", "expected", "but was")
-//        assertFailureValue("value of", "iterable.onlyElement()")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlySingleElementNoEqualsMagic() {
-//        expectFailureWhenTestingThat(listOf(1)).containsExactly(1L)
-//        assertFailureValueIndexed("an instance of", 0, "java.lang.Long")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithElementsThatThrowWhenYouCallHashCode() {
-//        val one = HashCodeThrower()
-//        val two = HashCodeThrower()
-//        assertThat(listOf(one, two)).containsExactly(two, one)
-//        assertThat(listOf(one, two)).containsExactly(one, two).inOrder()
-//        assertThat(listOf(one, two)).containsExactlyElementsIn(listOf(two, one))
-//        assertThat(listOf(one, two)).containsExactlyElementsIn(listOf(one, two)).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithElementsThatThrowWhenYouCallHashCodeFailureTooMany() {
-//        val one = HashCodeThrower()
-//        val two = HashCodeThrower()
-//        expectFailureWhenTestingThat(listOf(one, two)).containsExactly(one)
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithElementsThatThrowWhenYouCallHashCodeOneMismatch() {
-//        val one = HashCodeThrower()
-//        val two = HashCodeThrower()
-//        expectFailureWhenTestingThat(listOf(one, one)).containsExactly(one, two)
-//    }
-//
-//    private class HashCodeThrower() {
-//        override fun equals(other: Any?): Boolean {
-//            return this === other
-//        }
-//
-//        override fun hashCode(): Int {
-//            throw java.lang.UnsupportedOperationException()
-//        }
-//
-//        override fun toString(): String {
-//            return "HCT"
-//        }
-//    }
-//
+    @Test
+    fun iterableContainsExactlyWithEmptyString() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf<Any?>()).containsExactly("")
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithEmptyStringAndUnexpectedItem() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("a", null)).containsExactly("")
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithEmptyStringAndMissingItem() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("")).containsExactly("a", null)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithEmptyStringAmongMissingItems() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("a")).containsExactly("", "b")
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlySingleElement() {
+        assertThat(listOf(1)).containsExactly(1)
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1)).containsExactly(2)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlySingleElementNoEqualsMagic() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1)).containsExactly(1L)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithElementsThatThrowWhenYouCallHashCode() {
+        val one = HashCodeThrower()
+        val two = HashCodeThrower()
+        assertThat(listOf(one, two)).containsExactly(two, one)
+        assertThat(listOf(one, two)).containsExactly(one, two).inOrder()
+        assertThat(listOf(one, two)).containsExactlyElementsIn(listOf(two, one))
+        assertThat(listOf(one, two)).containsExactlyElementsIn(listOf(one, two)).inOrder()
+    }
+
+    @Test
+    fun iterableContainsExactlyWithElementsThatThrowWhenYouCallHashCodeFailureTooMany() {
+        val one = HashCodeThrower()
+        val two = HashCodeThrower()
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(one, two)).containsExactly(one)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithElementsThatThrowWhenYouCallHashCodeOneMismatch() {
+        val one = HashCodeThrower()
+        val two = HashCodeThrower()
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(one, one)).containsExactly(one, two)
+        }
+    }
+
     @Test
     fun iterableContainsExactlyElementsInInOrderPassesWithEmptyExpectedAndActual() {
         assertThat(emptyList<Any>()).containsExactlyElementsIn(emptyList<Any>()).inOrder()
@@ -655,152 +640,137 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun iterableContainsExactlyMissingItemFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2)).containsExactly(1, 2, 4)
-//        assertFailureValue("missing (1)", "4")
-//    }
+    @Test
+    fun iterableContainsExactlyMissingItemFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2)).containsExactly(1, 2, 4)
+        }
+    }
 
-//    @Test
-//    fun iterableContainsExactlyUnexpectedItemFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsExactly(1, 2)
-//        assertFailureValue("unexpected (1)", "3")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicatesNotEnoughItemsFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsExactly(1, 2, 2, 2, 3)
-//        assertFailureValue("missing (2)", "2 [2 copies]")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicatesMissingItemFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsExactly(1, 2, 2, 2, 3, 4)
-//        assertFailureValue("missing (3)", "2 [2 copies], 4")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicatesMissingItemsWithNewlineFailure() {
-//        expectFailureWhenTestingThat(listOf("a", "b", "foo\nbar"))
-//            .containsExactly("a", "b", "foo\nbar", "foo\nbar", "foo\nbar")
-//        assertFailureKeys("missing (2)", "#1 [2 copies]", "---", "expected", "but was")
-//        assertFailureValue("#1 [2 copies]", "foo\nbar")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicatesMissingAndExtraItemsWithNewlineFailure() {
-//        expectFailureWhenTestingThat(listOf("a\nb", "a\nb")).containsExactly("foo\nbar", "foo\nbar")
-//        assertFailureKeys(
-//            "missing (2)",
-//            "#1 [2 copies]",
-//            "",
-//            "unexpected (2)",
-//            "#1 [2 copies]",
-//            "---",
-//            "expected",
-//            "but was"
-//        )
-//        assertFailureValueIndexed("#1 [2 copies]", 0, "foo\nbar")
-//        assertFailureValueIndexed("#1 [2 copies]", 1, "a\nb")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicatesUnexpectedItemFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 2, 2, 2, 3)).containsExactly(1, 2, 2, 3)
-//        assertFailureValue("unexpected (2)", "2 [2 copies]")
-//    }
-//
-//    /*
-//   * Slightly subtle test to ensure that if multiple equal elements are found
-//   * to be missing we only reference it once in the output message.
-//   */
-//    @Test
-//    fun iterableContainsExactlyWithDuplicateMissingElements() {
-//        expectFailureWhenTestingThat(listOf()).containsExactly(4, 4, 4)
-//        assertFailureValue("missing (3)", "4 [3 copies]")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithNullFailure() {
-//        expectFailureWhenTestingThat(listOf(1, null, 3)).containsExactly(1, null, null, 3)
-//        assertFailureValue("missing (1)", "null")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithMissingAndExtraElements() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsExactly(1, 2, 4)
-//        assertFailureValue("missing (1)", "4")
-//        assertFailureValue("unexpected (1)", "3")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithDuplicateMissingAndExtraElements() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3, 3)).containsExactly(1, 2, 4, 4)
-//        assertFailureValue("missing (2)", "4 [2 copies]")
-//        assertFailureValue("unexpected (2)", "3 [2 copies]")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithCommaSeparatedVsIndividual() {
-//        expectFailureWhenTestingThat(listOf("a, b")).containsExactly("a", "b")
-//        assertFailureKeys(
-//            "missing (2)", "#1", "#2", "", "unexpected (1)", "#1", "---", "expected", "but was"
-//        )
-//        assertFailureValueIndexed("#1", 0, "a")
-//        assertFailureValueIndexed("#2", 0, "b")
-//        assertFailureValueIndexed("#1", 1, "a, b")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyFailsWithSameToStringAndHomogeneousList() {
-//        expectFailureWhenTestingThat(listOf(1L, 2L)).containsExactly(1, 2)
-//        assertFailureValue("missing (2)", "1, 2 (java.lang.Integer)")
-//        assertFailureValue("unexpected (2)", "1, 2 (java.lang.Long)")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyFailsWithSameToStringAndListWithNull() {
-//        expectFailureWhenTestingThat(listOf(1L, 2L)).containsExactly(null, 1, 2)
-//        assertFailureValue(
-//            "missing (3)", "null (null type), 1 (java.lang.Integer), 2 (java.lang.Integer)"
-//        )
-//        assertFailureValue("unexpected (2)", "1, 2 (java.lang.Long)")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyFailsWithSameToStringAndHeterogeneousList() {
-//        expectFailureWhenTestingThat(listOf(1L, 2)).containsExactly(1, null, 2L)
-//        assertFailureValue(
-//            "missing (3)", "1 (java.lang.Integer), null (null type), 2 (java.lang.Long)"
-//        )
-//        assertFailureValue("unexpected (2)", "1 (java.lang.Long), 2 (java.lang.Integer)")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyFailsWithSameToStringAndHomogeneousListWithDuplicates() {
-//        expectFailureWhenTestingThat(listOf(1L, 2L)).containsExactly(1, 2, 2)
-//        assertFailureValue("missing (3)", "1, 2 [2 copies] (java.lang.Integer)")
-//        assertFailureValue("unexpected (2)", "1, 2 (java.lang.Long)")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyFailsWithSameToStringAndHeterogeneousListWithDuplicates() {
-//        expectFailureWhenTestingThat(listOf(1L, 2)).containsExactly(1, null, null, 2L, 2L)
-//        assertFailureValue(
-//            "missing (5)",
-//            "1 (java.lang.Integer), null (null type) [2 copies], 2 (java.lang.Long) [2 copies]"
-//        )
-//        assertFailureValue("unexpected (2)", "1 (java.lang.Long), 2 (java.lang.Integer)")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyWithOneIterableGivesWarning() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3, 4)).containsExactly(listOf(1, 2, 3, 4))
-//        assertThat(expectFailure.getFailure())
-//            .hasMessageThat()
-//            .contains(CONTAINS_EXACTLY_ITERABLE_WARNING)
-//    }
-//
+    @Test
+    fun iterableContainsExactlyUnexpectedItemFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsExactly(1, 2)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicatesNotEnoughItemsFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsExactly(1, 2, 2, 2, 3)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicatesMissingItemFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsExactly(1, 2, 2, 2, 3, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicatesMissingItemsWithNewlineFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("a", "b", "foo\nbar"))
+                .containsExactly("a", "b", "foo\nbar", "foo\nbar", "foo\nbar")
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicatesMissingAndExtraItemsWithNewlineFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("a\nb", "a\nb")).containsExactly("foo\nbar", "foo\nbar")
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicatesUnexpectedItemFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 2, 2, 2, 3)).containsExactly(1, 2, 2, 3)
+        }
+    }
+
+    /*
+   * Slightly subtle test to ensure that if multiple equal elements are found
+   * to be missing we only reference it once in the output message.
+   */
+    @Test
+    fun iterableContainsExactlyWithDuplicateMissingElements() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf<Any?>()).containsExactly(4, 4, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, null, 3)).containsExactly(1, null, null, 3)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithMissingAndExtraElements() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsExactly(1, 2, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithDuplicateMissingAndExtraElements() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3, 3)).containsExactly(1, 2, 4, 4)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithCommaSeparatedVsIndividual() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("a, b")).containsExactly("a", "b")
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyFailsWithSameToStringAndHomogeneousList() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2L)).containsExactly(1, 2)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyFailsWithSameToStringAndListWithNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2L)).containsExactly(null, 1, 2)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyFailsWithSameToStringAndHeterogeneousList() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2)).containsExactly(1, null, 2L)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyFailsWithSameToStringAndHomogeneousListWithDuplicates() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2L)).containsExactly(1, 2, 2)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyFailsWithSameToStringAndHeterogeneousListWithDuplicates() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2)).containsExactly(1, null, null, 2L, 2L)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithOneIterableGivesWarning() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3, 4)).containsExactly(listOf(1, 2, 3, 4))
+        }
+    }
+
     @Test
     fun iterableContainsExactlyElementsInWithOneIterableDoesNotGiveWarning() {
         assertFailsWith<AssertionError> {
@@ -808,81 +778,71 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun iterableContainsExactlyWithTwoIterableDoesNotGivesWarning() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3, 4)).containsExactly(listOf(1, 2), listOf(3, 4))
-//        assertThat(expectFailure.getFailure())
-//            .hasMessageThat()
-//            .doesNotContain(CONTAINS_EXACTLY_ITERABLE_WARNING)
-//    }
-//
-//    private val CONTAINS_EXACTLY_ITERABLE_WARNING =
-//        ("Passing an iterable to the varargs method containsExactly(Object...) is "
-//            + "often not the correct thing to do. Did you mean to call "
-//            + "containsExactlyElementsIn(Iterable) instead?")
-//
-//    @Test
-//    fun iterableContainsExactlyWithOneNonIterableDoesNotGiveWarning() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3, 4)).containsExactly(1)
-//        assertFailureValue("unexpected (3)", "2, 3, 4")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyInOrder() {
-//        assertThat(listOf(3, 2, 5)).containsExactly(3, 2, 5).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyInOrderWithNull() {
-//        assertThat(listOf(3, null, 5)).containsExactly(3, null, 5).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyInOrderWithFailure() {
-//        expectFailureWhenTestingThat(listOf(1, null, 3)).containsExactly(null, 1, 3).inOrder()
-//        assertFailureKeys("contents match, but order was wrong", "expected", "but was")
-//        assertFailureValue("expected", "[null, 1, 3]")
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyInOrderWithOneShotIterable() {
-//        val iterator: Iterator<Any> = listOf(1 as Any, null, 3).iterator()
-//        val iterable: Iterable<Any> = object : Iterable<Any?> {
-//            override fun iterator(): Iterator<Any> {
-//                return iterator
-//            }
-//        }
-//        assertThat(iterable).containsExactly(1, null, 3).inOrder()
-//    }
-//
-//    @Test
-//    fun iterableContainsExactlyInOrderWithOneShotIterableWrongOrder() {
-//        val iterator: Iterator<Any> = listOf(1 as Any, null, 3).iterator()
-//        val iterable: Iterable<Any> = object : Iterable<Any?> {
-//            override fun iterator(): Iterator<Any> {
-//                return iterator
-//            }
-//
-//            override fun toString(): String {
-//                return "BadIterable"
-//            }
-//        }
-//        expectFailureWhenTestingThat(iterable).containsExactly(1, 3, null).inOrder()
-//        assertFailureKeys("contents match, but order was wrong", "expected", "but was")
-//        assertFailureValue("expected", "[1, 3, null]")
-//    }
-//
-//    @Test
-//    fun iterableWithNoToStringOverride() {
-//        val iterable: Iterable<Int> = object : Iterable<Int?> {
-//            override fun iterator(): Iterator<Int> {
-//                return Iterators.forArray(1, 2, 3)
-//            }
-//        }
-//        expectFailureWhenTestingThat(iterable).containsExactly(1, 2).inOrder()
-//        assertFailureValue("but was", "[1, 2, 3]")
-//    }
-//
+    @Test
+    fun iterableContainsExactlyWithTwoIterableDoesNotGivesWarning() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3, 4)).containsExactly(
+                listOf(1, 2),
+                listOf(3, 4)
+            )
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyWithOneNonIterableDoesNotGiveWarning() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3, 4)).containsExactly(1)
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyInOrder() {
+        assertThat(listOf(3, 2, 5)).containsExactly(3, 2, 5).inOrder()
+    }
+
+    @Test
+    fun iterableContainsExactlyInOrderWithNull() {
+        assertThat(listOf(3, null, 5)).containsExactly(3, null, 5).inOrder()
+    }
+
+    @Test
+    fun iterableContainsExactlyInOrderWithFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, null, 3)).containsExactly(null, 1, 3).inOrder()
+        }
+    }
+
+    @Test
+    fun iterableContainsExactlyInOrderWithOneShotIterable() {
+        val iterator = listOf(1 as Any, null, 3).iterator()
+        val iterable = object : Iterable<Any?> {
+            override fun iterator(): Iterator<Any?> = iterator
+        }
+        assertThat(iterable).containsExactly(1, null, 3).inOrder()
+    }
+
+    @Test
+    fun iterableContainsExactlyInOrderWithOneShotIterableWrongOrder() {
+        val iterator = listOf(1 as Any, null, 3).iterator()
+        val iterable = object : Iterable<Any?> {
+            override fun iterator(): Iterator<Any?> = iterator
+            override fun toString(): String = "BadIterable"
+        }
+        assertFailsWith<AssertionError> {
+            assertThat(iterable).containsExactly(1, 3, null).inOrder()
+        }
+    }
+
+    @Test
+    fun iterableWithNoToStringOverride() {
+        val iterable = object : Iterable<Int?> {
+            override fun iterator(): Iterator<Int> = listOf(1, 2, 3).iterator()
+        }
+        assertFailsWith<AssertionError> {
+            assertThat(iterable).containsExactly(1, 2).inOrder()
+        }
+    }
+
     @Test
     fun iterableContainsExactlyElementsInIterable() {
         assertThat(listOf(1, 2)).containsExactlyElementsIn(listOf(1, 2))
@@ -892,14 +852,14 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun iterableContainsExactlyElementsInArray() {
-//        assertThat(listOf(1, 2)).containsExactlyElementsIn(arrayOf(1, 2))
-//
-//        assertFailsWith<AssertionError> {
-//            assertThat(listOf(1, 2)).containsExactlyElementsIn(arrayOf<Int?>(1, 2, 4))
-//        }
-//    }
+    @Test
+    fun iterableContainsExactlyElementsInArray() {
+        assertThat(listOf(1, 2)).containsExactlyElementsIn(arrayOf<Any?>(1, 2))
+
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2)).containsExactlyElementsIn(arrayOf<Int?>(1, 2, 4))
+        }
+    }
 
     @Test
     fun nullEqualToNull() {
@@ -974,121 +934,72 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun iterableIsInStrictOrder() {
-//        assertThat(emptyList<Any>()).isInStrictOrder()
-//        assertThat(listOf(1)).isInStrictOrder()
-//        assertThat(listOf(1, 2, 3, 4)).isInStrictOrder()
-//    }
+    @Test
+    fun iterableIsInStrictOrder() {
+        assertThat(emptyList<Any>()).isInStrictOrder()
+        assertThat(listOf(1)).isInStrictOrder()
+        assertThat(listOf(1, 2, 3, 4)).isInStrictOrder()
+    }
 
-//    @Test
-//    fun isInStrictOrderFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 2, 4)).isInStrictOrder()
-//        assertFailureKeys(
-//            "expected to be in strict order", "but contained", "followed by", "full contents"
-//        )
-//        assertFailureValue("but contained", "2")
-//        assertFailureValue("followed by", "2")
-//        assertFailureValue("full contents", "[1, 2, 2, 4]")
-//    }
-//
-//    @Test
-//    fun isInStrictOrderWithNonComparableElementsFailure() {
-//        try {
-//            assertThat(listOf(1 as Any, "2", 3, "4")).isInStrictOrder()
-//            fail("Should have thrown.")
-//        } catch (expected: java.lang.ClassCastException) {
-//        }
-//    }
-//
-//    @Test
-//    fun iterableIsInOrder() {
-//        assertThat(listOf()).isInOrder()
-//        assertThat(listOf(1)).isInOrder()
-//        assertThat(listOf(1, 1, 2, 3, 3, 3, 4)).isInOrder()
-//    }
-//
-//    @Test
-//    fun isInOrderFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 3, 2, 4)).isInOrder()
-//        assertFailureKeys(
-//            "expected to be in order",
-//            "but contained",
-//            "followed by",
-//            "full contents"
-//        )
-//        assertFailureValue("but contained", "3")
-//        assertFailureValue("followed by", "2")
-//        assertFailureValue("full contents", "[1, 3, 2, 4]")
-//    }
-//
-//    @Test
-//    fun isInOrderMultipleFailures() {
-//        expectFailureWhenTestingThat(listOf(1, 3, 2, 4, 0)).isInOrder()
-//    }
-//
-//    @Test
-//    fun isInOrderWithNonComparableElementsFailure() {
-//        try {
-//            assertThat(listOf(1 as Any, "2", 2, "3")).isInOrder()
-//            fail("Should have thrown.")
-//        } catch (expected: java.lang.ClassCastException) {
-//        }
-//    }
-//
-//    @Test
-//    fun iterableIsInStrictOrderWithComparator() {
-//        val emptyStrings: Iterable<String> = listOf()
-//        assertThat(emptyStrings).isInStrictOrder(COMPARE_AS_DECIMAL)
-//        assertThat(listOf("1")).isInStrictOrder(COMPARE_AS_DECIMAL)
-//        // Note: Use "10" and "20" to distinguish numerical and lexicographical ordering.
-//        assertThat(listOf("1", "2", "10", "20")).isInStrictOrder(COMPARE_AS_DECIMAL)
-//    }
-//
-//    @Test
-//    fun iterableIsInStrictOrderWithComparatorFailure() {
-//        expectFailureWhenTestingThat(
-//            listOf(
-//                "1",
-//                "2",
-//                "2",
-//                "10"
-//            )
-//        ).isInStrictOrder(COMPARE_AS_DECIMAL)
-//        assertFailureKeys(
-//            "expected to be in strict order", "but contained", "followed by", "full contents"
-//        )
-//        assertFailureValue("but contained", "2")
-//        assertFailureValue("followed by", "2")
-//        assertFailureValue("full contents", "[1, 2, 2, 10]")
-//    }
-//
-//    @Test
-//    fun iterableIsInOrderWithComparator() {
-//        val emptyStrings: Iterable<String> = listOf()
-//        assertThat(emptyStrings).isInOrder(COMPARE_AS_DECIMAL)
-//        assertThat(listOf("1")).isInOrder(COMPARE_AS_DECIMAL)
-//        assertThat(listOf("1", "1", "2", "10", "10", "10", "20")).isInOrder(COMPARE_AS_DECIMAL)
-//    }
-//
-//    @Test
-//    fun iterableIsInOrderWithComparatorFailure() {
-//        expectFailureWhenTestingThat(listOf("1", "10", "2", "20")).isInOrder(COMPARE_AS_DECIMAL)
-//        assertFailureKeys(
-//            "expected to be in order",
-//            "but contained",
-//            "followed by",
-//            "full contents"
-//        )
-//        assertFailureValue("but contained", "10")
-//        assertFailureValue("followed by", "2")
-//        assertFailureValue("full contents", "[1, 10, 2, 20]")
-//    }
-//
-//    private val COMPARE_AS_DECIMAL: Comparator<String> =
-//        Comparator<String?> { a, b ->
-//            java.lang.Integer.valueOf(a).compareTo(java.lang.Integer.valueOf(b))
-//        }
+    @Test
+    fun isInStrictOrderFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 2, 4)).isInStrictOrder()
+        }
+    }
+
+    @Test
+    fun iterableIsInOrder() {
+        assertThat(listOf<Any?>()).isInOrder()
+        assertThat(listOf(1)).isInOrder()
+        assertThat(listOf(1, 1, 2, 3, 3, 3, 4)).isInOrder()
+    }
+
+    @Test
+    fun isInOrderFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 3, 2, 4)).isInOrder()
+        }
+    }
+
+    @Test
+    fun isInOrderMultipleFailures() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 3, 2, 4, 0)).isInOrder()
+        }
+    }
+
+    @Test
+    fun iterableIsInStrictOrderWithComparator() {
+        val emptyStrings: Iterable<String> = listOf()
+        assertThat(emptyStrings).isInStrictOrder(COMPARE_AS_DECIMAL)
+        assertThat(listOf("1")).isInStrictOrder(COMPARE_AS_DECIMAL)
+        // Note: Use "10" and "20" to distinguish numerical and lexicographical ordering.
+        assertThat(listOf("1", "2", "10", "20")).isInStrictOrder(COMPARE_AS_DECIMAL)
+    }
+
+    @Test
+    fun iterableIsInStrictOrderWithComparatorFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("1", "2", "2", "10")).isInStrictOrder(COMPARE_AS_DECIMAL)
+        }
+    }
+
+    @Test
+    fun iterableIsInOrderWithComparator() {
+        val emptyStrings: Iterable<String> = listOf()
+        assertThat(emptyStrings).isInOrder(COMPARE_AS_DECIMAL)
+        assertThat(listOf("1")).isInOrder(COMPARE_AS_DECIMAL)
+        assertThat(listOf("1", "1", "2", "10", "10", "10", "20")).isInOrder(COMPARE_AS_DECIMAL)
+    }
+
+    @Test
+    fun iterableIsInOrderWithComparatorFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("1", "10", "2", "20")).isInOrder(COMPARE_AS_DECIMAL)
+        }
+    }
+
 //
 //    private class Foo private constructor(val x: Int)
 //
@@ -1153,7 +1064,12 @@ class IterableSubjectTest {
 //                    + "containsNoneOf(...)/containsNoneIn(...) instead. Non-iterables: [a, b]")
 //            )
 //    }
-//
+
+    private companion object {
+        private val COMPARE_AS_DECIMAL: Comparator<String?> =
+            Comparator { a, b -> a!!.toInt().compareTo(b!!.toInt()) }
+    }
+
     private class CountsToStringCalls {
         var calls = 0
 
@@ -1161,5 +1077,15 @@ class IterableSubjectTest {
             calls++
             return super.toString()
         }
+    }
+
+    private class HashCodeThrower {
+        override fun equals(other: Any?): Boolean = this === other
+
+        override fun hashCode(): Int {
+            throw UnsupportedOperationException()
+        }
+
+        override fun toString(): String = "HCT"
     }
 }
