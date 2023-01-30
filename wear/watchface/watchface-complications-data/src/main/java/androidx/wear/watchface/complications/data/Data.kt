@@ -1744,7 +1744,7 @@ internal constructor(
          * large  number of elements we likely won't be able to render them properly because the
          * individual elements will be too small on screen. */
         @JvmStatic
-        public fun getMaxElements() = 20
+        public fun getMaxElements() = 7
     }
 }
 
