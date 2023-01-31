@@ -29,8 +29,8 @@ import androidx.annotation.RequiresApi
  * Log.debug { "This is a log message with a $value" }
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public object Log {
-    public const val TAG: String = "CXCP"
+object Log {
+    const val TAG: String = "CXCP"
 
     private const val LOG_LEVEL_DEBUG = 1
     private const val LOG_LEVEL_INFO = 2
@@ -40,28 +40,28 @@ public object Log {
     // This indicates the lowest log level that will always log.
     private const val LOG_LEVEL = LOG_LEVEL_DEBUG
 
-    public val DEBUG_LOGGABLE: Boolean =
+    val DEBUG_LOGGABLE: Boolean =
         LOG_LEVEL <= LOG_LEVEL_DEBUG || Log.isLoggable(TAG, Log.DEBUG)
-    public val INFO_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_INFO || Log.isLoggable(TAG, Log.INFO)
-    public val WARN_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_WARN || Log.isLoggable(TAG, Log.WARN)
-    public val ERROR_LOGGABLE: Boolean =
+    val INFO_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_INFO || Log.isLoggable(TAG, Log.INFO)
+    val WARN_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_WARN || Log.isLoggable(TAG, Log.WARN)
+    val ERROR_LOGGABLE: Boolean =
         LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
 
     /** Debug functions log noisy information related to the internals of the system. */
-    public inline fun debug(crossinline msg: () -> String) {
+    inline fun debug(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg())
     }
 
-    public inline fun debug(throwable: Throwable, crossinline msg: () -> String) {
+    inline fun debug(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg(), throwable)
     }
 
     /** Info functions log standard, useful information about the state of the system. */
-    public inline fun info(crossinline msg: () -> String) {
+    inline fun info(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg())
     }
 
-    public inline fun info(throwable: Throwable, crossinline msg: () -> String) {
+    inline fun info(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg(), throwable)
     }
 
@@ -69,27 +69,27 @@ public object Log {
      * Warning functions are used when something unexpected may lead to a crash or fatal exception
      * later on as a result if the unusual circumstances
      */
-    public inline fun warn(crossinline msg: () -> String) {
+    inline fun warn(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && WARN_LOGGABLE) Log.w(TAG, msg())
     }
 
-    public inline fun warn(throwable: Throwable, crossinline msg: () -> String) {
+    inline fun warn(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && WARN_LOGGABLE) Log.w(TAG, msg(), throwable)
     }
 
     /**
      * Error functions are reserved for something unexpected that will lead to a crash or data loss.
      */
-    public inline fun error(crossinline msg: () -> String) {
+    inline fun error(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg())
     }
 
-    public inline fun error(throwable: Throwable, crossinline msg: () -> String) {
+    inline fun error(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
     }
 
     /** Read the stack trace of a calling method and join it to a formatted string. */
-    public fun readStackTrace(limit: Int = 4): String {
+    fun readStackTrace(limit: Int = 4): String {
         val elements = Thread.currentThread().stackTrace
         // Ignore the first 3 elements, which ignores:
         // VMStack.getThreadStackTrace

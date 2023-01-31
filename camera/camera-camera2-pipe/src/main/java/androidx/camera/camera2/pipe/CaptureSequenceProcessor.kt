@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe
 
 /** Create and submit [CaptureSequence]s to an active camera instance. */
-public interface CaptureSequenceProcessor<
+interface CaptureSequenceProcessor<
     out TCaptureRequest, TCaptureSequence : CaptureSequence<TCaptureRequest>> {
 
     /**

@@ -52,7 +52,7 @@ internal object AndroidThreads {
             Process.THREAD_PRIORITY_URGENT_DISPLAY // 10 (Thread.MAX_PRIORITY)
         )
 
-    public val factory: ThreadFactory = Executors.defaultThreadFactory()
+    val factory: ThreadFactory = Executors.defaultThreadFactory()
 
     /** Wraps `delegate` such that the threads created by it are set to `priority`. */
     fun ThreadFactory.withAndroidPriority(androidPriority: Int): ThreadFactory {
