@@ -43,7 +43,6 @@ import com.example.androidx.mediarouting.services.SampleDynamicGroupMediaRoutePr
 
 /** Allows the user to add and edit routes. */
 public class AddEditRouteActivity extends AppCompatActivity {
-
     private static final String EXTRA_ROUTE_ID_KEY = "routeId";
 
     private SampleDynamicGroupMediaRouteProviderService mService;
