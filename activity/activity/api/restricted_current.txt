@@ -189,16 +189,24 @@ package androidx.activity.result {
     method public int getFlagsMask();
     method public int getFlagsValues();
     method public android.content.IntentSender getIntentSender();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> CREATOR;
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final android.content.Intent? fillInIntent;
+    property public final int flagsMask;
+    property public final int flagsValues;
+    property public final android.content.IntentSender intentSender;
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest> CREATOR;
+    field public static final androidx.activity.result.IntentSenderRequest.Companion Companion;
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
-    ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
+    ctor public IntentSenderRequest.Builder(android.app.PendingIntent pendingIntent);
     method public androidx.activity.result.IntentSenderRequest build();
-    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent? fillInIntent);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int values, int mask);
+  }
+
+  public static final class IntentSenderRequest.Companion {
   }
 
   public final class PickVisualMediaRequest {
