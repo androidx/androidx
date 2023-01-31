@@ -84,6 +84,10 @@ package androidx.lifecycle {
     property public abstract androidx.lifecycle.Lifecycle lifecycle;
   }
 
+  public final class LifecycleOwnerKt {
+    method public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Lifecycling {
     method public static String getAdapterName(String className);
     method public static androidx.lifecycle.LifecycleEventObserver lifecycleEventObserver(Object object);
