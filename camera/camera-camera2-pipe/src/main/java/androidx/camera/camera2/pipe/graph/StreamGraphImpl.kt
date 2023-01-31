@@ -58,6 +58,13 @@ private val groupIds = atomic(0)
 
 internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 
+private val previewOutputTypes = listOf(
+    OutputStream.OutputType.SURFACE_VIEW,
+    OutputStream.OutputType.SURFACE_TEXTURE
+)
+
+private val previewFormats = listOf(StreamFormat.UNKNOWN, StreamFormat.PRIVATE)
+
 /**
  * This object keeps track of which surfaces have been configured for each stream. In addition, it
  * will keep track of which surfaces have changed or replaced so that the CaptureSession can be
@@ -156,6 +163,7 @@ constructor(
                             outputConfig.timestampBase,
                             outputConfig.dynamicRangeProfile,
                             outputConfig.streamUseCase,
+                            outputConfig.deferredOutputType
                         )
                     outputStream
                 }
@@ -171,15 +179,13 @@ constructor(
             }
         }
 
-        // TODO: Sort outputs by type to try and put the viewfinder output first in the list
-        //   This is important as some devices assume that the first surface is the viewfinder and
-        //   will treat it differently.
-
         streams = streamListBuilder
         streamIds = streams.map { it.id }.toSet()
         _streamMap = streamMapBuilder
-        outputs = streams.flatMap { it.outputs }
         outputConfigs = outputConfigListBuilder
+
+        val unsortedOutputs = streams.flatMap { it.outputs }
+        outputs = sortOutputsByPreviewStream(unsortedOutputs)
     }
 
     @Suppress("SyntheticAccessor") // StreamId generates a synthetic constructor
@@ -215,6 +221,7 @@ constructor(
         override val timestampBase: OutputStream.TimestampBase?,
         override val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
         override val streamUseCase: OutputStream.StreamUseCase?,
+        override val outputType: OutputStream.OutputType?
     ) : OutputStream {
         override lateinit var stream: CameraStream
         override fun toString(): String = id.toString()
@@ -269,6 +276,54 @@ constructor(
 
     override fun toString(): String {
         return "StreamGraphImpl $_streamMap"
+    }
+
+    /**
+     * Sort the output streams to move preview streams to the head of the list.
+     * The order of the outputs is determined by the following:
+     *
+     * 1. StreamUseCase: Check if any streams have PREVIEW StreamUseCase set and move them
+     *                   to the head of the list. Otherwise, go to step 2.
+     * 2. OutputType: Check if any streams have SURFACE_VIEW and SURFACE_TEXTURE OutputType and
+     *                move them in respective order to the head of the list. Otherwise, go to step 3.
+     * 3. StreamFormat: Check if any streams have UNKNOWN and PRIVATE StreamFormats and move them
+     *                  in respective order to the head of the list. Otherwise, return list in
+     *                  original order.
+     */
+    private fun sortOutputsByPreviewStream(
+        unsortedOutputs: List<OutputStream>
+    ): List<OutputStream> {
+
+        // Check if any streams have PREVIEW StreamUseCase set
+        val (previewStreamPartition, nonPreviewStreamPartition) = unsortedOutputs.partition {
+            it.streamUseCase == OutputStream.StreamUseCase.PREVIEW
+        }
+        // Move streams with PREVIEW StreamUseCase to head of list
+        if (previewStreamPartition.isNotEmpty()) {
+            return previewStreamPartition + nonPreviewStreamPartition
+        }
+
+        // Check if any streams have SURFACE_VIEW and SURFACE_TEXTURE OutputTypes
+        val (previewOutputTypePartition, nonPreviewOutputTypePartition) =
+            unsortedOutputs.partition { it.outputType in previewOutputTypes }
+        // Move streams with SURFACE_VIEW and SURFACE_TEXTURE OutputTypes to head of list
+        if (previewOutputTypePartition.isNotEmpty()) {
+            val comparator = compareBy<OutputStream> { previewOutputTypes.indexOf(it.outputType) }
+            return previewOutputTypePartition.sortedWith(comparator) + nonPreviewOutputTypePartition
+        }
+
+        // Check if any streams have UNKNOWN and PRIVATE StreamFormats
+        val (previewFormatPartition, nonPreviewFormatPartition) = unsortedOutputs.partition {
+            it.format in previewFormats
+        }
+        // Move streams with UNKNOWN and PRIVATE StreamFormats to head of list
+        if (previewFormatPartition.isNotEmpty()) {
+            val comparator = compareBy<OutputStream> { previewFormats.indexOf(it.format) }
+            return previewFormatPartition.sortedWith(comparator) + nonPreviewFormatPartition
+        }
+
+        // Return outputs in original order if no preview streams found
+        return unsortedOutputs
     }
 }
 
