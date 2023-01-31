@@ -21,6 +21,9 @@ package androidx.tv.material3 {
   public final class ImmersiveListKt {
   }
 
+  public final class KeyEventUtilsKt {
+  }
+
   public final class MaterialTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ColorScheme getColorScheme();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Shapes getShapes();
