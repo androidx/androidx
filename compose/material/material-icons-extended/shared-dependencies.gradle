@@ -18,36 +18,25 @@
 // by its specific theme projects (each of which compile a specific theme)
 
 import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 
-dependencies {
-    if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make an analogous update in the
-         * corresponding block below
-         */
-       api(project(":compose:material:material-icons-core"))
-       implementation(libs.kotlinStdlibCommon)
-       implementation(project(":compose:runtime:runtime"))
-    }
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 }
 
-if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
-                api(project(":compose:material:material-icons-core"))
-                implementation(libs.kotlinStdlibCommon)
-                implementation(project(":compose:runtime:runtime"))
-            }
+kotlin {
+    /*
+     * When updating dependencies, make sure to make an analogous update in the
+     * corresponding block above
+     */
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":compose:material:material-icons-core"))
+            implementation(libs.kotlinStdlibCommon)
+            implementation(project(":compose:runtime:runtime"))
         }
     }
 }

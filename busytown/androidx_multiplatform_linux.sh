@@ -2,8 +2,7 @@
 set -e
 cd "$(dirname $0)"
 
-# Builds all projects that support KMP except for Compose-specific projects which are already
-# covered by androidx_compose_multiplatform.sh
+# Builds all projects that support KMP
 
 # Must be run on Linux
 
