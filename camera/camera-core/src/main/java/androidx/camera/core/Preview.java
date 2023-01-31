@@ -231,6 +231,7 @@ public final class Preview extends UseCase {
 
         mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
+        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
         return sessionConfigBuilder;
     }
 

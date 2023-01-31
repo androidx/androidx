@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.InputConfiguration;
+import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -161,6 +162,7 @@ public final class SessionConfig {
             public abstract OutputConfig build();
         }
     }
+
     /**
      * Private constructor for a SessionConfig.
      *
@@ -239,6 +241,11 @@ public final class SessionConfig {
 
     public int getTemplateType() {
         return mRepeatingCaptureConfig.getTemplateType();
+    }
+
+    @NonNull
+    public Range<Integer> getExpectedFrameRateRange() {
+        return mRepeatingCaptureConfig.getExpectedFrameRateRange();
     }
 
     /** Obtains all registered {@link CameraDevice.StateCallback} callbacks. */
@@ -328,7 +335,8 @@ public final class SessionConfig {
         final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks = new ArrayList<>();
         final List<ErrorListener> mErrorListeners = new ArrayList<>();
         final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
-        @Nullable InputConfiguration mInputConfiguration;
+        @Nullable
+        InputConfiguration mInputConfiguration;
     }
 
     /**
@@ -382,6 +390,18 @@ public final class SessionConfig {
         }
 
         /**
+         * Set the expected frame rate range of the SessionConfig.
+         *
+         * @param expectedFrameRateRange The frame rate range calculated from the UseCases for
+         *                               {@link CameraDevice}
+         */
+        @NonNull
+        public Builder setExpectedFrameRateRange(@NonNull Range<Integer> expectedFrameRateRange) {
+            mCaptureConfigBuilder.setExpectedFrameRateRange(expectedFrameRateRange);
+            return this;
+        }
+
+        /**
          * Adds a tag to the SessionConfig with a key. For tracking the source.
          */
         @NonNull
@@ -408,8 +428,8 @@ public final class SessionConfig {
          * Adds all {@link CameraDevice.StateCallback} callbacks.
          */
         @NonNull
-        public Builder addAllDeviceStateCallbacks(@NonNull
-                Collection<CameraDevice.StateCallback> deviceStateCallbacks) {
+        public Builder addAllDeviceStateCallbacks(
+                @NonNull Collection<CameraDevice.StateCallback> deviceStateCallbacks) {
             for (CameraDevice.StateCallback callback : deviceStateCallbacks) {
                 addDeviceStateCallback(callback);
             }
@@ -421,8 +441,8 @@ public final class SessionConfig {
          */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
         @NonNull
-        public Builder addSessionStateCallback(@NonNull
-                CameraCaptureSession.StateCallback sessionStateCallback) {
+        public Builder addSessionStateCallback(
+                @NonNull CameraCaptureSession.StateCallback sessionStateCallback) {
             if (mSessionStateCallbacks.contains(sessionStateCallback)) {
                 return this;
             }
@@ -434,8 +454,8 @@ public final class SessionConfig {
          * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
          */
         @NonNull
-        public Builder addAllSessionStateCallbacks(@NonNull
-                List<CameraCaptureSession.StateCallback> sessionStateCallbacks) {
+        public Builder addAllSessionStateCallbacks(
+                @NonNull List<CameraCaptureSession.StateCallback> sessionStateCallbacks) {
             for (CameraCaptureSession.StateCallback callback : sessionStateCallbacks) {
                 addSessionStateCallback(callback);
             }
@@ -458,8 +478,8 @@ public final class SessionConfig {
          * <p>These callbacks do not call for single requests.
          */
         @NonNull
-        public Builder addAllRepeatingCameraCaptureCallbacks(@NonNull
-                Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
+        public Builder addAllRepeatingCameraCaptureCallbacks(
+                @NonNull Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             mCaptureConfigBuilder.addAllCameraCaptureCallbacks(cameraCaptureCallbacks);
             return this;
         }
@@ -487,8 +507,8 @@ public final class SessionConfig {
          * {@link #getSingleCameraCaptureCallbacks()} methods.
          */
         @NonNull
-        public Builder addAllCameraCaptureCallbacks(@NonNull
-                Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
+        public Builder addAllCameraCaptureCallbacks(
+                @NonNull Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             for (CameraCaptureCallback c : cameraCaptureCallbacks) {
                 mCaptureConfigBuilder.addCameraCaptureCallback(c);
                 if (!mSingleCameraCaptureCallbacks.contains(c)) {
@@ -501,6 +521,7 @@ public final class SessionConfig {
         /**
          * Removes a previously added {@link CameraCaptureCallback} callback for single and/or
          * repeating requests.
+         *
          * @param cameraCaptureCallback The callback to remove.
          * @return {@code true} if the callback was successfully removed. {@code false} if the
          * callback wasn't present in this builder.
@@ -662,6 +683,8 @@ public final class SessionConfig {
                                 mCaptureConfigBuilder.getTemplateType()));
             }
 
+            setOrVerifyExpectFrameRateRange(captureConfig.getExpectedFrameRateRange());
+
             TagBundle tagBundle = sessionConfig.getRepeatingCaptureConfig().getTagBundle();
             mCaptureConfigBuilder.addAllTags(tagBundle);
 
@@ -703,6 +726,24 @@ public final class SessionConfig {
             // throw an IllegalArgumentException if the conflict cannot be resolved.
             mCaptureConfigBuilder.addImplementationOptions(
                     captureConfig.getImplementationOptions());
+        }
+
+        private void setOrVerifyExpectFrameRateRange(
+                @NonNull Range<Integer> expectedFrameRateRange) {
+            if (expectedFrameRateRange.equals(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
+                return;
+            }
+
+            if (mCaptureConfigBuilder.getExpectedFrameRateRange().equals(
+                    StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
+                mCaptureConfigBuilder.setExpectedFrameRateRange(expectedFrameRateRange);
+                return;
+            }
+
+            if (!mCaptureConfigBuilder.getExpectedFrameRateRange().equals(expectedFrameRateRange)) {
+                mValid = false;
+                Logger.d(TAG, "Different ExpectedFrameRateRange values");
+            }
         }
 
         private List<DeferrableSurface> getSurfaces() {
