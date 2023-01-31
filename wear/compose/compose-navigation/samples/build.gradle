@@ -49,7 +49,6 @@ android {
 androidx {
     name = "Android Wear Compose Navigation Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Compose Navigation Classes"
 }

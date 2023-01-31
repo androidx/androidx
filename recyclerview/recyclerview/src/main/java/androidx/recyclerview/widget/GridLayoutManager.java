@@ -17,6 +17,7 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -25,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.Arrays;
@@ -40,6 +42,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     private static final boolean DEBUG = false;
     private static final String TAG = "GridLayoutManager";
     public static final int DEFAULT_SPAN_COUNT = -1;
+
     /**
      * Span size have been changed but we've not done a new layout calculation.
      */
@@ -119,7 +122,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     public int getRowCountForAccessibility(RecyclerView.Recycler recycler,
             RecyclerView.State state) {
         if (mOrientation == HORIZONTAL) {
-            return mSpanCount;
+            return Math.min(mSpanCount, getItemCount());
         }
         if (state.getItemCount() < 1) {
             return 0;
@@ -133,7 +136,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,
             RecyclerView.State state) {
         if (mOrientation == VERTICAL) {
-            return mSpanCount;
+            return Math.min(mSpanCount, getItemCount());
         }
         if (state.getItemCount() < 1) {
             return 0;
@@ -172,6 +175,57 @@ public class GridLayoutManager extends LinearLayoutManager {
         // and list via CollectionInfos, but an almost empty grid may be incorrectly identified
         // as a list.
         info.setClassName(GridView.class.getName());
+    }
+
+    @Override
+    boolean performAccessibilityAction(int action, @Nullable Bundle args) {
+        if (action == android.R.id.accessibilityActionScrollToPosition) {
+            final int noRow = -1;
+            final int noColumn = -1;
+            if (args != null) {
+                int rowArg = args.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_ROW_INT,
+                        noRow);
+                int columnArg = args.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_COLUMN_INT,
+                        noColumn);
+
+                if (rowArg == noRow || columnArg == noColumn) {
+                    return false;
+                }
+
+                int itemCount = mRecyclerView.mAdapter.getItemCount();
+
+                int position = -1;
+                for (int i = 0; i < itemCount; i++) {
+                    // Corresponds to a column value if the orientation is VERTICAL and a row value
+                    // if the orientation is HORIZONTAL
+                    int spanIndex = getSpanIndex(mRecyclerView.mRecycler, mRecyclerView.mState, i);
+
+                    // Corresponds to a row value if the orientation is VERTICAL and a column value
+                    // if the orientation is HORIZONTAL
+                    int spanGroupIndex = getSpanGroupIndex(mRecyclerView.mRecycler,
+                            mRecyclerView.mState, i);
+
+                    if (mOrientation == VERTICAL) {
+                        if (spanIndex == columnArg && spanGroupIndex == rowArg) {
+                            position = i;
+                            break;
+                        }
+                    } else { // horizontal
+                        if (spanIndex == rowArg && spanGroupIndex == columnArg) {
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (position > -1) {
+                    scrollToPositionWithOffset(position, 0);
+                    return true;
+                }
+                return false;
+            }
+        }
+        return super.performAccessibilityAction(action, args);
     }
 
     @Override
@@ -964,6 +1018,9 @@ public class GridLayoutManager extends LinearLayoutManager {
         /**
          * Returns the final span index of the provided position.
          * <p>
+         * If {@link #getOrientation()} is {@link #VERTICAL}, this is a column value.
+         * If {@link #getOrientation()} is {@link #HORIZONTAL}, this is a row value.
+         * <p>
          * If you have a faster way to calculate span index for your items, you should override
          * this method. Otherwise, you should enable span index cache
          * ({@link #setSpanIndexCacheEnabled(boolean)}) for better performance. When caching is
@@ -1039,6 +1096,9 @@ public class GridLayoutManager extends LinearLayoutManager {
 
         /**
          * Returns the index of the group this position belongs.
+         * <p>
+         * If {@link #getOrientation()} is {@link #VERTICAL}, this is a row value.
+         * If {@link #getOrientation()} is {@link #HORIZONTAL}, this is a column value.
          * <p>
          * For example, if grid has 3 columns and each item occupies 1 span, span group index
          * for item 1 will be 0, item 5 will be 1.
@@ -1446,5 +1506,4 @@ public class GridLayoutManager extends LinearLayoutManager {
             return mSpanSize;
         }
     }
-
 }

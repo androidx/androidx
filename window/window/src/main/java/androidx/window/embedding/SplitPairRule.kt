@@ -16,22 +16,16 @@
 
 package androidx.window.embedding
 
-import android.util.LayoutDirection
+import android.util.LayoutDirection.LOCALE
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.core.util.Preconditions.checkArgument
-import androidx.core.util.Preconditions.checkArgumentNonnegative
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
  * each other should be shown side-by-side, and the visual properties of such splits. Can be set
- * either statically via [SplitController.Companion.initialize] or at runtime via
- * [SplitController.registerRule]. The rules can only be  applied to activities that
- * belong to the same application and are running in the same process. The rules are  always
- * applied only to activities that will be started  after the rules were set.
+ * either via [RuleController.setRules] or via [RuleController.addRule]. The rules are always
+ * applied only to activities that will be started after the rules were set.
  */
-@ExperimentalWindowApi
 class SplitPairRule : SplitRule {
 
     /**
@@ -63,24 +57,19 @@ class SplitPairRule : SplitRule {
      */
     val clearTop: Boolean
 
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.SplitPairRule.Builder")
-    )
-    constructor(
+    internal constructor(
         filters: Set<SplitPairFilter>,
         @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
         @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
         clearTop: Boolean = false,
-        @IntRange(from = 0) minWidth: Int,
-        @IntRange(from = 0) minSmallestWidth: Int,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        @LayoutDir layoutDir: Int = LayoutDirection.LOCALE
-    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDir) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
-        checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+        @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
+        maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
+        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = SPLIT_RATIO_DEFAULT,
+        @LayoutDirection layoutDirection: Int = LOCALE
+    ) : super(minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait, maxAspectRatioInLandscape,
+        splitRatio, layoutDirection) {
         this.filters = filters.toSet()
         this.clearTop = clearTop
         this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
@@ -89,26 +78,51 @@ class SplitPairRule : SplitRule {
 
     /**
      * Builder for [SplitPairRule].
+     *
      * @param filters See [SplitPairRule.filters].
-     * @param minWidth See [SplitPairRule.minWidth].
-     * @param minSmallestWidth See [SplitPairRule.minSmallestWidth].
      */
     class Builder(
         private val filters: Set<SplitPairFilter>,
-        @IntRange(from = 0)
-        private val minWidth: Int,
-        @IntRange(from = 0)
-        private val minSmallestWidth: Int
     ) {
+        @IntRange(from = 0)
+        private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
+        @IntRange(from = 0)
+        private var minSmallestWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
+        private var maxAspectRatioInPortrait = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
+        private var maxAspectRatioInLandscape = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
         @SplitFinishBehavior
-        private var finishPrimaryWithSecondary: Int = FINISH_NEVER
+        private var finishPrimaryWithSecondary = FINISH_NEVER
         @SplitFinishBehavior
-        private var finishSecondaryWithPrimary: Int = FINISH_ALWAYS
-        private var clearTop: Boolean = false
+        private var finishSecondaryWithPrimary = FINISH_ALWAYS
+        private var clearTop = false
         @FloatRange(from = 0.0, to = 1.0)
-        private var splitRatio: Float = 0.5f
-        @LayoutDir
-        private var layoutDir: Int = LayoutDirection.LOCALE
+        private var splitRatio = SPLIT_RATIO_DEFAULT
+        @LayoutDirection
+        private var layoutDirection = LOCALE
+
+        /**
+         * @see SplitPairRule.minWidthDp
+         */
+        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
+            apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * @see SplitPairRule.minSmallestWidthDp
+         */
+        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply { this.minSmallestWidthDp = minSmallestWidthDp }
+
+        /**
+         * @see SplitPairRule.maxAspectRatioInPortrait
+         */
+        fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply { this.maxAspectRatioInPortrait = aspectRatio }
+
+        /**
+         * @see SplitPairRule.maxAspectRatioInLandscape
+         */
+        fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply { this.maxAspectRatioInLandscape = aspectRatio }
 
         /**
          * @see SplitPairRule.finishPrimaryWithSecondary
@@ -142,13 +156,12 @@ class SplitPairRule : SplitRule {
         /**
          * @see SplitPairRule.layoutDirection
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
-            apply { this.layoutDir = layoutDir }
+        fun setLayoutDirection(@LayoutDirection layoutDirection: Int): Builder =
+            apply { this.layoutDirection = layoutDirection }
 
-        @Suppress("DEPRECATION")
         fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
-            clearTop, minWidth, minSmallestWidth, splitRatio, layoutDir)
+            clearTop, minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait,
+            maxAspectRatioInLandscape, splitRatio, layoutDirection)
     }
 
     /**
@@ -159,17 +172,17 @@ class SplitPairRule : SplitRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        @Suppress("DEPRECATION")
-        return SplitPairRule(
-            newSet.toSet(),
-            finishPrimaryWithSecondary,
-            finishSecondaryWithPrimary,
-            clearTop,
-            minWidth,
-            minSmallestWidth,
-            splitRatio,
-            layoutDirection
-        )
+        return Builder(newSet.toSet())
+            .setMinWidthDp(minWidthDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
+            .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
+            .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
+            .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
+            .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
+            .setClearTop(clearTop)
+            .setSplitRatio(splitRatio)
+            .setLayoutDirection(layoutDirection)
+            .build()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -193,4 +206,18 @@ class SplitPairRule : SplitRule {
         result = 31 * result + clearTop.hashCode()
         return result
     }
+
+    override fun toString(): String =
+        "${SplitPairRule::class.java.simpleName}{" +
+            " splitRatio=$splitRatio" +
+            ", layoutDirection=$layoutDirection" +
+            ", minWidthDp=$minWidthDp" +
+            ", minSmallestWidthDp=$minSmallestWidthDp" +
+            ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
+            ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
+            ", clearTop=$clearTop" +
+            ", finishPrimaryWithSecondary=$finishPrimaryWithSecondary" +
+            ", finishSecondaryWithPrimary=$finishSecondaryWithPrimary" +
+            ", filters=$filters" +
+            "}"
 }

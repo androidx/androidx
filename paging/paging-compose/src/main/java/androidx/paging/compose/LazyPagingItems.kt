@@ -39,10 +39,14 @@ import androidx.paging.Logger
 import androidx.paging.NullPaddedList
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.withContext
 
 /**
  * The class responsible for accessing the data from a [Flow] of [PagingData].
@@ -176,17 +180,18 @@ public class LazyPagingItems<T : Any> internal constructor(
      * A [CombinedLoadStates] object which represents the current loading state.
      */
     public var loadState: CombinedLoadStates by mutableStateOf(
-        CombinedLoadStates(
-            refresh = InitialLoadStates.refresh,
-            prepend = InitialLoadStates.prepend,
-            append = InitialLoadStates.append,
-            source = InitialLoadStates
+        pagingDataDiffer.loadStateFlow.value
+            ?: CombinedLoadStates(
+                refresh = InitialLoadStates.refresh,
+                prepend = InitialLoadStates.prepend,
+                append = InitialLoadStates.append,
+                source = InitialLoadStates
+            )
         )
-    )
         private set
 
     internal suspend fun collectLoadState() {
-        pagingDataDiffer.loadStateFlow.collect {
+        pagingDataDiffer.loadStateFlow.filterNotNull().collect {
             loadState = it
         }
     }
@@ -243,16 +248,35 @@ private val InitialLoadStates = LoadStates(
  * from [LazyListScope] in order to display the data obtained from a [Flow] of [PagingData].
  *
  * @sample androidx.paging.compose.samples.PagingBackendSample
+ *
+ * @param context the [CoroutineContext] to perform the collection of [PagingData]
+ * and [CombinedLoadStates].
  */
 @Composable
-public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(): LazyPagingItems<T> {
+public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
+    context: CoroutineContext = EmptyCoroutineContext
+): LazyPagingItems<T> {
+
     val lazyPagingItems = remember(this) { LazyPagingItems(this) }
 
     LaunchedEffect(lazyPagingItems) {
-        lazyPagingItems.collectPagingData()
+        if (context == EmptyCoroutineContext) {
+            lazyPagingItems.collectPagingData()
+        } else {
+            withContext(context) {
+                lazyPagingItems.collectPagingData()
+            }
+        }
     }
+
     LaunchedEffect(lazyPagingItems) {
-        lazyPagingItems.collectLoadState()
+        if (context == EmptyCoroutineContext) {
+            lazyPagingItems.collectLoadState()
+        } else {
+            withContext(context) {
+                lazyPagingItems.collectLoadState()
+            }
+        }
     }
 
     return lazyPagingItems

@@ -21,7 +21,6 @@ import android.os.Build
 import android.view.Surface
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
@@ -51,49 +50,6 @@ class SurfaceSorterTest {
         // Arrange.
         val videoOutput = SessionConfig.OutputConfig.builder(
             createSurface(containerClass = MediaCodec::class.java)).build()
-        val previewOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = Preview::class.java)).build()
-        val imageOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = ImageCapture::class.java)).build()
-        val surfaceSorter = SurfaceSorter()
-
-        // All combinations
-        val outputConfigs1 = mutableListOf(previewOutput, videoOutput, imageOutput)
-        val outputConfigs2 = mutableListOf(previewOutput, imageOutput, videoOutput)
-        val outputConfigs3 = mutableListOf(videoOutput, previewOutput, imageOutput)
-        val outputConfigs4 = mutableListOf(videoOutput, imageOutput, previewOutput)
-        val outputConfigs5 = mutableListOf(imageOutput, videoOutput, previewOutput)
-        val outputConfigs6 = mutableListOf(imageOutput, previewOutput, videoOutput)
-
-        // Act.
-        surfaceSorter.sort(outputConfigs1)
-        surfaceSorter.sort(outputConfigs2)
-        surfaceSorter.sort(outputConfigs3)
-        surfaceSorter.sort(outputConfigs4)
-        surfaceSorter.sort(outputConfigs5)
-        surfaceSorter.sort(outputConfigs6)
-
-        // Assert.
-        assertThat(outputConfigs1.first()).isEqualTo(previewOutput)
-        assertThat(outputConfigs2.first()).isEqualTo(previewOutput)
-        assertThat(outputConfigs3.first()).isEqualTo(previewOutput)
-        assertThat(outputConfigs4.first()).isEqualTo(previewOutput)
-        assertThat(outputConfigs5.first()).isEqualTo(previewOutput)
-        assertThat(outputConfigs6.first()).isEqualTo(previewOutput)
-
-        assertThat(outputConfigs1.last()).isEqualTo(videoOutput)
-        assertThat(outputConfigs2.last()).isEqualTo(videoOutput)
-        assertThat(outputConfigs3.last()).isEqualTo(videoOutput)
-        assertThat(outputConfigs4.last()).isEqualTo(videoOutput)
-        assertThat(outputConfigs5.last()).isEqualTo(videoOutput)
-        assertThat(outputConfigs6.last()).isEqualTo(videoOutput)
-    }
-
-    @Test
-    fun sort_previewSurfaceIsInTheFirstAndVideoCaptureSurfaceIsInTheLast() {
-        // Arrange.
-        val videoOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = VideoCapture::class.java)).build()
         val previewOutput = SessionConfig.OutputConfig.builder(
             createSurface(containerClass = Preview::class.java)).build()
         val imageOutput = SessionConfig.OutputConfig.builder(

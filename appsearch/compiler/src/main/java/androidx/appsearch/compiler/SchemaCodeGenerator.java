@@ -105,6 +105,7 @@ class SchemaCodeGenerator {
         boolean repeated = false;
         boolean isPropertyString = false;
         boolean isPropertyDocument = false;
+        boolean isPropertyLong = false;
         if (property.asType().getKind() == TypeKind.ERROR) {
             throw new ProcessingException("Property type unknown to java compiler", property);
         } else if (typeUtil.isAssignable(
@@ -137,6 +138,7 @@ class SchemaCodeGenerator {
                 || typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)) {
             propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "LongPropertyConfig");
+            isPropertyLong = true;
         } else if (typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)
                 || typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
@@ -197,6 +199,12 @@ class SchemaCodeGenerator {
             } else if (tokenizerType == 1) {  // TOKENIZER_TYPE_PLAIN
                 tokenizerEnum = mHelper.getAppSearchClass(
                         "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_PLAIN");
+            } else if (tokenizerType == 2) {  // TOKENIZER_TYPE_VERBATIM
+                tokenizerEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_VERBATIM");
+            } else if (tokenizerType == 3) { // TOKENIZER_TYPE_RFC822
+                tokenizerEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_RFC822");
             } else {
                 throw new ProcessingException("Unknown tokenizer type " + tokenizerType, property);
             }
@@ -226,6 +234,23 @@ class SchemaCodeGenerator {
 
                 codeBlock.add("\n.setShouldIndexNestedProperties($L)", indexNestedProperties);
             }
+        } else if (isPropertyLong) {
+            int indexingType = 0;  // INDEXING_TYPE_NONE
+            if (params.containsKey("indexingType")) {
+                indexingType = Integer.parseInt(params.get("indexingType").toString());
+            }
+
+            ClassName indexingEnum;
+            if (indexingType == 0) {  // INDEXING_TYPE_NONE
+                indexingEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "LongPropertyConfig", "INDEXING_TYPE_NONE");
+            } else if (indexingType == 1) {  // INDEXING_TYPE_RANGE
+                indexingEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "LongPropertyConfig", "INDEXING_TYPE_RANGE");
+            } else {
+                throw new ProcessingException("Unknown indexing type " + indexingType, property);
+            }
+            codeBlock.add("\n.setIndexingType($T)", indexingEnum);
         }
 
         // Done!

@@ -34,10 +34,12 @@ import androidx.car.app.testing.TestCarContext;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -48,6 +50,9 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class SuggestionManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private ICarHost mMockCarHost;
     @Mock
@@ -68,7 +73,6 @@ public class SuggestionManagerTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
         TestCarContext testCarContext = TestCarContext.createCarContext(
                 ApplicationProvider.getApplicationContext());
         ISuggestionHost suggestionHostStub = new ISuggestionHost.Stub() {

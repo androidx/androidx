@@ -43,14 +43,11 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.data.ComplicationExperimental
-import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
+import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationStateWireFormat
-import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
@@ -64,6 +61,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.security.InvalidParameterException
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -210,8 +208,8 @@ public class WatchFace(
                 watchFaceService.setContext(context)
                 val engine = watchFaceService.createHeadlessEngine() as
                     WatchFaceService.EngineWrapper
-                engine.createHeadlessInstance(params)
-                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()
+                val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
+                return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
             }
         }
     }
@@ -272,19 +270,6 @@ public class WatchFace(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface ComplicationSlotConfigExtrasChangeCallback {
         public fun onComplicationSlotConfigExtrasChanged()
-    }
-
-    /**
-     * Interface for getting the current system time.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface SystemTimeProvider {
-        /** Returns the current system time in milliseconds. */
-        public fun getSystemTimeMillis(): Long
-
-        /** Returns the current system [ZoneId]. */
-        public fun getSystemTimeZoneId(): ZoneId
     }
 
     /** Listens for taps on the watchface. */
@@ -464,12 +449,6 @@ public class WatchFace(
     public var overridePreviewReferenceInstant: Instant? = null
         private set
 
-    internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = System.currentTimeMillis()
-
-        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
-    }
-
     /**
      * Overrides the reference time for editor preview images.
      *
@@ -485,12 +464,6 @@ public class WatchFace(
     @SuppressWarnings("ExecutorRegistration")
     public fun setTapListener(tapListener: TapListener?): WatchFace = apply {
         this.tapListener = tapListener
-    }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
-        this.systemTimeProvider = systemTimeProvider
     }
 
     /**
@@ -620,7 +593,7 @@ public class WatchFaceImpl @UiThread constructor(
                 ),
         )
 
-    internal val systemTimeProvider = watchface.systemTimeProvider
+    internal val systemTimeProvider = watchFaceHostApi.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
@@ -638,9 +611,6 @@ public class WatchFaceImpl @UiThread constructor(
     private var muteMode = false
     internal var lastDrawTimeMillis: Long = 0
     internal var nextDrawTimeMillis: Long = 0
-
-    private val pendingUpdateTime: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getUiThreadHandler())
 
     internal val componentName =
         ComponentName(
@@ -694,7 +664,6 @@ public class WatchFaceImpl @UiThread constructor(
             }
         )
 
-    private var inOnSetStyle = false
     internal var initComplete = false
 
     private fun interruptionFilter(it: Int) {
@@ -759,7 +728,10 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         if (!watchState.isHeadless) {
-            WatchFace.registerEditorDelegate(componentName, WFEditorDelegate())
+            WatchFace.registerEditorDelegate(
+                componentName,
+                WFEditorDelegate(headlessWatchFaceImpl = null)
+            )
             registerReceivers()
         }
 
@@ -810,7 +782,9 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
+    internal inner class WFEditorDelegate(
+        private val headlessWatchFaceImpl: HeadlessWatchFaceImpl?
+    ) : WatchFace.EditorDelegate {
         override val userStyleSchema
             get() = currentUserStyleRepository.schema
 
@@ -881,24 +855,16 @@ public class WatchFaceImpl @UiThread constructor(
             complicationSlotsManager.configExtrasChangeCallback = callback
         }
 
+        @SuppressLint("NewApi") // release
         override fun onDestroy(): Unit = TraceEvent("WFEditorDelegate.onDestroy").use {
             if (watchState.isHeadless) {
+                headlessWatchFaceImpl!!.release()
                 this@WatchFaceImpl.onDestroy()
             }
         }
     }
 
-    /** Called by the system in response to remote configuration. */
-    @UiThread
-    internal fun onSetStyleInternal(style: UserStyle) {
-        // No need to echo the userStyle back.
-        inOnSetStyle = true
-        currentUserStyleRepository.updateUserStyle(style)
-        inOnSetStyle = false
-    }
-
     internal fun onDestroy() {
-        pendingUpdateTime.cancel()
         renderer.onDestroyInternal()
         if (!watchState.isHeadless) {
             WatchFace.unregisterEditorDelegate(componentName)
@@ -937,9 +903,7 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         if (renderer.shouldAnimate()) {
-            pendingUpdateTime.postUnique {
-                watchFaceHostApi.invalidate()
-            }
+            watchFaceHostApi.postInvalidate()
         }
     }
 
@@ -973,9 +937,8 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    /** @hide */
     @UiThread
-    internal fun onDraw() {
+    fun onDraw() {
         val startTime = getZonedDateTime()
         val startInstant = startTime.toInstant()
         val startTimeMillis = systemTimeProvider.getSystemTimeMillis()
@@ -986,18 +949,19 @@ public class WatchFaceImpl @UiThread constructor(
 
         if (renderer.shouldAnimate()) {
             val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
-            var delay = computeDelayTillNextFrame(startTimeMillis, currentTimeMillis, Instant.now())
-            nextDrawTimeMillis = currentTimeMillis + delay
+            var delayMillis =
+                computeDelayTillNextFrame(startTimeMillis, currentTimeMillis, Instant.now())
+            nextDrawTimeMillis = currentTimeMillis + delayMillis
 
             // We want to post our delayed task to post the choreographer frame a bit earlier than
             // the deadline because if we post it too close to the deadline we'll miss it. If we're
             // close to the deadline we post the choreographer frame immediately.
-            delay -= POST_CHOREOGRAPHER_FRAME_MILLIS_BEFORE_DEADLINE
+            delayMillis -= POST_CHOREOGRAPHER_FRAME_MILLIS_BEFORE_DEADLINE
 
-            if (delay <= 0) {
+            if (delayMillis <= 0) {
                 watchFaceHostApi.invalidate()
             } else {
-                pendingUpdateTime.postDelayedUnique(delay) { watchFaceHostApi.invalidate() }
+                watchFaceHostApi.postInvalidate(Duration.ofMillis(delayMillis))
             }
         }
     }
@@ -1073,19 +1037,6 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     /**
-     * Called when new complication data is received.
-     *
-     * @param complicationSlotId The id of the [ComplicationSlot] that the data relates to.
-     * @param data The [ComplicationData] that should be displayed in the complication.
-     */
-    @UiThread
-    internal fun onComplicationSlotDataUpdate(complicationSlotId: Int, data: ComplicationData) {
-        complicationSlotsManager.onComplicationDataUpdate(complicationSlotId, data, getNow())
-        watchFaceHostApi.invalidate()
-        watchFaceHostApi.scheduleWriteComplicationDataCache()
-    }
-
-    /**
      * Called when a tap or touch related event occurs. Detects taps on [ComplicationSlot]s and
      * triggers the associated action.
      *
@@ -1124,38 +1075,6 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    @OptIn(ComplicationExperimental::class)
-    @UiThread
-    internal fun getComplicationState() = complicationSlotsManager.complicationSlots.map {
-        val systemDataSourceFallbackDefaultType =
-            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
-                .toWireComplicationType()
-        IdAndComplicationStateWireFormat(
-            it.key,
-            ComplicationStateWireFormat(
-                it.value.computeBounds(renderer.screenBounds, applyMargins = false),
-                it.value.computeBounds(renderer.screenBounds, applyMargins = true),
-                it.value.boundsType,
-                ComplicationType.toWireTypes(it.value.supportedTypes),
-                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
-                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.enabled,
-                it.value.initiallyEnabled,
-                it.value.renderer.getData().type.toWireComplicationType(),
-                it.value.fixedComplicationDataSource,
-                it.value.configExtras,
-                it.value.nameResourceId,
-                it.value.screenReaderNameResourceId,
-                it.value.boundingArc?.toWireFormat()
-            )
-        )
-    }
-
     @UiThread
     @RequiresApi(27)
     internal fun renderWatchFaceToBitmap(
@@ -1165,7 +1084,9 @@ public class WatchFaceImpl @UiThread constructor(
         val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
 
         params.userStyle?.let {
-            onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
+            currentUserStyleRepository.updateUserStyle(
+                UserStyle(UserStyleData(it), currentUserStyleRepository.schema)
+            )
         }
 
         val oldComplicationData =
@@ -1189,7 +1110,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         // Restore previous style & complicationSlots if required.
         if (params.userStyle != null) {
-            onSetStyleInternal(oldStyle)
+            currentUserStyleRepository.updateUserStyle(oldStyle)
         }
 
         if (params.idAndComplicationDatumWireFormats != null) {
@@ -1217,7 +1138,7 @@ public class WatchFaceImpl @UiThread constructor(
 
             val newStyle = params.userStyle
             if (newStyle != null) {
-                onSetStyleInternal(
+                currentUserStyleRepository.updateUserStyle(
                     UserStyle(UserStyleData(newStyle), currentUserStyleRepository.schema)
                 )
             }
@@ -1256,7 +1177,7 @@ public class WatchFaceImpl @UiThread constructor(
             }
 
             if (newStyle != null) {
-                onSetStyleInternal(oldStyle)
+                currentUserStyleRepository.updateUserStyle(oldStyle)
             }
 
             SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
@@ -1273,7 +1194,6 @@ public class WatchFaceImpl @UiThread constructor(
         writer.println("lastDrawTimeMillis=$lastDrawTimeMillis")
         writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
         writer.println("muteMode=$muteMode")
-        writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
         writer.println(
             "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle.value}"

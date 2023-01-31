@@ -37,6 +37,9 @@ package androidx.benchmark {
   public final class ProfilerKt {
   }
 
+  public final class ShellKt {
+  }
+
   public final class UserspaceTracingKt {
   }
 

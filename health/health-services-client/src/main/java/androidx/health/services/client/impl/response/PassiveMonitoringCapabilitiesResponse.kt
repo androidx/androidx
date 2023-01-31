@@ -33,11 +33,10 @@ public class PassiveMonitoringCapabilitiesResponse(
     public val passiveMonitoringCapabilities: PassiveMonitoringCapabilities,
 ) : ProtoParcelable<ResponsesProto.PassiveMonitoringCapabilitiesResponse>() {
 
-    override val proto: ResponsesProto.PassiveMonitoringCapabilitiesResponse by lazy {
+    override val proto: ResponsesProto.PassiveMonitoringCapabilitiesResponse =
         ResponsesProto.PassiveMonitoringCapabilitiesResponse.newBuilder()
             .setCapabilities(passiveMonitoringCapabilities.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

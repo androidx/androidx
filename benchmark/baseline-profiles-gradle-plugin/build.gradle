@@ -1,0 +1,72 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
+}
+
+dependencies {
+    implementation(gradleApi())
+    implementation(libs.androidGradlePluginz)
+    implementation(libs.kotlinGradlePluginz)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.protobuf)
+    implementation(libs.agpTestingPlatformCoreProto)
+
+    testImplementation(gradleTestKit())
+    testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+}
+
+SdkResourceGenerator.generateForHostTest(project)
+
+gradlePlugin {
+    plugins {
+        baselineProfilesProducer {
+            id = "androidx.baselineprofiles.producer"
+            implementationClass = "androidx.baselineprofiles.gradle.producer.BaselineProfilesProducerPlugin"
+        }
+        baselineProfilesConsumer {
+            id = "androidx.baselineprofiles.consumer"
+            implementationClass = "androidx.baselineprofiles.gradle.consumer.BaselineProfilesConsumerPlugin"
+        }
+        baselineProfilesBuildProvider {
+            id = "androidx.baselineprofiles.buildprovider"
+            implementationClass = "androidx.baselineprofiles.gradle.buildprovider.BaselineProfilesBuildProviderPlugin"
+        }
+    }
+}
+
+androidx {
+    name = "Android Baseline Profiles Gradle Plugin"
+    publish = Publish.SNAPSHOT_ONLY
+    type = LibraryType.GRADLE_PLUGIN
+    inceptionYear = "2022"
+    description = "Android Baseline Profiles Gradle Plugin"
+}
+
+tasks {
+    validatePlugins {
+        failOnWarning.set(true)
+        enableStricterValidation.set(true)
+    }
+}

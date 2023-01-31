@@ -19,6 +19,7 @@ package androidx.glance.appwidget.preview
 import androidx.glance.appwidget.preview.test.R
 import android.app.Activity
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -41,7 +42,31 @@ class GlanceAppWidgetViewAdapterTest {
     @Before
     fun setup() {
         glanceAppWidgetViewAdapter =
-            activityTestRule.activity.findViewById(R.id.glance_appwidget_view_adapter)
+            activityTestRule
+                .activity
+                .window
+                .decorView
+                .findViewInHierarchy(GlanceAppWidgetViewAdapter::class.java)!!
+    }
+
+    /**
+     * [AppWidgetHostView] does not support view ID, therefore we need to perform our own traversal
+     * to find the [GlanceAppWidgetViewAdapter].
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : View> View.findViewInHierarchy(viewClass: Class<T>): T? {
+        if (viewClass.isInstance(this)) {
+            return this as T
+        }
+        if (this is ViewGroup) {
+            (0 until childCount).forEach {
+                val res = getChildAt(it).findViewInHierarchy(viewClass)
+                if (res != null) {
+                    return res
+                }
+            }
+        }
+        return null
     }
 
     private fun initAndInflate(

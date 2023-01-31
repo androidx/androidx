@@ -1,2 +1,3 @@
 -Xmx8g
--Djava.net.preferIPv6Addresses=true
+-Dappinspection.use.dev.jar=true
+-Dlayout.inspector.rel.jar.location=../../../../../../out/androidx/compose/ui/ui-inspection/build/androidx_inspection/assembleInspectorJar/release

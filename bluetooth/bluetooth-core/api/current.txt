@@ -1,1 +1,67 @@
 // Signature format: 4.0
+package androidx.bluetooth.core {
+
+  public final class AdvertiseSettings {
+    ctor public AdvertiseSettings(optional int advertiseMode, optional int advertiseTxPowerLevel, optional boolean advertiseConnectable, optional int advertiseTimeoutMillis);
+    method public boolean getAdvertiseConnectable();
+    method public int getAdvertiseMode();
+    method public int getAdvertiseTimeoutMillis();
+    method public int getAdvertiseTxPowerLevel();
+    property public final boolean advertiseConnectable;
+    property public final int advertiseMode;
+    property public final int advertiseTimeoutMillis;
+    property public final int advertiseTxPowerLevel;
+    field public static final int ADVERTISE_MODE_BALANCED = 1; // 0x1
+    field public static final int ADVERTISE_MODE_LOW_LATENCY = 2; // 0x2
+    field public static final int ADVERTISE_MODE_LOW_POWER = 0; // 0x0
+    field public static final int ADVERTISE_TX_POWER_HIGH = 3; // 0x3
+    field public static final int ADVERTISE_TX_POWER_LOW = 1; // 0x1
+    field public static final int ADVERTISE_TX_POWER_MEDIUM = 2; // 0x2
+    field public static final int ADVERTISE_TX_POWER_ULTRA_LOW = 0; // 0x0
+    field public static final androidx.bluetooth.core.AdvertiseSettings.Companion Companion;
+  }
+
+  public static final class AdvertiseSettings.Companion {
+  }
+
+  public final class ScanFilter {
+    ctor public ScanFilter(optional String? deviceName, optional String? deviceAddress, optional android.os.ParcelUuid? serviceUuid, optional android.os.ParcelUuid? serviceUuidMask, optional android.os.ParcelUuid? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional android.os.ParcelUuid? serviceSolicitationUuid, optional android.os.ParcelUuid? serviceSolicitationUuidMask, optional byte[]? advertisingData, optional byte[]? advertisingDataMask, optional int advertisingDataType);
+    method public byte[]? getAdvertisingData();
+    method public byte[]? getAdvertisingDataMask();
+    method public int getAdvertisingDataType();
+    method public String? getDeviceAddress();
+    method public String? getDeviceName();
+    method public byte[]? getManufacturerData();
+    method public byte[]? getManufacturerDataMask();
+    method public int getManufacturerId();
+    method public byte[]? getServiceData();
+    method public byte[]? getServiceDataMask();
+    method public android.os.ParcelUuid? getServiceDataUuid();
+    method public android.os.ParcelUuid? getServiceSolicitationUuid();
+    method public android.os.ParcelUuid? getServiceSolicitationUuidMask();
+    method public android.os.ParcelUuid? getServiceUuid();
+    method public android.os.ParcelUuid? getServiceUuidMask();
+    method public boolean matches(android.bluetooth.le.ScanResult? scanResult);
+    property public final byte[]? advertisingData;
+    property public final byte[]? advertisingDataMask;
+    property public final int advertisingDataType;
+    property public final String? deviceAddress;
+    property public final String? deviceName;
+    property public final byte[]? manufacturerData;
+    property public final byte[]? manufacturerDataMask;
+    property public final int manufacturerId;
+    property public final byte[]? serviceData;
+    property public final byte[]? serviceDataMask;
+    property public final android.os.ParcelUuid? serviceDataUuid;
+    property public final android.os.ParcelUuid? serviceSolicitationUuid;
+    property public final android.os.ParcelUuid? serviceSolicitationUuidMask;
+    property public final android.os.ParcelUuid? serviceUuid;
+    property public final android.os.ParcelUuid? serviceUuidMask;
+    field public static final androidx.bluetooth.core.ScanFilter.Companion Companion;
+  }
+
+  public static final class ScanFilter.Companion {
+  }
+
+}
+

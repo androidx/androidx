@@ -20,6 +20,10 @@ import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.sqlite.db.SupportSQLiteCompat
+import java.util.concurrent.Callable
+import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -32,10 +36,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Callable
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * A helper class for supporting Kotlin Coroutines in Room.
@@ -53,7 +53,7 @@ public class CoroutinesRoom private constructor() {
             inTransaction: Boolean,
             callable: Callable<R>
         ): R {
-            if (db.isOpen && db.inTransaction()) {
+            if (db.isOpenInternal && db.inTransaction()) {
                 return callable.call()
             }
 
@@ -71,10 +71,10 @@ public class CoroutinesRoom private constructor() {
         public suspend fun <R> execute(
             db: RoomDatabase,
             inTransaction: Boolean,
-            cancellationSignal: CancellationSignal,
+            cancellationSignal: CancellationSignal?,
             callable: Callable<R>
         ): R {
-            if (db.isOpen && db.inTransaction()) {
+            if (db.isOpenInternal && db.inTransaction()) {
                 return callable.call()
             }
 
@@ -93,7 +93,9 @@ public class CoroutinesRoom private constructor() {
                 }
                 continuation.invokeOnCancellation {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)
+                        if (cancellationSignal != null) {
+                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)
+                        }
                     }
                     job.cancel()
                 }

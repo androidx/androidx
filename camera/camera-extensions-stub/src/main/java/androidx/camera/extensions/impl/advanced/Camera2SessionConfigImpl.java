@@ -24,6 +24,8 @@ import java.util.Map;
 
 /**
  * A config representing a {@link android.hardware.camera2.params.SessionConfiguration}
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface Camera2SessionConfigImpl {

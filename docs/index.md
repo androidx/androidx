@@ -14,10 +14,11 @@ through broad OS- and device-level compatibility, high-level abstractions to
 simplify and unify platform features, and other new features that target
 developer pain points.
 
-For frequently asked questions, see the [General FAQ](faq.md).
+For frequently asked questions, see the
+[General FAQ](/company/teams/androidx/faq.md).
 
-To get started developing in AndroidX, see the [Getting started](onboarding.md)
-guide.
+To get started developing in AndroidX, see the
+[Getting started](/company/teams/androidx/onboarding.md) guide.
 
 ## Quick links
 
@@ -27,4 +28,4 @@ Have a bug or feature request? Please check our
 [public Issue Tracker component](http://issuetracker.google.com/issues/new?component=192731&template=842428)
 for duplicates first, then file against the appropriate sub-component according
 to the library package or infrastructure system. Learn more at
-[Issue tracking](onboarding.md#tracking-bugs).
+[Issue tracking](/company/teams/androidx/onboarding.md#tracking-bugs).

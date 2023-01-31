@@ -22,9 +22,9 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.wear.tiles.proto.ResourceProto;
-import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
-import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
+import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId;
+import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

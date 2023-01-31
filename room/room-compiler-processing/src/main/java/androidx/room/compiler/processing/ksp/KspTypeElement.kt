@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XEnumEntry
@@ -24,6 +25,7 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
@@ -43,7 +45,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.KClassName
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
@@ -85,17 +88,6 @@ internal sealed class KspTypeElement(
         )
     }
 
-    override val superTypes: List<XType> by lazy {
-        buildList {
-            if (isInterface() && superInterfaces.isEmpty()) {
-                add(env.requireType(TypeName.OBJECT))
-            } else {
-                superClass?.let { add(it) }
-                addAll(superInterfaces)
-            }
-        }
-    }
-
     override val superClass: XType? by lazy {
         if (isInterface()) {
             // interfaces don't have super classes (they do have super types)
@@ -129,14 +121,29 @@ internal sealed class KspTypeElement(
         }
     }
 
+    @Deprecated(
+        "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith = ReplaceWith(
+            "asClassName().toJavaPoet()",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
     override val className: ClassName by lazy {
-        declaration.typeName(env.resolver).tryBox().also { typeName ->
-            check(typeName is ClassName) {
+        xClassName.java
+    }
+
+    private val xClassName: XClassName by lazy {
+        val java = declaration.asJTypeName(env.resolver).tryBox().also { typeName ->
+            check(typeName is JClassName) {
                 "Internal error. The type name for $declaration should be a class name but " +
                     "received ${typeName::class}"
             }
-        } as ClassName
+        } as JClassName
+        val kotlin = declaration.asKTypeName(env.resolver) as KClassName
+        XClassName(java, kotlin, XNullability.NONNULL)
     }
+
+    override fun asClassName() = xClassName
 
     private val allMethods = MemoizedSequence {
         collectAllMethods(this)
@@ -192,8 +199,23 @@ internal sealed class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        _declaredProperties.flatMap { field ->
-            field.syntheticAccessors
+        if (declaration.isCompanionObject) {
+            _declaredProperties.flatMap { field ->
+                field.syntheticAccessors
+            }
+        } else {
+            _declaredProperties.flatMap { field ->
+                // static fields are the properties that are coming from the
+                // companion. Whether we'll generate method for it or not depends on
+                // the JVMStatic annotation
+                if (field.isStatic() && !field.declaration.hasJvmStaticAnnotation()) {
+                    field.syntheticAccessors.filter {
+                        it.accessor.hasJvmStaticAnnotation()
+                    }
+                } else {
+                    field.syntheticAccessors
+                }
+            }
         }.filterMethodsByConfig(env)
     }
 
@@ -344,6 +366,16 @@ internal sealed class KspTypeElement(
         ): KspTypeElement {
             return when (ksClassDeclaration.classKind) {
                 ClassKind.ENUM_CLASS -> KspEnumTypeElement(env, ksClassDeclaration)
+                ClassKind.ENUM_ENTRY -> {
+                    val enclosingEnumTypeElement =
+                        create(env, ksClassDeclaration.parentDeclaration as KSClassDeclaration)
+                    check(enclosingEnumTypeElement is KspEnumTypeElement) {
+                        "Internal error. The parent declaration of $ksClassDeclaration should " +
+                            "have been wrapped in a KspEnumTypeElement but was " +
+                            enclosingEnumTypeElement::class
+                    }
+                    KspEnumEntry(env, ksClassDeclaration, enclosingEnumTypeElement)
+                }
                 else -> DefaultKspTypeElement(env, ksClassDeclaration)
             }
         }

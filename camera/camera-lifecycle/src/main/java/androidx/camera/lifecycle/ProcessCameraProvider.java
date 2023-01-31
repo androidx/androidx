@@ -16,6 +16,10 @@
 
 package androidx.camera.lifecycle;
 
+import static androidx.camera.core.impl.utils.Threads.runOnMainSync;
+
+import static java.util.Collections.emptyList;
+
 import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
@@ -28,13 +32,13 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.EffectBundle;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
@@ -272,6 +276,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @RestrictTo(Scope.TESTS)
     @NonNull
     public ListenableFuture<Void> shutdown() {
+        runOnMainSync(this::unbindAll);
         mLifecycleCameraRepository.clear();
 
         ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.shutdown() :
@@ -358,7 +363,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
-        return bindToLifecycle(lifecycleOwner, cameraSelector, null, null, useCases);
+        return bindToLifecycle(lifecycleOwner, cameraSelector, null, emptyList(), useCases);
     }
 
     /**
@@ -380,7 +385,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCaseGroup useCaseGroup) {
         return bindToLifecycle(lifecycleOwner, cameraSelector,
-                useCaseGroup.getViewPort(), useCaseGroup.getEffectBundle(),
+                useCaseGroup.getViewPort(), useCaseGroup.getEffects(),
                 useCaseGroup.getUseCases().toArray(new UseCase[0]));
     }
 
@@ -433,7 +438,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @param cameraSelector The camera selector which determines the camera to use for set of
      *                       use cases.
      * @param viewPort       The viewPort which represents the visible camera sensor rect.
-     * @param effectBundle   The effects applied to the camera outputs.
+     * @param effects        The effects applied to the camera outputs.
      * @param useCases       The use cases to bind to a lifecycle.
      * @return The {@link Camera} instance which is determined by the camera selector and
      * internal requirements.
@@ -448,7 +453,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             @NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @Nullable ViewPort viewPort,
-            @Nullable EffectBundle effectBundle,
+            @NonNull List<CameraEffect> effects,
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         // TODO(b/153096869): override UseCase's target rotation.
@@ -534,7 +539,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         }
 
         mLifecycleCameraRepository.bindToLifecycleCamera(lifecycleCameraToBind, viewPort,
-                effectBundle, Arrays.asList(useCases));
+                effects, Arrays.asList(useCases));
 
         return lifecycleCameraToBind;
     }

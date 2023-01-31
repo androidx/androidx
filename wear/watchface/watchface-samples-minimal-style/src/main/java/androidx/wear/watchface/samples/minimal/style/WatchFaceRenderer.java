@@ -142,7 +142,10 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
             mPaint.setColor(Color.BLACK);
             canvas.drawRect(rect, mPaint);
             mPaint.setColor(Color.WHITE);
-            int hour = zonedDateTime.getHour() % 12;
+            int hour = zonedDateTime.getHour();
+            if (hour != 12) {
+                hour %= 12;
+            }
             int minute = zonedDateTime.getMinute();
             int second = zonedDateTime.getSecond();
             mTimeText[0] = DIGITS[hour / 10];
@@ -211,7 +214,10 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
                 @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters) {
             boolean isActive = renderParameters.getDrawMode() != DrawMode.AMBIENT;
-            int hour = zonedDateTime.getHour() % 12;
+            int hour = zonedDateTime.getHour();
+            if (hour != 12) {
+                hour %= 12;
+            }
             int minute = zonedDateTime.getMinute();
             int second = zonedDateTime.getSecond();
 

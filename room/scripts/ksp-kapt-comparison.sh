@@ -13,7 +13,7 @@ PROJECT_DIR="$SCRIPT_DIR/.."
 # move to the project directory
 cd $PROJECT_DIR;
 
-KSP_TASK=":room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin"
+KSP_TASK=":room:integration-tests:room-testapp-kotlin:kspWithKspGenJavaDebugAndroidTestKotlin"
 KAPT_TASK=":room:integration-tests:room-testapp-kotlin:kaptGenerateStubsWithKaptDebugAndroidTestKotlin \
     :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin"
 # parses the given profile file, extracts task durations that we are interested in and adds them to the global tracking

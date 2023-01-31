@@ -17,7 +17,6 @@
 package androidx.wear.compose.integration.macrobenchmark.test
 
 import android.content.Intent
-import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -52,7 +51,6 @@ import org.junit.runners.Parameterized
 //      <output-file eg ./wear/compose/compose-material/src/androidMain/baseline-prof.txt>
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalBaselineProfilesApi::class)
 class BaselineProfile {
 
     @get:Rule
@@ -64,6 +62,9 @@ class BaselineProfile {
     private val BUTTONS = "buttons"
     private val CARDS = "cards"
     private val CHIPS = "chips"
+    private val RADIO_BUTTON = "radio-button"
+    private val CHECKBOX = "checkbox"
+    private val SWITCH = "switch"
     private val DIALOGS = "dialogs"
     private val PICKER = "picker"
     private val PROGRESSINDICATORS = "progressindicators"
@@ -71,6 +72,7 @@ class BaselineProfile {
     private val STEPPER = "stepper"
     private val PROGRESS_INDICATOR = "progress-indicator"
     private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
+    private val PLACEHOLDERS = "placeholders"
 
     @Before
     fun setUp() {
@@ -88,14 +90,25 @@ class BaselineProfile {
                 startActivityAndWait(intent)
                 testDestination(description = BUTTONS)
                 testDestination(description = CARDS)
-                testDestination(description = CHIPS)
+                testChips()
                 testDialogs()
                 testDestination(description = PICKER)
+                testDestination(description = PLACEHOLDERS)
                 testProgressIndicators()
                 testDestination(description = SLIDER)
                 testDestination(description = STEPPER)
             }
         )
+    }
+
+    private fun testChips() {
+        findAndClick(By.desc(CHIPS))
+        device.waitForIdle()
+        findAndClick(By.desc(CHECKBOX))
+        findAndClick(By.desc(RADIO_BUTTON))
+        findAndClick(By.desc(SWITCH))
+        device.pressBack()
+        device.waitForIdle()
     }
 
     private fun testDialogs() {

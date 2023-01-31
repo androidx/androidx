@@ -19,17 +19,28 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ActivityComponentInfo
 
 /**
  * Internal utils used for matching activities with embedding rules.
  */
-@ExperimentalWindowApi
 internal object MatcherUtils {
     /** Checks component match allowing wildcard patterns. */
     internal fun areComponentsMatching(
         activityComponent: ComponentName?,
         ruleComponent: ComponentName
+    ): Boolean {
+        val activityActivityComponentInfo = activityComponent?.let(::ActivityComponentInfo)
+        return areComponentsMatching(
+            activityActivityComponentInfo,
+            ActivityComponentInfo(ruleComponent)
+        )
+    }
+
+    /** Checks component match allowing wildcard patterns. */
+    internal fun areComponentsMatching(
+        activityComponent: ActivityComponentInfo?,
+        ruleComponent: ActivityComponentInfo
     ): Boolean {
         if (activityComponent == null) {
             return ruleComponent.packageName == "*" && ruleComponent.className == "*"
@@ -60,9 +71,9 @@ internal object MatcherUtils {
      */
     internal fun isActivityOrIntentMatching(
         activity: Activity,
-        ruleComponent: ComponentName
+        ruleComponent: ActivityComponentInfo
     ): Boolean {
-        if (areComponentsMatching(activity.componentName, ruleComponent)) {
+        if (areComponentsMatching(ActivityComponentInfo(activity.componentName), ruleComponent)) {
             return true
         }
         // Returns false if activity's intent doesn't exist or its intent doesn't match.
@@ -75,16 +86,20 @@ internal object MatcherUtils {
      */
     internal fun isIntentMatching(
         intent: Intent,
-        ruleComponent: ComponentName
+        ruleActivityComponentInfo: ActivityComponentInfo
     ): Boolean {
         if (intent.component != null) {
             // Compare the component if set.
-            return areComponentsMatching(intent.component, ruleComponent)
+            return areComponentsMatching(
+                intent.component?.let(::ActivityComponentInfo),
+                ruleActivityComponentInfo
+            )
         }
         // Check if there is wildcard match for Intent that only specifies the packageName.
         val packageName = intent.`package` ?: return false
-        return (packageName == ruleComponent.packageName ||
-            wildcardMatch(packageName, ruleComponent.packageName)) && ruleComponent.className == "*"
+        return (packageName == ruleActivityComponentInfo.packageName ||
+            wildcardMatch(packageName, ruleActivityComponentInfo.packageName)) &&
+            ruleActivityComponentInfo.className == "*"
     }
 
     /**

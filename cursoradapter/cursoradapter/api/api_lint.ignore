@@ -5,28 +5,6 @@ ContextFirst: androidx.cursoradapter.widget.SimpleCursorAdapter#bindView(android
     Context is distinct, so it must be the first argument (method `bindView`)
 
 
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#CursorAdapter(android.content.Context, android.database.Cursor, boolean) parameter #0:
-    Missing nullability on parameter `context` in method `CursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#CursorAdapter(android.content.Context, android.database.Cursor, boolean) parameter #1:
-    Missing nullability on parameter `c` in method `CursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#CursorAdapter(android.content.Context, android.database.Cursor, int) parameter #0:
-    Missing nullability on parameter `context` in method `CursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#CursorAdapter(android.content.Context, android.database.Cursor, int) parameter #1:
-    Missing nullability on parameter `c` in method `CursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor) parameter #0:
-    Missing nullability on parameter `view` in method `bindView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor) parameter #1:
-    Missing nullability on parameter `context` in method `bindView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor) parameter #2:
-    Missing nullability on parameter `cursor` in method `bindView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#changeCursor(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `cursor` in method `changeCursor`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#convertToString(android.database.Cursor):
-    Missing nullability on method `convertToString` return
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#convertToString(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `cursor` in method `convertToString`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getCursor():
-    Missing nullability on method `getCursor` return
 MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getDropDownView(int, android.view.View, android.view.ViewGroup):
     Missing nullability on method `getDropDownView` return
 MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getDropDownView(int, android.view.View, android.view.ViewGroup) parameter #1:
@@ -35,8 +13,6 @@ MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getDropDownView(
     Missing nullability on parameter `parent` in method `getDropDownView`
 MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getFilter():
     Missing nullability on method `getFilter` return
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getFilterQueryProvider():
-    Missing nullability on method `getFilterQueryProvider` return
 MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getItem(int):
     Missing nullability on method `getItem` return
 MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getView(int, android.view.View, android.view.ViewGroup):
@@ -45,101 +21,3 @@ MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getView(int, and
     Missing nullability on parameter `convertView` in method `getView`
 MissingNullability: androidx.cursoradapter.widget.CursorAdapter#getView(int, android.view.View, android.view.ViewGroup) parameter #2:
     Missing nullability on parameter `parent` in method `getView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup):
-    Missing nullability on method `newDropDownView` return
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `context` in method `newDropDownView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `cursor` in method `newDropDownView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #2:
-    Missing nullability on parameter `parent` in method `newDropDownView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup):
-    Missing nullability on method `newView` return
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `context` in method `newView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `cursor` in method `newView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #2:
-    Missing nullability on parameter `parent` in method `newView`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#runQueryOnBackgroundThread(CharSequence):
-    Missing nullability on method `runQueryOnBackgroundThread` return
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#runQueryOnBackgroundThread(CharSequence) parameter #0:
-    Missing nullability on parameter `constraint` in method `runQueryOnBackgroundThread`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#setFilterQueryProvider(android.widget.FilterQueryProvider) parameter #0:
-    Missing nullability on parameter `filterQueryProvider` in method `setFilterQueryProvider`
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#swapCursor(android.database.Cursor):
-    Missing nullability on method `swapCursor` return
-MissingNullability: androidx.cursoradapter.widget.CursorAdapter#swapCursor(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `newCursor` in method `swapCursor`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, int) parameter #0:
-    Missing nullability on parameter `context` in method `ResourceCursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, int) parameter #2:
-    Missing nullability on parameter `c` in method `ResourceCursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup):
-    Missing nullability on method `newDropDownView` return
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `context` in method `newDropDownView`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `cursor` in method `newDropDownView`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newDropDownView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #2:
-    Missing nullability on parameter `parent` in method `newDropDownView`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup):
-    Missing nullability on method `newView` return
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `context` in method `newView`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `cursor` in method `newView`
-MissingNullability: androidx.cursoradapter.widget.ResourceCursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup) parameter #2:
-    Missing nullability on parameter `parent` in method `newView`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#SimpleCursorAdapter(android.content.Context, int, android.database.Cursor, String[], int[], int) parameter #0:
-    Missing nullability on parameter `context` in method `SimpleCursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#SimpleCursorAdapter(android.content.Context, int, android.database.Cursor, String[], int[], int) parameter #2:
-    Missing nullability on parameter `c` in method `SimpleCursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#SimpleCursorAdapter(android.content.Context, int, android.database.Cursor, String[], int[], int) parameter #3:
-    Missing nullability on parameter `from` in method `SimpleCursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#SimpleCursorAdapter(android.content.Context, int, android.database.Cursor, String[], int[], int) parameter #4:
-    Missing nullability on parameter `to` in method `SimpleCursorAdapter`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor) parameter #0:
-    Missing nullability on parameter `view` in method `bindView`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor) parameter #1:
-    Missing nullability on parameter `context` in method `bindView`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor) parameter #2:
-    Missing nullability on parameter `cursor` in method `bindView`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#changeCursorAndColumns(android.database.Cursor, String[], int[]) parameter #0:
-    Missing nullability on parameter `c` in method `changeCursorAndColumns`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#changeCursorAndColumns(android.database.Cursor, String[], int[]) parameter #1:
-    Missing nullability on parameter `from` in method `changeCursorAndColumns`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#changeCursorAndColumns(android.database.Cursor, String[], int[]) parameter #2:
-    Missing nullability on parameter `to` in method `changeCursorAndColumns`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#convertToString(android.database.Cursor):
-    Missing nullability on method `convertToString` return
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#convertToString(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `cursor` in method `convertToString`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#getCursorToStringConverter():
-    Missing nullability on method `getCursorToStringConverter` return
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#getViewBinder():
-    Missing nullability on method `getViewBinder` return
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setCursorToStringConverter(androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter) parameter #0:
-    Missing nullability on parameter `cursorToStringConverter` in method `setCursorToStringConverter`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setViewBinder(androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder) parameter #0:
-    Missing nullability on parameter `viewBinder` in method `setViewBinder`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setViewImage(android.widget.ImageView, String) parameter #0:
-    Missing nullability on parameter `v` in method `setViewImage`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setViewImage(android.widget.ImageView, String) parameter #1:
-    Missing nullability on parameter `value` in method `setViewImage`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setViewText(android.widget.TextView, String) parameter #0:
-    Missing nullability on parameter `v` in method `setViewText`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setViewText(android.widget.TextView, String) parameter #1:
-    Missing nullability on parameter `text` in method `setViewText`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#swapCursor(android.database.Cursor):
-    Missing nullability on method `swapCursor` return
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#swapCursor(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `newCursor` in method `swapCursor`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter#convertToString(android.database.Cursor):
-    Missing nullability on method `convertToString` return
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter#convertToString(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `cursor` in method `convertToString`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder#setViewValue(android.view.View, android.database.Cursor, int) parameter #0:
-    Missing nullability on parameter `view` in method `setViewValue`
-MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder#setViewValue(android.view.View, android.database.Cursor, int) parameter #1:
-    Missing nullability on parameter `cursor` in method `setViewValue`

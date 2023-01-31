@@ -327,7 +327,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5"
+        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5, CarAppApiLevels.LEVEL_6"
         errorLine1="        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -368,6 +368,42 @@
         errorLine2="                                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/navigation/model/PanModeDelegateImpl.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
+        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
+        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
+        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type androidx.car.app.model.Row.Builder; expected int or long"
+        errorLine1="        @IntRange(from = 0)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/Row.java"/>
     </issue>
 
 </issues>

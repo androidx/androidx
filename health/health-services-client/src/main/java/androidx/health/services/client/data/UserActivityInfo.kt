@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_ASLEEP
 import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_EXERCISE
 import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_PASSIVE
@@ -44,7 +43,7 @@ public class UserActivityInfo(
 
     /** The time at which the current state took effect. */
     public val stateChangeTime: Instant,
-) : ProtoParcelable<UserActivityInfoProto>() {
+) {
 
     internal constructor(
         proto: DataProto.UserActivityInfo
@@ -54,15 +53,16 @@ public class UserActivityInfo(
         Instant.ofEpochMilli(proto.stateChangeTimeEpochMs)
     )
 
-    /** @hide */
-    override val proto: UserActivityInfoProto by lazy {
+    internal val proto: UserActivityInfoProto = getUserActivityInfoProto()
+
+    private fun getUserActivityInfoProto(): UserActivityInfoProto {
         val builder =
             UserActivityInfoProto.newBuilder()
                 .setState(userActivityState.toProto())
                 .setStateChangeTimeEpochMs(stateChangeTime.toEpochMilli())
 
         exerciseInfo?.let { builder.exerciseInfo = it.proto }
-        builder.build()
+        return builder.build()
     }
 
     override fun toString(): String =
@@ -72,12 +72,6 @@ public class UserActivityInfo(
             "exerciseInfo=$exerciseInfo)"
 
     public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<UserActivityInfo> = newCreator { bytes ->
-            val proto = UserActivityInfoProto.parseFrom(bytes)
-            UserActivityInfo(proto)
-        }
-
         /** Creates a [UserActivityInfo] for [USER_ACTIVITY_UNKNOWN]. */
         @JvmStatic
         public fun createUnknownTypeState(stateChangeTime: Instant): UserActivityInfo =

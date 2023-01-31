@@ -21,6 +21,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.4.0")
+    implementation("androidx.core:core:1.6.0")
 
     androidTestImplementation(project(":test:uiautomator:uiautomator"))
     androidTestImplementation(libs.testCore)

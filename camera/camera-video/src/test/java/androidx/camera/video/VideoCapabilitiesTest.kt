@@ -116,4 +116,46 @@ class VideoCapabilitiesTest {
         assertThat(videoCapabilities.findHighestSupportedQualityFor(exactSize720p))
             .isEqualTo(Quality.HD)
     }
+
+    @Test
+    fun findHighestSupportedCamcorderProfileFor_returnsHigherProfile() {
+        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        // Create a size between 720p and 2160p
+        val (width720p, height720p) = CamcorderProfileUtil.RESOLUTION_720P
+        val inBetweenSize = Size(width720p + 10, height720p)
+
+        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(inBetweenSize))
+            .isEqualTo(PROFILE_2160P)
+    }
+
+    @Test
+    fun findHighestSupportedCamcorderProfileFor_returnsHighestProfile_whenAboveHighest() {
+        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        // Create a size between greater than the max quality (UHD)
+        val (width2160p, height2160p) = CamcorderProfileUtil.RESOLUTION_2160P
+        val aboveHighestSize = Size(width2160p + 10, height2160p)
+
+        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(aboveHighestSize))
+            .isEqualTo(PROFILE_2160P)
+    }
+
+    @Test
+    fun findHighestSupportedCamcorderProfileFor_returnsLowestProfile_whenBelowLowest() {
+        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        // Create a size below the lowest quality (HD)
+        val (width720p, height720p) = CamcorderProfileUtil.RESOLUTION_720P
+        val belowLowestSize = Size(width720p - 10, height720p)
+
+        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(belowLowestSize))
+            .isEqualTo(PROFILE_720P)
+    }
+
+    @Test
+    fun findHighestSupportedCamcorderProfileFor_returnsExactProfile_whenExactSizeGiven() {
+        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val exactSize720p = CamcorderProfileUtil.RESOLUTION_720P
+
+        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(exactSize720p))
+            .isEqualTo(PROFILE_720P)
+    }
 }

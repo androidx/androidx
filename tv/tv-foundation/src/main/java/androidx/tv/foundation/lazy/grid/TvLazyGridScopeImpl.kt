@@ -17,6 +17,7 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
@@ -66,9 +67,10 @@ internal class TvLazyGridScopeImpl : TvLazyGridScope {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridIntervalContent(
-    val key: ((index: Int) -> Any)?,
+    override val key: ((index: Int) -> Any)?,
     val span: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan,
-    val type: ((index: Int) -> Any?),
+    override val type: ((index: Int) -> Any?),
     val item: @Composable TvLazyGridItemScope.(Int) -> Unit
-)
+) : LazyLayoutIntervalContent

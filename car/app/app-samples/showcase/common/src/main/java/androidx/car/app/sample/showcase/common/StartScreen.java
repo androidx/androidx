@@ -18,18 +18,17 @@ package androidx.car.app.sample.showcase.common;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
-import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
-import androidx.car.app.sample.showcase.common.misc.MiscDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.NavigationDemosScreen;
-import androidx.car.app.sample.showcase.common.templates.MiscTemplateDemosScreen;
-import androidx.car.app.sample.showcase.common.textandicons.TextAndIconsDemosScreen;
-import androidx.car.app.versioning.CarAppApiLevels;
+import androidx.car.app.sample.showcase.common.screens.NavigationDemosScreen;
+import androidx.car.app.sample.showcase.common.screens.SettingsScreen;
+import androidx.car.app.sample.showcase.common.screens.TemplateLayoutsDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.UserInteractionsDemoScreen;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** The starting screen of the app. */
@@ -46,85 +45,74 @@ public final class StartScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle(getCarContext().getString(R.string.selectable_lists_demo_title))
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(
-                                                        new SelectableListsDemoScreen(
-                                                                getCarContext())))
-                        .build());
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle(getCarContext().getString(R.string.task_restriction_demo_title))
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(
-                                                        new TaskRestrictionDemoScreen(
-                                                                1, getCarContext())))
-                        .build());
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setImage(
-                                new CarIcon.Builder(
-                                        IconCompat.createWithResource(
-                                                getCarContext(),
-                                                R.drawable.ic_map_white_48dp))
-                                        .build(),
-                                Row.IMAGE_TYPE_ICON)
-                        .setTitle(getCarContext().getString(R.string.nav_demos_title))
-                        .setOnClickListener(
-                                () -> getScreenManager()
-                                        .push(new NavigationDemosScreen(getCarContext())))
-                        .setBrowsable(true)
-                        .build());
-        int listLimit = 6;
-        // Adjust the item limit according to the car constrains.
-        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
-            listLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
-                    ConstraintManager.CONTENT_LIMIT_TYPE_LIST);
-        }
-        int miscTemplateDemoScreenItemLimit = listLimit;
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle(getCarContext().getString(R.string.misc_templates_demos_title))
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(new MiscTemplateDemosScreen(
-                                                        getCarContext(),
-                                                        0,
-                                                        miscTemplateDemoScreenItemLimit)))
-                        .setBrowsable(true)
-                        .build());
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle(getCarContext().getString(R.string.text_icons_demo_title))
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(new TextAndIconsDemosScreen(getCarContext())))
-                        .setBrowsable(true)
-                        .build());
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle(getCarContext().getString(R.string.misc_demo_title))
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(new MiscDemoScreen(getCarContext(),
-                                                        mShowcaseSession)))
-                        .setBrowsable(true)
-                        .build());
+
+        listBuilder.addItem(createRowForScreen(R.string.template_layouts_demo_title,
+                new TemplateLayoutsDemoScreen(getCarContext())));
+
+        listBuilder.addItem(createRowForScreen(R.string.user_interactions_demo_title,
+                new UserInteractionsDemoScreen(1, getCarContext())));
+
+        listBuilder.addItem(createRowForScreen(R.string.nav_demos_title,
+                createCarIconForImage(R.drawable.ic_map_white_48dp),
+                new NavigationDemosScreen(getCarContext())));
+
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle(getCarContext().getString(R.string.showcase_demos_title) + " ("
-                        + getCarContext().getString(R.string.cal_api_level_prefix,
-                        getCarContext().getCarAppApiLevel()) + ")")
+                .setTitle(getCarContext().getString(R.string.showcase_demos_title))
                 .setHeaderAction(Action.APP_ICON)
+                .setActionStrip(new ActionStrip.Builder()
+                        .addAction(createSettingsActionButton())
+                        .build())
+                .build();
+    }
+
+    /**
+     * Creates a new Settings Action button in the top right of the Home page
+     */
+    @NonNull
+    public Action createSettingsActionButton() {
+        return new Action.Builder()
+                .setTitle(getCarContext().getString(R.string.settings_action_title))
+                .setOnClickListener(() -> getScreenManager().push(
+                        new SettingsScreen(getCarContext(), mShowcaseSession)))
+                .build();
+    }
+
+    /**
+     * Creates new row given a title, and the next screen on clicking the row
+     */
+    @NonNull
+    public Row createRowForScreen(int titleId, @NonNull Screen screen) {
+        return new Row.Builder()
+            .setTitle(getCarContext().getString(titleId))
+            .setOnClickListener(() -> getScreenManager().push(screen))
+            .setBrowsable(true)
+            .build();
+    }
+
+    /**
+     * Creates new row given a title, CarIcon image and the next screen on clicking the row
+     */
+    @NonNull
+    public Row createRowForScreen(int titleId, @NonNull CarIcon image, @NonNull Screen screen) {
+        return new Row.Builder()
+                .setImage(image, Row.IMAGE_TYPE_ICON)
+                .setTitle(getCarContext().getString(titleId))
+                .setOnClickListener(() -> getScreenManager().push(screen))
+                .setBrowsable(true)
+                .build();
+    }
+
+    /**
+    * Given an imageId (as a drawable resource), this function outputs an CarIcon
+    */
+    @NonNull
+    public CarIcon createCarIconForImage(int imageId) {
+        return new CarIcon.Builder(
+                IconCompat.createWithResource(
+                        getCarContext(),
+                        imageId))
                 .build();
     }
 }
+

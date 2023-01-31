@@ -33,7 +33,6 @@ dependencies {
 androidx {
     name = "AndroidX Bluetooth"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BLUETOOTH
     inceptionYear = "2022"
     description = "AndroidX Bluetooth Library"
 }

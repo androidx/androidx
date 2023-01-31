@@ -2607,7 +2607,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // one from the requested locales.
             if (requestedLocales.isEmpty()) {
                 localesToBeApplied = LocaleListCompat.getEmptyLocaleList();
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                localesToBeApplied =
+                        LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(
+                                requestedLocales.get(0)));
             } else {
+                // The method Locale.forLanguageTag() was introduced in API level 21,
+                // using Locale.toString() method for APIs below that.
                 localesToBeApplied =
                         LocaleListCompat.forLanguageTags(requestedLocales.get(0).toString());
             }
@@ -2826,6 +2832,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 Log.d(TAG, "updateAppConfiguration attempting to recreate Activity: "
                         + mHost);
             }
+
+            // To workaround the android framework issue(b/242026447) which doesn't update the
+            // layout direction after recreating in Android S.
+            if (Build.VERSION.SDK_INT >= 31
+                    && (configChanges & ActivityInfo.CONFIG_LAYOUT_DIRECTION) != 0) {
+                Api17Impl.setLayoutDirection(
+                        ((Activity) mHost).getWindow().getDecorView(),
+                        Api17Impl.getLayoutDirection(overrideConfig));
+            }
             ActivityCompat.recreate((Activity) mHost);
             handled = true;
         } else if (DEBUG) {
@@ -2862,7 +2877,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        if (handled && newLocales != null) {
+        if (newLocales != null) {
             // LocaleListCompat's default locales are updated here using the configuration
             // locales to keep default locales in sync with application locales and also to cover
             // the case where framework re-adjusts input locales by bringing forward the most
@@ -3916,6 +3931,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        @DoNotInline
         static Context createConfigurationContext(@NonNull Context context,
                 @NonNull Configuration overrideConfiguration) {
             return context.createConfigurationContext(overrideConfiguration);
@@ -3927,8 +3943,18 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @DoNotInline
+        static void setLayoutDirection(View view, int layoutDirection) {
+            view.setLayoutDirection(layoutDirection);
+        }
+
+        @DoNotInline
         static void setLocale(Configuration configuration, Locale loc) {
             configuration.setLocale(loc);
+        }
+
+        @DoNotInline
+        static int getLayoutDirection(Configuration configuration) {
+            return configuration.getLayoutDirection();
         }
     }
 
@@ -3936,6 +3962,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     static class Api21Impl {
         private Api21Impl() { }
 
+        @DoNotInline
         static boolean isPowerSaveMode(PowerManager powerManager) {
             return powerManager.isPowerSaveMode();
         }

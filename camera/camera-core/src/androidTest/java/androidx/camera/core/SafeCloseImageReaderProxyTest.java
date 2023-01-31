@@ -140,4 +140,21 @@ public class SafeCloseImageReaderProxyTest {
         // Assert
         verifyZeroInteractions(onImageAvailableListener);
     }
+
+    @Test
+    public void closeTheImageInQueue_onImageCloseListenerGetsInvoked() throws InterruptedException {
+        // Arrange
+        ForwardingImageProxy.OnImageCloseListener onImageCloseListener = mock(
+                ForwardingImageProxy.OnImageCloseListener.class);
+        mSafeCloseImageReaderProxy.setOnImageCloseListener(onImageCloseListener);
+
+        // Act: send and close image.
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
+        ImageProxy imageProxy = mSafeCloseImageReaderProxy.acquireLatestImage();
+        imageProxy.close();
+
+        // Assert: the callback gets invoked
+        verify(onImageCloseListener).onImageClose(any(ImageProxy.class));
+    }
 }

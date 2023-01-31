@@ -18,6 +18,7 @@ package androidx.glance.action
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
+import androidx.compose.runtime.Composable
 import androidx.glance.GlanceModifier
 
 /**
@@ -32,6 +33,13 @@ interface Action
  */
 fun GlanceModifier.clickable(onClick: Action): GlanceModifier =
     this.then(ActionModifier(onClick))
+
+/**
+ * Run [block] in response to a user click.
+ */
+@Composable
+fun GlanceModifier.clickable(block: () -> Unit): GlanceModifier =
+    this.then(ActionModifier(action(block = block)))
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

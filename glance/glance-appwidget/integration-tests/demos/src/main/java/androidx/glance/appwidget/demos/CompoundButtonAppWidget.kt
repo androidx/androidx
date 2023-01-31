@@ -28,14 +28,14 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.CheckBox
-import androidx.glance.appwidget.CheckBoxColors
+import androidx.glance.appwidget.checkBoxColors
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.RadioButton
-import androidx.glance.appwidget.RadioButtonColors
+import androidx.glance.appwidget.radioButtonColors
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
-import androidx.glance.appwidget.SwitchColors
+import androidx.glance.appwidget.switchColors
 import androidx.glance.appwidget.selectableGroup
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
@@ -43,8 +43,8 @@ import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -114,7 +114,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 text = "Checkbox 2",
                 style = textStyle,
                 modifier = fillModifier,
-                colors = CheckBoxColors(
+                colors = checkBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
                 )
@@ -125,7 +125,6 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                     actionParametersOf(EventTargetKey to Buttons.CHECK_3.name)
                 ),
                 text = "Checkbox 3",
-                colors = CheckBoxColors(R.color.my_checkbox_colors)
             )
             Switch(
                 checked = switch1Checked,
@@ -133,7 +132,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                     actionParametersOf(EventTargetKey to Buttons.SWITCH_1.name)
                 ),
                 text = "Switch 1",
-                colors = SwitchColors(
+                colors = switchColors(
                     checkedThumbColor = ColorProvider(day = Color.Red, night = Color.Cyan),
                     uncheckedThumbColor = ColorProvider(day = Color.Green, night = Color.Magenta),
                     checkedTrackColor = ColorProvider(day = Color.Blue, night = Color.Yellow),
@@ -156,7 +155,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                         actionParametersOf(EventTargetKey to Radios.RADIO_1.name)
                     ),
                     text = "Radio 1",
-                    colors = RadioButtonColors(
+                    colors = radioButtonColors(
                         checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
                         uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
                     ),
@@ -167,7 +166,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                         actionParametersOf(EventTargetKey to Radios.RADIO_2.name)
                     ),
                     text = "Radio 2",
-                    colors = RadioButtonColors(
+                    colors = radioButtonColors(
                         checkedColor = ColorProvider(day = Color.Cyan, night = Color.Yellow),
                         uncheckedColor = ColorProvider(day = Color.Red, night = Color.Blue)
                     ),

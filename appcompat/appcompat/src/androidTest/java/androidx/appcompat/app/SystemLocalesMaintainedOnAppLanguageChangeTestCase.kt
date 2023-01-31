@@ -17,11 +17,11 @@
 
 package androidx.appcompat.app
 
+import android.os.Build
 import android.os.LocaleList
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils
 import androidx.core.app.LocaleManagerCompat
-import androidx.core.os.BuildCompat
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -68,7 +68,7 @@ class SystemLocalesMaintainedOnAppLanguageChangeTestCase {
 
     @After
     fun teardown() {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // cleaning up any platform-persisted locales.
             AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
                 AppCompatDelegate.getLocaleManagerForApplication(),

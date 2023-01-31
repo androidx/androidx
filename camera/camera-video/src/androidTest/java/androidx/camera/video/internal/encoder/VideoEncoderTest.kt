@@ -33,8 +33,10 @@ import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
@@ -43,6 +45,7 @@ import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
@@ -88,6 +91,11 @@ class VideoEncoderTest(
 ) {
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
@@ -99,6 +107,8 @@ class VideoEncoderTest(
             arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
             arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
+
+        private val INPUT_TIMEBASE = Timebase.UPTIME
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -128,9 +138,14 @@ class VideoEncoderTest(
             Build.MODEL.contains("Cuttlefish") &&
                 (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
+        // Skip for b/241876294
+        assumeFalse(
+            "Skip test for devices with ExtraSupportedResolutionQuirk, since the extra" +
+                " resolutions cannot be used when the provided surface is an encoder surface.",
+            DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null
+        )
 
-        val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()
-        CameraXUtil.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraConfig).get()
 
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
@@ -175,6 +190,11 @@ class VideoEncoderTest(
 
         // Ensure all cameras are released for the next test
         CameraXUtil.shutdown()[10, TimeUnit.SECONDS]
+    }
+
+    @Test
+    fun canGetEncoderInfo() {
+        assertThat(videoEncoder.encoderInfo).isNotNull()
     }
 
     @Test
@@ -350,6 +370,7 @@ class VideoEncoderTest(
         assumeTrue(resolution != null)
 
         videoEncoderConfig = VideoEncoderConfig.builder()
+            .setInputTimebase(INPUT_TIMEBASE)
             .setBitrate(BIT_RATE)
             .setColorFormat(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
             .setFrameRate(FRAME_RATE)

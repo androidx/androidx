@@ -19,14 +19,43 @@
     equal width split. -->
     <attr name="splitRatio" format="float" />
     <!-- The smallest value of width of the parent window when the split should be used. -->
-    <attr name="splitMinWidth" format="dimension" />
+    <attr name="splitMinWidthDp" format="integer" />
     <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
-     the split should be used. -->
-    <attr name="splitMinSmallestWidth" format="dimension" />
+    the split should be used. -->
+    <attr name="splitMinSmallestWidthDp" format="integer" />
+    <!-- The largest value of the aspect ratio, expressed as (height / width) in decimal form, of
+    the parent window bounds in portrait when the split should be used.
+    `0` or `alwaysAllow` means to always allow split in portrait.
+    `-1` or `alwaysDisallow` means to always disallow split in portrait.
+    Any other values less than 1 are invalid. -->
+    <attr name="splitMaxAspectRatioInPortrait"  format="float">
+        <!-- Special value to always allow split in portrait. -->
+        <enum name="alwaysAllow" value="0" />
+        <!-- Special value to always disallow split in portrait. -->
+        <enum name="alwaysDisallow" value="-1" />
+    </attr>
+    <!-- The largest value of the aspect ratio, expressed as (width / height) in decimal form, of
+    the parent window bounds in landscape when the split should be used.
+    `0` or `alwaysAllow` means to always allow split in landscape.
+    `-1` or `alwaysDisallow` means to always disallow split in landscape.
+    Any other values less than 1 are invalid. -->
+    <attr name="splitMaxAspectRatioInLandscape"  format="float">
+        <!-- Special value to always allow split in landscape. -->
+        <enum name="alwaysAllow" value="0" />
+        <!-- Special value to always disallow split in landscape. -->
+        <enum name="alwaysDisallow" value="-1" />
+    </attr>
+    <!-- The layout direction for the split. The value must be one of "ltr", "rtl" or "locale". -->
     <attr name="splitLayoutDirection" format="enum">
-        <enum name="locale" value="0" />
-        <enum name="ltr" value="1" />
-        <enum name="rtl" value="2" />
+        <!-- It splits the task bounds vertically, and the direction is deduced from the default
+        language script of locale, which can be either "ltr" or "rtl". -->
+        <enum name="locale" value="3" />
+        <!-- It splits the task bounds vertically, and put the primary container on the left
+        portion, and the secondary container on the right portion. -->
+        <enum name="ltr" value="0" />
+        <!-- It splits the task bounds vertically, and put the primary container on the right
+        portion, and the secondary container on the left portion. -->
+        <enum name="rtl" value="1" />
     </attr>
     <attr name="finishPrimaryWithSecondary" format="enum">
         <enum name="never" value="0" />
@@ -58,8 +87,10 @@
          to "false". -->
         <attr name="clearTop" format="boolean" />
         <attr name="splitRatio"/>
-        <attr name="splitMinWidth"/>
-        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitMinWidthDp"/>
+        <attr name="splitMinSmallestWidthDp"/>
+        <attr name="splitMaxAspectRatioInPortrait" />
+        <attr name="splitMaxAspectRatioInLandscape" />
         <attr name="splitLayoutDirection"/>
     </declare-styleable>
 
@@ -76,8 +107,10 @@
          primary container that created the split should also be finished. Defaults to "always". -->
         <attr name="finishPrimaryWithPlaceholder" />
         <attr name="splitRatio"/>
-        <attr name="splitMinWidth"/>
-        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitMinWidthDp"/>
+        <attr name="splitMinSmallestWidthDp"/>
+        <attr name="splitMaxAspectRatioInPortrait" />
+        <attr name="splitMaxAspectRatioInLandscape" />
         <attr name="splitLayoutDirection"/>
     </declare-styleable>
 

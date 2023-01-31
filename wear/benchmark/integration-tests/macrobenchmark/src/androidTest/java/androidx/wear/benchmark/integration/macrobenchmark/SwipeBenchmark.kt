@@ -18,7 +18,6 @@ package androidx.wear.benchmark.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
@@ -53,7 +52,7 @@ class SwipeBenchmark(
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
+            metrics = listOf(FrameTimingMetric()),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {

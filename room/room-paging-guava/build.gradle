@@ -45,17 +45,9 @@ dependencies {
     )
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "Room Paging Guava"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2022"
     description = "Guava integration in Room Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE

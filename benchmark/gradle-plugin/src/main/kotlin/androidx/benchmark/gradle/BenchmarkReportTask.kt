@@ -112,15 +112,27 @@ open class BenchmarkReportTask : DefaultTask() {
      * Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
      */
     private fun getReportDirForDevice(adb: Adb, deviceId: String): String {
-        // _data NOT LIKE '%files/Download' filters app-scoped shared external storage.
-        val cmd = "shell content query --uri content://media/external/file --projection _data" +
-            " --where \"_data LIKE '%/Download' AND _data NOT LIKE '%files/Download'\""
 
-        // NOTE: stdout of the above command is of the form:
-        // Row: 0 _data=/storage/emulated/0/Download
+        val cmd = "shell content query --uri content://media/external/file --projection _data"
+
+        // With Android >= 10 `LIKE` is no longer supported when specifying a `WHERE` clause so we
+        // need to manually filter the output here.
+        // Note that stdout of the above command is of the form:
+        // Row: 0 _data=/storage/emulated
+        // Row: 1 _data=/storage/emulated/0
+        // Row: 2 _data=/storage/emulated/0/Music
+        // Row: 3 _data=/storage/emulated/0/Podcasts
+        // Row: 4 _data=/storage/emulated/0/Ringtones
+        // Row: 5 _data=/storage/emulated/0/Alarms
+        // Row: 5 _data=/storage/emulated/0/Download
+        // etc
+
+        // There are 2 filters: the first filters all the rows ending with `Download`, while
+        // the second excludes app-scoped shared external storage.
         return adb.execSync(cmd, deviceId).stdout
             .split("\n")
-            .first()
+            .filter { it.matches(regex = Regex(".*/Download")) }
+            .first { !it.matches(regex = Regex(".*files/Download")) }
             .trim()
             .split(Regex("\\s+"))
             .last()

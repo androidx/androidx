@@ -56,6 +56,8 @@ internal object ArtifactResolver {
         "https://maven.pkg.jetbrains.space/public/p/compose/dev"
     )
 
+    internal val gradlePluginPortalRepo = "https://plugins.gradle.org/m2/"
+
     internal fun createAndroidXRepo(
         buildId: Int
     ) = "https://androidx.dev/snapshots/builds/$buildId/artifacts/repository"
@@ -170,7 +172,7 @@ ${
                     "Resolved files: ${result.size}"
                 }
                 check(result.isNotEmpty()) {
-                    "Didn't resolve any artifacts from $artifacts"
+                    "Didn't resolve any artifacts from $artifacts . Try --verbose for more information"
                 }
                 result.forEach { artifact ->
                     logger.trace {
@@ -245,6 +247,7 @@ ${verificationException.message?.prependIndent("    ")}
             val repoUrls = additionalPriorityRepositories + listOf(
                 RepositoryHandler.GOOGLE_URL,
                 RepositoryHandler.MAVEN_CENTRAL_URL,
+                gradlePluginPortalRepo
             )
             return MavenRepositoryProxy.startAll(
                 repositoryUrls = repoUrls,

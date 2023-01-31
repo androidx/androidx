@@ -19,6 +19,7 @@ package androidx.bluetooth.core
 import android.bluetooth.le.AdvertisingSetCallback as FwkAdvertisingSetCallback
 import android.bluetooth.le.AdvertisingSet as FwkAdvertisingSet
 
+@JvmDefaultWithCompatibility
 /**
  * Bluetooth LE advertising set callbacks, used to deliver advertising operation
  * status.

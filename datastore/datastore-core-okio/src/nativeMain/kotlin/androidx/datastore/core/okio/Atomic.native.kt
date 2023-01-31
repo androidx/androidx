@@ -28,7 +28,7 @@ internal actual class AtomicInt actual constructor(initialValue: Int) {
         return delegate.getAndIncrement()
     }
     actual fun decrementAndGet(): Int {
-        return delegate.getAndDecrement()
+        return delegate.decrementAndGet()
     }
     actual fun get(): Int = property
 

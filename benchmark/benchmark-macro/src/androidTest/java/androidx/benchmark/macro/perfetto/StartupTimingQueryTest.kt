@@ -21,11 +21,11 @@ import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import java.util.Locale
+import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
-import kotlin.test.assertEquals
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -39,13 +39,14 @@ class StartupTimingQueryTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset(prefix = tracePrefix, suffix = ".perfetto-trace")
 
-        val startupSubMetrics = StartupTimingQuery.getFrameSubMetrics(
-            absoluteTracePath = traceFile.absolutePath,
-            captureApiLevel = api,
-            targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
-            testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
-            startupMode = startupMode
-        )
+        val startupSubMetrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            StartupTimingQuery.getFrameSubMetrics(
+                perfettoTraceProcessor = this,
+                captureApiLevel = api,
+                targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
+                startupMode = startupMode
+            )
+        }
 
         assertEquals(expected = expectedMetrics, actual = startupSubMetrics)
     }

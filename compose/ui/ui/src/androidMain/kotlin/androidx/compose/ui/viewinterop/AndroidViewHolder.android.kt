@@ -19,6 +19,7 @@ package androidx.compose.ui.viewinterop
 import android.content.Context
 import android.graphics.Rect
 import android.graphics.Region
+import android.os.Build
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
@@ -53,7 +54,7 @@ import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlin.math.roundToInt
@@ -89,7 +90,7 @@ internal abstract class AndroidViewHolder(
         internal set(value) {
             if (value !== field) {
                 field = value
-                removeAllViews()
+                removeAllViewsInLayout()
                 if (value != null) {
                     addView(value)
                     runUpdate()
@@ -134,12 +135,12 @@ internal abstract class AndroidViewHolder(
 
     internal var onDensityChanged: ((Density) -> Unit)? = null
 
-    /** Sets the [ViewTreeLifecycleOwner] for this view. */
+    /** Sets the ViewTreeLifecycleOwner for this view. */
     var lifecycleOwner: LifecycleOwner? = null
         set(value) {
             if (value !== field) {
                 field = value
-                ViewTreeLifecycleOwner.set(this, value)
+                setViewTreeLifecycleOwner(value)
             }
         }
 
@@ -236,6 +237,15 @@ internal abstract class AndroidViewHolder(
         // We need to call super here in order to correctly update the dirty flags of the holder.
         super.onDescendantInvalidated(child, target)
         layoutNode.invalidateLayer()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        // On Lollipop, when the Window becomes visible, child Views need to be explicitly
+        // invalidated for some reason.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && visibility == View.VISIBLE) {
+            layoutNode.invalidateLayer()
+        }
     }
 
     // Always mark the region of the View to not be transparent to disable an optimisation which

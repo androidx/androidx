@@ -40,6 +40,7 @@ public class PackageUtilsTest {
     @Mock private Context mContext;
     @Mock private PackageManager mPackageManager;
 
+    @SuppressWarnings("deprecation") // b/251211046
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

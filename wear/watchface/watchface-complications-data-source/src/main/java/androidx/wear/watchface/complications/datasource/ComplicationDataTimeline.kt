@@ -16,12 +16,10 @@
 
 package androidx.wear.watchface.complications.datasource
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import java.time.Instant
-
-/** The wire format for [ComplicationData]. */
-internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
 
 /**
  * A time interval, typically used to describe the validity period of a [TimelineEntry].

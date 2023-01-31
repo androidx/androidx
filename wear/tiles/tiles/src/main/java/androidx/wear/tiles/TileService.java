@@ -39,7 +39,7 @@ import androidx.wear.tiles.TileBuilders.Version;
 import androidx.wear.tiles.proto.EventProto;
 import androidx.wear.tiles.proto.RequestProto;
 import androidx.wear.tiles.proto.TileProto;
-import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

@@ -66,9 +66,10 @@ class MavenRepositoryProxy private constructor(
             routing {
                 get("/{...}") {
                     val path = this.call.request.path()
+                    val displayUrl = "$delegateHost$path"
                     val incomingHeaders = this.call.request.headers
                     logger.trace {
-                        "Request($path)"
+                        "Request ($displayUrl)"
                     }
 
                     try {
@@ -83,12 +84,12 @@ class MavenRepositoryProxy private constructor(
                             status = clientResponse.status
                         ).also {
                             logger.trace {
-                                "Success ($path)"
+                                "Success ($displayUrl)"
                             }
                         }
                     } catch (ex: Throwable) {
                         logger.error(ex) {
-                            "Failed ($path): ${ex.message}"
+                            "Failed ($displayUrl): ${ex.message}"
                         }
                         throw ex
                     }

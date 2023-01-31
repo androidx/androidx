@@ -39,7 +39,6 @@ androidx {
     name = 'AppSearch Test Util'
     type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'Test Utilities to be used by any test module for AppSearch'
 }

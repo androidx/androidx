@@ -20,12 +20,12 @@ import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -46,8 +46,8 @@ import java.util.Set;
  * supported.
  */
 @CarProtocol
+@KeepFields
 public final class ActionStrip {
-    @Keep
     private final List<Action> mActions;
 
     /**

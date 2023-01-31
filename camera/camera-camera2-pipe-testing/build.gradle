@@ -32,6 +32,7 @@ dependencies {
     // Classes and types that are only needed at runtime
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
+    implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
 
     testImplementation(libs.testCore)
@@ -61,7 +62,6 @@ tasks.withType(KotlinCompile).configureEach {
 androidx {
     name = "Jetpack Camera Camera Pipe Testing Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.CAMERA
     mavenVersion = LibraryVersions.CAMERA_PIPE
     runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
     inceptionYear = "2020"

@@ -27,37 +27,23 @@ import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
-import androidx.health.connect.client.records.CervicalMucusRecord.Appearance
-import androidx.health.connect.client.records.CervicalMucusRecord.Sensation
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseEventRecord.EventType
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
-import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseType
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BACK_EXTENSION
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
-import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
-import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
-import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
-import androidx.health.connect.client.records.MenstruationRecord
-import androidx.health.connect.client.records.MenstruationRecord.Flow
+import androidx.health.connect.client.records.MealType
+import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
-import androidx.health.connect.client.records.OvulationTestRecord.Result
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
@@ -66,20 +52,18 @@ import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
-import androidx.health.connect.client.records.SleepStageRecord.StageType
+import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_TYPE_AWAKE
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord.SwimmingType
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
-import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
@@ -108,7 +92,7 @@ private val START_ZONE_OFFSET = ZoneOffset.ofHours(1)
 private val END_ZONE_OFFSET = ZoneOffset.ofHours(2)
 private val TEST_METADATA =
     Metadata(
-        uid = "uid",
+        id = "uid",
         clientRecordId = "clientId",
         clientRecordVersion = 10,
         device = Device(manufacturer = "manufacturer"),
@@ -124,7 +108,6 @@ class AllRecordsConverterTest {
         val dataOnlyRequired =
             BasalBodyTemperatureRecord(
                 temperature = 1.celsius,
-                measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -133,7 +116,8 @@ class AllRecordsConverterTest {
         val dataAllFields =
             BasalBodyTemperatureRecord(
                 temperature = 1.celsius,
-                measurementLocation = BodyTemperatureMeasurementLocation.ARMPIT,
+                measurementLocation =
+                    BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_ARMPIT,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -162,10 +146,7 @@ class AllRecordsConverterTest {
     fun testBloodGlucose() {
         val data =
             BloodGlucoseRecord(
-                levelMillimolesPerLiter = 1.0,
-                specimenSource = null,
-                mealType = null,
-                relationToMeal = null,
+                level = BloodGlucose.millimolesPerLiter(1.0),
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -181,8 +162,6 @@ class AllRecordsConverterTest {
             BloodPressureRecord(
                 systolic = 20.millimetersOfMercury,
                 diastolic = 10.millimetersOfMercury,
-                bodyPosition = null,
-                measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -211,7 +190,6 @@ class AllRecordsConverterTest {
         val data =
             BodyTemperatureRecord(
                 temperature = 1.celsius,
-                measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -253,8 +231,8 @@ class AllRecordsConverterTest {
     fun testCervicalMucus() {
         val data =
             CervicalMucusRecord(
-                appearance = Appearance.CLEAR,
-                sensation = Sensation.HEAVY,
+                appearance = CervicalMucusRecord.APPEARANCE_EGG_WHITE,
+                sensation = CervicalMucusRecord.SENSATION_HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -335,34 +313,6 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testHipCircumference() {
-        val data =
-            HipCircumferenceRecord(
-                circumference = 1.meters,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilityDifferentialIndex() {
-        val data =
-            HeartRateVariabilityDifferentialIndexRecord(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
     fun testHeartRateVariabilityRmssd() {
         val data =
             HeartRateVariabilityRmssdRecord(
@@ -377,94 +327,9 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testHeartRateVariabilityS() {
+    fun testIntermenstrualBleeding() {
         val data =
-            HeartRateVariabilitySRecord(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilitySd2() {
-        val data =
-            HeartRateVariabilitySd2Record(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilitySdann() {
-        val data =
-            HeartRateVariabilitySdannRecord(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilitySdnnIndex() {
-        val data =
-            HeartRateVariabilitySdnnIndexRecord(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilitySdnn() {
-        val data =
-            HeartRateVariabilitySdnnRecord(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilitySdsd() {
-        val data =
-            HeartRateVariabilitySdsdRecord(
-                heartRateVariabilityMillis = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testHeartRateVariabilityTinn() {
-        val data =
-            HeartRateVariabilityTinnRecord(
-                heartRateVariabilityMillis = 1.0,
+            IntermenstrualBleedingRecord(
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -491,10 +356,25 @@ class AllRecordsConverterTest {
     @Test
     fun testMenstruation() {
         val data =
-            MenstruationRecord(
-                flow = Flow.HEAVY,
+            MenstruationFlowRecord(
+                flow = MenstruationFlowRecord.FLOW_HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        checkProtoAndRecordTypeNameMatch(data)
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testMenstruationPeriod() {
+        val data =
+            MenstruationPeriodRecord(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
@@ -506,7 +386,7 @@ class AllRecordsConverterTest {
     fun testOvulationTest() {
         val data =
             OvulationTestRecord(
-                result = Result.NEGATIVE,
+                result = OvulationTestRecord.RESULT_NEGATIVE,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -588,7 +468,7 @@ class AllRecordsConverterTest {
     fun testSexualActivity() {
         val data =
             SexualActivityRecord(
-                protectionUsed = null,
+                protectionUsed = SexualActivityRecord.PROTECTION_USED_PROTECTED,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -655,21 +535,7 @@ class AllRecordsConverterTest {
         val data =
             Vo2MaxRecord(
                 vo2MillilitersPerMinuteKilogram = 1.0,
-                measurementMethod = null,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testWaistCircumference() {
-        val data =
-            WaistCircumferenceRecord(
-                circumference = 1.meters,
+                measurementMethod = Vo2MaxRecord.MEASUREMENT_METHOD_COOPER_TEST,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -710,42 +576,10 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testActivityEvent() {
-        val data =
-            ExerciseEventRecord(
-                eventType = EventType.PAUSE,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testActivityLap() {
-        val data =
-            ExerciseLapRecord(
-                length = 1.meters,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
     fun testActivitySession() {
         val data =
             ExerciseSessionRecord(
-                exerciseType = ExerciseType.BACK_EXTENSION,
+                exerciseType = EXERCISE_TYPE_BACK_EXTENSION,
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -869,25 +703,8 @@ class AllRecordsConverterTest {
                 vitaminE = 1.grams,
                 vitaminK = 1.grams,
                 zinc = 1.grams,
-                mealType = null,
+                mealType = MealType.MEAL_TYPE_BREAKFAST,
                 name = null,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testRepetitions() {
-        val data =
-            ExerciseRepetitionsRecord(
-                count = 1,
-                type = ExerciseType.JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -920,7 +737,7 @@ class AllRecordsConverterTest {
     fun testSleepStage() {
         val data =
             SleepStageRecord(
-                stage = StageType.AWAKE,
+                stage = STAGE_TYPE_AWAKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -937,23 +754,6 @@ class AllRecordsConverterTest {
         val data =
             StepsRecord(
                 count = 1,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testSwimmingStrokes() {
-        val data =
-            SwimmingStrokesRecord(
-                count = 1,
-                type = SwimmingType.BACKSTROKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

@@ -127,7 +127,10 @@ final class MediaRouterJellybeanMr1 {
             }
         }
 
-        @SuppressLint("BanUncheckedReflection") // TODO: b/232075564
+        // Suppress BanUncheckedReflection as the lint raises false-positive exception around this
+        // code: the reflection is used for a specific Android version and the real Android API
+        // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
+        @SuppressLint("BanUncheckedReflection")
         @Override
         public void run() {
             if (mActivelyScanningWifiDisplays) {
@@ -168,7 +171,10 @@ final class MediaRouterJellybeanMr1 {
             }
         }
 
-        @SuppressLint("BanUncheckedReflection") // TODO: b/232075564
+        // Suppress BanUncheckedReflection as the lint raises false-positive exception around this
+        // code: the reflection is used for a specific Android version and the real Android API
+        // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
+        @SuppressLint("BanUncheckedReflection")
         public boolean isConnecting(@NonNull Object routeObj) {
             android.media.MediaRouter.RouteInfo route =
                     (android.media.MediaRouter.RouteInfo) routeObj;

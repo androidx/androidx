@@ -50,18 +50,18 @@ dependencies {
     implementation("androidx.core:core:1.8.0")
 
     compileOnly(project(":window:sidecar:sidecar"))
-    compileOnly(project(":window:extensions:extensions"))
+    compileOnly("androidx.window.extensions:extensions:1.1.0-alpha02")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(compileOnly(project(":window:sidecar:sidecar")))
-    testImplementation(compileOnly(project(":window:extensions:extensions")))
+    testImplementation(compileOnly("androidx.window.extensions:extensions:1.1.0-alpha02"))
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -75,26 +75,18 @@ dependencies {
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
-    androidTestImplementation(compileOnly(project(":window:extensions:extensions")))
     androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
+    androidTestImplementation(compileOnly("androidx.window.extensions:extensions:1.1.0-alpha02"))
     samples(project(":window:window-samples"))
 }
 
 androidx {
     name = "Jetpack WindowManager Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
             "functionality on foldable devices."
     // Suppressing deprecation warnings, since there is a need to maintain compatibility with old
     // Sidecar interface.
     failOnDeprecationWarnings = false
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

@@ -18,9 +18,12 @@ package androidx.glance.wear.tiles.template.demos
 
 import androidx.compose.runtime.Composable
 import androidx.glance.ImageProvider
+import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.wear.tiles.template.SingleEntityTemplate
@@ -32,15 +35,25 @@ class DemoTile : GlanceTileService() {
     override fun Content() {
         SingleEntityTemplate(
             SingleEntityTemplateData(
-                header = TemplateText("Single Entity Demo", TextType.Title),
-                headerIcon = TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
-                    "image"
+                headerBlock = HeaderBlock(
+                    text = TemplateText("Single Entity Demo", TextType.Title),
+                    icon = TemplateImageWithDescription(
+                        ImageProvider(R.drawable.compose),
+                        "image"
+                    ),
                 ),
-                text1 = TemplateText("Title", TextType.Title),
-                text2 = TemplateText("Subtitle", TextType.Label),
-                text3 = TemplateText("Here's the body", TextType.Body),
-                image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image"),
+                textBlock = TextBlock(
+                    text1 = TemplateText("Title", TextType.Title),
+                    text2 = TemplateText("Subtitle", TextType.Label),
+                    text3 = TemplateText("Here's the body", TextType.Body),
+                    priority = 0,
+                ),
+                imageBlock = ImageBlock(
+                    images = listOf(
+                        TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+                    ),
+                    priority = 1,
+                ),
             )
         )
     }

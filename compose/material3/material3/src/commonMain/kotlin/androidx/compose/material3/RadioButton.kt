@@ -44,7 +44,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 /**
- * Material Design radio button.
+ * <a href="https://m3.material.io/components/radio-button/overview" class="external" target="_blank">Material Design radio button</a>.
  *
  * Radio buttons allow users to select one option from a set.
  *
@@ -103,7 +103,7 @@ fun RadioButton(
         modifier
             .then(
                 if (onClick != null) {
-                    Modifier.minimumTouchTargetSize()
+                    Modifier.minimumInteractiveComponentSize()
                 } else {
                     Modifier
                 }

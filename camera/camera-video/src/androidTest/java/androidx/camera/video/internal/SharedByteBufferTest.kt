@@ -24,6 +24,9 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.PhantomReference
+import java.lang.ref.ReferenceQueue
+import java.nio.ByteBuffer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -34,9 +37,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.ref.PhantomReference
-import java.lang.ref.ReferenceQueue
-import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

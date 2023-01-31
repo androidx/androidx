@@ -19,6 +19,7 @@ package androidx.window.layout
 import android.app.Activity
 import android.content.Context
 import androidx.core.util.Consumer
+import androidx.window.layout.adapter.WindowBackend
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

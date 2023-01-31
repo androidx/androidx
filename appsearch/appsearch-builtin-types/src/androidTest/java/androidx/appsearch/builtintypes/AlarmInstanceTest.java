@@ -22,6 +22,8 @@ import androidx.appsearch.app.GenericDocument;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class AlarmInstanceTest {
     @Test
     public void testBuilder() {
@@ -30,6 +32,12 @@ public class AlarmInstanceTest {
                 .setDocumentScore(1)
                 .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
+                .setName("my alarm instance")
+                .addAlternateName("my alternate alarm instance")
+                .addAlternateName("my alternate alarm instance 2")
+                .setDescription("this is my alarm instance")
+                .setImage("content://images/alarminstance1")
+                .setUrl("content://alarminstance/1")
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(10000)
                 .build();
@@ -39,6 +47,13 @@ public class AlarmInstanceTest {
         assertThat(alarmInstance.getDocumentScore()).isEqualTo(1);
         assertThat(alarmInstance.getDocumentTtlMillis()).isEqualTo(20000);
         assertThat(alarmInstance.getCreationTimestampMillis()).isEqualTo(100);
+        assertThat(alarmInstance.getName()).isEqualTo("my alarm instance");
+        assertThat(alarmInstance.getAlternateNames()).isNotNull();
+        assertThat(alarmInstance.getAlternateNames())
+                .containsExactly("my alternate alarm instance", "my alternate alarm instance 2");
+        assertThat(alarmInstance.getDescription()).isEqualTo("this is my alarm instance");
+        assertThat(alarmInstance.getImage()).isEqualTo("content://images/alarminstance1");
+        assertThat(alarmInstance.getUrl()).isEqualTo("content://alarminstance/1");
         assertThat(alarmInstance.getScheduledTime()).isEqualTo("2022-12-01T07:30:00");
         assertThat(alarmInstance.getStatus()).isEqualTo(1);
         assertThat(alarmInstance.getSnoozeDurationMillis()).isEqualTo(10000);
@@ -51,6 +66,12 @@ public class AlarmInstanceTest {
                 .setDocumentScore(1)
                 .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
+                .setName("my alarm instance")
+                .addAlternateName("my alternate alarm instance")
+                .addAlternateName("my alternate alarm instance 2")
+                .setDescription("this is my alarm instance")
+                .setImage("content://images/alarminstance1")
+                .setUrl("content://alarminstance/1")
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(10000)
                 .build();
@@ -63,6 +84,12 @@ public class AlarmInstanceTest {
                 .isEqualTo(alarmInstance2.getDocumentTtlMillis());
         assertThat(alarmInstance1.getCreationTimestampMillis())
                 .isEqualTo(alarmInstance2.getCreationTimestampMillis());
+        assertThat(alarmInstance1.getName()).isEqualTo(alarmInstance2.getName());
+        assertThat(alarmInstance1.getAlternateNames())
+                .containsExactlyElementsIn(alarmInstance2.getAlternateNames());
+        assertThat(alarmInstance1.getDescription()).isEqualTo(alarmInstance2.getDescription());
+        assertThat(alarmInstance1.getImage()).isEqualTo(alarmInstance2.getImage());
+        assertThat(alarmInstance1.getUrl()).isEqualTo(alarmInstance2.getUrl());
         assertThat(alarmInstance1.getScheduledTime()).isEqualTo(alarmInstance2.getScheduledTime());
         assertThat(alarmInstance1.getStatus()).isEqualTo(alarmInstance2.getStatus());
         assertThat(alarmInstance1.getSnoozeDurationMillis())
@@ -76,6 +103,12 @@ public class AlarmInstanceTest {
                 .setDocumentScore(1)
                 .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
+                .setName("my alarm instance")
+                .addAlternateName("my alternate alarm instance")
+                .addAlternateName("my alternate alarm instance 2")
+                .setDescription("this is my alarm instance")
+                .setImage("content://images/alarminstance1")
+                .setUrl("content://alarminstance/1")
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(10000)
                 .build();
@@ -87,7 +120,21 @@ public class AlarmInstanceTest {
         assertThat(genericDocument.getScore()).isEqualTo(1);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(20000);
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
+        assertThat(genericDocument.getPropertyString("name")).isEqualTo("my alarm instance");
+        assertThat(genericDocument.getPropertyStringArray("alternateNames")).isNotNull();
+        assertThat(Arrays.asList(genericDocument.getPropertyStringArray("alternateNames")))
+                .containsExactly("my alternate alarm instance", "my alternate alarm instance 2");
+        assertThat(genericDocument.getPropertyString("description"))
+                .isEqualTo("this is my alarm instance");
+        assertThat(genericDocument.getPropertyString("image"))
+                .isEqualTo("content://images/alarminstance1");
+        assertThat(genericDocument.getPropertyString("url"))
+                .isEqualTo("content://alarminstance/1");
         assertThat(genericDocument.getPropertyString("scheduledTime"))
                 .isEqualTo("2022-12-01T07:30:00");
+        assertThat(genericDocument.getPropertyLong("status"))
+                .isEqualTo(AlarmInstance.STATUS_SCHEDULED);
+        assertThat(genericDocument.getPropertyLong("snoozeDurationMillis"))
+                .isEqualTo(10000);
     }
 }

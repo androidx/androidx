@@ -21,7 +21,6 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
@@ -29,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.SupportedRepeatingSurfaceSize;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -166,13 +166,9 @@ class MeteringRepeatingSession {
             return new Size(0, 0);
         }
 
-        if (Build.VERSION.SDK_INT < 23) {
-            // ImageFormat.PRIVATE is only public after Android level 23. Therefore, using
-            // SurfaceTexture.class to get the supported output sizes before Android level 23.
-            outputSizes = map.getOutputSizes(SurfaceTexture.class);
-        } else {
-            outputSizes = map.getOutputSizes(ImageFormat.PRIVATE);
-        }
+        StreamConfigurationMapCompat mapCompat =
+                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+        outputSizes = mapCompat.getOutputSizes(ImageFormat.PRIVATE);
         if (outputSizes == null) {
             Logger.e(TAG, "Can not get output size list.");
             return new Size(0, 0);

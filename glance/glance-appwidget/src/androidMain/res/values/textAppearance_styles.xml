@@ -14,15 +14,14 @@
   limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="ResourceName">
-    <style name="TextAppearance.Bold" parent="">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Glance.AppWidget.TextAppearance.Bold" parent="">
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="TextAppearance.Medium" parent="">
+    <style name="Glance.AppWidget.TextAppearance.Medium" parent="">
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="TextAppearance.Normal" parent="">
+    <style name="Glance.AppWidget.TextAppearance.Normal" parent="">
         <item name="android:textStyle">normal</item>
     </style>
 </resources>

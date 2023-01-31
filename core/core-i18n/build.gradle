@@ -39,7 +39,6 @@ androidx {
     name = "Core Internationalization"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_I18N
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2022"
     description = "This library provides functionality for good internationalization (messages, plurals, date / time formatting)."
 }

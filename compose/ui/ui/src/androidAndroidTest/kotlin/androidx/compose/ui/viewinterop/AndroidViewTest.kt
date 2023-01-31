@@ -61,19 +61,19 @@ import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.R
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
@@ -458,8 +458,7 @@ class AndroidViewTest {
     @Test
     fun androidView_propagatesLocalLifecycleOwnerAsViewTreeOwner() {
         lateinit var parentLifecycleOwner: LifecycleOwner
-        // We don't actually need to ever get the actual lifecycle.
-        val compositionLifecycleOwner = LifecycleOwner { throw UnsupportedOperationException() }
+        val compositionLifecycleOwner = TestLifecycleOwner()
         var childViewTreeLifecycleOwner: LifecycleOwner? = null
 
         rule.setContent {
@@ -475,7 +474,7 @@ class AndroidViewTest {
                         object : FrameLayout(it) {
                             override fun onAttachedToWindow() {
                                 super.onAttachedToWindow()
-                                childViewTreeLifecycleOwner = ViewTreeLifecycleOwner.get(this)
+                                childViewTreeLifecycleOwner = findViewTreeLifecycleOwner()
                             }
                         }
                     }
@@ -492,13 +491,12 @@ class AndroidViewTest {
     @Test
     fun androidView_propagatesLocalSavedStateRegistryOwnerAsViewTreeOwner() {
         lateinit var parentSavedStateRegistryOwner: SavedStateRegistryOwner
-        val compositionSavedStateRegistryOwner = object : SavedStateRegistryOwner {
-            // We don't actually need to ever get actual instances.
-            override fun getLifecycle(): Lifecycle = throw UnsupportedOperationException()
-
-            override val savedStateRegistry: SavedStateRegistry
-                get() = throw UnsupportedOperationException()
-        }
+        val compositionSavedStateRegistryOwner =
+            object : SavedStateRegistryOwner, LifecycleOwner by TestLifecycleOwner() {
+                // We don't actually need to ever get actual instance.
+                override val savedStateRegistry: SavedStateRegistry
+                    get() = throw UnsupportedOperationException()
+            }
         var childViewTreeSavedStateRegistryOwner: SavedStateRegistryOwner? = null
 
         rule.setContent {

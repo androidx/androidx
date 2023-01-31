@@ -131,7 +131,7 @@ class AutoMigrationProcessorTest {
             ).process()
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.autoMigrationElementMustImplementSpec("MyAutoMigration")
+                    ProcessorErrors.autoMigrationElementMustImplementSpec("foo.bar.MyAutoMigration")
                 )
             }
         }

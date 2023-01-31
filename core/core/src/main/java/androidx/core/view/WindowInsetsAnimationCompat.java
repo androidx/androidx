@@ -29,6 +29,7 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsAnimation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.view.animation.PathInterpolator;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
@@ -40,6 +41,7 @@ import androidx.core.R;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat.Type;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -585,6 +587,28 @@ public final class WindowInsetsAnimationCompat {
     @RequiresApi(21)
     private static class Impl21 extends Impl {
 
+        /**
+         * A fixed interpolator to use when simulating the window insets animation for showing the
+         * IME.
+         *
+         * This interpolator was picked via experimentation to subjectively improve the end result.
+         */
+        private static final Interpolator SHOW_IME_INTERPOLATOR =
+                new PathInterpolator(0, 1.1f, 0f, 1f);
+
+        /**
+         * A fixed interpolator to use when simulating the window insets animation for hiding the
+         * IME.
+         */
+        private static final Interpolator HIDE_IME_INTERPOLATOR =
+                new FastOutLinearInInterpolator();
+
+        /**
+         * The fallback interpolator for animating non-IME insets.
+         */
+        private static final Interpolator DEFAULT_INSET_INTERPOLATOR =
+                new DecelerateInterpolator();
+
         Impl21(int typeMask, @Nullable Interpolator interpolator, long durationMillis) {
             super(typeMask, interpolator, durationMillis);
         }
@@ -653,6 +677,29 @@ public final class WindowInsetsAnimationCompat {
                 }
             }
             return animatingMask;
+        }
+
+        /**
+         * Determine which interpolator to use based on which insets are being animated.
+         *
+         * This allows for a smoother animation especially in the common case of showing and hiding
+         * the IME.
+         */
+        static Interpolator createInsetInterpolator(
+                int animationMask,
+                WindowInsetsCompat targetInsets,
+                WindowInsetsCompat startingInsets) {
+            if ((animationMask & WindowInsetsCompat.Type.IME) != 0) {
+                // If the target insets are larger than the starting, we're showing the IME
+                if (targetInsets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                        > startingInsets.getInsets(WindowInsetsCompat.Type.ime()).bottom) {
+                    return SHOW_IME_INTERPOLATOR;
+                } else {
+                    return HIDE_IME_INTERPOLATOR;
+                }
+            } else {
+                return DEFAULT_INSET_INTERPOLATOR;
+            }
         }
 
         @SuppressLint("WrongConstant")
@@ -753,8 +800,12 @@ public final class WindowInsetsAnimationCompat {
                 }
 
                 final WindowInsetsCompat startingInsets = this.mLastInsets;
+
+                final Interpolator interpolator =
+                        createInsetInterpolator(animationMask, targetInsets, startingInsets);
+
                 final WindowInsetsAnimationCompat anim =
-                        new WindowInsetsAnimationCompat(animationMask, new DecelerateInterpolator(),
+                        new WindowInsetsAnimationCompat(animationMask, interpolator,
                                 COMPAT_ANIMATION_DURATION);
                 anim.setFraction(0);
 

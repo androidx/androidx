@@ -49,6 +49,7 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
@@ -336,7 +337,7 @@ class SwipeToDismissBoxTest {
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(0f, 200f) }
         rule.runOnIdle {
-            assert(horizontalScrollState.value == initialScrollState)
+            assertThat(horizontalScrollState.value == initialScrollState).isTrue()
         }
     }
 
@@ -358,7 +359,7 @@ class SwipeToDismissBoxTest {
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(200f, 400f) }
         rule.runOnIdle {
-            assert(horizontalScrollState.value < initialScrollState)
+            assertThat(horizontalScrollState.value < initialScrollState).isTrue()
         }
     }
 
@@ -396,7 +397,7 @@ class SwipeToDismissBoxTest {
         ) { scrollState ->
             // After scrolling to the left, successful scroll to the right
             // reduced scrollState
-            assert(scrollState.value < 200)
+            assertThat(scrollState.value < 200).isTrue()
         }
     }
 

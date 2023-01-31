@@ -74,6 +74,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_capture" />
+        <CheckBox
+            android:id="@+id/on_disk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/on_disk"/>
     </LinearLayout>
 
     <LinearLayout

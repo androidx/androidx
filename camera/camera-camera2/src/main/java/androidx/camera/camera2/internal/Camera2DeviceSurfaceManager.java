@@ -29,6 +29,7 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.core.util.Preconditions;
@@ -164,14 +165,14 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     }
 
     /**
-     * Retrieves a map of suggested resolutions for the given list of use cases.
+     * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
-     *                          resolutions for these surface can not change.
+     *                          stream specifications for these surface can not change.
      * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested resolution
-     * @return map of suggested resolutions for given use cases
+     *                          suggested stream specification
+     * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
@@ -180,7 +181,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      */
     @NonNull
     @Override
-    public Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+    public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
@@ -194,7 +195,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                     + cameraId);
         }
 
-        return supportedSurfaceCombination.getSuggestedResolutions(existingSurfaces,
+        return supportedSurfaceCombination.getSuggestedStreamSpecifications(existingSurfaces,
                 newUseCaseConfigs);
     }
 }

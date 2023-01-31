@@ -21,6 +21,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.style.test.R
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +40,7 @@ public class UserStyleSettingWithStringResourcesTest {
                 setLocale(Locale.ENGLISH)
             }
         )
+
     private val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
         UserStyleSetting.Id("color_style_setting"),
         context.resources,
@@ -47,11 +52,13 @@ public class UserStyleSettingWithStringResourcesTest {
                 UserStyleSetting.Option.Id("red_style"),
                 context.resources,
                 R.string.red_style_name,
+                R.string.red_style_name,
                 null
             ),
             UserStyleSetting.ListUserStyleSetting.ListOption(
                 UserStyleSetting.Option.Id("green_style"),
                 context.resources,
+                R.string.green_style_name,
                 R.string.green_style_name,
                 null
             )
@@ -105,5 +112,212 @@ public class UserStyleSettingWithStringResourcesTest {
                     UserStyleSetting.ListUserStyleSetting.ListOption
                 ).displayName
         ).isEqualTo("Stile verde")
+    }
+
+    @Test
+    public fun listOptionsWithIndices() {
+        val listUserStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("list"),
+            context.resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
+            icon = null,
+            options = listOf(
+                ListOption(
+                    UserStyleSetting.Option.Id("one"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null
+                ),
+                ListOption(
+                    UserStyleSetting.Option.Id("two"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null
+                ),
+                ListOption(
+                    UserStyleSetting.Option.Id("three"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null
+                )
+            ),
+            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val option0 = listUserStyleSetting.options[0] as ListOption
+        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        Truth.assertThat(option0.screenReaderName).isEqualTo("1st list option")
+
+        val option1 = listUserStyleSetting.options[1] as ListOption
+        Truth.assertThat(option1.displayName).isEqualTo("2nd option")
+        Truth.assertThat(option1.screenReaderName).isEqualTo("2nd list option")
+
+        val option2 = listUserStyleSetting.options[2] as ListOption
+        Truth.assertThat(option2.displayName).isEqualTo("3rd option")
+        Truth.assertThat(option2.screenReaderName).isEqualTo("3rd list option")
+    }
+
+    @Test
+    @Suppress("deprecation")
+    public fun listUserStyleSettingWireFormatRoundTrip_noScreenReaderName() {
+        val listUserStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("list"),
+            context.resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
+            icon = null,
+            options = listOf(
+                ListOption(
+                    UserStyleSetting.Option.Id("one"),
+                    context.resources,
+                    R.string.ith_option,
+                    icon = null
+                )
+            ),
+            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val listUserStyleSettingAfterRoundTrip = ListUserStyleSetting(
+            listUserStyleSetting.toWireFormat()
+        )
+
+        val option0 = listUserStyleSettingAfterRoundTrip.options[0] as ListOption
+        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        // We expect screenReaderName to be back filled by the displayName.
+        Truth.assertThat(option0.screenReaderName).isEqualTo("1st option")
+    }
+
+    @Test
+    public fun complicationSlotsOptionsWithIndices() {
+        val complicationSetting = ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting1"),
+            displayName = "Complications",
+            description = "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("one"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null,
+                    emptyList()
+                ),
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("two"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null,
+                    emptyList()
+                ),
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("three"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null,
+                    emptyList()
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        val option0 = complicationSetting.options[0] as ComplicationSlotsOption
+        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        Truth.assertThat(option0.screenReaderName).isEqualTo("1st list option")
+
+        val option1 = complicationSetting.options[1] as ComplicationSlotsOption
+        Truth.assertThat(option1.displayName).isEqualTo("2nd option")
+        Truth.assertThat(option1.screenReaderName).isEqualTo("2nd list option")
+
+        val option2 = complicationSetting.options[2] as ComplicationSlotsOption
+        Truth.assertThat(option2.displayName).isEqualTo("3rd option")
+        Truth.assertThat(option2.screenReaderName).isEqualTo("3rd list option")
+    }
+
+    @Test
+    public fun complicationSettingsWithIndices() {
+        val one = UserStyleSetting.Id("one")
+        val two = UserStyleSetting.Id("two")
+        val schema = UserStyleSchema(
+            listOf(
+                ListUserStyleSetting(
+                    one,
+                    context.resources,
+                    R.string.ith_style,
+                    R.string.ith_style_screen_reader_name,
+                    icon = null,
+                    options = listOf(
+                        ListOption(
+                            UserStyleSetting.Option.Id("one"),
+                            context.resources,
+                            R.string.ith_option,
+                            R.string.ith_option_screen_reader_name,
+                            icon = null
+                        )
+                    ),
+                    listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+                ),
+                ComplicationSlotsUserStyleSetting(
+                    two,
+                    context.resources,
+                    R.string.ith_style,
+                    R.string.ith_style_screen_reader_name,
+                    icon = null,
+                    complicationConfig = listOf(
+                        ComplicationSlotsOption(
+                            UserStyleSetting.Option.Id("one"),
+                            context.resources,
+                            R.string.ith_option,
+                            R.string.ith_option_screen_reader_name,
+                            icon = null,
+                            emptyList()
+                        )
+                    ),
+                    listOf(WatchFaceLayer.COMPLICATIONS)
+                )
+            )
+        )
+
+        Truth.assertThat(schema[one]!!.displayName).isEqualTo("1st style")
+        Truth.assertThat(schema[one]!!.description).isEqualTo("1st style setting")
+        Truth.assertThat(schema[two]!!.displayName).isEqualTo("2nd style")
+        Truth.assertThat(schema[two]!!.description).isEqualTo("2nd style setting")
+    }
+
+    @Test
+    @Suppress("deprecation")
+    public fun
+    complicationsUserStyleSettingWireFormatRoundTrip_noScreenReaderName_filledByDisplayName() {
+        val complicationSetting = ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting1"),
+            displayName = "Complications",
+            description = "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("one"),
+                    context.resources,
+                    displayNameResourceId = R.string.ith_option,
+                    icon = null,
+                    emptyList()
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        val complicationSettingAfterRoundTrip = ComplicationSlotsUserStyleSetting(
+            complicationSetting.toWireFormat()
+        )
+
+        val option0 = complicationSettingAfterRoundTrip.options[0] as ComplicationSlotsOption
+        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        // We expect screenReaderName to be back filled by the displayName.
+        Truth.assertThat(option0.screenReaderName).isEqualTo("1st option")
     }
 }

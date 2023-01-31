@@ -36,6 +36,7 @@ import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
 import static androidx.car.app.hardware.common.CarValue.STATUS_UNAVAILABLE;
+import static androidx.car.app.hardware.common.CarValue.STATUS_UNIMPLEMENTED;
 import static androidx.car.app.hardware.common.CarValue.STATUS_UNKNOWN;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.DEFAULT_SAMPLE_RATE;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.SPEED_DISPLAY_UNIT_ID;
@@ -72,11 +73,13 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -97,6 +100,9 @@ import java.util.concurrent.atomic.AtomicReference;
 )
 @DoNotInstrument
 public class AutomotiveCarInfoTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private List<GetPropertyRequest> mGetPropertyRequests;
     private List<Integer> mPropertyIds;
     private List<CarPropertyResponse<?>> mResponse;
@@ -113,9 +119,64 @@ public class AutomotiveCarInfoTest {
     private static final List<CarZone> GLOBAL_ZONE = Collections.singletonList(
             CarZone.CAR_ZONE_GLOBAL);
 
+    private static final int METER_DISTANCE_UNIT = 0x21;
+    private static final int METER_VOLUME_UNIT = 0x40;
+    private static final float EV_BATTERY_CAPACITY = 100f;
+    private static final float EV_BATTERY_LEVEL_VALUE = 50f;
+    private static final float FUEL_CAPACITY = 120f;
+    private static final float FUEL_LEVEL_VALUE = 50f;
+    private static final long DEFAULT_TIMESTAMP_MILLIS = 1L;
+    private static final boolean FUEL_LEVEL_LOW_VALUE = true;
+    private static final float RANGE_REMAINING_VALUE = 5f;
+    private static final CarPropertyResponse<?> EV_BATTERY_CAPACITY_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                    STATUS_SUCCESS).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).setValue(
+                    EV_BATTERY_CAPACITY).build();
+    private static final CarPropertyResponse<?> FUEL_CAPACITY_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
+                    STATUS_SUCCESS).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).setValue(
+                    FUEL_CAPACITY).build();
+    private static final CarPropertyResponse<?> EV_BATTERY_LEVEL_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(EV_BATTERY_LEVEL).setStatus(
+                    STATUS_SUCCESS).setValue(EV_BATTERY_LEVEL_VALUE).setTimestampMillis(
+                    DEFAULT_TIMESTAMP_MILLIS).build();
+    private static final CarPropertyResponse<?> FUEL_LEVEL_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL).setStatus(
+                    STATUS_SUCCESS).setValue(FUEL_LEVEL_VALUE).setTimestampMillis(
+                    DEFAULT_TIMESTAMP_MILLIS).build();
+    private static final CarPropertyResponse<?> FUEL_LEVEL_LOW_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL_LOW).setStatus(
+                    STATUS_SUCCESS).setValue(FUEL_LEVEL_LOW_VALUE).setTimestampMillis(
+                    DEFAULT_TIMESTAMP_MILLIS).build();
+    private static final CarPropertyResponse<?> RANGE_REMAINING_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(RANGE_REMAINING).setStatus(
+                    STATUS_SUCCESS).setValue(RANGE_REMAINING_VALUE).setTimestampMillis(
+                    DEFAULT_TIMESTAMP_MILLIS).build();
+    private static final CarPropertyResponse<?> DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(DISTANCE_DISPLAY_UNITS).setStatus(
+                    STATUS_SUCCESS).setValue(METER_DISTANCE_UNIT).setTimestampMillis(
+                    DEFAULT_TIMESTAMP_MILLIS).build();
+    private static final CarPropertyResponse<?> FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS =
+            CarPropertyResponse.builder().setPropertyId(FUEL_VOLUME_DISPLAY_UNITS).setStatus(
+                    STATUS_SUCCESS).setValue(METER_VOLUME_UNIT).setTimestampMillis(
+                    DEFAULT_TIMESTAMP_MILLIS).build();
+    private static final CarValue<Float> EXPECTED_BATTERY_PERCENT_SUCCESS =
+            new CarValue<>(EV_BATTERY_LEVEL_VALUE / EV_BATTERY_CAPACITY * 100,
+                    DEFAULT_TIMESTAMP_MILLIS, STATUS_SUCCESS);
+    private static final CarValue<Float> EXPECTED_FUEL_PERCENT_SUCCESS =
+            new CarValue<>(FUEL_LEVEL_VALUE / FUEL_CAPACITY * 100, DEFAULT_TIMESTAMP_MILLIS,
+                    STATUS_SUCCESS);
+    private static final CarValue<Boolean> EXPECTED_ENERGY_IS_LOW_SUCCESS =
+            new CarValue<>(FUEL_LEVEL_LOW_VALUE, DEFAULT_TIMESTAMP_MILLIS, STATUS_SUCCESS);
+    private static final CarValue<Float> EXPECTED_RANGE_REMAINING_METERS_SUCCESS =
+            new CarValue<>(RANGE_REMAINING_VALUE, DEFAULT_TIMESTAMP_MILLIS, STATUS_SUCCESS);
+    private static final CarValue<Integer> EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS =
+            new CarValue<>(2, DEFAULT_TIMESTAMP_MILLIS, STATUS_SUCCESS);
+    private static final CarValue<Integer> EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS =
+            new CarValue<>(201, DEFAULT_TIMESTAMP_MILLIS, STATUS_SUCCESS);
+
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ShadowCar.setCar(mCarMock);
         when(mCarMock.getCarManager(anyString())).thenReturn(mCarPropertyManagerMock);
         mAutomotiveCarInfo = new AutomotiveCarInfo(mPropertyManager);
@@ -853,27 +914,15 @@ public class AutomotiveCarInfoTest {
         assertThat(loadedResult.get()).isEqualTo(new Speed.Builder().build());
     }
 
-    @Test
-    public void getEnergyLevel_verifyResponse() throws InterruptedException {
+    private void getEnergyLevelHelperFunction(List<CarPropertyResponse<?>> energyCapacities,
+            List<CarPropertyResponse<?>> energyResponses, EnergyLevel expectedEnergyLevel) throws
+            InterruptedException {
         // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
 
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        int meterDistanceUnit = 0x21;
-        int meterVolumeUnit = 0x40;
-        float evBatteryCapacity = 100f;
-        float evBatteryLevelValue = 50f;
-        float fuelCapacity = 120f;
-        float fuelLevelValue = 50f;
-        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.builder().setPropertyId(
-                INFO_EV_BATTERY_CAPACITY).setStatus(STATUS_SUCCESS).setValue(
-                evBatteryCapacity).setTimestampMillis(1L).build());
-        capacities.add(CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
-                STATUS_SUCCESS).setValue(fuelCapacity).setTimestampMillis(1L).build());
-        ListenableFuture<List<CarPropertyResponse<?>>> future = Futures.immediateFuture(capacities);
+        ListenableFuture<List<CarPropertyResponse<?>>> future = Futures.immediateFuture(
+                energyCapacities);
         when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any())).thenReturn(
                 future);
 
@@ -897,309 +946,273 @@ public class AutomotiveCarInfoTest {
                         .put(DISTANCE_DISPLAY_UNITS, mCarZones)
                         .put(FUEL_VOLUME_DISPLAY_UNITS, mCarZones)
                         .buildKeepingLast();
+        ArgumentCaptor<OnCarPropertyResponseListener> listenerCaptor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
 
-        verify(mPropertyManager, times(1)).submitGetPropertyRequest(eq(mGetPropertyRequests),
-                eq(mExecutor));
-        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
-                eq(propertyIdsWithCarZones), eq(DEFAULT_SAMPLE_RATE), captor.capture(),
-                eq(mExecutor));
+        verify(mPropertyManager).submitGetPropertyRequest(mGetPropertyRequests, mExecutor);
+        verify(mPropertyManager).submitRegisterListenerRequest(eq(propertyIdsWithCarZones),
+                eq(DEFAULT_SAMPLE_RATE), listenerCaptor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(EV_BATTERY_LEVEL).setStatus(
-                STATUS_SUCCESS).setValue(evBatteryLevelValue).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL).setStatus(
-                STATUS_SUCCESS).setValue(fuelLevelValue).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL_LOW).setStatus(
-                STATUS_SUCCESS).setValue(true).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(RANGE_REMAINING).setStatus(
-                STATUS_SUCCESS).setValue(5f).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(DISTANCE_DISPLAY_UNITS).setStatus(
-                STATUS_SUCCESS).setValue(meterDistanceUnit).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(
-                FUEL_VOLUME_DISPLAY_UNITS).setStatus(STATUS_SUCCESS).setValue(
-                meterVolumeUnit).setTimestampMillis(1L).build());
+        mResponse.addAll(energyResponses);
 
-        captor.getValue().onCarPropertyResponses(mResponse);
+        listenerCaptor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
 
-        EnergyLevel energyLevel = loadedResult.get();
-        assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
-                evBatteryLevelValue / evBatteryCapacity * 100);
-        assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
-                fuelLevelValue / fuelCapacity * 100);
-        assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(true);
-        assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(5f);
-        assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(2);
-        assertThat(energyLevel.getFuelVolumeDisplayUnit().getValue()).isEqualTo(201);
+        assertThat(loadedResult.get()).isEqualTo(expectedEnergyLevel);
+    }
+
+    @Test
+    public void getEnergyLevel_verifyResponse() throws InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                EV_BATTERY_CAPACITY_RESPONSE_SUCCESS, FUEL_CAPACITY_RESPONSE_SUCCESS);
+
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
+
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                EXPECTED_BATTERY_PERCENT_SUCCESS).setFuelPercent(
+                EXPECTED_FUEL_PERCENT_SUCCESS).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
+
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
     }
 
     @Test
     public void addEnergyLevelListener_handlesReponsesWithDifferentStatuses()
             throws InterruptedException {
-        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                EV_BATTERY_CAPACITY_RESPONSE_SUCCESS, FUEL_CAPACITY_RESPONSE_SUCCESS);
 
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        int meterDistanceUnit = 0x21;
-        float evBatteryCapacity = 100f;
-        float fuelCapacity = 120f;
-        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.builder().setPropertyId(
-                INFO_EV_BATTERY_CAPACITY).setStatus(STATUS_SUCCESS).setValue(
-                evBatteryCapacity).setTimestampMillis(1L).build());
-        capacities.add(CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
-                STATUS_SUCCESS).setValue(fuelCapacity).setTimestampMillis(1L).build());
-        ListenableFuture<List<CarPropertyResponse<?>>> future = Futures.immediateFuture(capacities);
-        when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any())).thenReturn(
-                future);
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                CarPropertyResponse.builder().setPropertyId(EV_BATTERY_LEVEL).setStatus(
+                        STATUS_UNKNOWN).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
+                CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL).setStatus(
+                        STATUS_UNAVAILABLE).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS,
+                CarPropertyResponse.builder().setPropertyId(RANGE_REMAINING).setStatus(
+                        STATUS_UNKNOWN).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                CarPropertyResponse.builder().setPropertyId(FUEL_VOLUME_DISPLAY_UNITS).setStatus(
+                        STATUS_UNAVAILABLE).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build());
 
-        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNKNOWN)).setFuelPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNAVAILABLE)).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS,
+                        STATUS_UNKNOWN)).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNAVAILABLE)).build();
 
-        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
-
-        // Create "EV_BATTERY_LEVEL", "FUEL_LEVEL", "FUEL_LEVEL_LOW", "RANGE_REMAINING",
-        // "DISTANCE_DISPLAY_UNITS" and "FUEL_VOLUME_DISPLAY_UNITS" property IDs list with car
-        // zones.
-        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
-                ImmutableMap.<Integer, List<CarZone>>builder().put(EV_BATTERY_LEVEL, mCarZones).put(
-                        FUEL_LEVEL, mCarZones).put(FUEL_LEVEL_LOW, mCarZones).put(RANGE_REMAINING,
-                        mCarZones).put(DISTANCE_DISPLAY_UNITS, mCarZones).put(
-                        FUEL_VOLUME_DISPLAY_UNITS, mCarZones).buildKeepingLast();
-
-        verify(mPropertyManager, times(1)).submitGetPropertyRequest(eq(mGetPropertyRequests),
-                eq(mExecutor));
-        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
-                eq(propertyIdsWithCarZones), eq(DEFAULT_SAMPLE_RATE), captor.capture(),
-                eq(mExecutor));
-
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(EV_BATTERY_LEVEL).setStatus(
-                STATUS_UNKNOWN).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL).setStatus(
-                STATUS_UNAVAILABLE).setTimestampMillis(2L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL_LOW).setStatus(
-                STATUS_SUCCESS).setValue(true).setTimestampMillis(3L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(RANGE_REMAINING).setStatus(
-                STATUS_UNKNOWN).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(DISTANCE_DISPLAY_UNITS).setStatus(
-                STATUS_SUCCESS).setValue(meterDistanceUnit).setTimestampMillis(4L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(
-                FUEL_VOLUME_DISPLAY_UNITS).setStatus(STATUS_UNAVAILABLE).setTimestampMillis(
-                6L).build());
-
-        captor.getValue().onCarPropertyResponses(mResponse);
-        mCountDownLatch.await();
-
-        assertThat(loadedResult.get()).isEqualTo(new EnergyLevel.Builder().setBatteryPercent(
-                new CarValue<>(null, 1, STATUS_UNKNOWN)).setFuelPercent(
-                new CarValue<>(null, 2, STATUS_UNAVAILABLE)).setEnergyIsLow(
-                new CarValue<>(true, 3, STATUS_SUCCESS)).setRangeRemainingMeters(
-                new CarValue<>(null, 1, STATUS_UNKNOWN)).setFuelVolumeDisplayUnit(
-                new CarValue<>(null, 6, STATUS_UNAVAILABLE)).setDistanceDisplayUnit(
-                new CarValue<>(CarUnit.METER, 4, STATUS_SUCCESS)).build());
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
     }
 
     @Test
     public void addEnergyLevelListener_returnsEnergyLevelWithUnknownValuesIfNoResponses()
             throws InterruptedException {
-        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
-        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any())).thenReturn(
-                Futures.immediateFuture(capacities));
-        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
+        List<CarPropertyResponse<?>> energyCapacities = new ArrayList<>();
 
-        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
+        List<CarPropertyResponse<?>> energyResponses = new ArrayList<>();
 
-        verify(mPropertyManager, times(1)).submitGetPropertyRequest(
-                eq(mGetPropertyRequests), eq(mExecutor));
-        // Create "EV_BATTERY_LEVEL", "FUEL_LEVEL", "FUEL_LEVEL_LOW", "RANGE_REMAINING",
-        // "DISTANCE_DISPLAY_UNITS" and "FUEL_VOLUME_DISPLAY_UNITS" property IDs list with car
-        // zones.
-        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
-                ImmutableMap.<Integer, List<CarZone>>builder()
-                        .put(EV_BATTERY_LEVEL, mCarZones)
-                        .put(FUEL_LEVEL, mCarZones)
-                        .put(FUEL_LEVEL_LOW, mCarZones)
-                        .put(RANGE_REMAINING, mCarZones)
-                        .put(DISTANCE_DISPLAY_UNITS, mCarZones)
-                        .put(FUEL_VOLUME_DISPLAY_UNITS, mCarZones)
-                        .buildKeepingLast();
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
-                eq(propertyIdsWithCarZones), eq(DEFAULT_SAMPLE_RATE), captor.capture(),
-                eq(mExecutor));
-        captor.getValue().onCarPropertyResponses(mResponse);
-        mCountDownLatch.await();
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().build();
 
-        assertThat(loadedResult.get()).isEqualTo(new EnergyLevel.Builder().build());
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
     }
 
     @Test
     public void getEnergyLevel_withUnavailableCapacityValues() throws InterruptedException {
-        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                        STATUS_UNAVAILABLE).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
+                CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
+                        STATUS_UNAVAILABLE).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build());
 
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        int meterDistanceUnit = 0x21;
-        int meterVolumeUnit = 0x40;
-        float evBatteryLevelValue = 50f;
-        float fuelLevelValue = 50f;
-        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.builder().setPropertyId(
-                INFO_EV_BATTERY_CAPACITY).setStatus(STATUS_UNAVAILABLE).setTimestampMillis(
-                1L).build());
-        capacities.add(CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
-                STATUS_UNAVAILABLE).setTimestampMillis(1L).build());
-        ListenableFuture<List<CarPropertyResponse<?>>> future = Futures.immediateFuture(capacities);
-        when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any())).thenReturn(
-                future);
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
 
-        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
+        // Battery percent and fuel percent should be null since we can not get the capacity of
+        // battery and fuel property. The other properties should still work without capacity
+        // values.
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNAVAILABLE)).setFuelPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNAVAILABLE)).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
 
-        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
+    }
 
-        // Create "EV_BATTERY_LEVEL", "FUEL_LEVEL", "FUEL_LEVEL_LOW", "RANGE_REMAINING",
-        // "DISTANCE_DISPLAY_UNITS" and "FUEL_VOLUME_DISPLAY_UNITS" property IDs list with car
-        // zones.
-        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
-                ImmutableMap.<Integer, List<CarZone>>builder()
-                        .put(EV_BATTERY_LEVEL, mCarZones)
-                        .put(FUEL_LEVEL, mCarZones)
-                        .put(FUEL_LEVEL_LOW, mCarZones)
-                        .put(RANGE_REMAINING, mCarZones)
-                        .put(DISTANCE_DISPLAY_UNITS, mCarZones)
-                        .put(FUEL_VOLUME_DISPLAY_UNITS, mCarZones)
-                        .buildKeepingLast();
+    @Test
+    public void getEnergyLevel_withUnimplementedEvBatteryCapacity() throws InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                        STATUS_UNIMPLEMENTED).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
+                FUEL_CAPACITY_RESPONSE_SUCCESS);
 
-        verify(mPropertyManager, times(1)).submitGetPropertyRequest(
-                eq(mGetPropertyRequests),
-                eq(mExecutor));
-        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
-                eq(propertyIdsWithCarZones), eq(DEFAULT_SAMPLE_RATE), captor.capture(),
-                eq(mExecutor));
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
 
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(EV_BATTERY_LEVEL).setStatus(
-                STATUS_SUCCESS).setValue(evBatteryLevelValue).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL).setStatus(
-                STATUS_SUCCESS).setValue(fuelLevelValue).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL_LOW).setStatus(
-                STATUS_SUCCESS).setValue(true).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(RANGE_REMAINING).setStatus(
-                STATUS_SUCCESS).setValue(5f).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(DISTANCE_DISPLAY_UNITS).setStatus(
-                STATUS_SUCCESS).setValue(meterDistanceUnit).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(
-                FUEL_VOLUME_DISPLAY_UNITS).setStatus(STATUS_SUCCESS).setValue(
-                meterVolumeUnit).setTimestampMillis(1L).build());
-        captor.getValue().onCarPropertyResponses(mResponse);
-        mCountDownLatch.await();
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS,
+                        STATUS_UNIMPLEMENTED)).setFuelPercent(
+                EXPECTED_FUEL_PERCENT_SUCCESS).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
 
-        EnergyLevel energyLevel = loadedResult.get();
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
+    }
 
-        // Battery percent and fuel percent should be UNKNOWN_FLOAT since we can not get
-        // the capacity of battery and fuel property.
-        assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
-                CarValue.UNKNOWN_FLOAT.getValue());
-        assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
-                CarValue.UNKNOWN_FLOAT.getValue());
+    @Test
+    public void getEnergyLevel_withUnimplementedFuelCapacity() throws
+            InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                EV_BATTERY_CAPACITY_RESPONSE_SUCCESS, CarPropertyResponse.builder().setPropertyId(
+                INFO_FUEL_CAPACITY).setStatus(STATUS_UNIMPLEMENTED).setTimestampMillis(
+                DEFAULT_TIMESTAMP_MILLIS).build());
 
-        // The other properties should still work without capacity values
-        assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(true);
-        assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(5f);
-        assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(2);
-        assertThat(energyLevel.getFuelVolumeDisplayUnit().getValue()).isEqualTo(201);
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
+
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                EXPECTED_BATTERY_PERCENT_SUCCESS).setFuelPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS,
+                        STATUS_UNIMPLEMENTED)).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
+
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
+    }
+
+    @Test
+    public void getEnergyLevel_withUnknownEvBatteryCapacity() throws InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                        STATUS_UNKNOWN).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
+                FUEL_CAPACITY_RESPONSE_SUCCESS);
+
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
+
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNKNOWN)).setFuelPercent(
+                EXPECTED_FUEL_PERCENT_SUCCESS).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
+
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
+    }
+
+    @Test
+    public void getEnergyLevel_withUnknownFuelCapacity() throws InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                EV_BATTERY_CAPACITY_RESPONSE_SUCCESS, CarPropertyResponse.builder().setPropertyId(
+                        INFO_FUEL_CAPACITY).setStatus(STATUS_UNKNOWN).setTimestampMillis(
+                        DEFAULT_TIMESTAMP_MILLIS).build());
+
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
+
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                EXPECTED_BATTERY_PERCENT_SUCCESS).setFuelPercent(
+                new CarValue<>(null, DEFAULT_TIMESTAMP_MILLIS, STATUS_UNKNOWN)).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
+
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
+    }
+
+    @Test
+    public void getEnergyLevel_withNoEvBatteryCapacityResponse() throws InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                FUEL_CAPACITY_RESPONSE_SUCCESS);
+
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
+
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                new CarValue<>(null, 0, STATUS_UNKNOWN)).setFuelPercent(
+                EXPECTED_FUEL_PERCENT_SUCCESS).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
+
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
+    }
+
+    @Test
+    public void getEnergyLevel_withNoFuelCapacityResponse() throws InterruptedException {
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                EV_BATTERY_CAPACITY_RESPONSE_SUCCESS);
+
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS,
+                FUEL_VOLUME_DISPLAY_UNITS_RESPONSE_SUCCESS);
+
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                EXPECTED_BATTERY_PERCENT_SUCCESS).setFuelPercent(
+                new CarValue<>(null, 0, STATUS_UNKNOWN)).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).setFuelVolumeDisplayUnit(
+                EXPECTED_FUEL_VOLUME_DISPLAY_UNIT_SUCCESS).build();
+
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
     }
 
     @Test
     public void getEnergyLevel_SuccessfulPartialResponses() throws InterruptedException {
-        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
+        List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
+                EV_BATTERY_CAPACITY_RESPONSE_SUCCESS, FUEL_CAPACITY_RESPONSE_SUCCESS);
 
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        int meterDistanceUnit = 0x21;
-        float evBatteryCapacity = 100f;
-        float evBatteryLevelValue = 50f;
-        float fuelCapacity = 120f;
-        float fuelLevelValue = 50f;
-        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.builder().setPropertyId(
-                INFO_EV_BATTERY_CAPACITY).setStatus(STATUS_SUCCESS).setValue(
-                evBatteryCapacity).setTimestampMillis(1L).build());
-        capacities.add(CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
-                STATUS_SUCCESS).setValue(fuelCapacity).setTimestampMillis(1L).build());
-        ListenableFuture<List<CarPropertyResponse<?>>> future = Futures.immediateFuture(capacities);
-        when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any())).thenReturn(
-                future);
+        List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
+                EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,
+                FUEL_LEVEL_LOW_RESPONSE_SUCCESS, RANGE_REMAINING_RESPONSE_SUCCESS,
+                DISTANCE_DISPLAY_UNITS_RESPONSE_SUCCESS);
 
-        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
+        EnergyLevel expectedEnergyLevel = new EnergyLevel.Builder().setBatteryPercent(
+                EXPECTED_BATTERY_PERCENT_SUCCESS).setFuelPercent(
+                EXPECTED_FUEL_PERCENT_SUCCESS).setEnergyIsLow(
+                EXPECTED_ENERGY_IS_LOW_SUCCESS).setRangeRemainingMeters(
+                EXPECTED_RANGE_REMAINING_METERS_SUCCESS).setDistanceDisplayUnit(
+                EXPECTED_DISTANCE_DISPLAY_UNIT_SUCCESS).build();
 
-        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
-
-        // Create "EV_BATTERY_LEVEL", "FUEL_LEVEL", "FUEL_LEVEL_LOW", "RANGE_REMAINING",
-        // "DISTANCE_DISPLAY_UNITS" and "FUEL_VOLUME_DISPLAY_UNITS" property IDs list with car
-        // zones.
-        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
-                ImmutableMap.<Integer, List<CarZone>>builder()
-                        .put(EV_BATTERY_LEVEL, mCarZones)
-                        .put(FUEL_LEVEL, mCarZones)
-                        .put(FUEL_LEVEL_LOW, mCarZones)
-                        .put(RANGE_REMAINING, mCarZones)
-                        .put(DISTANCE_DISPLAY_UNITS, mCarZones)
-                        .put(FUEL_VOLUME_DISPLAY_UNITS, mCarZones)
-                        .buildKeepingLast();
-
-        verify(mPropertyManager, times(1)).submitGetPropertyRequest(eq(mGetPropertyRequests),
-                eq(mExecutor));
-        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
-                eq(propertyIdsWithCarZones), eq(DEFAULT_SAMPLE_RATE), captor.capture(),
-                eq(mExecutor));
-
-        // Missing response for FUEL_VOLUME_DISPLAY_UNITS.
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(EV_BATTERY_LEVEL).setStatus(
-                STATUS_SUCCESS).setValue(evBatteryLevelValue).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL).setStatus(
-                STATUS_SUCCESS).setValue(fuelLevelValue).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(FUEL_LEVEL_LOW).setStatus(
-                STATUS_SUCCESS).setValue(true).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(RANGE_REMAINING).setStatus(
-                STATUS_SUCCESS).setValue(5f).setTimestampMillis(1L).build());
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(DISTANCE_DISPLAY_UNITS).setStatus(
-                STATUS_SUCCESS).setValue(meterDistanceUnit).setTimestampMillis(1L).build());
-
-        captor.getValue().onCarPropertyResponses(mResponse);
-        mCountDownLatch.await();
-
-        // The partial responses will be returned successfully.
-        EnergyLevel energyLevel = loadedResult.get();
-        assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
-                evBatteryLevelValue / evBatteryCapacity * 100);
-        assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
-                fuelLevelValue / fuelCapacity * 100);
-        assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(true);
-        assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(5f);
-        assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(2);
+        getEnergyLevelHelperFunction(energyCapacities, energyResponses, expectedEnergyLevel);
     }
 }

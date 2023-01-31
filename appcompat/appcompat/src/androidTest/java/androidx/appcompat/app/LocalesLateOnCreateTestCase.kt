@@ -27,22 +27,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
-//  setApplicationLocales
-@SdkSuppress(maxSdkVersion = 31)
+@SdkSuppress(maxSdkVersion = 32)
 class LocalesLateOnCreateTestCase {
 
     @get:Rule
     val activityRule = LocalesActivityTestRule(LocalesLateOnCreateActivity::class.java)
 
-    @Ignore("b/241547343") // Test is 100% failing across multiple API levels.
     @Test
     fun testActivityRecreateLoop() {
         // Activity should be able to reach fully resumed state in default locales.

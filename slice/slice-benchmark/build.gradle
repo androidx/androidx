@@ -36,17 +36,20 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
     name = "Slices Benchmarks"
     publish = Publish.NONE
     mavenVersion = LibraryVersions.SLICE_BENCHMARK
-    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2018"
     description = "RecyclerView Benchmarks"
 }
 
 android {
     namespace "androidx.slice.benchmark"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

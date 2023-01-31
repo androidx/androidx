@@ -22,10 +22,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -331,7 +327,7 @@ public class MediaRouteButton extends View {
         MediaRouterParams params = mRouter.getRouterParams();
         if (params != null) {
             if (params.isOutputSwitcherEnabled() && MediaRouter.isMediaTransferEnabled()) {
-                if (showOutputSwitcher()) {
+                if (SystemOutputSwitcherDialogController.showDialog(getContext())) {
                     // Output switcher is successfully shown.
                     return true;
                 }
@@ -386,78 +382,6 @@ public class MediaRouteButton extends View {
             transaction.commitAllowingStateLoss();
         }
         return true;
-    }
-
-    /**
-     * Shows output switcher dialog. Returns {@code true} if it is successfully shown.
-     * Returns {@code false} if there was no output switcher.
-     */
-    private boolean showOutputSwitcher() {
-        boolean result = false;
-        if (Build.VERSION.SDK_INT >= 31) {
-            result = showOutputSwitcherForAndroidSAndAbove();
-            if (!result) {
-                // The intent action and related string constants are changed in S,
-                // however they are not public API yet. Try opening the output switcher with the
-                // old constants for devices that have prior version of the constants.
-                result = showOutputSwitcherForAndroidR();
-            }
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            result = showOutputSwitcherForAndroidR();
-        }
-        return result;
-    }
-
-    private boolean showOutputSwitcherForAndroidR() {
-        Context context = getContext();
-
-        Intent intent = new Intent()
-                .setAction("com.android.settings.panel.action.MEDIA_OUTPUT")
-                .putExtra("com.android.settings.panel.extra.PACKAGE_NAME", context.getPackageName())
-                .putExtra("key_media_session_token", mRouter.getMediaSessionToken());
-
-        PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            ActivityInfo activityInfo = resolveInfo.activityInfo;
-            if (activityInfo == null || activityInfo.applicationInfo == null) {
-                continue;
-            }
-            ApplicationInfo appInfo = activityInfo.applicationInfo;
-            if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
-                    & appInfo.flags) != 0) {
-                context.startActivity(intent);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean showOutputSwitcherForAndroidSAndAbove() {
-        Context context = getContext();
-
-        Intent intent = new Intent()
-                .setAction("com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG")
-                .setPackage("com.android.systemui")
-                .putExtra("package_name", context.getPackageName())
-                .putExtra("key_media_session_token", mRouter.getMediaSessionToken());
-
-        PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> resolveInfos = packageManager.queryBroadcastReceivers(intent, 0);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            ActivityInfo activityInfo = resolveInfo.activityInfo;
-            if (activityInfo == null || activityInfo.applicationInfo == null) {
-                continue;
-            }
-            ApplicationInfo appInfo = activityInfo.applicationInfo;
-            if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
-                    & appInfo.flags) != 0) {
-                context.sendBroadcast(intent);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private FragmentManager getFragmentManager() {

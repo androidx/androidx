@@ -416,7 +416,7 @@ package androidx.recyclerview.widget {
     method public boolean dispatchNestedPreScroll(int, int, int[]!, int[]!, int);
     method public boolean dispatchNestedScroll(int, int, int, int, int[]!, int);
     method public final void dispatchNestedScroll(int, int, int, int, int[]!, int, int[]);
-    method public boolean drawChild(android.graphics.Canvas!, android.view.View!, long);
+    method public boolean drawChild(android.graphics.Canvas, android.view.View!, long);
     method public android.view.View? findChildViewUnder(float, float);
     method public android.view.View? findContainingItemView(android.view.View);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder? findContainingViewHolder(android.view.View);
@@ -457,7 +457,7 @@ package androidx.recyclerview.widget {
     method public void offsetChildrenVertical(@Px int);
     method public void onChildAttachedToWindow(android.view.View);
     method public void onChildDetachedFromWindow(android.view.View);
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public void onScrollStateChanged(int);
     method public void onScrolled(@Px int, @Px int);
     method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);

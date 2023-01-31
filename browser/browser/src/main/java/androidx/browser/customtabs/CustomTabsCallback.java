@@ -16,9 +16,12 @@
 
 package androidx.browser.customtabs;
 
+import static androidx.annotation.Dimension.PX;
+
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -156,4 +159,14 @@ public class CustomTabsCallback {
      */
     public void onRelationshipValidationResult(@Relation int relation, @NonNull Uri requestedOrigin,
             boolean result, @Nullable Bundle extras) {}
+
+    /**
+     * Called when the tab is resized.
+     *
+     * @param height The updated height in px.
+     * @param width The updated width in px.
+     * @param extras Reserved for future use.
+     */
+    public void onActivityResized(@Dimension(unit = PX) int height,
+            @Dimension(unit = PX) int width, @NonNull Bundle extras) {}
 }

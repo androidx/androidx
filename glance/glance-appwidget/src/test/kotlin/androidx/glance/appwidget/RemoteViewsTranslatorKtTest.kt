@@ -47,9 +47,9 @@ import androidx.glance.appwidget.FrameLayoutSubject.Companion.assertThat
 import androidx.glance.appwidget.LinearLayoutSubject.Companion.assertThat
 import androidx.glance.appwidget.TextViewSubject.Companion.assertThat
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
+import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.LazyVerticalGrid
-import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
@@ -66,6 +66,8 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.visibility
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -76,8 +78,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
-import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -874,9 +874,9 @@ class RemoteViewsTranslatorKtTest {
 
         val view = context.applyRemoteViews(rv)
 
-        val firstText = checkNotNull(view.findView<TextView> { it.text == "first" })
-        val secondText = checkNotNull(view.findView<TextView> { it.text == "second" })
-        val thirdText = checkNotNull(view.findView<TextView> { it.text == "third" })
+        val firstText = checkNotNull(view.findView<TextView> { it.text.toString() == "first" })
+        val secondText = checkNotNull(view.findView<TextView> { it.text.toString() == "second" })
+        val thirdText = checkNotNull(view.findView<TextView> { it.text.toString() == "third" })
 
         assertThat(firstText.visibility).isEqualTo(View.INVISIBLE)
         assertThat(secondText.visibility).isEqualTo(View.GONE)
@@ -998,6 +998,31 @@ class RemoteViewsTranslatorKtTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun containersHaveAtMostTenChildren() = runTest {
+        val rv = context.runAndTranslate {
+            Box {
+                Box {
+                    repeat(15) { Text("") }
+                }
+                Column {
+                    repeat(15) { Text("") }
+                }
+                Row {
+                    repeat(15) { Text("") }
+                }
+            }
+        }
+
+        val children = assertIs<FrameLayout>(context.applyRemoteViews(rv)).nonGoneChildren.toList()
+        val box = assertIs<FrameLayout>(children[0])
+        assertThat(box.nonGoneChildCount).isEqualTo(10)
+        val column = assertIs<LinearLayout>(children[1])
+        assertThat(column.nonGoneChildCount).isEqualTo(10)
+        val row = assertIs<LinearLayout>(children[2])
+        assertThat(row.nonGoneChildCount).isEqualTo(10)
     }
 
     private fun expectGlanceLog(type: Int, message: String) {

@@ -21,11 +21,11 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import androidx.annotation.CallSuper
-import androidx.annotation.IdRes
 import androidx.core.content.res.use
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -146,6 +146,8 @@ public open class FragmentNavigator(
      * Note that the default implementation commits the new Fragment
      * asynchronously, so the new Fragment is not instantly available
      * after this call completes.
+     *
+     * This call will be ignored if the FragmentManager state has already been saved.
      */
     override fun navigate(
         entries: List<NavBackStackEntry>,
@@ -168,8 +170,7 @@ public open class FragmentNavigator(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
-        val backStack = state.backStack.value
-        val initialNavigation = backStack.isEmpty()
+        val initialNavigation = state.backStack.value.isEmpty()
         val restoreState = (
             navOptions != null && !initialNavigation &&
                 navOptions.shouldRestoreState() &&
@@ -181,6 +182,65 @@ public open class FragmentNavigator(
             state.push(entry)
             return
         }
+        val ft = createFragmentTransaction(entry, navOptions)
+
+        if (!initialNavigation) {
+            ft.addToBackStack(entry.id)
+        }
+
+        if (navigatorExtras is Extras) {
+            for ((key, value) in navigatorExtras.sharedElements) {
+                ft.addSharedElement(key, value)
+            }
+        }
+        ft.commit()
+        // The commit succeeded, update our view of the world
+        state.push(entry)
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * This method should always call
+     * [FragmentTransaction.setPrimaryNavigationFragment]
+     * so that the Fragment associated with the new destination can be retrieved with
+     * [FragmentManager.getPrimaryNavigationFragment].
+     *
+     * Note that the default implementation commits the new Fragment
+     * asynchronously, so the new Fragment is not instantly available
+     * after this call completes.
+     *
+     * This call will be ignored if the FragmentManager state has already been saved.
+     */
+    override fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
+        if (fragmentManager.isStateSaved) {
+            Log.i(
+                TAG,
+                "Ignoring onLaunchSingleTop() call: FragmentManager has already saved its state"
+            )
+            return
+        }
+        val ft = createFragmentTransaction(backStackEntry, null)
+        if (state.backStack.value.size > 1) {
+            // If the Fragment to be replaced is on the FragmentManager's
+            // back stack, a simple replace() isn't enough so we
+            // remove it from the back stack and put our replacement
+            // on the back stack in its place
+            fragmentManager.popBackStack(
+                backStackEntry.id,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            ft.addToBackStack(backStackEntry.id)
+        }
+        ft.commit()
+        // The commit succeeded, update our view of the world
+        state.onLaunchSingleTop(backStackEntry)
+    }
+
+    private fun createFragmentTransaction(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?
+    ): FragmentTransaction {
         val destination = entry.destination as Destination
         val args = entry.arguments
         var className = destination.className
@@ -203,48 +263,8 @@ public open class FragmentNavigator(
         }
         ft.replace(containerId, frag)
         ft.setPrimaryNavigationFragment(frag)
-        @IdRes val destId = destination.id
-        // TODO Build first class singleTop behavior for fragments
-        val isSingleTopReplacement = (
-            navOptions != null && !initialNavigation &&
-                navOptions.shouldLaunchSingleTop() &&
-                backStack.last().destination.id == destId
-            )
-        val isAdded = when {
-            initialNavigation -> {
-                true
-            }
-            isSingleTopReplacement -> {
-                // Single Top means we only want one instance on the back stack
-                if (backStack.size > 1) {
-                    // If the Fragment to be replaced is on the FragmentManager's
-                    // back stack, a simple replace() isn't enough so we
-                    // remove it from the back stack and put our replacement
-                    // on the back stack in its place
-                    fragmentManager.popBackStack(
-                        entry.id,
-                        FragmentManager.POP_BACK_STACK_INCLUSIVE
-                    )
-                    ft.addToBackStack(entry.id)
-                }
-                false
-            }
-            else -> {
-                ft.addToBackStack(entry.id)
-                true
-            }
-        }
-        if (navigatorExtras is Extras) {
-            for ((key, value) in navigatorExtras.sharedElements) {
-                ft.addSharedElement(key, value)
-            }
-        }
         ft.setReorderingAllowed(true)
-        ft.commit()
-        // The commit succeeded, update our view of the world
-        if (isAdded) {
-            state.push(entry)
-        }
+        return ft
     }
 
     public override fun onSaveState(): Bundle? {

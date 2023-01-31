@@ -23,10 +23,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
+import androidx.compose.material3.samples.AlertDialogWithCustomContentSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
 import androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.AssistChipSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
+import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
@@ -37,14 +39,19 @@ import androidx.compose.material3.samples.CircularProgressIndicatorSample
 import androidx.compose.material3.samples.ClickableCardSample
 import androidx.compose.material3.samples.ClickableElevatedCardSample
 import androidx.compose.material3.samples.ClickableOutlinedCardSample
+import androidx.compose.material3.samples.DateInputSample
+import androidx.compose.material3.samples.DatePickerDialogSample
+import androidx.compose.material3.samples.DatePickerSample
+import androidx.compose.material3.samples.DatePickerWithDateValidatorSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
+import androidx.compose.material3.samples.DockedSearchBarSample
 import androidx.compose.material3.samples.EditableExposedDropdownMenuSample
 import androidx.compose.material3.samples.ElevatedAssistChipSample
 import androidx.compose.material3.samples.ElevatedButtonSample
 import androidx.compose.material3.samples.ElevatedCardSample
 import androidx.compose.material3.samples.ElevatedFilterChipSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
-import androidx.compose.material3.samples.EnterAlwaysSmallTopAppBar
+import androidx.compose.material3.samples.EnterAlwaysTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
@@ -87,22 +94,30 @@ import androidx.compose.material3.samples.OutlinedIconToggleButtonSample
 import androidx.compose.material3.samples.OutlinedTextFieldSample
 import androidx.compose.material3.samples.PasswordTextField
 import androidx.compose.material3.samples.PermanentNavigationDrawerSample
-import androidx.compose.material3.samples.PinnedSmallTopAppBar
+import androidx.compose.material3.samples.PinnedTopAppBar
+import androidx.compose.material3.samples.PlainTooltipSample
+import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
+import androidx.compose.material3.samples.RangeSliderWithCustomComponents
+import androidx.compose.material3.samples.RichTooltipSample
+import androidx.compose.material3.samples.RichTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.ScaffoldWithCoroutinesSnackbar
 import androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
 import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
 import androidx.compose.material3.samples.ScrollingTextTabs
+import androidx.compose.material3.samples.SearchBarSample
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
 import androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
-import androidx.compose.material3.samples.SimpleSmallTopAppBar
 import androidx.compose.material3.samples.SimpleTextFieldSample
+import androidx.compose.material3.samples.SimpleTopAppBar
 import androidx.compose.material3.samples.SliderSample
+import androidx.compose.material3.samples.SliderWithCustomThumbSample
+import androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
 import androidx.compose.material3.samples.SmallFloatingActionButtonSample
 import androidx.compose.material3.samples.StepRangeSliderSample
 import androidx.compose.material3.samples.StepsSliderSample
@@ -117,9 +132,11 @@ import androidx.compose.material3.samples.TextFieldWithErrorState
 import androidx.compose.material3.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.compose.material3.samples.TextFieldWithIcons
 import androidx.compose.material3.samples.TextFieldWithPlaceholder
+import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
 import androidx.compose.material3.samples.TextTabs
 import androidx.compose.material3.samples.ThreeLineListItem
+import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.runtime.Composable
@@ -142,6 +159,17 @@ val BadgeExamples =
             description = BadgeExampleDescription,
             sourceUrl = BadgeExampleSourceUrl
         ) { NavigationBarItemWithBadge() }
+    )
+
+private const val BottomSheetExampleDescription = "Bottom Sheet examples"
+private const val BottomSheetExampleSourceUrl = "$SampleSourceUrl/BottomSheetSamples.kt"
+val BottomSheetExamples =
+    listOf(
+        Example(
+            name = ::ModalBottomSheetSample.name,
+            description = BottomSheetExampleDescription,
+            sourceUrl = BottomSheetExampleSourceUrl
+        ) { ModalBottomSheetSample() }
     )
 
 private const val ButtonsExampleDescription = "Button examples"
@@ -328,6 +356,39 @@ val ChipsExamples = listOf(
     }
 )
 
+private const val DatePickerExampleDescription = "Date picker examples"
+private const val DatePickerExampleSourceUrl = "$SampleSourceUrl/DatePickerSamples.kt"
+val DatePickerExamples = listOf(
+    Example(
+        name = ::DatePickerSample.name,
+        description = DatePickerExampleDescription,
+        sourceUrl = DatePickerExampleSourceUrl
+    ) {
+        DatePickerSample()
+    },
+    Example(
+        name = ::DatePickerDialogSample.name,
+        description = DatePickerExampleDescription,
+        sourceUrl = DatePickerExampleSourceUrl
+    ) {
+        DatePickerDialogSample()
+    },
+    Example(
+        name = ::DatePickerWithDateValidatorSample.name,
+        description = DatePickerExampleDescription,
+        sourceUrl = DatePickerExampleSourceUrl
+    ) {
+        DatePickerWithDateValidatorSample()
+    },
+    Example(
+        name = ::DateInputSample.name,
+        description = DatePickerExampleDescription,
+        sourceUrl = DatePickerExampleSourceUrl
+    ) {
+        DateInputSample()
+    },
+)
+
 private const val DialogExampleDescription = "Dialog examples"
 private const val DialogExampleSourceUrl = "$SampleSourceUrl/AlertDialogSamples.kt"
 val DialogExamples =
@@ -342,6 +403,11 @@ val DialogExamples =
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
         ) { AlertDialogWithIconSample() },
+        Example(
+            name = ::AlertDialogWithCustomContentSample.name,
+            description = DialogExampleDescription,
+            sourceUrl = DialogExampleSourceUrl,
+        ) { AlertDialogWithCustomContentSample() },
     )
 
 private const val BottomAppBarsExampleDescription = "Bottom app bar examples"
@@ -364,25 +430,25 @@ private const val TopAppBarExampleSourceUrl = "$SampleSourceUrl/AppBarSamples.kt
 val TopAppBarExamples =
     listOf(
         Example(
-            name = ::SimpleSmallTopAppBar.name,
+            name = ::SimpleTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { SimpleSmallTopAppBar() },
+        ) { SimpleTopAppBar() },
         Example(
             name = ::SimpleCenterAlignedTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
         ) { SimpleCenterAlignedTopAppBar() },
         Example(
-            name = ::PinnedSmallTopAppBar.name,
+            name = ::PinnedTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { PinnedSmallTopAppBar() },
+        ) { PinnedTopAppBar() },
         Example(
-            name = ::EnterAlwaysSmallTopAppBar.name,
+            name = ::EnterAlwaysTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { EnterAlwaysSmallTopAppBar() },
+        ) { EnterAlwaysTopAppBar() },
         Example(
             name = ::ExitUntilCollapsedMediumTopAppBar.name,
             description = TopAppBarExampleDescription,
@@ -652,8 +718,27 @@ val RadioButtonsExamples = listOf(
     },
 )
 
+private const val SearchBarExampleDescription = "Search bar examples"
+private const val SearchBarExampleSourceUrl = "$SampleSourceUrl/SearchBarSamples.kt"
+val SearchBarExamples = listOf(
+    Example(
+        name = ::SearchBarSample.name,
+        description = SearchBarExampleDescription,
+        sourceUrl = SearchBarExampleSourceUrl
+    ) {
+        SearchBarSample()
+    },
+    Example(
+        name = ::DockedSearchBarSample.name,
+        description = SearchBarExampleDescription,
+        sourceUrl = SearchBarExampleSourceUrl
+    ) {
+        DockedSearchBarSample()
+    },
+)
+
 private const val SlidersExampleDescription = "Sliders examples"
-private const val SlidersExampleSourceUrl = "$SampleSourceUrl/SliderSample.kt"
+private const val SlidersExampleSourceUrl = "$SampleSourceUrl/SliderSamples.kt"
 val SlidersExamples = listOf(
     Example(
         name = ::SliderSample.name,
@@ -670,6 +755,20 @@ val SlidersExamples = listOf(
         StepsSliderSample()
     },
     Example(
+        name = ::SliderWithCustomThumbSample.name,
+        description = SlidersExampleDescription,
+        sourceUrl = SlidersExampleSourceUrl
+    ) {
+        SliderWithCustomThumbSample()
+    },
+    Example(
+        name = ::SliderWithCustomTrackAndThumb.name,
+        description = SlidersExampleDescription,
+        sourceUrl = SlidersExampleSourceUrl
+    ) {
+        SliderWithCustomTrackAndThumb()
+    },
+    Example(
         name = ::RangeSliderSample.name,
         description = SlidersExampleDescription,
         sourceUrl = SlidersExampleSourceUrl
@@ -683,6 +782,13 @@ val SlidersExamples = listOf(
     ) {
         StepRangeSliderSample()
     },
+    Example(
+        name = ::RangeSliderWithCustomComponents.name,
+        description = SlidersExampleDescription,
+        sourceUrl = SlidersExampleSourceUrl
+    ) {
+        RangeSliderWithCustomComponents()
+    }
 )
 
 private const val SnackbarsExampleDescription = "Snackbars examples"
@@ -719,7 +825,7 @@ val SnackbarsExamples = listOf(
 )
 
 private const val SwitchExampleDescription = "Switch examples"
-private const val SwitchExampleSourceUrl = "$SampleSourceUrl/Switch.kt"
+private const val SwitchExampleSourceUrl = "$SampleSourceUrl/SwitchSamples.kt"
 val SwitchExamples = listOf(
     Example(
         name = ::SwitchSample.name,
@@ -806,6 +912,18 @@ val TabsExamples = listOf(
     }
 )
 
+private const val TimePickerDescription = "Time Picker examples"
+private const val TimePickerSourceUrl = "$SampleSourceUrl/TimePicker.kt"
+val TimePickerExamples = listOf(
+    Example(
+        name = ::TimePickerSample.name,
+        description = TimePickerDescription,
+        sourceUrl = TimePickerSourceUrl
+    ) {
+        TimePickerSample()
+    },
+)
+
 private const val TextFieldsExampleDescription = "Text fields examples"
 private const val TextFieldsExampleSourceUrl = "$SampleSourceUrl/TextFieldSamples.kt"
 val TextFieldsExamples = listOf(
@@ -850,6 +968,13 @@ val TextFieldsExamples = listOf(
         sourceUrl = TextFieldsExampleSourceUrl
     ) {
         TextFieldWithPlaceholder()
+    },
+    Example(
+        name = ::TextFieldWithPrefixAndSuffix.name,
+        description = TextFieldsExampleDescription,
+        sourceUrl = TextFieldsExampleSourceUrl
+    ) {
+        TextFieldWithPrefixAndSuffix()
     },
     Example(
         name = ::TextFieldWithErrorState.name,
@@ -898,3 +1023,36 @@ val TextFieldsExamples = listOf(
         ) { it.content() }
     })
 }
+
+private const val TooltipsExampleDescription = "Tooltips examples"
+private const val TooltipsExampleSourceUrl = "$SampleSourceUrl/TooltipSamples.kt"
+val TooltipsExamples = listOf(
+    Example(
+        name = ::PlainTooltipSample.name,
+        description = TooltipsExampleDescription,
+        sourceUrl = TooltipsExampleSourceUrl
+    ) {
+        PlainTooltipSample()
+    },
+    Example(
+        name = ::PlainTooltipWithManualInvocationSample.name,
+        description = TooltipsExampleDescription,
+        sourceUrl = TooltipsExampleSourceUrl
+    ) {
+        PlainTooltipWithManualInvocationSample()
+    },
+    Example(
+        name = ::RichTooltipSample.name,
+        description = TooltipsExampleDescription,
+        sourceUrl = TooltipsExampleSourceUrl
+    ) {
+        RichTooltipSample()
+    },
+    Example(
+        name = ::RichTooltipWithManualInvocationSample.name,
+        description = TooltipsExampleDescription,
+        sourceUrl = TooltipsExampleSourceUrl
+    ) {
+        RichTooltipWithManualInvocationSample()
+    }
+)

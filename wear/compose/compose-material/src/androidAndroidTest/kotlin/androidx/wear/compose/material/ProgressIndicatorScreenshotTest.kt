@@ -91,8 +91,8 @@ class ProgressIndicatorScreenshotTest {
     fun determinate_progress_indicator_no_gap() {
         rule.setContentWithTheme {
             CircularProgressIndicator(
-                progress = 0.4f,
                 modifier = Modifier.testTag(TEST_TAG),
+                progress = 0.4f,
                 indicatorColor = Color.Green,
                 trackColor = Color.LightGray
             )
@@ -107,8 +107,8 @@ class ProgressIndicatorScreenshotTest {
     fun determinate_progress_indicator_with_gap() {
         rule.setContentWithTheme {
             CircularProgressIndicator(
-                progress = 0.5f,
                 modifier = Modifier.testTag(TEST_TAG),
+                progress = 0.5f,
                 startAngle = -45f,
                 endAngle = 225f,
                 indicatorColor = Color.Green,
@@ -125,8 +125,8 @@ class ProgressIndicatorScreenshotTest {
     fun determinate_progress_indicator_custom_stroke_width() {
         rule.setContentWithTheme {
             CircularProgressIndicator(
-                progress = 0.4f,
                 modifier = Modifier.testTag(TEST_TAG),
+                progress = 0.4f,
                 indicatorColor = Color.Green,
                 trackColor = Color.Yellow,
                 strokeWidth = 10.dp

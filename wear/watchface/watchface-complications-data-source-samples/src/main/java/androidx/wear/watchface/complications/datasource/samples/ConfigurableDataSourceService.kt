@@ -38,11 +38,9 @@ class ConfigurableDataSourceService : ComplicationDataSourceService() {
         listener.onComplicationData(makeComplicationData(value))
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? {
-        return when (type) {
-            ComplicationType.SHORT_TEXT -> makeComplicationData(DEFAULT_VALUE)
-            else -> null
-        }
+    override fun getPreviewData(type: ComplicationType) = when (type) {
+        ComplicationType.SHORT_TEXT -> makeComplicationData(DEFAULT_VALUE)
+        else -> null
     }
 
     private fun makeComplicationData(value: Int): ComplicationData {

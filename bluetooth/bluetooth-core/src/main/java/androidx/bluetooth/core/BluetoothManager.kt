@@ -16,7 +16,6 @@
 
 package androidx.bluetooth.core
 
-import android.bluetooth.BluetoothAdapter as FwkBluetoothAdapter
 import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import android.bluetooth.BluetoothGattServer as FwkBluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback as FwkBluetoothGattServerCallback
@@ -72,10 +71,8 @@ class BluetoothManager(context: Context) {
      *
      * @return the BLUETOOTH Adapter
      */
-    // TODO(ofy) Change FwkBluetoothAdapter to core.BluetoothAdapter when it is available
-//    @RequiresNoPermission
-    fun getAdapter(): FwkBluetoothAdapter {
-        return fwkBluetoothManager.adapter
+    fun getAdapter(): BluetoothAdapter? {
+        return BluetoothAdapter(fwkBluetoothManager.adapter ?: return null)
     }
 
     /**

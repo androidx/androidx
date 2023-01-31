@@ -58,15 +58,12 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
 
     companion object {
         private const val numPages = 3
-        private var mSystemWindowInsetsConsumedField: Field? = null
-
-        init {
+        private val mSystemWindowInsetsConsumedField: Field? by lazy {
             // Only need reflection on API < 29 to create an unconsumed WindowInsets.
             // On API 29+, a new builder is used that will do that for us.
             if (Build.VERSION.SDK_INT < 29) {
-                mSystemWindowInsetsConsumedField = field("mSystemWindowInsetsConsumed")
-                mSystemWindowInsetsConsumedField!!.isAccessible = true
-            }
+                field("mSystemWindowInsetsConsumed").also { it.isAccessible = true }
+            } else null
         }
 
         @Suppress("SameParameterValue")

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -16,6 +15,11 @@
  */
 package androidx.wear.compose.material
 
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
@@ -48,9 +52,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.unit.Constraints
@@ -94,6 +101,9 @@ import kotlinx.coroutines.launch
  * 0.5. Use 0.0 to disable the gradient.
  * @param gradientColor Should be the color outside of the Picker, so there is continuity.
  * @param flingBehavior logic describing fling behavior.
+ * @param userScrollEnabled Determines whether the picker should be scrollable or not. When
+ * userScrollEnabled = true, picker is scrollable. This is different from [readOnly] as it changes
+ * the scrolling behaviour.
  * @param option A block which describes the content. Inside this block you can reference
  * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
@@ -107,12 +117,13 @@ public fun Picker(
     readOnly: Boolean = false,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     onSelected: () -> Unit = {},
-    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
+    scalingParams: ScalingParams = PickerDefaults.defaultScalingParams(),
     separation: Dp = 0.dp,
     /* @FloatRange(from = 0.0, to = 0.5) */
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    userScrollEnabled: Boolean = true,
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
@@ -138,30 +149,34 @@ public fun Picker(
                 if (!state.isScrollInProgress && contentDescription != null) {
                     this.contentDescription = contentDescription
                 }
+                focused = !readOnly
             }.then(
                 if (!readOnly && gradientRatio > 0.0f) {
-                    Modifier
-                        .drawWithContent {
-                            drawContent()
-                            drawGradient(gradientColor, gradientRatio)
-                        }
-                        // b/223386180 - add padding when drawing rectangles to
-                        // prevent jitter on screen.
-                        .padding(vertical = 1.dp)
-                        .align(Alignment.Center)
-                } else if (readOnly) {
+                        Modifier
+                            .drawWithContent {
+                                drawContent()
+                                drawGradient(gradientColor, gradientRatio)
+                            }
+                            // b/223386180 - add padding when drawing rectangles to
+                            // prevent jitter on screen.
+                            .padding(vertical = 1.dp)
+                            .align(Alignment.Center)
+                    } else if (readOnly) {
                     Modifier
                         .drawWithContent {
                             drawContent()
                             val visibleItems =
                                 state.scalingLazyListState.layoutInfo.visibleItemsInfo
-                            val centerItem =
-                                visibleItems.find { info ->
-                                    info.index == state.scalingLazyListState.centerItemIndex
-                                } ?: visibleItems[visibleItems.size / 2]
-                            val shimHeight = (size.height - centerItem.unadjustedSize.toFloat() -
-                                separation.toPx()) / 2.0f
-                            drawShim(gradientColor, shimHeight)
+                            if (visibleItems.isNotEmpty()) {
+                                val centerItem =
+                                    visibleItems.find { info ->
+                                        info.index == state.scalingLazyListState.centerItemIndex
+                                    } ?: visibleItems[visibleItems.size / 2]
+                                val shimHeight =
+                                    (size.height - centerItem.unadjustedSize.toFloat() -
+                                        separation.toPx()) / 2.0f
+                                drawShim(gradientColor, shimHeight)
+                            }
                         }
                         // b/223386180 - add padding when drawing rectangles to
                         // prevent jitter on screen.
@@ -175,7 +190,11 @@ public fun Picker(
             content = {
                 items(state.numberOfItems()) { ix ->
                     with(pickerScope) {
-                        option((ix + state.optionsOffset) % state.numberOfOptions)
+                        Box(Modifier.graphicsLayer {
+                            compositingStrategy = CompositingStrategy.Offscreen
+                        }) {
+                            option((ix + state.optionsOffset) % state.numberOfOptions)
+                        }
                     }
                 }
             },
@@ -185,7 +204,9 @@ public fun Picker(
             verticalArrangement = Arrangement.spacedBy(
                 space = separation
             ),
-            flingBehavior = flingBehavior
+            flingBehavior = flingBehavior,
+            autoCentering = AutoCenteringParams(itemIndex = 0),
+            userScrollEnabled = userScrollEnabled
         )
         if (readOnly && readOnlyLabel != null) {
             readOnlyLabel()
@@ -206,6 +227,120 @@ public fun Picker(
         }
     }
 }
+
+@Suppress("DEPRECATION")
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available which uses ScalingParams from " +
+        "androidx.wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun Picker(
+    state: PickerState,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    onSelected: () -> Unit = {},
+    scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
+    separation: Dp = 0.dp,
+    /* @FloatRange(from = 0.0, to = 0.5) */
+    gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
+    gradientColor: Color = MaterialTheme.colors.background,
+    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    userScrollEnabled: Boolean = true,
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+) = Picker(
+    state = state,
+    contentDescription = contentDescription,
+    modifier = modifier,
+    readOnly = readOnly,
+    readOnlyLabel = readOnlyLabel,
+    onSelected = onSelected,
+    scalingParams = convertToDefaultFoundationScalingParams(scalingParams),
+    separation = separation,
+    gradientRatio = gradientRatio,
+    gradientColor = gradientColor,
+    flingBehavior = flingBehavior,
+    userScrollEnabled = userScrollEnabled,
+    option = option
+)
+
+/**
+ * A scrollable list of items to pick from. By default, items will be repeated
+ * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
+ *
+ * Example of a simple picker to select one of five options:
+ * @sample androidx.wear.compose.material.samples.SimplePicker
+ *
+ * Example of dual pickers, where clicking switches which one is editable and which is read-only:
+ * @sample androidx.wear.compose.material.samples.DualPicker
+ *
+ * @param state The state of the component
+ * @param contentDescription Text used by accessibility services to describe what the
+ * selected option represents. This text should be localized, such as by using
+ * [androidx.compose.ui.res.stringResource] or similar. Typically, the content description is
+ * inferred via derivedStateOf to avoid unnecessary recompositions, like this:
+ * val description by remember { derivedStateOf { /* expression using state.selectedOption */ } }
+ * @param modifier Modifier to be applied to the Picker
+ * @param readOnly Determines whether the Picker should display other available options for this
+ * field, inviting the user to scroll to change the value. When readOnly = true,
+ * only displays the currently selected option (and optionally a label). This is intended to be
+ * used for screens that display multiple Pickers, only one of which has the focus at a time.
+ * @param readOnlyLabel A slot for providing a label, displayed above the selected option
+ * when the [Picker] is read-only. The label is overlaid with the currently selected
+ * option within a Box, so it is recommended that the label is given [Alignment.TopCenter].
+ * @param onSelected Action triggered when the Picker is selected by clicking. Used by
+ * accessibility semantics, which facilitates implementation of multi-picker screens.
+ * @param scalingParams The parameters to configure the scaling and transparency effects for the
+ * component. See [ScalingParams]
+ * @param separation The amount of separation in [Dp] between items. Can be negative, which can be
+ * useful for Text if it has plenty of whitespace.
+ * @param gradientRatio The size relative to the Picker height that the top and bottom gradients
+ * take. These gradients blur the picker content on the top and bottom. The default is 0.33,
+ * so the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
+ * 0.5. Use 0.0 to disable the gradient.
+ * @param gradientColor Should be the color outside of the Picker, so there is continuity.
+ * @param flingBehavior logic describing fling behavior.
+ * @param option A block which describes the content. Inside this block you can reference
+ * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
+ * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
+ * align with the centrally selected Picker value.
+ */
+@Suppress("DEPRECATION")
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+    "A newer overload is available with additional userScrollEnabled parameter which improves " +
+    "accessibility of [Picker].", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun Picker(
+    state: PickerState,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    onSelected: () -> Unit = {},
+    scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
+    separation: Dp = 0.dp,
+    /* @FloatRange(from = 0.0, to = 0.5) */
+    gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
+    gradientColor: Color = MaterialTheme.colors.background,
+    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+) = Picker(
+    state = state,
+    contentDescription = contentDescription,
+    modifier = modifier,
+    readOnly = readOnly,
+    readOnlyLabel = readOnlyLabel,
+    onSelected = onSelected,
+    scalingParams = convertToDefaultFoundationScalingParams(scalingParams),
+    separation = separation,
+    gradientRatio = gradientRatio,
+    gradientColor = gradientColor,
+    flingBehavior = flingBehavior,
+    userScrollEnabled = true,
+    option = option
+)
 
 /**
  * A scrollable list of items to pick from. By default, items will be repeated
@@ -241,16 +376,17 @@ public fun Picker(
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
  * align with the centrally selected Picker value.
  */
+@Suppress("DEPRECATION")
 @Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
-  "A newer overload is available with additional contentDescription and onSelected parameters, " +
-  "which improves accessibility of [Picker].")
+  "A newer overload is available with additional contentDescription, onSelected and " +
+  "userScrollEnabled parameters, which improves accessibility of [Picker].")
 @Composable
 public fun Picker(
     state: PickerState,
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
-    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
+    scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
     /* @FloatRange(from = 0.0, to = 0.5) */
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
@@ -263,11 +399,12 @@ public fun Picker(
     modifier = modifier,
     readOnly = readOnly,
     readOnlyLabel = readOnlyLabel,
-    scalingParams = scalingParams,
+    scalingParams = convertToDefaultFoundationScalingParams(scalingParams),
     separation = separation,
     gradientRatio = gradientRatio,
     gradientColor = gradientColor,
     flingBehavior = flingBehavior,
+    userScrollEnabled = true,
     option = option
 )
 
@@ -320,9 +457,14 @@ public fun rememberPickerState(
     initialNumberOfOptions: Int,
     initiallySelectedOption: Int = 0,
     repeatItems: Boolean = true
-): PickerState = rememberSaveable(saver = PickerState.Saver) {
-    PickerState(initialNumberOfOptions, initiallySelectedOption, repeatItems)
-}
+): PickerState = rememberSaveable(
+        initialNumberOfOptions,
+        initiallySelectedOption,
+        repeatItems,
+        saver = PickerState.Saver
+    ) {
+        PickerState(initialNumberOfOptions, initiallySelectedOption, repeatItems)
+    }
 
 /**
  * A state object that can be hoisted to observe item selection.
@@ -389,8 +531,6 @@ public class PickerState constructor(
 
     /**
      * Instantly scroll to an item.
-     * Note that for this to work properly, all options need to have the same height, and this can
-     * only be called after the Picker has been laid out.
      *
      * @sample androidx.wear.compose.material.samples.OptionChangePicker
      *
@@ -424,7 +564,6 @@ public class PickerState constructor(
                 )
             },
             restore = { saved ->
-                @Suppress("UNCHECKED_CAST")
                 PickerState(
                     initialNumberOfOptions = saved[0] as Int,
                     initiallySelectedOption = saved[1] as Int,
@@ -448,6 +587,12 @@ public class PickerState constructor(
     public override val isScrollInProgress: Boolean
         get() = scalingLazyListState.isScrollInProgress
 
+    override val canScrollForward: Boolean
+        get() = scalingLazyListState.canScrollForward
+
+    override val canScrollBackward: Boolean
+        get() = scalingLazyListState.canScrollBackward
+
     private fun verifyNumberOfOptions(numberOfOptions: Int) {
         require(numberOfOptions > 0) { "The picker should have at least one item." }
         require(numberOfOptions < LARGE_NUMBER_OF_ITEMS / 3) {
@@ -456,14 +601,27 @@ public class PickerState constructor(
         }
     }
 }
+
 /**
  * Contains the default values used by [Picker]
  */
 public object PickerDefaults {
+
     /**
      * Scaling params are used to determine when items start to be scaled down and alpha applied,
      * and how much. For details, see [ScalingParams]
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "This overload is provided for backwards compatibility with Compose for" +
+            " Wear OS 1.1 and was deprecated. Use [defaultScalingParams] instead",
+        replaceWith = ReplaceWith(
+            "PickerDefaults.defaultScalingParams(edgeScale," +
+                " edgeAlpha, minElementHeight, maxElementHeight, minTransitionArea, " +
+                "maxTransitionArea, scaleInterpolator, viewportVerticalOffsetResolver)"
+        ),
+        level = DeprecationLevel.WARNING
+    )
     public fun scalingParams(
         edgeScale: Float = 0.45f,
         edgeAlpha: Float = 1.0f,
@@ -473,16 +631,42 @@ public object PickerDefaults {
         maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
-    ): ScalingParams = DefaultScalingParams(
-        edgeScale = edgeScale,
-        edgeAlpha = edgeAlpha,
-        minElementHeight = minElementHeight,
-        maxElementHeight = maxElementHeight,
-        minTransitionArea = minTransitionArea,
-        maxTransitionArea = maxTransitionArea,
-        scaleInterpolator = scaleInterpolator,
-        viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
-    )
+    ): androidx.wear.compose.material.ScalingParams =
+        androidx.wear.compose.material.ScalingLazyColumnDefaults.scalingParams(
+            edgeScale = edgeScale,
+            edgeAlpha = edgeAlpha,
+            minElementHeight = minElementHeight,
+            maxElementHeight = maxElementHeight,
+            minTransitionArea = minTransitionArea,
+            maxTransitionArea = maxTransitionArea,
+            scaleInterpolator = scaleInterpolator,
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+        )
+
+    /**
+     * Scaling params are used to determine when items start to be scaled down and alpha applied,
+     * and how much. For details, see [ScalingParams]
+     */
+    public fun defaultScalingParams(
+        edgeScale: Float = 0.45f,
+        edgeAlpha: Float = 1.0f,
+        minElementHeight: Float = 0.0f,
+        maxElementHeight: Float = 0.0f,
+        minTransitionArea: Float = 0.45f,
+        maxTransitionArea: Float = 0.45f,
+        scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
+        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
+    ): ScalingParams =
+        ScalingLazyColumnDefaults.scalingParams(
+            edgeScale = edgeScale,
+            edgeAlpha = edgeAlpha,
+            minElementHeight = minElementHeight,
+            maxElementHeight = maxElementHeight,
+            minTransitionArea = minTransitionArea,
+            maxTransitionArea = maxTransitionArea,
+            scaleInterpolator = scaleInterpolator,
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+        )
 
     /**
      * Create and remember a [FlingBehavior] that will represent natural fling curve with snap to
@@ -496,14 +680,13 @@ public object PickerDefaults {
         state: PickerState,
         decay: DecayAnimationSpec<Float> = exponentialDecay()
     ): FlingBehavior {
-        return remember(state, decay) {
-            ScalingLazyColumnSnapFlingBehavior(
-                state = state.scalingLazyListState,
-                snapOffset = 0,
-                decay = decay
-            )
-        }
+        return ScalingLazyColumnDefaults.snapFlingBehavior(
+            state = state.scalingLazyListState,
+            snapOffset = 0.dp,
+            decay = decay
+        )
     }
+
     /**
      * Default Picker gradient ratio - the proportion of the Picker height allocated to each of the
      * of the top and bottom gradients.
@@ -522,6 +705,22 @@ public interface PickerScope {
 }
 
 private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
+
+private fun convertToDefaultFoundationScalingParams(
+    @Suppress("DEPRECATION")
+    scalingParams: androidx.wear.compose.material.ScalingParams
+): ScalingParams = PickerDefaults.defaultScalingParams(
+    edgeScale = scalingParams.edgeScale,
+    edgeAlpha = scalingParams.edgeAlpha,
+    minElementHeight = scalingParams.minElementHeight,
+    maxElementHeight = scalingParams.maxElementHeight,
+    minTransitionArea = scalingParams.minTransitionArea,
+    maxTransitionArea = scalingParams.maxTransitionArea,
+    scaleInterpolator = scalingParams.scaleInterpolator,
+    viewportVerticalOffsetResolver = { viewportConstraints ->
+        scalingParams.resolveViewportVerticalOffset(viewportConstraints)
+    }
+)
 
 @Stable
 private class PickerScopeImpl(

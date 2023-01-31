@@ -24,6 +24,14 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:longClickable="true"
         android:text="Long Click Me!" />
+
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:longClickable="false"
+        android:text="Not-long-clickable TextView" />
 
 </LinearLayout>

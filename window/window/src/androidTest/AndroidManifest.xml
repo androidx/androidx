@@ -21,7 +21,7 @@
         <activity android:name="androidx.window.TestConfigChangeHandlingActivity"
             android:configChanges="orientation|screenLayout|screenSize"/>
 
-        <!-- ActivityEmbedding Property -->
+        <!-- Activity embedding property -->
         <property
             android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
             android:value="true" />

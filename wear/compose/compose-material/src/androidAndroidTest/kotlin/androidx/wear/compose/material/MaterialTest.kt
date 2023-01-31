@@ -19,9 +19,9 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
@@ -67,11 +67,11 @@ internal const val TEST_TAG = "test-item"
 
 fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
-    composable: @Composable () -> Unit
+    composable: @Composable BoxScope.() -> Unit
 ) {
     setContent {
         MaterialTheme {
-            Surface(modifier = modifier, content = composable)
+            Box(modifier = modifier, content = composable)
         }
     }
 }
@@ -84,16 +84,14 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
 ): SemanticsNodeInteraction {
     setContent {
         MaterialTheme {
-            Surface {
-                Box {
-                    Box(
-                        Modifier.sizeIn(
-                            maxWidth = parentMaxWidth,
-                            maxHeight = parentMaxHeight
-                        ).testTag("containerForSizeAssertion")
-                    ) {
-                        content()
-                    }
+            Box {
+                Box(
+                    Modifier.sizeIn(
+                        maxWidth = parentMaxWidth,
+                        maxHeight = parentMaxHeight
+                    ).testTag("containerForSizeAssertion")
+                ) {
+                    content()
                 }
             }
         }
@@ -344,3 +342,5 @@ private fun writeToDevice(
     }
     return file
 }
+
+class StableRef<T>(var value: T)

@@ -18,11 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -30,11 +30,10 @@ import java.util.Objects;
  * Represents an {@link ItemList} that is contained inside a section, for internal use only.
  */
 @CarProtocol
+@KeepFields
 public final class SectionedItemList {
-    @Keep
     @Nullable
     private final ItemList mItemList;
-    @Keep
     @Nullable
     private final CarText mHeader;
 

@@ -69,8 +69,10 @@ import java.util.concurrent.Executors;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AppSearchDebugActivity extends FragmentActivity {
     private static final String TAG = "AppSearchDebugActivity";
+    public static final String TARGET_PACKAGE_NAME_INTENT_KEY = "targetPackageName";
     public static final String DB_INTENT_KEY = "databaseName";
     public static final String STORAGE_TYPE_INTENT_KEY = "storageType";
+    public static final String SEARCH_TYPE_INTENT_KEY = "searchType";
 
     private String mDbName;
     private ListenableFuture<DebugAppSearchManager> mDebugAppSearchManager;
@@ -87,6 +89,17 @@ public class AppSearchDebugActivity extends FragmentActivity {
     public static final int STORAGE_TYPE_LOCAL = 0;
     public static final int STORAGE_TYPE_PLATFORM = 1;
 
+    @IntDef(value = {
+            SEARCH_TYPE_LOCAL,
+            SEARCH_TYPE_GLOBAL,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SearchType {
+    }
+
+    public static final int SEARCH_TYPE_LOCAL = 0;
+    public static final int SEARCH_TYPE_GLOBAL = 1;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,11 +107,16 @@ public class AppSearchDebugActivity extends FragmentActivity {
 
         mBackgroundExecutor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
         mDbName = getIntent().getExtras().getString(DB_INTENT_KEY);
+        String targetPackageName =
+                getIntent().getExtras().getString(TARGET_PACKAGE_NAME_INTENT_KEY);
         @StorageType int storageType =
                 getIntent().getExtras().getInt(STORAGE_TYPE_INTENT_KEY);
+        @SearchType int searchType =
+                getIntent().getExtras().getInt(SEARCH_TYPE_INTENT_KEY);
         try {
             mDebugAppSearchManager = DebugAppSearchManager.createAsync(
-                    getApplicationContext(), mBackgroundExecutor, mDbName, storageType);
+                    getApplicationContext(), mBackgroundExecutor, mDbName, targetPackageName,
+                    storageType, searchType);
         } catch (AppSearchException e) {
             Toast.makeText(getApplicationContext(),
                     "Failed to initialize AppSearch: " + e.getMessage(),

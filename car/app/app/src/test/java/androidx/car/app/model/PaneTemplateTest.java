@@ -149,12 +149,7 @@ public class PaneTemplateTest {
         }).build();
         Row rowMeetingRestrictions =
                 new Row.Builder().setTitle("Title").addText("text1").addText("text2").build();
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new PaneTemplate.Builder(new Pane.Builder().addRow(rowWithToggle).build())
-                                .setTitle("Title")
-                                .build());
+
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -164,6 +159,10 @@ public class PaneTemplateTest {
                                 .build());
 
         // Positive cases.
+        new PaneTemplate.Builder(new Pane.Builder().addRow(rowWithToggle).build())
+                                .setTitle("Title")
+                                .build();
+
         new PaneTemplate.Builder(new Pane.Builder().addRow(rowMeetingRestrictions).build())
                 .setTitle("Title")
                 .build();

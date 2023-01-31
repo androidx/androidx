@@ -22,16 +22,14 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
-import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -41,8 +39,11 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
-import androidx.testutils.RepeatRule
+import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -66,8 +67,7 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
     )
 
     @get:Rule
-    val storagePermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
+    val permissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -83,18 +83,12 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         fun parameters() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
     }
 
+    private var isTestStarted = false
+
     @Before
     fun setup() {
         assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
 
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
@@ -112,13 +106,25 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
 
         firstSupportedExtensionMode =
             CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(extensionsManager, cameraId)
+
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        device.setOrientationNatural()
+        isTestStarted = true
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        cameraProvider.shutdown()
+        withContext(Dispatchers.Main) {
+            cameraProvider.shutdown()
+        }
 
         val extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -126,28 +132,32 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         )[10000, TimeUnit.MILLISECONDS]
         extensionsManager.shutdown()
 
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
+        if (isTestStarted) {
+            // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+            // to other tests :)
+            device.unfreezeRotation()
+            device.pressHome()
+            device.waitForIdle(HOME_TIMEOUT_MS)
+        }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun switchModeTenTimes_canCaptureImageInEachTime() {
         val activityScenario = launchCameraExtensionsActivity(cameraId, firstSupportedExtensionMode)
 
         with(activityScenario) {
             use {
-                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                waitForPreviewViewStreaming()
+
+                repeat(CameraXExtensionsTestUtil.getStressTestRepeatingCount()) {
+                    withActivity { resetPreviewViewStreamingStateIdlingResource() }
+
                     // Switches to next available mode
                     Espresso.onView(ViewMatchers.withId(R.id.PhotoToggle))
                         .perform(ViewActions.click())
 
                     // Waits for preview view turned to STREAMING state after switching mode
-                    waitForPreviewIdle()
+                    waitForPreviewViewStreaming()
 
                     // Waits for the take picture success callback.
                     takePictureAndWaitForImageSavedIdle()
@@ -156,22 +166,27 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterSwitchModeTenTimes() {
         val activityScenario = launchCameraExtensionsActivity(cameraId, firstSupportedExtensionMode)
 
         with(activityScenario) {
             use {
-                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                waitForPreviewViewStreaming()
+
+                repeat(CameraXExtensionsTestUtil.getStressTestRepeatingCount()) {
+                    withActivity { resetPreviewViewStreamingStateIdlingResource() }
+
                     // Switches to next available mode
                     Espresso.onView(ViewMatchers.withId(R.id.PhotoToggle))
                         .perform(ViewActions.click())
 
-                    // Waits for the take picture success callback.
-                    takePictureAndWaitForImageSavedIdle()
+                    // Waits for preview view turned to STREAMING state after switching mode
+                    waitForPreviewViewStreaming()
                 }
+
+                // Waits for the take picture success callback.
+                takePictureAndWaitForImageSavedIdle()
             }
         }
     }

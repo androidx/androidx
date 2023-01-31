@@ -64,5 +64,5 @@ android {
 dependencies {
     implementation "${LibraryGroups.NAVIGATION}:navigation-runtime:${LibraryVersions.NAVIGATION}"
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }

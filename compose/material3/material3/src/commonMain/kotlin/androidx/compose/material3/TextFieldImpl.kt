@@ -69,13 +69,16 @@ internal fun CommonDecorationBox(
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
     singleLine: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
     interactionSource: InteractionSource,
     contentPadding: PaddingValues,
     colors: TextFieldColors,
-    border: @Composable (() -> Unit)? = null
+    container: @Composable () -> Unit,
 ) {
     val transformedText = remember(value, visualTransformation) {
         visualTransformation.filter(AnnotatedString(value))
@@ -109,7 +112,8 @@ internal fun CommonDecorationBox(
         },
         contentColor = labelColor,
         showLabel = label != null
-    ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlphaProgress ->
+    ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlphaProgress,
+        prefixSuffixAlphaProgress ->
 
         val decoratedLabel: @Composable (() -> Unit)? = label?.let {
             @Composable {
@@ -137,6 +141,24 @@ internal fun CommonDecorationBox(
                 }
             } else null
 
+        val prefixColor = colors.prefixColor(enabled, isError, interactionSource).value
+        val decoratedPrefix: @Composable (() -> Unit)? = prefix?.let {
+            @Composable {
+                Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                    Decoration(contentColor = prefixColor, typography = bodyLarge, content = it)
+                }
+            }
+        }
+
+        val suffixColor = colors.suffixColor(enabled, isError, interactionSource).value
+        val decoratedSuffix: @Composable (() -> Unit)? = suffix?.let {
+            @Composable {
+                Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                    Decoration(contentColor = suffixColor, typography = bodyLarge, content = it)
+                }
+            }
+        }
+
         // Developers need to handle invalid input manually. But since we don't provide error
         // message slot API, we can set the default error message in case developers forget about
         // it.
@@ -157,8 +179,23 @@ internal fun CommonDecorationBox(
             }
         }
 
+        val supportingTextColor =
+            colors.supportingTextColor(enabled, isError, interactionSource).value
+        val decoratedSupporting: @Composable (() -> Unit)? = supportingText?.let {
+            @Composable {
+                Decoration(contentColor = supportingTextColor, typography = bodySmall, content = it)
+            }
+        }
+
         when (type) {
             TextFieldType.Filled -> {
+                val containerWithId: @Composable () -> Unit = {
+                    Box(Modifier.layoutId(ContainerId),
+                        propagateMinConstraints = true) {
+                        container()
+                    }
+                }
+
                 TextFieldLayout(
                     modifier = decorationBoxModifier,
                     textField = innerTextField,
@@ -166,6 +203,10 @@ internal fun CommonDecorationBox(
                     label = decoratedLabel,
                     leading = decoratedLeading,
                     trailing = decoratedTrailing,
+                    prefix = decoratedPrefix,
+                    suffix = decoratedSuffix,
+                    container = containerWithId,
+                    supporting = decoratedSupporting,
                     singleLine = singleLine,
                     animationProgress = labelProgress,
                     paddingValues = contentPadding
@@ -174,12 +215,14 @@ internal fun CommonDecorationBox(
             TextFieldType.Outlined -> {
                 // Outlined cutout
                 val labelSize = remember { mutableStateOf(Size.Zero) }
-                val drawBorder: @Composable () -> Unit = {
+                val borderContainerWithId: @Composable () -> Unit = {
                     Box(
-                        Modifier.layoutId(BorderId).outlineCutout(labelSize.value, contentPadding),
+                        Modifier
+                            .layoutId(ContainerId)
+                            .outlineCutout(labelSize.value, contentPadding),
                         propagateMinConstraints = true
                     ) {
-                        border?.invoke()
+                        container()
                     }
                 }
 
@@ -190,6 +233,9 @@ internal fun CommonDecorationBox(
                     label = decoratedLabel,
                     leading = decoratedLeading,
                     trailing = decoratedTrailing,
+                    prefix = decoratedPrefix,
+                    suffix = decoratedSuffix,
+                    supporting = decoratedSupporting,
                     singleLine = singleLine,
                     onLabelMeasured = {
                         val labelWidth = it.width * labelProgress
@@ -201,7 +247,7 @@ internal fun CommonDecorationBox(
                         }
                     },
                     animationProgress = labelProgress,
-                    border = drawBorder,
+                    container = borderContainerWithId,
                     paddingValues = contentPadding
                 )
             }
@@ -242,7 +288,8 @@ private object TextFieldTransitionScope {
             labelProgress: Float,
             labelTextStyleColor: Color,
             labelContentColor: Color,
-            placeholderOpacity: Float
+            placeholderOpacity: Float,
+            prefixSuffixOpacity: Float,
         ) -> Unit
     ) {
         // Transitions from/to InputPhase.Focused are the most critical in the transition below.
@@ -289,6 +336,17 @@ private object TextFieldTransitionScope {
             }
         }
 
+        val prefixSuffixOpacity by transition.animateFloat(
+            label = "PrefixSuffixOpacity",
+            transitionSpec = { tween(durationMillis = AnimationDuration) }
+        ) {
+            when (it) {
+                InputPhase.Focused -> 1f
+                InputPhase.UnfocusedEmpty -> if (showLabel) 0f else 1f
+                InputPhase.UnfocusedNotEmpty -> 1f
+            }
+        }
+
         val labelTextStyleColor by transition.animateColor(
             transitionSpec = { tween(durationMillis = AnimationDuration) },
             label = "LabelTextStyleColor"
@@ -309,7 +367,8 @@ private object TextFieldTransitionScope {
             labelProgress,
             labelTextStyleColor,
             labelContentColor,
-            placeholderOpacity
+            placeholderOpacity,
+            prefixSuffixOpacity,
         )
     }
 }
@@ -336,6 +395,10 @@ internal const val PlaceholderId = "Hint"
 internal const val LabelId = "Label"
 internal const val LeadingId = "Leading"
 internal const val TrailingId = "Trailing"
+internal const val PrefixId = "Prefix"
+internal const val SuffixId = "Suffix"
+internal const val SupportingId = "Supporting"
+internal const val ContainerId = "Container"
 internal val ZeroConstraints = Constraints(0, 0, 0, 0)
 
 internal const val AnimationDuration = 150
@@ -344,5 +407,7 @@ private const val PlaceholderAnimationDelayOrDuration = 67
 
 internal val TextFieldPadding = 16.dp
 internal val HorizontalIconPadding = 12.dp
+internal val SupportingTopPadding = 4.dp
+internal val PrefixSuffixTextPadding = 2.dp
 
 internal val IconDefaultSizeModifier = Modifier.defaultMinSize(48.dp, 48.dp)

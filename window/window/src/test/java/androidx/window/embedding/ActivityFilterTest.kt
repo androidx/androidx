@@ -16,46 +16,57 @@
 
 package androidx.window.embedding
 
-import android.content.ComponentName
-import androidx.window.core.ExperimentalWindowApi
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import android.app.Activity
+import androidx.window.core.ActivityComponentInfo
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
  * The unit tests for [ActivityFilter] that will test construction.
  */
-@OptIn(ExperimentalWindowApi::class)
 class ActivityFilterTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun packageNameMustNotBeEmpty() {
-        val component = componentName("", "class")
-        ActivityFilter(component, null)
+        val activityComponentInfo = ActivityComponentInfo(EMPTY, FAKE_CLASS)
+        ActivityFilter(activityComponentInfo, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun classNameMustNotBeEmpty() {
-        val component = componentName("package", "")
-        ActivityFilter(component, null)
+        val activityComponentInfo = ActivityComponentInfo(FAKE_PACKAGE, EMPTY)
+        ActivityFilter(activityComponentInfo, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun packageNameCannotContainWildcard() {
-        val component = componentName("fake.*.package", "class")
-        ActivityFilter(component, null)
+        val activityComponentInfo = ActivityComponentInfo(FAKE_PACKAGE_WILDCARD_INSIDE, FAKE_CLASS)
+        ActivityFilter(activityComponentInfo, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun classNameCannotContainWildcard() {
-        val component = componentName("package", "fake.*.class")
-        ActivityFilter(component, null)
+        val activityComponentInfo = ActivityComponentInfo(FAKE_PACKAGE, FAKE_CLASS_WILDCARD_INSIDE)
+        ActivityFilter(activityComponentInfo, null)
     }
 
-    private fun componentName(pkg: String, cls: String?): ComponentName {
-        return mock<ComponentName>().apply {
-            whenever(this.packageName).thenReturn(pkg)
-            whenever(this.className).thenReturn(cls)
-        }
+    @Test
+    fun equalsImpliesSameHashCode() {
+        val first = ActivityFilter(ActivityComponentInfo(FAKE_PACKAGE, FAKE_CLASS), null)
+        val second = ActivityFilter(ActivityComponentInfo(FAKE_PACKAGE, FAKE_CLASS), null)
+
+        assertEquals(first, second)
+        assertEquals(first.hashCode(), second.hashCode())
+    }
+
+    private class FakeClass : Activity()
+
+    companion object {
+        private const val EMPTY: String = ""
+        private const val FAKE_PACKAGE: String = "fake.package"
+        private const val FAKE_PACKAGE_WILDCARD_INSIDE = "fake.*.package"
+        private const val FAKE_CLASS: String = "FakeClass"
+        private const val FAKE_CLASS_WILDCARD_INSIDE = "fake.*.FakeClass"
+        private const val FAKE_CLASS_WILDCARD_VALID = "fake.class.*"
     }
 }

@@ -146,9 +146,9 @@ class JankStatsTest {
         val frameData24Copy = FrameDataApi24(0, 0, 0, true, states1)
         val frameData24A = FrameDataApi24(0, 0, 1, true, states1)
 
-        val frameData31 = FrameDataApi31(0, 0, 0, 0, true, states1)
-        val frameData31Copy = FrameDataApi31(0, 0, 0, 0, true, states1)
-        val frameData31A = FrameDataApi31(0, 0, 0, 1, true, states1)
+        val frameData31 = FrameDataApi31(0, 0, 0, 0, 0, true, states1)
+        val frameData31Copy = FrameDataApi31(0, 0, 0, 0, 0, true, states1)
+        val frameData31A = FrameDataApi31(0, 0, 0, 1, 0, true, states1)
 
         assertEquals(frameDataBase, frameDataBase)
         assertEquals(frameDataBase, frameDataBaseCopy)

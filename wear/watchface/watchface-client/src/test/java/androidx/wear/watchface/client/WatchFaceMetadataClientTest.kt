@@ -28,10 +28,10 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
+import org.mockito.kotlin.any
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import org.mockito.Mockito.`when`
 
 @RunWith(ClientTestRunner::class)

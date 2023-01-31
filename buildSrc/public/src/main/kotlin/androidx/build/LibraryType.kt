@@ -59,7 +59,8 @@ sealed class LibraryType(
     val publish: Publish = Publish.NONE,
     val sourceJars: Boolean = false,
     val checkApi: RunApiTasks = RunApiTasks.No("Unknown Library Type"),
-    val compilationTarget: CompilationTarget = CompilationTarget.DEVICE
+    val compilationTarget: CompilationTarget = CompilationTarget.DEVICE,
+    val allowCallingVisibleForTestsApis: Boolean = false
 ) {
     val name: String
         get() = javaClass.simpleName
@@ -69,6 +70,7 @@ sealed class LibraryType(
         val PUBLISHED_TEST_LIBRARY = PublishedTestLibrary()
         val PUBLISHED_NATIVE_LIBRARY = PublishedNativeLibrary()
         val INTERNAL_TEST_LIBRARY = InternalTestLibrary()
+        val INTERNAL_HOST_TEST_LIBRARY = InternalHostTestLibrary()
         val SAMPLES = Samples()
         val LINT = Lint()
         val COMPILER_DAEMON = CompilerDaemon()
@@ -79,18 +81,26 @@ sealed class LibraryType(
         val ANNOTATION_PROCESSOR_UTILS = AnnotationProcessorUtils()
         val OTHER_CODE_PROCESSOR = OtherCodeProcessor()
         val IDE_PLUGIN = IdePlugin()
-        val KMP_LIBRARY = KmpLibrary()
         val UNSET = Unset()
     }
-    open class PublishedLibrary : LibraryType(
+    open class PublishedLibrary(allowCallingVisibleForTestsApis: Boolean = false) : LibraryType(
         publish = Publish.SNAPSHOT_AND_RELEASE,
         sourceJars = true,
-        checkApi = RunApiTasks.Yes()
+        checkApi = RunApiTasks.Yes(),
+        allowCallingVisibleForTestsApis = allowCallingVisibleForTestsApis
+    )
+    open class InternalLibrary(
+        compilationTarget: CompilationTarget = CompilationTarget.DEVICE,
+        allowCallingVisibleForTestsApis: Boolean = false
+    ) : LibraryType(
+        checkApi = RunApiTasks.No("Internal Library"),
+        compilationTarget = compilationTarget,
+        allowCallingVisibleForTestsApis = allowCallingVisibleForTestsApis
     )
 
-    class PublishedTestLibrary() : PublishedLibrary()
-    open class InternalLibrary() : LibraryType()
-    class InternalTestLibrary() : InternalLibrary()
+    class PublishedTestLibrary() : PublishedLibrary(allowCallingVisibleForTestsApis = true)
+    class InternalTestLibrary() : InternalLibrary(allowCallingVisibleForTestsApis = true)
+    class InternalHostTestLibrary() : InternalLibrary(CompilationTarget.HOST)
     class PublishedNativeLibrary : PublishedLibrary()
     class Samples : LibraryType(
         publish = Publish.SNAPSHOT_AND_RELEASE,
@@ -153,12 +163,6 @@ sealed class LibraryType(
         checkApi = RunApiTasks.No("IDE Plugin (consumed only by Android Studio"),
         // This is a bit complicated. IDE plugins usually have an on-device component installed by
         // Android Studio, rather than by a client of the library, but also a host-side component.
-        compilationTarget = CompilationTarget.DEVICE
-    )
-    class KmpLibrary : LibraryType(
-        publish = Publish.SNAPSHOT_AND_RELEASE,
-        sourceJars = true,
-        checkApi = RunApiTasks.Yes(),
         compilationTarget = CompilationTarget.DEVICE
     )
     class Unset : LibraryType()

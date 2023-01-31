@@ -21,6 +21,7 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.GradleContext
 import com.android.tools.lint.detector.api.GradleScanner
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
@@ -65,14 +66,17 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
         if (library.startsWith("androidx.fragment:fragment-testing") &&
             property != "debugImplementation"
         ) {
-            context.report(
-                ISSUE, statementCookie, context.getLocation(statementCookie),
-                "Replace with debugImplementation.",
-                fix().replace()
-                    .text(property)
-                    .with("debugImplementation")
-                    .build()
-            )
+            val incident = Incident(context)
+                .issue(ISSUE)
+                .location(context.getLocation(statementCookie))
+                .message("Replace with debugImplementation.")
+                .fix(
+                    fix().replace()
+                        .text(property)
+                        .with("debugImplementation")
+                        .build()
+                )
+            context.report(incident)
         }
     }
 

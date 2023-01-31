@@ -16,6 +16,7 @@
 
 package androidx.playground
 
+import androidx.build.SettingsParser
 import org.gradle.api.GradleException
 import org.gradle.api.initialization.Settings
 import java.io.File
@@ -125,7 +126,6 @@ open class PlaygroundExtension @Inject constructor(
 
         includeProject(":lint-checks", "lint-checks")
         includeProject(":lint-checks:integration-tests", "lint-checks/integration-tests")
-        includeProject(":fakeannotations", "fakeannotations")
         includeProject(":internal-testutils-common", "testutils/testutils-common")
         includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin")
 
@@ -164,8 +164,6 @@ open class PlaygroundExtension @Inject constructor(
         if (name == ":compose:lint:common-test") return true
         if (name == ":test:screenshot:screenshot") return true
         if (name == ":test:screenshot:screenshot-proto") return true
-        if (name == ":lifecycle:lifecycle-common") return true
-        if (name == ":lifecycle:lifecycle-common-java8") return true
         return false
     }
 }

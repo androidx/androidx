@@ -39,11 +39,11 @@ struggled or found yourself writing duplicate testing code, there is room for
 improvement.
 
 To get started with sample code, see
-[Sample code in Kotlin modules](api_guidelines.md#sample-code-in-kotlin-modules)
+[Sample code in Kotlin modules](/company/teams/androidx/api_guidelines/index.md#sample-code-in-kotlin-modules)
 for information on writing samples that can be referenced from API reference
 documentation or
-[Project directory structure](api_guidelines.md#module-structure) for module
-naming guidelines if you'd like to create a basic test app.
+[Project directory structure](/company/teams/androidx/api_guidelines/index.md#module-structure)
+for module naming guidelines if you'd like to create a basic test app.
 
 ### Avoiding side-effects {#side-effects}
 
@@ -308,8 +308,9 @@ Instead, find a reliable synchronization barrier that guarantees the expected
 state has been reached or the requested action has been completed. This might
 mean adding listeners, callbacks, `ListenableFuture`s, or `LiveData`.
 
-See [Asynchronous work](api_guidelines.md#async) in the API Guidelines for more
-information on exposing the state of asynchronous work to clients.
+See [Asynchronous work](/company/teams/androidx/api_guidelines/index.md#async)
+in the API Guidelines for more information on exposing the state of asynchronous
+work to clients.
 
 ### Calling `Thread.sleep()` as a synchronization barrier
 

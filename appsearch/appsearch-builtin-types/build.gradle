@@ -27,6 +27,9 @@ dependencies {
 
     annotationProcessor project(':appsearch:appsearch-compiler')
 
+    androidTestImplementation project(':appsearch:appsearch')
+    androidTestImplementation project(':appsearch:appsearch-local-storage')
+    androidTestImplementation project(':appsearch:appsearch-test-util')
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -39,7 +42,6 @@ dependencies {
 androidx {
     name = 'AppSearch Builtin Types'
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'Contains AppSearch Document classes and builders for a variety of common ' +
             'objects based on http://schema.org. Data interchange with the system, and other ' +

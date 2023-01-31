@@ -28,7 +28,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,9 +39,12 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentArchLifecycleTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testFragmentAdditionDuringOnStop() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val activityLifecycle = withActivity { lifecycle }
 
@@ -65,7 +71,7 @@ class FragmentArchLifecycleTest {
 
     @Test
     fun testFragmentAdditionDuringOnStopViewLifecycle() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val activityLifecycle = withActivity { lifecycle }
 
@@ -94,7 +100,7 @@ class FragmentArchLifecycleTest {
 
     @Test
     fun testNestedFragmentLifecycle() {
-        with(ActivityScenario.launch(FragmentArchLifecycleActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentArchLifecycleActivity::class.java)) {
 
             val collectedEvents = withActivity { collectedEvents }
 
@@ -141,7 +147,7 @@ class FragmentArchLifecycleTest {
 
     @Test
     fun testNestedFragmentLifecycleOnRemove() {
-        with(ActivityScenario.launch(FragmentArchLifecycleActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentArchLifecycleActivity::class.java)) {
 
             val fm = withActivity { supportFragmentManager }
             val parent = withActivity {
@@ -192,7 +198,7 @@ class FragmentArchLifecycleTest {
 
     @Test
     fun testOverriddenLifecycleFragment() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val fragment = OverriddenLifecycleFragment()
@@ -288,9 +294,8 @@ class OverriddenLifecycleFragment : Fragment() {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
 
-    override fun getLifecycle(): Lifecycle {
-        return lifecycleRegistry
-    }
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

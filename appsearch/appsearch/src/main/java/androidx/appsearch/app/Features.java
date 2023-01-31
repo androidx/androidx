@@ -69,6 +69,47 @@ public interface Features {
     String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_RFC822}.
+     */
+    String TOKENIZER_TYPE_RFC822 = "TOKENIZER_TYPE_RFC822";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric search
+     * features.
+     */
+    String NUMERIC_SEARCH = "NUMERIC_SEARCH";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_VERBATIM} and all other
+     * verbatim search features within the query language that allows clients to search using the
+     * verbatim string operator.
+     *
+     * <p>Ex. '"foo/bar" OR baz' will ensure that 'foo/bar' is treated as a single 'verbatim' token.
+     */
+    String VERBATIM_SEARCH = "VERBATIM_SEARCH";
+
+    /** Feature for {@link #isFeatureSupported}. This feature covers
+     * {@link SearchSpec.Builder#setPropertyWeights}.
+     */
+    String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#setRankingStrategy(String)}.
+     */
+    String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID},
+     * {@link SearchSpec.Builder#setJoinSpec}, and all other join features.
+     */
+    String JOIN_SPEC_AND_QUALIFIED_ID = "JOIN_SPEC_AND_QUALIFIED_ID";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

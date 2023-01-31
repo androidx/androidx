@@ -22,24 +22,21 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
-import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
-import androidx.testutils.RepeatRule
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import org.junit.After
@@ -67,8 +64,7 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
     )
 
     @get:Rule
-    val storagePermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
+    val permissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -83,19 +79,11 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
         fun parameters() = ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
     }
 
+    private var isTestStarted = false
     @Before
     fun setup() {
         assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
@@ -122,6 +110,16 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
                 DEFAULT_BACK_CAMERA_ID
             )
         }
+
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        device.setOrientationNatural()
+        isTestStarted = true
     }
 
     @After
@@ -136,16 +134,16 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
         )[10000, TimeUnit.MILLISECONDS]
         extensionsManager.shutdown()
 
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
+        if (isTestStarted) {
+            // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+            // to other tests :)
+            device.unfreezeRotation()
+            device.pressHome()
+            device.waitForIdle(HOME_TIMEOUT_MS)
+        }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun switchCameraTenTimes_canCaptureImageInEachTime() {
         val activityScenario = launchCameraExtensionsActivity(
             DEFAULT_BACK_CAMERA_ID,
@@ -154,7 +152,7 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
 
         with(activityScenario) {
             use {
-                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                repeat(CameraXExtensionsTestUtil.getStressTestRepeatingCount()) {
                     // Waits for the take picture success callback.
                     takePictureAndWaitForImageSavedIdle()
 
@@ -167,15 +165,13 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
                     }
 
                     // Waits for preview view turned to STREAMING state after switching camera
-                    waitForPreviewIdle()
+                    waitForPreviewViewStreaming()
                 }
             }
         }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterSwitchCameraTenTimes() {
         val activityScenario = launchCameraExtensionsActivity(
             DEFAULT_BACK_CAMERA_ID,
@@ -184,7 +180,7 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
 
         with(activityScenario) {
             use {
-                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                repeat(CameraXExtensionsTestUtil.getStressTestRepeatingCount()) {
                     withActivity {
                         // Switches camera
                         switchCameras()

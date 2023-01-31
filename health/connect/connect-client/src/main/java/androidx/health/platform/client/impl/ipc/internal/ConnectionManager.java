@@ -22,11 +22,14 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * Manages connections to a service in a different process.
@@ -37,11 +40,16 @@ import java.util.Map;
 public final class ConnectionManager implements Handler.Callback, ServiceConnection.Callback {
     private static final String TAG = "ConnectionManager";
 
+    @VisibleForTesting
+    static final int UNBIND_IDLE_DELAY_MILLISECONDS = 15_000;
+
     private static final int MSG_CONNECTED = 1;
     private static final int MSG_DISCONNECTED = 2;
     private static final int MSG_EXECUTE = 3;
     private static final int MSG_REGISTER_LISTENER = 4;
     private static final int MSG_UNREGISTER_LISTENER = 5;
+
+    private static final int MSG_UNBIND = 6;
 
     private final Context mContext;
     private final Handler mHandler;
@@ -66,9 +74,10 @@ public final class ConnectionManager implements Handler.Callback, ServiceConnect
     /**
      * Registers a listener by executing an operation represented by the {@link QueueOperation}.
      *
-     * @param listenerKey Key based on which listeners will be distinguished.
+     * @param listenerKey       Key based on which listeners will be distinguished.
      * @param registerOperation Queue operation executed against the corresponding connection to
-     *     register the listener. Will be used to re-register when connection is lost.
+     *                          register the listener. Will be used to re-register when
+     *                          connection is lost.
      */
     public void registerListener(ListenerKey listenerKey, QueueOperation registerOperation) {
         mHandler.sendMessage(
@@ -79,15 +88,28 @@ public final class ConnectionManager implements Handler.Callback, ServiceConnect
     /**
      * Unregisters a listener by executing an operation represented by the {@link QueueOperation}.
      *
-     * @param listenerKey Key based on which listeners will be distinguished.
+     * @param listenerKey         Key based on which listeners will be distinguished.
      * @param unregisterOperation Queue operation executed against the corresponding connection to
-     *     unregister the listener.
+     *                            unregister the listener.
      */
     public void unregisterListener(ListenerKey listenerKey, QueueOperation unregisterOperation) {
         mHandler.sendMessage(
                 mHandler.obtainMessage(
                         MSG_UNREGISTER_LISTENER,
                         new ListenerHolder(listenerKey, unregisterOperation)));
+    }
+
+    /**
+     * Delays any existing {@code MSG_UNBIND} message to {@code UNBIND_IDLE_DELAY_MILLISECONDS}
+     * later.
+     *
+     * @param serviceConnection Service connection that we will auto-unbind.
+     */
+    void delayIdleServiceUnbindCheck(@NonNull ServiceConnection serviceConnection) {
+        mHandler.removeMessages(MSG_UNBIND, serviceConnection);
+        mHandler.sendMessageDelayed(
+                mHandler.obtainMessage(MSG_UNBIND, serviceConnection),
+                UNBIND_IDLE_DELAY_MILLISECONDS);
     }
 
     @Override
@@ -107,40 +129,62 @@ public final class ConnectionManager implements Handler.Callback, ServiceConnect
     }
 
     @Override
-    public boolean handleMessage(Message msg) {
+    public boolean handleMessage(@NonNull Message msg) {
         switch (msg.what) {
             case MSG_CONNECTED:
                 ServiceConnection serviceConnection = ((ServiceConnection) msg.obj);
                 serviceConnection.reRegisterAllListeners();
                 serviceConnection.refreshServiceVersion();
                 serviceConnection.flushQueue();
+                delayIdleServiceUnbindCheck(serviceConnection);
                 return true;
             case MSG_DISCONNECTED:
                 ((ServiceConnection) msg.obj).maybeReconnect();
                 return true;
             case MSG_EXECUTE:
                 QueueOperation queueOperation = (QueueOperation) msg.obj;
-                getConnection(queueOperation.getConnectionConfiguration()).enqueue(queueOperation);
+                ServiceConnection serviceConnectionForExecute =
+                        getConnection(queueOperation.getConnectionConfiguration());
+                serviceConnectionForExecute.enqueue(queueOperation);
+                delayIdleServiceUnbindCheck(serviceConnectionForExecute);
                 return true;
             case MSG_REGISTER_LISTENER:
                 ListenerHolder registerListenerHolder = (ListenerHolder) msg.obj;
-                getConnection(
+                ServiceConnection serviceConnectionForRegister =
+                        getConnection(
                                 registerListenerHolder
                                         .getListenerOperation()
-                                        .getConnectionConfiguration())
+                                        .getConnectionConfiguration());
+                serviceConnectionForRegister
                         .registerListener(
                                 registerListenerHolder.getListenerKey(),
                                 registerListenerHolder.getListenerOperation());
+                delayIdleServiceUnbindCheck(serviceConnectionForRegister);
                 return true;
             case MSG_UNREGISTER_LISTENER:
                 ListenerHolder unregisterListenerHolder = (ListenerHolder) msg.obj;
-                getConnection(
+                ServiceConnection serviceConnectionForUnregister =
+                        getConnection(
                                 unregisterListenerHolder
                                         .getListenerOperation()
-                                        .getConnectionConfiguration())
+                                        .getConnectionConfiguration());
+                serviceConnectionForUnregister
                         .unregisterListener(
                                 unregisterListenerHolder.getListenerKey(),
                                 unregisterListenerHolder.getListenerOperation());
+                delayIdleServiceUnbindCheck(serviceConnectionForUnregister);
+                return true;
+            case MSG_UNBIND:
+                ServiceConnection serviceConnectionToClear = ((ServiceConnection) msg.obj);
+                if (mHandler.hasMessages(MSG_EXECUTE)
+                        || mHandler.hasMessages(MSG_REGISTER_LISTENER)
+                        || mHandler.hasMessages(MSG_UNREGISTER_LISTENER)) {
+                    return true;
+                }
+                boolean isIdle = serviceConnectionToClear.clearConnectionIfIdle();
+                if (!isIdle) {
+                    delayIdleServiceUnbindCheck(serviceConnectionToClear);
+                }
                 return true;
             default:
                 Log.e(TAG, "Received unknown message: " + msg.what);
@@ -152,7 +196,8 @@ public final class ConnectionManager implements Handler.Callback, ServiceConnect
         this.mBindToSelfEnabled = bindToSelfEnabled;
     }
 
-    private ServiceConnection getConnection(ConnectionConfiguration connectionConfiguration) {
+    @VisibleForTesting
+    ServiceConnection getConnection(ConnectionConfiguration connectionConfiguration) {
         String connectionKey = connectionConfiguration.getKey();
         ServiceConnection serviceConnection = mServiceConnectionMap.get(connectionKey);
         if (serviceConnection == null) {

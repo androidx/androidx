@@ -16,8 +16,11 @@
 
 package androidx.camera.video;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.CloseGuardHelper;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -46,7 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class Recording implements AutoCloseable {
 
     // Indicates the recording has been explicitly stopped by users.
-    private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
+    private final AtomicBoolean mIsClosed = new AtomicBoolean(false);
     private final Recorder mRecorder;
     private final long mRecordingId;
     private final OutputOptions mOutputOptions;
@@ -59,7 +62,7 @@ public final class Recording implements AutoCloseable {
         mOutputOptions = options;
 
         if (finalizedOnCreation) {
-            mIsStopped.set(true);
+            mIsClosed.set(true);
         } else {
             mCloseGuard.open("stop");
         }
@@ -119,7 +122,7 @@ public final class Recording implements AutoCloseable {
      * {@link #close()} or {@link #stop()}.
      */
     public void pause() {
-        if (mIsStopped.get()) {
+        if (mIsClosed.get()) {
             throw new IllegalStateException("The recording has been stopped.");
         }
         mRecorder.pause(this);
@@ -138,43 +141,44 @@ public final class Recording implements AutoCloseable {
      * {@link #close()} or {@link #stop()}.
      */
     public void resume() {
-        if (mIsStopped.get()) {
+        if (mIsClosed.get()) {
             throw new IllegalStateException("The recording has been stopped.");
         }
         mRecorder.resume(this);
     }
 
     /**
-     * Stops the recording.
+     * Stops the recording, as if calling {@link #close()}.
      *
-     * <p>Once stopped, all methods for controlling the state of this recording besides
-     * {@code stop()} or {@link #close()} will throw an {@link IllegalStateException}.
-     *
-     * <p>Once an active recording has been stopped, the next recording can be started with
-     * {@link PendingRecording#start(Executor, Consumer)}.
-     *
-     * <p>This method is idempotent; if the recording has already been stopped or has been
-     * finalized internally, calling {@code stop()} is a no-op.
+     * <p>This method is equivalent to calling {@link #close()}.
      */
     public void stop() {
-        mCloseGuard.close();
-        if (mIsStopped.getAndSet(true)) {
-            return;
-        }
-        mRecorder.stop(this);
+        close();
     }
 
     /**
-     * Close this recording, as if calling {@link #stop()}.
+     * Close this recording.
+     *
+     * <p>Once {@link #stop()} or {@code close()} called, all methods for controlling the state of
+     * this recording besides {@link #stop()} or {@code close()} will throw an
+     * {@link IllegalStateException}.
+     *
+     * <p>Once an active recording has been closed, the next recording can be started with
+     * {@link PendingRecording#start(Executor, Consumer)}.
+     *
+     * <p>This method is idempotent; if the recording has already been closed or has been
+     * finalized internally, calling {@link #stop()} or {@code close()} is a no-op.
      *
      * <p>This method is invoked automatically on active recording instances managed by the {@code
      * try-with-resources} statement.
-     *
-     * <p>This method is equivalent to calling {@link #stop()}.
      */
     @Override
     public void close() {
-        stop();
+        mCloseGuard.close();
+        if (mIsClosed.getAndSet(true)) {
+            return;
+        }
+        mRecorder.stop(this);
     }
 
     @Override
@@ -191,5 +195,22 @@ public final class Recording implements AutoCloseable {
     /** Returns the recording ID which is unique to the recorder that generated this recording. */
     long getRecordingId() {
         return mRecordingId;
+    }
+
+    /**
+     * Returns whether the recording is closed.
+     *
+     * <p>The returned value does not reflect the state of the recording; it only reflects
+     * whether {@link #stop()} or {@link #close()} was called on this object.
+     *
+     * <p>The state of the recording should be checked from the listener passed to
+     * {@link PendingRecording#start(Executor, Consumer)}. Once the active recording is
+     * stopped, a {@link VideoRecordEvent.Finalize} event will be sent to the listener.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isClosed() {
+        return mIsClosed.get();
     }
 }

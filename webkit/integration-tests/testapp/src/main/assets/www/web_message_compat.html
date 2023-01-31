@@ -1,0 +1,63 @@
+<html>
+<!-- Copyright 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<head>
+  <script type="text/javascript">
+    let timestamp = 0;
+    let messagePort;
+
+    function onNativeMessage(event) {
+      let i = 0;
+      const data = event.data;
+      if (typeof data === 'string') {
+        i = parseInt(event.data);
+        messagePort.postMessage(i.toString());
+      } else if (data instanceof ArrayBuffer) {
+        i = new DataView(event.data).getInt32(0, false);
+        const buffer = new ArrayBuffer(4);
+        new DataView(buffer).setInt32(0, i, false);
+        messagePort.postMessage(buffer, [buffer]);
+      } else {
+        // Invalid type
+        console.error(`Invalid type: ${typeof data}`);
+      }
+      if (i % 100 === 0) {
+        const counterInfo = `${i} messages sent.`;
+        document.getElementById("result").innerHTML = counterInfo;
+      }
+    }
+
+    window.onmessage = (e) => {
+      if (e.ports[0]) {
+        messagePort = e.ports[0];
+        messagePort.onmessage = onNativeMessage;
+        document.getElementById("port").style = "";
+      } else {
+        onNativeMessage(e);
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Web content (within WebView)</h1>
+  <div>
+    <p id="port" style="display: none;">MessagePort set</p>
+  </div>
+  <div>
+    <span>Message from app: </span>
+    <span id="result" style="color:red">Not received.</span>
+  </div>
+</body>
+</html>

@@ -55,7 +55,7 @@ internal class HeadlessWatchFaceImpl(
             indentingPrintWriter.decreaseIndent()
         }
 
-        private val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
+        internal val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
     }
 
     init {
@@ -77,49 +77,49 @@ internal class HeadlessWatchFaceImpl(
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.renderWatchFaceToBitmap"
-        ) { watchFaceImpl -> watchFaceImpl.renderWatchFaceToBitmap(params) }
+        ) { it.renderWatchFaceToBitmap(params) }
 
     override fun getPreviewReferenceTimeMillis() =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() } ?: 0
+        ) { it.previewReferenceInstant.toEpochMilli() } ?: 0
 
-    override fun getComplicationState() =
-        WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            engine,
-            "HeadlessWatchFaceImpl.getComplicationState"
-        ) { watchFaceImpl -> watchFaceImpl.getComplicationState() }
+    override fun getComplicationState() = run {
+        val engineCopy = engine
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
+            engineCopy,
+            "HeadlessWatchFaceImpl.getComplicationState",
+            WatchFaceService.Companion.ExecutionThread.UI
+        ) { it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds) }
+    }
 
     override fun renderComplicationToBitmap(params: ComplicationRenderParams) =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.renderComplicationToBitmap"
-        ) { watchFaceImpl -> watchFaceImpl.renderComplicationToBitmap(params) }
+        ) { it.renderComplicationToBitmap(params) }
 
     override fun getUserStyleSchema() =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.getUserStyleSchema"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleRepository.schema.toWireFormat()
-        }
+            "HeadlessWatchFaceImpl.getUserStyleSchema",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
+        ) { it.userStyleRepository.schema.toWireFormat() }
 
     override fun computeUserStyleSchemaDigestHash() =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleRepository.schema.getDigestHash()
-        }
+            "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
+        ) { it.userStyleRepository.schema.getDigestHash() }
 
     override fun getUserStyleFlavors() =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.getUserStyleFlavors"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleFlavors.toWireFormat()
-        }
+            "HeadlessWatchFaceImpl.getUserStyleFlavors",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
+        ) { it.userStyleFlavors.toWireFormat() }
 
     override fun release() {
         TraceEvent("HeadlessWatchFaceImpl.release").use {

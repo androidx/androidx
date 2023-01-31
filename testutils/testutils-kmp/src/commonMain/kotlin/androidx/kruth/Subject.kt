@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
  *
  * To create a [Subject] instance, most users will call an [assertThat] method.
  */
-open class Subject<T>(val actual: T?) {
+open class Subject<out T>(val actual: T?) {
 
     /**
      *  Fails if the subject is not null.
@@ -58,7 +58,7 @@ open class Subject<T>(val actual: T?) {
      * that will return the same result as long as [equals] is implemented according to the contract
      * for its type.
      */
-    fun isEqualTo(expected: Any?) {
+    open fun isEqualTo(expected: Any?) {
         actual.standardIsEqualTo(expected)
     }
 

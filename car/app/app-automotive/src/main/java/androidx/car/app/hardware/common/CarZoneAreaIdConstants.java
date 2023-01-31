@@ -16,7 +16,10 @@
 
 package androidx.car.app.hardware.common;
 
+import androidx.car.app.annotations.ExperimentalCarApi;
+
 /** Car Zone area mapping constants */
+@ExperimentalCarApi
 public final class CarZoneAreaIdConstants {
 
     /** Area Id for global (non-zoned) properties */

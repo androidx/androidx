@@ -27,7 +27,7 @@ class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter)
     cost = conv1.cost + conv2.cost
 ) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
+        scope.builder.apply {
             val conv1Output = conv1.convert(inputVarName, scope)
             conv2.convert(
                 inputVarName = conv1Output,
@@ -38,7 +38,7 @@ class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter)
     }
 
     override fun doConvert(inputVarName: String, scope: CodeGenScope): String {
-        scope.builder().apply {
+        scope.builder.apply {
             val conv1Output = conv1.convert(
                 inputVarName = inputVarName,
                 scope = scope

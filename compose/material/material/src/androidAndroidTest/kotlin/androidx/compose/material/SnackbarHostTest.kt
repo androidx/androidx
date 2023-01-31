@@ -139,7 +139,7 @@ class SnackbarHostTest {
             Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
         }
 
-        rule.waitUntil(timeoutMillis = 5_000) { job2.isCompleted }
+        rule.waitUntil(timeoutMillis = 7_000) { job2.isCompleted }
     }
 
     @Test

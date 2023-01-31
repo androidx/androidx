@@ -36,13 +36,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.SliceLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -110,14 +110,21 @@ public class SliceViewManagerTest {
         verify(mSliceProvider, timeout(2000)).onSliceUnpinned(eq(uri));
     }
 
-    @FlakyTest(bugId = 239964752)
     @Test
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testPinList() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())
                 .build();
-        Uri longerUri = uri.buildUpon().appendPath("something").build();
+        Uri longerUri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(mContext.getPackageName())
+                .appendPath("something").build();
         try {
             mViewManager.pinSlice(uri);
             mViewManager.pinSlice(longerUri);

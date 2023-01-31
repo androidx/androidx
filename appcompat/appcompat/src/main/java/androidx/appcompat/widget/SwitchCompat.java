@@ -1258,7 +1258,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     @Override
-    public void draw(Canvas c) {
+    public void draw(@NonNull Canvas c) {
         final Rect padding = mTempRect;
         final int switchLeft = mSwitchLeft;
         final int switchTop = mSwitchTop;
@@ -1493,7 +1493,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return super.verifyDrawable(who) || who == mThumbDrawable || who == mTrackDrawable;
     }
 

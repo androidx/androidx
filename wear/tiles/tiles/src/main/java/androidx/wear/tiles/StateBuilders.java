@@ -19,7 +19,7 @@ package androidx.wear.tiles;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.StateProto;
+import androidx.wear.protolayout.proto.StateProto;
 
 /** Builders for state of a tile. */
 public final class StateBuilders {

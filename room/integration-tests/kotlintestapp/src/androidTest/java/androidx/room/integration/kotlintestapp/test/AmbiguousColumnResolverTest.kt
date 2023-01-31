@@ -55,7 +55,7 @@ class AmbiguousColumnResolverTest {
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val db = Room.inMemoryDatabaseBuilder(context, TestDatabase::class.java).build()
-        dao = db.theDao
+        dao = db.getDao()
         dao.insertUser(user1)
         dao.insertUser(user2)
         dao.insertComment(comment1)
@@ -156,7 +156,7 @@ class AmbiguousColumnResolverTest {
         exportSchema = false
     )
     internal abstract class TestDatabase : RoomDatabase() {
-        abstract val theDao: TestDao
+        abstract fun getDao(): TestDao
     }
 
     @Dao

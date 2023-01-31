@@ -22,22 +22,19 @@
     <string name="abc_slice_show_more" msgid="1112789899890391107">"הצגת פרטים נוספים"</string>
     <string name="abc_slice_updated" msgid="7932359091871934205">"עדכון אחרון: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
+      <item quantity="one">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
       <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
-      <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
       <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
-      <item quantity="one">לפני דקה (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
+      <item quantity="one">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
       <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
-      <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
       <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
-      <item quantity="one">לפני שנה (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
+      <item quantity="one">לפני <xliff:g id="ID_2">%d</xliff:g> ימים</item>
       <item quantity="two">לפני יומיים (<xliff:g id="ID_2">%d</xliff:g>)</item>
-      <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> ימים</item>
       <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> ימים</item>
-      <item quantity="one">לפני יום אחד (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
     <string name="abc_slice_error" msgid="1794214973158263497">"לא ניתן היה להתחבר"</string>
 </resources>

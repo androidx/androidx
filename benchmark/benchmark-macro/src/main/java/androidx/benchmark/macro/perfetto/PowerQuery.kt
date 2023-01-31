@@ -16,11 +16,13 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerMetric
 
 // We want to use android_powrails.sql, but cannot as they do not split into sections with slice
 
+@OptIn(ExperimentalMetricApi::class)
 internal object PowerQuery {
     private fun getFullQuery(slice: Slice) = """
         SELECT
@@ -54,11 +56,11 @@ internal object PowerQuery {
     /**
      * The ComponentMeasurement object are built with attributes:
      *
-     * @param `name` - The name of the subsystem associated with the power usage in camel case.
+     * @param name The name of the subsystem associated with the power usage in camel case.
      *
-     * @param `energyUws` - The energy used during the trace, measured in uWs.
+     * @param energyUws The energy used during the trace, measured in uWs.
      *
-     * @param `powerUw` - The energy used divided by the elapsed time, measured in uW.
+     * @param powerUw The energy used divided by the elapsed time, measured in uW.
      */
     data class ComponentMeasurement(
         var name: String,
@@ -73,13 +75,13 @@ internal object PowerQuery {
     /**
      * The CategoryMeasurement object are built with attributes:
      *
-     * @param `energyUws` - The sum total energy used during the trace of all components in the
+     * @param energyUws The sum total energy used during the trace of all components in the
      * category, measured in uWs.
      *
-     * @param `powerUw` - The sum total energy used divided by the elapsed time of all components in
+     * @param powerUw The sum total energy used divided by the elapsed time of all components in
      * the category, measured in uW.
      *
-     * @param `components` - A list of all ComponentMeasurements under the same `PowerCategory`.
+     * @param components A list of all ComponentMeasurements under the same `PowerCategory`.
      */
     data class CategoryMeasurement(
         var energyUws: Double,
@@ -91,12 +93,12 @@ internal object PowerQuery {
         }
     }
 
-    public fun getPowerMetrics(
-        absoluteTracePath: String,
+    fun getPowerMetrics(
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         slice: Slice
     ): Map<PowerCategory, CategoryMeasurement> {
         // gather all recorded rails
-        val railMetrics: List<ComponentMeasurement> = getRailMetrics(absoluteTracePath, slice)
+        val railMetrics: List<ComponentMeasurement> = getRailMetrics(perfettoTraceProcessor, slice)
         railMetrics.ifEmpty { return emptyMap() }
 
         // sort ComponentMeasurements into CategoryMeasurements
@@ -133,40 +135,28 @@ internal object PowerQuery {
     }
 
     private fun getRailMetrics(
-        absoluteTracePath: String,
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         slice: Slice
     ): List<ComponentMeasurement> {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
-            query = getFullQuery(slice)
-        )
 
-        val resultLines = queryResult.split("\n")
+        val query = getFullQuery(slice)
+        val queryResult = perfettoTraceProcessor.rawQuery(query)
 
-        if (resultLines.first() != """"name","energyUws","powerUs"""") {
-            throw IllegalStateException("query failed!\n${getFullQuery(slice)}")
+        return queryResult.toList {
+            ComponentMeasurement(
+                name = (it["name"] as String).camelCase(),
+                energyUws = it["energyUws"] as Double,
+                powerUw = it["powerUs"] as Double,
+            )
         }
-
-        // results are in CSV with a header row, and strings wrapped with quotes
-        return resultLines
-            .filter { it.isNotBlank() } // drop blank lines
-            .drop(1) // drop the header row
-            .map {
-                val columns = it.split(",")
-                ComponentMeasurement(
-                    name = columns[0].unquote().camelCase(),
-                    energyUws = columns[1].toDouble(),
-                    powerUw = columns[2].toDouble(),
-                )
-            }
     }
 
     /**
      * Checks if category contains rail, or is uncategorized.
      *
-     * @param `category` - A [PowerCategory] which maps to a list of subsystems.
+     * @param category A [PowerCategory] which maps to a list of subsystems.
      *
-     * @param `railName` - The name of a rail.
+     * @param railName The name of a rail.
      *
      */
     private fun railInCategory(
@@ -182,10 +172,10 @@ internal object PowerQuery {
     /**
      * Checks if rail name contains subsystem.
      *
-     * @param `subsystems` - A list of subsystems to check against rail name.  If the rail is a
+     * @param subsystems A list of subsystems to check against rail name.  If the rail is a
      * part of the subsystem, the subsystem will be a substring of the rail name.
      *
-     * @param `railName` - The name of a rail.
+     * @param railName The name of a rail.
      */
     private fun filterRails(
         subsystems: List<String>,

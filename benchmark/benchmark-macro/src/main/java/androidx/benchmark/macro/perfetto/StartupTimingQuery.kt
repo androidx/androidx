@@ -18,11 +18,10 @@ package androidx.benchmark.macro.perfetto
 
 import android.util.Log
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor.processNameLikePkg
 
 internal object StartupTimingQuery {
 
-    private fun getFullQuery(testPackageName: String, targetPackageName: String) = """
+    private fun getFullQuery(targetPackageName: String) = """
         ------ Select all startup-relevant slices from slice table
         SELECT
             slice.name as name,
@@ -33,14 +32,11 @@ internal object StartupTimingQuery {
             INNER JOIN thread USING(utid)
             INNER JOIN process USING(upid)
         WHERE (
-            (${processNameLikePkg(testPackageName)} AND slice.name LIKE "startActivityAndWait") OR
-            (
                 ${processNameLikePkg(targetPackageName)} AND (
                     (slice.name LIKE "activityResume" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "reportFullyDrawn() for %" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "DrawFrame%" AND thread.name LIKE "RenderThread")
-                )
             ) OR
             (
                 -- Signals beginning of launch event, only present in API 29+
@@ -66,7 +62,6 @@ internal object StartupTimingQuery {
     """.trimIndent()
 
     enum class StartupSliceType {
-        StartActivityAndWait,
         NotifyStarted,
         Launching,
         ReportFullyDrawn,
@@ -107,20 +102,17 @@ internal object StartupTimingQuery {
     }
 
     fun getFrameSubMetrics(
-        absoluteTracePath: String,
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         captureApiLevel: Int,
         targetPackageName: String,
-        testPackageName: String,
         startupMode: StartupMode
     ): SubMetrics? {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
+        val queryResultIterator = perfettoTraceProcessor.rawQuery(
             query = getFullQuery(
-                testPackageName = testPackageName,
                 targetPackageName = targetPackageName
             )
         )
-        val slices = Slice.parseListFromQueryResult(queryResult)
+        val slices = queryResultIterator.toSlices()
 
         val groupedData = slices
             .filter { it.dur > 0 } // drop non-terminated slices
@@ -135,13 +127,9 @@ internal object StartupTimingQuery {
                     it.name == "MetricsLogger:launchObserverNotifyIntentStarted" ->
                         StartupSliceType.NotifyStarted
                     it.name == "activityResume" -> StartupSliceType.ActivityResume
-                    it.name == "startActivityAndWait" -> StartupSliceType.StartActivityAndWait
                     else -> throw IllegalStateException("Unexpected slice $it")
                 }
             }
-
-        val startActivityAndWaitSlice = groupedData[StartupSliceType.StartActivityAndWait]?.first()
-            ?: return null
 
         val uiSlices = groupedData.getOrElse(StartupSliceType.FrameUiThread) { listOf() }
         val rtSlices = groupedData.getOrElse(StartupSliceType.FrameRenderThread) { listOf() }
@@ -154,11 +142,10 @@ internal object StartupTimingQuery {
         val startTs: Long
         val initialDisplayTs: Long
         if (captureApiLevel >= 29 || startupMode != StartupMode.HOT) {
+            // find first matching "launching" slice
             val launchingSlice = groupedData[StartupSliceType.Launching]?.firstOrNull {
-                // find first "launching" slice that starts within startActivityAndWait
                 // verify full name only on API 23+, since before package name not specified
-                startActivityAndWaitSlice.contains(it.ts) &&
-                    (captureApiLevel < 23 || it.name == "launching: $targetPackageName")
+                (captureApiLevel < 23 || it.name == "launching: $targetPackageName")
             } ?: return null
 
             startTs = if (captureApiLevel >= 29) {

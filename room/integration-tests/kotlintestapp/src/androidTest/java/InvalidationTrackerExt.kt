@@ -15,9 +15,9 @@
  */
 package androidx.room
 
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import java.util.concurrent.TimeUnit
 
 /**
  * Polls [InvalidationTracker] until it sets its pending refresh flag to true.

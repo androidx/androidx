@@ -48,13 +48,13 @@ public class MetadataRepoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPut_withEmptyKeys() {
-        mMetadataRepo.put(new TestEmojiMetadata(new int[0]));
+        mMetadataRepo.put(new TestTypefaceEmojiRasterizer(new int[0]));
     }
 
     @Test
     public void testPut_withSingleCodePointMapping() {
         final int[] codePoint = new int[]{1};
-        final TestEmojiMetadata metadata = new TestEmojiMetadata(codePoint);
+        final TestTypefaceEmojiRasterizer metadata = new TestTypefaceEmojiRasterizer(codePoint);
         mMetadataRepo.put(metadata);
         assertSame(metadata, getNode(codePoint));
     }
@@ -62,7 +62,7 @@ public class MetadataRepoTest {
     @Test
     public void testPut_withMultiCodePointsMapping() {
         final int[] codePoint = new int[]{1, 2, 3, 4};
-        final TestEmojiMetadata metadata = new TestEmojiMetadata(codePoint);
+        final TestTypefaceEmojiRasterizer metadata = new TestTypefaceEmojiRasterizer(codePoint);
         mMetadataRepo.put(metadata);
         assertSame(metadata, getNode(codePoint));
 
@@ -75,13 +75,13 @@ public class MetadataRepoTest {
     @Test
     public void testPut_sequentialCodePoints() {
         final int[] codePoint1 = new int[]{1, 2, 3, 4};
-        final EmojiMetadata metadata1 = new TestEmojiMetadata(codePoint1);
+        final TypefaceEmojiRasterizer metadata1 = new TestTypefaceEmojiRasterizer(codePoint1);
 
         final int[] codePoint2 = new int[]{1, 2, 3};
-        final EmojiMetadata metadata2 = new TestEmojiMetadata(codePoint2);
+        final TypefaceEmojiRasterizer metadata2 = new TestTypefaceEmojiRasterizer(codePoint2);
 
         final int[] codePoint3 = new int[]{1, 2};
-        final EmojiMetadata metadata3 = new TestEmojiMetadata(codePoint3);
+        final TypefaceEmojiRasterizer metadata3 = new TestTypefaceEmojiRasterizer(codePoint3);
 
         mMetadataRepo.put(metadata1);
         mMetadataRepo.put(metadata2);
@@ -95,11 +95,15 @@ public class MetadataRepoTest {
         assertNull(getNode(new int[]{1, 2, 3, 4, 5}));
     }
 
-    final EmojiMetadata getNode(final int[] codepoints) {
+    final TypefaceEmojiRasterizer getNode(final int[] codepoints) {
         return getNode(mMetadataRepo.getRootNode(), codepoints, 0);
     }
 
-    final EmojiMetadata getNode(MetadataRepo.Node node, final int[] codepoints, int start) {
+    final TypefaceEmojiRasterizer getNode(
+            MetadataRepo.Node node,
+            final int[] codepoints,
+            int start
+    ) {
         if (codepoints.length < start) return null;
         if (codepoints.length == start) return node.getData();
 

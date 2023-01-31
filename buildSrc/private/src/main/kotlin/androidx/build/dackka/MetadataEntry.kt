@@ -31,10 +31,6 @@ data class MetadataEntry(
     @SerializedName("releaseNotesUrl")
     val releaseNotesUrl: String,
 
-    // TODO (b/241582234): Remove when bug is resolved.
-    //
-    // This will no longer be used once Dackka is updated, but is currently needed as Dackka
-    // expects this key to be present.
-    @SerializedName("sourceDir")
-    val sourceDir: String = "TBD/SOURCE/DIR",
+    @SerializedName("jarContents")
+    val jarContents: List<String>,
 )

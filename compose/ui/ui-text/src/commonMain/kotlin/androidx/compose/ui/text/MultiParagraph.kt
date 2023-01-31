@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -245,8 +246,6 @@ class MultiParagraph(
      * because we reached `maxLines` lines of text or because the `maxLines` was
      * null, `ellipsis` was not null, and one of the lines exceeded the width
      * constraint.
-     *
-     * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
      */
     val didExceedMaxLines: Boolean
 
@@ -402,12 +401,30 @@ class MultiParagraph(
     @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
+        color: Color = Color.Unspecified,
+        shadow: Shadow? = null,
+        decoration: TextDecoration? = null,
+        drawStyle: DrawStyle? = null
+    ) {
+        canvas.save()
+        paragraphInfoList.fastForEach {
+            it.paragraph.paint(canvas, color, shadow, decoration, drawStyle)
+            canvas.translate(0f, it.paragraph.height)
+        }
+        canvas.restore()
+    }
+
+    /** Paint the paragraphs to canvas. */
+    @ExperimentalTextApi
+    fun paint(
+        canvas: Canvas,
         brush: Brush,
         alpha: Float = Float.NaN,
         shadow: Shadow? = null,
-        decoration: TextDecoration? = null
+        decoration: TextDecoration? = null,
+        drawStyle: DrawStyle? = null
     ) {
-        drawMultiParagraph(canvas, brush, alpha, shadow, decoration)
+        drawMultiParagraph(canvas, brush, alpha, shadow, decoration, drawStyle)
     }
 
     /** Returns path that enclose the given text range. */
@@ -733,10 +750,10 @@ class MultiParagraph(
     }
 
     /**
-     * Returns true if ellipsis happens on the given line, otherwise returns false
+     * Returns true if the given line is ellipsized, otherwise returns false.
      *
      * @param lineIndex a 0 based line index
-     * @return true if ellipsis happens on the given line, otherwise false
+     * @return true if the given line is ellipsized, otherwise false
      */
     fun isLineEllipsized(lineIndex: Int): Boolean {
         requireLineIndexInRange(lineIndex)
@@ -760,7 +777,7 @@ class MultiParagraph(
 
     private fun requireLineIndexInRange(lineIndex: Int) {
         require(lineIndex in 0 until lineCount) {
-            "lineIndex($lineIndex) is out of bounds [0, $lineIndex)"
+            "lineIndex($lineIndex) is out of bounds [0, $lineCount)"
         }
     }
 }

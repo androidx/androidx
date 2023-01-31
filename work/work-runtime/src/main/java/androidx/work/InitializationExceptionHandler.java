@@ -17,13 +17,17 @@
 package androidx.work;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * An Exception Handler that can be used to determine if there were issues when trying
  * to initialize {@link WorkManager}.
  * <p>
  * This usually happens when WorkManager cannot access its internal datastore.
+ *
+ * @hide kept around for migration purposes. It will be removed soon
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface InitializationExceptionHandler {
     /**
      * Allows the application to handle a {@link Throwable} throwable typically caused when

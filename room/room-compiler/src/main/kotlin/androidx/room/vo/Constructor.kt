@@ -16,15 +16,14 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.isConstructor
 import androidx.room.compiler.processing.isMethod
-import com.squareup.javapoet.CodeBlock
 
 /**
- * For each Entity / Pojo we process has a constructor. It might be the empty constructor or a
+ * Each Entity / Pojo we process has a constructor. It might be the empty constructor or a
  * constructor with fields. It can also be a static factory method, such as in the case of an
  * AutoValue Pojo.
  */
@@ -40,21 +39,32 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
         }
     }
 
-    fun writeConstructor(outVar: String, args: String, builder: CodeBlock.Builder) {
+    fun writeConstructor(outVar: String, args: String, builder: XCodeBlock.Builder) {
         when {
             element.isConstructor() -> {
                 builder.addStatement(
-                    "$L = new $T($L)", outVar,
-                    element.enclosingElement.className, args
+                    "%L = %L",
+                    outVar,
+                    XCodeBlock.ofNewInstance(
+                        builder.language,
+                        element.enclosingElement.asClassName(),
+                        args
+                    )
                 )
             }
             element.isMethod() -> {
                 // TODO when we generate Kotlin code, we need to handle not having enclosing
                 //  elements.
+                val methodName = when (builder.language) {
+                    CodeLanguage.JAVA -> element.jvmName
+                    CodeLanguage.KOTLIN -> element.name
+                }
                 builder.addStatement(
-                    "$L = $T.$L($L)", outVar,
-                    element.enclosingElement.className,
-                    element.jvmName, args
+                    "%L = %T.%L(%L)",
+                    outVar,
+                    element.enclosingElement.asClassName(),
+                    methodName,
+                    args
                 )
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")

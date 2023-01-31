@@ -16,11 +16,11 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.util.SchemaDiffResult
-import com.squareup.javapoet.ClassName
 
 /**
  * Stores the changes detected in a database schema between the old and new versions.
@@ -32,12 +32,12 @@ data class AutoMigration(
     val schemaDiff: SchemaDiffResult,
     val isSpecProvided: Boolean,
 ) {
-    val specClassName = specElement?.className
+    val specClassName = specElement?.asClassName()
 
-    fun getImplTypeName(databaseClassName: ClassName): ClassName {
-        return ClassName.get(
-            databaseClassName.packageName(),
-            "${databaseClassName.simpleNames().joinToString("_")}_AutoMigration_${from}_${to}_Impl"
+    fun getImplTypeName(databaseClassName: XClassName): XClassName {
+        return XClassName.get(
+            databaseClassName.packageName,
+            "${databaseClassName.simpleNames.joinToString("_")}_AutoMigration_${from}_${to}_Impl"
         )
     }
 

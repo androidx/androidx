@@ -16,13 +16,12 @@
 
 package androidx.test.uiautomator;
 
-/** Abstract class which represents a condition to be satisfied. */
-@SuppressWarnings("TypeNameShadowing")
-abstract class Condition<T, R> {
+/** Represents a condition to be satisfied. */
+public interface Condition<T, U> {
 
     /**
      * Applies the given arguments against this condition. Returns a non-null, non-false result if
      * the condition is satisfied.
      */
-    abstract R apply(T args);
+    U apply(T args);
 }

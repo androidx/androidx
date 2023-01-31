@@ -38,7 +38,7 @@ class StatisticalDataPoint<T : Number>(
     val end: Instant
 ) : DataPoint<T>(dataType) {
 
-    internal val proto: DataProto.AggregateDataPoint by lazy {
+    internal val proto: DataProto.AggregateDataPoint =
         DataProto.AggregateDataPoint.newBuilder()
             .setStatisticalDataPoint(
                 DataProto.AggregateDataPoint.StatisticalDataPoint.newBuilder()
@@ -49,7 +49,6 @@ class StatisticalDataPoint<T : Number>(
                     .setStartTimeEpochMs(start.toEpochMilli())
                     .setEndTimeEpochMs(end.toEpochMilli())
             ).build()
-    }
 
     companion object {
         @Suppress("UNCHECKED_CAST")

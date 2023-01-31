@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.gesture.snapping
 
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
@@ -30,9 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
+import kotlin.math.absoluteValue
 import kotlin.math.round
 import kotlin.math.sign
 import kotlin.test.assertEquals
@@ -46,17 +50,21 @@ import org.junit.runners.Parameterized
 class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
     BaseLazyListTestWithOrientation(orientation) {
 
+    private val density: Density
+        get() = rule.density
+
     @Test
     fun snapStepSize_sameSizeItems_shouldBeAverageItemSize() {
         var expectedItemSize = 0f
         var actualItemSize = 0f
 
         rule.setContent {
+            val density = LocalDensity.current
             val state = rememberLazyListState()
             val layoutInfoProvider = remember(state) { createLayoutInfo(state) }.also {
-                actualItemSize = it.snapStepSize
+                actualItemSize = with(it) { density.calculateSnapStepSize() }
             }
-            expectedItemSize = with(LocalDensity.current) { FixedItemSize.toPx() }
+            expectedItemSize = with(density) { FixedItemSize.toPx() }
             MainLayout(
                 state = state,
                 layoutInfo = layoutInfoProvider,
@@ -76,9 +84,10 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
         var expectedItemSize = 0f
 
         rule.setContent {
+            val density = LocalDensity.current
             val state = rememberLazyListState()
             val layoutInfoProvider = remember(state) { createLayoutInfo(state) }.also {
-                actualItemSize = it.snapStepSize
+                actualItemSize = with(it) { density.calculateSnapStepSize() }
             }
             expectedItemSize = state.layoutInfo.visibleItemsInfo.map { it.size }.average().toFloat()
 
@@ -95,13 +104,14 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
         var snapStepSize = 0f
         var actualItemSize = 0f
         rule.setContent {
+            val density = LocalDensity.current
             val state = rememberLazyListState()
             val layoutInfoProvider = remember(state) { createLayoutInfo(state) }.also {
-                snapStepSize = it.snapStepSize
+                snapStepSize = with(it) { density.calculateSnapStepSize() }
             }
 
-            actualItemSize =
-                with(LocalDensity.current) { (FixedItemSize + FixedItemSize / 2).toPx() }
+            actualItemSize = with(density) { (FixedItemSize + FixedItemSize / 2).toPx() }
+
             MainLayout(
                 state = state,
                 layoutInfo = layoutInfoProvider,
@@ -122,9 +132,10 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
         var upperBound = 0f
         var lowerBound = 0f
         rule.setContent {
+            val density = LocalDensity.current
             val state = rememberLazyListState()
             val layoutInfoProvider = remember(state) { createLayoutInfo(state) }
-            val bounds = layoutInfoProvider.calculateSnappingOffsetBounds()
+            val bounds = with(layoutInfoProvider) { density.calculateSnappingOffsetBounds() }
             lowerBound = bounds.start
             upperBound = bounds.endInclusive
             MainLayout(
@@ -142,13 +153,16 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
     }
 
     @Test
-    fun calculateApproachOffset_approachOffsetIsAlwaysZero() {
-        var snapLayoutInfoProvider: SnapLayoutInfoProvider? = null
+    fun calculateApproachOffset_highVelocity_approachOffsetIsEqualToDecayMinusItemSize() {
+        lateinit var layoutInfoProvider: SnapLayoutInfoProvider
+        val decay = splineBasedDecay<Float>(rule.density)
+        fun calculateTargetOffset(velocity: Float): Float {
+            val offset = decay.calculateTargetValue(0f, velocity).absoluteValue
+            return (offset - with(density) { 200.dp.toPx() }).coerceAtLeast(0f) * velocity.sign
+        }
         rule.setContent {
             val state = rememberLazyListState()
-            val layoutInfoProvider = remember(state) { createLayoutInfo(state) }.also {
-                snapLayoutInfoProvider = it
-            }
+            layoutInfoProvider = remember(state) { createLayoutInfo(state) }
             LazyColumnOrRow(
                 state = state,
                 flingBehavior = rememberSnapFlingBehavior(layoutInfoProvider)
@@ -160,8 +174,42 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
         }
 
         rule.runOnIdle {
-            assertEquals(snapLayoutInfoProvider?.calculateApproachOffset(1000f), 0f)
-            assertEquals(snapLayoutInfoProvider?.calculateApproachOffset(-1000f), 0f)
+            assertEquals(
+                with(layoutInfoProvider) { density.calculateApproachOffset(10000f) },
+                calculateTargetOffset(10000f)
+            )
+            assertEquals(
+                with(layoutInfoProvider) { density.calculateApproachOffset(-10000f) },
+                calculateTargetOffset(-10000f)
+            )
+        }
+    }
+
+    @Test
+    fun calculateApproachOffset_lowVelocity_approachOffsetIsEqualToZero() {
+        lateinit var layoutInfoProvider: SnapLayoutInfoProvider
+        rule.setContent {
+            val state = rememberLazyListState()
+            layoutInfoProvider = remember(state) { createLayoutInfo(state) }
+            LazyColumnOrRow(
+                state = state,
+                flingBehavior = rememberSnapFlingBehavior(layoutInfoProvider)
+            ) {
+                items(200) {
+                    Box(modifier = Modifier.size(200.dp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(
+                with(layoutInfoProvider) { density.calculateApproachOffset(1000f) },
+                0f
+            )
+            assertEquals(
+                with(layoutInfoProvider) { density.calculateApproachOffset(-1000f) },
+                0f
+            )
         }
     }
 

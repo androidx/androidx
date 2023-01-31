@@ -67,6 +67,31 @@ interface WindowInsets {
 }
 
 /**
+ * A [WindowInsets] whose values can change without changing the instance. This is useful
+ * to avoid recomposition when [WindowInsets] can change.
+ *
+ * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
+ */
+@ExperimentalLayoutApi
+class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) : WindowInsets {
+    /**
+     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight],
+     * and [bottom][getBottom] values.
+     */
+    var insets by mutableStateOf(initialInsets)
+
+    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
+        insets.getLeft(density, layoutDirection)
+
+    override fun getTop(density: Density): Int = insets.getTop(density)
+
+    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
+        insets.getRight(density, layoutDirection)
+
+    override fun getBottom(density: Density): Int = insets.getBottom(density)
+}
+
+/**
  * [WindowInsetsSides] is used in [WindowInsets.only] to define which sides of the
  * [WindowInsets] should apply.
  */
@@ -208,7 +233,7 @@ fun WindowInsets.only(sides: WindowInsetsSides): WindowInsets = LimitInsets(this
  * Convert a [WindowInsets] to a [PaddingValues] and uses [LocalDensity] for DP to pixel
  * conversion. [PaddingValues] can be passed to some containers to pad internal content so that
  * it doesn't overlap the insets when fully scrolled. Ensure that the insets are
- * [consumed][consumedWindowInsets] after the padding is applied if insets are to be used further
+ * [consumed][consumeWindowInsets] after the padding is applied if insets are to be used further
  * down the hierarchy.
  *
  * @sample androidx.compose.foundation.layout.samples.paddingValuesSample
@@ -221,7 +246,7 @@ fun WindowInsets.asPaddingValues(): PaddingValues = InsetsPaddingValues(this, Lo
  * Convert a [WindowInsets] to a [PaddingValues] and uses [density] for DP to pixel conversion.
  * [PaddingValues] can be passed to some containers to pad internal content so that it doesn't
  * overlap the insets when fully scrolled. Ensure that the insets are
- * [consumed][consumedWindowInsets] after the padding is applied if insets are to be used further
+ * [consumed][consumeWindowInsets] after the padding is applied if insets are to be used further
  * down the hierarchy.
  *
  * @sample androidx.compose.foundation.layout.samples.paddingValuesSample

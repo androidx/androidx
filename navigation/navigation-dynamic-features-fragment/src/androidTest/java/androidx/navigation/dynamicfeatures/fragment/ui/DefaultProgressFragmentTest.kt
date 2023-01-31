@@ -72,8 +72,8 @@ class DefaultProgressFragmentTest {
                 // it to fail before we check for test failure.
                 val liveData = viewModel.installMonitor!!.status
                 val observer = object : Observer<SplitInstallSessionState> {
-                    override fun onChanged(state: SplitInstallSessionState) {
-                        if (state.status() == SplitInstallSessionStatus.FAILED) {
+                    override fun onChanged(value: SplitInstallSessionState) {
+                        if (value.status() == SplitInstallSessionStatus.FAILED) {
                             liveData.removeObserver(this)
                             failureCountdownLatch.countDown()
                         }

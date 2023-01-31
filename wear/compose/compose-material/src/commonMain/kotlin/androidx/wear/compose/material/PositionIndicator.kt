@@ -16,6 +16,10 @@
 
 package androidx.wear.compose.material
 
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -28,7 +32,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -42,6 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -52,14 +59,24 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -181,6 +198,39 @@ public fun PositionIndicator(
     reverseDirection: Boolean = false
 ) = PositionIndicator(
     state = ScalingLazyColumnStateAdapter(
+        state = scalingLazyListState
+    ),
+    indicatorHeight = 50.dp,
+    indicatorWidth = 4.dp,
+    paddingHorizontal = 5.dp,
+    modifier = modifier,
+    reverseDirection = reverseDirection
+)
+
+/**
+ * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that
+ * a [ScalingLazyColumn] uses.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param scalingLazyListState the [ScalingLazyListState] to use as the basis for the
+ * PositionIndicatorState.
+ * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
+ */
+@Suppress("DEPRECATION")
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available which uses ScalingLazyListState from " +
+        "androidx.wear.compose.foundation.lazy package", level = DeprecationLevel.WARNING)
+@Composable
+public fun PositionIndicator(
+    scalingLazyListState: androidx.wear.compose.material.ScalingLazyListState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false
+) = PositionIndicator(
+    state = MaterialScalingLazyColumnStateAdapter(
         state = scalingLazyListState
     ),
     indicatorHeight = 50.dp,
@@ -352,13 +402,13 @@ public fun PositionIndicator(
     val layoutDirection = LocalLayoutDirection.current
     val leftyMode = isLeftyModeEnabled()
     val actuallyVisible = remember { mutableStateOf(false) }
-    var containerHeight by remember { mutableStateOf(1f) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
     val displayState by remember(state) {
         derivedStateOf {
             DisplayState(
                 state.positionFraction,
-                state.sizeFraction(containerHeight)
+                state.sizeFraction(containerSize.height.toFloat())
             )
         }
     }
@@ -390,7 +440,9 @@ public fun PositionIndicator(
         }
     }
 
-    val visibility by remember(state) { derivedStateOf { state.visibility(containerHeight) } }
+    val visibility by remember(state) { derivedStateOf {
+        state.visibility(containerSize.height.toFloat())
+    } }
     when (visibility) {
         PositionIndicatorVisibility.Show -> actuallyVisible.value = true
         PositionIndicatorVisibility.Hide -> actuallyVisible.value = false
@@ -402,29 +454,57 @@ public fun PositionIndicator(
         }
     }
 
+    val indicatorOnTheRight = when (position) {
+        PositionIndicatorAlignment.End -> layoutDirection == LayoutDirection.Ltr
+        PositionIndicatorAlignment.Left -> false
+        PositionIndicatorAlignment.Right -> true
+        PositionIndicatorAlignment.OppositeRsb -> leftyMode
+        else -> true
+    }
+
+    val boundsSize: Density.() -> IntSize = {
+        IntSize(
+            ((if (isScreenRound) {
+                // r is the distance from the center of the container to the arc we draw the
+                // position indicator on (the center of the arc, which is indicatorWidth wide).
+                val r = containerSize.width / 2 - paddingHorizontal.toPx() -
+                    indicatorWidth.toPx() / 2
+                // The sqrt is the size of the projection on the x axis of line between center of
+                // the container and the point where we start the arc.
+                // The coerceAtLeast is needed while initializing since containerSize.width is 0
+                r - sqrt((sqr(r) - sqr(indicatorHeight.toPx() / 2)).coerceAtLeast(0f))
+            } else 0f) +
+                paddingHorizontal.toPx() + indicatorWidth.toPx()
+            ).roundToInt(),
+            (indicatorHeight.toPx() + indicatorWidth.toPx()).roundToInt()
+        )
+    }
+    val boundsOffset: Density.() -> IntOffset = {
+        // Note that indicators are on right or left, centered vertically.
+        val indicatorSize = boundsSize()
+        IntOffset(
+            if (indicatorOnTheRight) containerSize.width - indicatorSize.width else 0,
+            (containerSize.height - indicatorSize.height) / 2
+        )
+    }
+
     AnimatedVisibility(
         visible = actuallyVisible.value,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        Box(
-            modifier = modifier
+        BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
+                containerSize = it
+            }
+        ) {
+            Box(
+                modifier = Modifier
                 .fillMaxSize()
-                .onGloballyPositioned {
-                    containerHeight = it.size.height.toFloat()
-                }
                 .drawWithContent {
-                    val indicatorOnTheRight = when (position) {
-                        PositionIndicatorAlignment.Left -> false
-                        PositionIndicatorAlignment.Right -> true
-                        PositionIndicatorAlignment.OppositeRsb -> leftyMode
-                        PositionIndicatorAlignment.End -> layoutDirection == LayoutDirection.Ltr
-                        else -> true
-                    }
-
                     // We need to invert reverseDirection when the screen is round and we are on
                     // the left.
-                    val actualReverseDirection = if (isScreenRound && !indicatorOnTheRight) {
+                        val actualReverseDirection =
+                            if (isScreenRound && !indicatorOnTheRight) {
                         !reverseDirection
                     } else {
                         reverseDirection
@@ -440,11 +520,11 @@ public fun PositionIndicator(
 
                     // We want position = 0 be the indicator aligned at the top of its area and
                     // position = 1 be aligned at the bottom of the area.
-                    val indicatorStart = indicatorPosition * (1 - animatedDisplayState.value.size)
+                        val indicatorStart =
+                            indicatorPosition * (1 - animatedDisplayState.value.size)
 
-                    val diameter = max(size.width, size.height)
+                        val diameter = max(containerSize.width, containerSize.height)
 
-                    // Note that indicators are on right or left, centered vertically.
                     val paddingHorizontalPx = paddingHorizontal.toPx()
                     if (isScreenRound) {
                         val usableHalf = diameter / 2f - paddingHorizontalPx
@@ -476,7 +556,8 @@ public fun PositionIndicator(
                         )
                     }
                 }
-        )
+            )
+        }
     }
 }
 
@@ -610,51 +691,13 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
  */
 internal class ScalingLazyColumnStateAdapter(
     private val state: ScalingLazyListState
-) : PositionIndicatorState {
-    override val positionFraction: Float
-        get() {
-            return if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
-                0.0f
-            } else {
-                val decimalFirstItemIndex = decimalFirstItemIndex()
-                val decimalLastItemIndex = decimalLastItemIndex()
-                val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
-                    decimalLastItemIndex
+) : BaseScalingLazyColumnStateAdapter() {
 
-                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
-                    0.0f
-                } else {
-                    decimalFirstItemIndex /
-                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
-                }
-            }
-        }
+    override fun noVisibleItems(): Boolean = state.layoutInfo.visibleItemsInfo.isEmpty()
 
-    override fun sizeFraction(scrollableContainerSizePx: Float) =
-        if (state.layoutInfo.totalItemsCount == 0) {
-            1.0f
-        } else {
-            val decimalFirstItemIndex = decimalFirstItemIndex()
-            val decimalLastItemIndex = decimalLastItemIndex()
+    override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
 
-            (decimalLastItemIndex - decimalFirstItemIndex) /
-                state.layoutInfo.totalItemsCount.toFloat()
-        }
-
-    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
-        val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() &&
-            (decimalFirstItemIndex() > 0 ||
-                decimalLastItemIndex() < state.layoutInfo.totalItemsCount)
-        return if (canScroll) {
-            if (state.isScrollInProgress) {
-                PositionIndicatorVisibility.Show
-            } else {
-                PositionIndicatorVisibility.AutoHide
-            }
-        } else {
-            PositionIndicatorVisibility.Hide
-        }
-    }
+    override fun isScrollInProgress(): Boolean = state.isScrollInProgress
 
     override fun hashCode(): Int {
         return state.hashCode()
@@ -673,7 +716,7 @@ internal class ScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    private fun decimalLastItemIndex(): Float {
+    override fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
         // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
@@ -684,10 +727,12 @@ internal class ScalingLazyColumnStateAdapter(
         // center of the viewport, it does not change viewport coordinates. As a result this
         // calculation needs to take the anchorType into account to calculate the correct end
         // of list item offset.
-        val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
-        val viewportEndOffset = state.viewportHeightPx.value!! / 2f
+        val lastItemEndOffset = lastItem.startOffset(state.layoutInfo.anchorType) + lastItem.size
+        val viewportEndOffset = state.layoutInfo.viewportSize.height / 2f
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleFraction =
-            (1f - ((lastItemEndOffset - viewportEndOffset) / lastItem.size)).coerceAtMost(1f)
+            (1f - ((lastItemEndOffset - viewportEndOffset) /
+                lastItem.size.coerceAtLeast(1))).coerceAtMost(1f)
 
         return lastItem.index.toFloat() + lastItemVisibleFraction
     }
@@ -702,16 +747,159 @@ internal class ScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    private fun decimalFirstItemIndex(): Float {
+    override fun decimalFirstItemIndex(): Float {
+        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val firstItem = state.layoutInfo.visibleItemsInfo.first()
+        val firstItemStartOffset = firstItem.startOffset(state.layoutInfo.anchorType)
+        val viewportStartOffset = - (state.layoutInfo.viewportSize.height / 2f)
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
+        val firstItemInvisibleFraction =
+            ((viewportStartOffset - firstItemStartOffset) /
+                firstItem.size.coerceAtLeast(1)).coerceAtLeast(0f)
+
+        return firstItem.index.toFloat() + firstItemInvisibleFraction
+    }
+}
+
+/**
+ * An implementation of [PositionIndicatorState] to display the amount and position of a
+ * [ScalingLazyColumn] component via its [ScalingLazyListState].
+ *
+ * Note that size and position calculations ignore spacing between list items both for determining
+ * the number and the number of visible items.
+
+ * @param state the [ScalingLazyListState] to adapt.
+ */
+@Deprecated("Use [ScalingLazyColumnStateAdapter] instead")
+internal class MaterialScalingLazyColumnStateAdapter(
+    @Suppress("DEPRECATION")
+    private val state: androidx.wear.compose.material.ScalingLazyListState
+) : BaseScalingLazyColumnStateAdapter() {
+
+    override fun noVisibleItems(): Boolean = state.layoutInfo.visibleItemsInfo.isEmpty()
+
+    override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
+
+    override fun isScrollInProgress(): Boolean = state.isScrollInProgress
+
+    override fun hashCode(): Int {
+        return state.hashCode()
+    }
+
+    @Suppress("DEPRECATION")
+    override fun equals(other: Any?): Boolean {
+        return (other as? MaterialScalingLazyColumnStateAdapter)?.state == state
+    }
+
+    /**
+     * Provide a float value that represents the index of the last visible list item in a scaling
+     * lazy column. The value should be in the range from [n,n+1] for a given index n, where n is
+     * the index of the last visible item and a value of n represents that only the very start|top
+     * of the item is visible, and n+1 means that whole of the item is visible in the viewport.
+     *
+     * Note that decimal index calculations ignore spacing between list items both for determining
+     * the number and the number of visible items.
+     */
+    override fun decimalLastItemIndex(): Float {
+        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val lastItem = state.layoutInfo.visibleItemsInfo.last()
+        // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
+        // 0 in the center of the visible viewport and +/-(state.viewportHeightPx / 2f) are the
+        // start and end of the viewport.
+        //
+        // Note that [ScalingLazyListAnchorType] determines how the list items are anchored to the
+        // center of the viewport, it does not change viewport coordinates. As a result this
+        // calculation needs to take the anchorType into account to calculate the correct end
+        // of list item offset.
+        val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
+        val viewportEndOffset = state.viewportHeightPx.value!! / 2f
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
+        val lastItemVisibleFraction =
+            (1f - ((lastItemEndOffset - viewportEndOffset) /
+                lastItem.size.coerceAtLeast(1))).coerceAtMost(1f)
+
+        return lastItem.index.toFloat() + lastItemVisibleFraction
+    }
+
+    /**
+     * Provide a float value that represents the index of first visible list item in a scaling lazy
+     * column. The value should be in the range from [n,n+1] for a given index n, where n is the
+     * index of the first visible item and a value of n represents that all of the item is visible
+     * in the viewport and a value of n+1 means that only the very end|bottom of the list item is
+     * visible at the start|top of the viewport.
+     *
+     * Note that decimal index calculations ignore spacing between list items both for determining
+     * the number and the number of visible items.
+     */
+    override fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
         val viewportStartOffset = - (state.viewportHeightPx.value!! / 2f)
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val firstItemInvisibleFraction =
-            ((viewportStartOffset - firstItemStartOffset) / firstItem.size).coerceAtLeast(0f)
+            ((viewportStartOffset - firstItemStartOffset) /
+                firstItem.size.coerceAtLeast(1)).coerceAtLeast(0f)
 
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
+}
+
+internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorState {
+    override val positionFraction: Float
+        get() {
+            return if (noVisibleItems()) {
+                0.0f
+            } else {
+                val decimalFirstItemIndex = decimalFirstItemIndex()
+                val decimalLastItemIndex = decimalLastItemIndex()
+                val decimalLastItemIndexDistanceFromEnd = totalItemsCount() -
+                    decimalLastItemIndex
+
+                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                    0.0f
+                } else {
+                    decimalFirstItemIndex /
+                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                }
+            }
+        }
+
+    override fun sizeFraction(scrollableContainerSizePx: Float) =
+        if (totalItemsCount() == 0) {
+            1.0f
+        } else {
+            val decimalFirstItemIndex = decimalFirstItemIndex()
+            val decimalLastItemIndex = decimalLastItemIndex()
+
+            (decimalLastItemIndex - decimalFirstItemIndex) /
+                totalItemsCount().toFloat()
+        }
+
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
+        val canScroll = !noVisibleItems() &&
+            (decimalFirstItemIndex() > 0 ||
+                decimalLastItemIndex() < totalItemsCount())
+        return if (canScroll) {
+            if (isScrollInProgress()) {
+                PositionIndicatorVisibility.Show
+            } else {
+                PositionIndicatorVisibility.AutoHide
+            }
+        } else {
+            PositionIndicatorVisibility.Hide
+        }
+    }
+
+    abstract fun noVisibleItems(): Boolean
+
+    abstract fun totalItemsCount(): Int
+
+    abstract fun isScrollInProgress(): Boolean
+
+    abstract fun decimalLastItemIndex(): Float
+
+    abstract fun decimalFirstItemIndex(): Float
 }
 
 /**
@@ -779,18 +967,22 @@ internal class LazyColumnStateAdapter(
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
+        // Coerce item sizes to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleSize =
-            (state.layoutInfo.viewportEndOffset - lastItem.offset).coerceAtMost(lastItem.size)
+            (state.layoutInfo.viewportEndOffset - lastItem.offset)
+                .coerceAtMost(lastItem.size).coerceAtLeast(1)
         return lastItem.index.toFloat() +
-            lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
+            lastItemVisibleSize.toFloat() / lastItem.size.coerceAtLeast(1).toFloat()
     }
 
     private fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         return firstItem.index.toFloat() -
-            firstItemOffset.coerceAtMost(0).toFloat() / firstItem.size.toFloat()
+            firstItemOffset.coerceAtMost(0).toFloat() /
+            firstItem.size.coerceAtLeast(1).toFloat()
     }
 }
 
@@ -871,3 +1063,63 @@ private fun ContentDrawScope.drawStraightIndicator(
 }
 
 internal fun Float.toDegrees() = this * 180f / PI.toFloat()
+
+// Make the content believe it's using the full dimensions of the parent, but limit it
+// to the given bounds. This is used to limit the space used on screen for "full-screen" components
+// like PositionIndicator, so it doesn't interfere with a11y on the whole screen.
+@Composable
+private fun BoundsLimiter(
+    offset: Density.() -> IntOffset,
+    size: Density.() -> IntSize,
+    modifier: Modifier = Modifier,
+    onSizeChanged: (IntSize) -> Unit = { },
+    content: @Composable BoxScope.() -> Unit
+) = Box(
+    modifier = Modifier
+        .fillMaxSize()
+        .onSizeChanged(onSizeChanged)
+        .absoluteOffset(offset),
+    // We handle layout direction the main PositionIndicator function, according to the position
+    // parameter.
+    contentAlignment = AbsoluteAlignment.TopLeft
+) {
+    // This Box has the position and size we need, so any modifiers passed in should be applied
+    // here. We set the size using a custom modifier (that passes the constraints transparently to
+    // the content), and add a negative offset to make the content believe is drawing at the top
+    // left (position 0, 0).
+    Box(
+        modifier
+            .transparentSizeModifier(size)
+            .absoluteOffset { -offset() }, content = content,
+        contentAlignment = AbsoluteAlignment.TopLeft)
+}
+
+// Sets the size of this element, but lets the child measure using the constraints
+// of the element containing this.
+private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then(
+    @Suppress("ModifierInspectorInfo")
+    object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            val actualSize = size()
+            return layout(actualSize.width, actualSize.height) {
+                placeable.place(0, 0)
+            }
+        }
+    }
+)
+
+private fun sqr(x: Float) = x * x
+
+/**
+ * Find the start offset of the list item w.r.t. the
+ */
+internal fun ScalingLazyListItemInfo.startOffset(anchorType: ScalingLazyListAnchorType) =
+    offset - if (anchorType == ScalingLazyListAnchorType.ItemCenter) {
+        (size / 2f)
+    } else {
+        0f
+    }

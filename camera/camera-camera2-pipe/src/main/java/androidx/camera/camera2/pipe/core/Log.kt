@@ -20,11 +20,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 
 /**
- * This object provides a set of common log functions that are optimized for CameraPipe with
- * options to control which log levels are available to log at compile time via const val's.
+ * This object provides a set of common log functions that are optimized for CameraPipe with options
+ * to control which log levels are available to log at compile time via const val's.
  *
- * Log functions have been designed so that printing variables and doing string concatenation
- * will not occur if the log level is disabled, which leads to slightly unusual syntax:
+ * Log functions have been designed so that printing variables and doing string concatenation will
+ * not occur if the log level is disabled, which leads to slightly unusual syntax:
  *
  * Log.debug { "This is a log message with a $value" }
  */
@@ -47,9 +47,7 @@ public object Log {
     public val ERROR_LOGGABLE: Boolean =
         LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
 
-    /**
-     * Debug functions log noisy information related to the internals of the system.
-     */
+    /** Debug functions log noisy information related to the internals of the system. */
     public inline fun debug(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg())
     }
@@ -58,9 +56,7 @@ public object Log {
         if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg(), throwable)
     }
 
-    /**
-     * Info functions log standard, useful information about the state of the system.
-     */
+    /** Info functions log standard, useful information about the state of the system. */
     public inline fun info(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg())
     }
@@ -92,19 +88,19 @@ public object Log {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
     }
 
-    /**
-     * Read the stack trace of a calling method and join it to a formatted string.
-     */
+    /** Read the stack trace of a calling method and join it to a formatted string. */
     public fun readStackTrace(limit: Int = 4): String {
         val elements = Thread.currentThread().stackTrace
         // Ignore the first 3 elements, which ignores:
         // VMStack.getThreadStackTrace
         // Thread.currentThread().getStackTrace()
         // dumpStackTrace()
-        return elements.drop(3).joinToString(
-            prefix = "\n\t",
-            separator = "\t",
-            limit = limit,
-        )
+        return elements
+            .drop(3)
+            .joinToString(
+                prefix = "\n\t",
+                separator = "\t",
+                limit = limit,
+            )
     }
 }

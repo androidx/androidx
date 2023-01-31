@@ -67,7 +67,8 @@ internal fun RemoteViews.translateEmittableRadioButton(
         textViewId = inflateViewStub(translationContext, R.id.radioText)
         val iconId = inflateViewStub(translationContext, R.id.radioIcon)
         setViewEnabled(iconId, element.checked)
-        setImageViewColorFilter(iconId, element.colors.radio.getColor(context, element.checked))
+        val color = element.colors.radio.getColor(context, element.checked)
+        setImageViewColorFilter(iconId, color)
     }
 
     setText(

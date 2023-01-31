@@ -52,10 +52,13 @@ class StartupProfilesTest {
             Landroidx/Foo/Bar;
             Lfoo/bar/Baz$dollar<Suffix>;
             HSPLjava/io/DataOutputStream;->writeByte(I)V+]Ljava/io/OutputStream;missing_types
+            HPLandroidx/startup/AppInitializer;->**(**)**
         """.trimIndent()
 
         val startupRules = startupProfile(profile, includeStartupOnly = true)
         val expectedRules = """
+            SLandroidx/Foo/Bar;
+            SLfoo/bar/Baz;
             SLjava/io/DataOutputStream;
         """.trimIndent()
         assertEquals(expectedRules, startupRules)

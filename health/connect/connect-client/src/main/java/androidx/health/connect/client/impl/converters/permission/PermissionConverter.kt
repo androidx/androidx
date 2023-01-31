@@ -18,13 +18,11 @@
 package androidx.health.connect.client.impl.converters.permission
 
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeKClass
-import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.permission.AccessTypes
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
-import java.lang.IllegalStateException
 
 private fun toAccessTypeProto(accessType: Int): PermissionProto.AccessType {
     return when (accessType) {
@@ -42,13 +40,11 @@ private fun PermissionProto.AccessType.toAccessType(): Int {
     }
 }
 
-fun HealthPermission.toProtoPermission(): PermissionProto.Permission {
-    val dataType = DataProto.DataType.newBuilder().setName(this.recordType.toDataTypeName()).build()
-    return PermissionProto.Permission.newBuilder()
-        .setDataType(dataType)
+fun HealthPermission.toProtoPermission(): PermissionProto.Permission =
+    PermissionProto.Permission.newBuilder()
+        .setDataType(recordType.toDataType())
         .setAccessType(toAccessTypeProto(accessType))
         .build()
-}
 
 fun PermissionProto.Permission.toJetpackPermission(): HealthPermission {
     val dataTypeKClass = dataType.name.toDataTypeKClass()

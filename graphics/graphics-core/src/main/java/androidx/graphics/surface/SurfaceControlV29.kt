@@ -16,15 +16,18 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceImpl
-import androidx.graphics.lowlatency.SyncFenceV19
-import androidx.hardware.SyncFence
+import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOWN_TRANSFORM
+import androidx.hardware.SyncFenceImpl
+import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
+import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
+import androidx.hardware.SyncFenceV19
 import java.util.concurrent.Executor
 
 /**
@@ -34,6 +37,8 @@ import java.util.concurrent.Executor
 internal class SurfaceControlV29 internal constructor(
     internal val surfaceControl: SurfaceControlWrapper
 ) : SurfaceControlImpl {
+
+    private var currActiveBufferReleaseCallback: (() -> Unit)? = null
 
     /**
      * See [SurfaceControlWrapper.isValid]
@@ -62,6 +67,14 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
+         * See [SurfaceControlWrapper.Builder.setParent]
+         */
+        override fun setParent(surfaceControl: SurfaceControlCompat): SurfaceControlImpl.Builder {
+            builder.setParent(surfaceControl.scImpl.asWrapperSurfaceControl())
+            return this
+        }
+
+        /**
          * See [SurfaceControlWrapper.Builder.setDebugName]
          */
         override fun setName(name: String): SurfaceControlImpl.Builder {
@@ -80,26 +93,87 @@ internal class SurfaceControlV29 internal constructor(
      */
     class Transaction : SurfaceControlImpl.Transaction {
         private val transaction = SurfaceControlWrapper.Transaction()
-        private val bufferCallbacks = ArrayList<(() -> Unit)>()
+        private val uncommittedBufferCallbackMap = HashMap<SurfaceControlImpl, BufferData?>()
+        private val pendingSetTransformCalls = HashMap<SurfaceControlImpl, Int>()
+
+        /**
+         * Class to wrap metadata around setBuffer calls. This is used to appropriately call
+         * the release callbacks as well as configure the buffer transform for older API levels
+         */
+        private class BufferData(
+            val width: Int,
+            val height: Int,
+            val releaseCallback: (() -> Unit)?
+        )
 
         /**
          * See [SurfaceControlWrapper.Transaction.commit]
          */
         override fun commit() {
-            if (bufferCallbacks.size > 0) {
+            setPendingBufferTransform()
+            updateReleaseCallbacks()
+            uncommittedBufferCallbackMap.clear()
+            pendingSetTransformCalls.clear()
+            transaction.commit()
+        }
+
+        private fun updateReleaseCallbacks() {
+            // store prev committed callbacks so we only need 1 onComplete callback
+            val callbackInvokeList = mutableListOf<(() -> Unit)>()
+
+            for (surfaceControl in uncommittedBufferCallbackMap.keys) {
+                (surfaceControl as? SurfaceControlV29)?.apply {
+                    // add active buffers callback to list if we have a new buffer about to overwrite
+                    currActiveBufferReleaseCallback?.let { callbackInvokeList.add(it) }
+
+                    // add as new active buffer callback
+                    currActiveBufferReleaseCallback =
+                        uncommittedBufferCallbackMap[surfaceControl]?.releaseCallback
+                }
+            }
+
+            if (callbackInvokeList.size > 0) {
                 val callbackListener = object : SurfaceControlCompat.TransactionCompletedListener {
                     override fun onTransactionCompleted() {
-                        for (callback in bufferCallbacks) {
-                            callback.invoke()
-                        }
-
-                        bufferCallbacks.clear()
+                        callbackInvokeList.forEach { it.invoke() }
+                        callbackInvokeList.clear()
                     }
                 }
 
                 this.addTransactionCompletedListener(callbackListener)
             }
-            transaction.commit()
+        }
+
+        private fun setPendingBufferTransform() {
+            for (surfaceControl in pendingSetTransformCalls.keys) {
+                uncommittedBufferCallbackMap[surfaceControl]?.let {
+                    val transformation = pendingSetTransformCalls.getOrDefault(
+                        surfaceControl,
+                        UNKNOWN_TRANSFORM
+                    )
+                    if (transformation != UNKNOWN_TRANSFORM) {
+                        val dstWidth: Int
+                        val dstHeight: Int
+                        if (transformation == BUFFER_TRANSFORM_ROTATE_90 ||
+                            transformation == BUFFER_TRANSFORM_ROTATE_270
+                        ) {
+                            dstWidth = it.height
+                            dstHeight = it.width
+                        } else {
+                            dstWidth = it.width
+                            dstHeight = it.height
+                        }
+                        transaction.setGeometry(
+                            surfaceControl.asWrapperSurfaceControl(),
+                            it.width,
+                            it.height,
+                            dstWidth,
+                            dstHeight,
+                            transformation
+                        )
+                    }
+                }
+            }
         }
 
         /**
@@ -128,23 +202,6 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
-         * See [SurfaceControlWrapper.Transaction.reparent]
-         */
-        override fun reparent(
-            surfaceControl: SurfaceControlImpl,
-            surfaceView: SurfaceView
-        ): SurfaceControlImpl.Transaction {
-            transaction.reparent(
-                surfaceControl.asWrapperSurfaceControl(),
-                SurfaceControlWrapper.Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName(surfaceView.toString())
-                    .build()
-            )
-            return this
-        }
-
-        /**
          * See [SurfaceControlWrapper.Transaction.setBuffer]
          */
         override fun setBuffer(
@@ -153,9 +210,13 @@ internal class SurfaceControlV29 internal constructor(
             fence: SyncFenceImpl?,
             releaseCallback: (() -> Unit)?
         ): SurfaceControlImpl.Transaction {
-            if (releaseCallback != null) {
-                bufferCallbacks.add { releaseCallback() }
-            }
+            // we have a previous mapping in the same transaction, invoke callback
+            val data = BufferData(
+                width = buffer.width,
+                height = buffer.height,
+                releaseCallback = releaseCallback
+            )
+            uncommittedBufferCallbackMap.put(surfaceControl, data)?.releaseCallback?.invoke()
 
             // Ensure if we have a null value, we default to the default value for SyncFence
             // argument to prevent null pointer dereference
@@ -239,6 +300,62 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
+         * See [SurfaceControlWrapper.Transaction.setCrop]
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        override fun setCrop(
+            surfaceControl: SurfaceControlImpl,
+            crop: Rect?
+        ): SurfaceControlImpl.Transaction {
+            transaction.setCrop(surfaceControl.asWrapperSurfaceControl(), crop)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlWrapper.Transaction.setPosition]
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        override fun setPosition(
+            surfaceControl: SurfaceControlImpl,
+            x: Float,
+            y: Float
+        ): SurfaceControlImpl.Transaction {
+            transaction.setPosition(surfaceControl.asWrapperSurfaceControl(), x, y)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlWrapper.Transaction.setScale]
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        override fun setScale(
+            surfaceControl: SurfaceControlImpl,
+            scaleX: Float,
+            scaleY: Float
+        ): SurfaceControlImpl.Transaction {
+            transaction.setScale(surfaceControl.asWrapperSurfaceControl(), scaleX, scaleY)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlWrapper.Transaction.setBufferTransform]
+         */
+        override fun setBufferTransform(
+            surfaceControl: SurfaceControlImpl,
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
+        ): Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                transaction.setBufferTransform(
+                    surfaceControl.asWrapperSurfaceControl(),
+                    transformation
+                )
+            } else {
+                pendingSetTransformCalls[surfaceControl] = transformation
+            }
+            return this
+        }
+
+        /**
          * See [SurfaceControlWrapper.Transaction.close]
          */
         override fun close() {
@@ -261,19 +378,24 @@ internal class SurfaceControlV29 internal constructor(
             )
         }
 
-        private fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
+        private fun SyncFenceImpl.asSyncFenceCompat(): SyncFenceV19 =
+            if (this is SyncFenceV19) {
+                this
+            } else {
+                throw IllegalArgumentException(
+                    "Expected SyncFenceCompat implementation " +
+                        "for API level 19"
+                )
+            }
+    }
+
+    private companion object {
+
+        fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
             if (this is SurfaceControlV29) {
                 surfaceControl
             } else {
                 throw IllegalArgumentException("Parent implementation is only for Android T+.")
-            }
-
-        private fun SyncFenceImpl.asSyncFenceCompat(): SyncFence =
-            if (this is SyncFenceV19) {
-                mSyncFence
-            } else {
-                throw IllegalArgumentException("Expected SyncFenceCompat implementation " +
-                    "for API level 19")
             }
     }
 }

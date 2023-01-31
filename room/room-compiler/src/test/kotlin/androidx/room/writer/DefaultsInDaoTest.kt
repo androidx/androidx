@@ -16,10 +16,12 @@
 
 package androidx.room.writer
 
+import COMMON
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKaptTest
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.context
 import com.google.common.truth.StringSubject
@@ -154,7 +156,7 @@ class DefaultsInDaoTest(
                 ).filterIsInstance<XTypeElement>()
                 .forEach { dao ->
                     val db = invocation.context.processingEnv
-                        .requireTypeElement(RoomTypeNames.ROOM_DB)
+                        .requireTypeElement(ROOM_DB)
                     val dbType = db.type
                     val parser = DaoProcessor(
                         baseContext = invocation.context,
@@ -163,10 +165,11 @@ class DefaultsInDaoTest(
                         dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                     )
                     val parsedDao = parser.process()
-                    DaoWriter(parsedDao, db, invocation.processingEnv)
+                    DaoWriter(parsedDao, db, CodeLanguage.JAVA)
                         .write(invocation.processingEnv)
                     invocation.assertCompilationResult {
-                        val relativePath = parsedDao.implTypeName.simpleName() + ".java"
+                        val relativePath =
+                            parsedDao.implTypeName.canonicalName + ".java"
                         handler(generatedSourceFileWithPath(relativePath))
                     }
                 }

@@ -163,6 +163,9 @@ public class ShortcutInfoCompat {
             // the extras field of ShortcutInfo for backwards compatibility.
             builder.setExtras(buildLegacyExtrasBundle());
         }
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.setExcludedFromSurfaces(builder, mExcludedSurfaces);
+        }
         return builder.build();
     }
 
@@ -446,7 +449,7 @@ public class ShortcutInfoCompat {
      * <p>When an app is upgraded and a shortcut is no longer published from AndroidManifest.xml,
      * this will be set to {@code false}.  If the shortcut is not pinned, then it'll disappear.
      * However, if it's pinned, it will still be visible, {@link #isEnabled()} will be
-     * {@code false} and {@link #isEnabled()} will be {@code true}.
+     * {@code false} and {@link #isImmutable()} will be {@code true}.
      */
     public boolean isDeclaredInManifest() {
         return mIsDeclaredInManifest;
@@ -1007,6 +1010,14 @@ public class ShortcutInfoCompat {
                 }
             }
             return mInfo;
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33Impl {
+        static void setExcludedFromSurfaces(@NonNull final ShortcutInfo.Builder builder,
+                final int surfaces) {
+            builder.setExcludedFromSurfaces(surfaces);
         }
     }
 }

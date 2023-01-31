@@ -16,6 +16,8 @@
 
 package androidx.browser.customtabs;
 
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,6 +28,9 @@ import static org.junit.Assert.fail;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.LocaleList;
+import android.provider.Browser;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.RequiresApi;
@@ -149,6 +154,216 @@ public class CustomTabsIntentTest {
                 CustomTabsIntent.EXTRA_NAVIGATION_BAR_COLOR, 0));
         assertEquals(navigationBarDividerColor, intent.getIntExtra(
                 CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR, 0));
+    }
+
+    @Test
+    public void testActivityInitialFixedHeightResizeBehavior() {
+        int heightFixedResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_FIXED;
+        int initialActivityHeight = 200;
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .setInitialActivityHeightPx(initialActivityHeight, heightFixedResizeBehavior)
+                .build()
+                .intent;
+
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
+                        + "ACTIVITY_HEIGHT_FIXED.",
+                heightFixedResizeBehavior,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
+                        CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT));
+        assertEquals("The height should be the same as the one that was set.",
+                initialActivityHeight,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0));
+        assertEquals("The value returned by the getter should be the same.",
+                heightFixedResizeBehavior,
+                CustomTabsIntent.getActivityResizeBehavior(intent));
+        assertEquals("The height returned by the getter should be the same.",
+                initialActivityHeight,
+                CustomTabsIntent.getInitialActivityHeightPx(intent));
+    }
+
+    @Test
+    public void testActivityInitialAdjustableHeightResizeBehavior() {
+        int heightAdjustableResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_ADJUSTABLE;
+        int initialActivityHeight = 200;
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .setInitialActivityHeightPx(initialActivityHeight, heightAdjustableResizeBehavior)
+                .build()
+                .intent;
+
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
+                        + "ACTIVITY_HEIGHT_ADJUSTABLE.",
+                heightAdjustableResizeBehavior,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
+                        CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT));
+        assertEquals("The height should be the same as the one that was set.",
+                initialActivityHeight,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0));
+        assertEquals("The value returned by the getter should be the same.",
+                heightAdjustableResizeBehavior,
+                CustomTabsIntent.getActivityResizeBehavior(intent));
+        assertEquals("The height returned by the getter should be the same.",
+                initialActivityHeight,
+                CustomTabsIntent.getInitialActivityHeightPx(intent));
+    }
+
+    @Test
+    public void testActivityInitialHeightCorrectValue() {
+        int initialActivityHeight = 200;
+        int defaultResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT;
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .setInitialActivityHeightPx(initialActivityHeight)
+                .build()
+                .intent;
+
+        assertEquals("The height should be the same as the one that was set.",
+                initialActivityHeight,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0));
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
+                        + "ACTIVITY_HEIGHT_DEFAULT.",
+                defaultResizeBehavior,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
+                        CustomTabsIntent.ACTIVITY_HEIGHT_FIXED));
+        assertEquals("The height returned by the getter should be the same.",
+                initialActivityHeight,
+                CustomTabsIntent.getInitialActivityHeightPx(intent));
+        assertEquals("The value returned by the getter should be the same.",
+                defaultResizeBehavior,
+                CustomTabsIntent.getActivityResizeBehavior(intent));
+    }
+
+    @Test
+    public void testActivityInitialFixedHeightExtraNotSet() {
+        int defaultInitialActivityHeight = 0;
+        int defaultResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT;
+
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_INITIAL_ACTIVITY_HEIGHT_PX should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX));
+        assertFalse("The EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR));
+        assertEquals("The getter should return the default value.",
+                defaultInitialActivityHeight,
+                CustomTabsIntent.getInitialActivityHeightPx(intent));
+        assertEquals("The getter should return the default value.",
+                defaultResizeBehavior,
+                CustomTabsIntent.getActivityResizeBehavior(intent));
+    }
+
+    @Test
+    public void testActivityInitialHeightInvalidValuesThrow() {
+        try {
+            new CustomTabsIntent.Builder().setInitialActivityHeightPx(-1);
+            fail("The height of the activity should be higher than 0.");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder().setInitialActivityHeightPx(100, -1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder().setInitialActivityHeightPx(100,
+                    CustomTabsIntent.ACTIVITY_HEIGHT_FIXED + 1);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testToolbarCornerRadiusDpCorrectValue() {
+        int cornerRadiusDp = 16;
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .setToolbarCornerRadiusDp(cornerRadiusDp)
+                .build()
+                .intent;
+
+        assertEquals("The toolbar corner radius should be the same as the one that was set.",
+                cornerRadiusDp,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_CORNER_RADIUS_DP, 0));
+        assertEquals("The toolbar corner radius returned by the getter should be the same.",
+                cornerRadiusDp,
+                CustomTabsIntent.getToolbarCornerRadiusDp(intent));
+    }
+
+    @Test
+    public void testToolbarCornerRadiusDpExtraNotSet() {
+        int defaultCornerRadiusDp = 16;
+
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_TOOLBAR_CORNER_RADIUS_DP should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_TOOLBAR_CORNER_RADIUS_DP));
+        assertEquals("The getter should return the default value.",
+                defaultCornerRadiusDp,
+                CustomTabsIntent.getToolbarCornerRadiusDp(intent));
+    }
+
+    @Test
+    public void testToolbarCornerRadiusDpInvalidValueThrows() {
+        try {
+            new CustomTabsIntent.Builder().setToolbarCornerRadiusDp(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder().setToolbarCornerRadiusDp(17);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+    @Test
+    public void testCloseButtonPositionCorrectValue() {
+        int closeButtonPosition = CustomTabsIntent.CLOSE_BUTTON_POSITION_START;
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .setCloseButtonPosition(closeButtonPosition)
+                .build()
+                .intent;
+
+        assertEquals("The close button position should be the same as the one that was set.",
+                closeButtonPosition,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_POSITION,
+                        CustomTabsIntent.CLOSE_BUTTON_POSITION_END));
+        assertEquals("The close button position returned by the getter should be the same.",
+                closeButtonPosition,
+                CustomTabsIntent.getCloseButtonPosition(intent));
+    }
+
+    @Test
+    public void testCloseButtonPositionExtraNotSet() {
+        int defaultPosition = CustomTabsIntent.CLOSE_BUTTON_POSITION_DEFAULT;
+
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_CLOSE_BUTTON_POSITION should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_POSITION));
+        assertEquals("The getter should return the default value.",
+                defaultPosition,
+                CustomTabsIntent.getCloseButtonPosition(intent));
+    }
+
+    @Test
+    public void testCloseButtonPositionInvalidValueThrows() {
+        try {
+            new CustomTabsIntent.Builder().setCloseButtonPosition(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder()
+                    .setCloseButtonPosition(CustomTabsIntent.CLOSE_BUTTON_POSITION_END + 1);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
     }
 
     public void throwsError_WhenInvalidShareStateSet() {
@@ -302,6 +517,25 @@ public class CustomTabsIntentTest {
                 .intent;
         assertEquals(pendingSession.getId(),
                 intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Config(maxSdk = Build.VERSION_CODES.M)
+    @Test
+    public void putDefaultAcceptLanguage_BeforeSdk24() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        Bundle header = intent.getBundleExtra(Browser.EXTRA_HEADERS);
+        boolean isEmptyAcceptLanguage = header == null || !header.containsKey(ACCEPT_LANGUAGE);
+        assertTrue(isEmptyAcceptLanguage);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void putDefaultAcceptLanguage() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertEquals(LocaleList.getAdjustedDefault().get(0).toLanguageTag(),
+                intent.getBundleExtra(Browser.EXTRA_HEADERS).getString(ACCEPT_LANGUAGE));
     }
 
     private void assertNullSessionInExtras(Intent intent) {

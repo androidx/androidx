@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.View;
@@ -40,6 +41,7 @@ import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -269,7 +271,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateProgressUpToPrimary() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -287,7 +294,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateProgressDownToSecondary() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -318,7 +330,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekAndConfirm() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         when(mImpl.isPrepared()).thenReturn(true);
         when(mImpl.getCurrentPosition()).thenReturn(0L);
         when(mImpl.getDuration()).thenReturn(20000L);
@@ -346,7 +363,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void playSeekToZero() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         when(mImpl.isPrepared()).thenReturn(true);
         when(mImpl.getCurrentPosition()).thenReturn(0L);
         when(mImpl.getDuration()).thenReturn(20000L);
@@ -388,7 +410,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void playSeekAndCancel() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         when(mImpl.isPrepared()).thenReturn(true);
         when(mImpl.getCurrentPosition()).thenReturn(0L);
         when(mImpl.getDuration()).thenReturn(20000L);
@@ -430,7 +457,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekHoldKeyDown() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         when(mImpl.isPrepared()).thenReturn(true);
         when(mImpl.getCurrentPosition()).thenReturn(4489L);
         when(mImpl.getDuration()).thenReturn(20000L);
@@ -456,7 +488,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekAndCancel() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         when(mImpl.isPrepared()).thenReturn(true);
         when(mImpl.getCurrentPosition()).thenReturn(0L);
         when(mImpl.getDuration()).thenReturn(20000L);
@@ -484,7 +521,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekUpBetweenTwoKeyPosition() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -508,7 +550,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekDownBetweenTwoKeyPosition() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -533,7 +580,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekDownOutOfKeyPositions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(1000L, 10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -562,7 +614,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekDownAheadOfKeyPositions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(1000L, 10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -589,7 +646,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekUpAheadOfKeyPositions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(1000L, 10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -616,7 +678,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekUpOutOfKeyPositions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -649,7 +716,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekUpAfterKeyPositions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -675,7 +747,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void seekDownAfterKeyPositions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PlaybackSeekProviderSample provider = Mockito.spy(
                 new PlaybackSeekProviderSample(10000L, 101));
         final long[] positions = provider.getSeekPositions();
@@ -701,7 +778,12 @@ public class PlaybackTransportRowPresenterTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void thumbLoadedInCallback() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         when(mImpl.isPrepared()).thenReturn(true);
         when(mImpl.getCurrentPosition()).thenReturn(0L);
         when(mImpl.getDuration()).thenReturn(20000L);

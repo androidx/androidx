@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 /** Tests for {@link ActionsConstraints}. */
@@ -62,6 +64,26 @@ public class ActionsConstraintsTest {
                 IllegalArgumentException.class,
                 () -> new ActionsConstraints.Builder()
                         .addRequiredActionType(Action.TYPE_BACK)
+                        .addDisallowedActionType(Action.TYPE_BACK)
+                        .build());
+    }
+
+    @Test
+    public void create_allowedAlsoDisallowed() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionsConstraints.Builder()
+                        .addAllowedActionType(Action.TYPE_BACK)
+                        .addDisallowedActionType(Action.TYPE_BACK)
+                        .build());
+    }
+
+    @Test
+    public void create_allowedAndDisallowedSet() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionsConstraints.Builder()
+                        .addAllowedActionType(Action.TYPE_PAN)
                         .addDisallowedActionType(Action.TYPE_BACK)
                         .build());
     }
@@ -150,6 +172,44 @@ public class ActionsConstraintsTest {
                                 .addAction(actionWithIcon)
                                 .build()
                                 .getActions()));
+
+        // Positive case: OnClickListener disallowed only for custom action types and passes for
+        // standard action types like the back action.
+        constraintsNoOnClick.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.BACK).build().getActions());
+
+        ActionsConstraints constraintsAllowPan =
+                new ActionsConstraints.Builder().addAllowedActionType(Action.TYPE_PAN).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraintsAllowPan.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(Action.BACK)
+                                .build()
+                                .getActions()));
+        //Positive case: Only allows pan action types
+        constraintsAllowPan.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.PAN).build().getActions());
+
+        // Background color
+        ActionsConstraints constraintsRequireBackgroundColor =
+                new ActionsConstraints.Builder()
+                        .setRequireActionIcons(true)
+                        .setRequireActionBackgroundColor(true)
+                        .setOnClickListenerAllowed(true)
+                        .build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraintsRequireBackgroundColor.validateOrThrow(
+                        Arrays.asList(actionWithIcon)));
+
+        // Positive case: Custom icon with background color
+        Action actionWithBackgroundColor = TestUtils.createAction(carIcon, CarColor.BLUE);
+        constraintsRequireBackgroundColor.validateOrThrow(Arrays.asList(actionWithBackgroundColor));
+
+        // Positive case: Standard icon
+        constraintsRequireBackgroundColor.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.APP_ICON).build().getActions());
     }
 
     @Test

@@ -76,7 +76,7 @@ class OkioStorageTest {
     @Test
     fun readAfterDisposeFails() = testScope.runTest {
 
-        testConnection.writeTransaction { writeData(1) }
+        testConnection.writeScope { writeData(1) }
         testConnection.close()
 
         assertThrows<IllegalStateException> { testConnection.readData() }
@@ -85,10 +85,10 @@ class OkioStorageTest {
     @Test
     fun writeAfterDisposeFails() = testScope.runTest {
 
-        testConnection.writeTransaction { writeData(1) }
+        testConnection.writeScope { writeData(1) }
         testConnection.close()
 
-        assertThrows<IllegalStateException> { testConnection.writeTransaction { writeData(1) } }
+        assertThrows<IllegalStateException> { testConnection.writeScope { writeData(1) } }
     }
 
     @Test
@@ -123,7 +123,7 @@ class OkioStorageTest {
     fun blockWithNoWriteSucceeds() = testScope.runTest {
         val count = AtomicInt(0)
 
-        testConnection.writeTransaction {
+        testConnection.writeScope {
             // do no writes in here
             count.incrementAndGet()
         }
@@ -194,7 +194,7 @@ class OkioStorageTest {
     @Test
     fun leakedReadTransactionDoesntWork() = testScope.runTest {
         var scope: ReadScope<Byte>? = null
-        testConnection.readTransaction {
+        testConnection.readScope {
             readData()
             scope = this
         }
@@ -204,7 +204,7 @@ class OkioStorageTest {
     @Test
     fun leakedWriteTransactionDoesntWork() = testScope.runTest {
         var scope: WriteScope<Byte>? = null
-        testConnection.writeTransaction {
+        testConnection.writeScope {
             writeData(1)
             scope = this
         }
@@ -218,12 +218,12 @@ class OkioStorageTest {
 
         val async1 = async {
             hook1.await()
-            testConnection.writeTransaction {
+            testConnection.writeScope {
                 assertThat(count.incrementAndGet()).isEqualTo(3)
             }
         }
         val async2 = async {
-            testConnection.writeTransaction {
+            testConnection.writeScope {
                 hook1.complete(Unit)
                 assertThat(count.incrementAndGet()).isEqualTo(1)
                 yield()
@@ -244,12 +244,12 @@ class OkioStorageTest {
 
         val async1 = async {
             hook1.await()
-            testConnection.writeTransaction {
+            testConnection.writeScope {
                 assertThat(count.incrementAndGet()).isEqualTo(3)
             }
         }
         val async2 = async {
-            testConnection.readTransaction {
+            testConnection.readScope {
                 hook1.complete(Unit)
                 assertThat(count.incrementAndGet()).isEqualTo(1)
                 yield()

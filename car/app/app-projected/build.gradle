@@ -31,7 +31,7 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation project(path: ':car:app:app-testing')
@@ -42,10 +42,6 @@ android {
         minSdkVersion 21
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    lintOptions {
-        // We rely on keeping a bunch of private variables in the library for serialization.
-        disable("BanKeepAnnotation")
     }
     buildFeatures {
         aidl = true
@@ -61,7 +57,6 @@ android {
 androidx {
     name = "Android for Cars App Library Projected Extension"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "Android Auto Projected specific funationaltiy to build navigation, parking, and charging apps for cars"
 }

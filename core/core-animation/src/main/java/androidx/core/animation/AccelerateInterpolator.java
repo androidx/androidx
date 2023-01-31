@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
 
 /**
  * An interpolator where the rate of change starts out slowly and
- * and then accelerates.
+ * then accelerates.
  */
 public class AccelerateInterpolator implements Interpolator {
     private final float mFactor;

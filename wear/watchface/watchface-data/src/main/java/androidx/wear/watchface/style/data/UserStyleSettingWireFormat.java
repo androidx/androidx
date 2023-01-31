@@ -111,6 +111,8 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
     @ParcelField(103)
     public List<Bundle> mPerOptionOnWatchFaceEditorBundles = new ArrayList<>();
 
+    // Field 104 is reserved.
+
     UserStyleSettingWireFormat() {}
 
     /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */

@@ -144,9 +144,8 @@ private fun shouldIncreaseMaxIntrinsic(
     textPaint: TextPaint
 ): Boolean {
     return desiredWidth != 0f &&
-        charSequence is Spanned && (
-        textPaint.letterSpacing != 0f ||
+        (charSequence is Spanned && (
             charSequence.hasSpan(LetterSpacingSpanPx::class.java) ||
             charSequence.hasSpan(LetterSpacingSpanEm::class.java)
-        )
+        ) || textPaint.letterSpacing != 0f)
 }

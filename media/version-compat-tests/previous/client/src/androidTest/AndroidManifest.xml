@@ -22,8 +22,8 @@
     <application android:supportsRtl="true">
         <receiver android:name="android.support.mediacompat.client.ClientBroadcastReceiver" android:exported="true">
             <intent-filter>
-                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_CONTROLLER_METHOD"/>
-                <action android:name="android.support.mediacompat.service.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
+                <action android:name="android.support.mediacompat.client.action.CALL_MEDIA_CONTROLLER_METHOD"/>
+                <action android:name="android.support.mediacompat.client.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
             </intent-filter>
         </receiver>
     </application>

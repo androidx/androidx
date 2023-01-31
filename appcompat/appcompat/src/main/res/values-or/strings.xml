@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="4692188335987374352">"ହୋଇଗଲା"</string>
-    <string name="abc_action_bar_home_description" msgid="5976598919945601918">"ହୋମ୍ ପେଜ୍‌କୁ ନେଭିଗେଟ୍ କରନ୍ତୁ"</string>
+    <string name="abc_action_bar_home_description" msgid="5976598919945601918">"ହୋମକୁ ନେଭିଗେଟ କରନ୍ତୁ"</string>
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"ଉପରକୁ ନେଭିଗେଟ୍ କରନ୍ତୁ"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"ଅଧିକ ବିକଳ୍ପ"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"ସଂକୁଚିତ କରନ୍ତୁ"</string>

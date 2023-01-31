@@ -23,10 +23,6 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
-import androidx.wear.watchface.complications.ComplicationSlotBounds
-import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
-import androidx.wear.watchface.complications.SystemDataSources
-import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlot
@@ -36,6 +32,10 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -44,11 +44,20 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
+
+private const val COLOR_STYLE_SETTING = "color_style_setting"
+private const val RED_STYLE = "red_style"
+private const val GREEN_STYLE = "green_style"
+private const val BLUE_STYLE = "blue_style"
+
+private const val HAND_STYLE_SETTING = "hand_style_setting"
+private const val CLASSIC_STYLE = "classic_style"
+private const val MODERN_STYLE = "modern_style"
+private const val GOTHIC_STYLE = "gothic_style"
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -57,24 +66,31 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             UserStyleSchema(
                 listOf(
                     ListUserStyleSetting(
-                        UserStyleSetting.Id("color_style_setting"),
-                        "Colors",
-                        "Watchface colorization",
+                        UserStyleSetting.Id(COLOR_STYLE_SETTING),
+                        resources,
+                        R.string.colors_style_setting,
+                        R.string.colors_style_setting_description,
                         icon = null,
                         options = listOf(
                             ListUserStyleSetting.ListOption(
-                                Option.Id("red_style"),
-                                "Red",
+                                Option.Id(RED_STYLE),
+                                resources,
+                                R.string.colors_style_red,
+                                R.string.colors_style_red_screen_reader,
                                 icon = null
                             ),
                             ListUserStyleSetting.ListOption(
-                                Option.Id("green_style"),
-                                "Green",
+                                Option.Id(GREEN_STYLE),
+                                resources,
+                                R.string.colors_style_green,
+                                R.string.colors_style_green_screen_reader,
                                 icon = null
                             ),
                             ListUserStyleSetting.ListOption(
-                                Option.Id("blue_style"),
-                                "Blue",
+                                Option.Id(BLUE_STYLE),
+                                resources,
+                                R.string.colors_style_blue,
+                                R.string.colors_style_blue_screen_reader,
                                 icon = null
                             )
                         ),
@@ -85,20 +101,31 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         )
                     ),
                     ListUserStyleSetting(
-                        UserStyleSetting.Id("hand_style_setting"),
-                        "Hand Style",
-                        "Hand visual look",
+                        UserStyleSetting.Id(HAND_STYLE_SETTING),
+                        resources,
+                        R.string.hand_style_setting,
+                        R.string.hand_style_setting_description,
                         icon = null,
                         options = listOf(
                             ListUserStyleSetting.ListOption(
-                                Option.Id("classic_style"), "Classic", icon = null
+                                Option.Id(CLASSIC_STYLE),
+                                resources,
+                                R.string.hand_style_classic,
+                                R.string.hand_style_classic_screen_reader,
+                                icon = null
                             ),
                             ListUserStyleSetting.ListOption(
-                                Option.Id("modern_style"), "Modern", icon = null
+                                Option.Id(MODERN_STYLE),
+                                resources,
+                                R.string.hand_style_modern,
+                                R.string.hand_style_modern_screen_reader,
+                                icon = null
                             ),
                             ListUserStyleSetting.ListOption(
-                                Option.Id("gothic_style"),
-                                "Gothic",
+                                Option.Id(GOTHIC_STYLE),
+                                resources,
+                                R.string.hand_style_gothic,
+                                R.string.hand_style_gothic_screen_reader,
                                 icon = null
                             )
                         ),

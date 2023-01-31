@@ -81,12 +81,10 @@ fun FragmentController.shutdown(
 
 class ControllerHostCallbacks(
     private val activity: FragmentActivity,
-    private val viewModelStore: ViewModelStore
+    private val vmStore: ViewModelStore
 ) : FragmentHostCallback<FragmentActivity>(activity), ViewModelStoreOwner {
 
-    override fun getViewModelStore(): ViewModelStore {
-        return viewModelStore
-    }
+    override val viewModelStore: ViewModelStore = vmStore
 
     override fun onDump(
         prefix: String,

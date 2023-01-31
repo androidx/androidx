@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.0.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha07)" variant="all" version="8.0.0-alpha07">
 
     <issue
         id="NewApi"
@@ -44,6 +44,24 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatRadioButtonTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `onDropForTextView`"
+        errorLine1="                    ? OnDropApi24Impl.onDropForTextView(event, (TextView) view, activity)"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `onDropForView`"
+        errorLine1="                    : OnDropApi24Impl.onDropForView(event, view, activity);"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
     </issue>
 
     <issue
@@ -696,15 +714,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setSplitBackground(Drawable bg) {"
         errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected boolean verifyDrawable(Drawable who) {"
-        errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
     </issue>
@@ -3322,6 +3331,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected synchronized void onDraw(Canvas canvas) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            int defStyleAttr, int mode, Resources.Theme popupTheme) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
@@ -4332,15 +4350,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public DrawerArrowDrawable(Context context) {"
         errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawerArrowDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawerArrowDrawable.java"/>
     </issue>
@@ -6994,8 +7003,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected boolean verifyDrawable(Drawable who) {"
-        errorLine2="                                     ~~~~~~~~">
+        errorLine1="    protected void onDraw(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
     </issue>
@@ -7851,6 +7860,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LayoutInflater getLayoutInflater() {"
         errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
     </issue>

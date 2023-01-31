@@ -16,14 +16,13 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
 
 class GuavaImmutableMultimapQueryResultAdapter(
     context: Context,
@@ -32,18 +31,17 @@ class GuavaImmutableMultimapQueryResultAdapter(
     override val valueTypeArg: XType,
     private val keyRowAdapter: QueryMappedRowAdapter,
     private val valueRowAdapter: QueryMappedRowAdapter,
-    private val immutableClassName: ClassName,
+    private val immutableClassName: XClassName,
 ) : MultimapQueryResultAdapter(context, parsedQuery, listOf(keyRowAdapter, valueRowAdapter)) {
-    private val mapType = ParameterizedTypeName.get(
-        immutableClassName,
-        keyTypeArg.typeName,
-        valueTypeArg.typeName
+    private val mapType = immutableClassName.parametrizedBy(
+        keyTypeArg.asTypeName(),
+        valueTypeArg.asTypeName()
     )
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         val mapVarName = scope.getTmpVar("_mapBuilder")
 
-        scope.builder().apply {
+        scope.builder.apply {
             val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
             if (duplicateColumns.isNotEmpty()) {
                 // There are duplicate columns in the result objects, generate code that provides
@@ -66,18 +64,41 @@ class GuavaImmutableMultimapQueryResultAdapter(
                     it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
                 }
             }
-            addStatement(
-                "final $T.Builder<$T, $T> $L = $T.builder()",
-                immutableClassName,
-                keyTypeArg.typeName,
-                valueTypeArg.typeName,
-                mapVarName,
-                immutableClassName
+
+            val builderClassName = when (immutableClassName) {
+                GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP ->
+                    GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP_BUILDER
+
+                GuavaTypeNames.IMMUTABLE_SET_MULTIMAP ->
+                    GuavaTypeNames.IMMUTABLE_SET_MULTIMAP_BUILDER
+
+                else ->
+                    // Return type is base class ImmutableMultimap, need the case handled here,
+                    // but won't actually get here in the code if this is the case as we will
+                    // do an early return in TypeAdapterStore.kt.
+                    GuavaTypeNames.IMMUTABLE_MULTIMAP_BUILDER
+            }
+
+            addLocalVariable(
+                name = mapVarName,
+                typeName = builderClassName.parametrizedBy(
+                    keyTypeArg.asTypeName(),
+                    valueTypeArg.asTypeName()
+                ),
+                assignExpr = XCodeBlock.of(
+                    language = language,
+                    format = "%T.builder()",
+                    immutableClassName
+                )
             )
+
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
-            beginControlFlow("while ($L.moveToNext())", cursorVarName).apply {
-                addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
+            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+                addLocalVariable(
+                    name = tmpKeyVarName,
+                    typeName = keyTypeArg.asTypeName()
+                )
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
                 // Iterate over all matched fields to check if all are null. If so, we continue in
@@ -86,20 +107,32 @@ class GuavaImmutableMultimapQueryResultAdapter(
                     dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
                         ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
                 val columnNullCheckCodeBlock = getColumnNullCheckCode(
+                    language = language,
                     cursorVarName = cursorVarName,
                     indexVars = valueIndexVars
                 )
                 // Perform column null check
-                beginControlFlow("if ($L)", columnNullCheckCodeBlock).apply {
+                beginControlFlow("if (%L)", columnNullCheckCodeBlock).apply {
                     addStatement("continue")
                 }.endControlFlow()
 
-                addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
+                addLocalVariable(
+                    name = tmpValueVarName,
+                    typeName = valueTypeArg.asTypeName()
+                )
                 valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
-                addStatement("$L.put($L, $L)", mapVarName, tmpKeyVarName, tmpValueVarName)
+                addStatement("%L.put(%L, %L)", mapVarName, tmpKeyVarName, tmpValueVarName)
             }
             endControlFlow()
-            addStatement("final $T $L = $L.build()", mapType, outVarName, mapVarName)
+            addLocalVariable(
+                name = outVarName,
+                typeName = mapType,
+                assignExpr = XCodeBlock.of(
+                    language = language,
+                    format = "%L.build()",
+                    mapVarName
+                )
+            )
         }
     }
 }

@@ -28,6 +28,7 @@ class UpsertionMethodProcessor(
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
+
     fun process(): UpsertionMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
 
@@ -37,9 +38,8 @@ class UpsertionMethodProcessor(
         )
 
         val returnType = delegate.extractReturnType()
-        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
-            returnTypeName, executableElement,
+            returnType, executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS
         )
 
@@ -54,7 +54,7 @@ class UpsertionMethodProcessor(
                     entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                     executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = entity.primaryKey.fields.columnNames
                     )
                 )
@@ -69,7 +69,7 @@ class UpsertionMethodProcessor(
                     missingRequiredFields.isEmpty(),
                     executableElement,
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         missingColumnNames = missingRequiredFields.map { it.columnName }
                     )
                 )
@@ -77,6 +77,7 @@ class UpsertionMethodProcessor(
         )
 
         val methodBinder = delegate.findUpsertMethodBinder(returnType, params)
+
         context.checker.check(
             methodBinder.adapter != null,
             executableElement,

@@ -38,7 +38,6 @@ dependencies {
 androidx {
     name = 'AndroidX AppSearch - Kotlin Extensions'
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'AndroidX AppSearch - Kotlin Extensions'
 }

@@ -35,6 +35,7 @@ import androidx.car.app.validation.HostValidator;
 public final class ShowcaseService extends CarAppService {
     public static final String SHARED_PREF_KEY = "ShowcasePrefs";
     public static final String PRE_SEED_KEY = "PreSeed";
+    public static final String LOADING_KEY = "LoadingKey";
 
     // Intent actions for notification actions in car and phone
     public static final String INTENT_ACTION_NAVIGATE =

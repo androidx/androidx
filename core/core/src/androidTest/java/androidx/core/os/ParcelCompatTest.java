@@ -16,13 +16,18 @@
 
 package androidx.core.os;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Intent;
 import android.content.pm.Signature;
 import android.graphics.Rect;
+import android.os.BadParcelableException;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -37,9 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -56,7 +59,7 @@ public class ParcelCompatTest {
     }
 
     @Test
-    public void readParcelable2Arg() {
+    public void readParcelable() {
         Rect r = new Rect(0, 0, 10, 10);
         Parcel p = Parcel.obtain();
         p.writeParcelable(r, 0);
@@ -64,10 +67,14 @@ public class ParcelCompatTest {
         p.setDataPosition(0);
         Rect r2 = ParcelCompat.readParcelable(p, Rect.class.getClassLoader(), Rect.class);
         assertEquals(r, r2);
+
+        p.setDataPosition(0);
+        assertThrows(BadParcelableException.class, () -> ParcelCompat.readParcelable(p,
+                Rect.class.getClassLoader(), Intent.class));
     }
 
     @Test
-    public void readArrayInT() {
+    public void readArray() {
         Parcel p = Parcel.obtain();
 
         Signature[] s = {new Signature("1234"),
@@ -78,7 +85,7 @@ public class ParcelCompatTest {
         p.setDataPosition(0);
         Object[] objects = ParcelCompat.readArray(p, Signature.class.getClassLoader(),
                 Signature.class);
-        assertTrue(Arrays.equals(s, objects));
+        assertArrayEquals(s, objects);
         p.setDataPosition(0);
 
         p.recycle();
@@ -86,7 +93,7 @@ public class ParcelCompatTest {
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @Test
-    public void readSparseArrayInT() {
+    public void readSparseArray() {
         Parcel p = Parcel.obtain();
 
         SparseArray<Signature> s = new SparseArray<>();
@@ -101,18 +108,17 @@ public class ParcelCompatTest {
         assertEquals(s.size(), s1.size());
         for (int index = 0; index < s.size(); index++) {
             int key = s.keyAt(index);
-            assertTrue(Objects.equals(s.valueAt(index), s1.get(key)));
+            assertEquals(s.valueAt(index), s1.get(key));
         }
 
         p.recycle();
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void readListInT() {
+    public void readList() {
         Parcel p = Parcel.obtain();
-        ArrayList<Signature> s = new ArrayList();
-        ArrayList<Signature> s2 = new ArrayList();
+        ArrayList<Signature> s = new ArrayList<>();
+        ArrayList<Signature> s2 = new ArrayList<>();
         s.add(new Signature("1234567890abcdef"));
         s.add(new Signature("abcdef1234567890"));
 
@@ -127,7 +133,7 @@ public class ParcelCompatTest {
     }
 
     @Test
-    public void readArrayListInT() {
+    public void readArrayList() {
         Parcel p = Parcel.obtain();
 
         ArrayList<Signature> s = new ArrayList<>();
@@ -145,7 +151,7 @@ public class ParcelCompatTest {
     }
 
     @Test
-    public void readMapInT() {
+    public void readMap() {
         Parcel p = Parcel.obtain();
         ClassLoader loader = getClass().getClassLoader();
         HashMap<String, Signature> map = new HashMap<>();
@@ -163,7 +169,7 @@ public class ParcelCompatTest {
     }
 
     @Test
-    public void readHashMapInT() {
+    public void readHashMap() {
         Parcel p = Parcel.obtain();
         ClassLoader loader = getClass().getClassLoader();
         HashMap<String, Signature> map = new HashMap<>();
@@ -181,7 +187,7 @@ public class ParcelCompatTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
-    public void readParcelableCreatorInT() {
+    public void readParcelableCreator() {
         final String signatureString  = "1234567890abcdef";
         Signature s = new Signature(signatureString);
 
@@ -196,7 +202,7 @@ public class ParcelCompatTest {
     }
 
     @Test
-    public void readParcelableArrayInT() {
+    public void readParcelableArray() {
         Parcel p = Parcel.obtain();
         Signature[] s = {new Signature("1234"),
                 null,
@@ -206,13 +212,71 @@ public class ParcelCompatTest {
         p.setDataPosition(0);
         Parcelable[] s1 = ParcelCompat.readParcelableArray(p, Signature.class.getClassLoader(),
                 Signature.class);
-        assertTrue(Arrays.equals(s, s1));
+        assertArrayEquals(s, s1);
+        assertEquals(Signature[].class, s1.getClass());
+
+        p.setDataPosition(0);
+        Parcelable[] s2 = ParcelCompat.readParcelableArray(p, Parcelable.class.getClassLoader(),
+                Parcelable.class);
+        assertArrayEquals(s, s2);
+        assertEquals(Parcelable[].class, s2.getClass());
+
+        p.setDataPosition(0);
+        assertThrows(BadParcelableException.class, () -> ParcelCompat.readParcelableArray(p,
+                Signature.class.getClassLoader(), Intent.class));
+
+        p.recycle();
+    }
+
+    @Test
+    public void readParcelableArrayTyped_postU() {
+        if (!BuildCompat.isAtLeastU()) return;
+        Parcel p = Parcel.obtain();
+        Signature[] s = {new Signature("1234"),
+                null,
+                new Signature("abcd")
+        };
+        p.writeParcelableArray(s, 0);
+        p.setDataPosition(0);
+        Parcelable[] s1 = ParcelCompat.readParcelableArrayTyped(p, Signature.class.getClassLoader(),
+                Signature.class);
+        assertArrayEquals(s, s1);
+        assertEquals(Signature[].class, s1.getClass());
+
+        p.setDataPosition(0);
+        assertThrows(BadParcelableException.class, () -> ParcelCompat.readParcelableArrayTyped(p,
+                Signature.class.getClassLoader(), Intent.class));
+
+        p.recycle();
+    }
+
+    @Test
+    public void readParcelableArrayTyped_preU() {
+        if (BuildCompat.isAtLeastU()) return;
+        Parcel p = Parcel.obtain();
+        Signature[] s = {new Signature("1234"),
+                null,
+                new Signature("abcd")
+        };
+        p.writeParcelableArray(s, 0);
+        p.setDataPosition(0);
+        Parcelable[] s1 = ParcelCompat.readParcelableArrayTyped(p, Signature.class.getClassLoader(),
+                Signature.class);
+        assertArrayEquals(s, s1);
+        assertNotEquals(Signature[].class, s1.getClass());
+
+        // Type not checked pre-U
+        p.setDataPosition(0);
+        s1 = ParcelCompat.readParcelableArrayTyped(p, Signature.class.getClassLoader(),
+                Intent.class);
+        assertArrayEquals(s, s1);
+
         p.recycle();
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    public void readParcelableListInT() {
+    public void readParcelableList() {
         final Parcel p = Parcel.obtain();
         ArrayList<Signature> list = new ArrayList<>();
         ArrayList<Signature> list1 = new ArrayList<>();
