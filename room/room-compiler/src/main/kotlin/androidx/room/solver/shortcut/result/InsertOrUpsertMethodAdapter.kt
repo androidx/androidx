@@ -34,7 +34,9 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 
-class InsertOrUpsertMethodAdapter private constructor(private val methodType: MethodType) {
+class InsertOrUpsertMethodAdapter private constructor(
+    private val methodInfo: MethodInfo
+) {
     companion object {
         fun createInsert(
             context: Context,
@@ -45,7 +47,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
                 context = context,
                 returnType = returnType,
                 params = params,
-                methodTypeClass = ::InsertMethodType,
+                methodInfoClass = ::InsertMethodInfo,
                 multiParamSingleReturnError =
                     ProcessorErrors.INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH,
                 singleParamMultiReturnError =
@@ -62,7 +64,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
                 context = context,
                 returnType = returnType,
                 params = params,
-                methodTypeClass = ::UpsertMethodType,
+                methodInfoClass = ::UpsertMethodInfo,
                 multiParamSingleReturnError =
                     ProcessorErrors.UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH,
                 singleParamMultiReturnError =
@@ -74,7 +76,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
             context: Context,
             returnType: XType,
             params: List<ShortcutQueryParameter>,
-            methodTypeClass: (returnType: ReturnType) -> MethodType,
+            methodInfoClass: (returnInfo: ReturnInfo, returnType: XType) -> MethodInfo,
             multiParamSingleReturnError: String,
             singleParamMultiReturnError: String
         ): InsertOrUpsertMethodAdapter? {
@@ -88,33 +90,35 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
                     singleParamMultiReturnError
                 )
             ) {
-                val methodType = methodTypeClass(methodReturnType)
-                return InsertOrUpsertMethodAdapter(methodType)
+                val methodInfo = methodInfoClass(methodReturnType, returnType)
+                return InsertOrUpsertMethodAdapter(
+                    methodInfo = methodInfo
+                )
             }
             return null
         }
 
         private fun isReturnValid(
             context: Context,
-            returnType: ReturnType,
+            returnInfo: ReturnInfo,
             params: List<ShortcutQueryParameter>,
             multiParamSingleReturnError: String,
             singleParamMultiReturnError: String
         ): Boolean {
             if (params.isEmpty() || params.size > 1) {
-                return returnType == ReturnType.VOID || returnType == ReturnType.UNIT
+                return returnInfo == ReturnInfo.VOID || returnInfo == ReturnInfo.UNIT
             }
             if (params.first().isMultiple) {
-                val isValid = returnType in MULTIPLE_ITEM_SET
+                val isValid = returnInfo in MULTIPLE_ITEM_SET
                 if (!isValid) {
                     context.logger.e(multiParamSingleReturnError)
                 }
                 return isValid
             } else {
-                val isValid = (returnType == ReturnType.VOID ||
-                    returnType == ReturnType.VOID_OBJECT ||
-                    returnType == ReturnType.UNIT ||
-                    returnType == ReturnType.SINGLE_ID)
+                val isValid = (returnInfo == ReturnInfo.VOID ||
+                    returnInfo == ReturnInfo.VOID_OBJECT ||
+                    returnInfo == ReturnInfo.UNIT ||
+                    returnInfo == ReturnInfo.SINGLE_ID)
                 if (!isValid) {
                     context.logger.e(singleParamMultiReturnError)
                 }
@@ -124,29 +128,29 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
 
         private val MULTIPLE_ITEM_SET by lazy {
             setOf(
-                ReturnType.VOID,
-                ReturnType.VOID_OBJECT,
-                ReturnType.UNIT,
-                ReturnType.ID_ARRAY,
-                ReturnType.ID_ARRAY_BOX,
-                ReturnType.ID_LIST
+                ReturnInfo.VOID,
+                ReturnInfo.VOID_OBJECT,
+                ReturnInfo.UNIT,
+                ReturnInfo.ID_ARRAY,
+                ReturnInfo.ID_ARRAY_BOX,
+                ReturnInfo.ID_LIST
             )
         }
 
-        private fun getReturnType(returnType: XType): ReturnType? {
+        private fun getReturnType(returnType: XType): ReturnInfo? {
             return if (returnType.isVoid()) {
-                ReturnType.VOID
+                ReturnInfo.VOID
             } else if (returnType.isVoidObject()) {
-                ReturnType.VOID_OBJECT
+                ReturnInfo.VOID_OBJECT
             } else if (returnType.isKotlinUnit()) {
-                ReturnType.UNIT
+                ReturnInfo.UNIT
             } else if (returnType.isArray()) {
                 val param = returnType.componentType
                 if (param.isLong()) {
                     if (param.asTypeName() == XTypeName.PRIMITIVE_LONG) {
-                        ReturnType.ID_ARRAY
+                        ReturnInfo.ID_ARRAY
                     } else {
-                        ReturnType.ID_ARRAY_BOX
+                        ReturnInfo.ID_ARRAY_BOX
                     }
                 } else {
                     null
@@ -154,12 +158,12 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
             } else if (returnType.isList()) {
                 val param = returnType.typeArguments.first()
                 if (param.isLong()) {
-                    ReturnType.ID_LIST
+                    ReturnInfo.ID_LIST
                 } else {
                     null
                 }
             } else if (returnType.isLong()) {
-                ReturnType.SINGLE_ID
+                ReturnInfo.SINGLE_ID
             } else {
                 null
             }
@@ -173,49 +177,62 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
         scope: CodeGenScope
     ) {
         scope.builder.apply {
-            val methodName = methodType.methodName
-            val methodReturnType = methodType.returnType
+            val methodName = methodInfo.methodName
+            val methodReturnInfo = methodInfo.returnInfo
 
             // TODO assert thread
             // TODO collect results
             addStatement("%N.beginTransaction()", dbProperty)
-            val resultVar = when (methodReturnType) {
-                ReturnType.VOID, ReturnType.VOID_OBJECT, ReturnType.UNIT -> null
+            val resultVar = when (methodReturnInfo) {
+                ReturnInfo.VOID, ReturnInfo.VOID_OBJECT, ReturnInfo.UNIT -> null
                 else -> scope.getTmpVar("_result")
             }
 
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
                     val upsertionAdapter = adapters.getValue(param.name).first
+                    // We want to keep the e.g. Array<out Long> generic type function signature, so
+                    // need to do a cast.
+                    val resultFormat = XCodeBlock.of(
+                        language,
+                        "%L.%L(%L)",
+                        upsertionAdapter.name,
+                        methodName,
+                        param.name
+                    ).let {
+                        if (
+                            language == CodeLanguage.KOTLIN &&
+                            methodReturnInfo == ReturnInfo.ID_ARRAY_BOX &&
+                            methodInfo.returnType.asTypeName() == methodReturnInfo.typeName
+                        ) {
+                            XCodeBlock.ofCast(
+                                language = language,
+                                typeName = methodReturnInfo.typeName,
+                                expressionBlock = it
+                            )
+                        } else {
+                            it
+                        }
+                    }
+
                     if (resultVar != null) {
                         // if it has more than 1 parameter, we would've already printed the error
                         // so we don't care about re-declaring the variable here
                         addLocalVariable(
                             name = resultVar,
-                            typeName = methodReturnType.returnTypeName,
-                            assignExpr = XCodeBlock.of(
-                                language,
-                                "%L.%L(%L)",
-                                upsertionAdapter.name,
-                                methodName,
-                                param.name
-                            )
+                            typeName = methodInfo.returnType.asTypeName(),
+                            assignExpr = resultFormat
                         )
                     } else {
-                        addStatement(
-                            "%L.%L(%L)",
-                            upsertionAdapter.name,
-                            methodName,
-                            param.name
-                        )
+                        addStatement("%L", resultFormat)
                     }
                 }
                 addStatement("%N.setTransactionSuccessful()", dbProperty)
                 if (resultVar != null) {
                     addStatement("return %L", resultVar)
-                } else if (methodReturnType == ReturnType.VOID_OBJECT) {
+                } else if (methodReturnInfo == ReturnInfo.VOID_OBJECT) {
                     addStatement("return null")
-                } else if (methodReturnType == ReturnType.UNIT && language == CodeLanguage.JAVA) {
+                } else if (methodReturnInfo == ReturnInfo.UNIT && language == CodeLanguage.JAVA) {
                     addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             }
@@ -226,23 +243,30 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
         }
     }
 
-    sealed class MethodType(
-        val returnType: ReturnType
+    sealed class MethodInfo(
+        val returnInfo: ReturnInfo,
+        val returnType: XType
     ) {
         abstract val methodName: String
     }
 
-    class InsertMethodType(returnType: ReturnType) : MethodType(returnType) {
-        override val methodName = "insert" + returnType.methodSuffix
+    class InsertMethodInfo(
+        returnInfo: ReturnInfo,
+        returnType: XType
+    ) : MethodInfo(returnInfo, returnType) {
+        override val methodName = "insert" + returnInfo.methodSuffix
     }
 
-    class UpsertMethodType(returnType: ReturnType) : MethodType(returnType) {
-        override val methodName = "upsert" + returnType.methodSuffix
+    class UpsertMethodInfo(
+        returnInfo: ReturnInfo,
+        returnType: XType
+    ) : MethodInfo(returnInfo, returnType) {
+        override val methodName = "upsert" + returnInfo.methodSuffix
     }
 
-    enum class ReturnType(
+    enum class ReturnInfo(
         val methodSuffix: String,
-        val returnTypeName: XTypeName
+        val typeName: XTypeName
     ) {
         VOID("", XTypeName.UNIT_VOID), // return void
         VOID_OBJECT("", CommonTypeNames.VOID), // return Void

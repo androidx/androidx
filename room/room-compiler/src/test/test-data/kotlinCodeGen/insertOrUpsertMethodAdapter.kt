@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.Class
 import javax.`annotation`.processing.Generated
+import kotlin.Array
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
@@ -117,6 +118,32 @@ public class MyDao_Impl(
         __db.beginTransaction()
         try {
             val _result: List<Long> = __upsertionAdapterOfMyEntity.upsertAndReturnIdsList(items)
+            __db.setTransactionSuccessful()
+            return _result
+        } finally {
+            __db.endTransaction()
+        }
+    }
+
+    public override fun upsertEntityListAndReturnRowIdsArray(items: List<MyEntity>): Array<Long> {
+        __db.assertNotSuspendingTransaction()
+        __db.beginTransaction()
+        try {
+            val _result: Array<Long> = (__upsertionAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)) as
+                Array<Long>
+            __db.setTransactionSuccessful()
+            return _result
+        } finally {
+            __db.endTransaction()
+        }
+    }
+
+    public override fun upsertEntityListAndReturnRowIdsOutArray(items: List<MyEntity>):
+        Array<out Long> {
+        __db.assertNotSuspendingTransaction()
+        __db.beginTransaction()
+        try {
+            val _result: Array<out Long> = __upsertionAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)
             __db.setTransactionSuccessful()
             return _result
         } finally {
