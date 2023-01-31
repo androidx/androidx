@@ -76,8 +76,8 @@ public final class SettingsActivity extends AppCompatActivity {
             @Override
             public void onRouteDeleteClick(@NonNull String routeId) {
                 new AlertDialog.Builder(SettingsActivity.this)
-                        .setTitle("Delete this route?")
-                        .setMessage("Are you sure you want to delete this route?")
+                        .setTitle(R.string.delete_route_alert_dialog_title)
+                        .setMessage(R.string.delete_route_alert_dialog_message)
                         .setPositiveButton(android.R.string.cancel, null)
                         .setNegativeButton(
                                 android.R.string.ok,
