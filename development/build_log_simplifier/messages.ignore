@@ -728,6 +728,8 @@ Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
 # > Task :compose:foundation:foundation:androidReleaseSourcesJar
 Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
+# > Task :jvmSourcesJar
+Encountered duplicate path \"jvmMain(\/([a-zA-Z]+))+(\.jvm)?\.kt\" during copy operation configured with DuplicatesStrategy.WARN
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
 # > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
