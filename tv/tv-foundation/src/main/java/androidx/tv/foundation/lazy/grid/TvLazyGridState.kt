@@ -435,4 +435,5 @@ private object EmptyTvLazyGridLayoutInfo : TvLazyGridLayoutInfo {
     override val reverseLayout = false
     override val beforeContentPadding: Int = 0
     override val afterContentPadding: Int = 0
+    override val mainAxisItemSpacing: Int = 0
 }

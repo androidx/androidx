@@ -107,6 +107,7 @@ package androidx.tv.foundation.lazy.grid {
   public sealed interface TvLazyGridLayoutInfo {
     method public int getAfterContentPadding();
     method public int getBeforeContentPadding();
+    method public int getMainAxisItemSpacing();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
     method public boolean getReverseLayout();
     method public int getTotalItemsCount();
@@ -116,6 +117,7 @@ package androidx.tv.foundation.lazy.grid {
     method public java.util.List<androidx.tv.foundation.lazy.grid.TvLazyGridItemInfo> getVisibleItemsInfo();
     property public abstract int afterContentPadding;
     property public abstract int beforeContentPadding;
+    property public abstract int mainAxisItemSpacing;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;
     property public abstract boolean reverseLayout;
     property public abstract int totalItemsCount;
@@ -238,6 +240,7 @@ package androidx.tv.foundation.lazy.list {
   public sealed interface TvLazyListLayoutInfo {
     method public int getAfterContentPadding();
     method public int getBeforeContentPadding();
+    method public int getMainAxisItemSpacing();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
     method public boolean getReverseLayout();
     method public int getTotalItemsCount();
@@ -247,6 +250,7 @@ package androidx.tv.foundation.lazy.list {
     method public java.util.List<androidx.tv.foundation.lazy.list.TvLazyListItemInfo> getVisibleItemsInfo();
     property public abstract int afterContentPadding;
     property public abstract int beforeContentPadding;
+    property public abstract int mainAxisItemSpacing;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;
     property public abstract boolean reverseLayout;
     property public abstract int totalItemsCount;
