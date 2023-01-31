@@ -39,9 +39,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.AbstractCapabilityBuilder;
 import androidx.appactions.interaction.capabilities.core.AbstractTaskHandlerBuilder;
+import androidx.appactions.interaction.capabilities.core.ActionCapability;
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilityInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback;
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
@@ -232,7 +232,7 @@ public final class TaskCapabilityImplTest {
 
     @Test
     public void getAppAction_executeNeverCalled_taskIsUninitialized() {
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -258,7 +258,7 @@ public final class TaskCapabilityImplTest {
     @Test
     public void onInitInvoked_invokedOnce() throws Exception {
         AtomicInteger onSuccessInvocationCount = new AtomicInteger(0);
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -297,7 +297,7 @@ public final class TaskCapabilityImplTest {
 
     @Test
     public void fulfillmentType_terminate_taskStateCleared() throws Exception {
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -341,7 +341,7 @@ public final class TaskCapabilityImplTest {
     @Test
     public void fulfillmentType_cancel_taskStateCleared() throws Exception {
         SettableFutureWrapper<RequiredTaskUpdater> taskUpdaterCb = new SettableFutureWrapper<>();
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -381,7 +381,7 @@ public final class TaskCapabilityImplTest {
 
     @Test
     public void fulfillmentType_unknown_errorReported() throws Exception {
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -527,7 +527,7 @@ public final class TaskCapabilityImplTest {
                                         .setIsRequired(true)
                                         .build())
                         .build();
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         property,
                         TaskParamRegistry.builder().build(),
@@ -604,7 +604,7 @@ public final class TaskCapabilityImplTest {
                 DISAMBIG_ENTITY_CONVERTER,
                 Optional.of(unused -> SearchAction.<EntityValue>newBuilder().build()),
                 TypeConverters::toEntityValue);
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         paramRegistry.build(),
@@ -854,8 +854,8 @@ public final class TaskCapabilityImplTest {
                                                                 Arrays.asList("bar1", "bar2"))
                                                         .build())
                                         .build());
-        ActionCapabilityInternal capability =
-                (ActionCapabilityInternal)
+        ActionCapability capability =
+                (ActionCapability)
                         new CapabilityBuilder()
                                 .setTaskHandlerBuilder(
                                         new TaskHandlerBuilder()
@@ -910,7 +910,7 @@ public final class TaskCapabilityImplTest {
         SettableFutureWrapper<FulfillmentResponse> touchEventResponse =
                 new SettableFutureWrapper<>();
 
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -956,7 +956,7 @@ public final class TaskCapabilityImplTest {
         EntityValue slotValue = EntityValue.newBuilder().setId("id1").setValue("value").build();
         SettableFutureWrapper<RequiredTaskUpdater> updaterFuture = new SettableFutureWrapper<>();
         SettableFutureWrapper<Argument> onFinishFuture = new SettableFutureWrapper<>();
-        ActionCapabilityInternal capability =
+        ActionCapability capability =
                 createTaskCapability(
                         SINGLE_REQUIRED_FIELD_PROPERTY,
                         TaskParamRegistry.builder().build(),
@@ -1141,8 +1141,8 @@ public final class TaskCapabilityImplTest {
                                                                 Arrays.asList("baz1", "baz2"))
                                                         .build())
                                         .build());
-        ActionCapabilityInternal capability =
-                (ActionCapabilityInternal)
+        ActionCapability capability =
+                (ActionCapability)
                         new CapabilityBuilderWithRequiredConfirmation()
                                 .setTaskHandlerBuilder(
                                         new TaskHandlerBuilderWithRequiredConfirmation()
@@ -1202,8 +1202,8 @@ public final class TaskCapabilityImplTest {
                                                                 Arrays.asList("baz1", "baz2"))
                                                         .build())
                                         .build());
-        ActionCapabilityInternal capability =
-                (ActionCapabilityInternal)
+        ActionCapability capability =
+                (ActionCapability)
                         new CapabilityBuilderWithRequiredConfirmation()
                                 .setTaskHandlerBuilder(
                                         new TaskHandlerBuilderWithRequiredConfirmation()

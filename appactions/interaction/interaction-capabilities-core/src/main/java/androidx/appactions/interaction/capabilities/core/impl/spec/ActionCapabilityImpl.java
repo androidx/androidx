@@ -20,9 +20,9 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 import static androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors.toImmutableMap;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.ActionCapability;
 import androidx.appactions.interaction.capabilities.core.ActionExecutor;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilityInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
@@ -47,8 +47,7 @@ import java.util.Optional;
  * @param <ArgumentT>
  * @param <OutputT>
  */
-public final class ActionCapabilityImpl<PropertyT, ArgumentT, OutputT>
-        implements ActionCapabilityInternal {
+public final class ActionCapabilityImpl<PropertyT, ArgumentT, OutputT> implements ActionCapability {
 
     private static final String LOG_TAG = "ActionCapability";
     private final ActionSpec<PropertyT, ArgumentT, OutputT> mActionSpec;
