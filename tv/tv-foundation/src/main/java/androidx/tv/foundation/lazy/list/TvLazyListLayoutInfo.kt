@@ -85,4 +85,10 @@ sealed interface TvLazyListLayoutInfo {
      */
     // DO NOT ADD DEFAULT get() HERE
     val afterContentPadding: Int
+
+    /**
+     * The spacing between items in the direction of scrolling.
+     */
+    // DO NOT ADD DEFAULT get() HERE
+    val mainAxisItemSpacing: Int
 }
