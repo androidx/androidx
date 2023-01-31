@@ -240,6 +240,8 @@ public abstract class PagingSource<Key : Any, Value : Any> {
         /**
          * Success result object for [PagingSource.load].
          *
+         * As a convenience, iterating on this object will iterate through its loaded [data].
+         *
          * @sample androidx.paging.samples.pageKeyedPage
          * @sample androidx.paging.samples.pageIndexedPage
          */
@@ -267,7 +269,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
              */
             @IntRange(from = COUNT_UNDEFINED.toLong())
             val itemsAfter: Int = COUNT_UNDEFINED
-        ) : LoadResult<Key, Value>() {
+        ) : LoadResult<Key, Value>(), Iterable<Value> {
 
             /**
              * Success result object for [PagingSource.load].
@@ -293,6 +295,11 @@ public abstract class PagingSource<Key : Any, Value : Any> {
                     "itemsAfter cannot be negative"
                 }
             }
+
+            override fun iterator(): Iterator<Value> {
+                return data.listIterator()
+            }
+
             override fun toString(): String {
                 return """LoadResult.Page(
                     |   data size: ${data.size}

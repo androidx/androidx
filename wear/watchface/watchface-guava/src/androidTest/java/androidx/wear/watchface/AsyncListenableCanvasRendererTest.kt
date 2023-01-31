@@ -89,11 +89,13 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
                 // NOP
             }
         }
-    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+    )
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = 123456789L
 
         override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    })
+    }
 }
 
 @MediumTest
@@ -108,6 +110,7 @@ public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTe
             TestAsyncCanvasRenderInitWatchFaceService(context, surfaceHolder, initFuture)
 
         val deferredClient = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 DeviceConfig(

@@ -100,7 +100,6 @@ import androidx.compose.ui.unit.dp
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun AssistChip(
     onClick: () -> Unit,
@@ -172,7 +171,6 @@ fun AssistChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ElevatedAssistChip(
     onClick: () -> Unit,
@@ -516,7 +514,6 @@ fun InputChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun SuggestionChip(
     onClick: () -> Unit,
@@ -585,7 +582,6 @@ fun SuggestionChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ElevatedSuggestionChip(
     onClick: () -> Unit,
@@ -619,7 +615,6 @@ fun ElevatedSuggestionChip(
 /**
  * Contains the baseline values used by [AssistChip].
  */
-@ExperimentalMaterial3Api
 object AssistChipDefaults {
     /**
      * The height applied for an assist chip.
@@ -826,19 +821,19 @@ object FilterChipDefaults {
     fun filterChipColors(
         containerColor: Color = Color.Transparent,
         labelColor: Color = FilterChipTokens.UnselectedLabelTextColor.toColor(),
-        iconColor: Color = FilterChipTokens.UnselectedIconColor.toColor(),
+        iconColor: Color = FilterChipTokens.LeadingIconUnselectedColor.toColor(),
         disabledContainerColor: Color = Color.Transparent,
         disabledLabelColor: Color = FilterChipTokens.DisabledLabelTextColor.toColor()
             .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = FilterChipTokens.DisabledIconColor.toColor()
-            .copy(alpha = FilterChipTokens.DisabledIconOpacity),
+        disabledLeadingIconColor: Color = FilterChipTokens.DisabledLeadingIconColor.toColor()
+            .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
         disabledTrailingIconColor: Color = disabledLeadingIconColor,
         selectedContainerColor: Color = FilterChipTokens.FlatSelectedContainerColor.toColor(),
         disabledSelectedContainerColor: Color =
             FilterChipTokens.FlatDisabledSelectedContainerColor.toColor()
                 .copy(alpha = FilterChipTokens.FlatDisabledSelectedContainerOpacity),
         selectedLabelColor: Color = FilterChipTokens.SelectedLabelTextColor.toColor(),
-        selectedLeadingIconColor: Color = FilterChipTokens.SelectedIconColor.toColor(),
+        selectedLeadingIconColor: Color = FilterChipTokens.SelectedLeadingIconColor.toColor(),
         selectedTrailingIconColor: Color = selectedLeadingIconColor
     ): SelectableChipColors = SelectableChipColors(
         containerColor = containerColor,
@@ -938,18 +933,18 @@ object FilterChipDefaults {
     fun elevatedFilterChipColors(
         containerColor: Color = FilterChipTokens.ElevatedUnselectedContainerColor.toColor(),
         labelColor: Color = FilterChipTokens.UnselectedLabelTextColor.toColor(),
-        iconColor: Color = FilterChipTokens.UnselectedIconColor.toColor(),
+        iconColor: Color = FilterChipTokens.LeadingIconUnselectedColor.toColor(),
         disabledContainerColor: Color = FilterChipTokens.ElevatedDisabledContainerColor.toColor()
             .copy(alpha = FilterChipTokens.ElevatedDisabledContainerOpacity),
         disabledLabelColor: Color = FilterChipTokens.DisabledLabelTextColor.toColor()
             .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = FilterChipTokens.DisabledIconColor.toColor()
-            .copy(alpha = FilterChipTokens.DisabledIconOpacity),
+        disabledLeadingIconColor: Color = FilterChipTokens.DisabledLeadingIconColor.toColor()
+            .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
         disabledTrailingIconColor: Color = disabledLeadingIconColor,
         selectedContainerColor: Color = FilterChipTokens.ElevatedSelectedContainerColor.toColor(),
         disabledSelectedContainerColor: Color = disabledContainerColor,
         selectedLabelColor: Color = FilterChipTokens.SelectedLabelTextColor.toColor(),
-        selectedLeadingIconColor: Color = FilterChipTokens.SelectedIconColor.toColor(),
+        selectedLeadingIconColor: Color = FilterChipTokens.SelectedLeadingIconColor.toColor(),
         selectedTrailingIconColor: Color = selectedLeadingIconColor
     ): SelectableChipColors = SelectableChipColors(
         containerColor = containerColor,
@@ -1142,7 +1137,6 @@ object InputChipDefaults {
 /**
  * Contains the baseline values used by [SuggestionChip].
  */
-@ExperimentalMaterial3Api
 object SuggestionChipDefaults {
     /**
      * The height applied for a suggestion chip.
@@ -1304,7 +1298,7 @@ object SuggestionChipDefaults {
     val shape: Shape @Composable get() = SuggestionChipTokens.ContainerShape.toShape()
 }
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Chip(
     modifier: Modifier,
@@ -1445,7 +1439,6 @@ private fun ChipContent(
 /**
  * Represents the elevation for a chip in different states.
  */
-@ExperimentalMaterial3Api
 @Immutable
 class ChipElevation internal constructor(
     private val defaultElevation: Dp,
@@ -1764,7 +1757,6 @@ class SelectableChipElevation internal constructor(
  * See [AssistChipDefaults], [InputChipDefaults], and [SuggestionChipDefaults] for the default
  * colors used in the various Chip configurations.
  */
-@ExperimentalMaterial3Api
 @Immutable
 class ChipColors internal constructor(
     private val containerColor: Color,
@@ -2040,7 +2032,6 @@ class SelectableChipBorder internal constructor(
 /**
  * Represents the border stroke used in a chip in different states.
  */
-@ExperimentalMaterial3Api
 @Immutable
 class ChipBorder internal constructor(
     private val borderColor: Color,

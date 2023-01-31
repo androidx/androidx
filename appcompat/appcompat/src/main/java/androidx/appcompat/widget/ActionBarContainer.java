@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -159,7 +160,7 @@ public class ActionBarContainer extends FrameLayout {
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return (who == mBackground && !mIsSplit) || (who == mStackedBackground && mIsStacked) ||
                 (who == mSplitBackground && mIsSplit) || super.verifyDrawable(who);
     }

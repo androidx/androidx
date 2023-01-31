@@ -16,9 +16,8 @@
 
 package androidx.wear.watchface.client
 
+import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
 import androidx.annotation.RestrictTo
-
-typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
 
 /**
  * Describes the hardware configuration of the device the watch face is running on.

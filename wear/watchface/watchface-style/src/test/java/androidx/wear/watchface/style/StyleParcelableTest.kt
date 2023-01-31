@@ -42,10 +42,12 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
+private const val NAME_RESOURCE_ID = 123456
+private const val SCREEN_READER_NAME_RESOURCE_ID = 567890
+
 @RunWith(StyleTestRunner::class)
 @RequiresApi(Build.VERSION_CODES.P)
 public class StyleParcelableTest {
-
     private val icon1 = Icon.createWithContentUri("icon1")
     private val icon2 = Icon.createWithContentUri("icon2")
     private val icon3 = Icon.createWithContentUri("icon3")
@@ -54,27 +56,32 @@ public class StyleParcelableTest {
     private val wfIcon2 = Icon.createWithContentUri("wfIcon2")
     private val wfIcon3 = Icon.createWithContentUri("wfIcon3")
     private val wfIcon4 = Icon.createWithContentUri("wfIcon4")
+
     private val option1 = ListOption(
         Option.Id("1"),
         "one",
+        "one screen reader",
         icon1,
         watchFaceEditorData = WatchFaceEditorData(wfIcon1)
     )
     private val option2 = ListOption(
         Option.Id("2"),
         "two",
+        "two screen reader",
         icon2,
         watchFaceEditorData = WatchFaceEditorData(wfIcon2)
     )
     private val option3 = ListOption(
         Option.Id("3"),
         "three",
+        "three screen reader",
         icon3,
         watchFaceEditorData = WatchFaceEditorData(wfIcon3)
     )
     private val option4 = ListOption(
         Option.Id("4"),
         "four",
+        "four screen reader",
         icon4,
         watchFaceEditorData = WatchFaceEditorData(wfIcon4)
     )
@@ -102,7 +109,7 @@ public class StyleParcelableTest {
             )
         parcel.recycle()
 
-        assert(unparceled is ListUserStyleSetting)
+        assertThat(unparceled is ListUserStyleSetting).isTrue()
 
         assertThat(unparceled.id.value).isEqualTo("id")
         assertThat(unparceled.displayName).isEqualTo("displayName")
@@ -145,6 +152,7 @@ public class StyleParcelableTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelUserStyleSchema() {
         val companionIcon1 = Icon.createWithContentUri("companionEditorIcon1")
         val companionIcon2 = Icon.createWithContentUri("companionEditorIcon2")
@@ -199,7 +207,7 @@ public class StyleParcelableTest {
             UserStyleSchema(UserStyleSchemaWireFormat.CREATOR.createFromParcel(parcel))
         parcel.recycle()
 
-        assert(schema.userStyleSettings[0] is ListUserStyleSetting)
+        assertThat(schema.userStyleSettings[0] is ListUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[0].id.value).isEqualTo("id1")
         assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
@@ -223,7 +231,7 @@ public class StyleParcelableTest {
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
         assertThat(optionArray1[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon2")
 
-        assert(schema.userStyleSettings[1] is ListUserStyleSetting)
+        assertThat(schema.userStyleSettings[2] is BooleanUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[1].id.value).isEqualTo("id2")
         assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
@@ -247,7 +255,7 @@ public class StyleParcelableTest {
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
         assertThat(optionArray2[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon4")
 
-        assert(schema.userStyleSettings[2] is BooleanUserStyleSetting)
+        assertThat(schema.userStyleSettings[2] is BooleanUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[2].id.value).isEqualTo("id3")
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
@@ -258,7 +266,7 @@ public class StyleParcelableTest {
             WatchFaceLayer.BASE
         )
 
-        assert(schema.userStyleSettings[3] is CustomValueUserStyleSetting)
+        assertThat(schema.userStyleSettings[3] is CustomValueUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[3].defaultOption.id.value.decodeToString())
             .isEqualTo("default")
         assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.size).isEqualTo(1)
@@ -269,14 +277,14 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[3].watchFaceEditorData).isNull()
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelHierarchicalSchema() {
         val twelveHourClockOption =
-            ListOption(Option.Id("12_style"), "12", icon = null)
+            ListOption(Option.Id("12_style"), "12", "12", icon = null)
 
         val twentyFourHourClockOption =
-            ListOption(Option.Id("24_style"), "24", icon = null)
+            ListOption(Option.Id("24_style"), "24", "24", icon = null)
 
         val digitalClockStyleSetting = ListUserStyleSetting(
             UserStyleSetting.Id("digital_clock_style"),
@@ -290,6 +298,7 @@ public class StyleParcelableTest {
         val digitalWatchFaceType = ListOption(
             Option.Id("digital"),
             "Digital",
+            "Digital setting",
             icon = null,
             childSettings = listOf(digitalClockStyleSetting)
         )
@@ -318,6 +327,7 @@ public class StyleParcelableTest {
         val analogWatchFaceType = ListOption(
             Option.Id("analog"),
             "Analog",
+            "Analog setting",
             icon = null,
             childSettings = listOf(styleSetting1, styleSetting2)
         )
@@ -339,6 +349,9 @@ public class StyleParcelableTest {
                 styleSetting2
             )
         )
+        assertThat(srcSchema.rootUserStyleSettings.map { it.id }).containsExactly(
+            UserStyleSetting.Id("clock_type")
+        )
 
         val parcel = Parcel.obtain()
         srcSchema.toWireFormat().writeToParcel(parcel, 0)
@@ -350,6 +363,9 @@ public class StyleParcelableTest {
         parcel.recycle()
 
         assertThat(schema.userStyleSettings.size).isEqualTo(4)
+        assertThat(schema.rootUserStyleSettings.map { it.id }).containsExactly(
+            UserStyleSetting.Id("clock_type")
+        )
 
         val deserializedWatchFaceType = schema.userStyleSettings[0] as ListUserStyleSetting
         assertThat(deserializedWatchFaceType.id)
@@ -539,6 +555,7 @@ public class StyleParcelableTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun parcelAndUnparcelComplicationsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102
@@ -551,12 +568,14 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     "Both",
+                    "Both complications visible",
                     null,
                     listOf()
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("NO_COMPLICATIONS"),
                     "None",
+                    "No complications visible",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -572,17 +591,25 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("LEFT_COMPLICATION"),
                     "Left",
+                    "Left complication visible",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             rightComplicationID,
                             enabled = false
+                        ),
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
+                            leftComplicationID,
+                            enabled = true,
+                            nameResourceId = NAME_RESOURCE_ID,
+                            screenReaderNameResourceId = SCREEN_READER_NAME_RESOURCE_ID
                         )
                     )
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("RIGHT_COMPLICATION"),
                     "Right",
+                    "Right complication visible",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -594,6 +621,7 @@ public class StyleParcelableTest {
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("RIGHT_COMPLICATION_MOVED"),
                     "MoveRight",
+                    "Right complication moved",
                     null,
                     listOf(
                         ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
@@ -620,7 +648,7 @@ public class StyleParcelableTest {
             )
         parcel.recycle()
 
-        assert(unparceled is ComplicationSlotsUserStyleSetting)
+        assertThat(unparceled is ComplicationSlotsUserStyleSetting).isTrue()
         assertThat(unparceled.id.value).isEqualTo("complications_style_setting")
 
         val options = unparceled.options.filterIsInstance<
@@ -638,10 +666,15 @@ public class StyleParcelableTest {
         assertFalse(options1Overlays[1].enabled!!)
 
         assertThat(options[2].id.value.decodeToString()).isEqualTo("LEFT_COMPLICATION")
-        assertThat(options[2].complicationSlotOverlays.size).isEqualTo(1)
+        assertThat(options[2].complicationSlotOverlays.size).isEqualTo(2)
+
         val options2Overlays = ArrayList(options[2].complicationSlotOverlays)
         assertThat(options2Overlays[0].complicationSlotId).isEqualTo(rightComplicationID)
         assertFalse(options2Overlays[0].enabled!!)
+        assertThat(options2Overlays[1].complicationSlotId).isEqualTo(leftComplicationID)
+        assertThat(options2Overlays[1].nameResourceId).isEqualTo(NAME_RESOURCE_ID)
+        assertThat(options2Overlays[1].screenReaderNameResourceId)
+            .isEqualTo(SCREEN_READER_NAME_RESOURCE_ID)
 
         assertThat(options[3].id.value.decodeToString()).isEqualTo("RIGHT_COMPLICATION")
         assertThat(options[3].complicationSlotOverlays.size).isEqualTo(1)

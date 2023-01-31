@@ -28,7 +28,8 @@ class ViewModelProviderReifiedTest {
     @Test
     fun providerReifiedGet() {
         val factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>) = modelClass.newInstance()
+            override fun <T : ViewModel> create(modelClass: Class<T>) = modelClass
+                .getDeclaredConstructor().newInstance()
         }
         val provider = ViewModelProvider(ViewModelStore(), factory)
 

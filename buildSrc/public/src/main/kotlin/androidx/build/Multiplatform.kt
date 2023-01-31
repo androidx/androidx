@@ -39,8 +39,8 @@ class Multiplatform {
          */
         @JvmStatic
         fun isKotlinNativeEnabled(project: Project): Boolean {
-            return System.getenv()["ANDROIDX_PROJECTS"] == "KMP" ||
-                StudioType.isPlayground(project) ||
+            return "KMP".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
+                ProjectLayoutType.isPlayground(project) ||
                 project.providers.gradleProperty("androidx.kmp.native.enabled")
                     .orNull?.toBoolean() == true
         }

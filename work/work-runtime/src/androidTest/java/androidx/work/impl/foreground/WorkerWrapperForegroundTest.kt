@@ -100,7 +100,7 @@ class WorkerWrapperForegroundTest {
         workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
         val scheduler = mock(Scheduler::class.java)
         schedulers = Collections.singletonList(scheduler)
-        processor = Processor(context, config, taskExecutor, workDatabase, schedulers)
+        processor = Processor(context, config, taskExecutor, workDatabase)
         workManager =
             spy(WorkManagerImpl(context, config, taskExecutor, workDatabase, schedulers, processor))
         workDatabase = workManager.workDatabase

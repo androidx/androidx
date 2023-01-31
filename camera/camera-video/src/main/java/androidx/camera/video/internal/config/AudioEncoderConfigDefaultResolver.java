@@ -21,6 +21,7 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
@@ -39,6 +40,7 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
     private final int mAudioProfile;
     private final AudioSpec mAudioSpec;
     private final AudioSource.Settings mAudioSourceSettings;
+    private final Timebase mInputTimeBase;
 
     // Base config based on generic 720p AAC(LC) quality will be scaled by actual source settings.
     // TODO: These should vary based on quality/codec and be derived from actual devices
@@ -51,15 +53,17 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
      *
      * @param mimeType            The mime type for the audio encoder
      * @param audioProfile        The profile required for the audio encoder
+     * @param inputTimebase       The timebase of the input frame.
      * @param audioSpec           The {@link AudioSpec} which defines the settings that should be
      *                            used with the audio encoder.
      * @param audioSourceSettings The settings used to configure the source of audio.
      */
     public AudioEncoderConfigDefaultResolver(@NonNull String mimeType,
-            int audioProfile, @NonNull AudioSpec audioSpec,
+            int audioProfile, @NonNull Timebase inputTimebase, @NonNull AudioSpec audioSpec,
             @NonNull AudioSource.Settings audioSourceSettings) {
         mMimeType = mimeType;
         mAudioProfile = audioProfile;
+        mInputTimeBase = inputTimebase;
         mAudioSpec = audioSpec;
         mAudioSourceSettings = audioSourceSettings;
     }
@@ -79,6 +83,7 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
         return AudioEncoderConfig.builder()
                 .setMimeType(mMimeType)
                 .setProfile(mAudioProfile)
+                .setInputTimebase(mInputTimeBase)
                 .setChannelCount(mAudioSourceSettings.getChannelCount())
                 .setSampleRate(mAudioSourceSettings.getSampleRate())
                 .setBitrate(resolvedBitrate)

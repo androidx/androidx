@@ -119,8 +119,9 @@ public abstract class ListenableCanvasRenderer2<SharedAssetsT> @JvmOverloads con
     }
 
     /**
-     * When editing multiple [WatchFaceService] instances and hence Renderers can exist
-     * concurrently (e.g. a headless instance and an interactive instance) and using
+     * Implement to allow your Renderers to share data with SharedAssets.
+     * When editing multiple [WatchFaceService], instances and hence Renderers can exist
+     * concurrently (e.g. a headless instance and an interactive instance). Using
      * [SharedAssets] allows memory to be saved by sharing immutable data (e.g. Bitmaps,
      * shaders, etc...) between them.
      *

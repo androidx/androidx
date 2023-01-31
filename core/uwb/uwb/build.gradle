@@ -41,16 +41,20 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
     name = "androidx.core.uwb:uwb"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CORE_UWB
     inceptionYear = "2022"
     description = "Public API surface for apps to use UWB (ultra-wideband) on supported devices."
 }
 
 android {
     namespace "androidx.core.uwb"
+    defaultConfig {
+        minSdkVersion 31
+        multiDexEnabled = true
+    }
 }

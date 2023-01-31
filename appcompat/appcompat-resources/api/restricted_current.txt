@@ -35,7 +35,7 @@ package androidx.appcompat.graphics.drawable {
 
   public class DrawableWrapperCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public DrawableWrapperCompat(android.graphics.drawable.Drawable!);
-    method public void draw(android.graphics.Canvas!);
+    method public void draw(android.graphics.Canvas);
     method public android.graphics.drawable.Drawable? getDrawable();
     method public int getOpacity();
     method public void invalidateDrawable(android.graphics.drawable.Drawable!);

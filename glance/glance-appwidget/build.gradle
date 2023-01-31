@@ -43,24 +43,23 @@ dependencies {
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.compose.runtime:runtime:1.1.0-beta01")
-    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
-    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
+    api("androidx.compose.runtime:runtime:1.1.1")
+    api("androidx.compose.ui:ui-graphics:1.1.1")
+    api("androidx.compose.ui:ui-unit:1.1.1")
 
     implementation('androidx.core:core-ktx:1.7.0')
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("com.google.android.material:material:1.6.0")
     implementation(project(':core:core-remoteviews'))
     implementation(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
@@ -75,6 +74,7 @@ dependencies {
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestImplementation('androidx.core:core-ktx:1.7.0')
+    androidTestImplementation("androidx.work:work-testing:2.7.1")
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.kotlinCoroutinesTest)
@@ -112,7 +112,6 @@ android {
 androidx {
     name = "Glance For App Widgets"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."

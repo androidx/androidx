@@ -30,10 +30,7 @@ class PassiveMonitoringGoalResponseTest {
     @Test
     fun protoRoundTrip() {
         val proto = PassiveMonitoringGoalResponse(
-            PassiveGoal(
-                DataTypeCondition(STEPS_DAILY, 1000, ComparisonType.GREATER_THAN),
-                PassiveGoal.TriggerFrequency.REPEATED
-            )
+            PassiveGoal(DataTypeCondition(STEPS_DAILY, 1000, ComparisonType.GREATER_THAN))
         ).proto
 
         val response = PassiveMonitoringGoalResponse(proto)

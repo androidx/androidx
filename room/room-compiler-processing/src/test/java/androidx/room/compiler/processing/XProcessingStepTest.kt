@@ -25,9 +25,10 @@ import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.testcode.SingleTypeValueAnnotation
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -40,13 +41,12 @@ import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import javax.tools.Diagnostic
+import kotlin.reflect.KClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import javax.tools.Diagnostic
-import kotlin.reflect.KClass
 
 class XProcessingStepTest {
     @field:Rule
@@ -130,7 +130,7 @@ class XProcessingStepTest {
 
     @Test
     fun multiStepProcessing() {
-        val otherAnnotatedElements = mutableListOf<TypeName>()
+        val otherAnnotatedElements = mutableListOf<String>()
         // create a scenario where we run multi-step processing so that we can test caching
         val processingStep = object : XProcessingStep {
             override fun process(
@@ -161,7 +161,7 @@ class XProcessingStepTest {
                 elementsByAnnotation[OtherAnnotation::class.qualifiedName]
                     ?.filterIsInstance<XTypeElement>()
                     ?.forEach {
-                        otherAnnotatedElements.add(it.type.typeName)
+                        otherAnnotatedElements.add(it.type.toString())
                     }
                 return emptySet()
             }
@@ -197,9 +197,7 @@ class XProcessingStepTest {
                 override fun processingSteps() = listOf(processingStep)
             }
         ).compilesWithoutError()
-        assertThat(otherAnnotatedElements).containsExactly(
-            ClassName.get("foo.bar", "Main_Impl")
-        )
+        assertThat(otherAnnotatedElements).containsExactly("foo.bar.Main_Impl")
     }
 
     @Test
@@ -848,14 +846,15 @@ class XProcessingStepTest {
                     elementsByAnnotation[MainAnnotation::class.qualifiedName!!]!!.single()
                 try {
                     val otherElement = env.requireTypeElement(
-                        mainElement.requireAnnotation(MainAnnotation::class.className())
-                            .getAsType("singleType")
-                            .typeName
+                        mainElement.requireAnnotation(
+                            MainAnnotation::class.asJClassName()
+                        ).getAsType("singleType").asTypeName().java
                     )
                     val generatedType =
-                        otherElement.requireAnnotation(SingleTypeValueAnnotation::class.className())
-                            .getAsType("value")
-                    assertThat(generatedType.typeName).isEqualTo(genClassName)
+                        otherElement.requireAnnotation(
+                            SingleTypeValueAnnotation::class.asJClassName()
+                        ).getAsType("value")
+                    assertThat(generatedType.asTypeName().java).isEqualTo(genClassName)
                     return emptySet()
                 } catch (ex: TypeNotPresentException) {
                     return setOf(mainElement)
@@ -1464,5 +1463,49 @@ class XProcessingStepTest {
         assertThat(
             roundReceivedElementsHashes[0].none { roundReceivedElementsHashes[1].contains(it) }
         ).isTrue()
+    }
+
+    @Test
+    fun starSupportedAnnotation_multiRound() {
+        val kotlinSrc = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo
+            class Foo { }
+            """.trimIndent()
+        )
+        val invocations = mutableMapOf<XProcessingEnv.Backend, Int>()
+        val step = object : XProcessingStep {
+            override fun annotations() = setOf("*")
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XElement> {
+                invocations[env.backend] = invocations.getOrDefault(env.backend, 0) + 1
+                val className = ClassName.get("foo", "Bar")
+                val typeElement = env.findTypeElement(className)
+                if (typeElement == null) {
+                    val spec = TypeSpec.classBuilder(className)
+                        .addOriginatingElement(env.requireTypeElement("foo.Foo"))
+                        .build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                }
+                return super.process(env, elementsByAnnotation, isLastRound)
+            }
+        }
+        runProcessorTest(
+            sources = listOf(kotlinSrc),
+            createProcessingSteps = { listOf(step) }
+        ) { }
+        // 3 for each backend, 1st initial round, 2nd round due to new gen sources, 3rd round over
+        assertThat(invocations).isEqualTo(
+            mapOf(
+                XProcessingEnv.Backend.JAVAC to 3,
+                XProcessingEnv.Backend.KSP to 3,
+            )
+        )
     }
 }

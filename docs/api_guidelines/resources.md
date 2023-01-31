@@ -183,7 +183,7 @@ package androidx.libraryname.featurename;
  * never invoked.
  */
 public final class MetadataHolderService {
-  private MetadataHolderService() {}
+  public MetadataHolderService() {}
 
   @Override
   public IBinder onBind(Intent intent) {

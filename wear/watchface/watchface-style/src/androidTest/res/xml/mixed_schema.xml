@@ -119,6 +119,14 @@
                     app:top="0.4" />
             </ComplicationSlotOverlay>
         </ComplicationSlotsOption>
+        <ComplicationSlotsOption
+            app:displayName="Rename complications"
+            app:id="four">
+            <ComplicationSlotOverlay
+                app:complicationSlotId="2"
+                app:name="@string/complication_name"
+                app:screenReaderName="@string/complication_screen_reader_name" />
+        </ComplicationSlotsOption>
     </ComplicationSlotsUserStyleSetting>
 
     <DoubleRangeUserStyleSetting

@@ -39,13 +39,13 @@ class InspectorNode internal constructor(
     val key: Int,
 
     /**
-     * The associated anchor for tracking recomposition counts.
+     * The id of the associated anchor for tracking recomposition counts.
      *
      * An Anchor is a mechanism in the compose runtime that can identify a Group
      * in the SlotTable that is invariant to SlotTable updates.
      * See [androidx.compose.runtime.Anchor] for more information.
      */
-    val anchorHash: Int,
+    val anchorId: Int,
 
     /**
      * The name of the Composable.
@@ -94,6 +94,11 @@ class InspectorNode internal constructor(
      * The 4 corners of the polygon after transformations of the original rectangle.
      */
     val bounds: QuadBounds? = null,
+
+    /**
+     * True if the code for the Composable was inlined
+     */
+    val inlined: Boolean = false,
 
     /**
      * The parameters of this Composable.
@@ -179,7 +184,7 @@ class RawParameter(val name: String, val value: Any?)
 internal class MutableInspectorNode {
     var id = UNDEFINED_ID
     var key = 0
-    var anchorHash = 0
+    var anchorId = 0
     val layoutNodes = mutableListOf<LayoutInfo>()
     val mergedSemantics = mutableListOf<RawParameter>()
     val unmergedSemantics = mutableListOf<RawParameter>()
@@ -191,6 +196,7 @@ internal class MutableInspectorNode {
     var length = 0
     var box: IntRect = emptyBox
     var bounds: QuadBounds? = null
+    var inlined = false
     val parameters = mutableListOf<RawParameter>()
     var viewId = UNDEFINED_ID
     val children = mutableListOf<InspectorNode>()
@@ -200,13 +206,14 @@ internal class MutableInspectorNode {
         markUnwanted()
         id = UNDEFINED_ID
         key = 0
-        anchorHash = 0
+        anchorId = 0
         viewId = UNDEFINED_ID
         layoutNodes.clear()
         mergedSemantics.clear()
         unmergedSemantics.clear()
         box = emptyBox
         bounds = null
+        inlined = false
         outerBox = outsideBox
         children.clear()
     }
@@ -232,6 +239,7 @@ internal class MutableInspectorNode {
         length = node.length
         box = node.box
         bounds = node.bounds
+        inlined = node.inlined
         mergedSemantics.addAll(node.mergedSemantics)
         unmergedSemantics.addAll(node.unmergedSemantics)
         parameters.addAll(node.parameters)
@@ -240,8 +248,8 @@ internal class MutableInspectorNode {
 
     fun build(withSemantics: Boolean = true): InspectorNode =
         InspectorNode(
-            id, key, anchorHash, name, fileName, packageHash, lineNumber, offset, length,
-            box, bounds, parameters.toList(), viewId,
+            id, key, anchorId, name, fileName, packageHash, lineNumber, offset, length,
+            box, bounds, inlined, parameters.toList(), viewId,
             if (withSemantics) mergedSemantics.toList() else emptyList(),
             if (withSemantics) unmergedSemantics.toList() else emptyList(),
             children.toList()

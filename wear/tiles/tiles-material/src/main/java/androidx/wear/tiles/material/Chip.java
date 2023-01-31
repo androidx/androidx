@@ -62,7 +62,7 @@ import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
-import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

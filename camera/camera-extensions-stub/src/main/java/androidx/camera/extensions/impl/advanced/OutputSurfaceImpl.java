@@ -22,6 +22,8 @@ import android.view.Surface;
 
 /**
  * For specifying output surface of the extension.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface OutputSurfaceImpl {

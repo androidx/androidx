@@ -16,10 +16,15 @@
 
 package androidx.glance.appwidget
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.core.DataStore
@@ -158,6 +163,62 @@ class GlanceAppWidgetManager(private val context: Context) {
         return AppWidgetId(appWidgetId)
     }
 
+    /**
+     * Request to pin the [GlanceAppWidget] of the given receiver on the current launcher
+     * (if supported).
+     *
+     * Note: the request is only supported for SDK 26 and beyond, for lower versions this method
+     * will be no-op and return false.
+     *
+     * @param receiver the target [GlanceAppWidgetReceiver] class
+     * @param preview the instance of the GlanceAppWidget to compose the preview that will be shown
+     * in the request dialog. When not provided the app widget previewImage (as defined in the
+     * meta-data) will be used instead, or the app's icon if not available either.
+     * @param previewState the state (as defined by the [GlanceAppWidget.stateDefinition] to use for
+     * the preview
+     * @param successCallback a [PendingIntent] to be invoked if the app widget pinning is accepted
+     * by the user
+     *
+     * @return true if the request was successfully sent to the system, false otherwise
+     *
+     * @see AppWidgetManager.requestPinAppWidget for more information and limitations
+     */
+    fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
+        receiver: Class<T>,
+        preview: GlanceAppWidget? = null,
+        previewState: Any? = null,
+        successCallback: PendingIntent? = null,
+    ): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return false
+        }
+        if (AppWidgetManagerApi26Impl.isRequestPinAppWidgetSupported(appWidgetManager)) {
+            val target = ComponentName(context.packageName, receiver.name)
+            val previewBundle = Bundle().apply {
+                if (preview != null) {
+                    val info = appWidgetManager.installedProviders.first {
+                        it.provider == target
+                    }
+                    val snapshot = preview.snapshot(
+                        context = context,
+                        appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID,
+                        state = previewState,
+                        options = Bundle.EMPTY,
+                        size = info.getMinSize(context.resources.displayMetrics),
+                    )
+                    putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, snapshot)
+                }
+            }
+            return AppWidgetManagerApi26Impl.requestPinAppWidget(
+                appWidgetManager,
+                target,
+                previewBundle,
+                successCallback
+            )
+        }
+        return false
+    }
+
     /** Check which receivers still exist, and clean the data store to only keep those. */
     internal suspend fun cleanReceivers() {
         val packageName = context.packageName
@@ -187,6 +248,22 @@ class GlanceAppWidgetManager(private val context: Context) {
         private val providersKey = stringSetPreferencesKey("list::Providers")
 
         private fun providerKey(provider: String) = stringPreferencesKey("provider:$provider")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private object AppWidgetManagerApi26Impl {
+
+        @DoNotInline
+        fun isRequestPinAppWidgetSupported(manager: AppWidgetManager) =
+            manager.isRequestPinAppWidgetSupported
+
+        @DoNotInline
+        fun requestPinAppWidget(
+            manager: AppWidgetManager,
+            target: ComponentName,
+            extras: Bundle?,
+            successCallback: PendingIntent?,
+        ) = manager.requestPinAppWidget(target, extras, successCallback)
     }
 }
 

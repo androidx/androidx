@@ -16,6 +16,7 @@
 
 package androidx.glance.template
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.ImageProvider
@@ -143,19 +144,28 @@ class TemplateImageButton(
 
 /**
  * A block of text with up to three different [TextType] of text lines that are displayed by the
- * text index order (for example, text1 is displayed first). The block also has a priority number
- * relative to other blocks such as an [ImageBlock]. Lower numbered block has higher priority to be
- * displayed first.
+ * text index order (for example, text1 is displayed first) by design. The block also has a priority
+ * number relative to other blocks such as an [ImageBlock].
+ *
+ * Priority is a number assigned to blocks to show the semantic importance of each block in a
+ * sequence. Different templates will interpret priority in different ways. Some may treat this
+ * as an ordering, some may only use it to define which elements are most important when showing
+ * smaller layouts. Priority number is zero based with smaller numbers being higher priority.
+ * If two blocks has the same priority number, the default order (e.g. text before image)
+ * is used. Currently only [TextBlock] and [ImageBlock] comparison are supported in the design. For
+ * example, the Gallery Template layout determines the ordering of mainTextBlock and mainImageBlock
+ * in [GalleryTemplateData] by their corresponding priority number.
  *
  * @param text1 The text displayed first within the block.
  * @param text2 The text displayed second within the block.
  * @param text3 The text displayed third  within the block.
- * @param priority The display priority number relative to other blocks. Default to the highest: 0.
+ * @param priority The display priority number relative to other blocks.
  */
 class TextBlock(
     val text1: TemplateText,
     val text2: TemplateText? = null,
     val text3: TemplateText? = null,
+    @IntRange(from = 0)
     val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
@@ -183,18 +193,18 @@ class TextBlock(
 
 /**
  * A block of image sequence by certain size and aspect ratio preferences and display priority
- * relative to other blocks such as a [TextBlock].
+ * relative to other blocks such as a [TextBlock]. Priority is the same as defined in [TextBlock].
  *
  * @param images The sequence of images or just one image for display. Default to empty list.
  * @param aspectRatio The preferred aspect ratio of the images. Default to [AspectRatio.Ratio1x1].
- * @param size The preferred size type of the images. Default to [ImageSize.Small].
+ * @param size The preferred size type of the images.
  * @param priority The display priority number relative to other blocks such as a [TextBlock].
- * Default to the highest priority number 0.
  */
 class ImageBlock(
     val images: List<TemplateImageWithDescription> = listOf(),
     val aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
-    val size: ImageSize = ImageSize.Small,
+    val size: ImageSize = ImageSize.Undefined,
+    @IntRange(from = 0)
     val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
@@ -254,17 +264,14 @@ class ActionBlock(
  *
  * @param text The header text.
  * @param icon The header image icon.
- * @param actionBlock The header action buttons.
  */
 class HeaderBlock(
     val text: TemplateText,
     val icon: TemplateImageWithDescription? = null,
-    val actionBlock: ActionBlock? = null,
 ) {
     override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + (icon?.hashCode() ?: 0)
-        result = 31 * result + (actionBlock?.hashCode() ?: 0)
         return result
     }
 
@@ -276,14 +283,15 @@ class HeaderBlock(
 
         if (text != other.text) return false
         if (icon != other.icon) return false
-        if (actionBlock != other.actionBlock) return false
 
         return true
     }
 }
 
 /**
- * The aspect ratio of an image.
+ * The aspect ratio type of an image.
+ *
+ * Note that images not in the selected ratio are cropped for display by design.
  */
 @JvmInline
 value class AspectRatio private constructor(private val value: Int) {
@@ -306,25 +314,30 @@ value class AspectRatio private constructor(private val value: Int) {
 }
 
 /**
- * The relative image size as a hint.
+ * The image size describes image scale category in sizing. Actual size is implementation dependent.
  */
 @JvmInline
 value class ImageSize private constructor(private val value: Int) {
     companion object {
         /**
-         * Relative small sized image.
+         * Unknown image scale for dynamic sizing by image hosting space available.
          */
-        val Small: ImageSize = ImageSize(0)
+        val Undefined: ImageSize = ImageSize(0)
 
         /**
-         * Relative medium sized image.
+         * Small sized image.
          */
-        val Medium: ImageSize = ImageSize(1)
+        val Small: ImageSize = ImageSize(1)
 
         /**
-         * Relative large sized image.
+         * Medium sized image.
          */
-        val Large: ImageSize = ImageSize(2)
+        val Medium: ImageSize = ImageSize(2)
+
+        /**
+         * Large sized image.
+         */
+        val Large: ImageSize = ImageSize(3)
     }
 }
 

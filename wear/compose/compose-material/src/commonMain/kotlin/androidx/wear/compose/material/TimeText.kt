@@ -157,7 +157,7 @@ public object TimeTextDefaults {
     /**
      * Default format for 12h clock.
      */
-    const val TimeFormat12Hours = "h:mm a"
+    const val TimeFormat12Hours = "h:mm"
 
     /**
      * The default content padding used by [TimeText]

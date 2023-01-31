@@ -1,0 +1,37 @@
+// Triggers that can be used to start an animation.
+syntax = "proto3";
+
+package androidx.wear.protolayout.proto;
+
+import "dynamic.proto";
+
+option java_package = "androidx.wear.protolayout.proto";
+option java_outer_classname = "TriggerProto";
+
+// Triggers when the layout visibility state turns from invisible to fully
+// visible.
+message OnVisibleTrigger {}
+
+// Triggers only once when the layout visibility state turns from invisible to
+// fully visible for the first time.
+message OnVisibleOnceTrigger {}
+
+// Triggers immediately when the layout is loaded / reloaded.
+message OnLoadTrigger {}
+
+// Triggers *every time* the condition switches from false to true. If the
+// condition is true initially, that will fire the trigger on load.
+message OnConditionTrigger {
+  // Dynamic boolean used as trigger.
+  androidx.wear.protolayout.expression.proto.DynamicBool dynamic_bool = 1;
+}
+
+// The triggers that can be fired.
+message Trigger {
+  oneof inner {
+    OnVisibleTrigger on_visible_trigger = 1;
+    OnVisibleOnceTrigger on_visible_once_trigger = 2;
+    OnLoadTrigger on_load_trigger = 3;
+    OnConditionTrigger on_condition_trigger = 4;
+  }
+}

@@ -103,6 +103,22 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testGetSetMinMillisBetweenContentChanges() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setMinMillisBetweenContentChanges(200);
+        assertThat(nodeCompat.getMinMillisBetweenContentChanges(), equalTo(200));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testGetHasRequestInitialAccessibilityFocus() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setRequestInitialAccessibilityFocus(true);
+        assertThat(nodeCompat.hasRequestInitialAccessibilityFocus(), is(true));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
@@ -180,6 +196,18 @@ public class AccessibilityNodeInfoCompatTest {
         } catch (NullPointerException e) {
             Assert.fail("Expected no NullPointerException, but got: " + e.getMessage());
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testAccessibilityActionToString() {
+        AccessibilityActionCompat actionCompat;
+        actionCompat = AccessibilityActionCompat.ACTION_SHOW_ON_SCREEN;
+        final String showOnScreen = "AccessibilityActionCompat: ACTION_SHOW_ON_SCREEN";
+        assertThat(actionCompat.toString(), is(showOnScreen));
+        final String customAction = "CustomAction";
+        actionCompat = new AccessibilityActionCompat(123123123, customAction);
+        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: " + customAction));
     }
 
     @Test

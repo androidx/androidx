@@ -88,15 +88,15 @@ internal class OkioStorageConnection<T>(
     // TODO:(b/233402915) support multiple readers
     private val transactionMutex = Mutex()
 
-    override suspend fun <R> readTransaction(
-        block: suspend ReadScope<T>.() -> R
+    override suspend fun <R> readScope(
+        block: suspend ReadScope<T>.(locked: Boolean) -> R
     ): R {
         checkNotClosed()
 
         val lock = transactionMutex.tryLock()
         try {
             OkioReadScope(fileSystem, path, serializer).use {
-                return block(it)
+                return block(it, lock)
             }
         } finally {
             if (lock) {
@@ -105,7 +105,7 @@ internal class OkioStorageConnection<T>(
         }
     }
 
-    override suspend fun writeTransaction(block: suspend WriteScope<T>.() -> Unit) {
+    override suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit) {
         checkNotClosed()
         val parentDir = path.parent ?: error("must have a parent path")
         fileSystem.createDirectories(

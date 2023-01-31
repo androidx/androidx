@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -23,8 +24,9 @@ import android.view.AttachedSurfaceControl
 import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceCompat
+import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
 /**
@@ -45,6 +47,51 @@ import java.util.concurrent.Executor
 class SurfaceControlCompat internal constructor(
     internal val scImpl: SurfaceControlImpl
 ) {
+
+    /**
+     * Constants for [Transaction.setBufferTransform].
+     *
+     * Various transformations that can be applied to a buffer.
+     */
+    companion object {
+        @Suppress("AcronymName")
+        @IntDef(
+            value = [BUFFER_TRANSFORM_IDENTITY, BUFFER_TRANSFORM_MIRROR_HORIZONTAL,
+                BUFFER_TRANSFORM_MIRROR_VERTICAL, BUFFER_TRANSFORM_ROTATE_180,
+                BUFFER_TRANSFORM_ROTATE_90, BUFFER_TRANSFORM_ROTATE_270]
+        )
+        internal annotation class BufferTransform
+
+        /**
+         * The identity transformation. Maps a coordinate (x, y) onto itself.
+         */
+        const val BUFFER_TRANSFORM_IDENTITY = 0
+
+        /**
+         * Mirrors the buffer horizontally. Maps a point (x, y) to (-x, y)
+         */
+        const val BUFFER_TRANSFORM_MIRROR_HORIZONTAL = 1
+
+        /**
+         * Mirrors the buffer vertically. Maps a point (x, y) to (x, -y)
+         */
+        const val BUFFER_TRANSFORM_MIRROR_VERTICAL = 2
+
+        /**
+         * Rotates the buffer 180 degrees clockwise. Maps a point (x, y) to (-x, -y)
+         */
+        const val BUFFER_TRANSFORM_ROTATE_180 = 3
+
+        /**
+         * Rotates the buffer 90 degrees clockwise. Maps a point (x, y) to (-y, x)
+         */
+        const val BUFFER_TRANSFORM_ROTATE_90 = 4
+
+        /**
+         * Rotates the buffer 270 degrees clockwise. Maps a point (x, y) to (y, -x)
+         */
+        const val BUFFER_TRANSFORM_ROTATE_270 = 7
+    }
 
     /**
      * Check whether this instance points to a valid layer with the system-compositor.
@@ -83,6 +130,19 @@ class SurfaceControlCompat internal constructor(
         @Suppress("MissingGetterMatchingBuilder")
         fun setParent(surfaceView: SurfaceView): Builder {
             mBuilderImpl.setParent(surfaceView)
+            return this
+        }
+
+        /**
+         * Set a parent [SurfaceControlCompat] for the new [SurfaceControlCompat] instance.
+         * Furthermore they stack relatively in Z order, and inherit the transformation of the
+         * parent.
+         * @param surfaceControl Target [SurfaceControlCompat] used as the parent for the newly
+         * created [SurfaceControlCompat] instance
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setParent(surfaceControl: SurfaceControlCompat): Builder {
+            mBuilderImpl.setParent(surfaceControl)
             return this
         }
 
@@ -142,6 +202,11 @@ class SurfaceControlCompat internal constructor(
      * An atomic set of changes to a set of [SurfaceControlCompat].
      */
     class Transaction : AutoCloseable {
+        /**
+         * internal mapping of buffer transforms used for testing purposes
+         */
+        internal val mBufferTransforms = HashMap<SurfaceControlCompat, Int>()
+
         private val mImpl = createImpl()
 
         /**
@@ -196,20 +261,6 @@ class SurfaceControlCompat internal constructor(
             newParent: SurfaceControlCompat?
         ): Transaction {
             mImpl.reparent(surfaceControl.scImpl, newParent?.scImpl)
-            return this
-        }
-
-        /**
-         * Re-parents a given [SurfaceControlCompat] to be a child of the [Surface] associated with
-         * the provided [SurfaceView]. Children inherit transform
-         * (position, scaling) crop, visibility, and Z-ordering from their parents, as if the
-         * children were pixels within the parent [Surface].
-         * @param surfaceControl Target [SurfaceControlCompat] instance to reparent
-         * @param surfaceView [SurfaceView] instance that acts as the new parent of the provided
-         * [SurfaceControlCompat] instance.
-         */
-        fun reparent(surfaceControl: SurfaceControlCompat, surfaceView: SurfaceView): Transaction {
-            mImpl.reparent(surfaceControl.scImpl, surfaceView)
             return this
         }
 
@@ -292,6 +343,7 @@ class SurfaceControlCompat internal constructor(
          * transaction has been committed.
          */
         @Suppress("PairedRegistration")
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener
@@ -306,7 +358,7 @@ class SurfaceControlCompat internal constructor(
          * sent buffer. This can be used to reduce the amount of recomposition that needs to
          * happen when only a small region of the buffer is being updated, such as for a small
          * blinking cursor or a loading indicator.
-         * @param surfaceControl Target [SurfaceControlImpl] to set damage region of.
+         * @param surfaceControl Target [SurfaceControlCompat] to set damage region of.
          * @param region The region to be set. If null, the entire buffer is assumed dirty. This is
          * equivalent to not setting a damage region at all.
          */
@@ -321,7 +373,7 @@ class SurfaceControlCompat internal constructor(
         /**
          * Set the alpha for a given surface. If the alpha is non-zero the SurfaceControl will
          * be blended with the Surfaces under it according to the specified ratio.
-         * @param surfaceControl Target [SurfaceControlImpl] to set the alpha of.
+         * @param surfaceControl Target [SurfaceControlCompat] to set the alpha of.
          * @param alpha The alpha to set. Value is between 0.0 and 1.0 inclusive.
          */
         fun setAlpha(
@@ -333,11 +385,98 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
+         * Bounds the surface and its children to the bounds specified. Size of the surface
+         * will be ignored and only the crop and buffer size will be used to determine the
+         * bounds of the surface. If no crop is specified and the surface has no buffer,
+         * the surface bounds is only constrained by the size of its parent bounds.
+         *
+         * @param surfaceControl The [SurfaceControlCompat] to apply the crop to. This value
+         * cannot be null.
+         *
+         * @param crop Bounds of the crop to apply. This value can be null.
+         *
+         * @throws IllegalArgumentException if crop is not a valid rectangle.
+         */
+        fun setCrop(
+            surfaceControl: SurfaceControlCompat,
+            crop: Rect?
+        ): Transaction {
+            mImpl.setCrop(surfaceControl.scImpl, crop)
+            return this
+        }
+
+        /**
+         * Sets the SurfaceControl to the specified position relative to the parent SurfaceControl
+         *
+         * @param surfaceControl The [SurfaceControlCompat] to change position. This value cannot
+         * be null
+         *
+         * @param x the X position
+         *
+         * @param y the Y position
+         */
+        fun setPosition(
+            surfaceControl: SurfaceControlCompat,
+            x: Float,
+            y: Float
+        ): Transaction {
+            mImpl.setPosition(surfaceControl.scImpl, x, y)
+            return this
+        }
+
+        /**
+         * Sets the SurfaceControl to the specified scale with (0, 0) as the
+         * center point of the scale.
+         *
+         * @param surfaceControl The [SurfaceControlCompat] to change scale. This value cannot
+         * be null.
+         *
+         * @param scaleX the X scale
+         *
+         * @param scaleY the Y scale
+         */
+        fun setScale(
+            surfaceControl: SurfaceControlCompat,
+            scaleX: Float,
+            scaleY: Float
+        ): Transaction {
+            mImpl.setScale(surfaceControl.scImpl, scaleX, scaleY)
+            return this
+        }
+
+        /**
+         * Sets the buffer transform that should be applied to the current buffer
+         *
+         * @param surfaceControl the [SurfaceControlCompat] to update. This value cannot be null.
+         *
+         * @param transformation The transform to apply to the buffer. Value is
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90], or
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90]
+         */
+        fun setBufferTransform(
+            surfaceControl: SurfaceControlCompat,
+            @BufferTransform transformation: Int
+        ): Transaction {
+            mBufferTransforms[surfaceControl] = transformation
+            mImpl.setBufferTransform(surfaceControl.scImpl, transformation)
+            return this
+        }
+
+        /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
          * This will not release any resources and [SurfaceControlCompat.Transaction.close] must be
          * called to release the transaction.
          */
         fun commit() {
+            mBufferTransforms.clear()
             mImpl.commit()
         }
 

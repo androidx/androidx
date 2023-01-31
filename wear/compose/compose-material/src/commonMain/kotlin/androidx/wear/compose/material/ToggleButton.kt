@@ -98,6 +98,7 @@ public fun ToggleButton(
     colors,
     interactionSource,
     CircleShape,
+    ToggleButtonDefaults.DefaultRole,
     content)
 
 /**
@@ -140,6 +141,9 @@ public fun ToggleButton(
  * default as this shape is a key characteristic of the Wear Material Theme.
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+    "A newer overload is available with an additional semantic role parameter.",
+    level = DeprecationLevel.HIDDEN)
 @Composable
 public fun ToggleButton(
     checked: Boolean,
@@ -149,6 +153,70 @@ public fun ToggleButton(
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = CircleShape,
+    content: @Composable BoxScope.() -> Unit,
+) = ToggleButton(
+    checked,
+    onCheckedChange,
+    modifier,
+    enabled,
+    colors,
+    interactionSource,
+    shape,
+    ToggleButtonDefaults.DefaultRole,
+    content)
+
+/**
+ * Wear Material [ToggleButton] that offers a single slot to take any content
+ * (text, icon or image).
+ *
+ * The [ToggleButton] defaults to size [ToggleButtonDefaults.DefaultToggleButtonSize] or [ToggleButtonDefaults.SmallToggleButtonSize].
+ * Icon content should be of size [ToggleButtonDefaults.DefaultIconSize] or
+ * [ToggleButtonDefaults.SmallIconSize] respectively.
+ *
+ * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained
+ * from [ToggleButtonDefaults.toggleButtonColors], which defaults to
+ * checked colors being
+ * a solid background of [Colors.primary] with content color of [Colors.onPrimary]
+ * and unchecked colors being
+ * a solid background of [Colors.surface] with content color of [Colors.onSurface].
+ *
+ * [ToggleButton]s can be enabled or disabled. A disabled toggle button will not respond to click
+ * events.
+ *
+ * Example of a [ToggleButton] with an icon:
+ * @sample androidx.wear.compose.material.samples.ToggleButtonWithIcon
+ *
+ * For more information, see the
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons#toggle-button)
+ * guide.
+ *
+ * @param checked Boolean flag indicating whether this toggle button is currently checked.
+ * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
+ * @param modifier Modifier to be applied to the toggle button.
+ * @param enabled Controls the enabled state of the toggle button. When `false`,
+ * this toggle button will not be clickable.
+ * @param colors [ToggleButtonColors] that will be used to resolve the background and
+ * content color for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this toggle button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
+ * default as this shape is a key characteristic of the Wear Material Theme.
+ * @param role Role semantics that accessibility services can use to provide more
+ * context to users.
+ * @param content The icon, image or text to be drawn inside the toggle button.
+ */
+@Composable
+public fun ToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = CircleShape,
+    role: Role = ToggleButtonDefaults.DefaultRole,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
@@ -163,7 +231,7 @@ public fun ToggleButton(
                 value = checked,
                 onValueChange = onCheckedChange,
                 enabled = enabled,
-                role = Role.Checkbox,
+                role = role,
                 interactionSource = interactionSource,
                 indication = rememberRipple()
             )
@@ -182,7 +250,6 @@ public fun ToggleButton(
         }
     }
 }
-
 /**
  * Represents the background and content colors used in a toggle button in different states.
  *
@@ -235,6 +302,11 @@ public object ToggleButtonDefaults {
      * The default size of an icon when used inside a default-sized [ToggleButton].
      */
     public val DefaultIconSize = 26.dp
+
+    /**
+     * Role semantics that accessibility services can use to provide more context to users.
+     */
+    public val DefaultRole = Role.Checkbox
 
     /**
      * Creates a [ToggleButtonColors] that represents the background and content colors

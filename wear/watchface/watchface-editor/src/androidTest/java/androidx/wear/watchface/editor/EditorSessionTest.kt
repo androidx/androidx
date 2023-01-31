@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.editor
 
+import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
@@ -120,12 +121,15 @@ import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MILLISECONDS
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.anyInt
 
 public const val LEFT_COMPLICATION_ID: Int = 1000
 public const val RIGHT_COMPLICATION_ID: Int = 1001
@@ -142,12 +146,10 @@ private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
 private const val PROVIDER_CHOOSER_RESULT_EXTRA_KEY = "PROVIDER_CHOOSER_RESULT_EXTRA_KEY"
 private const val PROVIDER_CHOOSER_RESULT_EXTRA_VALUE = "PROVIDER_CHOOSER_RESULT_EXTRA_VALUE"
 
-private typealias WireComplicationProviderInfo =
-    android.support.wearable.complications.ComplicationProviderInfo
-
-internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", icon = null)
-internal val greenStyleOption = ListOption(Option.Id("green_style"), "Green", icon = null)
-internal val blueStyleOption = ListOption(Option.Id("blue_style"), "Blue", icon = null)
+internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", "Red", icon = null)
+internal val greenStyleOption =
+    ListOption(Option.Id("green_style"), "Green", "Green", icon = null)
+internal val blueStyleOption = ListOption(Option.Id("blue_style"), "Blue", "Blue", icon = null)
 internal val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 internal val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     UserStyleSetting.Id("color_style_setting"),
@@ -158,9 +160,12 @@ internal val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     listOf(WatchFaceLayer.BASE)
 )
 
-internal val classicStyleOption = ListOption(Option.Id("classic_style"), "Classic", icon = null)
-internal val modernStyleOption = ListOption(Option.Id("modern_style"), "Modern", icon = null)
-internal val gothicStyleOption = ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
+internal val classicStyleOption =
+    ListOption(Option.Id("classic_style"), "Classic", "Classic", icon = null)
+internal val modernStyleOption =
+    ListOption(Option.Id("modern_style"), "Modern", "Modern", icon = null)
+internal val gothicStyleOption =
+    ListOption(Option.Id("gothic_style"), "Gothic", "Gothic", icon = null)
 internal val watchHandStyleList =
     listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 internal val watchHandStyleSetting = UserStyleSetting.ListUserStyleSetting(
@@ -203,6 +208,7 @@ private val bothComplicationsOption =
     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
         Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
         "Left And Right",
+        "Show left and right complications",
         null,
         // An empty list means use the initial config.
         emptyList()
@@ -211,6 +217,7 @@ private val leftOnlyComplicationsOption =
     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
         Option.Id("LEFT_COMPLICATION"),
         "Left",
+        "Show left complication only",
         null,
         listOf(
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder(
@@ -222,6 +229,7 @@ private val rightOnlyComplicationsOption =
     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
         Option.Id("RIGHT_COMPLICATION"),
         "Right",
+        "Show right complication only",
         null,
         listOf(
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder(
@@ -670,7 +678,7 @@ public class EditorSessionTest {
         lateinit var activity: OnWatchFaceEditingTestActivity
         scenario.onActivity { activity = it }
         activity.creationLatch.await(EDITING_SESSION_TIMEOUT.toMillis() + 500, MILLISECONDS)
-        assert(activity.onCreateException is TimeoutCancellationException)
+        assertThat(activity.onCreateException is TimeoutCancellationException).isTrue()
     }
 
     @Test
@@ -750,6 +758,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun userStyleSchema() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -1585,7 +1594,7 @@ public class EditorSessionTest {
         }
     }
 
-    @Suppress("NewApi") // result.watchFaceId
+    @Suppress("NewApi", "Deprecation") // result.watchFaceId,  deprecation: userStyleSettings
     @Test
     public fun userStyleAndComplicationPreviewDataInEditorObserver() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -1761,6 +1770,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun commit_headless() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -1812,6 +1822,7 @@ public class EditorSessionTest {
     }
 
     @SuppressLint("NewApi")
+    @Suppress("Deprecation") // userStyleSettings
     @Test
     public fun commitWithPreviewImage() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -1857,6 +1868,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun doNotCommit() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -1909,6 +1921,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun commitChanges_preRFlow() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -2009,6 +2022,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun forceCloseEditorSession() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -2032,6 +2046,46 @@ public class EditorSessionTest {
 
         // We don't expect the observer to have fired.
         assertFalse(editorObserver.stateChangeObserved())
+
+        // The style change should not have been applied to the watchface.
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(redStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(classicStyleOption.id.value)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @Test
+    @Suppress("Deprecation") // userStyleSettings
+    public fun observedDeathForceClosesEditorSession() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        val editorObserver = Mockito.mock(IEditorObserver::class.java)
+        val mockBinder = Mockito.mock(IBinder::class.java)
+        `when`(editorObserver.asBinder()).thenReturn(mockBinder)
+
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
+        val deathRecipientCaptor = ArgumentCaptor.forClass(IBinder.DeathRecipient::class.java)
+        verify(mockBinder).linkToDeath(deathRecipientCaptor.capture(), anyInt())
+
+        scenario.onActivity { activity ->
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
+            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
+            }
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
+        }
+
+        // Pretend the binder died, this should force close the editor session.
+        deathRecipientCaptor.value.binderDied()
+
+        assertTrue(onDestroyLatch.await(5L, TimeUnit.SECONDS))
 
         // The style change should not have been applied to the watchface.
         assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
@@ -2364,8 +2418,8 @@ public class EditorSessionTest {
 
     @Test
     public fun cantAssignUnrelatedUserStyle() {
-        val redOption = ListOption(Option.Id("red"), "Red", icon = null)
-        val greenOption = ListOption(Option.Id("green"), "Green", icon = null)
+        val redOption = ListOption(Option.Id("red"), "Red", "Red", icon = null)
+        val greenOption = ListOption(Option.Id("green"), "Green", "Green", icon = null)
         val colorStyleList = listOf(redOption, greenOption)
         val watchColorSetting = UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id("color_id"),
@@ -2397,8 +2451,8 @@ public class EditorSessionTest {
 
     @Test
     public fun cantAssignUnrelatedUserStyle_compareAndSet() {
-        val redOption = ListOption(Option.Id("red"), "Red", icon = null)
-        val greenOption = ListOption(Option.Id("green"), "Green", icon = null)
+        val redOption = ListOption(Option.Id("red"), "Red", "Red", icon = null)
+        val greenOption = ListOption(Option.Id("green"), "Green", "Green", icon = null)
         val colorStyleList = listOf(redOption, greenOption)
         val watchColorSetting = UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id("color_id"),

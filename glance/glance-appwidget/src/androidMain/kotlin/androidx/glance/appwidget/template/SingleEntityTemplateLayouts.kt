@@ -19,8 +19,11 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
-import androidx.glance.Image
+import androidx.glance.GlanceTheme
 import androidx.glance.LocalSize
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion.sizeMin
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion.sizeS
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -32,7 +35,6 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateMode
@@ -57,81 +59,75 @@ fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
-    var modifier = GlanceModifier
-        .fillMaxSize().padding(16.dp).background(LocalTemplateColors.current.surface)
-
-    data.image?.let { image ->
-        modifier = modifier.background(image.image, ContentScale.Crop)
-    }
-    Column(modifier = modifier) {
-        data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
+    Column(modifier = createTopLevelModifier(data, true)) {
+        HeaderBlockTemplate(data.headerBlock)
+        // TODO(b/247613894): Does this need a minimum spacing?
         Spacer(modifier = GlanceModifier.defaultWeight())
-        AppWidgetTextSection(textList(data.text1, data.text2))
+        data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
     }
 }
 
 @Composable
 private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
 
-    Column(modifier = GlanceModifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .background(LocalTemplateColors.current.surface)) {
-        data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
-        Spacer(modifier = GlanceModifier.height(16.dp))
-        data.image?.let { image ->
-            Image(
-                provider = image.image,
-                contentDescription = image.description,
-                modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = GlanceModifier.height(16.dp))
+    Column(modifier = createTopLevelModifier(data)) {
+        data.headerBlock?.let {
+            HeaderBlockTemplate(data.headerBlock)
+            // If other blocks exist, add space
+            // TODO(b/247613894): These checks are a bit fragile, we'll have to add checks if any
+            //  blocks are added to the template in the future. Is there a better way to do this?
+            if (data.imageBlock != null || data.textBlock != null || data.actionBlock != null) {
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
+        }
+
+        data.imageBlock?.let {
+            SingleImageBlockTemplate(it, GlanceModifier.fillMaxWidth().defaultWeight())
+            if (data.textBlock != null || data.actionBlock != null) {
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
         }
         Row(modifier = GlanceModifier.fillMaxWidth()) {
-            AppWidgetTextSection(textList(data.text1, data.text2))
-            Spacer(modifier = GlanceModifier.defaultWeight())
-            data.button?.let { button -> AppWidgetTemplateButton(button) }
+            data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
+            // TODO(b/247613894): Fix for multiple actions
+            if (LocalSize.current.width > sizeMin) {
+                data.actionBlock?.let {
+                    Spacer(modifier = GlanceModifier.width(16.dp))
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+                    ActionBlockTemplate(it)
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
-    Row(modifier = GlanceModifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .background(LocalTemplateColors.current.surface)) {
-
+    Row(modifier = createTopLevelModifier(data)) {
         Column(
-            modifier =
-            GlanceModifier.defaultWeight().fillMaxHeight()
+            modifier = GlanceModifier.defaultWeight().fillMaxHeight()
         ) {
-            data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
-            Spacer(modifier = GlanceModifier.height(16.dp))
+            data.headerBlock?.let {
+                HeaderBlockTemplate(data.headerBlock)
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
             Spacer(modifier = GlanceModifier.defaultWeight())
 
-            // TODO: Extract small height as template constant
-            val body =
-                if (LocalSize.current.height > 240.dp) {
-                    data.text3
-                } else {
-                    null
+            data.textBlock?.let {
+                val body = if (LocalSize.current.height >= sizeS) it.text3 else null
+                AppWidgetTextSection(textList(it.text1, it.text2, body))
+            }
+            if (LocalSize.current.height > sizeMin) {
+                data.actionBlock?.let {
+                    Spacer(modifier = GlanceModifier.height(16.dp))
+                    ActionBlockTemplate(it)
                 }
-            AppWidgetTextSection(textList(data.text1, data.text2, body))
-            data.button?.let { button ->
-                Spacer(modifier = GlanceModifier.height(16.dp))
-                AppWidgetTemplateButton(button)
             }
         }
-        data.image?.let { image ->
+
+        data.imageBlock?.let {
             Spacer(modifier = GlanceModifier.width(16.dp))
-            Image(
-                provider = image.image,
-                contentDescription = image.description,
-                modifier = GlanceModifier.fillMaxHeight().defaultWeight(),
-                contentScale = ContentScale.Crop
-            )
+            SingleImageBlockTemplate(it, GlanceModifier.fillMaxHeight().defaultWeight())
         }
     }
 }
@@ -147,4 +143,20 @@ private fun textList(
     body?.let { result.add(TemplateText(it.text, TextType.Body)) }
 
     return result
+}
+
+@Composable
+private fun createTopLevelModifier(
+    data: SingleEntityTemplateData,
+    isImmersive: Boolean = false
+): GlanceModifier {
+    var modifier = GlanceModifier
+        .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
+        .background(GlanceTheme.colors.primaryContainer)
+    if (isImmersive && data.imageBlock?.images?.isNotEmpty() == true) {
+        val mainImage = data.imageBlock!!.images[0]
+        modifier = modifier.background(mainImage.image, ContentScale.Crop)
+    }
+
+    return modifier
 }

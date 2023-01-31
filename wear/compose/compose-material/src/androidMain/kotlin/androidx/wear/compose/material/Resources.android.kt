@@ -51,3 +51,9 @@ internal actual fun isLeftyModeEnabled() =
         Settings.System.USER_ROTATION,
         Surface.ROTATION_0
     ) == Surface.ROTATION_180
+
+@Composable
+internal actual fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp
+
+@Composable
+internal actual fun screenWidthDp() = LocalContext.current.resources.configuration.screenWidthDp

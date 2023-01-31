@@ -301,10 +301,10 @@ def get_package_documentation_file_dir(group_id, artifact_id):
     """Generates the full package documentation directory
 
     Given androidx.foo.bar:bar-qux, the structure will be:
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/package-info.java
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/package-info.java
 
     For Kotlin:
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/<group>-<artifact>-documentation.md
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/<group>-<artifact>-documentation.md
 
     For Compose:
     frameworks/support/foo/bar/bar-qux/src/commonMain/kotlin/androidx/foo/<group>-<artifact>-documentation.md
@@ -318,7 +318,7 @@ def get_package_documentation_file_dir(group_id, artifact_id):
         group_id_subpath = "/src/commonMain/kotlin/" + \
                         group_id.replace(".", "/")
     else:
-        group_id_subpath = "/src/main/" + \
+        group_id_subpath = "/src/main/java/" + \
                         group_id.replace(".", "/")
     return full_artifact_path + group_id_subpath
 
@@ -352,8 +352,8 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
 
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/build.gradle
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/package-info.java
-    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/artifact-documentation.md
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/bar/package-info.java
+    frameworks/support/foo/bar/bar-qux/src/main/java/androidx/foo/bar/artifact-documentation.md
     frameworks/support/foo/bar/bar-qux/api/current.txt
 
     Args:
@@ -418,9 +418,9 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
         if project_type != ProjectType.JAVA:
             # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
             # We also rename this file for native projects in case they also have public Kotlin APIs
-            rename_file(full_artifact_path + "/src/main/groupId/artifactId-documentation.md",
+            rename_file(full_artifact_path + "/src/main/java/groupId/artifactId-documentation.md",
                         package_docs_filename)
-        mv_dir(full_artifact_path + "/src/main/groupId", full_package_docs_dir)
+        mv_dir(full_artifact_path + "/src/main/java/groupId", full_package_docs_dir)
 
     # Populate the library type
     library_type = get_library_type(artifact_id)

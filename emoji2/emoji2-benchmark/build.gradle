@@ -57,7 +57,6 @@ dependencies {
 androidx {
     name = "Emoji2 Benchmarks"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2021"
     description = "Emoji2 Benchmarks"
 }

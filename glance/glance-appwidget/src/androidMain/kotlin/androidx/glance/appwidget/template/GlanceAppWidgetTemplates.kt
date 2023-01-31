@@ -17,12 +17,14 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
@@ -33,11 +35,12 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
+import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.template.ActionBlock
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
-import androidx.glance.template.LocalTemplateColors
+import androidx.glance.template.ImageSize
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
@@ -54,15 +57,13 @@ import androidx.glance.text.TextStyle
  *
  * @param headerIcon glanceable main logo icon
  * @param header main header text
- * @param actionButton main header action button to the right side
  */
 @Composable
 internal fun AppWidgetTemplateHeader(
     headerIcon: TemplateImageWithDescription? = null,
     header: TemplateText? = null,
-    actionButton: TemplateButton? = null,
 ) {
-    if (headerIcon == null && header == null && actionButton == null) return
+    if (headerIcon == null && header == null) return
 
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
@@ -86,15 +87,9 @@ internal fun AppWidgetTemplateHeader(
                 text = header.text,
                 style = TextStyle(
                     fontSize = size,
-                    color = LocalTemplateColors.current.onSurface
+                    color = GlanceTheme.colors.onSurface
                 ),
                 maxLines = 1
-            )
-        }
-        actionButton?.let {
-            AppWidgetTemplateButton(
-                actionButton,
-                GlanceModifier.height(48.dp).width(48.dp)
             )
         }
     }
@@ -111,7 +106,6 @@ internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
     AppWidgetTemplateHeader(
         headerBlock.icon,
         headerBlock.text,
-        headerBlock.actionBlock?.actionButtons?.get(0)
     )
 }
 
@@ -125,12 +119,12 @@ internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
 internal fun AppWidgetTextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
 
-    Column() {
+    Column {
         textList.forEachIndexed { index, item ->
             val size = textSize(item.type, DisplaySize.fromDpSize(LocalSize.current))
             Text(
                 item.text,
-                style = TextStyle(fontSize = size, color = LocalTemplateColors.current.onSurface),
+                style = TextStyle(fontSize = size, color = GlanceTheme.colors.onSurface),
                 maxLines = maxLines(item.type)
             )
             if (index < textList.size - 1) {
@@ -151,7 +145,6 @@ internal fun AppWidgetTemplateButton(
     button: TemplateButton,
     glanceModifier: GlanceModifier = GlanceModifier
 ) {
-    val colors = LocalTemplateColors.current
     when (button) {
         is TemplateImageButton -> {
             // TODO: Specify sizing for image button
@@ -166,7 +159,7 @@ internal fun AppWidgetTemplateButton(
             Button(
                 text = button.text,
                 onClick = button.action,
-                style = TextStyle(color = colors.onPrimary),
+                style = TextStyle(color = GlanceTheme.colors.onPrimary),
                 modifier = glanceModifier
             )
         }
@@ -186,10 +179,19 @@ internal fun SingleImageBlockTemplate(
 ) {
     if (imageBlock.images.isNotEmpty()) {
         val mainImage = imageBlock.images[0]
+        val imageSize: Dp = when (imageBlock.size) {
+            ImageSize.Small -> 64.dp
+            ImageSize.Medium -> 96.dp
+            ImageSize.Large -> 128.dp
+            ImageSize.Undefined -> 96.dp
+            else -> 96.dp
+        }
         Image(
             provider = mainImage.image,
             contentDescription = mainImage.description,
-            modifier = modifier,
+            modifier = if (ImageSize.Undefined == imageBlock.size) modifier else modifier.size(
+                imageSize
+            ),
             contentScale = ContentScale.Crop
         )
     }
@@ -229,11 +231,51 @@ internal fun HeaderBlockTemplate(headerBlock: HeaderBlock?) {
 @Composable
 internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
     if (actionBlock?.actionButtons?.isNotEmpty() == true) {
-        Spacer(modifier = GlanceModifier.height(16.dp))
         Row {
             actionBlock.actionButtons.forEach { button ->
                 AppWidgetTemplateButton(button)
                 Spacer(modifier = GlanceModifier.width(4.dp))
+            }
+        }
+    }
+}
+
+/**
+ * Displays an entity of a block of texts from a [TextBlock] and an image from an [ImageBlock]
+ * ordered by priority of the blocks with the default to the [TextBlock] being ahead of the
+ * [ImageBlock] if they have the same priority.
+ *
+ * @param textBlock The [TextBlock]  for an entity.
+ * @param imageBlock The [ImageBlock] for an entity.
+ * @param modifier The modifier for the textBlock in relation to the imageBlock.
+ */
+@Composable
+internal fun TextAndImageBlockTemplate(
+    textBlock: TextBlock,
+    imageBlock: ImageBlock? = null,
+    modifier: GlanceModifier = GlanceModifier
+) {
+    if (imageBlock == null || imageBlock.images.isEmpty()) {
+        TextBlockTemplate(textBlock)
+    } else {
+        // Show first block by lower numbered priority
+        if (textBlock.priority <= imageBlock.priority) {
+            Column(
+                modifier = modifier,
+                verticalAlignment = Alignment.Vertical.CenterVertically
+            ) {
+                TextBlockTemplate(textBlock)
+            }
+            Spacer(modifier = GlanceModifier.width(16.dp))
+            SingleImageBlockTemplate(imageBlock)
+        } else {
+            SingleImageBlockTemplate(imageBlock)
+            Spacer(modifier = GlanceModifier.width(16.dp))
+            Column(
+                modifier = modifier,
+                verticalAlignment = Alignment.Vertical.CenterVertically
+            ) {
+                TextBlockTemplate(textBlock)
             }
         }
     }

@@ -265,11 +265,19 @@ class FocusMeteringControl {
         return Math.min(Math.max(val, min), max);
     }
 
+    @NonNull
     ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
+        return startFocusAndMetering(action, AUTO_FOCUS_TIMEOUT_DURATION);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+            @NonNull FocusMeteringAction action, long timeoutDurationMs) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             mExecutor.execute(
-                    () -> startFocusAndMeteringInternal(completer, action));
+                    () -> startFocusAndMeteringInternal(completer, action, timeoutDurationMs));
             return "startFocusAndMetering";
         });
     }
@@ -312,7 +320,7 @@ class FocusMeteringControl {
 
     @ExecutedBy("mExecutor")
     void startFocusAndMeteringInternal(@NonNull Completer<FocusMeteringResult> completer,
-            @NonNull FocusMeteringAction action) {
+            @NonNull FocusMeteringAction action, long timeoutDurationMs) {
         if (!mIsActive) {
             completer.setException(
                     new CameraControl.OperationCanceledException("Camera is not active."));
@@ -350,7 +358,8 @@ class FocusMeteringControl {
                 rectanglesAf.toArray(EMPTY_RECTANGLES),
                 rectanglesAe.toArray(EMPTY_RECTANGLES),
                 rectanglesAwb.toArray(EMPTY_RECTANGLES),
-                action
+                action,
+                timeoutDurationMs
         );
     }
 
@@ -565,7 +574,8 @@ class FocusMeteringControl {
             @NonNull MeteringRectangle[] afRects,
             @NonNull MeteringRectangle[] aeRects,
             @NonNull MeteringRectangle[] awbRects,
-            FocusMeteringAction focusMeteringAction) {
+            FocusMeteringAction focusMeteringAction,
+            long timeoutDurationMs) {
         mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
 
         disableAutoCancel();
@@ -643,7 +653,7 @@ class FocusMeteringControl {
         });
 
         mAutoFocusTimeoutHandle = mScheduler.schedule(autoFocusTimeoutRunnable,
-                AUTO_FOCUS_TIMEOUT_DURATION,
+                timeoutDurationMs,
                 TimeUnit.MILLISECONDS);
 
         if (focusMeteringAction.isAutoCancelEnabled()) {

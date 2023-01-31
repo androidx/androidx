@@ -16,8 +16,8 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Connects the query, db and the ResultAdapter.
@@ -34,7 +34,7 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
     abstract fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean, // false if query is provided by the user
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     )

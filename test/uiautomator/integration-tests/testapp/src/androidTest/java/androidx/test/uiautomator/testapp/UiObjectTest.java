@@ -21,14 +21,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Point;
 import android.graphics.Rect;
 
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class UiObjectTest extends BaseTest {
@@ -75,7 +76,7 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::getChildCount);
+        assertUiObjectNotFound(noNode::getChildCount);
     }
 
     @Test
@@ -118,6 +119,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedDragDest.waitForExists(TIMEOUT_MS));
     }
 
+    @Ignore // b/266617747
     @Test
     public void testSwipeUp() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -133,12 +135,13 @@ public class UiObjectTest extends BaseTest {
 
         // Note that the `swipeRegion` will always show the swipe direction, even if the swipe
         // action does not happen inside `swipeRegion`.
-        assertFalse(verySmallRegion.swipeUp(100));
+        assertFalse(verySmallRegion.swipeUp(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeUp(100));
+        assertTrue(swipeRegion.swipeUp(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
+    @Ignore // b/266617747
     @Test
     public void testSwipeDown() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -152,9 +155,9 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_down"));
 
-        assertFalse(verySmallRegion.swipeDown(100));
+        assertFalse(verySmallRegion.swipeDown(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeDown(100));
+        assertTrue(swipeRegion.swipeDown(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
@@ -172,12 +175,13 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_left"));
 
-        assertFalse(verySmallRegion.swipeLeft(100));
+        assertFalse(verySmallRegion.swipeLeft(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeLeft(100));
+        assertTrue(swipeRegion.swipeLeft(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
+    @Ignore // b/266617747
     @Test
     public void testSwipeRight() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -191,9 +195,9 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_right"));
 
-        assertFalse(verySmallRegion.swipeRight(100));
+        assertFalse(verySmallRegion.swipeRight(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeRight(100));
+        assertTrue(swipeRegion.swipeRight(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
@@ -298,13 +302,13 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::click);
-        assertThrows(UiObjectNotFoundException.class, noNode::clickAndWaitForNewWindow);
-        assertThrows(UiObjectNotFoundException.class, noNode::clickTopLeft);
-        assertThrows(UiObjectNotFoundException.class, noNode::longClickBottomRight);
-        assertThrows(UiObjectNotFoundException.class, noNode::clickBottomRight);
-        assertThrows(UiObjectNotFoundException.class, noNode::longClick);
-        assertThrows(UiObjectNotFoundException.class, noNode::longClickTopLeft);
+        assertUiObjectNotFound(noNode::click);
+        assertUiObjectNotFound(noNode::clickAndWaitForNewWindow);
+        assertUiObjectNotFound(noNode::clickTopLeft);
+        assertUiObjectNotFound(noNode::longClickBottomRight);
+        assertUiObjectNotFound(noNode::clickBottomRight);
+        assertUiObjectNotFound(noNode::longClick);
+        assertUiObjectNotFound(noNode::longClickTopLeft);
     }
 
     @Test
@@ -384,13 +388,13 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::getText);
-        assertThrows(UiObjectNotFoundException.class, noNode::getClassName);
-        assertThrows(UiObjectNotFoundException.class, noNode::getContentDescription);
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.legacySetText("new_text"));
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.setText("new_text"));
-        assertThrows(UiObjectNotFoundException.class, noNode::clearTextField);
-        assertThrows(UiObjectNotFoundException.class, noNode::getPackageName);
+        assertUiObjectNotFound(noNode::getText);
+        assertUiObjectNotFound(noNode::getClassName);
+        assertUiObjectNotFound(noNode::getContentDescription);
+        assertUiObjectNotFound(() -> noNode.legacySetText("new_text"));
+        assertUiObjectNotFound(() -> noNode.setText("new_text"));
+        assertUiObjectNotFound(noNode::clearTextField);
+        assertUiObjectNotFound(noNode::getPackageName);
     }
 
     @Test
@@ -514,15 +518,15 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(UiObjectNotFoundException.class, noNode::isChecked);
-        assertThrows(UiObjectNotFoundException.class, noNode::isSelected);
-        assertThrows(UiObjectNotFoundException.class, noNode::isCheckable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isEnabled);
-        assertThrows(UiObjectNotFoundException.class, noNode::isClickable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isFocused);
-        assertThrows(UiObjectNotFoundException.class, noNode::isFocusable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isScrollable);
-        assertThrows(UiObjectNotFoundException.class, noNode::isLongClickable);
+        assertUiObjectNotFound(noNode::isChecked);
+        assertUiObjectNotFound(noNode::isSelected);
+        assertUiObjectNotFound(noNode::isCheckable);
+        assertUiObjectNotFound(noNode::isEnabled);
+        assertUiObjectNotFound(noNode::isClickable);
+        assertUiObjectNotFound(noNode::isFocused);
+        assertUiObjectNotFound(noNode::isFocusable);
+        assertUiObjectNotFound(noNode::isScrollable);
+        assertUiObjectNotFound(noNode::isLongClickable);
     }
 
     @Test
@@ -637,6 +641,8 @@ public class UiObjectTest extends BaseTest {
         UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/scale_factor").text("1.0f"));
 
+        assertTrue(pinchArea.pinchOut(0, 10));
+        assertFalse(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         assertTrue(pinchArea.pinchOut(100, 10));
         assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -657,6 +663,8 @@ public class UiObjectTest extends BaseTest {
         UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/scale_factor").text("1.0f"));
 
+        assertTrue(pinchArea.pinchIn(0, 10));
+        assertFalse(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         assertTrue(pinchArea.pinchIn(100, 10));
         assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -672,16 +680,34 @@ public class UiObjectTest extends BaseTest {
         UiObject smallArea = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/small_area"));
 
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.pinchOut(100, 10));
-        assertThrows(UiObjectNotFoundException.class, () -> noNode.pinchIn(100, 10));
+        assertUiObjectNotFound(() -> noNode.pinchOut(100, 10));
+        assertUiObjectNotFound(() -> noNode.pinchIn(100, 10));
         assertThrows(IllegalStateException.class, () -> smallArea.pinchOut(100, 10));
         assertThrows(IllegalStateException.class, () -> smallArea.pinchIn(100, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchOut(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchOut(101, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(101, 10));
     }
 
-    /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testPerformTwoPointerGesture_withZeroSteps() throws Exception {
+        // Note that most part of `performTwoPointerGesture` (and `performMultiPointerGesture`)
+        // has already been indirectly tested in other tests. This test only test the case when
+        // the `step` parameter is set to zero.
+        launchTestActivity(PointerGestureTestActivity.class);
 
-    public void testPerformTwoPointerGesture() {}
+        UiObject touchRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/touch_region"));
 
-    public void testPerformMultiPointerGesture() {}
-    */
+        Rect visibleBounds = touchRegion.getVisibleBounds();
+        Point startPoint1 = new Point(visibleBounds.left + 50, visibleBounds.top + 50);
+        Point startPoint2 = new Point(visibleBounds.right - 50, visibleBounds.top + 50);
+        Point endPoint1 = new Point(visibleBounds.left + 50, visibleBounds.bottom - 50);
+        Point endPoint2 = new Point(visibleBounds.right - 50, visibleBounds.bottom - 50);
+
+        assertTrue(touchRegion.performTwoPointerGesture(startPoint1, startPoint2, endPoint1,
+                endPoint2, 0));
+        assertEquals("2 touch(es) received", touchRegion.getText());
+    }
 }

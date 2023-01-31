@@ -24,16 +24,14 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import androidx.window.sample.R
 import androidx.window.sample.embedding.SplitActivityDetail.Companion.EXTRA_SELECTED_ITEM
 
-@OptIn(ExperimentalWindowApi::class)
 open class SplitActivityList : AppCompatActivity() {
-    lateinit var splitController: SplitController
-    val splitChangeListener = SplitStateChangeListener()
+    private lateinit var splitController: SplitController
+    private val splitChangeListener = SplitStateChangeListener()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +39,7 @@ open class SplitActivityList : AppCompatActivity() {
         findViewById<View>(R.id.root_split_activity_layout)
             .setBackgroundColor(Color.parseColor("#e0f7fa"))
 
-        splitController = SplitController.getInstance()
+        splitController = SplitController.getInstance(this)
     }
 
     open fun onItemClick(view: View) {

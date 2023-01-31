@@ -39,7 +39,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(project(":wear:watchface:watchface"))
@@ -61,7 +61,6 @@ android {
 androidx {
     name = "Android Wear Watchface Complication Rendering"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Support for rendering complications on the watch face"
 }

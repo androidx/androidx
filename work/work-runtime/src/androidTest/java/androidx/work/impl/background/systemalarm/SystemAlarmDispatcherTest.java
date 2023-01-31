@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -46,6 +47,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.testutils.RepeatRule;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
@@ -55,6 +57,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.Schedulers;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.NetworkState;
@@ -184,14 +187,15 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 mContext,
                 configuration,
                 instantTaskExecutor,
-                mDatabase,
-                Collections.singletonList(scheduler));
+                mDatabase);
         mSpyProcessor = spy(processor);
 
         mDispatcher =
                 new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor, mWorkManager);
         mDispatcher.setCompletedListener(completedListener);
         mSpyDispatcher = spy(mDispatcher);
+        Schedulers.registerRescheduling(Collections.singletonList(scheduler), processor,
+                instantTaskExecutor.getSerialTaskExecutor(), mDatabase, configuration);
     }
 
     @After
@@ -200,7 +204,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testSchedule() throws InterruptedException {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS)

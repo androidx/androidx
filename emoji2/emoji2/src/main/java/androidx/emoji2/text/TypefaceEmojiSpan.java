@@ -49,7 +49,7 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
      *
      * @param metadata metadata representing the emoji that this span will draw
      */
-    public TypefaceEmojiSpan(final @NonNull EmojiMetadata metadata) {
+    public TypefaceEmojiSpan(final @NonNull TypefaceEmojiRasterizer metadata) {
         super(metadata);
     }
 
@@ -65,7 +65,7 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
         if (EmojiCompat.get().isEmojiSpanIndicatorEnabled()) {
             canvas.drawRect(x, top , x + getWidth(), bottom, getDebugPaint());
         }
-        getMetadata().draw(canvas, x, y, textPaint != null ? textPaint : paint);
+        getTypefaceRasterizer().draw(canvas, x, y, textPaint != null ? textPaint : paint);
     }
 
     // compat behavior with TextLine.java#handleText background drawing

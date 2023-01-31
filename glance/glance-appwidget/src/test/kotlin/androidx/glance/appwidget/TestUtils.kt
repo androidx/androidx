@@ -29,39 +29,66 @@ import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RemoteViews
-import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
+import androidx.glance.GlanceComposable
+import androidx.glance.GlanceId
+import androidx.glance.session.GlobalSnapshotManager
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertIs
+import kotlinx.coroutines.flow.first
 
-internal suspend fun runTestingComposition(content: @Composable () -> Unit): RemoteViewsRoot =
+internal suspend fun runTestingComposition(
+    content: @Composable @GlanceComposable () -> Unit,
+): RemoteViewsRoot =
+    runCompositionUntil(
+        stopWhen = { state: Recomposer.State, root: RemoteViewsRoot ->
+            state == Recomposer.State.Idle && !root.shouldIgnoreResult()
+        },
+        content
+    )
+
+internal suspend fun runCompositionUntil(
+    stopWhen: (Recomposer.State, RemoteViewsRoot) -> Boolean,
+    content: @Composable () -> Unit
+): RemoteViewsRoot =
     coroutineScope {
+        GlobalSnapshotManager.ensureStarted()
         val root = RemoteViewsRoot(10)
         val applier = Applier(root)
         val recomposer = Recomposer(currentCoroutineContext())
         val composition = Composition(applier, recomposer)
-        val frameClock = BroadcastFrameClock()
 
         composition.setContent { content() }
 
-        launch(frameClock) { recomposer.runRecomposeAndApplyChanges() }
+        launch(TestFrameClock()) { recomposer.runRecomposeAndApplyChanges() }
 
-        recomposer.close()
+        recomposer.currentState.first { stopWhen(it, root) }
+        recomposer.cancel()
         recomposer.join()
 
         root
     }
+
+/**
+ * Test clock that sends all frames immediately.
+ */
+class TestFrameClock : MonotonicFrameClock {
+    override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R) =
+        onFrame(System.currentTimeMillis())
+}
 
 /** Create the view out of a RemoteViews. */
 internal fun Context.applyRemoteViews(rv: RemoteViews): View {
@@ -143,9 +170,21 @@ fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
     return children.mapNotNull { it.findView(predicate, klass) }.firstOrNull()
 }
 
-internal class TestWidget : GlanceAppWidget() {
+internal class TestWidget(
+    override val sizeMode: SizeMode = SizeMode.Single,
+    val ui: @Composable () -> Unit,
+) : GlanceAppWidget() {
+    val provideGlanceCalled = AtomicBoolean(false)
+    override suspend fun provideGlance(
+        context: android.content.Context,
+        id: androidx.glance.GlanceId
+    ) {
+        provideGlanceCalled.set(true)
+        provideContent { Content() }
+    }
     @Composable
     override fun Content() {
+        ui()
     }
 }
 

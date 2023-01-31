@@ -22,6 +22,7 @@
 -keep public class android.support.wearable.complications.TimeDependentText { *; }
 -keep public class android.support.wearable.complications.TimeDifferenceText { *; }
 -keep public class android.support.wearable.complications.TimeFormatText { *; }
+-keep public class android.graphics.drawable.Icon { *; }
 
 # Ensure our sanitizing of EditorSession.usr_style doesn't break due to renames.
 -keep public class kotlinx.coroutines.flow.MutableStateFlow { *; }

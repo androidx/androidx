@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.LayoutElementBuilders.Layout;
-import androidx.wear.tiles.proto.TimelineProto;
+import androidx.wear.protolayout.proto.TimelineProto;
 
 import java.util.Collections;
 import java.util.List;

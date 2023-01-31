@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import com.squareup.javapoet.TypeName
+import androidx.room.compiler.codegen.XTypeName
 
 /**
  * Common interface between [Entity] and [DatabaseView].
@@ -28,5 +28,5 @@ interface EntityOrView : HasFields {
      */
     val tableName: String
 
-    val typeName: TypeName
+    val typeName: XTypeName
 }

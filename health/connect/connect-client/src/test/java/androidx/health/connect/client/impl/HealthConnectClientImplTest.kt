@@ -22,13 +22,14 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper
-import androidx.health.connect.client.aggregate.AggregationResult
-import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
-import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
-import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermission
+import androidx.health.connect.client.impl.converters.datatype.toDataType
+import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermissionLegacy
+import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.StepsRecord.Companion.COUNT_TOTAL
@@ -41,8 +42,6 @@ import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.response.ReadRecordResponse
-import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilograms
@@ -73,8 +72,10 @@ import java.time.LocalDateTime
 import java.time.Period
 import java.time.ZoneOffset
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -87,7 +88,7 @@ private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissions(setOf()) },
+        { getGrantedPermissionsLegacy(setOf()) },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -117,7 +118,14 @@ private val API_METHOD_LIST =
             )
         },
         { getChanges("token") },
-        { getChangesToken(ChangesTokenRequest(recordTypes = setOf(StepsRecord::class))) }
+        { getChangesToken(ChangesTokenRequest(recordTypes = setOf(StepsRecord::class))) },
+        {
+            registerForDataNotifications(
+                notificationIntentAction = "action",
+                recordTypes = emptyList(),
+            )
+        },
+        { unregisterFromDataNotifications(notificationIntentAction = "action") }
     )
 
 @Suppress("GoodTime") // Safe to use in test setup
@@ -135,7 +143,6 @@ class HealthConnectClientImplTest {
 
         healthConnectClient =
             HealthConnectClientImpl(
-                PROVIDER_PACKAGE_NAME,
                 ServiceBackedHealthDataClient(
                     ApplicationProvider.getApplicationContext(),
                     clientConfig,
@@ -183,22 +190,18 @@ class HealthConnectClientImplTest {
     }
 
     @Test
-    fun getGrantedPermissions_none() = runTest {
-        val deferred = async {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+    fun getGrantedPermissionsLegacy_none() = runTest {
+        val response = testBlocking {
+            healthConnectClient.getGrantedPermissionsLegacy(
+                setOf(createReadPermissionLegacy(StepsRecord::class))
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response = deferred.await()
         assertThat(response).isEmpty()
     }
 
     @Test
-    fun getGrantedPermissions_steps() = runTest {
+    fun getGrantedPermissionsLegacy_steps() = runTest {
         fakeAhpServiceStub.addGrantedPermission(
             androidx.health.platform.client.permission.Permission(
                 PermissionProto.Permission.newBuilder()
@@ -207,23 +210,51 @@ class HealthConnectClientImplTest {
                     .build()
             )
         )
-        val deferred = async {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+        val response = testBlocking {
+            healthConnectClient.getGrantedPermissionsLegacy(
+                setOf(createReadPermissionLegacy(StepsRecord::class))
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
+        assertThat(response).containsExactly(createReadPermissionLegacy(StepsRecord::class))
+    }
 
-        val response = deferred.await()
-        assertThat(response).containsExactly(createReadPermission(StepsRecord::class))
+    @Test
+    fun getGrantedPermissions_none() = runTest {
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response).isEmpty()
+    }
+
+    @Test
+    fun getGrantedPermissions() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(getReadPermission(StepsRecord::class))
+                    .build()
+            )
+        )
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(getWritePermission(HeartRateRecord::class))
+                    .build()
+            )
+        )
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response)
+            .containsExactly(
+                getReadPermission(StepsRecord::class),
+                getWritePermission(HeartRateRecord::class)
+            )
     }
 
     @Test
     fun insertRecords_steps() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
-        val deferred = async {
+        val response = testBlocking {
             healthConnectClient.insertRecords(
                 listOf(
                     StepsRecord(
@@ -237,11 +268,7 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response = deferred.await()
-        assertThat(response.recordUidsList).containsExactly("0")
+        assertThat(response.recordIdsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -256,7 +283,8 @@ class HealthConnectClientImplTest {
     @Test
     fun insertRecords_weight() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
-        val deferred = async {
+
+        val response = testBlocking {
             healthConnectClient.insertRecords(
                 listOf(
                     WeightRecord(
@@ -268,11 +296,7 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response = deferred.await()
-        assertThat(response.recordUidsList).containsExactly("0")
+        assertThat(response.recordIdsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -286,7 +310,8 @@ class HealthConnectClientImplTest {
     @Test
     fun insertRecords_nutrition() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
-        val deferred = async {
+
+        val response = testBlocking {
             healthConnectClient.insertRecords(
                 listOf(
                     NutritionRecord(
@@ -301,11 +326,7 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response = deferred.await()
-        assertThat(response.recordUidsList).containsExactly("0")
+        assertThat(response.recordIdsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -336,17 +357,14 @@ class HealthConnectClientImplTest {
                     )
                     .build()
             )
-        val deferred = async {
+
+        val response = testBlocking {
             healthConnectClient.readRecord(
                 StepsRecord::class,
-                uid = "testUid",
+                recordId = "testUid",
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response: ReadRecordResponse<StepsRecord> = deferred.await()
         assertThat(fakeAhpServiceStub.lastReadDataRequest?.proto)
             .isEqualTo(
                 RequestProto.ReadDataRequest.newBuilder()
@@ -367,7 +385,7 @@ class HealthConnectClientImplTest {
                     endZoneOffset = null,
                     metadata =
                         Metadata(
-                            uid = "testUid",
+                            id = "testUid",
                             device = Device(),
                         )
                 )
@@ -393,7 +411,8 @@ class HealthConnectClientImplTest {
                     .setPageToken("nextPageToken")
                     .build()
             )
-        val deferred = async {
+
+        val response = testBlocking {
             healthConnectClient.readRecords(
                 ReadRecordsRequest(
                     StepsRecord::class,
@@ -403,10 +422,6 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response: ReadRecordsResponse<StepsRecord> = deferred.await()
         assertThat(fakeAhpServiceStub.lastReadDataRangeRequest?.proto)
             .isEqualTo(
                 RequestProto.ReadDataRangeRequest.newBuilder()
@@ -427,7 +442,7 @@ class HealthConnectClientImplTest {
                     endZoneOffset = null,
                     metadata =
                         Metadata(
-                            uid = "testUid",
+                            id = "testUid",
                             device = Device(),
                         )
                 )
@@ -436,17 +451,13 @@ class HealthConnectClientImplTest {
 
     @Test
     fun deleteRecordsById_steps() = runTest {
-        val deferred = async {
+        testBlocking {
             healthConnectClient.deleteRecords(
                 StepsRecord::class,
                 listOf("myUid"),
                 listOf("myClientId")
             )
         }
-
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-        deferred.await()
 
         val stepsTypeProto = DataProto.DataType.newBuilder().setName("Steps")
         assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.clientIds)
@@ -467,17 +478,13 @@ class HealthConnectClientImplTest {
 
     @Test
     fun deleteRecordsByRange_steps() = runTest {
-        val deferred = async {
+        testBlocking {
             healthConnectClient.deleteRecords(
                 StepsRecord::class,
                 timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        deferred.await()
         assertThat(fakeAhpServiceStub.lastDeleteDataRangeRequest?.proto)
             .isEqualTo(
                 RequestProto.DeleteDataRangeRequest.newBuilder()
@@ -489,7 +496,7 @@ class HealthConnectClientImplTest {
 
     @Test
     fun updateRecords_steps() = runTest {
-        val deferred = async {
+        testBlocking {
             healthConnectClient.updateRecords(
                 listOf(
                     StepsRecord(
@@ -498,16 +505,12 @@ class HealthConnectClientImplTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
                         endZoneOffset = null,
-                        metadata = Metadata(uid = "testUid")
+                        metadata = Metadata(id = "testUid")
                     )
                 )
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        deferred.await()
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -534,7 +537,8 @@ class HealthConnectClientImplTest {
             AggregateDataResponse(
                 ResponseProto.AggregateDataResponse.newBuilder().addRows(aggregateDataRow).build()
             )
-        val deferred = async {
+
+        val response = testBlocking {
             val startTime = Instant.ofEpochMilli(1234)
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregate(
@@ -545,10 +549,6 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response: AggregationResult = deferred.await()
         // This is currently impossible to test for 3p devs, we'll need to override equals()
         assertThat(response.longValues).isEmpty()
         assertThat(response.doubleValues).isEmpty()
@@ -598,7 +598,8 @@ class HealthConnectClientImplTest {
                     .addRows(bucket2)
                     .build()
             )
-        val deferred = async {
+
+        val response = testBlocking {
             val startTime = Instant.ofEpochMilli(1234)
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregateGroupByDuration(
@@ -610,10 +611,6 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response: List<AggregationResultGroupedByDuration> = deferred.await()
         assertThat(response[0].result.contains(COUNT_TOTAL)).isTrue()
         assertThat(response[0].result[COUNT_TOTAL]).isEqualTo(1000)
         assertThat(response[0].result.dataOrigins).contains(DataOrigin("id"))
@@ -671,7 +668,8 @@ class HealthConnectClientImplTest {
                     .addRows(bucket2)
                     .build()
             )
-        val deferred = async {
+
+        val response = testBlocking {
             val startTime = LocalDateTime.parse("2022-02-11T20:22:02")
             val endTime = LocalDateTime.parse("2022-02-22T20:22:02")
             healthConnectClient.aggregateGroupByPeriod(
@@ -683,10 +681,6 @@ class HealthConnectClientImplTest {
             )
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response: List<AggregationResultGroupedByPeriod> = deferred.await()
         assertThat(response[0].result.contains(COUNT_TOTAL)).isTrue()
         assertThat(response[0].result[COUNT_TOTAL]).isEqualTo(1500)
         assertThat(response[0].result.dataOrigins).contains(DataOrigin("id"))
@@ -726,14 +720,11 @@ class HealthConnectClientImplTest {
                     .setChangesToken("changesToken")
                     .build()
             )
-        val deferred = async {
+
+        val response = testBlocking {
             healthConnectClient.getChangesToken(ChangesTokenRequest(setOf(StepsRecord::class)))
         }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-
-        val response = deferred.await()
         assertThat(response).isEqualTo("changesToken")
         assertThat(fakeAhpServiceStub.lastGetChangesTokenRequest?.proto)
             .isEqualTo(
@@ -768,15 +759,12 @@ class HealthConnectClientImplTest {
                     .setChangesTokenExpired(false)
                     .build()
             )
-        val deferred = async { healthConnectClient.getChanges("steps_changes_token") }
 
-        advanceUntilIdle()
-        waitForMainLooperIdle()
+        val response = testBlocking { healthConnectClient.getChanges("steps_changes_token") }
 
-        val response = deferred.await()
         assertThat(response.changes).hasSize(2)
-        assertThat(response.changes.get(0)).isInstanceOf(DeletionChange::class.java)
-        assertThat(response.changes.get(1)).isInstanceOf(UpsertionChange::class.java)
+        assertThat(response.changes[0]).isInstanceOf(DeletionChange::class.java)
+        assertThat(response.changes[1]).isInstanceOf(UpsertionChange::class.java)
         assertThat(response.hasMore).isTrue()
         assertThat(response.changesTokenExpired).isFalse()
         assertThat(fakeAhpServiceStub.lastGetChangesRequest?.proto)
@@ -786,6 +774,50 @@ class HealthConnectClientImplTest {
                     .build()
             )
     }
+
+    @Test
+    fun registerForDataNotifications() = runTest {
+        testBlocking {
+            healthConnectClient.registerForDataNotifications(
+                notificationIntentAction = "action",
+                recordTypes = listOf(HeartRateRecord::class, StepsRecord::class),
+            )
+        }
+
+        assertThat(fakeAhpServiceStub.lastRegisterForDataNotificationsRequest?.proto)
+            .isEqualTo(
+                RequestProto.RegisterForDataNotificationsRequest.newBuilder()
+                    .setNotificationIntentAction("action")
+                    .addDataTypes(HeartRateRecord::class.toDataType())
+                    .addDataTypes(StepsRecord::class.toDataType())
+                    .build()
+            )
+    }
+
+    @Test
+    fun unregisterFromDataNotifications() = runTest {
+        testBlocking {
+            healthConnectClient.unregisterFromDataNotifications(notificationIntentAction = "action")
+        }
+
+        assertThat(fakeAhpServiceStub.lastUnregisterFromDataNotificationsRequest?.proto)
+            .isEqualTo(
+                RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
+                    .setNotificationIntentAction("action")
+                    .build()
+            )
+    }
+
+    private suspend fun <T> TestScope.testBlocking(block: suspend CoroutineScope.() -> T): T =
+        asyncAndWaitForIdle(block).await()
+
+    private fun <T> TestScope.asyncAndWaitForIdle(
+        block: suspend CoroutineScope.() -> T,
+    ): Deferred<T> =
+        async(block = block).also {
+            advanceUntilIdle()
+            waitForMainLooperIdle()
+        }
 
     private fun waitForMainLooperIdle() {
         Shadows.shadowOf(Looper.getMainLooper()).idle()

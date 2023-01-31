@@ -16,13 +16,14 @@
 
 package androidx.build
 
+import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
@@ -38,18 +39,23 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 open class AndroidXMultiplatformExtension(val project: Project) {
 
     // Kotlin multiplatform plugin is only applied if at least one target / sourceset is added.
-    private val kotlinExtension: KotlinMultiplatformExtension by lazy {
+    private val kotlinExtensionDelegate = lazy {
         project.validateMultiplatformPluginHasNotBeenApplied()
         project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
         project.multiplatformExtension!!
     }
+    private val kotlinExtension: KotlinMultiplatformExtension by kotlinExtensionDelegate
 
-    val sourceSets: NamedDomainObjectCollection<KotlinSourceSet>
-        get() = kotlinExtension.sourceSets
     val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>>
         get() = kotlinExtension.presets
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
+
+    fun sourceSets(closure: Closure<*>) {
+        if (kotlinExtensionDelegate.isInitialized()) {
+            kotlinExtension.sourceSets.configure(closure)
+        }
+    }
 
     @JvmOverloads
     fun jvm(
@@ -57,6 +63,17 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     ): KotlinJvmTarget? {
         return if (project.enableJvm()) {
             kotlinExtension.jvm {
+                block?.execute(this)
+            }
+        } else { null }
+    }
+
+    @JvmOverloads
+    fun android(
+        block: Action<KotlinAndroidTarget>? = null
+    ): KotlinAndroidTarget? {
+        return if (project.enableJvm()) {
+            kotlinExtension.android {
                 block?.execute(this)
             }
         } else { null }

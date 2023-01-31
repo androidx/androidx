@@ -13,9 +13,7 @@ In order to build app APKs,
 
 1. Open the project in Android Studio: File -> Open -> Select this directory and click OK.
 
-2. Select a sample app directory (e.g. `helloworld/mobile`) in the `Project Structure` UI on the top
- left. Each sample app has two build targets, one for the `mobile` platform and the other for the
-  `automotive` platform.
+2. Select a sample app directory (e.g. `showcase`) in the `Project Structure` UI on the top left. Each sample app has two build targets, `showcase/mobile` is for the `projected` platform and `showcase/automotive` is for the `embedded` platform.
 
 3. Go to `Build -> Make Module 'androidx.car.app.app-samples.<sample_app>.<platform>'`. The apks
  will be generated in `<sample_app>/<platform>/build/outputs/apk`.
@@ -25,7 +23,7 @@ In order to install and run the apps,
 1. Open the AndroidX project in Android Studio.
 
 2. Go to `Run -> Edit Configurations`, select a sample app target (e.g. `car.app.app-samples
-.helloworld-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing
+.showcase-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing
 ` in `General -> Launch Options`. Click `OK` to close the dialog.
 
 3. Select `Run -> Run <sample_app>`, to run the app, which will just install it in the selected

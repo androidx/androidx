@@ -59,6 +59,14 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     @Nullable
     public List<PerComplicationTypeMargins> mComplicationOverlaysMargins;
 
+    @ParcelField(value = 102, defaultValue = "null")
+    @Nullable
+    public List<Integer> mComplicationNameResourceIds;
+
+    @ParcelField(value = 103, defaultValue = "null")
+    @Nullable
+    public List<Integer> mComplicationScreenReaderNameResourceIds;
+
     ComplicationsOptionWireFormat() {
     }
 
@@ -67,13 +75,17 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
             @NonNull CharSequence displayName,
             @Nullable Icon icon,
             @NonNull ComplicationOverlayWireFormat[] complicationOverlays,
-            @Nullable List<PerComplicationTypeMargins> complicationOverlaysMargins
+            @Nullable List<PerComplicationTypeMargins> complicationOverlaysMargins,
+            @Nullable List<Integer> complicationNameResourceIds,
+            @Nullable List<Integer> complicationScreenReaderNameResourceIds
     ) {
         super(id);
         mDisplayName = displayName;
         mIcon = icon;
         mComplicationOverlays = complicationOverlays;
         mComplicationOverlaysMargins = complicationOverlaysMargins;
+        mComplicationNameResourceIds = complicationNameResourceIds;
+        mComplicationScreenReaderNameResourceIds = complicationScreenReaderNameResourceIds;
     }
 
     /** @deprecated Use a constructor with perComplicationTypeMargins instead. */

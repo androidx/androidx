@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import java.time.Instant
 
 /** A range of time, that may be unbounded on either side. */

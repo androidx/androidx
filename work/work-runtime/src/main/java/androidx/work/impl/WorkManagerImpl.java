@@ -288,8 +288,7 @@ public class WorkManagerImpl extends WorkManager {
                 context,
                 configuration,
                 workTaskExecutor,
-                database,
-                schedulers);
+                database);
         internalInit(context, configuration, workTaskExecutor, database, schedulers, processor);
     }
 
@@ -789,6 +788,10 @@ public class WorkManagerImpl extends WorkManager {
     public void setReschedulePendingResult(
             @NonNull BroadcastReceiver.PendingResult rescheduleReceiverResult) {
         synchronized (sLock) {
+            // if we have two broadcast in the row, finish old one and use new one
+            if (mRescheduleReceiverResult != null) {
+                mRescheduleReceiverResult.finish();
+            }
             mRescheduleReceiverResult = rescheduleReceiverResult;
             if (mForceStopRunnableCompleted) {
                 mRescheduleReceiverResult.finish();
@@ -822,7 +825,8 @@ public class WorkManagerImpl extends WorkManager {
         mProcessor = processor;
         mPreferenceUtils = new PreferenceUtils(workDatabase);
         mForceStopRunnableCompleted = false;
-
+        Schedulers.registerRescheduling(schedulers, processor,
+                workTaskExecutor.getSerialTaskExecutor(), workDatabase, configuration);
         // Check for direct boot mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Api24Impl.isDeviceProtectedStorage(
                 context)) {

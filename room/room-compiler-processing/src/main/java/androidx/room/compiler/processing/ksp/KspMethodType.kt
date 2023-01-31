@@ -29,7 +29,7 @@ internal sealed class KspMethodType(
     override val typeVariableNames: List<TypeVariableName> by lazy {
         origin.declaration.typeParameters.map {
             val typeParameterBounds = it.bounds.map {
-                it.typeName(env.resolver)
+                it.asJTypeName(env.resolver)
             }.toList().toTypedArray()
             TypeVariableName.get(
                 it.name.asString(),

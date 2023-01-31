@@ -36,22 +36,26 @@ import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
 import android.hardware.camera2.CaptureRequest.Key
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
+import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.os.Build
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -59,6 +63,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -69,8 +75,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -86,10 +90,6 @@ class Camera2CameraControlDeviceTest {
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
-
-    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
 
     @Before
     fun setUp() {
@@ -119,7 +119,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canGetInteropApi() {
         Truth.assertThat(
             Camera2CameraControl.from(cameraControl)
@@ -127,7 +126,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canSetAndRetrieveCaptureRequestOptions() {
         // Arrange.
         bindUseCase()
@@ -162,7 +160,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canSubmitCaptureRequestOptions_beforeBinding() = runBlocking {
         val future = updateCamera2Option<Int>(
             CONTROL_CAPTURE_INTENT,
@@ -180,7 +177,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canSubmitCaptureRequestOptions_afterBinding() = runBlocking {
         // Arrange.
         bindUseCase()
@@ -201,7 +197,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canClearCaptureRequestOptions() = runBlocking {
         // Arrange.
         bindUseCase()
@@ -244,7 +239,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideAfMode() = runBlocking {
         updateCamera2Option(
             CONTROL_AF_MODE,
@@ -261,7 +255,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideAeMode() = runBlocking {
         updateCamera2Option(
             CONTROL_AE_MODE,
@@ -278,7 +271,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideAwbMode() = runBlocking {
         updateCamera2Option(
             CONTROL_AWB_MODE,
@@ -295,7 +287,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideScalarCropRegion() = runBlocking {
         // scalar crop region must be larger than the region defined
         // by SCALER_AVAILABLE_MAX_DIGITAL_ZOOM otherwise it could cause a crash on some devices.
@@ -317,7 +308,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideAfRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -337,7 +327,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideAeRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -357,7 +346,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun canOverrideAwbRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -377,7 +365,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
-    @LabTestRule.LabTestOnly
     fun cancelPendingFuture_whenInactive() {
         // Arrange.
         val future = updateCamera2Option(
@@ -395,6 +382,49 @@ class Camera2CameraControlDeviceTest {
             Truth.assertThat(e.cause)
                 .isInstanceOf(CameraControl.OperationCanceledException::class.java)
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Suppress("DEPRECATION")
+    @Test
+    fun canSetPhysicalCameraId() = runBlocking {
+        val physicalCameraIds = CameraUtil.getCameraCharacteristics(
+            cameraSelector.lensFacing!!
+        )!!.physicalCameraIds.toList()
+
+        // Skip the test if the camera is not a logical camera.
+        Assume.assumeTrue(physicalCameraIds.isNotEmpty())
+
+        // Arrange.
+        val physicalCameraId = physicalCameraIds[0]
+        val useCase = ImageAnalysis.Builder().also { imageAnalysisBuilder ->
+            Camera2Interop.Extender(imageAnalysisBuilder).setPhysicalCameraId(
+                physicalCameraId
+            )
+        }.build().apply {
+            // set analyzer to make it active.
+            setAnalyzer(Dispatchers.Default.asExecutor()) {
+                // Fake analyzer, do nothing.
+            }
+        }
+
+        // Act.
+        bindUseCase(useCase)
+
+        // Assert.
+        registerListener().verify(
+            { _, captureResult: FrameInfo ->
+                captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        totalCaptureResult.physicalCameraTotalResults.containsKey(
+                            physicalCameraId
+                        )
+                    } else {
+                        totalCaptureResult.physicalCameraResults.containsKey(physicalCameraId)
+                    }
+                }
+            },
+        )
     }
 
     private fun getZoom2XCropRegion(): Rect {
@@ -443,16 +473,18 @@ class Camera2CameraControlDeviceTest {
         return result
     }
 
-    private fun bindUseCase() {
+    private fun bindUseCase(
+        useCase: UseCase = ImageAnalysis.Builder().build().apply {
+            // set analyzer to make it active.
+            setAnalyzer(Dispatchers.Default.asExecutor()) {
+                // Fake analyzer, do nothing.
+            }
+        }
+    ) {
         camera = CameraUtil.createCameraAndAttachUseCase(
             context,
             cameraSelector,
-            ImageAnalysis.Builder().build().apply {
-                // set analyzer to make it active.
-                setAnalyzer(Dispatchers.Default.asExecutor()) {
-                    // Fake analyzer, do nothing.
-                }
-            },
+            useCase,
         )
         camera2CameraControl = Camera2CameraControl.from(camera.cameraControl)
     }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -36,17 +37,18 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastForEach
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
-import androidx.tv.foundation.marioScrollable
+import androidx.tv.foundation.lazy.layout.lazyLayoutSemantics
+import androidx.tv.foundation.scrollableWithPivot
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalTvFoundationApi::class)
 @Composable
 internal fun LazyGrid(
     /** Modifier to be applied for the inner layout */
@@ -73,7 +75,9 @@ internal fun LazyGrid(
     /** The content of the grid */
     content: TvLazyGridScope.() -> Unit
 ) {
-    val itemProvider = rememberItemProvider(state, content)
+    val itemProvider = rememberLazyGridItemProvider(state, content)
+
+    val semanticState = rememberLazyGridSemanticState(state, itemProvider, reverseLayout)
 
     val scope = rememberCoroutineScope()
     val placementAnimator = remember(state, isVertical) {
@@ -102,28 +106,20 @@ internal fun LazyGrid(
         modifier = modifier
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
-            .lazyGridSemantics(
+            .lazyLayoutSemantics(
                 itemProvider = itemProvider,
-                state = state,
-                coroutineScope = scope,
-                isVertical = isVertical,
-                reverseScrolling = reverseLayout,
+                state = semanticState,
+                orientation = orientation,
                 userScrollEnabled = userScrollEnabled
             )
             .clipScrollableContainer(orientation)
-            .marioScrollable(
+            .scrollableWithPivot(
                 orientation = orientation,
-                reverseDirection = run {
-                    // A finger moves with the content, not with the viewport. Therefore,
-                    // always reverse once to have "natural" gesture that goes reversed to layout
-                    var reverseDirection = !reverseLayout
-                    // But if rtl and horizontal, things move the other way around
-                    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-                    if (isRtl && !isVertical) {
-                        reverseDirection = !reverseDirection
-                    }
-                    reverseDirection
-                },
+                reverseDirection = ScrollableDefaults.reverseDirection(
+                    LocalLayoutDirection.current,
+                    orientation,
+                    reverseLayout
+                ),
                 state = state,
                 enabled = userScrollEnabled,
                 pivotOffsets = pivotOffsets
@@ -331,9 +327,9 @@ private fun rememberLazyGridMeasurePolicy(
             measuredLineProvider = measuredLineProvider,
             measuredItemProvider = measuredItemProvider,
             mainAxisAvailableSize = mainAxisAvailableSize,
-            slotsPerLine = resolvedSlotSizesSums.size,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
+            spaceBetweenLines = spaceBetweenLines,
             firstVisibleLineIndex = firstVisibleLineIndex,
             firstVisibleLineScrollOffset = firstVisibleLineScrollOffset,
             scrollToBeConsumed = state.scrollToBeConsumed,
@@ -344,6 +340,7 @@ private fun rememberLazyGridMeasurePolicy(
             reverseLayout = reverseLayout,
             density = this,
             placementAnimator = placementAnimator,
+            spanLayoutProvider = spanLayoutProvider,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

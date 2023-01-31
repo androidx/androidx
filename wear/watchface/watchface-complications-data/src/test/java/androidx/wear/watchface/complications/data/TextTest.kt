@@ -16,6 +16,9 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireTimeDifferenceBuilder
+import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireTimeFormatBuilder
 import android.content.Context
 import android.icu.util.TimeZone
 import android.support.wearable.complications.ComplicationText
@@ -27,12 +30,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-
-private typealias WireTimeDifferenceBuilder =
-    android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
-
-private typealias WireTimeFormatBuilder =
-    android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class AsWireComplicationTextTest {
@@ -238,7 +235,9 @@ public class FromWireComplicationTextTest {
             ComplicationText.FORMAT_STYLE_DEFAULT,
             null
         )
-        val text = TimeDifferenceComplicationText(ComplicationText("test", tft))
+        val text = TimeDifferenceComplicationText(
+            ComplicationText("test", tft)
+        )
 
         assertNull(text.getMinimumTimeUnit())
     }

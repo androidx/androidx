@@ -16,9 +16,13 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.WebSettings;
+
 import androidx.annotation.NonNull;
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
+
+import java.util.Set;
 
 /**
  * Adapter between WebSettingsCompat and
@@ -132,14 +136,6 @@ public class WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderMode(android.webkit.WebSettings, int)}
-     */
-    public void setRequestedWithHeaderMode(int requestedWithHeaderMode) {
-        mBoundaryInterface.setRequestedWithHeaderMode(requestedWithHeaderMode);
-    }
-
-    /**
-     * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled}.
      */
     public void setEnterpriseAuthenticationAppLinkPolicyEnabled(boolean enabled) {
@@ -156,9 +152,19 @@ public class WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderMode(android.webkit.WebSettings)}
+     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)}.
      */
-    public int getRequestedWithHeaderMode() {
-        return mBoundaryInterface.getRequestedWithHeaderMode();
+    @NonNull
+    public Set<String> getRequestedWithHeaderOriginAllowList() {
+        return mBoundaryInterface.getRequestedWithHeaderOriginAllowList();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderOriginAllowList(
+     * WebSettings, Set)}.
+     */
+    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
+        mBoundaryInterface.setRequestedWithHeaderOriginAllowList(allowList);
     }
 }

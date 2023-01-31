@@ -123,6 +123,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val boundingArc: BoundingArc?
     ) {
         companion object {
+            @Suppress("NewApi")
             private val typesMap by lazy(LazyThreadSafetyMode.NONE) {
                 mapOf(
                     "SHORT_TEXT" to ComplicationType.SHORT_TEXT,
@@ -130,7 +131,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     "RANGED_VALUE" to ComplicationType.RANGED_VALUE,
                     "MONOCHROMATIC_IMAGE" to ComplicationType.MONOCHROMATIC_IMAGE,
                     "SMALL_IMAGE" to ComplicationType.SMALL_IMAGE,
-                    "PHOTO_IMAGE" to ComplicationType.PHOTO_IMAGE
+                    "PHOTO_IMAGE" to ComplicationType.PHOTO_IMAGE,
+                    "GOAL_PROGRESS" to ComplicationType.GOAL_PROGRESS,
+                    "WEIGHTED_ELEMENTS" to ComplicationType.WEIGHTED_ELEMENTS
                 )
             }
 

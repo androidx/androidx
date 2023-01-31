@@ -40,8 +40,8 @@ import org.junit.runner.RunWith
 class UserStyleSchemaInflateTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_list_schema() {
         val parser = context.resources.getXml(R.xml.list_schema)
 
@@ -68,12 +68,14 @@ class UserStyleSchemaInflateTest {
         val option00 = (setting0.options[0] as ListOption)
         assertThat(option00.id).isEqualTo(UserStyleSetting.Option.Id("red"))
         assertThat(option00.displayName).isEqualTo("Red Style")
+        assertThat(option00.screenReaderName).isEqualTo("Red watch face style")
         assertThat(option00.icon!!.resId).isEqualTo(R.drawable.red_icon)
         assertThat(option00.childSettings).isEmpty()
         assertThat(option00.watchFaceEditorData!!.icon!!.resId).isEqualTo(R.drawable.red_icon_wf)
         val option01 = (setting0.options[1] as ListOption)
         assertThat(option01.id).isEqualTo(UserStyleSetting.Option.Id("green"))
         assertThat(option01.displayName).isEqualTo("Green Style")
+        assertThat(option01.screenReaderName).isEqualTo("Green Style")
         assertThat(option01.icon!!.resId).isEqualTo(R.drawable.green_icon)
         assertThat(option01.childSettings).isEmpty()
         assertThat(option01.watchFaceEditorData!!.icon!!.resId).isEqualTo(R.drawable.green_icon_wf)
@@ -92,12 +94,14 @@ class UserStyleSchemaInflateTest {
         val option10 = (setting1.options[0] as ListOption)
         assertThat(option10.id).isEqualTo(UserStyleSetting.Option.Id("foo"))
         assertThat(option10.displayName).isEqualTo("Foo")
+        assertThat(option10.screenReaderName).isEqualTo("Foo thing")
         assertThat(option10.icon).isNull()
         assertThat(option10.childSettings).isEmpty()
         assertThat(option10.watchFaceEditorData).isNull()
         val option11 = (setting1.options[1] as ListOption)
         assertThat(option11.id).isEqualTo(UserStyleSetting.Option.Id("bar"))
         assertThat(option11.displayName).isEqualTo("Bar")
+        assertThat(option11.screenReaderName).isEqualTo("Bar thing")
         assertThat(option11.icon).isNull()
         assertThat(option11.childSettings).isEmpty()
         assertThat(option11.watchFaceEditorData).isNull()
@@ -117,17 +121,20 @@ class UserStyleSchemaInflateTest {
         val option20 = (setting2.options[0] as ListOption)
         assertThat(option20.id).isEqualTo(UserStyleSetting.Option.Id("a"))
         assertThat(option20.displayName).isEqualTo("A")
+        assertThat(option20.screenReaderName).isEqualTo("Option A")
         assertThat(option20.icon).isNull()
         assertThat(option20.childSettings).containsExactly(setting0)
         val option21 = (setting2.options[1] as ListOption)
         assertThat(option21.id).isEqualTo(UserStyleSetting.Option.Id("b"))
         assertThat(option21.displayName).isEqualTo("B")
+        assertThat(option21.screenReaderName).isEqualTo("Option B")
         assertThat(option21.icon).isNull()
         assertThat(option21.childSettings).containsExactly(setting1)
         parser.close()
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_mixed_schema() {
         val parser = context.resources.getXml(R.xml.mixed_schema)
 
@@ -154,7 +161,7 @@ class UserStyleSchemaInflateTest {
             WatchFaceLayer.COMPLICATIONS
         )
         assertThat(setting1.icon).isNull()
-        assertThat(setting1.options.size).isEqualTo(3)
+        assertThat(setting1.options.size).isEqualTo(4)
         val option10 = (setting1.options[0] as ComplicationSlotsOption)
         assertThat(option10.id).isEqualTo(UserStyleSetting.Option.Id("one"))
         assertThat(option10.displayName).isEqualTo("One complication")
@@ -209,6 +216,15 @@ class UserStyleSchemaInflateTest {
             ]
         ).isEqualTo(RectF(0.6f, 0.8f, 0.7f, 0.5f))
 
+        val option13 = (setting1.options[3] as ComplicationSlotsOption)
+        assertThat(option13.id).isEqualTo(UserStyleSetting.Option.Id("four"))
+        assertThat(option13.displayName).isEqualTo("Rename complications")
+        assertThat(option13.complicationSlotOverlays.size).isEqualTo(1)
+        val overlays13 = option13.complicationSlotOverlays.toTypedArray()
+        assertThat(overlays13[0].nameResourceId).isEqualTo(R.string.complication_name)
+        assertThat(overlays13[0].screenReaderNameResourceId)
+            .isEqualTo(R.string.complication_screen_reader_name)
+
         val setting2 = schema.userStyleSettings[2] as UserStyleSetting.DoubleRangeUserStyleSetting
         assertThat(setting2.id.value).isEqualTo("DoubleRange")
         assertThat(setting2.displayName).isEqualTo("Double range")
@@ -239,6 +255,7 @@ class UserStyleSchemaInflateTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_schema_with_parent() {
         val parser1 = context.resources.getXml(R.xml.schema_with_parent_1)
         val parser2 = context.resources.getXml(R.xml.schema_with_parent_2)

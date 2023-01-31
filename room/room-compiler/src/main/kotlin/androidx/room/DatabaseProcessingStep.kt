@@ -93,14 +93,13 @@ class DatabaseProcessingStep : XProcessingStep {
                 DaoWriter(
                     daoMethod.dao,
                     db.element,
-                    context.processingEnv
-                )
-                    .write(context.processingEnv)
+                    context.codeLanguage
+                ).write(context.processingEnv)
             }
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(db).write(context.processingEnv)
+            DatabaseWriter(db, context.codeLanguage).write(context.processingEnv)
             if (db.exportSchema) {
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (schemaOutFolderPath == null) {
@@ -129,7 +128,8 @@ class DatabaseProcessingStep : XProcessingStep {
                 }
             }
             db.autoMigrations.forEach { autoMigration ->
-                AutoMigrationWriter(db.element, autoMigration).write(context.processingEnv)
+                AutoMigrationWriter(db.element, autoMigration, context.codeLanguage)
+                    .write(context.processingEnv)
             }
         }
 
@@ -150,7 +150,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 entry.value.groupBy { daoMethod ->
                     // first suffix guess: Database's simple name
                     val db = databases.first { db -> db.daoMethods.contains(daoMethod) }
-                    db.typeName.simpleName()
+                    db.typeName.simpleNames.last()
                 }.forEach { (dbName, methods) ->
                     if (methods.size == 1) {
                         // good, db names do not clash, use db name as suffix

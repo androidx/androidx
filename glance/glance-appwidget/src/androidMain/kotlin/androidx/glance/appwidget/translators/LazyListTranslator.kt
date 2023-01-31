@@ -94,7 +94,7 @@ private fun RemoteViews.translateEmittableLazyList(
         viewDef.mainViewId,
         items
     )
-    applyModifiers(translationContext.forAdapterView(), this, element.modifier, viewDef)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 /**

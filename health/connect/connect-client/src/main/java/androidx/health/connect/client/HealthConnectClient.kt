@@ -17,11 +17,13 @@ package androidx.health.connect.client
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
@@ -41,9 +43,9 @@ import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
 import java.io.IOException
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
+@JvmDefaultWithCompatibility
 /** Interface to access health and fitness records. */
 interface HealthConnectClient {
 
@@ -52,7 +54,7 @@ interface HealthConnectClient {
 
     /**
      * Inserts one or more [Record] and returns newly assigned
-     * [androidx.health.connect.client.records.metadata.Metadata.uid] generated. Insertion of
+     * [androidx.health.connect.client.records.metadata.Metadata.id] generated. Insertion of
      * multiple [records] is executed in a transaction - if one fails, none is inserted.
      *
      * For example, to insert basic data like step counts:
@@ -66,9 +68,11 @@ interface HealthConnectClient {
      *
      * [androidx.health.connect.client.records.metadata.Metadata.clientRecordId] can be used to
      * deduplicate data with a client provided unique identifier. When a subsequent [insertRecords]
-     * is called with the same [androidx.health.connect.client.records.metadata.Metadata.clientRecordId],
-     * whichever [Record] with the higher [androidx.health.connect.client.records.metadata.Metadata.clientRecordVersion]
-     * takes precedence.
+     * is called with the same
+     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordId], whichever [Record]
+     * with the higher
+     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordVersion] takes
+     * precedence.
      *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
@@ -100,7 +104,8 @@ interface HealthConnectClient {
      * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
-     * @param uidsList List of uids of [Record] to delete
+     * @param recordIdsList List of [androidx.health.connect.client.records.metadata.Metadata.id] of
+     * [Record] to delete
      * @param clientRecordIdsList List of client record IDs of [Record] to delete
      * @throws RemoteException For any IPC transportation failures. Deleting by invalid identifiers
      * such as a non-existing identifier or deleting the same record multiple times will result in
@@ -111,7 +116,7 @@ interface HealthConnectClient {
      */
     suspend fun deleteRecords(
         recordType: KClass<out Record>,
-        uidsList: List<String>,
+        recordIdsList: List<String>,
         clientRecordIdsList: List<String>,
     )
 
@@ -133,10 +138,11 @@ interface HealthConnectClient {
     suspend fun deleteRecords(recordType: KClass<out Record>, timeRangeFilter: TimeRangeFilter)
 
     /**
-     * Reads one [Record] point with its [recordType] and [uid].
+     * Reads one [Record] point with its [recordType] and [recordId].
      *
      * @param recordType Which type of [Record] to read, such as `Steps::class`
-     * @param uid Uid of [Record] to read
+     * @param recordId [androidx.health.connect.client.records.metadata.Metadata.id] of [Record] to
+     * read
      * @return The [Record] data point.
      * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
      * will result in IPC failure.
@@ -144,7 +150,10 @@ interface HealthConnectClient {
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    suspend fun <T : Record> readRecord(recordType: KClass<T>, uid: String): ReadRecordResponse<T>
+    suspend fun <T : Record> readRecord(
+        recordType: KClass<T>,
+        recordId: String
+    ): ReadRecordResponse<T>
 
     /**
      * Retrieves a collection of [Record]s.
@@ -263,6 +272,57 @@ interface HealthConnectClient {
     suspend fun getChangesToken(request: ChangesTokenRequest): String
 
     /**
+     * Registers the provided [notificationIntentAction] and [recordTypes] for data notifications.
+     *
+     * Health Connect will automatically broadcast notification messages to the client application
+     * with the action specified by [notificationIntentAction] argument. Messages are sent when the
+     * data specified by [recordTypes] is updated. Messages may not be sent immediately, but in
+     * batches.
+     *
+     * The client application must have a read permission granted for a [Record] in order to receive
+     * notifications for it.
+     *
+     * The client application must have a [BroadcastReceiver][android.content.BroadcastReceiver]
+     * registered, either in the `AndroidManifest.xml` file or at runtime. The registered
+     * `BroadcastReceiver` must have an [IntentFilter][android.content.IntentFilter] specified with
+     * the same action as in [notificationIntentAction] argument. [DataNotification]
+     * [androidx.health.connect.client.datanotification.DataNotification] can be used to extract
+     * data from the received [Intent].
+     *
+     * @param notificationIntentAction an action to be used for broadcast messages.
+     * @param recordTypes specifies [Record] types of interest.
+     *
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     *
+     * @see unregisterFromDataNotifications
+     * @see androidx.health.connect.client.datanotification.DataNotification
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+    suspend fun registerForDataNotifications(
+        notificationIntentAction: String,
+        recordTypes: Iterable<KClass<out Record>>,
+    )
+
+    /**
+     * Unregisters the provided [notificationIntentAction] from data notifications.
+     *
+     * @param notificationIntentAction an action previously registered using
+     * [registerForDataNotifications] method.
+     *
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     *
+     * @see registerForDataNotifications
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+    suspend fun unregisterFromDataNotifications(notificationIntentAction: String)
+
+    /**
      * Retrieves changes in Android Health Platform, from a specific point in time represented by
      * provided [changesToken].
      *
@@ -299,53 +359,75 @@ interface HealthConnectClient {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 35000
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be released after testing
+        const val HEALTH_CONNECT_SETTING_INTENT_ACTION =
+            "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+
+        /**
+         * Determines whether the current Health Connect SDK is supported on this device. If it is
+         * not supported, then installing any provider will not help - instead disable the
+         * integration.
+         *
+         * @return whether the api is supported on the device.
+         */
+        @JvmStatic
+        public fun isApiSupported(): Boolean {
+            return isSdkVersionSufficient()
+        }
+
         /**
          * Determines whether an implementation of [HealthConnectClient] is available on this device
-         * at the moment.
+         * at the moment. If none is available, apps may choose to redirect to package installers to
+         * find suitable providers.
          *
-         * @param packageNames optional package provider to choose implementation from
+         * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
+         *
+         * @param context the context
+         * @param providerPackageName optional package provider to choose for backend implementation
          * @return whether the api is available
          */
         @JvmOverloads
         @JvmStatic
-        public fun isAvailable(
+        public fun isProviderAvailable(
             context: Context,
-            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Boolean {
-            if (!isSdkVersionSufficient()) {
+            if (!isApiSupported()) {
                 return false
             }
-            return packageNames.any { isPackageInstalled(context.packageManager, it) }
+            return isPackageInstalled(context.packageManager, providerPackageName)
         }
 
         /**
          * Retrieves an IPC-backed [HealthConnectClient] instance binding to an available
          * implementation.
          *
-         * @param packageNames optional package provider to choose implementation from
+         * @param context the context
+         * @param providerPackageName optional alternative package provider to choose for backend
+         * implementation
          * @return instance of [HealthConnectClient] ready for issuing requests
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          * @throws IllegalStateException if service not available due to not installed
          *
-         * @see isAvailable
+         * @see isProviderAvailable
          */
         @JvmOverloads
         @JvmStatic
         public fun getOrCreate(
             context: Context,
-            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): HealthConnectClient {
-            if (!isSdkVersionSufficient()) {
+            if (!isApiSupported()) {
                 throw UnsupportedOperationException("SDK version too low")
             }
-            if (!isAvailable(context, packageNames)) {
+            if (!isProviderAvailable(context, providerPackageName)) {
                 throw IllegalStateException("Service not available")
             }
-            val enabledPackage =
-                packageNames.first { isPackageInstalled(context.packageManager, it) }
             return HealthConnectClientImpl(
-                enabledPackage,
-                HealthDataService.getClient(context, enabledPackage)
+                HealthDataService.getClient(context, providerPackageName)
             )
         }
 
@@ -356,14 +438,18 @@ interface HealthConnectClient {
             packageManager: PackageManager,
             packageName: String,
         ): Boolean {
-            val isPackageInstalledAndEnabled =
+            val packageInfo: PackageInfo =
                 try {
-                    @Suppress("Deprecation") // getApplicationInfo deprecated in T
-                    packageManager.getApplicationInfo(packageName, /* flags= */ 0).enabled
+                    @Suppress("Deprecation") // getPackageInfo deprecated in T
+                    packageManager.getPackageInfo(packageName, /* flags= */ 0)
                 } catch (e: PackageManager.NameNotFoundException) {
-                    false
+                    return false
                 }
-            return isPackageInstalledAndEnabled && hasBindableService(packageManager, packageName)
+            return packageInfo.applicationInfo.enabled &&
+                (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
+                    PackageInfoCompat.getLongVersionCode(packageInfo) >=
+                    DEFAULT_PROVIDER_MIN_VERSION_CODE) &&
+                hasBindableService(packageManager, packageName)
         }
 
         internal fun hasBindableService(

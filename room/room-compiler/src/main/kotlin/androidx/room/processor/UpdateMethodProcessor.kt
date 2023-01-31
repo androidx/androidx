@@ -51,7 +51,7 @@ class UpdateMethodProcessor(
                 context.checker.check(
                     missingPrimaryKeys.isEmpty(), executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = missingPrimaryKeys.map { it.columnName }
                     )
                 )

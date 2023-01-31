@@ -1,9 +1,7 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.layout.LayoutInfo#getSemanticsId():
-    Added method androidx.compose.ui.layout.LayoutInfo.getSemanticsId()
+InvalidNullConversion: androidx.compose.ui.graphics.GraphicsLayerModifierKt#graphicsLayer(androidx.compose.ui.Modifier, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape, boolean, androidx.compose.ui.graphics.RenderEffect, long, long):
+    Attempted to remove @NonNull annotation from method androidx.compose.ui.graphics.GraphicsLayerModifierKt.graphicsLayer(androidx.compose.ui.Modifier,float,float,float,float,float,float,float,float,float,float,long,androidx.compose.ui.graphics.Shape,boolean,androidx.compose.ui.graphics.RenderEffect,long,long)
 
 
-RemovedDeprecatedMethod: androidx.compose.ui.graphics.vector.ImageVector.Builder#Builder(String, float, float, float, float, long, int):
-    Removed deprecated method androidx.compose.ui.graphics.vector.ImageVector.Builder.Builder(String,float,float,float,float,long,int)
-RemovedDeprecatedMethod: androidx.compose.ui.input.pointer.PointerInputChange#PointerInputChange(long, long, long, boolean, long, long, boolean, androidx.compose.ui.input.pointer.ConsumedData, int):
-    Removed deprecated method androidx.compose.ui.input.pointer.PointerInputChange.PointerInputChange(long,long,long,boolean,long,long,boolean,androidx.compose.ui.input.pointer.ConsumedData,int)
+RemovedClass: androidx.compose.ui.focus.FocusManagerKt:
+    Removed class androidx.compose.ui.focus.FocusManagerKt

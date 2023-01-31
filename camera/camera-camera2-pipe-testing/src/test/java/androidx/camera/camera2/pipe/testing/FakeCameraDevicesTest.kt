@@ -18,26 +18,42 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraBackendId
+import androidx.camera.camera2.pipe.testing.FakeCameraBackend.Companion.FAKE_CAMERA_BACKEND_ID
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class FakeCameraDevicesTest {
-    @Test
-    fun cameraMetadataIsNotEqual() {
-        val metadata1 = FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
-        )
-        val metadata2 = FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
-        )
+    private val EXTERNAL_BACKEND_ID =
+        CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraDevicesTest")
+    private val metadata1 = FakeCameraMetadata(
+        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
+    )
+    private val metadata2 = FakeCameraMetadata(
+        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+    )
+    private val metadata3 = FakeCameraMetadata(
+        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_EXTERNAL)
+    )
+    private val cameraMetadataMap = mapOf(
+        FAKE_CAMERA_BACKEND_ID to listOf(metadata1, metadata2),
+        EXTERNAL_BACKEND_ID to listOf(metadata3)
+    )
 
-        val cameraDevices = FakeCameraDevices(listOf(metadata1, metadata2))
-        val devices = runBlocking { cameraDevices.ids() }
+    @Test
+    fun getCameraIdsReturnsDefaultCameraIdList() = runTest {
+        val cameraDevices = FakeCameraDevices(
+            defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
+            cameraMetadataMap = cameraMetadataMap
+        )
+        val devices = cameraDevices.getCameraIds()
         assertThat(devices).containsExactlyElementsIn(
             listOf(
                 metadata1.camera,
@@ -45,7 +61,29 @@ public class FakeCameraDevicesTest {
             )
         ).inOrder()
 
-        assertThat(cameraDevices.awaitMetadata(metadata1.camera)).isSameInstanceAs(metadata1)
-        assertThat(cameraDevices.awaitMetadata(metadata2.camera)).isSameInstanceAs(metadata2)
+        assertThat(cameraDevices.getCameraMetadata(metadata1.camera)).isSameInstanceAs(metadata1)
+        assertThat(cameraDevices.getCameraMetadata(metadata2.camera)).isSameInstanceAs(metadata2)
+    }
+
+    @Test
+    fun getCameraIdsWithBackendReturnsCustomCameraIdList() = runTest {
+        val cameraDevices = FakeCameraDevices(
+            defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
+            cameraMetadataMap = cameraMetadataMap
+        )
+        val devices = cameraDevices.getCameraIds(EXTERNAL_BACKEND_ID)
+        assertThat(devices).containsExactlyElementsIn(
+            listOf(
+                metadata3.camera,
+            )
+        ).inOrder()
+
+        assertThat(cameraDevices.getCameraMetadata(metadata3.camera)).isNull()
+        assertThat(
+            cameraDevices.getCameraMetadata(
+                metadata3.camera,
+                EXTERNAL_BACKEND_ID
+            )
+        ).isSameInstanceAs(metadata3)
     }
 }

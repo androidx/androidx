@@ -33,8 +33,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -45,10 +48,10 @@ import okhttp3.mockwebserver.RecordedRequest;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerWebSettingsCompatTest {
 
+    private ServiceWorkerWebSettingsCompat mSettings;
+
     private static final long POLL_TIMEOUT_DURATION_MS = 5000;
     private static final long POLL_INTERVAL_MS = 10;
-
-    private ServiceWorkerWebSettingsCompat mSettings;
 
     private static final String INDEX_HTML_PATH = "/";
     // Website which installs a service worker and sends an empty message to it once it's ready.
@@ -104,7 +107,7 @@ public class ServiceWorkerWebSettingsCompatTest {
         private boolean mAllowContentAccess;
         private boolean mAllowFileAccess;
         private boolean mBlockNetworkLoads;
-        private int mRequestedHeaderMode;
+        private Set<String> mRequestedHeaderOriginAllowList;
 
         ServiceWorkerWebSettingsCompatCache(ServiceWorkerWebSettingsCompat settingsCompat) {
             if (isFeatureSupported(WebViewFeature.SERVICE_WORKER_CACHE_MODE)) {
@@ -119,8 +122,9 @@ public class ServiceWorkerWebSettingsCompatTest {
             if (isFeatureSupported(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS)) {
                 mBlockNetworkLoads = settingsCompat.getBlockNetworkLoads();
             }
-            if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL)) {
-                mRequestedHeaderMode = settingsCompat.getRequestedWithHeaderMode();
+            if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
+                mRequestedHeaderOriginAllowList =
+                        settingsCompat.getRequestedWithHeaderOriginAllowList();
             }
         }
 
@@ -137,8 +141,8 @@ public class ServiceWorkerWebSettingsCompatTest {
             if (isFeatureSupported(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS)) {
                 mSettings.setBlockNetworkLoads(mBlockNetworkLoads);
             }
-            if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL)) {
-                mSettings.setRequestedWithHeaderMode(mRequestedHeaderMode);
+            if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
+                mSettings.setRequestedWithHeaderOriginAllowList(mRequestedHeaderOriginAllowList);
             }
         }
     }
@@ -230,6 +234,40 @@ public class ServiceWorkerWebSettingsCompatTest {
     }
 
 
+    @Test
+    public void testSetAppPackageNameXRequestedWithHeaderAllowList() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST);
+
+        Assert.assertTrue("The allow-list should be empty by default",
+                mSettings.getRequestedWithHeaderOriginAllowList().isEmpty());
+
+        try (MockWebServer server = getXRequestedWithMockWebServer();
+             WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
+
+            webViewOnUiThread.getSettings().setJavaScriptEnabled(true);
+
+            HttpUrl url = server.url(INDEX_HTML_PATH);
+            String requestOrigin = url.scheme() + "://" + url.host() + ":" + url.port();
+            Set<String> allowList = Collections.singleton(requestOrigin);
+            mSettings.setRequestedWithHeaderOriginAllowList(allowList);
+
+            Assert.assertEquals("The allow-list should be returned once set",
+                    allowList, mSettings.getRequestedWithHeaderOriginAllowList());
+
+            String requestUrl = url.toString();
+            webViewOnUiThread.loadUrl(requestUrl);
+
+            RecordedRequest request;
+            do {
+                // Wait until we get the request for the text content
+                request = server.takeRequest(5, TimeUnit.SECONDS);
+            } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
+            Assert.assertNotNull("Test timed out while waiting for expected request", request);
+            Assert.assertEquals("androidx.webkit.test", request.getHeader("X-Requested-With"));
+            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
+        }
+    }
+
     /**
      * Create, configure and start a MockWebServer to test the X-Requested-With header for
      * ServiceWorkers.
@@ -267,62 +305,6 @@ public class ServiceWorkerWebSettingsCompatTest {
         return server;
     }
 
-    @Test
-    public void testDisableXRequestedWithHeader() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
-
-        mSettings.setRequestedWithHeaderMode(
-                WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_NO_HEADER);
-        Assert.assertEquals(WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_NO_HEADER,
-                mSettings.getRequestedWithHeaderMode());
-
-        try (MockWebServer server = getXRequestedWithMockWebServer();
-             WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
-            webViewOnUiThread.getSettings().setJavaScriptEnabled(true);
-
-            String requestUrl = server.url(INDEX_HTML_PATH).toString();
-            webViewOnUiThread.loadUrl(requestUrl);
-
-            RecordedRequest request;
-            do {
-                // Wait until we get the request for the text content
-                request = server.takeRequest(5, TimeUnit.SECONDS);
-            } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
-            Assert.assertNotNull("Test timed out while waiting for expected request", request);
-            Assert.assertNull("No X-Requested-With header is expected",
-                    request.getHeader("X-Requested-With"));
-            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
-        }
-    }
-
-    @Test
-    public void testSetAppPackageNameXRequestedWithHeader() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
-
-        mSettings.setRequestedWithHeaderMode(
-                WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME);
-        Assert.assertEquals(WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME,
-                mSettings.getRequestedWithHeaderMode());
-
-        try (MockWebServer server = getXRequestedWithMockWebServer();
-             WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
-
-            webViewOnUiThread.getSettings().setJavaScriptEnabled(true);
-
-            String requestUrl = server.url(INDEX_HTML_PATH).toString();
-            webViewOnUiThread.loadUrl(requestUrl);
-
-            RecordedRequest request;
-            do {
-                // Wait until we get the request for the text content
-                request = server.takeRequest(5, TimeUnit.SECONDS);
-            } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
-            Assert.assertNotNull("Test timed out while waiting for expected request", request);
-            Assert.assertEquals("androidx.webkit.test", request.getHeader("X-Requested-With"));
-            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
-        }
-    }
-
     /**
      * Wait for the done boolean to be set, to indicate that serviceworkers have been unregistered.
      * This is crucial to clean up any remaining renderer processes that otherwise cause problems
@@ -342,5 +324,7 @@ public class ServiceWorkerWebSettingsCompatTest {
         }
         Assert.assertEquals("true", webViewOnUiThread.evaluateJavascriptSync("window.done"));
     }
+
+
 }
 

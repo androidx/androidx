@@ -1,0 +1,4 @@
+<resources>
+    <item type="id" name="motion_base" />
+    <item type="id" name="view_transition" />
+</resources>

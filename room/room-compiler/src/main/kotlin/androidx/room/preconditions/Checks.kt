@@ -17,10 +17,9 @@
 package androidx.room.preconditions
 
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isTypeVariable
 import androidx.room.log.RLog
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
@@ -62,16 +61,15 @@ class Checks(private val logger: RLog) {
     }
 
     fun notUnbound(
-        typeName: TypeName,
+        type: XType,
         element: XElement,
         errorMsg: String,
         vararg args: Any
     ): Boolean {
         // TODO support bounds cases like <T extends Foo> T bar()
-        val failed = check(typeName !is TypeVariableName, element, errorMsg, args)
-        if (typeName is ParameterizedTypeName) {
-            val nestedFailure = typeName.typeArguments
-                .any { notUnbound(it, element, errorMsg, args) }
+        val failed = check(!type.isTypeVariable(), element, errorMsg, args)
+        if (type.typeArguments.isNotEmpty()) {
+            val nestedFailure = type.typeArguments.any { notUnbound(it, element, errorMsg, args) }
             return !(failed || nestedFailure)
         }
         return !failed

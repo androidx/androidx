@@ -16,7 +16,7 @@
 
 package androidx.build.studio
 
-import androidx.build.StudioType
+import androidx.build.ProjectLayoutType
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
@@ -198,8 +198,13 @@ abstract class StudioTask : DefaultTask() {
         check(vmOptions.exists()) {
             "Invalid Studio vm options file location: ${vmOptions.canonicalPath}"
         }
+        val logFile = File(System.getProperty("user.home"), ".AndroidXStudioLog")
         ProcessBuilder().apply {
-            inheritIO()
+            // Can't just use inheritIO due to https://github.com/gradle/gradle/issues/16719
+            // Also can't use waitFor because it causes Studio to get stuck: b/241386076
+            // So, we save this output in a file and display the path to the user
+            redirectOutput(logFile)
+            redirectError(logFile)
             with(platformUtilities) { command(launchCommandArguments) }
 
             val additionalStudioEnvironmentProperties = mapOf(
@@ -220,6 +225,7 @@ abstract class StudioTask : DefaultTask() {
             environment().putAll(additionalStudioEnvironmentProperties)
             start()
         }
+        println("Studio log at $logFile")
     }
 
     private fun checkLicenseAgreement(services: ServiceRegistry): Boolean {
@@ -274,9 +280,9 @@ abstract class StudioTask : DefaultTask() {
         private const val STUDIO_TASK = "studio"
 
         fun Project.registerStudioTask() {
-            val studioTask = when (StudioType.from(this)) {
-                StudioType.ANDROIDX -> RootStudioTask::class.java
-                StudioType.PLAYGROUND -> PlaygroundStudioTask::class.java
+            val studioTask = when (ProjectLayoutType.from(this)) {
+                ProjectLayoutType.ANDROIDX -> RootStudioTask::class.java
+                ProjectLayoutType.PLAYGROUND -> PlaygroundStudioTask::class.java
             }
             tasks.register(STUDIO_TASK, studioTask)
         }

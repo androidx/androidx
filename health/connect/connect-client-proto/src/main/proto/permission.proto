@@ -28,7 +28,11 @@ enum AccessType {
   ACCESS_TYPE_WRITE = 2;
 }
 
+// Represents both the new and the old permission format.
+// If "permission" is set, the other 2 fields will be ignored.
 message Permission {
   optional DataType data_type = 1;
   optional AccessType access_type = 2;
+
+  optional string permission = 3;
 }

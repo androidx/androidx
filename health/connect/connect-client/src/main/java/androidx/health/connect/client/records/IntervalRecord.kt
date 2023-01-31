@@ -31,12 +31,14 @@ internal interface IntervalRecord : Record {
     public val endTime: Instant
     /**
      * User experienced zone offset at [startTime], or null if unknown. Providing these will help
-     * history aggregations results stay consistent should user travel.
+     * history aggregations results stay consistent should user travel. Queries with user
+     * experienced time filters will assume system current zone offset if the information is absent.
      */
     public val startZoneOffset: ZoneOffset?
     /**
      * User experienced zone offset at [endTime], or null if unknown. Providing these will help
-     * history aggregations results stay consistent should user travel.
+     * history aggregations results stay consistent should user travel. Queries with user
+     * experienced time filters will assume system current zone offset if the information is absent.
      */
     public val endZoneOffset: ZoneOffset?
 }

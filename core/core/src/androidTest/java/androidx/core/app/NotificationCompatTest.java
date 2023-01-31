@@ -55,12 +55,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.BaseInstrumentationTestCase;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.widget.RemoteViews;
 
 import androidx.collection.ArraySet;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
 import androidx.core.app.NotificationCompat.Style;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -228,7 +231,21 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testSubText", NotificationCompat.getSubText(n));
     }
 
-    @FlakyTest(bugId = 190533219)
+    @SdkSuppress(maxSdkVersion = 15)
+    @Test
+    public void testActionsUnsupported() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+        Notification nWith = builder.addAction(0, "testAction", null).build();
+        // Version prior to API 16 do not support Actions.
+        assertEquals(0, NotificationCompat.getActionCount(nWith));
+        NotificationCompat.Action action = NotificationCompat.getAction(nWith, 0);
+        assertNull(action);
+
+        Notification nWithout = builder.clearActions().build();
+        assertEquals(0, NotificationCompat.getActionCount(nWithout));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testActions() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
@@ -243,6 +260,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         // Validate that the clear did not mutate the first notification
         assertEquals(1, NotificationCompat.getActionCount(nWith));
+    }
+
+    @Test
+    public void testGetActions() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+        builder.addAction(0, "testAction", null);
+        builder.addAction(0, "testAction2", null);
+
+        List<NotificationCompat.Action> actions = builder.mActions;
+
+        assertEquals(2, actions.size());
+        assertEquals("testAction2", actions.get(1).getTitle());
     }
 
     @Test
@@ -2028,6 +2057,859 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void testCallStyle_className() {
+        NotificationCompat.CallStyle callStyle = new NotificationCompat.CallStyle();
+        assertEquals("androidx.core.app.NotificationCompat$CallStyle", callStyle.getClassName());
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testCallStyle_callStyleIncomingSetsIntents() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                person, declineIntent, answerIntent);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        Bundle extras = notification.extras;
+        assertEquals(NotificationCompat.CallStyle.CALL_TYPE_INCOMING,
+                extras.getInt(NotificationCompat.EXTRA_CALL_TYPE));
+        assertEquals("test name", ((android.app.Person) extras.getParcelable(
+                NotificationCompat.EXTRA_CALL_PERSON)).getName());
+
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_ANSWER_INTENT));
+        assertEquals(answerIntent,
+                (PendingIntent) extras.getParcelable(NotificationCompat.EXTRA_ANSWER_INTENT));
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_DECLINE_INTENT));
+        assertEquals(declineIntent,
+                ((PendingIntent) extras.getParcelable(NotificationCompat.EXTRA_DECLINE_INTENT)));
+
+        // Create a new NotificationCompat Builder object based on the notification.
+        // This allows us to inspect various fields, including actions.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, notification);
+        assertEquals(2, builder.mActions.size());
+        assertEquals(mContext.getString(R.string.call_notification_decline_action),
+                builder.mActions.get(0).getTitle().toString());
+        assertEquals(mContext.getString(R.string.call_notification_answer_action),
+                builder.mActions.get(1).getTitle().toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testCallStyle_callStyleOngoingSetsIntents() {
+        PendingIntent hangupIntent = createIntent("hangup");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forOngoingCall(
+                person, hangupIntent);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        Bundle extras = notification.extras;
+        assertEquals(NotificationCompat.CallStyle.CALL_TYPE_ONGOING,
+                extras.getInt(NotificationCompat.EXTRA_CALL_TYPE));
+        assertEquals("test name", ((android.app.Person) extras.getParcelable(
+                NotificationCompat.EXTRA_CALL_PERSON)).getName());
+
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_HANG_UP_INTENT));
+        assertEquals(hangupIntent,
+                ((PendingIntent) extras.getParcelable(NotificationCompat.EXTRA_HANG_UP_INTENT)));
+
+        // Create a new NotificationCompat Builder object based on the notification.
+        // This allows us to inspect various fields, including actions.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, notification);
+        assertEquals(1, builder.mActions.size());
+        assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
+                builder.mActions.get(0).getTitle().toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testCallStyle_callStyleScreeningSetsIntents() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent hangupIntent = createIntent("hangup");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forScreeningCall(
+                person, hangupIntent, answerIntent);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        Bundle extras = notification.extras;
+        assertEquals(NotificationCompat.CallStyle.CALL_TYPE_SCREENING,
+                extras.getInt(NotificationCompat.EXTRA_CALL_TYPE));
+        assertEquals("test name", ((android.app.Person) extras.getParcelable(
+                NotificationCompat.EXTRA_CALL_PERSON)).getName());
+
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_ANSWER_INTENT));
+        assertEquals(answerIntent,
+                ((PendingIntent) extras.getParcelable(NotificationCompat.EXTRA_ANSWER_INTENT)));
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_HANG_UP_INTENT));
+        assertEquals(hangupIntent,
+                ((PendingIntent) extras.getParcelable(NotificationCompat.EXTRA_HANG_UP_INTENT)));
+
+        // Create a new NotificationCompat Builder object based on the notification.
+        // This allows us to inspect various fields, including actions.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, notification);
+        assertEquals(2, builder.mActions.size());
+        assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
+                builder.mActions.get(0).getTitle().toString());
+        assertEquals(mContext.getString(R.string.call_notification_answer_action),
+                builder.mActions.get(1).getTitle().toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testCallStyle_callStyleSetAdditionalFields() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                person, declineIntent, answerIntent);
+
+        IconCompat icon = IconCompat.createWithResource(mContext, R.drawable.ic_call_decline);
+        assertNotNull(icon);
+
+        callStyle.setAnswerButtonColorHint(Color.BLUE);
+        callStyle.setDeclineButtonColorHint(Color.MAGENTA);
+        callStyle.setVerificationText("Verified");
+        callStyle.setVerificationIcon(icon.toIcon(mContext));
+        callStyle.setIsVideo(true);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        Bundle extras = notification.extras;
+
+        assertEquals(Color.BLUE, extras.getInt(NotificationCompat.EXTRA_ANSWER_COLOR));
+        assertEquals(Color.MAGENTA, extras.getInt(NotificationCompat.EXTRA_DECLINE_COLOR));
+        assertEquals("Verified",
+                extras.getCharSequence(NotificationCompat.EXTRA_VERIFICATION_TEXT));
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_VERIFICATION_ICON));
+        assertEquals(((Icon) extras.getParcelable(
+                        NotificationCompat.EXTRA_VERIFICATION_ICON)).getResId(),
+                icon.toIcon(mContext).getResId());
+        assertTrue(extras.getBoolean(NotificationCompat.EXTRA_CALL_IS_VIDEO));
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testCallStyle_callStyleNullAdditionalFields() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                person, declineIntent, answerIntent);
+
+        callStyle.setVerificationText(null);
+        callStyle.setVerificationIcon((Icon) null);
+        callStyle.setIsVideo(false);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        Bundle extras = notification.extras;
+
+        assertEquals(0, extras.getInt(NotificationCompat.EXTRA_ANSWER_COLOR));
+        assertEquals(0, extras.getInt(NotificationCompat.EXTRA_DECLINE_COLOR));
+        assertNull(extras.getCharSequence(NotificationCompat.EXTRA_VERIFICATION_TEXT));
+        assertNull(extras.getParcelable(NotificationCompat.EXTRA_VERIFICATION_ICON));
+        assertFalse(extras.getBoolean(NotificationCompat.EXTRA_CALL_IS_VIDEO));
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testCallStyle_getActionsListWithSystemAndContextualActionsForIncoming() {
+        PendingIntent positiveIntent = createIntent("answerIntent");
+        PendingIntent negativeIntent = createIntent("declineIntent");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                person, negativeIntent, positiveIntent);
+
+        // Create three "system" actions. The second action is marked as Contextual.
+        NotificationCompat.Action fooAction = new NotificationCompat.Action(0, "foo",
+                createIntent("foo"));
+        NotificationCompat.Action barAction = new NotificationCompat.Action(0, "bar",
+                createIntent("bar"), null, null, null, false, 0, false, /*isContextual=*/true,
+                false);
+        NotificationCompat.Action bazAction = new NotificationCompat.Action(0, "baz",
+                createIntent("baz"));
+
+        // The style must be attached to a builder for the context to be initialized.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .addAction(fooAction)
+                .addAction(barAction)
+                .addAction(bazAction)
+                .setStyle(callStyle);
+
+        ArrayList<NotificationCompat.Action> resultActions =
+                callStyle.getActionsListWithSystemActions();
+        // Note that contextual actions do not count toward the MAX_ACTION_BUTTON limit.
+        // Thus the resulting number of actions can be more than MAX_ACTION_BUTTON.
+        assertEquals(4, resultActions.size());
+
+        // The negative action always gets placed first.
+        assertEquals(mContext.getString(R.string.call_notification_decline_action),
+                resultActions.get(0).getTitle().toString());
+        assertEquals(negativeIntent, resultActions.get(0).getActionIntent());
+        resultActions.get(0).getIconCompat();
+
+        assertEquals("foo", resultActions.get(1).getTitle().toString());
+
+        assertEquals(mContext.getString(R.string.call_notification_answer_action),
+                resultActions.get(2).getTitle().toString());
+        assertEquals(positiveIntent, resultActions.get(2).getActionIntent());
+
+        // The "bar" action is Contextual, so it is always included, beyond the limit of 3.
+        assertEquals("bar", resultActions.get(3).getTitle().toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testCallStyle_getActionsListWithSystemAndContextualActionsForOngoing() {
+        PendingIntent negativeIntent = createIntent("hang up");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forOngoingCall(
+                person, negativeIntent);
+
+        // Create three "system" actions. The second action is marked as Contextual.
+        NotificationCompat.Action fooAction = new NotificationCompat.Action(0, "foo",
+                createIntent("foo"));
+        NotificationCompat.Action barAction = new NotificationCompat.Action(0, "bar",
+                createIntent("bar"), null, null, null, false, 0, false, /*isContextual=*/true,
+                false);
+        NotificationCompat.Action bazAction = new NotificationCompat.Action(0, "baz",
+                createIntent("baz"));
+        NotificationCompat.Action bbqAction = new NotificationCompat.Action(0, "bbq",
+                createIntent("bbq"));
+
+        // The style must be attached to a builder for the context to be initialized.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .addAction(fooAction)
+                .addAction(barAction)
+                .addAction(bazAction)
+                .addAction(bbqAction)
+                .setStyle(callStyle);
+
+        ArrayList<NotificationCompat.Action> resultActions =
+                callStyle.getActionsListWithSystemActions();
+        assertEquals(3, resultActions.size());
+
+        // The negative Intent is always placed first.
+        assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
+                resultActions.get(0).getTitle().toString());
+        assertEquals(negativeIntent, resultActions.get(0).getActionIntent());
+        assertEquals("foo", resultActions.get(1).getTitle().toString());
+        assertEquals("bar", resultActions.get(2).getTitle().toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testCallStyle_getActionsListWithSystemAndContextualActionsForScreening() {
+        PendingIntent positiveIntent = createIntent("answer");
+        PendingIntent negativeIntent = createIntent("hangup");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forScreeningCall(
+                person, negativeIntent, positiveIntent);
+
+        // Create three "system" actions. The second action is marked as Contextual.
+        NotificationCompat.Action fooAction = new NotificationCompat.Action(0, "foo",
+                createIntent("foo"));
+        NotificationCompat.Action barAction = new NotificationCompat.Action(0, "bar",
+                createIntent("bar"), null, null, null, false, 0, false, /*isContextual=*/true,
+                false);
+        NotificationCompat.Action bazAction = new NotificationCompat.Action(0, "baz",
+                createIntent("baz"));
+
+        // The style must be attached to a builder for the context to be initialized.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .addAction(fooAction)
+                .addAction(barAction)
+                .addAction(bazAction)
+                .setStyle(callStyle);
+
+        ArrayList<NotificationCompat.Action> resultActions =
+                callStyle.getActionsListWithSystemActions();
+        assertEquals(4, resultActions.size());
+
+        // The negative intent is always placed first.
+        assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
+                resultActions.get(0).getTitle().toString());
+        assertEquals(negativeIntent, resultActions.get(0).getActionIntent());
+
+        assertEquals("foo", resultActions.get(1).getTitle().toString());
+
+        assertEquals(mContext.getString(R.string.call_notification_answer_action),
+                resultActions.get(2).getTitle().toString());
+        assertEquals(positiveIntent, resultActions.get(2).getActionIntent());
+
+        assertEquals("bar", resultActions.get(3).getTitle().toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testCallStyle_getActionsListForIncomingVideo() {
+        PendingIntent positiveIntent = createIntent("answerIntent");
+        PendingIntent negativeIntent = createIntent("declineIntent");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                person, negativeIntent, positiveIntent).setIsVideo(true);
+
+        // The style must be attached to a builder for the context to be initialized.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle);
+
+        ArrayList<NotificationCompat.Action> resultActions =
+                callStyle.getActionsListWithSystemActions();
+        assertEquals(2, resultActions.size());
+
+        assertEquals(mContext.getString(R.string.call_notification_decline_action),
+                resultActions.get(0).getTitle().toString());
+        assertEquals(negativeIntent, resultActions.get(0).getActionIntent());
+        resultActions.get(0).getIconCompat();
+
+        assertEquals(mContext.getString(R.string.call_notification_answer_video_action),
+                resultActions.get(1).getTitle().toString());
+        assertEquals(positiveIntent, resultActions.get(1).getActionIntent());
+        assertEquals(R.drawable.ic_call_answer_video,
+                resultActions.get(1).getIconCompat().getResId());
+    }
+
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationExtraText() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder()
+                .setName("test name")
+                .build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        Bundle inputBundle = new Bundle();
+        inputBundle.putCharSequence(NotificationCompat.EXTRA_TEXT, "Supplemental Text");
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .setExtras(inputBundle)
+                .build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        Bundle extras = notification.extras;
+
+        // Checks that the notification text is set to the EXTRA_TEXT value. 11 >=
+        assertEquals("Supplemental Text",
+                extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
+    }
+
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationVerificationInfo() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        // Use a bitmap to test that setVerificationIcon can accept a bitmap.
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        callStyle.setVerificationText("Verified");
+        callStyle.setVerificationIcon(bitmap);
+
+        Bundle inputBundle = new Bundle();
+        NotificationCompat.Builder originalBuilder =
+                new NotificationCompat.Builder(mContext, "test id")
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setExtras(inputBundle)
+                        .setStyle(callStyle);
+
+        Notification notification = originalBuilder.build();
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        // Extras are only available in API 19 and above, hence the minSdkVersion of this test.
+        Bundle extras = notification.extras;
+
+        assertEquals("Verified",
+                extras.getCharSequence(NotificationCompat.EXTRA_VERIFICATION_TEXT));
+        // Unfortunately there is no easy way to directly compare the bitmaps of two icons,
+        // so we settle for checking that it's the right size via the toString method.
+        // Icon is only available in API level 23 and above.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_VERIFICATION_ICON));
+            assertEquals(((Icon) extras.getParcelable(
+                            NotificationCompat.EXTRA_VERIFICATION_ICON)).toString(),
+                    IconCompat.createWithBitmap(bitmap).toIcon(mContext).toString());
+        } else {
+            // In older versions, to avoid losing the verification icon, the icon is bundled.
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_VERIFICATION_ICON_COMPAT));
+            IconCompat bundleIcon =
+                    IconCompat.createFromBundle(extras.getParcelable(
+                            NotificationCompat.EXTRA_VERIFICATION_ICON_COMPAT));
+            assertEquals(bundleIcon.toString(),
+                    IconCompat.createWithBitmap(bitmap).toString());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationPersonInfo() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        NotificationCompat.Builder originalBuilder =
+                new NotificationCompat.Builder(mContext, "test id")
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setStyle(callStyle);
+
+        Notification notification = originalBuilder.build();
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        // Extras are only available in API 19 and above, hence the minSdkVersion of this test.
+        Bundle extras = notification.extras;
+
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(callerPerson.getName(),
+                    Person.fromAndroidPerson((android.app.Person) extras.getParcelable(
+                            NotificationCompat.EXTRA_CALL_PERSON)).getName());
+        } else {
+            assertEquals(callerPerson.getName(),
+                    Person.fromBundle(extras.getBundle(
+                            NotificationCompat.EXTRA_CALL_PERSON_COMPAT)).getName());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationIncoming() {
+        // Create a placeholder icon for use with the person.
+        IconCompat personIcon = IconCompat.createWithResource(mContext,
+                R.drawable.ic_call_answer_video_low);
+
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder()
+                .setName("test name")
+                .setIcon(personIcon)
+                .setUri("personUri")
+                .build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        callStyle.setAnswerButtonColorHint(Color.BLUE);
+        callStyle.setDeclineButtonColorHint(Color.MAGENTA);
+        callStyle.setIsVideo(false);
+
+        NotificationCompat.Builder originalBuilder =
+                new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle);
+
+        Notification notification = originalBuilder.build();
+
+        // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+        // and checking the values in it (because those are created via restoreFromCompatExtras).
+        // Extras and NotificationCompatBuilder only available on API 19 and greater.
+        if (Build.VERSION.SDK_INT >= 19) {
+            Bundle extras = notification.extras;
+
+            // Checks that the notification title is set to the caller name. 11 >=
+            assertEquals("test name", extras.getCharSequence(NotificationCompat.EXTRA_TITLE));
+            // Checks that the notification text is set to the default text (since EXTRA_TEXT isn't
+            // set).
+            assertEquals(
+                    mContext.getResources().getString(R.string.call_notification_incoming_text),
+                    extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
+
+            // Create a new NotificationCompat Builder object based on the notification.
+            // This allows us to inspect various fields, including actions.
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                    notification);
+            // For versions above 11, the "Person" name from the style is applied to the title.
+            assertEquals("test name", builder.mContentTitle);
+        }
+
+        if (Build.VERSION.SDK_INT >= 20) {
+            assertNotNull(notification.actions);
+            assertEquals(2, notification.actions.length);
+
+            // Check that the decline action has the suggested color and title.
+            assertEquals(mContext.getString(R.string.call_notification_decline_action),
+                    notification.actions[0].title.toString());
+            assertEquals(Color.MAGENTA,
+                    ((SpannableStringBuilder) notification.actions[0].title).getSpans(0,
+                            notification.actions[0].title.length(),
+                            ForegroundColorSpan.class)[0].getForegroundColor());
+
+            // Check that the answer action has the suggested color and title.
+            assertEquals(mContext.getString(R.string.call_notification_answer_action),
+                    notification.actions[1].title.toString());
+            assertEquals(Color.BLUE,
+                    ((SpannableStringBuilder) notification.actions[1].title).getSpans(0,
+                            notification.actions[1].title.length(),
+                            ForegroundColorSpan.class)[0].getForegroundColor());
+        }
+
+        // For versions above 23, the Person icon is added as the notification's large Icon.
+        // Icons were unavailable before API 23.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertEquals(personIcon.toString(), notification.getLargeIcon().toString());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationIncomingVideo() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        callStyle.setAnswerButtonColorHint(Color.BLUE);
+        callStyle.setDeclineButtonColorHint(Color.MAGENTA);
+        callStyle.setIsVideo(true);
+
+        NotificationCompat.Builder originalBuilder =
+                new NotificationCompat.Builder(mContext, "test id")
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setStyle(callStyle);
+        Notification notification = originalBuilder.build();
+
+        // Checks in this section check values in the Notification's extras, which were unavailable
+        // prior to API 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                    notification);
+
+            Bundle extras = builder.getExtras();
+            assertTrue(extras.getBoolean(NotificationCompat.EXTRA_CALL_IS_VIDEO));
+        }
+
+        // Actions were introduced in API 20.
+        if (Build.VERSION.SDK_INT >= 20) {
+            assertNotNull(notification.actions);
+            assertEquals(2, notification.actions.length);
+
+            // Check that the answer action has the suggested color and title.
+            assertEquals(mContext.getString(R.string.call_notification_answer_video_action),
+                    notification.actions[1].title.toString());
+            assertEquals(Color.BLUE,
+                    ((SpannableStringBuilder) notification.actions[1].title).getSpans(0,
+                            notification.actions[1].title.length(),
+                            ForegroundColorSpan.class)[0].getForegroundColor());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationOngoing() {
+        // Create a placeholder icon for use with the person.
+        IconCompat personIcon = IconCompat.createWithResource(mContext,
+                R.drawable.ic_call_answer_video_low);
+
+        PendingIntent hangupIntent = createIntent("hangup");
+        Person callerPerson = new Person.Builder()
+                .setName("test name")
+                .setIcon(personIcon)
+                .setUri("personUri")
+                .build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forOngoingCall(
+                callerPerson, hangupIntent);
+
+        callStyle.setAnswerButtonColorHint(Color.BLUE);
+        callStyle.setDeclineButtonColorHint(Color.MAGENTA);
+
+        NotificationCompat.Builder originalBuilder =
+                new NotificationCompat.Builder(mContext, "test id")
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setStyle(callStyle);
+        Notification notification = originalBuilder.build();
+
+        // Checks in this section check values in the Notification's extras, which were unavailable
+        // prior to API 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+            // and checking the values in it (as those are created via restoreFromCompatExtras).
+            Bundle extras = notification.extras;
+
+            // Checks that the notification title is set to the caller name. 11 >=
+            assertEquals("test name", extras.getCharSequence(NotificationCompat.EXTRA_TITLE));
+
+            // Checks that the notification text is set to the default text (since EXTRA_TEXT isn't
+            // set). 11 >=
+            assertEquals(mContext.getResources().getString(R.string.call_notification_ongoing_text),
+                    extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
+
+            // Create a new NotificationCompat Builder object based on the notification.
+            // This allows us to inspect various fields, including actions.
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                    notification);
+
+            // For versions above 11, the "Person" name from the style is applied to the title.
+            assertEquals("test name", builder.mContentTitle);
+        }
+
+        // Actions were introduced in API 20.
+        if (Build.VERSION.SDK_INT >= 20) {
+            assertNotNull(notification.actions);
+            assertEquals(1, notification.actions.length);
+
+            // Check that the hangup action has the suggested color and title.
+            assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
+                    notification.actions[0].title.toString());
+            assertEquals(Color.MAGENTA,
+                    ((SpannableStringBuilder) notification.actions[0].title).getSpans(0,
+                            notification.actions[0].title.length(),
+                            ForegroundColorSpan.class)[0].getForegroundColor());
+        }
+
+        // For versions above 23, the Person icon is added as the notification's large Icon.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertEquals(personIcon.toString(), notification.getLargeIcon().toString());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationScreening() {
+        // Create a placeholder icon for use with the person.
+        IconCompat personIcon = IconCompat.createWithResource(mContext,
+                R.drawable.ic_call_answer_video_low);
+
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent hangupIntent = createIntent("hangup");
+        Person callerPerson = new Person.Builder()
+                .setName("test name")
+                .setIcon(personIcon)
+                .setUri("personUri")
+                .build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forScreeningCall(
+                callerPerson, hangupIntent, answerIntent);
+
+        NotificationCompat.Builder originalBuilder =
+                new NotificationCompat.Builder(mContext, "test id")
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setStyle(callStyle);
+        Notification notification = originalBuilder.build();
+
+        // Checks in this section check values in the Notification's extras, which were unavailable
+        // prior to API 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            // Test extras values. This is equivalent to creating a new NotificationCompat.Builder,
+            // and checking the values in it (as those are created via restoreFromCompatExtras).
+            Bundle extras = notification.extras;
+
+            // Checks that the notification title is set to the caller name. 11 >=
+            assertEquals("test name", extras.getCharSequence(NotificationCompat.EXTRA_TITLE));
+
+            // Checks that the notification text is set to the default text (since EXTRA_TEXT isn't
+            // set). 11 >=
+            assertEquals(
+                    mContext.getResources().getString(R.string.call_notification_screening_text),
+                    extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
+
+            // Create a new NotificationCompat Builder object based on the notification.
+            // This allows us to inspect various fields, including actions.
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                    notification);
+
+            // For versions above 11, the "Person" name from the style is applied to the title.
+            assertEquals("test name", builder.mContentTitle);
+        }
+
+        // Actions were introduced in API 20.
+        if (Build.VERSION.SDK_INT >= 20) {
+            assertNotNull(notification.actions);
+            assertEquals(2, notification.actions.length);
+
+            // Check that the decline action has the suggested color and title.
+            assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
+                    notification.actions[0].title.toString());
+            assertEquals(ContextCompat.getColor(mContext, R.color.call_notification_decline_color),
+                    ((SpannableStringBuilder) notification.actions[0].title).getSpans(0,
+                            notification.actions[0].title.length(),
+                            ForegroundColorSpan.class)[0].getForegroundColor());
+
+            // Check that the answer action has the suggested color and title.
+            assertEquals(mContext.getString(R.string.call_notification_answer_action),
+                    notification.actions[1].title.toString());
+            assertEquals(ContextCompat.getColor(mContext, R.color.call_notification_answer_color),
+                    ((SpannableStringBuilder) notification.actions[1].title).getSpans(0,
+                            notification.actions[1].title.length(),
+                            ForegroundColorSpan.class)[0].getForegroundColor());
+        }
+
+        // For versions above 23, the Person icon is added as the notification's large Icon.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertEquals(personIcon.toString(), notification.getLargeIcon().toString());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 27)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationImportantPeopleUri() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder()
+                .setName("test name")
+                .setUri("personUri")
+                .build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Create a new NotificationCompat Builder object based on the notification.
+        // This allows us to inspect various fields, including actions.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, notification);
+
+        // For API versions 21 through 28, we check the URI is in the mPeople set of string URIs.
+        assertTrue(builder.mPeople.contains(callerPerson.getUri()));
+    }
+
+    @SdkSuppress(minSdkVersion = 28, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacyNotificationImportantPeople() {
+        // Create a placeholder icon for use with the person.
+        IconCompat personIcon = IconCompat.createWithResource(mContext,
+                R.drawable.ic_call_answer_video);
+
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder()
+                .setName("test name")
+                .setIcon(personIcon)
+                .setUri("personUri")
+                .build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        // Create a new NotificationCompat Builder object based on the notification.
+        // This allows us to inspect various fields, including actions.
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, notification);
+
+        // For API versions after 28, the person object is added as relevant to the notification.
+        boolean foundPerson = false;
+        for (Person person : builder.mPersonList) {
+            foundPerson |= person.getUri() == callerPerson.getUri();
+        }
+        assertTrue(foundPerson);
+    }
+
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 30)
+    @Test
+    public void testCallStyle_callStyleLegacySetsCategory() {
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        Person callerPerson = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                callerPerson, declineIntent, answerIntent);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(callStyle)
+                .build();
+
+        assertEquals(NotificationCompat.CATEGORY_CALL, notification.category);
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testBuilderFromNotification_fromCallStyleCompat() {
+        // Create the NotificationCompat CallStyle for an Incoming Call.
+        PendingIntent answerIntent = createIntent("answer");
+        PendingIntent declineIntent = createIntent("decline");
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forIncomingCall(
+                new Person.Builder().setName(
+                        "test name").build(), answerIntent, declineIntent);
+
+        Bundle testBundle = new Bundle();
+        testBundle.putString("testExtraKey", "testExtraValue");
+
+        Notification expectedNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setContentTitle("test name")
+                .setContentText("contentText")
+                .setContentInfo("contentInfo")
+                .setSubText("subText")
+                .setNumber(1)
+                .setProgress(10, 1, false)
+                .setSettingsText("settingsText")
+                .setLocalOnly(true)
+                .setAutoCancel(true)
+                .setStyle(callStyle)
+                .addExtras(testBundle)
+                .build();
+        Notification recoveredNotification = new NotificationCompat.Builder(mContext,
+                expectedNotification).build();
+        assertNotificationEquals(expectedNotification, recoveredNotification);
+    }
+
+    private PendingIntent createIntent(String actionName) {
+        return PendingIntent.getActivity(mContext, 0, new Intent(actionName),
+                PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    @Test
     public void action_builder_hasDefault() {
         NotificationCompat.Action action =
                 newActionBuilder().build();
@@ -2041,6 +2923,20 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                         .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                         .build();
         assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_REPLY, action.getSemanticAction());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
+    public void action_builder_fromAndroidActionAllowsZeroResIcon() {
+        // Create action with a 0 resId Icon.
+        Notification.Action action = new Notification.Action.Builder(0, "title", null)
+                .build();
+        // Create a Compat Action Builder from the Android Action.
+        NotificationCompat.Action compatAction =
+                NotificationCompat.Action.Builder.fromAndroidAction(action).build();
+        // The zero res icon is not set, but the action is created.
+        assertNull(compatAction.getIconCompat());
+        assertEquals("title", compatAction.getTitle());
     }
 
     @Test

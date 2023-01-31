@@ -23,6 +23,7 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl.OperationCanceledException
 import androidx.camera.core.CameraSelector
@@ -63,7 +64,8 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
 
-private const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
+@VisibleForTesting
+internal const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
 private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 
 // State Holder for ImageCaptureScreen

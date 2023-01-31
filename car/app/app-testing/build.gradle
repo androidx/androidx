@@ -37,7 +37,7 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 
@@ -58,7 +58,6 @@ android {
 androidx {
     name = "androidx.car.app:app-testing"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
 }

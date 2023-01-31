@@ -32,6 +32,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("setOfInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("repeatedByteArray")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)

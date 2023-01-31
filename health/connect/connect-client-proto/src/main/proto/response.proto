@@ -40,6 +40,10 @@ message ReadDataRangeResponse {
   optional string page_token = 2;
 }
 
+message ReadExerciseRouteResponse {
+  optional DataPoint data_point = 1;
+}
+
 message AggregateDataResponse {
   repeated AggregateDataRow rows = 1;
 }

@@ -112,6 +112,7 @@ public class AsyncListenableGlesRendererTest : WatchFaceControlClientServiceTest
         )
 
         val deferredClient = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 DeviceConfig(

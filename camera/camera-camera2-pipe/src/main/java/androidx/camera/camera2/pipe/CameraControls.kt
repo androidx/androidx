@@ -26,9 +26,7 @@ import androidx.camera.camera2.pipe.Result3A.Status
 
 // Public controls and enums used to interact with a CameraGraph.
 
-/**
- * An enum to match the CameraMetadata.CONTROL_AF_MODE_* constants.
- */
+/** An enum to match the CameraMetadata.CONTROL_AF_MODE_* constants. */
 public enum class AfMode(public val value: Int) {
     OFF(CameraMetadata.CONTROL_AF_MODE_OFF),
     AUTO(CameraMetadata.CONTROL_AF_MODE_AUTO),
@@ -43,9 +41,7 @@ public enum class AfMode(public val value: Int) {
     }
 }
 
-/**
- * An enum to match the CameraMetadata.CONTROL_AE_MODE_* constants.
- */
+/** An enum to match the CameraMetadata.CONTROL_AE_MODE_* constants. */
 public enum class AeMode(public val value: Int) {
     OFF(CameraMetadata.CONTROL_AE_MODE_OFF),
     ON(CameraMetadata.CONTROL_AE_MODE_ON),
@@ -59,9 +55,7 @@ public enum class AeMode(public val value: Int) {
     }
 }
 
-/**
- * An enum to match the CameraMetadata.CONTROL_AWB_MODE_* constants.
- */
+/** An enum to match the CameraMetadata.CONTROL_AWB_MODE_* constants. */
 public enum class AwbMode(public val value: Int) {
     AUTO(CameraMetadata.CONTROL_AWB_MODE_AUTO),
     CLOUDY_DAYLIGHT(CameraMetadata.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT),
@@ -75,9 +69,7 @@ public enum class AwbMode(public val value: Int) {
     }
 }
 
-/**
- * An enum to match the CameraMetadata.FLASH_MODE_* constants.
- */
+/** An enum to match the CameraMetadata.FLASH_MODE_* constants. */
 public enum class FlashMode(public val value: Int) {
     OFF(CameraMetadata.FLASH_MODE_OFF),
     SINGLE(CameraMetadata.FLASH_MODE_SINGLE),
@@ -85,9 +77,8 @@ public enum class FlashMode(public val value: Int) {
 
     public companion object {
         @JvmStatic
-        public fun fromIntOrNull(value: Int): FlashMode? = values().firstOrNull {
-            it.value == value
-        }
+        public fun fromIntOrNull(value: Int): FlashMode? =
+            values().firstOrNull { it.value == value }
     }
 }
 
@@ -95,8 +86,10 @@ public enum class FlashMode(public val value: Int) {
  * Enum to turn the torch on/off.
  *
  * <https://developer.android.com/reference/android/hardware/camera2/CameraMetadata
+ *
  * #CONTROL_AE_MODE_OFF
  * https://developer.android.com/reference/android/hardware/camera2/CameraMetadata
+ *
  * #CONTROL_AE_MODE_ON
  */
 public enum class TorchState {
@@ -104,15 +97,13 @@ public enum class TorchState {
     OFF
 }
 
-/**
- * Requirement to consider prior to locking auto-exposure, auto-focus and auto-whitebalance.
- */
+/** Requirement to consider prior to locking auto-exposure, auto-focus and auto-whitebalance. */
 public enum class Lock3ABehavior {
     /**
      * This requirement means that we want to lock the values for 3A immediately.
      *
-     * For AE/AWB this is achieved by asking the camera device to lock them immediately by
-     * setting [android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK],
+     * For AE/AWB this is achieved by asking the camera device to lock them immediately by setting
+     * [android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK],
      * [android.hardware.camera2.CaptureRequest.CONTROL_AWB_LOCK] to true right away.
      *
      * For AF we immediately ask the camera device to trigger AF by setting the
@@ -127,9 +118,7 @@ public enum class Lock3ABehavior {
      */
     AFTER_CURRENT_SCAN,
 
-    /**
-     * Initiate a new scan, and then lock the values once the scan is done.
-     */
+    /** Initiate a new scan, and then lock the values once the scan is done. */
     AFTER_NEW_SCAN,
 }
 
@@ -138,16 +127,17 @@ public enum class Lock3ABehavior {
  *
  * @param status [Status] of the 3A operation at the time of return.
  * @param frameMetadata [FrameMetadata] of the latest frame at which the method succeeded or was
- * aborted. The metadata reflects CaptureResult or TotalCaptureResult for that frame. It can so
- * happen that the [CaptureResult] itself has all the key-value pairs needed to determine the
- * completion of the method, in that case this frameMetadata may not contain all the kay value pairs
- * associated with the final result i.e [TotalCaptureResult] of this frame.
+ *   aborted. The metadata reflects CaptureResult or TotalCaptureResult for that frame. It can so
+ *   happen that the [CaptureResult] itself has all the key-value pairs needed to determine the
+ *   completion of the method, in that case this frameMetadata may not contain all the kay value
+ *   pairs associated with the final result i.e. [TotalCaptureResult] of this frame.
  */
 public data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null) {
     /**
      * Enum to know the status of 3A operation in case the method returns before the desired
      * operation is complete. The reason could be that the operation was talking a lot longer and an
-     * enforced frame or time limit was reached, submitting the desired request to camera failed etc.
+     * enforced frame or time limit was reached, submitting the desired request to camera failed
+     * etc.
      */
     public enum class Status {
         OK,

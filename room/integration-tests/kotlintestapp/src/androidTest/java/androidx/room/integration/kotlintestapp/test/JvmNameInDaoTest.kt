@@ -51,13 +51,13 @@ class JvmNameInDaoTest {
             JvmNameDb::class.java
         ).build()
         try {
-            db.dao.insert(entity)
+            db.getDao().insert(entity)
             assertThat(
-                db.dao.query()
+                db.getDao().query()
             ).containsExactly(entity)
-            db.dao.delete(entity)
+            db.getDao().delete(entity)
             assertThat(
-                db.dao.query()
+                db.getDao().query()
             ).isEmpty()
         } finally {
             db.close()
@@ -121,7 +121,7 @@ class JvmNameInDaoTest {
     @TypeConverters(MyConverterConverter::class)
     abstract class JvmNameDb : RoomDatabase() {
         @Suppress("INAPPLICABLE_JVM_NAME")
-        @get:JvmName("jvmDao")
-        abstract val dao: JvmNameDao
+        @JvmName("jvmDao")
+        abstract fun getDao(): JvmNameDao
     }
 }

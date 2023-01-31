@@ -58,7 +58,7 @@ public class SplitPlaceholderRule extends SplitRule {
     private final int mFinishPrimaryWithPlaceholder;
 
     SplitPlaceholderRule(@NonNull Intent placeholderIntent,
-            float splitRatio, @LayoutDir int layoutDirection, boolean isSticky,
+            float splitRatio, @LayoutDirection int layoutDirection, boolean isSticky,
             @SplitPlaceholderFinishBehavior int finishPrimaryWithPlaceholder,
             @NonNull Predicate<Activity> activityPredicate,
             @NonNull Predicate<Intent> intentPredicate,
@@ -137,7 +137,7 @@ public class SplitPlaceholderRule extends SplitRule {
         @NonNull
         private final Intent mPlaceholderIntent;
         private float mSplitRatio;
-        @LayoutDir
+        @LayoutDirection
         private int mLayoutDirection;
         private boolean mIsSticky = false;
         @SplitPlaceholderFinishBehavior
@@ -162,7 +162,7 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /** @see SplitRule#getLayoutDirection() */
         @NonNull
-        public Builder setLayoutDirection(@LayoutDir int layoutDirection) {
+        public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
         }

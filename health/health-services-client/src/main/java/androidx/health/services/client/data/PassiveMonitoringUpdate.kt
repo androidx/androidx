@@ -16,10 +16,8 @@
 
 package androidx.health.services.client.data
 
-import android.content.Intent
-import android.os.Parcelable
-import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate as PassiveMonitoringUpdateProto
+import androidx.health.services.client.proto.DataProto
 
 /**
  * Represents an update from Passive tracking.
@@ -34,7 +32,7 @@ public class PassiveMonitoringUpdate(
 
     /** The [UserActivityInfo] of the user from Passive tracking. */
     public val userActivityInfoUpdates: List<UserActivityInfo>,
-) : ProtoParcelable<PassiveMonitoringUpdateProto>() {
+) {
 
     internal constructor(
         proto: DataProto.PassiveMonitoringUpdate
@@ -43,45 +41,15 @@ public class PassiveMonitoringUpdate(
         proto.userActivityInfoUpdatesList.map { UserActivityInfo(it) }
     )
 
-    /**
-     * Puts the state as an extra into a given [Intent]. The state can then be obtained from the
-     * intent via [PassiveMonitoringUpdate.fromIntent].
-     */
-    public fun putToIntent(intent: Intent) {
-        intent.putExtra(EXTRA_KEY, this)
-    }
-
-    /** @hide */
-    override val proto: PassiveMonitoringUpdateProto by lazy {
+    internal val proto: PassiveMonitoringUpdateProto =
         PassiveMonitoringUpdateProto.newBuilder()
             .addAllDataPoints(dataPoints.sampleDataPoints.map { it.proto })
             .addAllDataPoints(dataPoints.intervalDataPoints.map { it.proto })
             .addAllUserActivityInfoUpdates(userActivityInfoUpdates.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "PassiveMonitoringUpdate(" +
             "dataPoints=$dataPoints, " +
             "userActivityInfoUpdates=$userActivityInfoUpdates)"
-
-    public companion object {
-        private const val EXTRA_KEY = "hs.passive_monitoring_update"
-        @Suppress("ActionValue") public const val ACTION_DATA: String = "hs.passivemonitoring.DATA"
-
-        @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveMonitoringUpdate> = newCreator { bytes ->
-            val proto = PassiveMonitoringUpdateProto.parseFrom(bytes)
-            PassiveMonitoringUpdate(proto)
-        }
-
-        /**
-         * Creates a [PassiveMonitoringUpdate] from an [Intent]. Returns null if no
-         * [PassiveMonitoringUpdate] is stored in the given intent.
-         */
-        @Suppress("DEPRECATION")
-        @JvmStatic
-        public fun fromIntent(intent: Intent): PassiveMonitoringUpdate? =
-            intent.getParcelableExtra(EXTRA_KEY)
-    }
 }

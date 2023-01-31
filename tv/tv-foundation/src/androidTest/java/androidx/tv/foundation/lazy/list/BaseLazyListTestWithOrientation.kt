@@ -75,6 +75,13 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
             this.fillMaxHeight()
         }
 
+    fun TvLazyListItemScope.fillParentMaxMainAxis() =
+        if (vertical) {
+            Modifier.fillParentMaxHeight()
+        } else {
+            Modifier.fillParentMaxWidth()
+        }
+
     fun TvLazyListItemScope.fillParentMaxCrossAxis() =
         if (vertical) {
             Modifier.fillParentMaxWidth()

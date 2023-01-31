@@ -59,7 +59,11 @@ internal class KspFieldElement(
                 emptyList()
             }
             declaration.isPrivate() -> emptyList()
-
+            declaration.modifiers.contains(Modifier.CONST) -> {
+                // No accessors are needed for const properties:
+                // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
+                emptyList()
+            }
             else -> {
                 sequenceOf(declaration.getter, declaration.setter)
                     .filterNotNull()
@@ -67,16 +71,6 @@ internal class KspFieldElement(
                         // KAPT does not generate methods for privates, KSP does so we filter
                         // them out.
                         it.modifiers.contains(Modifier.PRIVATE)
-                    }
-                    .filter {
-                        if (isStatic()) {
-                            // static fields are the properties that are coming from the
-                            // companion. Whether we'll generate method for it or not depends on
-                            // the JVMStatic annotation
-                            it.hasJvmStaticAnnotation() || declaration.hasJvmStaticAnnotation()
-                        } else {
-                            true
-                        }
                     }
                     .map { accessor ->
                         KspSyntheticPropertyMethodElement.create(

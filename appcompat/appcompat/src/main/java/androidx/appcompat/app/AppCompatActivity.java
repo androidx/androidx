@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
 import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
@@ -220,6 +221,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+        ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
     }
 
     @Override

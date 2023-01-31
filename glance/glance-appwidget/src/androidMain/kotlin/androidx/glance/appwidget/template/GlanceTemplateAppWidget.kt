@@ -19,14 +19,14 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.color.dynamicThemeColorProviders
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 
@@ -35,8 +35,35 @@ import androidx.glance.template.TemplateMode
  */
 abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
-    /** Default widget size mode is [SizeMode.Exact] */
-    override val sizeMode = SizeMode.Exact
+    companion object {
+        internal val sizeMin = 30.dp
+        internal val sizeS = 200.dp
+        internal val sizeM = 241.dp
+        internal val sizeL = 350.dp
+        internal val sizeXL = 600.dp
+        private val COLLAPSED = DpSize(sizeMin, sizeMin)
+        private val HORIZONTAL_S = DpSize(sizeM, sizeMin)
+        private val HORIZONTAL_M = DpSize(sizeM, sizeS)
+        private val HORIZONTAL_L = DpSize(sizeL, sizeMin)
+        private val HORIZONTAL_XL = DpSize(sizeXL, sizeL)
+        private val VERTICAL_S = DpSize(sizeMin, sizeM)
+        private val VERTICAL_M = DpSize(sizeS, sizeM)
+        private val VERTICAL_L = DpSize(sizeS, sizeL)
+    }
+
+    /** Default widget size mode is [SizeMode.Responsive] */
+    override val sizeMode: SizeMode = SizeMode.Responsive(
+        setOf(
+            COLLAPSED,
+            VERTICAL_S,
+            VERTICAL_M,
+            VERTICAL_L,
+            HORIZONTAL_S,
+            HORIZONTAL_M,
+            HORIZONTAL_L,
+            HORIZONTAL_XL
+        )
+    )
 
     /** Default widget state definition is [PreferencesGlanceStateDefinition] */
     override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
@@ -45,10 +72,8 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     final override fun Content() {
         // TODO: Add other local values
         val mode = mode()
-        val colors = dynamicThemeColorProviders()
         CompositionLocalProvider(
             LocalTemplateMode provides mode,
-            LocalTemplateColors provides colors
         ) {
             TemplateContent()
         }

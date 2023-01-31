@@ -16,9 +16,6 @@
 
 package androidx.glance.template
 
-import androidx.glance.action.Action
-import androidx.glance.unit.ColorProvider
-
 /**
  * The semantic data required to build List Template layouts.
  *
@@ -30,35 +27,19 @@ import androidx.glance.unit.ColorProvider
  * AppWidget can put an action button in the header while Glance Tile might layout the button
  * without a header. Only the level of data details can be indicated for use in the list style.
  *
- * @param headerIcon Logo icon displayed in the list header by [TemplateImageWithDescription].
- * Default to no display when null valued.
+ * @param headerBlock The header of the template by [HeaderBlock].
  * @param listContent List of items by [ListTemplateItem]. Default to empty list.
- * @param header Main header text by [TemplateText]. Default to no display when null valued.
- * @param title Text section title by [TemplateText] independent of header. Default to no display
- * when null valued.
- * @param button List action button by [TemplateButton] that can be a part of the header with its
- * own icon image. Default to no display when null valued.
- * @param backgroundColor Glanceable background color by [ColorProvider] for the whole list.
- * Default to the system background color.
  * @param listStyle The level of data details by [ListStyle]. Default to the [ListStyle.Full] level.
  */
 class ListTemplateData(
-    val headerIcon: TemplateImageWithDescription? = null,
+    val headerBlock: HeaderBlock? = null,
     val listContent: List<ListTemplateItem> = listOf(),
-    val header: TemplateText? = null,
-    val title: TemplateText? = null,
-    val button: TemplateButton? = null,
-    val backgroundColor: ColorProvider? = null,
     val listStyle: ListStyle = ListStyle.Full
 ) {
 
     override fun hashCode(): Int {
-        var result = header.hashCode()
-        result = 31 * result + headerIcon.hashCode()
-        result = 31 * result + title.hashCode()
-        result = 31 * result + button.hashCode()
+        var result = headerBlock.hashCode()
         result = 31 * result + listContent.hashCode()
-        result = 31 * result + backgroundColor.hashCode()
         result = 31 * result + listStyle.hashCode()
         return result
     }
@@ -69,12 +50,8 @@ class ListTemplateData(
 
         other as ListTemplateData
 
-        if (header != other.header) return false
-        if (headerIcon != other.headerIcon) return false
-        if (title != other.title) return false
-        if (button != other.button) return false
+        if (headerBlock != other.headerBlock) return false
         if (listContent != other.listContent) return false
-        if (backgroundColor != other.backgroundColor) return false
         if (listStyle != other.listStyle) return false
 
         return true
@@ -91,33 +68,20 @@ class ListTemplateData(
  * by developers. For example, Glance AppWidget developer might only show item icon when list header
  * is displayed.
  *
- * @param title The list item title text by [TemplateText] with brief information.
- * @param body The list item body text by [TemplateText] with detailed information. Default to no
- * display when null valued.
- * @param label The list item label text by [TemplateText]. Default to no display when null valued.
- * @param action The list item onClick action by [Action]. Default to no action when null valued.
- * @param image The list item icon image by [TemplateImageWithDescription]. Default to no display
- * when null valued.
- * @param button The item action button by [TemplateButton] that can have its own icon and action
- * independent of item icon and item action. Default to no display when null valued.
+ * @param textBlock The text block for title, body, and other texts of the item.
+ * @param imageBlock The image block for a list item defined by [ImageBlock].
+ * @param actionBlock The item onClick action buttons defined by [ActionBlock].
  */
-// TODO: Allow users to define a custom list item
 class ListTemplateItem(
-    val title: TemplateText,
-    val body: TemplateText? = null,
-    val label: TemplateText? = null,
-    val action: Action? = null,
-    val image: TemplateImageWithDescription? = null,
-    val button: TemplateButton? = null,
+    val textBlock: TextBlock,
+    val imageBlock: ImageBlock? = null,
+    val actionBlock: ActionBlock? = null,
 ) {
 
     override fun hashCode(): Int {
-        var result = title.hashCode()
-        result = 31 * result + (body?.hashCode() ?: 0)
-        result = 31 * result + (label?.hashCode() ?: 0)
-        result = 31 * result + (action?.hashCode() ?: 0)
-        result = 31 * result + (image?.hashCode() ?: 0)
-        result = 31 * result + (button?.hashCode() ?: 0)
+        var result = textBlock.hashCode()
+        result = 31 * result + (imageBlock?.hashCode() ?: 0)
+        result = 31 * result + (actionBlock?.hashCode() ?: 0)
         return result
     }
 
@@ -127,12 +91,9 @@ class ListTemplateItem(
 
         other as ListTemplateItem
 
-        if (title != other.title) return false
-        if (body != other.body) return false
-        if (label != other.label) return false
-        if (action != other.action) return false
-        if (image != other.image) return false
-        if (button != other.button) return false
+        if (textBlock != other.textBlock) return false
+        if (imageBlock != other.imageBlock) return false
+        if (actionBlock != other.actionBlock) return false
 
         return true
     }
@@ -148,16 +109,16 @@ class ListTemplateItem(
  * the Brief style shows no header.
  */
 @JvmInline
-public value class ListStyle private constructor(private val value: Int) {
-    public companion object {
+value class ListStyle private constructor(private val value: Int) {
+    companion object {
         /**
          * Show list data in full details relative to the platform.
          */
-        public val Full: ListStyle = ListStyle(0)
+        val Full: ListStyle = ListStyle(0)
 
         /**
          * Show list data in minimal details relative to the platform.
          */
-        public val Brief: ListStyle = ListStyle(1)
+        val Brief: ListStyle = ListStyle(1)
     }
 }

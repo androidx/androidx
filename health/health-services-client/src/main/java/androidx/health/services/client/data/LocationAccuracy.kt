@@ -16,22 +16,41 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.DataPointAccuracy.LocationAccuracy as LocationAccuracyProto
+import android.util.Log
+import androidx.annotation.FloatRange
 
 /** Accuracy for a [DataType.LOCATION] data point. */
 @Suppress("ParcelCreator")
 public class LocationAccuracy(
-    /** Represents the estimated horizontal accuracy of the location, radial, in meters. */
-    public val horizontalPositionErrorMeters: Double,
+    /**
+     * Represents the estimated horizontal accuracy of the location, radial, in meters.
+     * Range starting from 0.0.
+     *
+     * @throws IllegalArgumentException if [horizontalPositionErrorMeters] is negative
+     */
+    @FloatRange(from = 0.0) public val horizontalPositionErrorMeters: Double,
 
     /**
-     * Represents the estimated vertical accuracy of the location, radial, in meters, or it will
-     * be `null` if it cannot be provided.
+     * Represents the estimated vertical accuracy corresponding to the altitude of the location,
+     * radial, in meters, or it will be [Double.MAX_VALUE] if it cannot be provided. Range starting
+     * from 0.0.
+     *
+     * @throws IllegalArgumentException if [verticalPositionErrorMeters] is negative
      */
-    public val verticalPositionErrorMeters: Double?,
+    @FloatRange(from = 0.0) public val verticalPositionErrorMeters: Double = Double.MAX_VALUE,
 ) : DataPointAccuracy() {
+    init {
+        if (horizontalPositionErrorMeters < 0.0) {
+            Log.w(TAG, "horizontalPositionErrorMeters value " +
+                "$horizontalPositionErrorMeters is out of range")
+        }
+        if (verticalPositionErrorMeters < 0.0) {
+            Log.w(TAG, "verticalPositionErrorMeters value " +
+                "$verticalPositionErrorMeters is out of range")
+        }
+    }
 
     internal constructor(
         proto: DataProto.DataPointAccuracy
@@ -40,21 +59,17 @@ public class LocationAccuracy(
         if (proto.locationAccuracy.hasVerticalPositionError()) {
             proto.locationAccuracy.verticalPositionError
         } else {
-            null
+            Double.MAX_VALUE
         }
     )
 
-    /** @hide */
-    override val proto: DataProto.DataPointAccuracy by lazy {
+    internal fun getDataPointAccuracyProto(): DataProto.DataPointAccuracy {
         val locationAccuracyProtoBuilder =
             LocationAccuracyProto.newBuilder()
                 .setHorizontalPositionError(horizontalPositionErrorMeters)
+                .setVerticalPositionError(verticalPositionErrorMeters)
 
-        verticalPositionErrorMeters?.let {
-            locationAccuracyProtoBuilder.verticalPositionError = it
-        }
-
-        DataProto.DataPointAccuracy.newBuilder()
+        return DataProto.DataPointAccuracy.newBuilder()
             .setLocationAccuracy(locationAccuracyProtoBuilder)
             .build()
     }
@@ -64,10 +79,6 @@ public class LocationAccuracy(
             "verticalPositionErrorMeters=$verticalPositionErrorMeters)"
 
     public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<LocationAccuracy> = newCreator {
-            val proto = DataProto.DataPointAccuracy.parseFrom(it)
-            LocationAccuracy(proto)
-        }
+        private const val TAG = "LocationAccuracy"
     }
 }

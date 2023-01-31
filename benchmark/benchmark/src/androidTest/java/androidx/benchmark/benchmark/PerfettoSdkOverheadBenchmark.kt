@@ -18,7 +18,6 @@ package androidx.benchmark.benchmark
 
 import android.os.Build
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.PerfettoRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
@@ -48,9 +47,6 @@ class PerfettoSdkOverheadBenchmark {
 
     @get:Rule
     val benchmarkRule = BenchmarkRule(packages = listOf(targetPackage))
-
-    @get:Rule
-    val perfettoRule = PerfettoRule()
 
     private val testData = Array(50_000) { UUID.randomUUID().toString() }
 

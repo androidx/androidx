@@ -23,10 +23,6 @@
         <activity android:name="androidx.graphics.opengl.egl.EGLTestActivity"
             android:label="Graphics Core Test"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity android:name="androidx.graphics.surface.SurfaceControlWrapperTestActivity"
@@ -42,6 +38,16 @@
         <activity android:name="androidx.graphics.lowlatency.FrontBufferedRendererTestActivity"
             android:label="WetDryRendererTest"
             android:exported="true"/>
+
+        <activity android:name="androidx.graphics.lowlatency.SampleInkViewActivity"
+            android:label="GLFrontBufferRenderer Sample"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
     </application>
 </manifest>

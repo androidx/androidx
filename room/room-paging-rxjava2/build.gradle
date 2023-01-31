@@ -44,17 +44,9 @@ dependencies {
     )
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "Room Paging RxJava2"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2022"
     description = "RxJava2 integration in Room Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE

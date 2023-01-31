@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"ከፍተኛ ጥራትን አሰናክል"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"ዝግ የመግለጫ ጽሑፎችን አንቃ"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"ዝግ የመግለጫ ጽሑፎችን አሰናክል"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"ስዕል-በስዕል ሁነታ ውስጥ ይግቡ"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"ሥዕል-በሥዕል ሁነታ ውስጥ ይግቡ"</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"የሚዲያ መቆጣጠሪያዎች እንዲታዩ ተደርገዋል"</string>
     <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"የሚዲያ መቆጣጠሪያዎች ተደብቀዋል፣ ለማሳየት d-pad ን ይጫኑ"</string>

@@ -75,7 +75,7 @@ package androidx.glance.wear.tiles.action {
 
   public final class RunCallbackActionKt {
     method public static <T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass);
-    method public static inline <reified T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action! actionRunCallback();
+    method public static inline <reified T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action actionRunCallback();
   }
 
 }
@@ -110,7 +110,7 @@ package androidx.glance.wear.tiles.curved {
     method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.CurvedScope,kotlin.Unit> content);
   }
 
-  @androidx.glance.wear.tiles.curved.CurvedScopeMarker public interface CurvedScope {
+  @androidx.glance.wear.tiles.curved.CurvedScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface CurvedScope {
     method public void curvedComposable(optional boolean rotateContent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public void curvedLine(androidx.glance.unit.ColorProvider color, optional androidx.glance.wear.tiles.curved.GlanceCurvedModifier curvedModifier);
     method public void curvedSpacer(optional androidx.glance.wear.tiles.curved.GlanceCurvedModifier curvedModifier);
@@ -132,7 +132,7 @@ package androidx.glance.wear.tiles.curved {
     property public final androidx.glance.text.FontWeight? fontWeight;
   }
 
-  @androidx.compose.runtime.Stable public interface GlanceCurvedModifier {
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface GlanceCurvedModifier {
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? extends R> operation);
@@ -148,7 +148,7 @@ package androidx.glance.wear.tiles.curved {
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? super R,? extends R> operation);
   }
 
-  public static interface GlanceCurvedModifier.Element extends androidx.glance.wear.tiles.curved.GlanceCurvedModifier {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GlanceCurvedModifier.Element extends androidx.glance.wear.tiles.curved.GlanceCurvedModifier {
     method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
     method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
     method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? extends R> operation);

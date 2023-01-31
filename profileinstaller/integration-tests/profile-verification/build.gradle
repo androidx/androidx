@@ -1,0 +1,73 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+// This task copies the apks provided by the `apkAssets` configuration and places them in the
+// assets folder. This allows a build time generation of the sample apps.
+def copyApkTaskProvider = tasks.register("copyApkAssets", Copy) {
+    description = "Copies the asset apks provided by profile-verification-sample projects"
+    dependsOn(configurations.getByName("apkAssets"))
+    from(configurations.getByName("apkAssets").incoming.artifactView {}.files)
+    into(layout.buildDirectory.dir("intermediates/apkAssets"))
+
+    // Note that the artifact directory included contain multiple output-metadata.json files built
+    // with the apks. Since we're not interested in those we can simply exclude duplicates.
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+    }
+    sourceSets.androidTest.assets.srcDir(copyApkTaskProvider)
+    namespace "androidx.profileinstaller.integration.profileverification"
+}
+
+// Define a configuration that can be resolved. This project is the consumer of test apks, i.e. it
+// contains the integration tests.
+configurations {
+    apkAssets {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'profileverification-apkAssets')
+            )
+        }
+    }
+}
+
+dependencies {
+    androidTestImplementation(project(":profileinstaller:profileinstaller"))
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.testExtTruth)
+    apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample"))
+    apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample-no-initializer"))
+}
+
+// It makes sure that the apks are generated before the assets are packed.
+afterEvaluate {
+    tasks.named("generateDebugAndroidTestAssets").configure { it.dependsOn(copyApkTaskProvider) }
+}

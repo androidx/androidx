@@ -24,10 +24,12 @@ import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_ROW_SECOND;
 import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_ROW_THIRD;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.common.collect.ImmutableSet;
 
 /** CarZone to areaId converter for Seat */
+@ExperimentalCarApi
 public class SeatCarZoneAreaIdConverter implements CarZoneAreaIdConverter {
 
     public SeatCarZoneAreaIdConverter() {}

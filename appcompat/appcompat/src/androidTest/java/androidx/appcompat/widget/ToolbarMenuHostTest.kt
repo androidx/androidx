@@ -16,6 +16,7 @@
 
 package androidx.appcompat.widget
 
+import android.os.Build
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -28,8 +29,8 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
@@ -65,6 +66,7 @@ class ToolbarMenuHostTest {
     }
 
     // Ensure original functionality still works
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     fun manuallyInflatedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
@@ -126,8 +128,8 @@ class ToolbarMenuHostTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
-    @FlakyTest(bugId = 238664379)
     fun providedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null

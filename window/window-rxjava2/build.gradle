@@ -52,14 +52,6 @@ androidx {
     name = "WindowManager RxJava 2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager RxJava 2"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

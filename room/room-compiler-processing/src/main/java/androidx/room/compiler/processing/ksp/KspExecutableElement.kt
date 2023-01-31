@@ -27,7 +27,6 @@ import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.Modifier
 
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
@@ -63,12 +62,7 @@ internal abstract class KspExecutableElement(
     }
 
     override fun isVarArgs(): Boolean {
-        // in java, only the last argument can be a vararg so for suspend functions, it is never
-        // a vararg function. this would change if room generated kotlin code
-        return !declaration.modifiers.contains(Modifier.SUSPEND) &&
-            declaration.parameters.any {
-                it.isVararg
-            }
+        return declaration.parameters.any { it.isVararg }
     }
 
     companion object {

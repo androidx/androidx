@@ -196,11 +196,7 @@ class FragmentNavigatorTest {
             .isNotNull()
         val lifecycle = fragment!!.lifecycle
 
-        fragmentNavigator.navigate(
-            listOf(entry),
-            NavOptions.Builder().setLaunchSingleTop(true).build(),
-            null
-        )
+        fragmentNavigator.onLaunchSingleTop(entry)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
         fragmentManager.executePendingTransactions()
@@ -249,11 +245,7 @@ class FragmentNavigatorTest {
             .isNotNull()
         val lifecycle = fragment!!.lifecycle
 
-        fragmentNavigator.navigate(
-            listOf(replacementEntry),
-            NavOptions.Builder().setLaunchSingleTop(true).build(),
-            null
-        )
+        fragmentNavigator.onLaunchSingleTop(replacementEntry)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, replacementEntry).inOrder()
         fragmentManager.executePendingTransactions()

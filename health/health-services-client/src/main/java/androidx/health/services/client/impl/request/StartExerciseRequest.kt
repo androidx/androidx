@@ -33,12 +33,11 @@ public class StartExerciseRequest(
     public val exerciseConfig: ExerciseConfig,
 ) : ProtoParcelable<RequestsProto.StartExerciseRequest>() {
 
-    override val proto: RequestsProto.StartExerciseRequest by lazy {
+    override val proto: RequestsProto.StartExerciseRequest =
         RequestsProto.StartExerciseRequest.newBuilder()
             .setPackageName(packageName)
             .setConfig(exerciseConfig.toProto())
             .build()
-    }
 
     public companion object {
         @JvmField

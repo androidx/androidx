@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 
 /**
@@ -31,7 +30,7 @@ import androidx.health.services.client.proto.DataProto
 public class WarmUpConfig(
     public val exerciseType: ExerciseType,
     public val dataTypes: Set<DeltaDataType<*, *>>,
-) : ProtoParcelable<DataProto.WarmUpConfig>() {
+) {
 
     internal constructor(
         proto: DataProto.WarmUpConfig
@@ -44,22 +43,12 @@ public class WarmUpConfig(
         require(dataTypes.isNotEmpty()) { "Must specify the desired data types." }
     }
 
-    /** @hide */
-    override val proto: DataProto.WarmUpConfig by lazy {
+    internal val proto: DataProto.WarmUpConfig =
         DataProto.WarmUpConfig.newBuilder()
             .setExerciseType(exerciseType.toProto())
             .addAllDataTypes(dataTypes.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "WarmUpConfig(exerciseType=$exerciseType, dataTypes=$dataTypes)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<WarmUpConfig> = newCreator { bytes ->
-            val proto = DataProto.WarmUpConfig.parseFrom(bytes)
-            WarmUpConfig(proto)
-        }
-    }
 }

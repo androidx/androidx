@@ -29,6 +29,7 @@ import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.viewpager.widget.PagerAdapter;
@@ -590,7 +591,7 @@ public class PageIndicatorView extends View implements OnPageChangeListener {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         if (mNumberOfPositions > 1) {

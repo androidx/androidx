@@ -34,6 +34,7 @@ fun ListenableFuturePagingSourceQueryResultBinderProvider(
         pagingSourceTypeName = PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE
     ).requireArtifact(
         context = context,
+        // TODO: Needs to be migrated to take in XTypeName instead of JTypeName
         requiredType = limitOffsetListenableFuturePagingSource,
         missingArtifactErrorMsg = MISSING_ROOM_PAGING_GUAVA_ARTIFACT
     )

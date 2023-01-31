@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.CookieManager;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.ServiceWorkerWebSettings;
 import android.webkit.WebMessagePort;
@@ -31,6 +32,7 @@ import androidx.webkit.WebResourceErrorCompat;
 import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebResourceRequestBoundaryInterface;
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
+import org.chromium.support_lib_boundary.WebViewCookieManagerBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
@@ -159,5 +161,17 @@ public class WebkitToCompatConverter {
     public WebMessagePort convertWebMessagePort(
             @NonNull /* SupportLibWebMessagePort */ InvocationHandler webMessagePort) {
         return (WebMessagePort) mImpl.convertWebMessagePort(webMessagePort);
+    }
+
+    /**
+     * Return a CookieManagerAdapter linked to cookieManager such that calls on either of those
+     * objects affect the other object. That CookieManagerAdapter can be used to implement
+     * {@link androidx.webkit.CookieManagerCompat}.
+     */
+    @NonNull
+    public CookieManagerAdapter convertCookieManager(@NonNull CookieManager cookieManager) {
+        return new CookieManagerAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebViewCookieManagerBoundaryInterface.class,
+                mImpl.convertCookieManager(cookieManager)));
     }
 }

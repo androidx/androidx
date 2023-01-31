@@ -41,6 +41,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.MaterialTheme
@@ -49,10 +51,8 @@ import androidx.wear.compose.material.PositionIndicatorAlignment
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
-import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Composable
 fun HideWhenFullDemo() {
@@ -109,8 +109,8 @@ fun HideWhenFullSLCDemo() {
 
 @Composable
 fun ControllablePositionIndicator() {
-    var position = remember { mutableStateOf(0.2f) }
-    var size = remember { mutableStateOf(0.5f) }
+    val position = remember { mutableStateOf(0.2f) }
+    val size = remember { mutableStateOf(0.5f) }
     var alignment by remember { mutableStateOf(0) }
     var reverseDirection by remember { mutableStateOf(false) }
     var layoutDirection by remember { mutableStateOf(false) }
@@ -139,7 +139,9 @@ fun ControllablePositionIndicator() {
             }
         ) {
             Box(
-                modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column {

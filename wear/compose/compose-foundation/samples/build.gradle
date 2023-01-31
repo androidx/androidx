@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":wear:compose:compose-foundation"))
+    implementation(project(":wear:compose:compose-material"))
 }
 
 android {
@@ -46,7 +47,6 @@ android {
 androidx {
     name = "Android Wear Compose Foundation Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Compose Foundation Classes"
 }

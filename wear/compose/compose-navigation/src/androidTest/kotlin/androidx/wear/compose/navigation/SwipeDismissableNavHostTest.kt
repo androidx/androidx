@@ -45,6 +45,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -99,12 +100,11 @@ class SwipeDismissableNavHostTest {
 
     @Test
     fun navigates_back_to_previous_level_with_back_button() {
-        val lifecycleOwner = TestLifecycleOwner()
         val onBackPressedDispatcher = OnBackPressedDispatcher()
-        val dispatcherOwner = object : OnBackPressedDispatcherOwner {
-            override fun getLifecycle() = lifecycleOwner.lifecycle
-            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
-        }
+        val dispatcherOwner =
+            object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
+                override val onBackPressedDispatcher = onBackPressedDispatcher
+            }
         lateinit var navController: NavHostController
 
         rule.setContentWithTheme {

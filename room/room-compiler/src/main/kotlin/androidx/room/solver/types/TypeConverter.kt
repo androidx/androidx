@@ -18,8 +18,6 @@ package androidx.room.solver.types
 
 import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -52,8 +50,8 @@ abstract class TypeConverter(
         scope: CodeGenScope
     ): String {
         val outVarName = scope.getTmpVar()
-        scope.builder().apply {
-            addStatement("final $T $L", to.typeName, outVarName)
+        scope.builder.apply {
+            addLocalVariable(outVarName, to.asTypeName())
         }
         doConvert(
             inputVarName = inputVarName,

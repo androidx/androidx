@@ -106,7 +106,6 @@ class MLKitBarcodeTest(
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }

@@ -21,7 +21,7 @@ import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
+import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId;
 import androidx.wear.tiles.renderer.internal.ResourceResolvers.AndroidImageResourceByResIdResolver;
 
 import com.google.common.util.concurrent.ListenableFuture;

@@ -101,23 +101,9 @@ public class LifecyclingTest {
         assertThat(observer, is(observer));
     }
 
-    // MUST BE HERE TILL Lifecycle 3.0.0 release for back-compatibility with other modules
-    @SuppressWarnings("deprecation")
     @Test
-    public void testDeprecatedLifecyclingCallback() {
-        GenericLifecycleObserver genericLifecycleObserver = new GenericLifecycleObserver() {
-            @Override
-            public void onStateChanged(@NonNull LifecycleOwner source,
-                    @NonNull Lifecycle.Event event) {
-            }
-        };
-        LifecycleEventObserver observer = Lifecycling.getCallback(genericLifecycleObserver);
-        assertThat(observer, is(observer));
-    }
-
-    @Test
-    public void fullLifecycleObserverAndAnnotations() {
-        class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
+    public void defaultLifecycleObserverAndAnnotations() {
+        class AnnotatedFullLifecycleObserver implements DefaultLifecycleObserver {
             @SuppressWarnings("deprecation")
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
@@ -126,32 +112,32 @@ public class LifecyclingTest {
             }
 
             @Override
-            public void onCreate(LifecycleOwner owner) {
+            public void onCreate(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStart(LifecycleOwner owner) {
+            public void onStart(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onResume(LifecycleOwner owner) {
+            public void onResume(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onPause(LifecycleOwner owner) {
+            public void onPause(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStop(LifecycleOwner owner) {
+            public void onStop(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onDestroy(LifecycleOwner owner) {
+            public void onDestroy(@NonNull LifecycleOwner owner) {
 
             }
         }

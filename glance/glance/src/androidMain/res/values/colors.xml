@@ -16,35 +16,30 @@
   -->
 
 <resources>
-    <color name="glance_colorPrimary">@color/m3_sys_color_light_primary</color>
-    <color name="glance_colorOnPrimary">@color/m3_sys_color_light_on_primary</color>
-    <color name="glance_colorPrimaryInverse">@color/m3_sys_color_light_inverse_primary</color>
-    <color name="glance_colorPrimaryContainer">@color/m3_sys_color_light_primary_container</color>
-    <color name="glance_colorOnPrimaryContainer">@color/m3_sys_color_light_on_primary_container</color>
-    <color name="glance_colorSecondary">@color/m3_sys_color_light_secondary</color>
-    <color name="glance_colorOnSecondary">@color/m3_sys_color_light_on_secondary</color>
-    <color name="glance_colorSecondaryContainer">@color/m3_sys_color_light_secondary_container</color>
-    <color name="glance_colorOnSecondaryContainer">@color/m3_sys_color_light_on_secondary_container</color>
-    <color name="glance_colorTertiary">@color/m3_sys_color_light_tertiary</color>
-    <color name="glance_colorOnTertiary">@color/m3_sys_color_light_on_tertiary</color>
-    <color name="glance_colorTertiaryContainer">@color/m3_sys_color_light_tertiary_container</color>
-    <color name="glance_colorOnTertiaryContainer">@color/m3_sys_color_light_on_tertiary_container</color>
-    <color name="glance_colorBackground">@color/m3_sys_color_light_background</color>
-    <color name="glance_colorOnBackground">@color/m3_sys_color_light_on_background</color>
-    <color name="glance_colorSurface">@color/m3_sys_color_light_surface</color>
-    <color name="glance_colorOnSurface">@color/m3_sys_color_light_on_surface</color>
-    <color name="glance_colorSurfaceVariant">@color/m3_sys_color_light_surface_variant</color>
-    <color name="glance_colorOnSurfaceVariant">@color/m3_sys_color_light_on_surface_variant</color>
-    <color name="glance_colorSurfaceInverse">@color/m3_sys_color_light_inverse_surface</color>
-    <color name="glance_colorOnSurfaceInverse">@color/m3_sys_color_light_inverse_on_surface</color>
-    <color name="glance_colorOutline">@color/m3_sys_color_light_outline</color>
-    <color name="glance_colorError">@color/m3_sys_color_light_error</color>
-    <color name="glance_colorOnError">@color/m3_sys_color_light_on_error</color>
-    <color name="glance_colorErrorContainer">@color/m3_sys_color_light_error_container</color>
-    <color name="glance_colorOnErrorContainer">@color/m3_sys_color_light_on_error_container</color>
-
-    <!--<color name="textColorPrimary">@color/m3_default_color_primary_text</color>
-    <color name="textColorPrimaryInverse">@color/m3_dark_default_color_primary_text</color>
-    <color name="textColorSecondary">@color/m3_default_color_secondary_text</color>
-    <color name="textColorSecondaryInverse">@color/m3_dark_default_color_secondary_text</color>-->
+    <color name="glance_colorPrimary">#ff6750a4</color>
+    <color name="glance_colorOnPrimary">#ffffffff</color>
+    <color name="glance_colorPrimaryInverse">#ffd0bcff</color>
+    <color name="glance_colorPrimaryContainer">#ffeaddff</color>
+    <color name="glance_colorOnPrimaryContainer">#ff21005d</color>
+    <color name="glance_colorSecondary">#ff625b71</color>
+    <color name="glance_colorOnSecondary">#ffffffff</color>
+    <color name="glance_colorSecondaryContainer">#ffe8def8</color>
+    <color name="glance_colorOnSecondaryContainer">#ff1d192b</color>
+    <color name="glance_colorTertiary">#ff7d5260</color>
+    <color name="glance_colorOnTertiary">#ffffffff</color>
+    <color name="glance_colorTertiaryContainer">#ffffd8e4</color>
+    <color name="glance_colorOnTertiaryContainer">#ff31111d</color>
+    <color name="glance_colorBackground">#fffffbfe</color>
+    <color name="glance_colorOnBackground">#ff1c1b1f</color>
+    <color name="glance_colorSurface">#fffffbfe</color>
+    <color name="glance_colorOnSurface">#ff1c1b1f</color>
+    <color name="glance_colorSurfaceVariant">#ffe7e0ec</color>
+    <color name="glance_colorOnSurfaceVariant">#ff49454f</color>
+    <color name="glance_colorSurfaceInverse">#ff313033</color>
+    <color name="glance_colorOnSurfaceInverse">#fff4eff4</color>
+    <color name="glance_colorOutline">#ff79747e</color>
+    <color name="glance_colorError">#ffb3261e</color>
+    <color name="glance_colorOnError">#ffffffff</color>
+    <color name="glance_colorErrorContainer">#fff9dedc</color>
+    <color name="glance_colorOnErrorContainer">#ff410e0b</color>
 </resources>

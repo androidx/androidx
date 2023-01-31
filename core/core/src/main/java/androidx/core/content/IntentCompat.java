@@ -29,10 +29,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcelable;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
+
+import java.util.ArrayList;
 
 /**
  * Helper for accessing features in {@link Intent}.
@@ -202,6 +208,104 @@ public final class IntentCompat {
         }
     }
 
+    /**
+     * Retrieve extended data from the intent.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
+     *     behavior.
+     *     <li>SDK 33 and below, the object type is checked after deserialization.
+     * </ul>
+     *
+     * @param in The intent to retrieve from.
+     * @param name The name of the desired item.
+     * @param clazz The type of the object expected.
+     *
+     * @return the value of an item previously added with putExtra(),
+     * or null if no Parcelable value was found.
+     *
+     * @see Intent#putExtra(String, Parcelable)
+     */
+    @Nullable
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressWarnings({"deprecation", "unchecked"})
+    public static <T> T getParcelableExtra(@NonNull Intent in, @Nullable String name,
+            @NonNull Class<T> clazz) {
+        if (BuildCompat.isAtLeastU()) {
+            return Api33Impl.getParcelableExtra(in, name, clazz);
+        } else {
+            T extra = in.getParcelableExtra(name);
+            return clazz.isInstance(extra) ? extra : null;
+        }
+    }
+
+    /**
+     * Retrieve extended data from the intent.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
+     *     behavior.
+     *     <li>SDK 33 and below, this method will not check the array elements' types.
+     * </ul>
+     *
+     * @param in The intent to retrieve from.
+     * @param name The name of the desired item.
+     * @param clazz The type of the items inside the array. This is only verified when unparceling.
+     *
+     * @return the value of an item previously added with putExtra(),
+     * or null if no Parcelable[] value was found.
+     *
+     * @see Intent#putExtra(String, Parcelable[])
+     */
+    @Nullable
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressWarnings({"deprecation"})
+    @SuppressLint({"ArrayReturn", "NullableCollection"})
+    public static Parcelable[] getParcelableArrayExtra(@NonNull Intent in, @Nullable String name,
+            @NonNull Class<? extends Parcelable> clazz) {
+        if (BuildCompat.isAtLeastU()) {
+            return Api33Impl.getParcelableArrayExtra(in, name, clazz);
+        } else {
+            return in.getParcelableArrayExtra(name);
+        }
+    }
+
+    /**
+     * Retrieve extended data from the intent.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
+     *     behavior.
+     *     <li>SDK 33 and below, this method will not check the array elements' types.
+     * </ul>
+     *
+     * @param in The intent to retrieve from.
+     * @param name The name of the desired item.
+     * @param clazz The type of the items inside the array list. This is only verified when
+     *     unparceling.
+     *
+     * @return the value of an item previously added with
+     * putParcelableArrayListExtra(), or null if no
+     * ArrayList<Parcelable> value was found.
+     *
+     * @see Intent#putParcelableArrayListExtra(String, ArrayList)
+     */
+    @Nullable
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @SuppressLint({"ConcreteCollection", "NullableCollection"})
+    public static <T> ArrayList<T> getParcelableArrayListExtra(
+            @NonNull Intent in, @Nullable String name, @NonNull Class<? extends T> clazz) {
+        if (BuildCompat.isAtLeastU()) {
+            return Api33Impl.getParcelableArrayListExtra(in, name, clazz);
+        } else {
+            return (ArrayList<T>) in.getParcelableArrayListExtra(name);
+        }
+    }
+
     @RequiresApi(15)
     static class Api15Impl {
         private Api15Impl() {
@@ -211,6 +315,31 @@ public final class IntentCompat {
         @DoNotInline
         static Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {
             return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is non-instantiable.
+        }
+
+        @DoNotInline
+        static <T> T getParcelableExtra(@NonNull Intent in, @Nullable String name,
+                @NonNull Class<T> clazz) {
+            return in.getParcelableExtra(name, clazz);
+        }
+
+        @DoNotInline
+        static <T> T[] getParcelableArrayExtra(@NonNull Intent in, @Nullable String name,
+                @NonNull Class<T> clazz) {
+            return in.getParcelableArrayExtra(name, clazz);
+        }
+
+        @DoNotInline
+        static <T> ArrayList<T> getParcelableArrayListExtra(@NonNull Intent in,
+                @Nullable String name, @NonNull Class<? extends T> clazz) {
+            return in.getParcelableArrayListExtra(name, clazz);
         }
     }
 }

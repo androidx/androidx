@@ -37,7 +37,9 @@ class IntervalDataPoint<T : Any>(
     val accuracy: DataPointAccuracy? = null,
 ) : DataPoint<T>(dataType) {
 
-    internal val proto: DataProto.DataPoint by lazy {
+    internal val proto: DataProto.DataPoint = getDataPointProto()
+
+    private fun getDataPointProto(): DataProto.DataPoint {
         val builder =
             DataProto.DataPoint.newBuilder()
                 .setDataType(dataType.proto)
@@ -48,7 +50,7 @@ class IntervalDataPoint<T : Any>(
 
         accuracy?.let { builder.setAccuracy(it.proto) }
 
-        builder.build()
+        return builder.build()
     }
 
     /**

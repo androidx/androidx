@@ -16,9 +16,9 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
+import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
+import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
@@ -120,7 +120,7 @@ class XExecutableTypeTest {
             checkMethods("suspendGetT", subject) { type ->
                 assertThat(type.parameterTypes.first().typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        CONTINUATION_CLASS_NAME,
+                        CONTINUATION_JCLASS_NAME,
                         WildcardTypeName.supertypeOf(String::class.java)
                     )
                 )
@@ -132,8 +132,8 @@ class XExecutableTypeTest {
                 )
                 assertThat(type.parameterTypes[1].typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        CONTINUATION_CLASS_NAME,
-                        WildcardTypeName.supertypeOf(UNIT_CLASS_NAME)
+                        CONTINUATION_JCLASS_NAME,
+                        WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
                     )
                 )
                 assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)

@@ -30,17 +30,16 @@ be distinguishable by their packages.
 
 NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
-[Testability](testability.md) guide.
+[Testability](/company/teams/androidx/testability.md) guide.
 
 ### What gets tested, and when {#affected-module-detector}
 
-We use the
+With over 45000 tests executed on every CI run, it is necessary for us to run
+only a subset of our instrumentation tests in presubmit. We use the
 [AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
-to determine what projects have changed since the last merge.
-
-In presubmit, "affected" modules will run all host and device tests regardless
-of size. Modules that *depend* on affected modules will run all host tests, but
-will only run device tests annotated with `@SmallTest` or `@MediumTest`.
+to determine what projects have changed since the last merge. In turn, we only
+generate apks and test configurations for those changed modules and their
+dependencies.
 
 When changes are made that can't be associated with a module, are in the root of
 the checkout, or are within `buildSrc`, then all host tests and all device tests
@@ -256,7 +255,7 @@ their library's public API surface. Test apps serve multiple purposes:
 *   Validation of API usability and developer experience, when paired with a use
     case or critical user journey
 *   Sample documentation, when embedded into API reference docs using the
-    [`@sample` and `@Sampled` annotations](api_guidelines.md#sample-usage)
+    [`@sample` and `@Sampled` annotations](/company/teams/androidx/api_guidelines/index.md#sample-usage)
 
 ### Legacy test apps {#testapps-legacy}
 
@@ -274,4 +273,4 @@ apps for new APIs, but they may be useful for manual regression testing.
 
 AndroidX supports benchmarking - locally with Studio/Gradle, and continuously in
 post-submit. For more information on how to create and run benchmarks, see
-[Benchmarking](benchmarking.md).
+[Benchmarking](/company/teams/androidx/benchmarking.md).

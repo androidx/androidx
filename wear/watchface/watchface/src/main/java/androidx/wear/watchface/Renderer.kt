@@ -42,6 +42,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -190,14 +191,27 @@ public sealed class Renderer @WorkerThread constructor(
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
+    @OptIn(WatchFaceExperimental::class)
     private var pendingWatchFaceColors: WatchFaceColors? = null
     private var pendingWatchFaceColorsSet = false
 
+    // Protected by lock
+    private var pendingSendPreviewImageNeedsUpdateRequest = false
+    private val lock = Any()
+
+    // Protected by lock. NB UI thread code doesn't need the lock.
     internal var watchFaceHostApi: WatchFaceHostApi? = null
         set(value) {
-            field = value
+            val pendingSendPreviewImageNeedsUpdateRequestCopy = synchronized(lock) {
+                field = value
+                pendingSendPreviewImageNeedsUpdateRequest
+            }
             if (pendingWatchFaceColorsSet) {
+                @OptIn(WatchFaceExperimental::class)
                 value?.onWatchFaceColorsChanged(pendingWatchFaceColors)
+            }
+            if (pendingSendPreviewImageNeedsUpdateRequestCopy) {
+                value?.sendPreviewImageNeedsUpdateRequest()
             }
         }
 
@@ -469,6 +483,10 @@ public sealed class Renderer @WorkerThread constructor(
      * watchFace should assign `non null` [WatchFaceColors] and keep this updated when the colors
      * change (e.g. due to a style change).
      */
+    @WatchFaceExperimental
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:WatchFaceExperimental
+    @set:WatchFaceExperimental
     public var watchfaceColors: WatchFaceColors? = null
        set(value) {
            require(value != null) { "watchfaceColors must be non-null " }
@@ -500,6 +518,27 @@ public sealed class Renderer @WorkerThread constructor(
     }
 
     internal abstract fun renderBlackFrame()
+
+    /**
+     * Sends a request to the system asking it to update the preview image. This is useful for
+     * watch faces with configuration outside of the [UserStyleSchema] E.g. a watchface with a
+     * selectable background.
+     *
+     * The system may choose to rate limit this method for performance reasons and the system is
+     * free to schedule when the update occurs.
+     *
+     * Requires a compatible system to work (if the system is incompatible this does nothing).
+     * This can be called from any thread.
+     */
+    public fun sendPreviewImageNeedsUpdateRequest() {
+        synchronized(lock) {
+            if (watchFaceHostApi == null) {
+                pendingSendPreviewImageNeedsUpdateRequest = true
+            } else {
+                watchFaceHostApi!!.sendPreviewImageNeedsUpdateRequest()
+            }
+        }
+    }
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class
@@ -578,11 +617,14 @@ public sealed class Renderer @WorkerThread constructor(
                 Bitmap.Config.ARGB_8888
             )
             val prevRenderParameters = this.renderParameters
+            val originalIsForScreenshot = renderParameters.isForScreenshot
+
+            renderParameters.isForScreenshot = true
             this.renderParameters = renderParameters
-            this.renderParameters.isForScreenshot = true
             renderAndComposite(Canvas(bitmap), zonedDateTime)
-            this.renderParameters.isForScreenshot = false
             this.renderParameters = prevRenderParameters
+            renderParameters.isForScreenshot = originalIsForScreenshot
+
             return bitmap
         }
 
@@ -912,6 +954,8 @@ public sealed class Renderer @WorkerThread constructor(
      * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      * default this is empty.
+     * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+     * default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
      * @throws [GlesException] If any GL calls fail during initialization.
      */
     @Deprecated(message = "GlesRenderer is deprecated", ReplaceWith("GlesRenderer2"))
@@ -926,7 +970,8 @@ public sealed class Renderer @WorkerThread constructor(
         @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
         private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+        private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+        private val eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
     ) : Renderer(
         surfaceHolder,
         currentUserStyleRepository,
@@ -1171,7 +1216,7 @@ public sealed class Renderer @WorkerThread constructor(
                         eglDisplay,
                         eglConfig,
                         EGL14.EGL_NO_CONTEXT,
-                        EGL_CONTEXT_ATTRIB_LIST,
+                        eglContextAttribList,
                         0
                     )
                     if (sharedAssetsHolder.eglBackgroundThreadContext == EGL14.EGL_NO_CONTEXT) {
@@ -1524,6 +1569,8 @@ public sealed class Renderer @WorkerThread constructor(
      * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      * default this is empty.
+     * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+     * default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
      * @throws [Renderer.GlesException] If any GL calls fail during initialization.
      */
     public abstract class GlesRenderer2<SharedAssetsT>
@@ -1537,14 +1584,16 @@ public sealed class Renderer @WorkerThread constructor(
         @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
         eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+        eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+        eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
     ) : GlesRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
         interactiveDrawModeUpdateDelayMillis,
         eglConfigAttribList,
-        eglSurfaceAttribList
+        eglSurfaceAttribList,
+        eglContextAttribList
     ) where SharedAssetsT : SharedAssets {
         /**
          * When editing multiple [WatchFaceService] instances and hence Renderers can exist

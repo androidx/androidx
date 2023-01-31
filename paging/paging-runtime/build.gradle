@@ -68,15 +68,7 @@ dependencies {
 androidx {
     name = "Android Paging-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
     legacyDisableKotlinStrictApiMode = true
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

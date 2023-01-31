@@ -13,7 +13,6 @@ dependencies {
 androidx {
     name = "Android Support CardView"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"
     description = "Android Support CardView"
     failOnDeprecationWarnings = false

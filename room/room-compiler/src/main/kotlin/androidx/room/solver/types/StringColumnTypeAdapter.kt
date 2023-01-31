@@ -16,10 +16,10 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
 
@@ -32,16 +32,18 @@ class StringColumnTypeAdapter private constructor(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            // according to docs, getString might throw if the value is null
-            // https://developer.android.com/reference/android/database/Cursor#getString(int)
-            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
-                addStatement("$L = null", outVarName)
+        scope.builder.apply {
+            if (out.nullability == XNullability.NONNULL) {
+                addStatement("%L = %L.getString(%L)", outVarName, cursorVarName, indexVarName)
+            } else {
+                beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName).apply {
+                    addStatement("%L = null", outVarName)
+                }
+                nextControlFlow("else").apply {
+                    addStatement("%L = %L.getString(%L)", outVarName, cursorVarName, indexVarName)
+                }
+                endControlFlow()
             }
-            nextControlFlow("else").apply {
-                addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
-            }
-            endControlFlow()
         }
     }
 
@@ -51,12 +53,16 @@ class StringColumnTypeAdapter private constructor(
         valueVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            beginControlFlow("if ($L == null)", valueVarName)
-                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
-            nextControlFlow("else")
-                .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
-            endControlFlow()
+        scope.builder.apply {
+            if (out.nullability == XNullability.NONNULL) {
+                addStatement("%L.bindString(%L, %L)", stmtName, indexVarName, valueVarName)
+            } else {
+                beginControlFlow("if (%L == null)", valueVarName)
+                    .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
+                nextControlFlow("else")
+                    .addStatement("%L.bindString(%L, %L)", stmtName, indexVarName, valueVarName)
+                endControlFlow()
+            }
         }
     }
 
@@ -70,7 +76,7 @@ class StringColumnTypeAdapter private constructor(
                 )
             } else {
                 listOf(
-                    StringColumnTypeAdapter(stringType)
+                    StringColumnTypeAdapter(stringType.makeNullable())
                 )
             }
         }

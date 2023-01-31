@@ -22,6 +22,10 @@
     <string name="configurable_data_source_name" translatable="false">Configurable</string>
     <string name="immediate_data_source_name" translatable="false">Immediate</string>
     <string name="synchronous_data_source_name" translatable="false">Synchronous</string>
+    <string name="color_ramp_data_source_name" translatable="false">Color Ramp</string>
+    <string name="color_ramp2_data_source_name" translatable="false">Non interpolated color ramp</string>
+    <string name="goal_progress_data_source_name" translatable="false">Goal Progress</string>
+    <string name="weighted_elements_data_source_name" translatable="false">Weighted Elements</string>
 
     <string name="config_title" translatable="false">Configuration</string>
     <string name="config_button_title" translatable="false">Generate</string>

@@ -16,7 +16,8 @@
 
 package androidx.wear.watchface
 
-import android.annotation.SuppressLint
+import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -25,13 +26,13 @@ import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.PowerManager
 import android.os.Process
+import android.os.RemoteCallbackList
 import android.os.RemoteException
 import android.os.Trace
 import android.service.wallpaper.WallpaperService
@@ -46,6 +47,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
+import androidx.annotation.AnyThread
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -56,7 +58,9 @@ import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
+import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
@@ -91,20 +95,22 @@ import java.io.InputStreamReader
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.PrintWriter
+import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-
-/** The wire format for [ComplicationData]. */
-internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
 
 /**
  * After user code finishes, we need up to 100ms of wake lock holding for the drawing to occur. This
@@ -138,9 +144,11 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * [androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy]. The system will
  * only access flavors if metadata tag is present in manifest:
  *
+ * ```
  *    <meta-data
  *      android:name="androidx.wear.watchface.FLAVORS_SUPPORTED"
  *      android:value="true" />
+ * ```
  *
  * WatchFaces are initially constructed on a background thread before being used exclusively on
  * the ui thread afterwards. There is a memory barrier between construction and rendering so no
@@ -215,9 +223,11 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * distinct [WatchState.watchFaceInstanceId]) by adding this meta-data to your watch face's
  * manifest:
  *
+ * ```
  *    <meta-data
  *      android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
  *      android:value="true" />
+ * ```
  *
  *
  * A watch face can declare the [UserStyleSchema], [ComplicationSlot]s and [UserStyleFlavors] in
@@ -228,12 +238,15 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * To use xml inflation, add an androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
  * meta date tag to your service:
  *
+ * ```
  *     <meta-data
  *         android:name="androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
  *         android:resource="@xml/my_watchface_definition" />
+ * ```
  *
  * And the linked xml/my_watchface_definition resource must contain a XmlWatchFace node. E.g.:
  *
+ * ```
  *     <XmlWatchFace xmlns:android="http://schemas.android.com/apk/res/android"
  *             xmlns:app="http://schemas.android.com/apk/res-auto">
  *         <UserStyleSchema>
@@ -275,6 +288,7 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *             </UserStyleFlavor>
  *         </UserStyleFlavors>
  *    </XmlWatchFace>
+ * ```
  *
  * If you use resources references to specify identifiers, they should be locale independent
  * (i.e. translatable="false").
@@ -323,7 +337,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         /**
          * The maximum delay for [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking] and
-         * [awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread] in milliseconds.
+         * [awaitDeferredEarlyInitDetailsThenRunOnBinderThread] in milliseconds.
          */
         private const val AWAIT_DEFERRED_TIMEOUT = 10000L
 
@@ -333,6 +347,7 @@ public abstract class WatchFaceService : WallpaperService() {
         /** The maximum reasonable wire size for an Icon in a [UserStyleSchema] in pixels. */
         @Px
         internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
+
         @Px
         internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
 
@@ -342,10 +357,21 @@ public abstract class WatchFaceService : WallpaperService() {
         public val XML_WATCH_FACE_METADATA =
             "androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
 
-        internal fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            engine: WatchFaceService.EngineWrapper?,
+        internal enum class ExecutionThread {
+            UI,
+            CURRENT
+        }
+
+        /**
+         * Waits for deferredValue using runBlocking, then executes the task on the thread
+         * specified by executionThread param.
+         */
+        private fun <R, V> awaitDeferredThenRunTaskOnThread(
+            engine: EngineWrapper?,
             traceName: String,
-            task: (watchFaceImpl: WatchFaceImpl) -> R
+            executionThread: ExecutionThread,
+            task: (deferredValue: V) -> R,
+            waitDeferred: suspend (engine: EngineWrapper) -> V
         ): R? = TraceEvent(traceName).use {
             if (engine == null) {
                 Log.w(TAG, "Task $traceName posted after close(), ignoring.")
@@ -354,9 +380,17 @@ public abstract class WatchFaceService : WallpaperService() {
             runBlocking {
                 try {
                     withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                        val watchFaceImpl = engine.deferredWatchFaceImpl.await()
-                        withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                            task(watchFaceImpl)
+                        val deferredValue = waitDeferred(engine)
+                        when (executionThread) {
+                            ExecutionThread.UI -> {
+                                withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                                    task(deferredValue)
+                                }
+                            }
+
+                            ExecutionThread.CURRENT -> {
+                                task(deferredValue)
+                            }
                         }
                     }
                 } catch (e: Exception) {
@@ -366,27 +400,48 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        internal fun <R> awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
-            engine: WatchFaceService.EngineWrapper?,
+        internal fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine: EngineWrapper?,
             traceName: String,
-            task: (watchFaceInitDetails: WatchFaceService.WatchFaceInitDetails) -> R
-        ): R? = TraceEvent(traceName).use {
-            if (engine == null) {
-                Log.w(TAG, "Task $traceName posted after close(), ignoring.")
-                return null
-            }
-            runBlocking {
-                try {
-                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                        task(engine.watchFaceInitDetails.await())
-                    }
-                } catch (e: Exception) {
-                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation $traceName failed", e)
-                    throw e
-                }
-            }
+            task: (watchFaceImpl: WatchFaceImpl) -> R
+        ): R? = awaitDeferredThenRunTaskOnThread(engine, traceName, ExecutionThread.UI, task) {
+            it.deferredWatchFaceImpl.await()
+        }
+
+        /**
+         * During startup tasks will run before those posted by
+         * [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking].
+         */
+        internal fun <R> awaitDeferredWatchFaceThenRunOnUiThread(
+            engine: EngineWrapper?,
+            traceName: String,
+            task: (watchFace: WatchFace) -> R
+        ): R? = awaitDeferredThenRunTaskOnThread(engine, traceName, ExecutionThread.UI, task) {
+            it.deferredWatchFace.await()
+        }
+
+        /**
+         * During startup tasks will run before those posted by
+         * [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking] and
+         * [awaitDeferredWatchFaceThenRunOnBinderThread].
+         */
+        internal fun <R> awaitDeferredEarlyInitDetailsThenRunOnThread(
+            engine: EngineWrapper?,
+            traceName: String,
+            executionThread: ExecutionThread,
+            task: (earlyInitDetails: EarlyInitDetails) -> R
+        ): R? = awaitDeferredThenRunTaskOnThread(engine, traceName, executionThread, task) {
+            it.deferredEarlyInitDetails.await()
         }
     }
+
+    /**
+     * The context used to resolve resources. Unlocks future work.
+     * @hide
+     */
+    protected open val resourcesContext: Context
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        get() = this
 
     /**
      * Returns the id of the XmlSchemaAndComplicationSlotsDefinition XML resource or 0 if it can't
@@ -436,6 +491,7 @@ public abstract class WatchFaceService : WallpaperService() {
      * to [createComplicationSlotsManager] and [createWatchFace].
      */
     @WorkerThread
+    @Suppress("Deprecation") // userStyleSettings
     protected open fun createUserStyleSchema(): UserStyleSchema =
         UserStyleSchema(
             xmlSchemaAndComplicationSlotsDefinition.schema?.userStyleSettings ?: emptyList()
@@ -611,6 +667,27 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal var backgroundThread: HandlerThread? = null
 
+    /**
+     * Interface for getting the current system time.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface SystemTimeProvider {
+        /** Returns the current system time in milliseconds. */
+        public fun getSystemTimeMillis(): Long
+
+        /** Returns the current system [ZoneId]. */
+        public fun getSystemTimeZoneId(): ZoneId
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun getSystemTimeProvider(): SystemTimeProvider = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = System.currentTimeMillis()
+
+        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
+    }
+
     /** This is open for testing. The background thread is used for watch face initialization. */
     internal open fun getBackgroundThreadHandlerImpl(): Handler {
         synchronized(this) {
@@ -636,10 +713,16 @@ public abstract class WatchFaceService : WallpaperService() {
     internal open fun allowWatchFaceToAnimate() = true
 
     /**
-     * Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
-     * This is open for use by tests.
+     * Equivalent to [Build.VERSION.SDK_INT], but allows override for any platform-independent
+     * versioning.
+     *
+     * This is meant to only be used in androidTest, which only support testing on one SDK. In
+     * Robolectric tests use `@Config(sdk = [Build.VERSION_CODES.*])`.
+     *
+     * Note that this cannot override platform-dependent versioning, which means inconsistency.
      */
-    internal open fun isPreAndroidR() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+    @VisibleForTesting
+    internal open val wearSdkVersion = Build.VERSION.SDK_INT
 
     /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
     internal interface ChoreographerWrapper {
@@ -650,6 +733,12 @@ public abstract class WatchFaceService : WallpaperService() {
     /** This is open to allow mocking. */
     internal open fun getChoreographer(): ChoreographerWrapper = object : ChoreographerWrapper {
         private val choreographer = Choreographer.getInstance()
+
+        init {
+            require(Looper.myLooper() == Looper.getMainLooper()) {
+                "Creating choreographer not on the main thread"
+            }
+        }
 
         override fun postFrameCallback(callback: Choreographer.FrameCallback) {
             choreographer.postFrameCallback(callback)
@@ -739,32 +828,44 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    internal fun writeComplicationDataCache(
+    internal fun periodicallyWriteComplicationDataCache(
         context: Context,
-        complicationSlotsManager: ComplicationSlotsManager,
-        fileName: String
+        fileName: String,
+        complicationsFlow: MutableStateFlow<List<IdAndComplicationDataWireFormat>>
     ) = TraceEvent(
         "WatchFaceService.writeComplicationCache"
     ).use {
-        try {
-            val stream = ByteArrayOutputStream()
-            val objectOutputStream = ObjectOutputStream(stream)
-            objectOutputStream.writeInt(complicationSlotsManager.complicationSlots.size)
-            for (slot in complicationSlotsManager.complicationSlots) {
-                objectOutputStream.writeInt(slot.key)
-                objectOutputStream.writeObject(
-                    slot.value.complicationData.value.asWireComplicationData()
-                )
+        val backgroundThreadCoroutineScope =
+            CoroutineScope(getBackgroundThreadHandler().asCoroutineDispatcher().immediate)
+        backgroundThreadCoroutineScope.launch {
+            complicationsFlow.collect { complicationDataWireFormats ->
+                try {
+                    // The combination of 'collect' which conflates the updates and adding a delay
+                    // here ensures that we write updates at least 1 second apart. The delay is at
+                    // the beginning to delay writes during WF init.
+                    delay(1000)
+                    val stream = ByteArrayOutputStream()
+                    val objectOutputStream = ObjectOutputStream(stream)
+                    objectOutputStream.writeInt(complicationDataWireFormats.size)
+                    for (wireData in complicationDataWireFormats) {
+                        objectOutputStream.writeInt(wireData.id)
+                        objectOutputStream.writeObject(
+                            if ((wireData.complicationData.persistencePolicy and
+                                    ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
+                            ) {
+                                NoDataComplicationData().asWireComplicationData()
+                            } else {
+                                wireData.complicationData
+                            }
+                        )
+                    }
+                    objectOutputStream.close()
+                    val byteArray = stream.toByteArray()
+                    writeComplicationDataCacheByteArray(context, fileName, byteArray)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to write to complication cache due to exception", e)
+                }
             }
-            objectOutputStream.close()
-            val byteArray = stream.toByteArray()
-
-            // File IO can be slow so perform the write from a background thread.
-            getBackgroundThreadHandler().post {
-                writeComplicationDataCacheByteArray(context, fileName, byteArray)
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to write to complication cache due to exception", e)
         }
     }
 
@@ -837,7 +938,6 @@ public abstract class WatchFaceService : WallpaperService() {
         var pendingProperties: Bundle? = null
         var pendingSetWatchFaceStyle = false
         var pendingVisibilityChanged: Boolean? = null
-        var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
         var complicationsActivated = false
         var watchFaceInitStarted = false
         var lastActiveComplicationSlots: IntArray? = null
@@ -877,7 +977,6 @@ public abstract class WatchFaceService : WallpaperService() {
             @DataSourceId fallbackSystemDataSource: Int,
             type: Int
         ) {
-
             // For android R flow iWatchFaceService won't have been set.
             if (!iWatchFaceServiceInitialized()) {
                 return
@@ -972,11 +1071,11 @@ public abstract class WatchFaceService : WallpaperService() {
         @Suppress("DEPRECATION")
         fun onComplicationSlotDataUpdate(extras: Bundle) {
             extras.classLoader = WireComplicationData::class.java.classLoader
-            val complicationData: WireComplicationData =
-                extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
-            engineWrapper.setComplicationSlotData(
-                extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                complicationData.toApiComplicationData()
+            val complicationData =
+                extras.getParcelable<WireComplicationData>(Constants.EXTRA_COMPLICATION_DATA)!!
+            val complicationSlotId = extras.getInt(Constants.EXTRA_COMPLICATION_ID)
+            engineWrapper.setComplicationDataList(
+                listOf(IdAndComplicationDataWireFormat(complicationSlotId, complicationData))
             )
         }
 
@@ -1053,19 +1152,12 @@ public abstract class WatchFaceService : WallpaperService() {
                     engineWrapper.onVisibilityChanged(visibility)
                     pendingVisibilityChanged = null
                 }
-                for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    watchFaceImpl.onComplicationSlotDataUpdate(
-                        complicationDataUpdate.complicationSlotId,
-                        complicationDataUpdate.data
-                    )
-                }
                 watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
             }
         }
     }
 
-    internal class WatchFaceInitDetails(
-        val watchFace: WatchFace,
+    internal class EarlyInitDetails(
         val complicationSlotsManager: ComplicationSlotsManager,
         val userStyleRepository: CurrentUserStyleRepository,
         val userStyleFlavors: UserStyleFlavors
@@ -1073,6 +1165,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(WatchFaceExperimental::class)
     public inner class EngineWrapper(
         private val uiThreadHandler: Handler,
         private val backgroundThreadHandler: Handler,
@@ -1092,13 +1185,15 @@ public abstract class WatchFaceService : WallpaperService() {
         internal val wslFlow = WslFlow(this)
 
         /**
-         * [watchFaceInitDetails] will complete before [deferredWatchFaceImpl].
+         * [deferredEarlyInitDetails] will complete before [deferredWatchFace] and
+         * [deferredWatchFaceImpl].
          */
-        internal var watchFaceInitDetails = CompletableDeferred<WatchFaceInitDetails>()
+        internal var deferredEarlyInitDetails = CompletableDeferred<EarlyInitDetails>()
 
-        /**
-         * [deferredWatchFaceImpl] will complete after [watchFaceInitDetails].
-         */
+        /** [deferredWatchFace] will complete before [deferredWatchFaceImpl]. */
+        internal var deferredWatchFace = CompletableDeferred<WatchFace>()
+
+        /** [deferredWatchFaceImpl] will complete after [deferredWatchFace]. */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
 
@@ -1109,7 +1204,10 @@ public abstract class WatchFaceService : WallpaperService() {
          * [deferredSurfaceHolder] will complete after [onSurfaceChanged], before then it's not
          * safe to create a UiThread OpenGL context.
          */
-        internal var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
+        private var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
+
+        private val pendingUpdateTime: CancellableUniqueTask =
+            CancellableUniqueTask(getUiThreadHandler())
 
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible || forceIsVisibleForTesting()
@@ -1119,13 +1217,9 @@ public abstract class WatchFaceService : WallpaperService() {
             // assume we're not in ambient mode which should be correct most of the time.
             isAmbient.value = false
             isHeadless = headless
+            isLocked.value =
+                (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceLocked
         }
-
-        // It's possible for two getOrCreateInteractiveWatchFaceClient calls to come in back to
-        // back for the same instance. If the second one specifies a UserStyle we need to apply it
-        // but if the instance isn't fully initialized we need to defer application to avoid
-        // blocking in getOrCreateInteractiveWatchFaceClient until the watch face is ready.
-        internal var pendingUserStyle: UserStyleWireFormat? = null
 
         /**
          * Whether or not we allow watch faces to animate. In some tests or for headless
@@ -1135,12 +1229,13 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal var destroyed = false
         internal var surfaceDestroyed = false
-        internal var pendingComplicationDataCacheWrite = false
         internal var systemViewOfContentDescriptionLabelsIsStale = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
         private lateinit var choreographer: ChoreographerWrapper
+        override val systemTimeProvider = getSystemTimeProvider()
+        override val wearSdkVersion = this@WatchFaceService.wearSdkVersion
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
@@ -1166,7 +1261,7 @@ public abstract class WatchFaceService : WallpaperService() {
                  * there's no point drawing.
                  */
                 if (watchFaceImpl?.renderer?.shouldAnimate() != false) {
-                    draw()
+                    draw(watchFaceImpl)
                 }
             }
         }
@@ -1197,9 +1292,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private var asyncWatchFaceConstructionPending = false
 
-        // Stores the initial ComplicationSlots which could get updated before they're applied.
-        internal var pendingInitialComplications: List<IdAndComplicationDataWireFormat>? = null
-            private set
+        @VisibleForTesting
+        internal val complicationsFlow =
+            MutableStateFlow<List<IdAndComplicationDataWireFormat>>(emptyList())
 
         private var initialUserStyle: UserStyleWireFormat? = null
         internal lateinit var interactiveInstanceId: String
@@ -1208,12 +1303,12 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val mainThreadPriorityDelegate = getMainThreadPriorityDelegate()
 
-        // Members after this are protected by the lock.
         private val lock = Any()
 
-        /** Protected by [lock]. */
-        private val listeners = HashSet<IWatchfaceListener>()
+        /** All members after this are protected by [lock]. */
+        private val listeners = RemoteCallbackList<IWatchfaceListener>()
         private var lastWatchFaceColors: WatchFaceColors? = null
+        private var lastPreviewImageNeedsUpdateRequest: String? = null
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
@@ -1230,6 +1325,20 @@ public abstract class WatchFaceService : WallpaperService() {
             return if (deferredWatchFaceImpl.isCompleted) {
                 runBlocking {
                     deferredWatchFaceImpl.await()
+                }
+            } else {
+                null
+            }
+        }
+
+        /**
+         * Returns the [EarlyInitDetails] if [deferredEarlyInitDetails] has completed successfully
+         * or `null` otherwise.
+         */
+        internal fun getEarlyInitDetailsOrNull(): EarlyInitDetails? {
+            return if (deferredEarlyInitDetails.isCompleted) {
+                runBlocking {
+                    deferredEarlyInitDetails.await()
                 }
             } else {
                 null
@@ -1255,7 +1364,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
-            if (pendingWallpaperInstance == null && !isPreAndroidR()) {
+            if (pendingWallpaperInstance == null && wearSdkVersion >= Build.VERSION_CODES.R) {
                 val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
                 directBootParams = params
                 // In tests a watchface may already have been created.
@@ -1277,6 +1386,10 @@ public abstract class WatchFaceService : WallpaperService() {
                     } catch (e: Exception) {
                         InteractiveInstanceManager
                             .takePendingWallpaperInteractiveWatchFaceInstance()?.let {
+                                Log.e(
+                                    TAG,
+                                    "takePendingWallpaperInteractiveWatchFaceInstance failed"
+                                )
                                 it.callback.onInteractiveWatchFaceCrashed(
                                     CrashInfoParcel(e)
                                 )
@@ -1299,6 +1412,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(instance)
                     instance
                 } catch (e: Exception) {
+                    Log.e(TAG, "createInteractiveInstance failed")
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
                         CrashInfoParcel(e)
                     )
@@ -1337,7 +1451,8 @@ public abstract class WatchFaceService : WallpaperService() {
                     // loaded yet (if that did happen then draw would be a NOP). The watch face will
                     // render at least once upon loading so we don't need to do anything special
                     // here.
-                    draw()
+                    val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
+                    draw(watchFaceImpl)
                 } catch (t: Throwable) {
                     Log.e(TAG, "ambientTickUpdate failed", t)
                 } finally {
@@ -1368,26 +1483,34 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @UiThread
-        internal suspend fun setUserStyle(userStyle: UserStyleWireFormat): Unit = TraceEvent(
+        fun setUserStyle(userStyle: UserStyleWireFormat): Unit = TraceEvent(
             "EngineWrapper.setUserStyle"
         ).use {
-            setUserStyleImpl(deferredWatchFaceImpl.await(), userStyle)
+            uiThreadCoroutineScope.launch {
+                try {
+                    setUserStyleImpl(
+                        deferredEarlyInitDetails.await().userStyleRepository,
+                        userStyle
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "setUserStyle failed", e)
+                    throw e
+                }
+            }
         }
 
         @UiThread
         private fun setUserStyleImpl(
-            watchFaceImpl: WatchFaceImpl,
+            currentUserStyleRepository: CurrentUserStyleRepository,
             userStyle: UserStyleWireFormat
         ) {
-            watchFaceImpl.onSetStyleInternal(
-                UserStyle(UserStyleData(userStyle), watchFaceImpl.currentUserStyleRepository.schema)
+            currentUserStyleRepository.updateUserStyle(
+                UserStyle(UserStyleData(userStyle), currentUserStyleRepository.schema)
             )
 
             // Update direct boot params if we have any.
             val params = directBootParams ?: return
-            val currentStyle =
-                watchFaceImpl.currentUserStyleRepository.userStyle.value.toWireFormat()
+            val currentStyle = currentUserStyleRepository.userStyle.value.toWireFormat()
             if (params.userStyle.equals(currentStyle)) {
                 return
             }
@@ -1395,6 +1518,11 @@ public abstract class WatchFaceService : WallpaperService() {
             // We don't want to display complications in direct boot mode so replace with an empty
             // list. NB we can't actually serialise complications anyway so that's just as well...
             params.idAndComplicationDataWireFormats = emptyList()
+
+            // Let wallpaper manager know the wallpaper has changed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                NotifyColorsChangedHelper.notifyColorsChanged(this)
+            }
 
             backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
@@ -1424,60 +1552,41 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
-        internal fun setComplicationSlotData(
-            complicationSlotId: Int,
-            data: ComplicationData
-        ): Unit = TraceEvent("EngineWrapper.setComplicationSlotData").use {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            if (watchFaceImpl != null) {
-                watchFaceImpl.onComplicationSlotDataUpdate(complicationSlotId, data)
-                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
-            } else {
-                // If the watch face hasn't loaded yet then we append
-                // pendingComplicationDataUpdates so it can be applied later.
-                wslFlow.pendingComplicationDataUpdates.add(
-                    WslFlow.PendingComplicationData(complicationSlotId, data)
-                )
-            }
-        }
-
-        @UiThread
+        @AnyThread
         internal fun setComplicationDataList(
             complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
         ): Unit = TraceEvent("EngineWrapper.setComplicationDataList").use {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            if (watchFaceImpl != null) {
-                for (idAndComplicationData in complicationDataWireFormats) {
-                    watchFaceImpl.onComplicationSlotDataUpdate(
-                        idAndComplicationData.id,
-                        idAndComplicationData.complicationData.toApiComplicationData()
-                    )
-                }
-                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
-            } else {
-                setPendingInitialComplications(complicationDataWireFormats)
-            }
-        }
-
-        @UiThread
-        internal fun setPendingInitialComplications(
-            complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
-        ) {
-            // If the watchface hasn't been created yet, update pendingInitialComplications so
-            // it can be applied later.
-            if (pendingInitialComplications == null) {
-                pendingInitialComplications = complicationDataWireFormats
-            } else {
+            complicationsFlow.update { base ->
                 // We need to merge the updates.
-                val complicationUpdateMap = pendingInitialComplications!!.associate {
+                val complicationUpdateMap = base.associate {
                     Pair(it.id, it.complicationData)
                 }.toMutableMap()
                 for (data in complicationDataWireFormats) {
                     complicationUpdateMap[data.id] = data.complicationData
                 }
-                pendingInitialComplications = complicationUpdateMap.map {
+                complicationUpdateMap.map {
                     IdAndComplicationDataWireFormat(it.key, it.value)
+                }
+            }
+        }
+
+        @WorkerThread
+        private fun listenForComplicationChanges(
+            complicationSlotsManager: ComplicationSlotsManager
+        ) {
+            // Add a listener so we can track changes and automatically apply them on the UIThread
+            uiThreadCoroutineScope.launch {
+                complicationsFlow.collect { complicationDataWireFormats ->
+                    val now = Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
+                    for (idAndComplicationData in complicationDataWireFormats) {
+                        complicationSlotsManager.onComplicationDataUpdate(
+                            idAndComplicationData.id,
+                            idAndComplicationData.complicationData.toApiComplicationData(),
+                            now
+                        )
+                    }
+                    complicationSlotsManager.onComplicationsUpdated()
+                    invalidate()
                 }
             }
         }
@@ -1486,7 +1595,14 @@ public abstract class WatchFaceService : WallpaperService() {
         internal suspend fun updateInstance(newInstanceId: String) {
             val watchFaceImpl = deferredWatchFaceImpl.await()
             // If the favorite ID has changed then the complications are probably invalid.
-            watchFaceImpl.complicationSlotsManager.clearComplicationData()
+            setComplicationDataList(
+                watchFaceImpl.complicationSlotsManager.complicationSlots.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        NoDataComplicationData().asWireComplicationData()
+                    )
+                }
+            )
 
             // However we may have valid complications cached.
             readComplicationDataCache(_context, newInstanceId)?.let {
@@ -1587,6 +1703,7 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
             super.onDestroy()
+            pendingUpdateTime.cancel()
             if (!mutableWatchState.isHeadless) {
                 mainThreadPriorityDelegate.setNormalPriority()
             }
@@ -1611,10 +1728,9 @@ public abstract class WatchFaceService : WallpaperService() {
                     // it.
                     if (deferredWatchFaceImpl.isCompleted) {
                         deferredWatchFaceImpl.await().onDestroy()
-                    } else if (watchFaceInitDetails.isCompleted) {
+                    } else if (deferredWatchFace.isCompleted) {
                         // However we should destroy the renderer if its been created.
-                        watchFaceInitDetails
-                            .await().watchFace.renderer.onDestroy()
+                        deferredWatchFace.await().renderer.onDestroy()
                     }
                 }
             } catch (e: Exception) {
@@ -1658,7 +1774,7 @@ public abstract class WatchFaceService : WallpaperService() {
         ): Bundle? {
             // From android R onwards the integration changes and no wallpaper commands are allowed
             // or expected and can/should be ignored.
-            if (!isPreAndroidR()) {
+            if (wearSdkVersion >= Build.VERSION_CODES.R) {
                 TraceEvent("onCommand Ignored").close()
                 return null
             }
@@ -1667,26 +1783,32 @@ public abstract class WatchFaceService : WallpaperService() {
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_AMBIENT_UPDATE") {
                         ambientTickUpdate()
                     }
+
                 Constants.COMMAND_BACKGROUND_ACTION ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_BACKGROUND_ACTION") {
                         wslFlow.onBackgroundAction(extras!!)
                     }
+
                 Constants.COMMAND_COMPLICATION_DATA ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_COMPLICATION_DATA") {
                         wslFlow.onComplicationSlotDataUpdate(extras!!)
                     }
+
                 Constants.COMMAND_REQUEST_STYLE ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_REQUEST_STYLE") {
                         wslFlow.onRequestStyle()
                     }
+
                 Constants.COMMAND_SET_BINDER ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_SET_BINDER") {
                         wslFlow.onSetBinder(extras!!)
                     }
+
                 Constants.COMMAND_SET_PROPERTIES ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_SET_PROPERTIES") {
                         wslFlow.onPropertiesChanged(extras!!)
                     }
+
                 Constants.COMMAND_TAP ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TAP") {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
@@ -1696,11 +1818,12 @@ public abstract class WatchFaceService : WallpaperService() {
                                 x,
                                 y,
                                 Instant.ofEpochMilli(
-                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                    systemTimeProvider.getSystemTimeMillis()
                                 )
                             )
                         )
                     }
+
                 Constants.COMMAND_TOUCH ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TOUCH") {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
@@ -1710,11 +1833,12 @@ public abstract class WatchFaceService : WallpaperService() {
                                 x,
                                 y,
                                 Instant.ofEpochMilli(
-                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                    systemTimeProvider.getSystemTimeMillis()
                                 )
                             )
                         )
                     }
+
                 Constants.COMMAND_TOUCH_CANCEL ->
                     uiThreadCoroutineScope.runBlockingWithTracing(
                         "onCommand COMMAND_TOUCH_CANCEL"
@@ -1726,11 +1850,12 @@ public abstract class WatchFaceService : WallpaperService() {
                                 x,
                                 y,
                                 Instant.ofEpochMilli(
-                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                    systemTimeProvider.getSystemTimeMillis()
                                 )
                             )
                         )
                     }
+
                 else -> {
                 }
             }
@@ -1903,10 +2028,12 @@ public abstract class WatchFaceService : WallpaperService() {
 
             // Store the initial complications, this could be modified by new data before being
             // applied.
-            pendingInitialComplications = params.idAndComplicationDataWireFormats
-
-            if (pendingInitialComplications == null || pendingInitialComplications!!.isEmpty()) {
-                pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
+            var initialComplications = params.idAndComplicationDataWireFormats
+            if (initialComplications.isNullOrEmpty()) {
+                initialComplications = readComplicationDataCache(_context, params.instanceId)
+            }
+            if (!initialComplications.isNullOrEmpty()) {
+                setComplicationDataList(initialComplications)
             }
 
             createWatchFaceInternal(
@@ -1942,24 +2069,54 @@ public abstract class WatchFaceService : WallpaperService() {
             asyncWatchFaceConstructionPending = true
             createdBy = _createdBy
 
+            // In case of overrideSurfaceHolder provided (tests) return its size instead of real
+            // metrics.
+            screenBounds = if (overrideSurfaceHolder != null) {
+                overrideSurfaceHolder.surfaceFrame
+            } else {
+                val displayMetrics = resources.displayMetrics
+                Rect(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
+            }
+
             backgroundThreadCoroutineScope.launch {
                 val timeBefore = System.currentTimeMillis()
                 val currentUserStyleRepository =
                     TraceEvent("WatchFaceService.createUserStyleSchema").use {
                         CurrentUserStyleRepository(createUserStyleSchema())
                     }
+                initStyle(currentUserStyleRepository)
+
                 val complicationSlotsManager =
                     TraceEvent("WatchFaceService.createComplicationsManager").use {
                         createComplicationSlotsManager(currentUserStyleRepository)
                     }
+                complicationSlotsManager.watchFaceHostApi = this@EngineWrapper
                 complicationSlotsManager.watchState = watchState
+                complicationSlotsManager.listenForStyleChanges(uiThreadCoroutineScope)
+                listenForComplicationChanges(complicationSlotsManager)
+                if (!watchState.isHeadless) {
+                    periodicallyWriteComplicationDataCache(
+                        _context,
+                        watchState.watchFaceInstanceId.value,
+                        complicationsFlow
+                    )
+                }
+
                 val userStyleFlavors =
                     TraceEvent("WatchFaceService.createUserStyleFlavors").use {
                         createUserStyleFlavors(currentUserStyleRepository, complicationSlotsManager)
                     }
 
+                deferredEarlyInitDetails.complete(
+                    EarlyInitDetails(
+                        complicationSlotsManager,
+                        currentUserStyleRepository,
+                        userStyleFlavors
+                    )
+                )
+
                 val deferredWatchFace = CompletableDeferred<WatchFace>()
-                val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
+                val initComplicationsDone = CompletableDeferred<Unit>()
 
                 // WatchFaceImpl (which registers broadcast observers) needs to be constructed
                 // on the UIThread. Part of this process can be done in parallel with
@@ -1969,31 +2126,26 @@ public abstract class WatchFaceService : WallpaperService() {
                         complicationSlotsManager,
                         currentUserStyleRepository,
                         deferredWatchFace,
-                        initStyleAndComplicationsDone,
+                        initComplicationsDone,
                         watchState
                     )
                 }
 
                 try {
+                    val surfaceHolder = overrideSurfaceHolder ?: deferredSurfaceHolder.await()
+
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
                         // Note by awaiting deferredSurfaceHolder we ensure onSurfaceChanged has
                         // been called and we're passing the correct updated surface holder. This is
                         // important for GL rendering.
                         createWatchFace(
-                            overrideSurfaceHolder ?: deferredSurfaceHolder.await(),
+                            surfaceHolder,
                             watchState,
                             complicationSlotsManager,
                             currentUserStyleRepository
                         )
                     }
-                    watchFaceInitDetails.complete(
-                        WatchFaceInitDetails(
-                            watchFace,
-                            complicationSlotsManager,
-                            currentUserStyleRepository,
-                            userStyleFlavors
-                        )
-                    )
+                    this@EngineWrapper.deferredWatchFace.complete(watchFace)
 
                     watchFace.renderer.backgroundThreadInitInternal()
 
@@ -2013,14 +2165,10 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
 
                     // Perform more initialization on the background thread.
-                    initStyleAndComplications(
-                        complicationSlotsManager,
-                        currentUserStyleRepository,
-                        watchFace.renderer
-                    )
+                    initComplications(complicationSlotsManager, watchFace.renderer)
 
                     // Now init has completed, it's OK to complete deferredWatchFaceImpl.
-                    initStyleAndComplicationsDone.complete(Unit)
+                    initComplicationsDone.complete(Unit)
 
                     // validateSchemaWireSize is fairly expensive so only perform it for
                     // interactive watch faces.
@@ -2056,7 +2204,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 deferredWatchFaceImpl,
                 uiThreadCoroutineScope,
                 _context.contentResolver,
-                !isPreAndroidR()
+                wearSdkVersion >= Build.VERSION_CODES.R
             )
 
             // There's no point creating BroadcastsReceiver or listening for Accessibility state
@@ -2097,24 +2245,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 // deferredWatchFaceImpl) occurs before initStyleAndComplications has
                 // executed. NB usually we won't have to wait at all.
                 initStyleAndComplicationsDone.await()
-
-                // Its possible a second getOrCreateInteractiveWatchFaceClient call came in before
-                // the watch face for the first one had finished initializing, in that case we want
-                // to apply the updated style. NB pendingUserStyle is accessed on the UiThread so
-                // there shouldn't be any problems with race conditions.
-                pendingUserStyle?.let {
-                    setUserStyleImpl(watchFaceImpl, it)
-                    pendingUserStyle = null
-                }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
-
-                // Apply any pendingInitialComplications, this must be done after
-                // deferredWatchFaceImpl has completed or there's a window in which complication
-                // updates get lost.
-                pendingInitialComplications?.let {
-                    setComplicationDataList(it)
-                }
-                pendingInitialComplications = null
 
                 asyncWatchFaceConstructionPending = false
                 watchFaceImpl.initComplete = true
@@ -2134,17 +2265,11 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        /**
-         * It is OK to call this from a worker thread because we carefully ensure there's no
-         * concurrent writes to the ComplicationSlotsManager. No UI thread rendering can be done
-         * until after this has completed.
-         */
+        /** No UI thread rendering can be done until after this has completed. */
         @WorkerThread
-        internal fun initStyleAndComplications(
-            complicationSlotsManager: ComplicationSlotsManager,
-            currentUserStyleRepository: CurrentUserStyleRepository,
-            renderer: Renderer
-        ) = TraceEvent("initStyleAndComplications").use {
+        internal fun initStyle(
+            currentUserStyleRepository: CurrentUserStyleRepository
+        ) = TraceEvent("initStyle").use {
             // If the system has a stored user style then Home/SysUI is in charge of style
             // persistence, otherwise we need to do our own.
             val storedUserStyle = getInitialUserStyle()
@@ -2158,7 +2283,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 TraceEvent("WatchFaceImpl.init apply userStyle from prefs").use {
                     // The system doesn't support preference persistence we need to do it ourselves.
                     val preferencesFile = "watchface_prefs_${_context.javaClass.name}.txt"
-
                     currentUserStyleRepository.updateUserStyle(
                         UserStyle(
                             UserStyleData(readPrefs(_context, preferencesFile)),
@@ -2173,19 +2297,30 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
             }
+        }
+
+        /**
+         * It is OK to call this from a worker thread because we carefully ensure there's no
+         * concurrent writes to the ComplicationSlotsManager. No UI thread rendering can be done
+         * until after this has completed.
+         */
+        @WorkerThread
+        internal fun initComplications(
+            complicationSlotsManager: ComplicationSlotsManager,
+            renderer: Renderer
+        ) = TraceEvent("initStyleAndComplications").use {
 
             // We need to inhibit an immediate callback during initialization because members are
             // not fully constructed and it will fail. It's also superfluous because we're going
             // to render soon anyway.
             var initFinished = false
             complicationSlotsManager.init(
-                this, renderer,
+                renderer,
                 object : ComplicationSlot.InvalidateListener {
                     @SuppressWarnings("SyntheticAccessor")
                     override fun onInvalidate() {
                         // This could be called on any thread.
                         uiThreadHandler.runOnHandlerWithTracing("onInvalidate") {
-                            this@WatchFaceService.onInvalidate()
                             if (initFinished) {
                                 getWatchFaceImplOrNull()?.invalidateIfNotAnimating()
                             }
@@ -2205,7 +2340,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // watchface after requesting a change. It used [Constants.ACTION_REQUEST_STATE] as a
             // signal to trigger the old boot flow (sending the binder etc). This is no longer
             // required from android R onwards. See (b/181965946).
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (wearSdkVersion < Build.VERSION_CODES.R) {
                 // We are requesting state every time the watch face changes its visibility because
                 // wallpaper commands have a tendency to be dropped. By requesting it on every
                 // visibility change, we ensure that we don't become a victim of some race
@@ -2242,6 +2377,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun invalidate() {
+            this@WatchFaceService.onInvalidate()
             if (!allowWatchfaceToAnimate) {
                 return
             }
@@ -2261,33 +2397,15 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        override fun postInvalidate(delay: Duration) {
+            pendingUpdateTime.postDelayedUnique(delay) { invalidate() }
+        }
+
         override fun getComplicationDeniedIntent() =
             getWatchFaceImplOrNull()?.complicationDeniedDialogIntent
 
         override fun getComplicationRationaleIntent() =
             getWatchFaceImplOrNull()?.complicationRationaleDialogIntent
-
-        @UiThread
-        override fun scheduleWriteComplicationDataCache() {
-            if (mutableWatchState.isHeadless || pendingComplicationDataCacheWrite) {
-                return
-            }
-            // During start up we'll typically get half a dozen or so updates. Here we de-duplicate.
-            pendingComplicationDataCacheWrite = true
-            getUiThreadHandler().postDelayed(
-                {
-                    pendingComplicationDataCacheWrite = false
-                    getWatchFaceImplOrNull()?.let { watchFaceImpl ->
-                        writeComplicationDataCache(
-                            _context,
-                            watchFaceImpl.complicationSlotsManager,
-                            mutableWatchState.watchFaceInstanceId.value
-                        )
-                    }
-                },
-                1000
-            )
-        }
 
         override fun onActionTimeTick() {
             // In interactive mode we don't need to do anything with onActionTimeTick() since the
@@ -2299,18 +2417,74 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        override fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
-            val listenersCopy = synchronized(lock) {
-                lastWatchFaceColors = watchFaceColors
-                HashSet<IWatchfaceListener>(listeners)
+        /**
+         * @param taskName The name to use when logging any exception
+         * @param listenerCallback The callback to invoke for each registered [IWatchfaceListener]
+         * @return the number of calls to [listenerCallback] that did not throw an exception.
+         */
+        private fun forEachListener(
+            taskName: String,
+            listenerCallback: (listener: IWatchfaceListener) -> Unit
+        ): Int {
+            var i = listeners.beginBroadcast()
+            var successCount = 0
+            while (i > 0) {
+                i--
+                val listener = listeners.getBroadcastItem(i)
+                try {
+                    listenerCallback(listener)
+                    successCount++
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "In $taskName broadcastToListeners failed for ${listener.asBinder()}",
+                        e
+                    )
+                }
             }
+            listeners.finishBroadcast()
+            return successCount
+        }
 
-            listenersCopy.forEach {
-                it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
+        override fun sendPreviewImageNeedsUpdateRequest() {
+            synchronized(lock) {
+                if (this::interactiveInstanceId.isInitialized) {
+                    lastPreviewImageNeedsUpdateRequest = interactiveInstanceId
+
+                    forEachListener("sendPreviewImageNeedsUpdateRequest") {
+                        it.onPreviewImageUpdateRequested(interactiveInstanceId)
+                    }
+                } else {
+                    Log.w(
+                        TAG,
+                        "Ignoring sendPreviewImageNeedsUpdateRequest because " +
+                            "interactiveInstanceId not initialized"
+                    )
+                }
             }
         }
 
-        internal fun draw() {
+        override fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
+            synchronized(lock) {
+                lastWatchFaceColors = watchFaceColors
+
+                forEachListener("onWatchFaceColorsChanged") {
+                    it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
+                }
+            }
+        }
+
+        internal fun onEngineDetached() {
+            synchronized(lock) {
+                forEachListener("onWatchFaceColorsChanged") {
+                    if (it.apiVersion >= 2) {
+                        it.onEngineDetached()
+                    }
+                }
+            }
+        }
+
+        internal fun draw(watchFaceImpl: WatchFaceImpl?) {
             try {
                 if (TRACE_DRAW) {
                     Trace.beginSection("onDraw")
@@ -2318,8 +2492,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (LOG_VERBOSE) {
                     Log.v(TAG, "drawing frame")
                 }
-
-                val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
                 watchFaceImpl?.onDraw()
             } finally {
                 if (TRACE_DRAW) {
@@ -2332,9 +2504,10 @@ public abstract class WatchFaceService : WallpaperService() {
             "WatchFaceService.validateSchemaWireSize"
         ).use {
             var estimatedBytes = 0
+            @Suppress("Deprecation") // userStyleSettings
             for (styleSetting in schema.userStyleSettings) {
                 estimatedBytes += styleSetting.estimateWireSizeInBytesAndValidateIconDimensions(
-                    _context,
+                    resourcesContext,
                     MAX_REASONABLE_SCHEMA_ICON_WIDTH,
                     MAX_REASONABLE_SCHEMA_ICON_HEIGHT,
                 )
@@ -2343,7 +2516,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 "The estimated wire size of the supplied UserStyleSchemas for watch face " +
                     "$packageName is too big at $estimatedBytes bytes. UserStyleSchemas get sent " +
                     "to the companion over bluetooth and should be as small as possible for this " +
-                    "to be performant."
+                    "to be performant. The maximum size is " + MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES
             }
         }
 
@@ -2398,17 +2571,16 @@ public abstract class WatchFaceService : WallpaperService() {
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels A"
                 ).close()
-                val watchFaceAndComplicationManager =
-                    watchFaceInitDetails.await()
+                val watchFace = deferredWatchFace.await()
+                val earlyInitDetails = deferredEarlyInitDetails.await()
 
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels"
                 ).use {
                     // The side effects of this need to be applied before deferredWatchFaceImpl is
                     // completed.
-                    val renderer = watchFaceAndComplicationManager.watchFace.renderer
-                    val complicationSlotsManager =
-                        watchFaceAndComplicationManager.complicationSlotsManager
+                    val renderer = watchFace.renderer
+                    val complicationSlotsManager = earlyInitDetails.complicationSlotsManager
 
                     // Add a ContentDescriptionLabel for the main clock element.
                     labels.add(
@@ -2479,7 +2651,9 @@ public abstract class WatchFaceService : WallpaperService() {
          * enabled.
          */
         private fun maybeSendContentDescriptionLabelsBroadcast() {
-            if (!isPreAndroidR() && getAccessibilityManager().isEnabled) {
+            if (
+                wearSdkVersion >= Build.VERSION_CODES.R && getAccessibilityManager().isEnabled
+            ) {
                 // TODO(alexclarke): This should require a permission. See http://b/184717802
                 _context.sendBroadcast(
                     Intent(Constants.ACTION_WATCH_FACE_REFRESH_A11Y_LABELS)
@@ -2492,12 +2666,21 @@ public abstract class WatchFaceService : WallpaperService() {
             _context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
         fun addWatchFaceListener(listener: IWatchfaceListener) {
-            val colors = synchronized(lock) {
-                listeners.add(listener)
-                lastWatchFaceColors
+            synchronized(lock) {
+                if (listeners.register(listener)) {
+                    Log.d(TAG, "addWatchFaceListener $listener")
+                } else {
+                    Log.w(
+                        TAG,
+                        "addWatchFaceListener $listener failed because its already registered"
+                    )
+                    return
+                }
+                lastPreviewImageNeedsUpdateRequest?.let {
+                    listener.onPreviewImageUpdateRequested(it)
+                }
+                listener.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
             }
-
-            listener.onWatchfaceColorsChanged(colors?.toWireFormat())
 
             uiThreadCoroutineScope.launch {
                 deferredWatchFaceImpl.await()
@@ -2507,9 +2690,19 @@ public abstract class WatchFaceService : WallpaperService() {
 
         fun removeWatchFaceListener(listener: IWatchfaceListener) {
             synchronized(lock) {
-                listeners.remove(listener)
+                if (listeners.unregister(listener)) {
+                    Log.d(TAG, "removeWatchFaceListener $listener")
+                } else {
+                    Log.w(
+                        TAG,
+                        "removeWatchFaceListener $listener failed because it's not registered"
+                    )
+                }
             }
         }
+
+        internal lateinit var screenBounds: Rect
+            private set
 
         @UiThread
         internal fun dump(writer: IndentingPrintWriter) {
@@ -2519,9 +2712,15 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("WatchFaceEngine:")
             writer.increaseIndent()
             when {
-                wslFlow.iWatchFaceServiceInitialized() -> writer.println("WSL style init flow")
+                wslFlow.iWatchFaceServiceInitialized() -> {
+                    writer.println("WSL style init flow")
+                    writer.println("watchFaceInitStarted=${wslFlow.watchFaceInitStarted}")
+                }
+
                 this.watchFaceCreatedOrPending() -> writer.println("Androidx style init flow")
-                isPreAndroidR() -> writer.println("Expecting WSL style init")
+                wearSdkVersion < Build.VERSION_CODES.R ->
+                    writer.println("Expecting WSL style init")
+
                 else -> writer.println("Expecting androidx style style init")
             }
 
@@ -2532,13 +2731,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 )
                 if (wslFlow.iWatchFaceService.asBinder().isBinderAlive) {
                     writer.println(
-                        "iWatchFaceService.apiVersion=" +
-                            "${wslFlow.iWatchFaceService.apiVersion}"
+                        "iWatchFaceService.apiVersion=${wslFlow.iWatchFaceService.apiVersion}"
                     )
                 }
             }
             writer.println("createdBy=$createdBy")
-            writer.println("watchFaceInitStarted=$wslFlow.watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
             writer.println(
                 "systemViewOfContentDescriptionLabelsIsStale=" +
@@ -2552,12 +2749,13 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("frameCallbackPending=$frameCallbackPending")
             writer.println("destroyed=$destroyed")
             writer.println("surfaceDestroyed=$surfaceDestroyed")
-            writer.println(
-                "pendingInitialComplications=" + pendingInitialComplications?.joinToString()
-            )
+            writer.println("lastComplications=${complicationsFlow.value.joinToString()}")
+            writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
 
             synchronized(lock) {
-                writer.println("listeners = " + listeners.joinToString(", "))
+                forEachListener("dump") {
+                    writer.println("listener = ${it.asBinder()}")
+                }
             }
 
             if (!destroyed) {
@@ -2574,7 +2772,7 @@ public abstract class WatchFaceService : WallpaperService() {
         indentingPrintWriter.println("AndroidX WatchFaceService $packageName")
         InteractiveInstanceManager.dump(indentingPrintWriter)
         EditorService.globalEditorService.dump(indentingPrintWriter)
-        if (SDK_INT >= 27) {
+        if (Build.VERSION.SDK_INT >= 27) {
             HeadlessWatchFaceImpl.dump(indentingPrintWriter)
         }
         indentingPrintWriter.flush()
@@ -2592,6 +2790,13 @@ public abstract class WatchFaceService : WallpaperService() {
         @Px
         fun extractFromWindowInsets(insets: WindowInsets?) =
             insets?.getInsets(WindowInsets.Type.systemBars())?.bottom ?: 0
+    }
+
+    @RequiresApi(27)
+    private object NotifyColorsChangedHelper {
+        fun notifyColorsChanged(engine: Engine) {
+            engine.notifyColorsChanged()
+        }
     }
 }
 

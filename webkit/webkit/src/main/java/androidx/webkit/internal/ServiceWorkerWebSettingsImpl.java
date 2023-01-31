@@ -27,6 +27,7 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Set;
 
 /**
  * Implementation of {@link ServiceWorkerWebSettingsCompat}.
@@ -182,21 +183,24 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
+    @NonNull
     @Override
-    public void setRequestedWithHeaderMode(int requestedWithHeaderMode) {
-        final ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+    public Set<String> getRequestedWithHeaderOriginAllowList() {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
         if (feature.isSupportedByWebView()) {
-            getBoundaryInterface().setRequestedWithHeaderMode(requestedWithHeaderMode);
+            return getBoundaryInterface().getRequestedWithHeaderOriginAllowList();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
     @Override
-    public int getRequestedWithHeaderMode() {
-        final ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
         if (feature.isSupportedByWebView()) {
-            return getBoundaryInterface().getRequestedWithHeaderMode();
+            getBoundaryInterface().setRequestedWithHeaderOriginAllowList(allowList);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

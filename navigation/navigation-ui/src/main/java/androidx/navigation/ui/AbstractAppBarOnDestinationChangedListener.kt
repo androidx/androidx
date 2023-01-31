@@ -26,7 +26,6 @@ import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.ui.NavigationUI.matchDestinations
 import java.lang.ref.WeakReference
 
 /**
@@ -36,9 +35,8 @@ import java.lang.ref.WeakReference
  */
 internal abstract class AbstractAppBarOnDestinationChangedListener(
     private val context: Context,
-    configuration: AppBarConfiguration
+    private val configuration: AppBarConfiguration
 ) : NavController.OnDestinationChangedListener {
-    private val topLevelDestinations: Set<Int> = configuration.topLevelDestinations
     private val openableLayoutWeakReference = configuration.openableLayout?.run {
         WeakReference(this)
     }
@@ -68,7 +66,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
             setTitle(label)
         }
 
-        val isTopLevelDestination = destination.matchDestinations(topLevelDestinations)
+        val isTopLevelDestination = configuration.isTopLevelDestination(destination)
         if (openableLayout == null && isTopLevelDestination) {
             setNavigationIcon(null, 0)
         } else {

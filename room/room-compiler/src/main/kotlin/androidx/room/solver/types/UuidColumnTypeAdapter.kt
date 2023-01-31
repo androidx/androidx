@@ -16,10 +16,11 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
 
@@ -35,20 +36,25 @@ class UuidColumnTypeAdapter(
         valueVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            val conversionMethodName = "convertUUIDToByte"
-            beginControlFlow("if ($L == null)", valueVarName)
-                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
-            nextControlFlow("else")
-                .addStatement(
-                    "$L.bindBlob($L, $T.$L($L))",
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addBindBlobStatement() {
+                addStatement(
+                    "%L.bindBlob(%L, %M(%L))",
                     stmtName,
                     indexVarName,
-                    RoomTypeNames.UUID_UTIL,
-                    conversionMethodName,
+                    RoomTypeNames.UUID_UTIL.packageMember("convertUUIDToByte"),
                     valueVarName,
                 )
-            endControlFlow()
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addBindBlobStatement()
+            } else {
+                beginControlFlow("if (%L == null)", valueVarName)
+                    .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
+                nextControlFlow("else")
+                    addBindBlobStatement()
+                endControlFlow()
+            }
         }
     }
 
@@ -58,20 +64,25 @@ class UuidColumnTypeAdapter(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            val conversionMethodName = "convertByteToUUID"
-            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName)
-                .addStatement("$L = null", outVarName)
-            nextControlFlow("else")
-                .addStatement(
-                    "$L = $T.$L($L.getBlob($L))",
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addGetBlobStatement() {
+                addStatement(
+                    "%L = %M(%L.getBlob(%L))",
                     outVarName,
-                    RoomTypeNames.UUID_UTIL,
-                    conversionMethodName,
+                    RoomTypeNames.UUID_UTIL.packageMember("convertByteToUUID"),
                     cursorVarName,
                     indexVarName
                 )
-            endControlFlow()
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addGetBlobStatement()
+            } else {
+                beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName)
+                    .addStatement("%L = null", outVarName)
+                nextControlFlow("else")
+                    .addGetBlobStatement()
+                endControlFlow()
+            }
         }
     }
 }

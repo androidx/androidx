@@ -22,17 +22,46 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
+    id("com.google.protobuf")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
 
-androidXMultiplatform {
-    jvm {
-        withJava()
+android {
+    externalNativeBuild {
+        cmake {
+            path "src/androidMain/cpp/CMakeLists.txt"
+            version libs.versions.cmake.get()
+        }
     }
+    namespace "androidx.datastore.core"
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    // Generates the java proto-lite code for the protos in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
+}
+
+androidXMultiplatform {
+    jvm()
     mac()
     linux()
     ios()
+    android()
 
     sourceSets {
         all {
@@ -49,6 +78,9 @@ androidXMultiplatform {
             dependencies {
                 api("androidx.annotation:annotation:1.3.0")
             }
+        }
+        androidMain {
+            dependsOn(jvmMain)
         }
 
         commonTest {
@@ -69,6 +101,23 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-kmp"))
                 implementation(project(":internal-testutils-datastore"))
+
+                // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
+                implementation(libs.kotlinTestJunit)
+            }
+        }
+
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.protobufLite)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+
+                // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
+                implementation(libs.kotlinTestJunit)
             }
         }
 
@@ -104,8 +153,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Android DataStore Core"
-    type = LibraryType.KMP_LIBRARY
-    mavenGroup = LibraryGroups.DATASTORE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true

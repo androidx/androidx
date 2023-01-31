@@ -66,12 +66,12 @@ class SignalGeneratorViewModelTest {
     private lateinit var viewModel: SignalGeneratorViewModel
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private val fakeViewModelStoreOwner = object : ViewModelStoreOwner {
-        private val viewModelStore = ViewModelStore()
+        private val vmStore = ViewModelStore()
 
-        override fun getViewModelStore() = viewModelStore
+        override val viewModelStore = vmStore
 
         fun clear() {
-            viewModelStore.clear()
+            vmStore.clear()
         }
     }
 
@@ -129,7 +129,7 @@ class SignalGeneratorViewModelTest {
     @Test
     fun initialSignalGenerator_canMakeGeneratorReady(): Unit = runBlocking {
         val beepFrequency = 1500
-        viewModel.initialSignalGenerator(context, beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency, true)
 
         assertThat(viewModel.isGeneratorReady).isTrue()
     }
@@ -141,7 +141,7 @@ class SignalGeneratorViewModelTest {
         val latch = CountDownLatch(5)
 
         // Act.
-        viewModel.initialSignalGenerator(context, beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency, true)
         viewModel.startSignalGeneration()
         countActiveFlagChangeBlocking(latch)
 
@@ -156,7 +156,7 @@ class SignalGeneratorViewModelTest {
         val latch = CountDownLatch(5)
 
         // Act.
-        viewModel.initialSignalGenerator(context, beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency, true)
         viewModel.startSignalGeneration()
         viewModel.stopSignalGeneration()
         countActiveFlagChangeBlocking(latch)

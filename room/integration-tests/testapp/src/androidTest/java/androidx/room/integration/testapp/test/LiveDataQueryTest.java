@@ -250,10 +250,14 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         PetsToys expected = new PetsToys();
         expected.petId = 123;
 
+        Pet testPet = TestUtil.createPet(123);
+        mPetDao.insertOrReplace(testPet);
+
         Toy toy = new Toy();
         toy.setId(1);
         toy.setPetId(123);
         toy.setName("ball");
+        toy.setPetId(123);
 
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         final TestObserver<PetsToys> observer = new MyTestObserver<>();

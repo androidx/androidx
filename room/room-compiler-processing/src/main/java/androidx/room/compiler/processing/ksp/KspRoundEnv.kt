@@ -40,6 +40,9 @@ internal class KspRoundEnv(
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
+        if (annotationQualifiedName == "*") {
+            return emptySet()
+        }
         return env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
             .map { symbol ->
                 when (symbol) {
@@ -60,6 +63,12 @@ internal class KspRoundEnv(
                     }
                     else -> error("Unsupported $symbol with annotation $annotationQualifiedName")
                 }
+            }.filter {
+                // Due to the bug in https://github.com/google/ksp/issues/1198, KSP may incorrectly
+                // copy annotations from a constructor KSValueParameter to its KSPropertyDeclaration
+                // which we remove manually, so check here to make sure this is in sync with the
+                // actual annotations on the element.
+                it.getAllAnnotations().any { it.qualifiedName == annotationQualifiedName }
             }.toSet()
     }
 }

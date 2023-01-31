@@ -68,6 +68,69 @@ public static List<Window> getAllWindows() {
 }
 ```
 
+##### Preventing invalid casting in verification fixes
+
+Even when a call to a new API is moved to a version-specific class, a class
+verification failure is still possible if the method returns a new type. The new
+type will be seen as `Object` on lower API levels, so casting the returned value
+outside of the version-specific class to anything other than `Object` or the
+same new type will fail.
+
+For instance, the following would **not** be valid, because it implicitly casts
+an `AdaptiveIconDrawable` (new in API level 26, `Object` on lower API levels) to
+`Drawable`. Instead, the method inside of `Api26Impl` should return `Drawable`.
+
+```java {.good}
+private Drawable methodReturnsDrawable() {
+  if (Build.VERSION.SDK_INT >= 26) {
+    // Implicitly casts the returned AdaptiveIconDrawable to Drawable
+    return Api26Impl.createAdaptiveIconDrawable(null, null);
+  } else {
+    return null;
+  }
+}
+
+@RequiresApi(26)
+static class Api26Impl {
+  // Returns AdaptiveIconDrawable, introduced in API level 26
+  @DoNotInline
+  static AdaptiveIconDrawable createAdaptiveIconDrawable(Drawable backgroundDrawable, Drawable foregroundDrawable) {
+    return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
+    }
+}
+```
+
+#### Validating class verification
+
+To verify that your library does not raise class verification failures, look for
+`dex2oat` output during install time.
+
+You can generate class verification logs from test APKs. Simply call the
+class/method that should generate a class verification failure in a test.
+
+The test APK will generate class verification logs on install.
+
+```bash
+# Enable ART logging (requires root). Note the 2 pairs of quotes!
+adb root
+adb shell setprop dalvik.vm.dex2oat-flags '"--runtime-arg -verbose:verifier"'
+
+# Restart Android services to pick up the settings
+adb shell stop && adb shell start
+
+# Optional: clear logs which aren't relevant
+adb logcat -c
+
+# Install the app and check for ART logs
+# This line is what triggers log lines, and can be repeated
+adb install -d -r someApk.apk
+
+# it's useful to run this _during_ install in another shell
+adb logcat | grep 'dex2oat'
+...
+... I dex2oat : Soft verification failures in
+```
+
 #### Device-specific issues {#compat-oem}
 
 Library code may work around device- or manufacturer-specific issues -- issues
@@ -115,7 +178,11 @@ removed when the bug is resolved.
 
 ### Delegating to API-specific implementations {#delegating-to-api-specific-implementations}
 
-#### SDK-dependent reflection
+#### SDK-dependent reflection {#sdk-reflection}
+
+Note: The
+[BanUncheckedReflection](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:lint-checks/src/main/java/androidx/build/lint/BanUncheckedReflection.kt)
+lint check detects disallowed usages of reflection.
 
 Starting in API level 28, the platform restricts which
 [non-SDK interfaces](https://developer.android.com/distribute/best-practices/develop/restrictions-non-sdk-interfaces)
@@ -123,9 +190,13 @@ can be accessed via reflection by apps and libraries. As a general rule, you
 will **not** be able to use reflection to access hidden APIs on devices with
 `SDK_INT` greater than `Build.VERSION_CODES.P` (28).
 
-On earlier devices, reflection on hidden platform APIs is allowed **only** when
-an alternative public platform API exists in a later revision of the Android
-SDK. For example, the following implementation is allowed:
+In cases where a hidden API is a constant value, **do not** inline the value.
+Hidden APIs cannot be tested by CTS and carry no stability guarantees.
+
+On earlier devices or in cases where an API is marked with
+`@UnsupportedAppUsage`, reflection on hidden platform APIs is allowed **only**
+when an alternative public platform API exists in a later revision of the
+Android SDK. For example, the following implementation is allowed:
 
 ```java
 public AccessibilityDelegate getAccessibilityDelegate(View v) {
@@ -174,21 +245,56 @@ if (BuildCompat.isAtLeastQ()) {
 }
 ```
 
-### Inter-process communication {#inter-process-communication}
+### Inter-process communication {#ipc}
 
 Protocols and data structures used for IPC must support interoperability between
-different versions of libraries and should be treated similarly to public API.
+different versions of libraries and should be treated similarly to public API;
+however, AndroidX does not currently implement compatibility tracking for IPC.
 
-#### Data structures
+We recommend the following, in order of preference:
 
-**Do not** use `Parcelable` for any class that may be used for IPC or otherwise
-exposed as public API. The wire format used by `Parcelable` does not provide any
-compatibility guarantees and will result in crashes if fields are added or
-removed between library versions.
+1.  Stable AIDL if (1) your project lives partially in the Android platform and
+    has access to Stable AIDL build rules and (2) you need to support Android's
+    `Parcelable` data types. The AndroidX workflow **does not** provide Stable
+    AIDL compilation or compatibility checks, so these would need to happen in
+    the platform build and the resulting `.java` files would need to be copied
+    out.
+2.  Protobuf if (1) your project needs to persist data to disk or (2) you need
+    interoperability with systems already using Protobuf. Similar to Stable
+    AIDL, the AndroidX workflow **does not** provide built-in support Protobuf
+    compilation or compatibility checks. It is possible to use a Proto plug-in,
+    but you will be responsible for bundling the runtime and maintaining
+    compatibility on your own.
+3.  Bundle if you have a very simple data model that is unlikely to change in
+    the future. Bundle has the weakest type safety and compatibility guarantees
+    of any recommendation, and it has many caveats that make it a poor choice.
+4.  `VersionedParcelable` if your project is already using Versioned Parcelable
+    and is aware of its compatibility constraints.
+
+We are currently evaluating Square's [Wire](https://github.com/square/wire) and
+Google's [gRPC](https://grpc.io/) libraries for recommendation. If either of
+these libraries meets your team's needs based on your own research, feel free to
+use them.
 
 **Do not** design your own serialization mechanism or wire format for disk
 storage or inter-process communication. Preserving and verifying compatibility
 is difficult and error-prone.
+
+In all cases, **do not** expose your serialization mechanism in your API
+surface. Neither Stable AIDL nor Protobuf generate stable language APIs.
+
+#### Parcelable {#ipc-parcelable}
+
+**Do not** implement `Parcelable` for any class that may be used for IPC or
+otherwise exposed as public API. By default, `Parcelable` does not provide any
+compatibility guarantees and will result in crashes if fields are added or
+removed between library versions. If you are using Stable AIDL, you *may* use
+AIDL-defined parcelables for IPC but not public API.
+
+NOTE As of 2022/12/16, we are working on experimental support for compiling and
+tracking Stable AIDL definitions within the AndroidX workflow.
+
+#### Protobuf {#ipc-protobuf}
 
 Developers **should** use protocol buffers for most cases. See
 [Protobuf](#dependencies-protobuf) for more information on using protocol
@@ -196,6 +302,14 @@ buffers in your library. **Do** use protocol buffers if your data structure is
 complex and likely to change over time. If your data includes `FileDescriptor`s,
 `Binder`s, or other platform-defined `Parcelable` data structures, they will
 need to be stored alongside the protobuf bytes in a `Bundle`.
+
+NOTE We are currently investigating the suitability of Square's
+[`wire` library](https://github.com/square/wire) for handling protocol buffers
+in Android libraries. If adopted, it will replace `proto` library dependencies.
+Libraries that expose their serialization mechanism in their API surface *will
+not be able to migrate*.
+
+#### Bundle {#ipc-bundle}
 
 Developers **may** use `Bundle` in simple cases that require sending `Binder`s,
 `FileDescriptor`s, or platform `Parcelable`s across IPC
@@ -219,19 +333,7 @@ Note that `Bundle` has several caveats:
     are responsible for providing their own system for guaranteeing wire format
     compatibility between versions.
 
-Developers **may** use `VersionedParcelable` in cases where they are already
-using the library and understand its limitations.
-
-In all cases, **do not** expose your serialization mechanism in your API
-surface.
-
-NOTE We are currently investigating the suitability of Square's
-[`wire` library](https://github.com/square/wire) for handling protocol buffers
-in Android libraries. If adopted, it will replace `proto` library dependencies.
-Libraries that expose their serialization mechanism in their API surface *will
-not be able to migrate*.
-
-#### Communication protocols
+#### Communication protocols {#ipc-protocol}
 
 Any communication prototcol, handshake, etc. must maintain compatibility
 consistent with SemVer guidelines. Consider how your protocol will handle

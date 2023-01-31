@@ -56,6 +56,8 @@ public class MainDemoActivity extends Activity {
         Map<String, Intent> contentMap = new LinkedHashMap<>();
         contentMap.put("Wearable Recycler View", new Intent(
                 this, SimpleWearableRecyclerViewDemo.class));
+        contentMap.put("Recycler View", new Intent(
+                this, SimpleRecyclerViewDemo.class));
         contentMap.put("Wearable Switch", new Intent(
                 this, WearableSwitchDemo.class));
         contentMap.put("Circular Progress Layout", new Intent(

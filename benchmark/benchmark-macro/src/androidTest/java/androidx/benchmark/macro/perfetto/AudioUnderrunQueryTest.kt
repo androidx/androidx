@@ -37,7 +37,10 @@ class AudioUnderrunQueryTest {
         // the trace was generated during 2 seconds AudioUnderrunBenchmark scenario run
         val traceFile = createTempFileFromAsset("api23_audio_underrun", ".perfetto-trace")
 
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(traceFile.absolutePath)
+        val subMetrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            AudioUnderrunQuery.getSubMetrics(this)
+        }
+
         val expectedMetrics = AudioUnderrunQuery.SubMetrics(2212, 892)
 
         assertEquals(expectedMetrics, subMetrics)

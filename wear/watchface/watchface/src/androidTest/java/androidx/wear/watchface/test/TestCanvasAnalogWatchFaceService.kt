@@ -17,6 +17,7 @@
 package androidx.wear.watchface.test
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -75,11 +76,7 @@ internal class TestCanvasAnalogWatchFaceService(
             watchState,
             complicationSlotsManager,
             currentUserStyleRepository
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun getSystemTimeZoneId() = mockZoneId
-        })
+        )
     }
 
     override fun getMutableWatchState() = mutableWatchState
@@ -91,7 +88,10 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun isPreAndroidR() = preRInitFlow
+    override val wearSdkVersion = when (preRInitFlow) {
+        true -> Build.VERSION_CODES.O_MR1
+        false -> Build.VERSION_CODES.R
+    }
 
     override fun readDirectBootPrefs(
         context: Context,
@@ -117,5 +117,11 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun onInvalidate() {
         onInvalidateCountDownLatch?.countDown()
+    }
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+        override fun getSystemTimeZoneId() = mockZoneId
     }
 }

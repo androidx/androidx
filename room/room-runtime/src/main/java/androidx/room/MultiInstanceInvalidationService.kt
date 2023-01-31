@@ -86,7 +86,7 @@ class MultiInstanceInvalidationService : Service() {
 
             // Broadcasts table invalidation to other instances of the same database file.
             // The broadcast is not sent to the caller itself.
-            override fun broadcastInvalidation(clientId: Int, tables: Array<String>) {
+            override fun broadcastInvalidation(clientId: Int, tables: Array<out String>) {
                 synchronized(callbackList) {
                     val name = clientNames[clientId]
                     if (name == null) {

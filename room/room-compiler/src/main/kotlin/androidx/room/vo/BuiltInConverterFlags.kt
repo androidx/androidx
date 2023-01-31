@@ -20,7 +20,8 @@ import androidx.room.BuiltInTypeConverters
 
 data class BuiltInConverterFlags(
     val enums: BuiltInTypeConverters.State,
-    val uuid: BuiltInTypeConverters.State
+    val uuid: BuiltInTypeConverters.State,
+    val byteBuffer: BuiltInTypeConverters.State
 ) {
 
     /**
@@ -29,13 +30,15 @@ data class BuiltInConverterFlags(
      */
     fun withNext(next: BuiltInConverterFlags) = BuiltInConverterFlags(
         enums = enums + next.enums,
-        uuid = uuid + next.uuid
+        uuid = uuid + next.uuid,
+        byteBuffer = byteBuffer + next.byteBuffer,
     )
 
     companion object {
         val DEFAULT = BuiltInConverterFlags(
             enums = BuiltInTypeConverters.State.INHERITED,
-            uuid = BuiltInTypeConverters.State.INHERITED
+            uuid = BuiltInTypeConverters.State.INHERITED,
+            byteBuffer = BuiltInTypeConverters.State.INHERITED,
         )
     }
 }

@@ -92,19 +92,20 @@ interface LazyLayoutIntervalContent {
  *
  * @param intervals [IntervalList] of [LazyLayoutIntervalContent] defined by lazy list DSL
  * @param nearestItemsRange range of indices considered near current viewport
- * @param itemContent composable content based on index inside provided interval
+ * @param itemContent composable content based on the index in the list.
  */
 @ExperimentalFoundationApi
 fun <T : LazyLayoutIntervalContent> LazyLayoutItemProvider(
     intervals: IntervalList<T>,
     nearestItemsRange: IntRange,
-    itemContent: @Composable (interval: T, index: Int) -> Unit,
+    itemContent: @Composable (interval: IntervalList.Interval<T>, index: Int) -> Unit,
 ): LazyLayoutItemProvider =
     DefaultLazyLayoutItemsProvider(itemContent, intervals, nearestItemsRange)
 
 @ExperimentalFoundationApi
 private class DefaultLazyLayoutItemsProvider<IntervalContent : LazyLayoutIntervalContent>(
-    val itemContentProvider: @Composable IntervalContent.(index: Int) -> Unit,
+    val itemContentProvider:
+    @Composable (interval: IntervalList.Interval<IntervalContent>, index: Int) -> Unit,
     val intervals: IntervalList<IntervalContent>,
     nearestItemsRange: IntRange
 ) : LazyLayoutItemProvider {
@@ -114,9 +115,7 @@ private class DefaultLazyLayoutItemsProvider<IntervalContent : LazyLayoutInterva
 
     @Composable
     override fun Item(index: Int) {
-        withLocalIntervalIndex(index) { localIndex, content ->
-            content.itemContentProvider(localIndex)
-        }
+        itemContentProvider(intervals[index], index)
     }
 
     override fun getKey(index: Int): Any =
@@ -202,4 +201,31 @@ private class DefaultDelegatingLazyLayoutItemProvider(
     override fun getKey(index: Int): Any = delegate.value.getKey(index)
 
     override fun getContentType(index: Int): Any? = delegate.value.getContentType(index)
+}
+
+/**
+ * Finds a position of the item with the given key in the lists. This logic allows us to
+ * detect when there were items added or removed before our current first item.
+ */
+@ExperimentalFoundationApi
+internal fun LazyLayoutItemProvider.findIndexByKey(
+    key: Any?,
+    lastKnownIndex: Int,
+): Int {
+    if (key == null) {
+        // there were no real item during the previous measure
+        return lastKnownIndex
+    }
+    if (lastKnownIndex < itemCount &&
+        key == getKey(lastKnownIndex)
+    ) {
+        // this item is still at the same index
+        return lastKnownIndex
+    }
+    val newIndex = keyToIndexMap[key]
+    if (newIndex != null) {
+        return newIndex
+    }
+    // fallback to the previous index if we don't know the new index of the item
+    return lastKnownIndex
 }

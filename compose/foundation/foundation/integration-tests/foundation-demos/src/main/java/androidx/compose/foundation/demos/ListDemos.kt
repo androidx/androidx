@@ -26,6 +26,7 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -34,11 +35,13 @@ import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
@@ -54,8 +57,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.samples.StickyHeaderSample
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.material.Button
@@ -72,6 +80,8 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -117,6 +127,8 @@ val LazyListDemos = listOf(
     ComposableDemo("Item reordering") { PopularBooksDemo() },
     ComposableDemo("List drag and drop") { LazyColumnDragAndDropDemo() },
     ComposableDemo("Grid drag and drop") { LazyGridDragAndDropDemo() },
+    ComposableDemo("Staggered grid") { LazyStaggeredGridDemo() },
+    ComposableDemo("Animate item placement") { AnimateItemPlacementDemo() },
     PagingDemos
 )
 
@@ -284,7 +296,10 @@ private fun LazyRowItemsDemo() {
 private fun Square(index: Int) {
     val width = remember { Random.nextInt(50, 150).dp }
     Box(
-        Modifier.width(width).fillMaxHeight().background(colors[index % colors.size]),
+        Modifier
+            .width(width)
+            .fillMaxHeight()
+            .background(colors[index % colors.size]),
         contentAlignment = Alignment.Center
     ) {
         Text(index.toString())
@@ -330,7 +345,10 @@ private fun PagerLikeDemo() {
     val pages = listOf(Color.LightGray, Color.White, Color.DarkGray)
     LazyRow {
         items(pages) {
-            Spacer(Modifier.fillParentMaxSize().background(it))
+            Spacer(
+                Modifier
+                    .fillParentMaxSize()
+                    .background(it))
         }
     }
 }
@@ -375,7 +393,9 @@ private fun LazyRowScope() {
         val items = listOf(Color.Cyan, Color.Blue, Color.Magenta)
         itemsIndexed(items) { index, item ->
             Box(
-                modifier = Modifier.background(item).requiredSize(40.dp),
+                modifier = Modifier
+                    .background(item)
+                    .requiredSize(40.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text("$index", fontSize = 30.sp)
@@ -431,7 +451,9 @@ private fun LazyListArrangements() {
             }
             LazyColumn(
                 verticalArrangement = Arrangements[arrangement],
-                modifier = Modifier.weight(1f).fillMaxHeight()
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             ) {
                 items(count) {
                     item()
@@ -498,9 +520,13 @@ private fun ReverseLayoutAndRtlDemo() {
         }
 
         val itemModifier = if (column) {
-            Modifier.heightIn(200.dp).fillMaxWidth()
+            Modifier
+                .heightIn(200.dp)
+                .fillMaxWidth()
         } else {
-            Modifier.widthIn(200.dp).fillMaxHeight()
+            Modifier
+                .widthIn(200.dp)
+                .fillMaxHeight()
         }
         val item1 = @Composable { index: Int ->
             Text(
@@ -560,7 +586,9 @@ private fun ReverseLayoutAndRtlDemo() {
                     LazyColumn(
                         reverseLayout = reverse,
                         state = lazyState,
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
                         content = lazyContent
                     )
                 }
@@ -585,7 +613,9 @@ private fun ReverseLayoutAndRtlDemo() {
             CompositionLocalProvider(LocalLayoutDirection provides direction) {
                 LazyRow(
                     state = lazyState,
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     reverseLayout = reverse,
                     content = lazyContent
                 )
@@ -598,7 +628,10 @@ private fun ReverseLayoutAndRtlDemo() {
 private fun NestedLazyDemo() {
     val item = @Composable { index: Int ->
         Box(
-            Modifier.padding(16.dp).requiredSize(200.dp).background(Color.LightGray),
+            Modifier
+                .padding(16.dp)
+                .requiredSize(200.dp)
+                .background(Color.LightGray),
             contentAlignment = Alignment.Center
         ) {
             var state by rememberSaveable { mutableStateOf(0) }
@@ -899,5 +932,158 @@ private fun LazyWithFlingConfig() {
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Preview
+@Composable
+private fun LazyStaggeredGridDemo() {
+    val heights = remember {
+        List(100) {
+            (Random.nextInt(100) + 100).dp
+        }
+    }
+
+    val colors = remember {
+        List(100) {
+            Color.hsl(
+                Random.nextFloat() * 360,
+                .5f,
+                .65f
+            )
+        }
+    }
+
+    val indices = remember {
+        mutableStateOf(List(100) { it })
+    }
+
+    var count by remember { mutableStateOf(100) }
+
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = { count++ }) { Text(text = "++") }
+            Button(onClick = {
+                indices.value = indices.value.toMutableList().apply { shuffle() }
+            }) { Text(text = "shuffle") }
+            Button(onClick = { if (count != 0) count-- }) { Text(text = "--") }
+        }
+
+        val state = rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = 29)
+
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(3),
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            contentPadding = PaddingValues(vertical = 30.dp, horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            content = {
+                items(
+                    count,
+                    span = {
+                        if (it % 30 == 0)
+                            StaggeredGridItemSpan.FullLine
+                        else
+                            StaggeredGridItemSpan.SingleLane
+                    }
+                ) {
+                    var expanded by remember { mutableStateOf(false) }
+                    val index = indices.value[it % indices.value.size]
+                    val color = colors[index]
+                    Box(
+                        modifier = Modifier
+                            .height(if (!expanded) heights[index] else heights[index] * 2)
+                            .border(2.dp, color, RoundedCornerShape(5.dp))
+                            .clickable {
+                                expanded = !expanded
+                            }
+                    ) {
+                        Text(
+                            "$it",
+                            modifier = Modifier.align(Alignment.Center),
+                            color = color,
+                            fontSize = 36.sp
+                        )
+                    }
+                }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AnimateItemPlacementDemo() {
+    val items = remember { mutableStateListOf<Int>().apply {
+        repeat(20) { add(it) }
+    } }
+    val selectedIndexes = remember { mutableStateMapOf<Int, Boolean>() }
+    var reverse by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Button(onClick = {
+                selectedIndexes.entries.reversed().forEach { entry ->
+                    if (entry.value) {
+                        items.remove(entry.key)
+                        items.add(items.size - 3, entry.key)
+                    }
+                }
+            }) {
+                Text("MoveToEnd")
+            }
+            Button(onClick = {
+                selectedIndexes.clear()
+            }) {
+                Text("RmvSelected")
+            }
+            Button(onClick = {
+                reverse = !reverse
+            }) {
+                Text("Reverse=$reverse")
+            }
+        }
+        LazyColumn(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f), reverseLayout = reverse) {
+            items(items, key = { it }) { item ->
+                val selected = selectedIndexes.getOrDefault(item, false)
+                val modifier = if (selected) Modifier.animateItemPlacement() else Modifier
+                var height by remember { mutableStateOf(40.dp) }
+                Row(
+                    modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .border(1.dp, Color.Black)
+                        .clickable {
+                            height = if (height == 40.dp) 120.dp else 40.dp
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = selected, onCheckedChange = {
+                        selectedIndexes[item] = it
+                    })
+                    Spacer(
+                        Modifier
+                            .width(16.dp)
+                            .height(height))
+                    Text("Item $item")
+                }
+            }
+        }
+        var size by remember { mutableStateOf(40.dp) }
+        Box(
+            Modifier
+                .height(size)
+                .fillMaxWidth()
+                .border(1.dp, Color.DarkGray)
+                .clickable {
+                    size = if (size == 40.dp) 350.dp else 40.dp
+                })
     }
 }

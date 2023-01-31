@@ -79,13 +79,12 @@ public class HealthEvent(
         fromHealthEventProto(proto)
     )
 
-    internal val proto: DataProto.HealthEvent by lazy {
+    internal val proto: DataProto.HealthEvent =
         DataProto.HealthEvent.newBuilder()
             .setType(type.toProto())
             .setEventTimeEpochMs(eventTime.toEpochMilli())
             .addAllMetrics(toEventProtoList(metrics))
             .build()
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

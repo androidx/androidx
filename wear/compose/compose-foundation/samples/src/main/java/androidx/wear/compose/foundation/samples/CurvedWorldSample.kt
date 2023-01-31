@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +56,9 @@ fun SimpleCurvedWorld() {
         curvedComposable {
             BasicText(
                 "Simple",
-                Modifier.background(Color.White).padding(2.dp),
+                Modifier
+                    .background(Color.White)
+                    .padding(2.dp),
                 TextStyle(
                     color = Color.Black,
                     fontSize = 16.sp,
@@ -63,12 +66,16 @@ fun SimpleCurvedWorld() {
             )
         }
         curvedComposable {
-            Box(modifier = Modifier.size(20.dp).background(Color.Gray))
+            Box(modifier = Modifier
+                .size(20.dp)
+                .background(Color.Gray))
         }
         curvedComposable {
             BasicText(
                 "CurvedWorld",
-                Modifier.background(Color.White).padding(2.dp),
+                Modifier
+                    .background(Color.White)
+                    .padding(2.dp),
                 TextStyle(
                     color = Color.Black,
                     fontSize = 16.sp,
@@ -83,7 +90,9 @@ fun SimpleCurvedWorld() {
 fun CurvedRowAndColumn() {
     CurvedLayout(modifier = Modifier.fillMaxSize()) {
         curvedComposable {
-            Box(modifier = Modifier.size(20.dp).background(Color.Red))
+            Box(modifier = Modifier
+                .size(20.dp)
+                .background(Color.Red))
         }
         curvedColumn(angularAlignment = CurvedAlignment.Angular.End) {
             repeat(3) {
@@ -91,7 +100,9 @@ fun CurvedRowAndColumn() {
                     curvedComposable {
                         BasicText(
                             "Row #$it",
-                            Modifier.background(Color.White).padding(2.dp),
+                            Modifier
+                                .background(Color.White)
+                                .padding(2.dp),
                             TextStyle(
                                 color = Color.Black,
                                 fontSize = 14.sp,
@@ -99,12 +110,16 @@ fun CurvedRowAndColumn() {
                         )
                     }
                     curvedComposable {
-                        Box(modifier = Modifier.size(10.dp).background(Color.Green))
+                        Box(modifier = Modifier
+                            .size(10.dp)
+                            .background(Color.Green))
                     }
                     curvedComposable {
                         BasicText(
                             "More",
-                            Modifier.background(Color.Yellow).padding(2.dp),
+                            Modifier
+                                .background(Color.Yellow)
+                                .padding(2.dp),
                             TextStyle(
                                 color = Color.Black,
                                 fontSize = 14.sp,
@@ -115,7 +130,9 @@ fun CurvedRowAndColumn() {
             }
         }
         curvedComposable {
-            Box(modifier = Modifier.size(20.dp).background(Color.Red))
+            Box(modifier = Modifier
+                .size(20.dp)
+                .background(Color.Red))
         }
     }
 }
@@ -136,7 +153,9 @@ fun CurvedAndNormalText() {
             }
         )
         curvedComposable {
-            Box(modifier = Modifier.size(20.dp).background(Color.Gray))
+            Box(modifier = Modifier
+                .size(20.dp)
+                .background(Color.Gray))
         }
         curvedComposable {
             BasicText(
@@ -208,7 +227,9 @@ fun CurvedBackground() {
 @Sampled
 @Composable
 fun CurvedWeight() {
-    CurvedLayout(modifier = Modifier.fillMaxSize().background(Color.White)) {
+    CurvedLayout(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
         // Evenly spread A, B & C in a 90 degree angle.
         curvedRow(
             modifier = CurvedModifier.angularSize(90f)
@@ -266,12 +287,52 @@ fun CurvedFontWeight() {
         (100..900 step 100).forEach {
             basicCurvedText(
                 "W$it",
-                style = CurvedTextStyle(TextStyle(
+                style = CurvedTextStyle(
                     color = Color.White,
                     fontWeight = FontWeight(it)
-                )),
+                ),
                 modifier = CurvedModifier.padding(5.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun CurvedFonts() {
+    CurvedLayout(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        listOf(
+            "Serif" to FontFamily.Serif,
+            "SansSerif" to FontFamily.SansSerif,
+            "Monospace" to FontFamily.Monospace,
+            "Cursive" to FontFamily.Cursive,
+        ).forEach { (name, ff) ->
+            basicCurvedText(
+                "$name",
+                style = CurvedTextStyle(
+                    color = Color.White,
+                    fontFamily = ff
+                ),
+                modifier = CurvedModifier.padding(5.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun OversizeComposable() {
+    val modBase = CurvedModifier.size(sweepDegrees = 30f, thickness = 20.dp)
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
+        curvedComposable(modifier = modBase.background(Color.Red)) {}
+        curvedComposable(modifier = modBase.background(Color.Green)) {
+            Box(Modifier.size(80.dp, 30.dp).background(Color.White))
+        }
+        curvedComposable(modifier = modBase.background(Color.Blue)) {}
+    }
+    CurvedLayout(modifier = Modifier.fillMaxSize(), anchor = 90f) {
+        curvedComposable(modifier = CurvedModifier.background(Color.Green)) {
+            Box(Modifier.size(80.dp, 30.dp).background(Color.White))
         }
     }
 }

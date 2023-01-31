@@ -42,12 +42,20 @@ import com.android.tools.lint.detector.api.PartialResult
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import org.jetbrains.kotlin.backend.jvm.ir.psiElement
+import org.jetbrains.kotlin.descriptors.MemberDescriptor
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
+import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectedActualResolver
 import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.kotlin.KotlinUastResolveProviderService
 
 /**
  * Detector responsible for enforcing @Sampled annotation usage
@@ -243,6 +251,24 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
                 .forEach {
                     handleSampleLink(it)
                 }
+            // Expect declarations are not visible in UAST, but they may have sample links on them.
+            // If we are looking at an actual declaration, also manually find the corresponding
+            // expect declaration for analysis.
+            if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
+                val service = node.project.getService(KotlinUastResolveProviderService::class.java)
+                val member = service.getBindingContext(source)
+                    .get(BindingContext.DECLARATION_TO_DESCRIPTOR, source) as? MemberDescriptor
+                    // Should never be null since `actual` is only applicable to members
+                    ?: return
+                val expected = ExpectedActualResolver.findExpectedForActual(member) ?: return
+                // There may be multiple possible candidates, we want to check them all regardless.
+                expected.values.toList().flatten().forEach { descriptor ->
+                    val element = descriptor.psiElement
+                    (element as? KtDeclaration)?.docComment?.let {
+                        handleSampleLink(it)
+                    }
+                }
+            }
         }
     }
 

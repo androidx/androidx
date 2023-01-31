@@ -23,6 +23,7 @@ import java.io.File
 import java.util.Locale
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.getByType
@@ -173,10 +174,7 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         // We run lint on each library, so we don't want transitive checking of each dependency
         checkDependencies = false
 
-        if (
-            extension.type == LibraryType.PUBLISHED_TEST_LIBRARY ||
-            extension.type == LibraryType.INTERNAL_TEST_LIBRARY
-        ) {
+        if (extension.type.allowCallingVisibleForTestsApis) {
             // Test libraries are allowed to call @VisibleForTests code
             disable.add("VisibleForTests")
         } else {
@@ -185,13 +183,6 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
 
         // Reenable after b/238892319 is resolved
         disable.add("NotificationPermission")
-
-        // Broken in 7.4.0-alpha04 due to b/236262744
-        disable.add("CustomPermissionTypo")
-        disable.add("KnownPermissionError")
-        disable.add("PermissionNamingConvention")
-        disable.add("ReservedSystemPermission")
-        disable.add("SystemPermissionTypo")
 
         // Disable dependency checks that suggest to change them. We want libraries to be
         // intentional with their dependency version bumps.
@@ -202,24 +193,17 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         // concerned with drawables potentially being a little bit blurry
         disable.add("IconMissingDensityFolder")
 
-        // Disable a check that's only triggered by translation updates which are
-        // outside of library owners' control, b/174655193
-        disable.add("UnusedQuantity")
-
         // Disable until it works for our projects, b/171986505
         disable.add("JavaPluginLanguageLevel")
 
-        // Disable the TODO check until we have a policy that requires it.
+        // Explicitly disable StopShip check (see b/244617216)
         disable.add("StopShip")
 
         // Broken in 7.0.0-alpha15 due to b/180408990
         disable.add("RestrictedApi")
 
-        // Broken in 7.0.0-alpha15 due to b/187508590
-        disable.add("InvalidPackage")
-
-        // Reenable after upgradingto 7.1.0-beta01
-        disable.add("SupportAnnotationUsage")
+        // Disable until ag/19949626 goes in (b/261918265)
+        disable.add("MissingQuantity")
 
         // Provide stricter enforcement for project types intended to run on a device.
         if (extension.type.compilationTarget == CompilationTarget.DEVICE) {
@@ -255,6 +239,11 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         // Broken in 7.0.0-alpha15 due to b/187343720
         disable.add("UnusedResources")
 
+        // Disable NullAnnotationGroup check for :compose:ui:ui-text (b/233788571)
+        if (isLibrary && project.group == "androidx.compose.ui" && project.name == "ui-text") {
+            disable.add("NullAnnotationGroup")
+        }
+
         if (extension.type == LibraryType.SAMPLES) {
             // TODO: b/190833328 remove if / when AGP will analyze dependencies by default
             //  This is needed because SampledAnnotationDetector uses partial analysis, and
@@ -283,5 +272,5 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
     }
 }
 
-val Project.lintBaseline get() =
+val Project.lintBaseline: RegularFileProperty get() =
     project.objects.fileProperty().fileValue(File(projectDir, "/lint-baseline.xml"))

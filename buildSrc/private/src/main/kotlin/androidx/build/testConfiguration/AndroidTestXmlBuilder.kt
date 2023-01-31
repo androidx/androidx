@@ -20,6 +20,7 @@ class ConfigBuilder {
     var appApkName: String? = null
     lateinit var applicationId: String
     var isBenchmark: Boolean = false
+    var disableDeviceTests: Boolean = false
     var isPostsubmit: Boolean = true
     lateinit var minSdk: String
     var runAllTests: Boolean = true
@@ -31,6 +32,8 @@ class ConfigBuilder {
     fun appApkName(appApkName: String) = apply { this.appApkName = appApkName }
     fun applicationId(applicationId: String) = apply { this.applicationId = applicationId }
     fun isBenchmark(isBenchmark: Boolean) = apply { this.isBenchmark = isBenchmark }
+    fun disableDeviceTests(disableDeviceTests: Boolean) =
+        apply { this.disableDeviceTests = disableDeviceTests }
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
     fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
     fun runAllTests(runAllTests: Boolean) = apply { this.runAllTests = runAllTests }
@@ -42,13 +45,18 @@ class ConfigBuilder {
     fun build(): String {
         val sb = StringBuilder()
         sb.append(XML_HEADER_AND_LICENSE)
-            .append(CONFIGURATION_OPEN)
+        if (disableDeviceTests) {
+            return sb.toString()
+        }
+
+        sb.append(CONFIGURATION_OPEN)
             .append(MIN_API_LEVEL_CONTROLLER_OBJECT.replace("MIN_SDK", minSdk))
         tags.forEach { tag ->
             sb.append(TEST_SUITE_TAG_OPTION.replace("TEST_SUITE_TAG", tag))
         }
         sb.append(MODULE_METADATA_TAG_OPTION.replace("APPLICATION_ID", applicationId))
             .append(WIFI_DISABLE_OPTION)
+            .append(FLAKY_TEST_OPTION)
         if (isBenchmark) {
             if (isPostsubmit) {
                 sb.append(BENCHMARK_POSTSUBMIT_OPTIONS)
@@ -77,20 +85,11 @@ class ConfigBuilder {
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
         if (runAllTests) {
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
             sb.append(TEST_BLOCK_CLOSE)
         } else {
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
             sb.append(SMALL_TEST_OPTIONS)
                 .append(TEST_BLOCK_CLOSE)
                 .append(TEST_BLOCK_OPEN)
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
             sb.append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
                 .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
                 .append(MEDIUM_TEST_OPTIONS)
@@ -162,33 +161,25 @@ class MediaConfigBuilder {
             )
         )
             .append(WIFI_DISABLE_OPTION)
+            .append(FLAKY_TEST_OPTION)
             .append(SETUP_INCLUDE)
             .append(MEDIA_TARGET_PREPARER_OPEN)
             .append(APK_INSTALL_OPTION.replace("APK_NAME", clientApkName))
             .append(APK_INSTALL_OPTION.replace("APK_NAME", serviceApkName))
-        sb.append(TARGET_PREPARER_CLOSE)
+            .append(TARGET_PREPARER_CLOSE)
             .append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", clientApplicationId))
             .append(mediaInstrumentationArgs())
         if (runAllTests) {
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
             sb.append(TEST_BLOCK_CLOSE)
                 .append(TEST_BLOCK_OPEN)
                 .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
                 .append(PACKAGE_OPTION.replace("APPLICATION_ID", serviceApplicationId))
                 .append(mediaInstrumentationArgs())
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
             sb.append(TEST_BLOCK_CLOSE)
         } else {
             // add the small and medium test runners for both client and service apps
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
             sb.append(SMALL_TEST_OPTIONS)
                 .append(TEST_BLOCK_CLOSE)
                 .append(TEST_BLOCK_OPEN)
@@ -196,28 +187,19 @@ class MediaConfigBuilder {
                 .append(PACKAGE_OPTION.replace("APPLICATION_ID", clientApplicationId))
                 .append(mediaInstrumentationArgs())
                 .append(MEDIUM_TEST_OPTIONS)
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
-            sb.append(TEST_BLOCK_CLOSE)
+                .append(TEST_BLOCK_CLOSE)
                 .append(TEST_BLOCK_OPEN)
                 .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
                 .append(PACKAGE_OPTION.replace("APPLICATION_ID", serviceApplicationId))
                 .append(mediaInstrumentationArgs())
                 .append(SMALL_TEST_OPTIONS)
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
-            sb.append(TEST_BLOCK_CLOSE)
+                .append(TEST_BLOCK_CLOSE)
                 .append(TEST_BLOCK_OPEN)
                 .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
                 .append(PACKAGE_OPTION.replace("APPLICATION_ID", serviceApplicationId))
                 .append(mediaInstrumentationArgs())
                 .append(MEDIUM_TEST_OPTIONS)
-            if (!isPostsubmit) {
-                sb.append(FLAKY_TEST_OPTION)
-            }
-            sb.append(TEST_BLOCK_CLOSE)
+                .append(TEST_BLOCK_CLOSE)
         }
         sb.append(CONFIGURATION_CLOSE)
         return sb.toString()

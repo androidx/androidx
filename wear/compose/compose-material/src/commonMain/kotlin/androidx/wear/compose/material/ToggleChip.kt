@@ -51,13 +51,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -85,7 +86,7 @@ import androidx.compose.ui.unit.dp
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
  * Example of a [ToggleChip] with an icon, label and secondary label (defaults to switch toggle):
- * @sample androidx.wear.compose.material.samples.ToggleChipWithIcon
+ * @sample androidx.wear.compose.material.samples.ToggleChipWithSwitch
  *
  * For more information, see the
  * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
@@ -359,11 +360,9 @@ public fun SplitToggleChip(
             ).value
             splitBoxModifier = splitBoxModifier
                 .fillMaxHeight()
-                .drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(color = splitBackgroundOverlayColor)
-                    }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(color = splitBackgroundOverlayColor)
                 }
                 .align(Alignment.CenterVertically)
                 .width(52.dp)

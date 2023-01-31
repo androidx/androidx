@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -29,11 +30,14 @@ import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -48,25 +52,40 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
 
     @Composable
     override fun TemplateContent() {
-        if (LocalTemplateMode.current == TemplateMode.Horizontal) {
-            MyHorizontalContent()
-        } else {
-            SingleEntityTemplate(
-                SingleEntityTemplateData(
-                    header = TemplateText("Single Entity Demo", TextType.Title),
-                    headerIcon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose),
-                        "icon"
-                    ),
-                    text1 = TemplateText("title", TextType.Title),
-                    text2 = TemplateText("Subtitle", TextType.Label),
-                    text3 = TemplateText(
-                        "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
-                        TextType.Label
-                    ),
-                    image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+        GlanceTheme {
+            if (LocalTemplateMode.current == TemplateMode.Horizontal) {
+                MyHorizontalContent()
+            } else {
+                SingleEntityTemplate(
+                    SingleEntityTemplateData(
+                        headerBlock = HeaderBlock(
+                            text = TemplateText("Single Entity Demo", TextType.Title),
+                            icon = TemplateImageWithDescription(
+                                ImageProvider(R.drawable.ic_widgets),
+                                "icon"
+                            ),
+                        ),
+                        textBlock = TextBlock(
+                            text1 = TemplateText("title", TextType.Title),
+                            text2 = TemplateText("Subtitle", TextType.Label),
+                            text3 = TemplateText(
+                                "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
+                                TextType.Label
+                            ),
+                            priority = 0,
+                        ),
+                        imageBlock = ImageBlock(
+                            images = listOf(
+                                TemplateImageWithDescription(
+                                    ImageProvider(R.drawable.palm_leaf),
+                                    "image"
+                                )
+                            ),
+                            priority = 1,
+                        ),
+                    )
                 )
-            )
+            }
         }
     }
 

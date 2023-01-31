@@ -27,7 +27,7 @@ package androidx.wear.watchface.complications.datasource {
   public static final class ComplicationDataSourceService.Companion {
   }
 
-  public static interface ComplicationDataSourceService.ComplicationRequestListener {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface ComplicationDataSourceService.ComplicationRequestListener {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onComplicationData(androidx.wear.watchface.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default void onComplicationDataTimeline(androidx.wear.watchface.complications.datasource.ComplicationDataTimeline? complicationDataTimeline) throws android.os.RemoteException;
   }
@@ -49,9 +49,6 @@ package androidx.wear.watchface.complications.datasource {
     method public java.util.Collection<androidx.wear.watchface.complications.datasource.TimelineEntry> getTimelineEntries();
     property public final androidx.wear.watchface.complications.data.ComplicationData defaultComplicationData;
     property public final java.util.Collection<androidx.wear.watchface.complications.datasource.TimelineEntry> timelineEntries;
-  }
-
-  public final class ComplicationDataTimelineKt {
   }
 
   public final class ComplicationRequest {

@@ -63,9 +63,9 @@ public fun Scaffold(
 ) {
     Box(modifier = modifier) {
         content()
+        vignette?.invoke()
         positionIndicator?.invoke()
         pageIndicator?.invoke()
-        vignette?.invoke()
         timeText?.invoke()
     }
 }

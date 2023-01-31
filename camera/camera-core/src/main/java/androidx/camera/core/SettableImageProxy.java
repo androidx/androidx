@@ -23,12 +23,16 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 /**
  * An {@link ImageProxy} which overwrites the {@link ImageInfo}.
+ *
+ * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-final class SettableImageProxy extends ForwardingImageProxy {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class SettableImageProxy extends ForwardingImageProxy {
     private final Object mLock = new Object();
     private final ImageInfo mImageInfo;
 
@@ -56,7 +60,8 @@ final class SettableImageProxy extends ForwardingImageProxy {
      * @param resolution The resolution to overwrite with.
      * @param imageInfo The {@link ImageInfo} to overwrite with.
      */
-    SettableImageProxy(ImageProxy imageProxy, @Nullable Size resolution, ImageInfo imageInfo) {
+    public SettableImageProxy(@NonNull ImageProxy imageProxy, @Nullable Size resolution,
+            @NonNull ImageInfo imageInfo) {
         super(imageProxy);
         if (resolution == null) {
             mWidth = super.getWidth();

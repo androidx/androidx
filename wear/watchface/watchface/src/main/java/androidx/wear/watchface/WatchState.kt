@@ -79,6 +79,38 @@ public class WatchState(
     public val isHeadless: Boolean,
     public val watchFaceInstanceId: StateFlow<String>
 ) {
+    /** Whether the device is locked or not. */
+    internal var isLocked: StateFlow<Boolean> = MutableStateFlow(false)
+
+    internal constructor(
+        interruptionFilter: StateFlow<Int?>,
+        isAmbient: StateFlow<Boolean?>,
+        isBatteryLowAndNotCharging: StateFlow<Boolean?>,
+        isVisible: StateFlow<Boolean?>,
+        hasLowBitAmbient: Boolean,
+        hasBurnInProtection: Boolean,
+        analogPreviewReferenceTimeMillis: Long,
+        digitalPreviewReferenceTimeMillis: Long,
+        @Px chinHeight: Int,
+        isHeadless: Boolean,
+        watchFaceInstanceId: StateFlow<String>,
+        isLocked: StateFlow<Boolean>
+    ) : this(
+        interruptionFilter,
+        isAmbient,
+        isBatteryLowAndNotCharging,
+        isVisible,
+        hasLowBitAmbient,
+        hasBurnInProtection,
+        analogPreviewReferenceTimeMillis,
+        digitalPreviewReferenceTimeMillis,
+        chinHeight,
+        isHeadless,
+        watchFaceInstanceId
+    ) {
+        this.isLocked = isLocked
+    }
+
     @Deprecated("WatchState constructors without watchFaceInstanceId are deprecated")
     constructor(
         interruptionFilter: StateFlow<Int?>,
@@ -102,7 +134,8 @@ public class WatchState(
         digitalPreviewReferenceTimeMillis,
         chinHeight,
         isHeadless,
-        watchFaceInstanceId = MutableStateFlow(DEFAULT_INSTANCE_ID)
+        watchFaceInstanceId = MutableStateFlow(DEFAULT_INSTANCE_ID),
+        MutableStateFlow(false)
     )
 
     @UiThread
@@ -126,7 +159,7 @@ public class WatchState(
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MutableWatchState {
+public class MutableWatchState() {
     public val interruptionFilter: MutableStateFlow<Int> = MutableStateFlow(
         NotificationManager.INTERRUPTION_FILTER_UNKNOWN
     )
@@ -138,6 +171,7 @@ public class MutableWatchState {
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
     public val watchFaceInstanceId: MutableStateFlow<String> = MutableStateFlow(DEFAULT_INSTANCE_ID)
+    public val isLocked: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     @Px
     public var chinHeight: Int = 0
@@ -158,6 +192,7 @@ public class MutableWatchState {
         digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis,
         chinHeight = chinHeight,
         isHeadless = isHeadless,
-        watchFaceInstanceId = watchFaceInstanceId
+        watchFaceInstanceId = watchFaceInstanceId,
+        isLocked = isLocked
     )
 }

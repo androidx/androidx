@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.activity.result.IntentSenderRequest#CREATOR:
+    Field androidx.activity.result.IntentSenderRequest.CREATOR has changed type from android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> to android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest>

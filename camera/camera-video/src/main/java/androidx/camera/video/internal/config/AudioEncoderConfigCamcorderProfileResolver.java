@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
@@ -40,6 +41,7 @@ public final class AudioEncoderConfigCamcorderProfileResolver implements
     private static final String TAG = "AudioEncCmcrdrPrflRslvr";
 
     private final String mMimeType;
+    private final Timebase mInputTimebase;
     private final int mAudioProfile;
     private final AudioSpec mAudioSpec;
     private final AudioSource.Settings mAudioSourceSettings;
@@ -50,6 +52,7 @@ public final class AudioEncoderConfigCamcorderProfileResolver implements
      *
      * @param mimeType            The mime type for the audio encoder
      * @param audioProfile        The profile required for the audio encoder
+     * @param inputTimebase       The timebase of the input frame
      * @param audioSpec           The {@link AudioSpec} which defines the settings that should be
      *                            used with the audio encoder.
      * @param audioSourceSettings The settings used to configure the source of audio.
@@ -57,11 +60,12 @@ public final class AudioEncoderConfigCamcorderProfileResolver implements
      *                            range settings.
      */
     public AudioEncoderConfigCamcorderProfileResolver(@NonNull String mimeType,
-            int audioProfile, @NonNull AudioSpec audioSpec,
+            int audioProfile, @NonNull Timebase inputTimebase, @NonNull AudioSpec audioSpec,
             @NonNull AudioSource.Settings audioSourceSettings,
             @NonNull CamcorderProfileProxy camcorderProfile) {
         mMimeType = mimeType;
         mAudioProfile = audioProfile;
+        mInputTimebase = inputTimebase;
         mAudioSpec = audioSpec;
         mAudioSourceSettings = audioSourceSettings;
         mCamcorderProfile = camcorderProfile;
@@ -81,6 +85,7 @@ public final class AudioEncoderConfigCamcorderProfileResolver implements
         return AudioEncoderConfig.builder()
                 .setMimeType(mMimeType)
                 .setProfile(mAudioProfile)
+                .setInputTimebase(mInputTimebase)
                 .setChannelCount(mAudioSourceSettings.getChannelCount())
                 .setSampleRate(mAudioSourceSettings.getSampleRate())
                 .setBitrate(resolvedBitrate)

@@ -48,7 +48,14 @@ public class EditorService : IEditorService.Stub() {
         synchronized(lock) {
             val id = nextId++
             observers[id] = observer
-            val deathObserver = IBinder.DeathRecipient { unregisterObserver(id) }
+            val deathObserver = IBinder.DeathRecipient {
+                Log.w(TAG, "observer died, closing editor")
+                // If SysUI dies we should close the editor too, otherwise the watchface could get
+                // left in an inconsistent state where it has local edits that were not persisted by
+                // the system.
+                closeEditor()
+                unregisterObserver(id)
+            }
             observer.asBinder().linkToDeath(deathObserver, 0)
             deathObservers[id] = deathObserver
             return id

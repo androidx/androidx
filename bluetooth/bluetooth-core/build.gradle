@@ -29,12 +29,13 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testExtTruth)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testRules)
 }
 
 androidx {
     name = "AndroidX Bluetooth Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BLUETOOTH
     inceptionYear = "2022"
     description = "AndroidX Bluetooth Framework Kotlin Library"
 }

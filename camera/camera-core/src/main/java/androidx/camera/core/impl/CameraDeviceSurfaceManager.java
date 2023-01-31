@@ -78,22 +78,22 @@ public interface CameraDeviceSurfaceManager {
             @NonNull Size size);
 
     /**
-     * Retrieves a map of suggested resolutions for the given list of use cases.
+     * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
-     *                          resolutions for these surface can not change.
+     *                          stream specifications for these surface can not change.
      * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested resolution
-     * @return map of suggested resolutions for given use cases
-     *
+     *                          suggested stream specification
+     * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
-     *      there isn't a supported combination of surfaces available, or if the {@code cameraId}
-     *      is not a valid id.
+     *                                  there isn't a supported combination of surfaces
+     *                                  available, or if the {@code cameraId}
+     *                                  is not a valid id.
      */
     @NonNull
-    Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+    Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);

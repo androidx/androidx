@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -22,9 +21,21 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 
+/**
+ * Represents a [Modifier.Node] which can be a delegate of another [Modifier.Node]. Since
+ * [Modifier.Node] implements this interface, in practice any [Modifier.Node] can be delegated.
+ *
+ * @see DelegatingNode
+ * @see DelegatingNode.delegated
+ */
 // TODO(lmr): this interface needs a better name
 @ExperimentalComposeUiApi
 interface DelegatableNode {
+    /**
+     * A reference of the [Modifier.Node] that holds this node's position in the node hierarchy. If
+     * the node is a delegate of another node, this will point to that node. Otherwise, this will
+     * point to itself.
+     */
     val node: Modifier.Node
 }
 
@@ -83,6 +94,29 @@ internal inline fun DelegatableNode.visitAncestors(mask: Int, block: (Modifier.N
 }
 
 @ExperimentalComposeUiApi
+internal fun DelegatableNode.ancestors(mask: Int): List<Modifier.Node>? {
+    check(node.isAttached)
+    var ancestors: MutableList<Modifier.Node>? = null
+    var node: Modifier.Node? = node.parent
+    var layout: LayoutNode? = requireLayoutNode()
+    while (layout != null) {
+        val head = layout.nodes.head
+        if (head.aggregateChildKindSet and mask != 0) {
+            while (node != null) {
+                if (node.kindSet and mask != 0) {
+                    if (ancestors == null) ancestors = mutableListOf()
+                    ancestors += node
+                }
+                node = node.parent
+            }
+        }
+        layout = layout.parent
+        node = layout?.nodes?.tail
+    }
+    return ancestors
+}
+
+@ExperimentalComposeUiApi
 internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
     check(node.isAttached)
     var node: Modifier.Node? = node.parent
@@ -99,6 +133,33 @@ internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
         }
         layout = layout.parent
         node = layout?.nodes?.tail
+    }
+    return null
+}
+
+@ExperimentalComposeUiApi
+internal fun DelegatableNode.firstChild(mask: Int): Modifier.Node? {
+    check(node.isAttached)
+    val branches = mutableVectorOf<Modifier.Node>()
+    val child = node.child
+    if (child == null)
+        branches.addLayoutNodeChildren(node)
+    else
+        branches.add(child)
+    while (branches.isNotEmpty()) {
+        val branch = branches.removeAt(branches.lastIndex)
+        if (branch.aggregateChildKindSet and mask == 0) {
+            branches.addLayoutNodeChildren(branch)
+            // none of these nodes match the mask, so don't bother traversing them
+            continue
+        }
+        var node: Modifier.Node? = branch
+        while (node != null) {
+            if (node.kindSet and mask != 0) {
+                return node
+            }
+            node = node.child
+        }
     }
     return null
 }
@@ -135,7 +196,7 @@ internal inline fun DelegatableNode.visitSubtree(mask: Int, block: (Modifier.Nod
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(node: Modifier.Node) {
-    node.requireLayoutNode()._children.forEach {
+    node.requireLayoutNode()._children.forEachReversed {
         add(it.nodes.head)
     }
 }
@@ -150,7 +211,7 @@ internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.No
     else
         branches.add(child)
     while (branches.isNotEmpty()) {
-        val branch = branches.removeAt(branches.size)
+        val branch = branches.removeAt(branches.lastIndex)
         if (branch.aggregateChildKindSet and mask == 0) {
             branches.addLayoutNodeChildren(branch)
             // none of these nodes match the mask, so don't bother traversing them
@@ -252,9 +313,19 @@ internal inline fun <reified T> DelegatableNode.visitAncestors(
     block: (T) -> Unit
 ) = visitAncestors(type.mask) { if (it is T) block(it) }
 
+@Suppress("UNCHECKED_CAST") // Type info lost due to erasure.
+@ExperimentalComposeUiApi
+internal inline fun <reified T> DelegatableNode.ancestors(
+    type: NodeKind<T>
+): List<T>? = ancestors(type.mask) as? List<T>
+
 @ExperimentalComposeUiApi
 internal inline fun <reified T : Any> DelegatableNode.nearestAncestor(type: NodeKind<T>): T? =
     nearestAncestor(type.mask) as? T
+
+@ExperimentalComposeUiApi
+internal inline fun <reified T : Any> DelegatableNode.firstChild(type: NodeKind<T>): T? =
+    firstChild(type.mask) as? T
 
 @ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitSubtree(
@@ -290,7 +361,21 @@ internal fun DelegatableNode.requireCoordinator(kind: NodeKind<*>): NodeCoordina
 }
 
 @ExperimentalComposeUiApi
-internal fun DelegatableNode.requireLayoutNode(): LayoutNode = node.coordinator!!.layoutNode
+internal fun DelegatableNode.requireLayoutNode() = checkNotNull(node.coordinator).layoutNode
 
 @ExperimentalComposeUiApi
-internal fun DelegatableNode.requireOwner(): Owner = requireLayoutNode().owner!!
+internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutNode().owner)
+
+/**
+ * Invalidates the subtree of this layout, including layout, drawing, parent data, etc.
+ *
+ * Calling this method can be a relatively expensive operation as it will cause the
+ * entire subtree to relayout and redraw instead of just parts that
+ * are otherwise invalidated. Its use should be limited to structural changes.
+ */
+@ExperimentalComposeUiApi
+fun DelegatableNode.invalidateSubtree() {
+    if (node.isAttached) {
+        requireLayoutNode().invalidateSubtree()
+    }
+}

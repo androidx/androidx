@@ -43,6 +43,7 @@ public class KeyguardUtilsTest {
     @Mock private Context mContext;
     @Mock private KeyguardManager mKeyguardManager;
 
+    @SuppressWarnings("deprecation") // b/251211046
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

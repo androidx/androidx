@@ -23,6 +23,7 @@ import androidx.glance.action.Action
 import androidx.glance.semantics.SemanticsConfiguration
 import androidx.glance.semantics.SemanticsPropertyReceiver
 
+@JvmDefaultWithCompatibility
 /**
  * An ordered, immutable, collection of modifier element that works with curved components in the
  * Glance library.
@@ -73,6 +74,7 @@ public interface GlanceCurvedModifier {
         if (other === GlanceCurvedModifier) this
         else CombinedGlanceCurvedModifier(this, other)
 
+    @JvmDefaultWithCompatibility
     /**
      * A single element contained within a [GlanceCurvedModifier] chain.
      */

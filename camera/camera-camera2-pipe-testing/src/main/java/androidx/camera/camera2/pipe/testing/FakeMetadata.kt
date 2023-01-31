@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.StreamId
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 private val fakeCameraIds = atomic(0)
@@ -99,12 +100,7 @@ public class FakeCameraMetadata(
     override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata =
         physicalMetadata[cameraId]!!
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): CameraCharacteristics? {
-        throw UnsupportedOperationException(
-            "FakeCameraMetadata does not wrap CameraCharacteristics"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
 
 /**
@@ -123,12 +119,7 @@ public class FakeRequestMetadata(
     override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): CaptureRequest? {
-        throw UnsupportedOperationException(
-            "FakeRequestMetadata does not wrap a real CaptureRequest"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
 
 /**
@@ -147,12 +138,7 @@ public class FakeFrameMetadata(
 
     override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): CaptureResult? {
-        throw UnsupportedOperationException(
-            "FakeFrameMetadata does not wrap a real CaptureResult"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
 
 /**
@@ -171,11 +157,5 @@ public class FakeFrameInfo(
 
     override val frameNumber: FrameNumber
         get() = metadata.frameNumber
-
-    /** @throws UnsupportedOperationException */
-    override fun unwrap(): TotalCaptureResult? {
-        throw UnsupportedOperationException(
-            "FakeFrameInfo does not wrap a real TotalCaptureResult object!"
-        )
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }

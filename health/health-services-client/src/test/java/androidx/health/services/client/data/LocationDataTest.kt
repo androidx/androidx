@@ -18,6 +18,7 @@ package androidx.health.services.client.data
 
 import androidx.health.services.client.proto.DataProto
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,20 +45,61 @@ class LocationDataTest {
     }
 
     @Test
-    fun protoRoundTripWithNulls() {
+    fun protoRoundTripWithDefaultAltitudeAndBearing() {
         val valueProtoBuilder = DataProto.Value.newBuilder()
         LocationData(
             latitude = 1.4,
             longitude = 2.3,
-            altitude = null,
-            bearing = null
         ).addToValueProtoBuilder(valueProtoBuilder)
 
         val location = LocationData.fromDataProtoValue(valueProtoBuilder.build())
 
         assertThat(location.latitude).isEqualTo(1.4)
         assertThat(location.longitude).isEqualTo(2.3)
-        assertThat(location.altitude).isNull()
-        assertThat(location.bearing).isNull()
+        assertThat(location.altitude).isEqualTo(LocationData.ALTITUDE_UNAVAILABLE)
+        assertThat(location.bearing).isEqualTo(LocationData.BEARING_UNAVAILABLE)
+    }
+
+    @Test
+    fun rangeValidationWithInvalidLatitude_throwsNoException() {
+        val negativeOutOfRange = LocationData(-91.0, 10.0, 1.0, 10.0)
+        val positiveOutOfRange = LocationData(91.0, 10.0, 1.0, 10.0)
+
+        assertThat(negativeOutOfRange).isNotNull()
+        assertThat(positiveOutOfRange).isNotNull()
+    }
+
+    @Test
+    fun rangeValidationWithLongitude_throwsNoException() {
+        val negativeBoundaryLocationData = LocationData(-90.0, -180.0, 1.0, 10.0)
+        val positiveBoundaryLocationData = LocationData(90.0, 180.0, 1.0, 10.0)
+
+        assertThat(negativeBoundaryLocationData).isNotNull()
+        assertThat(positiveBoundaryLocationData).isNotNull()
+    }
+
+    @Test
+    fun rangeValidationWithInvalidLongitude_throwsNoException() {
+        val negativeOutOfRange = LocationData(-11.0, -181.0, 1.0, 10.0)
+        val positiveOutOfRange = LocationData(85.0, 181.0, 1.0, 10.0)
+
+        assertThat(negativeOutOfRange).isNotNull()
+        assertThat(positiveOutOfRange).isNotNull()
+    }
+
+    @Test
+    fun rangeValidationWithInvalidBearing_throwsNoException() {
+        val negativeOutOfRange = LocationData(-11.0, -172.0, 1.0, -2.0)
+        val positiveOutOfRange = LocationData(85.0, 10.0, 1.0, 360.0)
+
+        assertThat(negativeOutOfRange).isNotNull()
+        assertThat(positiveOutOfRange).isNotNull()
+    }
+
+    @Test
+    fun rangeValidation_throwsNoException() {
+        val locationData = LocationData(-11.0, -172.0, 1.0, 10.0)
+
+        assertNotNull(locationData)
     }
 }

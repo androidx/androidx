@@ -19,6 +19,8 @@ package androidx.car.app.model.constraints;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.TestUtils;
+import androidx.car.app.messaging.model.TestConversationFactory;
+import androidx.car.app.model.ItemList;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,5 +84,15 @@ public class RowListConstraintsTest {
 
         // Positive case
         constraints.validateOrThrow(TestUtils.createPane(5, 2));
+    }
+
+    @Test
+    public void validate_conversationItem_isAlwaysValid() {
+        RowListConstraints constraints = new RowListConstraints.Builder().build();
+        ItemList itemList = TestConversationFactory.createItemListWithConversationItem();
+
+        constraints.validateOrThrow(itemList);
+
+        // Verify no exception was thrown.
     }
 }

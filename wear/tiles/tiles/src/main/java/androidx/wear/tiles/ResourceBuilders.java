@@ -29,9 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.ResourceProto;
-import androidx.wear.tiles.protobuf.ByteString;
-import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
+import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.protobuf.ByteString;
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

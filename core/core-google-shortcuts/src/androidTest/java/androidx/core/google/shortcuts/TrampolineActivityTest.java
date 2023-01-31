@@ -76,7 +76,7 @@ public class TrampolineActivityTest {
     public void testOnCreate_withTrampolineIntent_launchesShortcut() throws Exception {
         Intent trampolineIntent = createIntentToTestActivity();
 
-        ActivityScenario.launch(trampolineIntent);
+        ActivityScenario.launchActivityForResult(trampolineIntent);
 
         // Verify test activity was launched.
         intended(hasComponent(TestActivity.class.getName()));
@@ -88,7 +88,8 @@ public class TrampolineActivityTest {
         Intent trampolineIntent = createIntentToTestActivity();
         trampolineIntent.putExtra(SHORTCUT_TAG_KEY, "bad_tag");
 
-        ActivityScenario<Activity> scenario = ActivityScenario.launch(trampolineIntent);
+        ActivityScenario<Activity> scenario =
+                ActivityScenario.launchActivityForResult(trampolineIntent);
 
         // Verify test activity was not launched.
         intended(hasComponent(TestActivity.class.getName()), times(0));
@@ -102,7 +103,8 @@ public class TrampolineActivityTest {
         Intent trampolineIntent = createIntentToTestActivity();
         trampolineIntent.removeExtra(SHORTCUT_TAG_KEY);
 
-        ActivityScenario<Activity> scenario = ActivityScenario.launch(trampolineIntent);
+        ActivityScenario<Activity> scenario =
+                ActivityScenario.launchActivityForResult(trampolineIntent);
 
         // Verify test activity was not launched.
         intended(hasComponent(TestActivity.class.getName()), times(0));
@@ -116,7 +118,8 @@ public class TrampolineActivityTest {
         Intent trampolineIntent = createIntentToTestActivity();
         trampolineIntent.removeExtra(SHORTCUT_URL_KEY);
 
-        ActivityScenario<Activity> scenario = ActivityScenario.launch(trampolineIntent);
+        ActivityScenario<Activity> scenario =
+                ActivityScenario.launchActivityForResult(trampolineIntent);
 
         // Verify test activity was not launched.
         intended(hasComponent(TestActivity.class.getName()), times(0));

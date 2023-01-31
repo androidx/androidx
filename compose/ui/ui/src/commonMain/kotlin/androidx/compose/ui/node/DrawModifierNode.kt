@@ -17,13 +17,30 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
+/**
+ * A [Modifier.Node] that draws into the space of the layout.
+ *
+ * This is the [androidx.compose.ui.Modifier.Node] equivalent of
+ * [androidx.compose.ui.draw.DrawModifier]
+ *
+ * @sample androidx.compose.ui.samples.DrawModifierNodeSample
+ */
 @ExperimentalComposeUiApi
 interface DrawModifierNode : DelegatableNode {
     fun ContentDrawScope.draw()
     fun onMeasureResultChanged() {}
 }
 
+/**
+ * Invalidates this modifier's draw layer, ensuring that a draw pass will
+ * be run on the next frame.
+ */
 @ExperimentalComposeUiApi
-internal fun DrawModifierNode.requestDraw() = requireLayoutNode().invalidateLayer()
+fun DrawModifierNode.invalidateDraw() {
+    if (node.isAttached) {
+        requireCoordinator(Nodes.Any).invalidateLayer()
+    }
+}

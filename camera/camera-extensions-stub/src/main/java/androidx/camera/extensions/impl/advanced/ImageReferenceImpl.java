@@ -25,6 +25,8 @@ import android.media.Image;
  * reaches 0.
  *
  * <p>Implemented by Camera2/CameraX.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface ImageReferenceImpl {

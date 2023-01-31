@@ -18,10 +18,12 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -30,11 +32,13 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
-    private var config: UseCaseCameraConfig = UseCaseCameraConfig(emptyList())
+    private var config: UseCaseCameraConfig = UseCaseCameraConfig(emptyList(), CameraStateAdapter())
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
         this.config = config
@@ -47,7 +51,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 }
 
 class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraComponent {
-    private val fakeUseCaseCamera = FakeUseCaseCamera(useCases.toSet())
+    private val fakeUseCaseCamera = FakeUseCaseCamera(MutableLiveData(useCases.toSet()))
 
     override fun getUseCaseCamera(): UseCaseCamera {
         return fakeUseCaseCamera
@@ -87,12 +91,26 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
+    val focusMeteringCalls = mutableListOf<FocusMeteringParams>()
+    var focusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    var cancelFocusMeteringCallCount = 0
+    var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+        focusMeteringCalls.add(
+            FocusMeteringParams(aeRegions, afRegions, awbRegions, afTriggerStartAeMode)
+        )
+        return focusMeteringResult
+    }
+
+    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+        cancelFocusMeteringCallCount++
+        return cancelFocusMeteringResult
     }
 
     override suspend fun issueSingleCaptureAsync(
@@ -103,11 +121,19 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     ): List<Deferred<Void?>> {
         return listOf(CompletableDeferred(null))
     }
+
+    data class FocusMeteringParams(
+        val aeRegions: List<MeteringRectangle> = emptyList(),
+        val afRegions: List<MeteringRectangle> = emptyList(),
+        val awbRegions: List<MeteringRectangle> = emptyList(),
+        val afTriggerStartAeMode: AeMode? = null
+    )
 }
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(
-    override var runningUseCases: Set<UseCase> = emptySet(),
+    override val runningUseCasesLiveData: MutableLiveData<Set<UseCase>> =
+        MutableLiveData(emptySet()),
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
 
@@ -126,14 +152,7 @@ class FakeUseCaseCamera(
         return CompletableDeferred(Unit)
     }
 
-    override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
-    ): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
-    }
-
-    override fun close() {
+    override fun close(): Job {
+        return CompletableDeferred(Unit)
     }
 }

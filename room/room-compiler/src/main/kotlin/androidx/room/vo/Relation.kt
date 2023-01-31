@@ -37,7 +37,7 @@ class Relation(
     // the projection for the query
     val projection: List<String>
 ) {
-    val pojoTypeName by lazy { pojoType.typeName }
+    val pojoTypeName by lazy { pojoType.asTypeName() }
 
     fun createLoadAllSql(): String {
         val resultFields = projection.toSet()

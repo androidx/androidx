@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.os.BuildCompat;
 import androidx.core.view.InputDeviceCompat;
+import androidx.core.view.MotionEventCompat;
 import androidx.core.widget.EdgeEffectCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -666,6 +667,54 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
+    @Test
+    public void testTopStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL));
+        scrollToPosition(0);
+        waitForIdleScroll(mRecyclerView);
+
+        scroll(4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
+
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mTop.mOnReleaseCalled);
+    }
+
+    @Test
+    public void testBottomStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL));
+        scrollToPosition(NUM_ITEMS - 1);
+        waitForIdleScroll(mRecyclerView);
+
+        scroll(-4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
+
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mBottom.mOnReleaseCalled);
+    }
+
+    @Test
+    public void testLeftStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        scrollToPosition(0);
+        waitForIdleScroll(mRecyclerView);
+
+        scroll(-4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
+
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mLeft.mOnReleaseCalled);
+    }
+
+    @Test
+    public void testRightStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        scrollToPosition(NUM_ITEMS - 1);
+        waitForIdleScroll(mRecyclerView);
+
+        scroll(4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
+
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mRight.mOnReleaseCalled);
+    }
+
     /**
      * When stretching and new items are added, the stretch should be released and
      * a drag from the user should scroll instead of changing the stretch.
@@ -763,14 +812,17 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(firstVisible, mLayoutManager.findFirstVisibleItemPosition());
     }
 
+    private void scroll(final int value, final int axis, final int source) throws Throwable {
+        mActivityRule.runOnUiThread(() -> TouchUtils.scrollView(axis, value,
+                source, mRecyclerView));
+    }
+
     private void scrollVerticalBy(final int value) throws Throwable {
-        mActivityRule.runOnUiThread(() -> TouchUtils.scrollView(MotionEvent.AXIS_VSCROLL, value,
-                InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView));
+        scroll(value, MotionEvent.AXIS_VSCROLL, InputDeviceCompat.SOURCE_CLASS_POINTER);
     }
 
     private void scrollHorizontalBy(final int value) throws Throwable {
-        mActivityRule.runOnUiThread(() -> TouchUtils.scrollView(MotionEvent.AXIS_HSCROLL, value,
-                InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView));
+        scroll(value, MotionEvent.AXIS_HSCROLL, InputDeviceCompat.SOURCE_CLASS_POINTER);
     }
 
     private void dragVertically(int amount) {
