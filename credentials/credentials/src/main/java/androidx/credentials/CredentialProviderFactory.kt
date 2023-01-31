@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.core.os.BuildCompat
 
 /**
  * Factory that returns the credential provider to be used by Credential Manager.
@@ -41,16 +43,12 @@ class CredentialProviderFactory {
          * the app. Developer must not add more than one provider library.
          * Post-U, providers will be registered with the framework, and enabled by the user.
          */
+        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun getBestAvailableProvider(context: Context): CredentialProvider? {
-            if ((Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
-                !(Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL &&
-                    Build.VERSION.PREVIEW_SDK_INT > 0)) {
+            if (BuildCompat.isAtLeastU()) {
+                return CredentialProviderFrameworkImpl(context)
+            } else if (Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) {
                 return tryCreatePreUOemProvider(context)
-            } else if ((Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
-                (Build.VERSION.PREVIEW_SDK_INT > 0)) {
-                return CredentialProviderFrameworkImpl(context)
-            } else if (Build.VERSION.SDK_INT > MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) {
-                return CredentialProviderFrameworkImpl(context)
             } else {
                 return null
             }
