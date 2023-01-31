@@ -300,6 +300,7 @@ public final class CameraUseCaseAdapter implements Camera {
             // Attach new UseCases.
             for (UseCase useCase : cameraUseCasesToAttach) {
                 ConfigPair configPair = requireNonNull(configs.get(useCase));
+                useCase.setHasCameraTransform(true);
                 useCase.bindToCamera(mCameraInternal, configPair.mExtendedConfig,
                         configPair.mCameraConfig);
                 useCase.updateSuggestedStreamSpec(
