@@ -65,7 +65,8 @@ public final class StreamUseCaseUtil {
     public static void populateSurfaceToStreamUseCaseMapping(
             @NonNull Collection<SessionConfig> sessionConfigs,
             @NonNull Map<DeferrableSurface, Long> streamUseCaseMap,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
+            boolean shouldSetStreamUseCaseByDefault) {
         if (Build.VERSION.SDK_INT < 33) {
             return;
         }
@@ -100,12 +101,16 @@ public final class StreamUseCaseUtil {
                     continue;
                 }
 
-                Long streamUseCase = getUseCaseToStreamUseCaseMapping()
-                        .get(surface.getContainerClass());
-                putStreamUseCaseToMappingIfAvailable(streamUseCaseMap,
-                        surface,
-                        streamUseCase,
-                        supportedStreamUseCases);
+                if (shouldSetStreamUseCaseByDefault) {
+                    // TODO(b/266879290) This is currently gated out because of camera device
+                    // crashing due to unsupported stream useCase combinations.
+                    Long streamUseCase = getUseCaseToStreamUseCaseMapping()
+                            .get(surface.getContainerClass());
+                    putStreamUseCaseToMappingIfAvailable(streamUseCaseMap,
+                            surface,
+                            streamUseCase,
+                            supportedStreamUseCases);
+                }
             }
         }
     }

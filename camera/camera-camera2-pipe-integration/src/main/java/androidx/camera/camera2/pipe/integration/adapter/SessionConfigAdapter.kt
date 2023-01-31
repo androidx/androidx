@@ -49,7 +49,7 @@ class SessionConfigAdapter(
         for (useCase in useCases) {
             sessionConfigs.add(useCase.sessionConfig)
         }
-        getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        getSurfaceToStreamUseCaseMapping(sessionConfigs, shouldSetStreamUseCaseByDefault = false)
     }
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
         val validatingBuilder = SessionConfig.ValidatingBuilder()
@@ -112,6 +112,7 @@ class SessionConfigAdapter(
     @VisibleForTesting
     fun getSurfaceToStreamUseCaseMapping(
         sessionConfigs: Collection<SessionConfig>,
+        shouldSetStreamUseCaseByDefault: Boolean
     ): Map<DeferrableSurface, Long> {
         if (sessionConfigs.any { it.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG }) {
             // If is ZSL, do not populate anything.
@@ -138,8 +139,12 @@ class SessionConfigAdapter(
                     continue
                 }
 
-                val streamUseCase = getStreamUseCaseForContainerClass(surface.containerClass)
-                mapping[surface] = streamUseCase
+                if (shouldSetStreamUseCaseByDefault) {
+                    // TODO(b/266879290) This is currently gated out because of camera device
+                    // crashing due to unsupported stream useCase combinations.
+                    val streamUseCase = getStreamUseCaseForContainerClass(surface.containerClass)
+                    mapping[surface] = streamUseCase
+                }
             }
         }
         return mapping

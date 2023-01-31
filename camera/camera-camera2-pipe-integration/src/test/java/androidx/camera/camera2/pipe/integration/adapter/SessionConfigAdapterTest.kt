@@ -130,7 +130,7 @@ class SessionConfigAdapterTest {
 
     @Test
     fun populateSurfaceToStreamUseCaseMappingEmptyUseCase() {
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(listOf())
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(listOf(), true)
         TestCase.assertTrue(mapping.isEmpty())
     }
 
@@ -141,7 +141,7 @@ class SessionConfigAdapterTest {
         Mockito.`when`(mockSessionConfig.implementationOptions).thenReturn(mockImplementationOption)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping[mockSurface] == 0L)
     }
 
@@ -152,7 +152,7 @@ class SessionConfigAdapterTest {
         Mockito.`when`(mockSessionConfig.implementationOptions).thenReturn(mockImplementationOption)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping.isNotEmpty())
         TestCase.assertTrue(mapping[mockSurface] == 1L)
     }
@@ -167,7 +167,7 @@ class SessionConfigAdapterTest {
             .thenReturn(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping.isEmpty())
     }
 
@@ -179,7 +179,7 @@ class SessionConfigAdapterTest {
             .thenReturn(mockImplementationOption)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping.isNotEmpty())
         TestCase.assertTrue(mapping[mockSurface] == 1L)
     }
@@ -191,7 +191,7 @@ class SessionConfigAdapterTest {
         Mockito.`when`(mockSessionConfig.implementationOptions).thenReturn(mockImplementationOption)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping.isNotEmpty())
         TestCase.assertTrue(mapping[mockSurface] == 2L)
     }
@@ -203,7 +203,7 @@ class SessionConfigAdapterTest {
         Mockito.`when`(mockSessionConfig.implementationOptions).thenReturn(mockImplementationOption)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping.isNotEmpty())
         TestCase.assertTrue(mapping[mockSurface] == 3L)
     }
@@ -220,7 +220,7 @@ class SessionConfigAdapterTest {
             .thenReturn(0L)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
         sessionConfigs.add(mockSessionConfig)
-        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
         TestCase.assertTrue(mapping.isNotEmpty())
         TestCase.assertTrue(mapping[mockSurface] == 0L)
     }
