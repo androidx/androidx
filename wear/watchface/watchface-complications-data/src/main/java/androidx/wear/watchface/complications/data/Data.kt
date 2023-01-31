@@ -31,6 +31,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.watchface.complications.data.GoalProgressComplicationData.Companion.PLACEHOLDER
 import androidx.wear.watchface.complications.data.RangedValueComplicationData.Companion.PLACEHOLDER
 import androidx.wear.watchface.complications.data.RangedValueComplicationData.Companion.TYPE_RATING
@@ -847,7 +848,7 @@ public class ColorRamp(
 public class RangedValueComplicationData internal constructor(
     public val value: Float,
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    valueExpression: FloatExpression?,
+    valueExpression: DynamicFloat?,
     public val min: Float,
     public val max: Float,
     public val monochromaticImage: MonochromaticImage?,
@@ -873,13 +874,13 @@ public class RangedValueComplicationData internal constructor(
     displayPolicy = displayPolicy
 ) {
     /**
-     * The [FloatExpression] optionally set by the data source. If present the system will
+     * The [DynamicFloat] optionally set by the data source. If present the system will
      * dynamically evaluate this and store the result in [value]. Watch faces can typically ignore
      * this field.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val valueExpression: FloatExpression? = valueExpression
+    public val valueExpression: DynamicFloat? = valueExpression
 
     /** @hide */
     @IntDef(value = [TYPE_UNDEFINED, TYPE_RATING, TYPE_PERCENTAGE])
@@ -896,7 +897,7 @@ public class RangedValueComplicationData internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         private val value: Float,
-        private val valueExpression: FloatExpression?,
+        private val valueExpression: DynamicFloat?,
         private val min: Float,
         private val max: Float,
         private var contentDescription: ComplicationText
@@ -920,9 +921,9 @@ public class RangedValueComplicationData internal constructor(
         ) : this(value, valueExpression = null, min, max, contentDescription)
 
         /**
-         * Creates a [Builder] for a [RangedValueComplicationData] with a [FloatExpression] value.
+         * Creates a [Builder] for a [RangedValueComplicationData] with a [DynamicFloat] value.
          *
-         * @param valueExpression The [FloatExpression] of the ranged complication which will be
+         * @param valueExpression The [DynamicFloat] of the ranged complication which will be
          * evaluated into a value dynamically, and should be in the range [[min]] .. [[max]]. The
          * semantic meaning of value can be specified via [setValueType].
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
@@ -934,7 +935,7 @@ public class RangedValueComplicationData internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
-            valueExpression: FloatExpression,
+            valueExpression: DynamicFloat,
             min: Float,
             max: Float,
             contentDescription: ComplicationText
@@ -1203,7 +1204,7 @@ public class GoalProgressComplicationData
 internal constructor(
     public val value: Float,
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    valueExpression: FloatExpression?,
+    valueExpression: DynamicFloat?,
     public val targetValue: Float,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
@@ -1227,13 +1228,13 @@ internal constructor(
     displayPolicy = displayPolicy
 ) {
     /**
-     * The [FloatExpression] optionally set by the data source. If present the system will
+     * The [DynamicFloat] optionally set by the data source. If present the system will
      * dynamically evaluate this and store the result in [value]. Watch faces can typically ignore
      * this field.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val valueExpression: FloatExpression? = valueExpression
+    public val valueExpression: DynamicFloat? = valueExpression
 
     /**
      * Builder for [GoalProgressComplicationData].
@@ -1247,7 +1248,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         private val value: Float,
-        private val valueExpression: FloatExpression?,
+        private val valueExpression: DynamicFloat?,
         private val targetValue: Float,
         private var contentDescription: ComplicationText
     ) : BaseBuilder<Builder, GoalProgressComplicationData>() {
@@ -1266,9 +1267,9 @@ internal constructor(
         ) : this(value, valueExpression = null, targetValue, contentDescription)
 
         /**
-         * Creates a [Builder] for a [GoalProgressComplicationData] with a [FloatExpression] value.
+         * Creates a [Builder] for a [GoalProgressComplicationData] with a [DynamicFloat] value.
          *
-         * @param valueExpression The [FloatExpression] of the goal complication which will be
+         * @param valueExpression The [DynamicFloat] of the goal complication which will be
          * evaluated into a value dynamically, and should be >= 0.
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
          * @param contentDescription Localized description for use by screen readers. Please do not
@@ -1277,7 +1278,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
-            valueExpression: FloatExpression,
+            valueExpression: DynamicFloat,
             targetValue: Float,
             contentDescription: ComplicationText
         ) : this(

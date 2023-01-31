@@ -30,12 +30,11 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicy
-import androidx.wear.watchface.complications.data.FloatExpression
-import androidx.wear.watchface.complications.data.toFloatExpression
 import androidx.wear.watchface.utility.iconEquals
 import androidx.wear.watchface.utility.iconHashCode
 import java.io.IOException
@@ -43,6 +42,7 @@ import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
+import java.util.Arrays
 import java.util.Objects
 
 /**
@@ -179,7 +179,7 @@ class ComplicationData : Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
                 oos.writeNullable(complicationData.rangedValueExpression) {
-                    oos.writeByteArray(it.asByteArray())
+                    oos.writeByteArray(it.toDynamicFloatByteArray())
                 }
             }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
@@ -607,10 +607,11 @@ class ComplicationData : Parcelable, Serializable {
      * Valid only if the type of this complication data is [TYPE_RANGED_VALUE] and
      * [TYPE_GOAL_PROGRESS].
      */
-    val rangedValueExpression: FloatExpression?
+    val rangedValueExpression: DynamicFloat?
         get() {
             checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE_EXPRESSION, type)
-            return fields.getByteArray(FIELD_VALUE_EXPRESSION)?.toFloatExpression()
+            return fields.getByteArray(FIELD_VALUE_EXPRESSION)
+                ?.let { DynamicFloat.fromByteArray(it) }
         }
 
     /**
@@ -1185,7 +1186,8 @@ class ComplicationData : Parcelable, Serializable {
             equalsWithoutExpressions(other) &&
             (!isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue) &&
             (!isFieldValidForType(FIELD_VALUE_EXPRESSION, type) ||
-                rangedValueExpression == other.rangedValueExpression) &&
+                rangedValueExpression?.toDynamicFloatByteArray() contentEquals
+                other.rangedValueExpression?.toDynamicFloatByteArray()) &&
             (!isFieldValidForType(FIELD_SHORT_TITLE, type) || shortTitle == other.shortTitle) &&
             (!isFieldValidForType(FIELD_SHORT_TEXT, type) || shortText == other.shortText) &&
             (!isFieldValidForType(FIELD_LONG_TITLE, type) || longTitle == other.longTitle) &&
@@ -1202,7 +1204,8 @@ class ComplicationData : Parcelable, Serializable {
             ) {
                 !isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue
             } else {
-                rangedValueExpression == other.rangedValueExpression
+                rangedValueExpression?.toDynamicFloatByteArray() contentEquals
+                    other.rangedValueExpression?.toDynamicFloatByteArray()
             } &&
             (!isFieldValidForType(FIELD_SHORT_TITLE, type) ||
                 shortTitle equalsUnevaluated other.shortTitle) &&
@@ -1219,11 +1222,14 @@ class ComplicationData : Parcelable, Serializable {
                     ((placeholder != null && other.placeholder != null) &&
                         placeholder!! equalsUnevaluated other.placeholder!!)))
 
-    private infix fun ComplicationText?.equalsUnevaluated(other: ComplicationText?): Boolean =
-        (this == null && other == null) ||
-            ((this != null && other != null) &&
-                if (stringExpression == null) equals(other)
-                else stringExpression == other.stringExpression)
+    private infix fun ComplicationText?.equalsUnevaluated(other: ComplicationText?): Boolean {
+        if (this == null && other == null) return true
+        if (this == null || other == null) return false
+        // Both are non-null.
+        if (stringExpression == null) return equals(other)
+        return stringExpression?.toDynamicStringByteArray() contentEquals
+            other.stringExpression?.toDynamicStringByteArray()
+    }
 
     private fun equalsWithoutExpressions(other: ComplicationData): Boolean =
         this === other || (
@@ -1305,7 +1311,11 @@ class ComplicationData : Parcelable, Serializable {
         if (isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type)) listEntries else null,
         if (isFieldValidForType(FIELD_DATA_SOURCE, type)) dataSource else null,
         if (isFieldValidForType(FIELD_VALUE, type)) rangedValue else null,
-        if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) rangedValueExpression else null,
+        if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
+            Arrays.hashCode(rangedValueExpression?.toDynamicFloatByteArray())
+        } else {
+            null
+        },
         if (isFieldValidForType(FIELD_VALUE_TYPE, type)) rangedValueType else null,
         if (isFieldValidForType(FIELD_MIN_VALUE, type)) rangedMinValue else null,
         if (isFieldValidForType(FIELD_MAX_VALUE, type)) rangedMaxValue else null,
@@ -1467,8 +1477,8 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setRangedValueExpression(value: FloatExpression?) =
-            apply { putOrRemoveField(FIELD_VALUE_EXPRESSION, value?.asByteArray()) }
+        fun setRangedValueExpression(value: DynamicFloat?) =
+            apply { putOrRemoveField(FIELD_VALUE_EXPRESSION, value?.toDynamicFloatByteArray()) }
 
         /**
          * Sets the *value type* field which provides meta data about the value. This is
