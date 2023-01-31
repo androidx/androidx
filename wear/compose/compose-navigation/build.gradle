@@ -33,11 +33,13 @@ dependencies {
     api(project(":lifecycle:lifecycle-viewmodel-compose"))
 
     implementation(libs.kotlinStdlib)
+    implementation(project(":navigation:navigation-common"))
     implementation("androidx.navigation:navigation-compose:2.4.0")
     implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":navigation:navigation-common"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":wear:compose:compose-material"))
     androidTestImplementation(project(":wear:compose:compose-navigation-samples"))

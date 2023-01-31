@@ -64,6 +64,7 @@ package androidx.lifecycle {
 
   public interface LifecycleOwner {
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    property public abstract androidx.lifecycle.Lifecycle lifecycle;
   }
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {

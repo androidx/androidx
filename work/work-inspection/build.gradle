@@ -28,7 +28,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
     compileOnly("androidx.inspection:inspection:1.0.0")
-    compileOnly("androidx.lifecycle:lifecycle-runtime:2.2.0")
+    compileOnly(project(":lifecycle:lifecycle-runtime"))
     compileOnly(project(":work:work-runtime"))
     compileOnly("androidx.room:room-runtime:2.5.0-beta01")
     androidTestImplementation(project(":inspection:inspection-testing"))

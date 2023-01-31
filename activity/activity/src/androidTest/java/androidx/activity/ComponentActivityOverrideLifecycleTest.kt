@@ -62,17 +62,15 @@ class EagerOverrideLifecycleComponentActivity : ComponentActivity() {
 
     private val overrideLifecycle = LifecycleRegistry(this)
 
-    override fun getLifecycle(): Lifecycle {
-        return overrideLifecycle
-    }
+    override val lifecycle: Lifecycle
+        get() = overrideLifecycle
 }
 
 class LazyOverrideLifecycleComponentActivity : ComponentActivity() {
     private var overrideLifecycle: LifecycleRegistry? = null
 
-    override fun getLifecycle(): Lifecycle {
-        return overrideLifecycle ?: LifecycleRegistry(this).also {
+    override val lifecycle: Lifecycle
+        get() = overrideLifecycle ?: LifecycleRegistry(this).also {
             overrideLifecycle = it
         }
-    }
 }

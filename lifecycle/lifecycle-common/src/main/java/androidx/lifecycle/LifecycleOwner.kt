@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
+package androidx.lifecycle
 
 /**
  * A class that has an Android lifecycle. These events can be used by custom components to
@@ -25,13 +22,11 @@ import androidx.annotation.NonNull;
  * @see Lifecycle
  * @see ViewTreeLifecycleOwner
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
 public interface LifecycleOwner {
     /**
      * Returns the Lifecycle of the provider.
      *
      * @return The lifecycle of the provider.
      */
-    @NonNull
-    Lifecycle getLifecycle();
+    public val lifecycle: Lifecycle
 }
