@@ -45,6 +45,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -59,6 +60,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.viewfinder.CameraViewfinder
 import androidx.camera.viewfinder.ViewfinderSurfaceRequest
+import androidx.camera.viewfinder.populateFromCharacteristics
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -76,7 +78,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Arrays
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -144,6 +145,8 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
 
     private var viewfinderSurfaceRequest: ViewfinderSurfaceRequest? = null
 
+    private var resolution: Size? = null
+
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,14 +174,18 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.implementationMode -> {
-                cameraViewfinder.implementationMode =
+                val implementationMode =
                     when (cameraViewfinder.implementationMode) {
                         CameraViewfinder.ImplementationMode.PERFORMANCE ->
                             CameraViewfinder.ImplementationMode.COMPATIBLE
                         else -> CameraViewfinder.ImplementationMode.PERFORMANCE
                     }
-                closeCamera()
-                sendSurfaceRequest(false)
+
+                val viewfinderSurfaceRequest = ViewfinderSurfaceRequest.Builder(resolution!!)
+                    .populateFromCharacteristics(characteristics)
+                    .setImplementationMode(implementationMode)
+                    .build()
+                sendSurfaceRequest(viewfinderSurfaceRequest)
             }
             R.id.fitCenter -> cameraViewfinder.scaleType = CameraViewfinder.ScaleType.FIT_CENTER
             R.id.fillCenter -> cameraViewfinder.scaleType = CameraViewfinder.ScaleType.FILL_CENTER
@@ -234,7 +241,12 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             }
         }
 
-        sendSurfaceRequest(false)
+        setUpCameraOutputs(false)
+
+        val viewfinderSurfaceRequest = ViewfinderSurfaceRequest.Builder(resolution!!)
+            .populateFromCharacteristics(characteristics)
+            .build()
+        sendSurfaceRequest(viewfinderSurfaceRequest)
 
         lifecycleScope.launch {
             windowInfoTracker.windowLayoutInfo(requireActivity())
@@ -302,14 +314,13 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     }
 
     // ------------- Create Capture Session --------------
-    private fun sendSurfaceRequest(toggleCamera: Boolean) {
+    private fun sendSurfaceRequest(request: ViewfinderSurfaceRequest) {
         cameraViewfinder.post {
             if (isAdded && context != null) {
-                setUpCameraOutputs(toggleCamera)
-
                 val context = requireContext()
+                this.viewfinderSurfaceRequest = request
                 surfaceListenableFuture =
-                    cameraViewfinder.requestSurfaceAsync(viewfinderSurfaceRequest!!)
+                    cameraViewfinder.requestSurfaceAsync(request)
 
                 Futures.addCallback(surfaceListenableFuture, object : FutureCallback<Surface?> {
                     override fun onSuccess(surface: Surface?) {
@@ -353,12 +364,12 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
                 ) ?: continue
 
                 // For still image captures, we use the largest available size.
-                val largest = Collections.max(
-                    /* coll = */ Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
+                resolution = Collections.max(
+                    /* coll = */ listOf(*map.getOutputSizes(ImageFormat.JPEG)),
                     /* comp = */ CompareSizesByArea()
                 )
                 imageReader = ImageReader.newInstance(
-                    largest.width, largest.height,
+                    resolution!!.width, resolution!!.height,
                     ImageFormat.JPEG, /*maxImages*/ 2
                 ).apply {
                     setOnImageAvailableListener(onImageAvailableListener, imageReaderHandler)
@@ -366,9 +377,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
 
                 this.cameraId = cameraId
                 this.characteristics = cameraManager.getCameraCharacteristics(cameraId)
-                viewfinderSurfaceRequest = ViewfinderSurfaceRequest(largest, characteristics)
-
-                Log.d(TAG, "viewfinderSurfaceRequest created = $viewfinderSurfaceRequest")
                 return
             }
         } catch (e: CameraAccessException) {
@@ -488,7 +496,11 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     // ------------- Toggle Camera -----------
     private fun toggleCamera() {
         closeCamera()
-        sendSurfaceRequest(true)
+        setUpCameraOutputs(true)
+        val viewfinderSurfaceRequest = ViewfinderSurfaceRequest.Builder(resolution!!)
+            .populateFromCharacteristics(characteristics)
+            .build()
+        sendSurfaceRequest(viewfinderSurfaceRequest)
     }
 
     // ------------- Save Bitmap ------------
