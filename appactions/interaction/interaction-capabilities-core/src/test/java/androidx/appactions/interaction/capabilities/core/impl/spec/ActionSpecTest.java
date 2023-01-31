@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.ActionCapability;
 import androidx.appactions.interaction.capabilities.core.ActionExecutor;
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilityInternal;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
@@ -113,8 +112,7 @@ public final class ActionSpecTest {
                                 .build(),
                         StringProperty.EMPTY);
 
-        ActionCapabilityInternal capability =
-                (ActionCapabilityInternal)
+        ActionCapability capability =
                         createCapability("id", property, TestingUtils.createFakeActionExecutor());
 
         assertThat(capability.getAppAction())
@@ -187,8 +185,7 @@ public final class ActionSpecTest {
                                         .build()),
                         Optional.of(StringProperty.PROHIBITED));
 
-        ActionCapabilityInternal capability =
-                (ActionCapabilityInternal)
+        ActionCapability capability =
                         createCapability("id", property, TestingUtils.createFakeActionExecutor());
 
         assertThat(capability.getAppAction())

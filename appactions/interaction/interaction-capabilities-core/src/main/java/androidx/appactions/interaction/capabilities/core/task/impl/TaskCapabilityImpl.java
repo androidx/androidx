@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.core.task.impl;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilityInternal;
+import androidx.appactions.interaction.capabilities.core.ActionCapability;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
@@ -54,7 +54,7 @@ public final class TaskCapabilityImpl<
                 OutputT,
                 ConfirmationT,
                 TaskUpdaterT extends AbstractTaskUpdater>
-        implements ActionCapabilityInternal, TaskUpdateHandler {
+        implements ActionCapability, TaskUpdateHandler {
 
     private final String mIdentifier;
     private final Executor mExecutor;
