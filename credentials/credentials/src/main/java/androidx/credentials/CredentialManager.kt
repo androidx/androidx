@@ -100,9 +100,8 @@ class CredentialManager private constructor(private val context: Context) {
      *
      * @param request the request for getting the credential
      * @param activity the activity used to potentially launch any UI needed
-     * @throws UnsupportedOperationException Since the api is unimplemented
+     * @throws GetCredentialException If the request fails
      */
-    // TODO(helenqin): support failure flow.
     suspend fun getCredential(
         request: GetCredentialRequest,
         activity: Activity,
@@ -142,7 +141,7 @@ class CredentialManager private constructor(private val context: Context) {
      *
      * @param request the request for creating the credential
      * @param activity the activity used to potentially launch any UI needed
-     * @throws UnsupportedOperationException Since the api is unimplemented
+     * @throws CreateCredentialException If the request fails
      */
     suspend fun createCredential(
         request: CreateCredentialRequest,
@@ -187,6 +186,7 @@ class CredentialManager private constructor(private val context: Context) {
      * to let the provider clear any stored credential session.
      *
      * @param request the request for clearing the app user's credential state
+     * @throws ClearCredentialException If the request fails
      */
     suspend fun clearCredentialState(
         request: ClearCredentialStateRequest
@@ -226,7 +226,6 @@ class CredentialManager private constructor(private val context: Context) {
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
-     * @throws UnsupportedOperationException Since the api is unimplemented
      */
     fun getCredentialAsync(
         request: GetCredentialRequest,
@@ -261,7 +260,6 @@ class CredentialManager private constructor(private val context: Context) {
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
-     * @throws UnsupportedOperationException Since the api is unimplemented
      */
     fun createCredentialAsync(
         request: CreateCredentialRequest,
@@ -298,7 +296,6 @@ class CredentialManager private constructor(private val context: Context) {
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
-     * @throws UnsupportedOperationException Since the api is unimplemented
      */
     fun clearCredentialStateAsync(
         request: ClearCredentialStateRequest,
