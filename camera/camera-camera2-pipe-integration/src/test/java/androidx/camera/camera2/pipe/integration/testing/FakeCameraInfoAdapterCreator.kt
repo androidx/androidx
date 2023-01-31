@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -79,21 +80,28 @@ object FakeCameraInfoAdapterCreator {
             cameraId
         ),
         zoomControl: ZoomControl = this.zoomControl,
-    ) = CameraInfoAdapter(
-        cameraProperties,
-        CameraConfig(cameraId),
-        CameraStateAdapter(),
-        CameraControlStateAdapter(
-            zoomControl,
-            EvCompControl(FakeEvCompCompat()),
-            TorchControl(cameraProperties, useCaseThreads),
-        ),
-        CameraCallbackMap(),
-        FocusMeteringControl(
-            cameraProperties,
-            useCaseThreads
-        ).apply {
-            useCaseCamera = FakeUseCaseCamera()
+    ): CameraInfoAdapter {
+        val fakeUseCaseCamera = FakeUseCaseCamera()
+        val state3AControl = State3AControl(cameraProperties).apply {
+            useCaseCamera = fakeUseCaseCamera
         }
-    )
+        return CameraInfoAdapter(
+            cameraProperties,
+            CameraConfig(cameraId),
+            CameraStateAdapter(),
+            CameraControlStateAdapter(
+                zoomControl,
+                EvCompControl(FakeEvCompCompat()),
+                TorchControl(cameraProperties, state3AControl, useCaseThreads),
+            ),
+            CameraCallbackMap(),
+            FocusMeteringControl(
+                cameraProperties,
+                state3AControl,
+                useCaseThreads
+            ).apply {
+                useCaseCamera = fakeUseCaseCamera
+            }
+        )
+    }
 }

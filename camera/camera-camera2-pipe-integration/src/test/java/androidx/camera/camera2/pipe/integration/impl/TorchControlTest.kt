@@ -147,33 +147,50 @@ class TorchControlTest {
 
     @Before
     fun setUp() {
+        val fakeUseCaseCamera = FakeUseCaseCamera()
+        val fakeCameraProperties = FakeCameraProperties(metadata)
         torchControl = TorchControl(
-            FakeCameraProperties(metadata),
+            fakeCameraProperties,
+            State3AControl(fakeCameraProperties).apply {
+                useCaseCamera = fakeUseCaseCamera
+            },
             fakeUseCaseThreads,
         )
-        torchControl.useCaseCamera = FakeUseCaseCamera()
+        torchControl.useCaseCamera = fakeUseCaseCamera
     }
 
     @Test
     fun enableTorch_whenNoFlashUnit(): Unit = runBlocking {
         assertThrows<IllegalStateException> {
+            val fakeUseCaseCamera = FakeUseCaseCamera()
+            val fakeCameraProperties = FakeCameraProperties()
+
             // Without a flash unit, this Job will complete immediately with a IllegalStateException
             TorchControl(
-                FakeCameraProperties(),
+                fakeCameraProperties,
+                State3AControl(fakeCameraProperties).apply {
+                    useCaseCamera = fakeUseCaseCamera
+                },
                 fakeUseCaseThreads,
             ).also {
-                it.useCaseCamera = FakeUseCaseCamera()
+                it.useCaseCamera = fakeUseCaseCamera
             }.setTorchAsync(true).await()
         }
     }
 
     @Test
     fun getTorchState_whenNoFlashUnit() {
+        val fakeUseCaseCamera = FakeUseCaseCamera()
+        val fakeCameraProperties = FakeCameraProperties()
+
         val torchState = TorchControl(
-            FakeCameraProperties(),
+            fakeCameraProperties,
+            State3AControl(fakeCameraProperties).apply {
+                useCaseCamera = fakeUseCaseCamera
+            },
             fakeUseCaseThreads,
         ).also {
-            it.useCaseCamera = FakeUseCaseCamera()
+            it.useCaseCamera = fakeUseCaseCamera
         }.torchStateLiveData.value
 
         Truth.assertThat(torchState).isEqualTo(TorchState.OFF)
@@ -182,8 +199,14 @@ class TorchControlTest {
     @Test
     fun enableTorch_whenInactive(): Unit = runBlocking {
         assertThrows<CameraControl.OperationCanceledException> {
+            val fakeUseCaseCamera = FakeUseCaseCamera()
+            val fakeCameraProperties = FakeCameraProperties(metadata)
+
             TorchControl(
-                FakeCameraProperties(metadata),
+                fakeCameraProperties,
+                State3AControl(fakeCameraProperties).apply {
+                    useCaseCamera = fakeUseCaseCamera
+                },
                 fakeUseCaseThreads,
             ).setTorchAsync(true).await()
         }

@@ -48,7 +48,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
-private const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
+internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
 /**
  * The RequestControl provides a couple of APIs to update the config of the camera, it also stores
@@ -66,8 +66,6 @@ interface UseCaseCameraRequestControl {
     enum class Type {
         SESSION_CONFIG,
         DEFAULT,
-        FLASH,
-        TORCH,
         CAMERA2_CAMERA_CONTROL,
     }
 
