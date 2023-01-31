@@ -55,7 +55,8 @@ open class ComponentDialog @JvmOverloads constructor(
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
-    final override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 
     override fun onSaveInstanceState(): Bundle {
         val bundle = super.onSaveInstanceState()

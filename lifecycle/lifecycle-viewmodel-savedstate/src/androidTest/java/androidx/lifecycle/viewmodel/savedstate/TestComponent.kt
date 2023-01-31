@@ -45,7 +45,8 @@ class TestComponent(
         savedStateController.performRestore(bundle)
     }
 
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateController.savedStateRegistry
 
