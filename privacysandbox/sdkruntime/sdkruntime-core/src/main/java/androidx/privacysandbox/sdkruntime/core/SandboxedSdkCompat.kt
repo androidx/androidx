@@ -20,6 +20,7 @@ import android.app.sdksandbox.SandboxedSdk
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
@@ -62,7 +63,9 @@ class SandboxedSdkCompat private constructor(
      */
     @RequiresExtension(extension = AD_SERVICES, version = 4)
     @RestrictTo(LIBRARY_GROUP)
-    constructor(sandboxedSdk: SandboxedSdk) : this(ApiAdServicesV4Impl(sandboxedSdk))
+    constructor(sandboxedSdk: SandboxedSdk) : this(
+        SdkImplFactory.createSdkImpl(sandboxedSdk)
+    )
 
     /**
      * Returns the interface to the loaded SDK.
@@ -76,6 +79,15 @@ class SandboxedSdkCompat private constructor(
     fun getInterface() = sdkImpl.getInterface()
 
     /**
+     * Returns information about loaded SDK.
+     *
+     * @return [SandboxedSdkInfo] object for loaded SDK or null if no information available.
+     *
+     * @see [SandboxedSdk.getSharedLibraryInfo]
+     */
+    fun getSdkInfo(): SandboxedSdkInfo? = sdkImpl.getSdkInfo()
+
+    /**
      * Create [SandboxedSdk] from compat object.
      *
      * @return Platform SandboxedSdk
@@ -86,6 +98,8 @@ class SandboxedSdkCompat private constructor(
     internal interface SandboxedSdkImpl {
         fun getInterface(): IBinder?
 
+        fun getSdkInfo(): SandboxedSdkInfo?
+
         @RequiresExtension(extension = AD_SERVICES, version = 4)
         @DoNotInline
         fun toSandboxedSdk(): SandboxedSdk
@@ -94,22 +108,51 @@ class SandboxedSdkCompat private constructor(
     // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
     @SuppressLint("NewApi", "ClassVerificationFailure")
     @RequiresExtension(extension = AD_SERVICES, version = 4)
-    private class ApiAdServicesV4Impl(private val mSandboxedSdk: SandboxedSdk) : SandboxedSdkImpl {
+    private open class ApiAdServicesV4Impl(
+        protected val sandboxedSdk: SandboxedSdk
+    ) : SandboxedSdkImpl {
 
         @DoNotInline
         override fun getInterface(): IBinder? {
-            return mSandboxedSdk.getInterface()
+            return sandboxedSdk.getInterface()
         }
+
+        override fun getSdkInfo(): SandboxedSdkInfo? = null
 
         @DoNotInline
         override fun toSandboxedSdk(): SandboxedSdk {
-            return mSandboxedSdk
+            return sandboxedSdk
         }
 
         companion object {
             @DoNotInline
             fun createSandboxedSdk(sdkInterface: IBinder): SandboxedSdk {
                 return SandboxedSdk(sdkInterface)
+            }
+        }
+    }
+
+    // TODO(b/265295473): Replace @RequiresApi with correct @RequiresExtension
+    @RequiresApi(34)
+    private class ApiAdServicesV5Impl(
+        sandboxedSdk: SandboxedSdk
+    ) : ApiAdServicesV4Impl(sandboxedSdk) {
+
+        override fun getSdkInfo(): SandboxedSdkInfo {
+            val sharedLibraryInfo = sandboxedSdk.sharedLibraryInfo
+            return SandboxedSdkInfo(
+                name = sharedLibraryInfo.name,
+                version = sharedLibraryInfo.longVersion,
+            )
+        }
+    }
+
+    private object SdkImplFactory {
+        fun createSdkImpl(sandboxedSdk: SandboxedSdk): SandboxedSdkImpl {
+            return if (AdServicesInfo.isAtLeastV5()) {
+                ApiAdServicesV5Impl(sandboxedSdk)
+            } else {
+                ApiAdServicesV4Impl(sandboxedSdk)
             }
         }
     }
@@ -121,6 +164,8 @@ class SandboxedSdkCompat private constructor(
             // is now a dead object.
             return sdkInterface
         }
+
+        override fun getSdkInfo(): SandboxedSdkInfo? = null
 
         @RequiresExtension(extension = AD_SERVICES, version = 4)
         override fun toSandboxedSdk(): SandboxedSdk {

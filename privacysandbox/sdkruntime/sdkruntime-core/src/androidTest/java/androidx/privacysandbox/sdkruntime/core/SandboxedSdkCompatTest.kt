@@ -17,17 +17,24 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
+import android.content.pm.SharedLibraryInfo
 import android.os.Binder
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
+import org.mockito.Mockito.doReturn
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.`when`
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -78,6 +85,91 @@ class SandboxedSdkCompatTest {
             .isSameInstanceAs(sandboxedSdk)
     }
 
+    @Test
+    fun getSdkInfo_whenCreatedFromBinder_returnsNull() {
+        val binder = Binder()
+        val sandboxedSdkCompat = SandboxedSdkCompat(binder)
+
+        assertThat(sandboxedSdkCompat.getSdkInfo()).isNull()
+    }
+
+    @Test
+    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
+    @SuppressLint("NewApi")
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @SdkSuppress(minSdkVersion = TIRAMISU)
+    fun getSdkInfo_whenCreatedFromSandboxedSdkAndNoSharedLibraryInfo_returnsNull() {
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
+        assumeFalse(
+            "Requires SharedLibraryInfo not available",
+            isSharedLibraryInfoAvailable()
+        )
+
+        val binder = Binder()
+        val sandboxedSdk = SandboxedSdk(binder)
+        val sandboxedSdkCompat = SandboxedSdkCompat(sandboxedSdk)
+
+        assertThat(sandboxedSdkCompat.getSdkInfo()).isNull()
+    }
+
+    @Test
+    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    fun getSdkInfo_whenCreatedFromSandboxedSdkAndSharedLibraryInfoAvailable_returnsSdkInfo() {
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
+        assumeTrue(
+            "Requires SharedLibraryInfo available",
+            isSharedLibraryInfoAvailable()
+        )
+
+        val sdkName = "sdkName"
+        val sdkVersion = 1L
+        val sharedLibraryInfo = ApiAdServicesV5.mockSharedLibraryInfo(sdkName, sdkVersion)
+        val sandboxedSdk = ApiAdServicesV5.mockSandboxedSdkWithSharedLibraryInfo(sharedLibraryInfo)
+
+        val sandboxedSdkCompat = SandboxedSdkCompat(sandboxedSdk)
+        val sdkInfo = sandboxedSdkCompat.getSdkInfo()
+
+        assertThat(sdkInfo).isEqualTo(
+            SandboxedSdkInfo(
+                sdkName,
+                sdkVersion
+            )
+        )
+    }
+
+    private object ApiAdServicesV5 {
+        @Suppress("SameParameterValue")
+        @RequiresApi(28)
+        fun mockSharedLibraryInfo(
+            sdkName: String,
+            sdkVersion: Long
+        ): SharedLibraryInfo {
+            // No public constructor for SharedLibraryInfo available.
+            val sharedLibraryInfo = Mockito.mock(SharedLibraryInfo::class.java)
+            `when`(sharedLibraryInfo.name).thenReturn(sdkName)
+            `when`(sharedLibraryInfo.longVersion).thenReturn(sdkVersion)
+            return sharedLibraryInfo
+        }
+
+        @Suppress("SameParameterValue")
+        @RequiresApi(34)
+        fun mockSandboxedSdkWithSharedLibraryInfo(
+            sharedLibraryInfo: SharedLibraryInfo
+        ): SandboxedSdk {
+            val binder = Binder()
+            val sandboxedSdk = SandboxedSdk(binder)
+            val sandboxedSdkSpy = spy(sandboxedSdk)
+            // Platform uses attachSharedLibraryInfo (hidden) to set sharedLibraryInfo.
+            doReturn(sharedLibraryInfo).`when`(sandboxedSdkSpy).sharedLibraryInfo
+            return sandboxedSdkSpy
+        }
+    }
+
     private fun isSandboxApiAvailable() =
         AdServicesInfo.version() >= 4
+
+    private fun isSharedLibraryInfoAvailable() =
+        AdServicesInfo.isAtLeastV5()
 }

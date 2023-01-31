@@ -66,7 +66,7 @@ class SdkSandboxManagerCompatTest {
     @Test
     // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun loadSdk_whenNoLocalSdkExistsAndSandboxNotAvailable_notDelegateToSandbox() {
+    fun loadSdk_whenNoLocalSdkExistsAndSandboxNotAvailable_dontDelegateToSandbox() {
         // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
         assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
 
@@ -147,6 +147,34 @@ class SdkSandboxManagerCompatTest {
 
         assertThat(result.loadSdkErrorCode).isEqualTo(LOAD_SDK_INTERNAL_ERROR)
         assertThat(result.message).isEqualTo("Failed to instantiate local SDK")
+    }
+
+    @Test
+    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    fun getSandboxedSdks_whenSandboxNotAvailable_dontDelegateToSandbox() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        managerCompat.getSandboxedSdks()
+
+        verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    fun getSandboxedSdks_whenSandboxNotAvailable_returnsEmptyList() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val sandboxedSdks = managerCompat.getSandboxedSdks()
+
+        assertThat(sandboxedSdks).isEmpty()
     }
 
     private fun isSandboxApiNotAvailable() =
