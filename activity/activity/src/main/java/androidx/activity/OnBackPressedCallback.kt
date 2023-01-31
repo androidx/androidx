@@ -15,7 +15,9 @@
  */
 package androidx.activity
 
+import android.window.BackEvent
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -67,10 +69,37 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     fun remove() = cancellables.forEach { it.cancel() }
 
     /**
+     * Callback for handling the system UI generated equivalent to
+     * [OnBackPressedDispatcher.dispatchOnBackStarted].
+     */
+    @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
+    @RequiresApi(34)
+    @MainThread
+    open fun handleOnBackStarted(backEvent: BackEvent) {}
+
+    /**
+     * Callback for handling the system UI generated equivalent to
+     * [OnBackPressedDispatcher.dispatchOnBackProgressed].
+     */
+    @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
+    @RequiresApi(34)
+    @MainThread
+    open fun handleOnBackProgressed(backEvent: BackEvent) {}
+
+    /**
      * Callback for handling the [OnBackPressedDispatcher.onBackPressed] event.
      */
     @MainThread
     abstract fun handleOnBackPressed()
+
+    /**
+     * Callback for handling the system UI generated equivalent to
+     * [OnBackPressedDispatcher.dispatchOnBackCancelled].
+     */
+    @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
+    @RequiresApi(34)
+    @MainThread
+    open fun handleOnBackCancelled() {}
 
     @JvmName("addCancellable")
     internal fun addCancellable(cancellable: Cancellable) {
