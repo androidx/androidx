@@ -67,8 +67,7 @@ class HealthConnectClientUpsideDownImplTest {
         context.packageManager
             .getPackageInfo(
                 context.packageName,
-                PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-            )
+                PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong()))
             .requestedPermissions
             .filter { it.startsWith(PERMISSION_PREFIX) }
             .toTypedArray()
@@ -99,10 +98,7 @@ class HealthConnectClientUpsideDownImplTest {
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
-                        endZoneOffset = null
-                    )
-                )
-            )
+                        endZoneOffset = null)))
         assertThat(response.recordIdsList).hasSize(1)
     }
 
@@ -117,25 +113,21 @@ class HealthConnectClientUpsideDownImplTest {
                             startTime = Instant.ofEpochMilli(1234L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(5678L),
-                            endZoneOffset = null
-                        ),
+                            endZoneOffset = null),
                         StepsRecord(
                             count = 150,
                             startTime = Instant.ofEpochMilli(12340L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(56780L),
-                            endZoneOffset = null
-                        ),
+                            endZoneOffset = null),
                         StepsRecord(
                             count = 200,
                             startTime = Instant.ofEpochMilli(123400L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(567800L),
                             endZoneOffset = null,
-                            metadata = Metadata(clientRecordId = "clientId")
-                        ),
-                    )
-                )
+                            metadata = Metadata(clientRecordId = "clientId")),
+                    ))
                 .recordIdsList
 
         val initialRecords =
@@ -144,16 +136,12 @@ class HealthConnectClientUpsideDownImplTest {
                 .records
 
         healthConnectClient.deleteRecords(
-            StepsRecord::class,
-            listOf(recordIds[1]),
-            listOf("clientId")
-        )
+            StepsRecord::class, listOf(recordIds[1]), listOf("clientId"))
 
         assertThat(
                 healthConnectClient
                     .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
-                    .records
-            )
+                    .records)
             .containsExactly(initialRecords[0])
     }
 
@@ -169,17 +157,14 @@ class HealthConnectClientUpsideDownImplTest {
                         startTime = Instant.ofEpochMilli(1_234L),
                         startZoneOffset = ZoneOffset.UTC,
                         endTime = Instant.ofEpochMilli(5_678L),
-                        endZoneOffset = ZoneOffset.UTC
-                    ),
+                        endZoneOffset = ZoneOffset.UTC),
                     StepsRecord(
                         count = 150,
                         startTime = Instant.ofEpochMilli(12_340L),
                         startZoneOffset = ZoneOffset.UTC,
                         endTime = Instant.ofEpochMilli(56_780L),
-                        endZoneOffset = ZoneOffset.UTC
-                    ),
-                )
-            )
+                        endZoneOffset = ZoneOffset.UTC),
+                ))
             .recordIdsList
 
         val initialRecords =
@@ -188,15 +173,12 @@ class HealthConnectClientUpsideDownImplTest {
                 .records
 
         healthConnectClient.deleteRecords(
-            StepsRecord::class,
-            TimeRangeFilter.before(Instant.ofEpochMilli(10_000L))
-        )
+            StepsRecord::class, TimeRangeFilter.before(Instant.ofEpochMilli(10_000L)))
 
         assertThat(
                 healthConnectClient
                     .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
-                    .records
-            )
+                    .records)
             .containsExactly(initialRecords[1])
     }
 
@@ -211,10 +193,7 @@ class HealthConnectClientUpsideDownImplTest {
                             startTime = Instant.ofEpochMilli(1234L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(5678L),
-                            endZoneOffset = null
-                        )
-                    )
-                )
+                            endZoneOffset = null)))
                 .recordIdsList[0]
 
         val insertedRecord = healthConnectClient.readRecord(StepsRecord::class, id).record
@@ -227,10 +206,7 @@ class HealthConnectClientUpsideDownImplTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
-                    metadata = Metadata(id, insertedRecord.metadata.dataOrigin)
-                )
-            )
-        )
+                    metadata = Metadata(id, insertedRecord.metadata.dataOrigin))))
 
         val updatedRecord = healthConnectClient.readRecord(StepsRecord::class, id).record
 
@@ -247,10 +223,7 @@ class HealthConnectClientUpsideDownImplTest {
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = ZoneOffset.UTC,
                         endTime = Instant.ofEpochMilli(5678L),
-                        endZoneOffset = ZoneOffset.UTC
-                    )
-                )
-            )
+                        endZoneOffset = ZoneOffset.UTC)))
 
         val readResponse =
             healthConnectClient.readRecord(StepsRecord::class, insertResponse.recordIdsList[0])
@@ -273,25 +246,19 @@ class HealthConnectClientUpsideDownImplTest {
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(5678L),
-                    endZoneOffset = ZoneOffset.UTC
-                ),
+                    endZoneOffset = ZoneOffset.UTC),
                 StepsRecord(
                     count = 50,
                     startTime = Instant.ofEpochMilli(12340L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(56780L),
-                    endZoneOffset = ZoneOffset.UTC
-                ),
-            )
-        )
+                    endZoneOffset = ZoneOffset.UTC),
+            ))
 
         val readResponse =
             healthConnectClient.readRecords(
                 ReadRecordsRequest(
-                    StepsRecord::class,
-                    TimeRangeFilter.after(Instant.ofEpochMilli(10_000L))
-                )
-            )
+                    StepsRecord::class, TimeRangeFilter.after(Instant.ofEpochMilli(10_000L))))
 
         assertThat(readResponse.records[0].count).isEqualTo(50)
     }
@@ -308,11 +275,7 @@ class HealthConnectClientUpsideDownImplTest {
                 AggregateRequest(
                     setOf(StepsRecord.COUNT_TOTAL),
                     TimeRangeFilter.between(
-                        Instant.ofEpochMilli(1234L),
-                        Instant.ofEpochMilli(1235L)
-                    )
-                )
-            )
+                        Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))))
         }
     }
 
@@ -323,12 +286,8 @@ class HealthConnectClientUpsideDownImplTest {
                 AggregateGroupByDurationRequest(
                     setOf(StepsRecord.COUNT_TOTAL),
                     TimeRangeFilter.between(
-                        Instant.ofEpochMilli(1234L),
-                        Instant.ofEpochMilli(1235L)
-                    ),
-                    timeRangeSlicer = Duration.ofMillis(1)
-                )
-            )
+                        Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L)),
+                    timeRangeSlicer = Duration.ofMillis(1)))
         }
     }
 
@@ -342,9 +301,7 @@ class HealthConnectClientUpsideDownImplTest {
                         LocalDateTime.of(2018, 10, 11, 7, 10),
                         LocalDateTime.of(2018, 10, 13, 7, 10),
                     ),
-                    timeRangeSlicer = Period.ofDays(1)
-                )
-            )
+                    timeRangeSlicer = Period.ofDays(1)))
         }
     }
 
@@ -352,8 +309,7 @@ class HealthConnectClientUpsideDownImplTest {
     fun getChangesToken() = runTest {
         val token =
             healthConnectClient.getChangesToken(
-                ChangesTokenRequest(setOf(StepsRecord::class), setOf())
-            )
+                ChangesTokenRequest(setOf(StepsRecord::class), setOf()))
         assertThat(token).isNotEmpty()
     }
 
@@ -361,8 +317,7 @@ class HealthConnectClientUpsideDownImplTest {
     fun getChanges() = runTest {
         val token =
             healthConnectClient.getChangesToken(
-                ChangesTokenRequest(setOf(StepsRecord::class), setOf())
-            )
+                ChangesTokenRequest(setOf(StepsRecord::class), setOf()))
 
         val insertedRecordId =
             healthConnectClient
@@ -373,10 +328,7 @@ class HealthConnectClientUpsideDownImplTest {
                             startTime = Instant.ofEpochMilli(1234L),
                             startZoneOffset = ZoneOffset.UTC,
                             endTime = Instant.ofEpochMilli(5678L),
-                            endZoneOffset = ZoneOffset.UTC
-                        )
-                    )
-                )
+                            endZoneOffset = ZoneOffset.UTC)))
                 .recordIdsList[0]
 
         val record = healthConnectClient.readRecord(StepsRecord::class, insertedRecordId).record
@@ -397,15 +349,13 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getGrantedPermission_throwUOE() = runTest {
+    fun getGrantedPermissionsLegacy_throwUOE() = runTest {
         assertFailsWith<UnsupportedOperationException> {
             healthConnectClient.permissionController.getGrantedPermissionsLegacy(
                 setOf(
                     HealthPermission.createReadPermissionLegacy(
                         StepsRecord::class,
-                    )
-                )
-            )
+                    )))
         }
     }
 }

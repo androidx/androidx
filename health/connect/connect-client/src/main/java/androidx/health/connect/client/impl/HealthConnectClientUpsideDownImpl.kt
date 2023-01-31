@@ -28,6 +28,7 @@ import android.healthconnect.RecordIdFilter
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.core.os.asOutcomeReceiver
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
@@ -73,14 +74,23 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     private val context: Context
     private val timeSource: TimeSource
     private val healthConnectManager: HealthConnectManager
+    private val revokePermissionsFunction: (Collection<String>) -> Unit
 
-    constructor(context: Context) : this(context, SystemDefaultTimeSource)
+    constructor(
+        context: Context
+    ) : this(context, SystemDefaultTimeSource, context::revokeSelfPermissionsOnKill)
 
-    internal constructor(context: Context, timeSource: TimeSource) {
+    @VisibleForTesting
+    internal constructor(
+        context: Context,
+        timeSource: TimeSource,
+        revokePermissionsFunction: (Collection<String>) -> Unit
+    ) {
         this.context = context
         this.timeSource = timeSource
         this.healthConnectManager =
             context.getSystemService(Context.HEALTHCONNECT_SERVICE) as HealthConnectManager
+        this.revokePermissionsFunction = revokePermissionsFunction
     }
 
     override val permissionController: PermissionController
@@ -92,8 +102,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 healthConnectManager.insertRecords(
                     records.map { it.toPlatformRecord() },
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
         return response.toKtResponse()
@@ -105,8 +114,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 healthConnectManager.updateRecords(
                     records.map { it.toPlatformRecord() },
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
     }
@@ -121,22 +129,16 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 healthConnectManager.deleteRecords(
                     buildList {
                         recordIdsList.forEach {
-                            add(
-                                RecordIdFilter.fromId(recordType.toPlatformRecordClass(), it)
-                            )
+                            add(RecordIdFilter.fromId(recordType.toPlatformRecordClass(), it))
                         }
                         clientRecordIdsList.forEach {
                             add(
                                 RecordIdFilter.fromClientRecordId(
-                                    recordType.toPlatformRecordClass(),
-                                    it
-                                )
-                            )
+                                    recordType.toPlatformRecordClass(), it))
                         }
                     },
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
     }
@@ -151,8 +153,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     recordType.toPlatformRecordClass(),
                     timeRangeFilter.toPlatformTimeRangeFilter(timeSource),
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
     }
@@ -169,8 +170,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                         .addId(recordId)
                         .build(),
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
         if (response.records.isEmpty()) {
@@ -188,8 +188,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 healthConnectManager.readRecords(
                     request.toPlatformReadRecordsRequestUsingFilters(timeSource),
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
         // TODO(b/262573513): pass page token
@@ -214,14 +213,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
         return wrapPlatformException {
-            suspendCancellableCoroutine { continuation ->
-                healthConnectManager.getChangeLogToken(
-                    request.toPlatformChangeLogTokenRequest(),
-                    Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getChangeLogToken(
+                        request.toPlatformChangeLogTokenRequest(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver())
+                }
             }
-        }.token
+            .token
     }
 
     override suspend fun registerForDataNotifications(
@@ -241,8 +240,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 healthConnectManager.getChangeLogs(
                     ChangeLogsRequest.Builder(changesToken).build(),
                     Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
+                    continuation.asOutcomeReceiver())
             }
         }
         // TODO(b/263472286) revisit changesTokenExpired field in the constructor
@@ -253,8 +251,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             },
             response.nextChangesToken,
             response.hasMorePages(),
-            changesTokenExpired = true
-        )
+            changesTokenExpired = true)
     }
 
     override suspend fun getGrantedPermissionsLegacy(
@@ -269,10 +266,8 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             .let {
                 return buildSet {
                     for (i in it.requestedPermissions.indices) {
-                        if (
-                            it.requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
-                            it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0
-                        ) {
+                        if (it.requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
+                            it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0) {
                             add(it.requestedPermissions[i])
                         }
                     }
@@ -281,7 +276,12 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun revokeAllPermissions() {
-        throw UnsupportedOperationException("Method not supported yet")
+        val allHealthPermissions =
+            context.packageManager
+                .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
+                .requestedPermissions
+                .filter { it.startsWith(PERMISSION_PREFIX) }
+        revokePermissionsFunction(allHealthPermissions)
     }
 
     private suspend fun <T> wrapPlatformException(function: suspend () -> T): T {

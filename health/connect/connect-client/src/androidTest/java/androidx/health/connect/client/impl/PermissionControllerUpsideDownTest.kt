@@ -20,6 +20,8 @@ import android.annotation.TargetApi
 import android.healthconnect.HealthPermissions
 import android.os.Build
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -27,7 +29,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,18 +45,24 @@ class PermissionControllerUpsideDownTest {
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(HealthPermissions.WRITE_STEPS, HealthPermissions.READ_DISTANCE)
 
-    private lateinit var permissionController: PermissionController
-
-    @Before
-    fun setUp() {
-        permissionController =
+    @Test
+    fun getGrantedPermissions() = runTest {
+        val permissionController: PermissionController =
             HealthConnectClientUpsideDownImpl(ApplicationProvider.getApplicationContext())
-                .permissionController
+        assertThat(permissionController.getGrantedPermissions())
+            .containsExactly(HealthPermissions.WRITE_STEPS, HealthPermissions.READ_DISTANCE)
     }
 
     @Test
-    fun getGrantedPermissions() = runTest {
-        assertThat(permissionController.getGrantedPermissions())
-            .containsExactly(HealthPermissions.WRITE_STEPS, HealthPermissions.READ_DISTANCE)
+    fun revokeAllPermissions_revokesHealthPermissions() = runTest {
+        val revokedPermissions: MutableList<String> = mutableListOf()
+        val permissionController: PermissionController =
+            HealthConnectClientUpsideDownImpl(
+                ApplicationProvider.getApplicationContext(), SystemDefaultTimeSource) {
+                    permissionsToRevoke ->
+                    revokedPermissions.addAll(permissionsToRevoke)
+                }
+        permissionController.revokeAllPermissions()
+        assertThat(revokedPermissions.all { it.startsWith(PERMISSION_PREFIX) }).isTrue()
     }
 }
