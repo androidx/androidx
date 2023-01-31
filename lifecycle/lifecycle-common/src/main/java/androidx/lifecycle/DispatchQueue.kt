@@ -16,7 +16,6 @@
 
 package androidx.lifecycle
 
-import android.annotation.SuppressLint
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import kotlinx.coroutines.Dispatchers
@@ -83,7 +82,7 @@ internal class DispatchQueue {
     fun canRun() = finished || !paused
 
     @AnyThread
-    @SuppressLint("WrongThread") // false negative, we are checking the thread
+    @Suppress("WrongThread") // false negative, we are checking the thread
     fun dispatchAndEnqueue(context: CoroutineContext, runnable: Runnable) {
         with(Dispatchers.Main.immediate) {
             // This check is here to handle a special but important case. If for example
