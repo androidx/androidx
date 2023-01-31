@@ -1167,6 +1167,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
               @Upsert
               fun upsertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long>
+
+              @Upsert
+              fun upsertEntityListAndReturnRowIdsArray(items: List<MyEntity>): Array<Long>
+
+              @Upsert
+              fun upsertEntityListAndReturnRowIdsOutArray(items: List<MyEntity>): Array<out Long>
             }
 
             @Entity
