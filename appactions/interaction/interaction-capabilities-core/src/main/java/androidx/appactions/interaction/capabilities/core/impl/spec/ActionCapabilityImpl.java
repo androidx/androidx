@@ -26,6 +26,8 @@ import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilityIn
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback;
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger;
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal;
@@ -97,7 +99,20 @@ public final class ActionCapabilityImpl<PropertyT, ArgumentT, OutputT>
                                                         .map(FulfillmentValue::getValue)
                                                         .collect(toImmutableList())));
         try {
-            mActionExecutor.execute(mActionSpec.buildArgument(args), convertCallback(callback));
+            Futures.addCallback(
+                    mActionExecutor.execute(mActionSpec.buildArgument(args)),
+                    new FutureCallback<ExecutionResult<OutputT>>() {
+                        @Override
+                        public void onSuccess(ExecutionResult<OutputT> executionResult) {
+                            callback.onSuccess(convertToFulfillmentResponse(executionResult));
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            callback.onError(ErrorStatusInternal.CANCELLED);
+                        }
+                    },
+                    Runnable::run);
         } catch (StructConversionException e) {
             if (e.getMessage() != null) {
                 LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, e.getMessage());
@@ -106,32 +121,11 @@ public final class ActionCapabilityImpl<PropertyT, ArgumentT, OutputT>
         }
     }
 
-    /** Converts {@link CallbackInternal} to {@link ActionExecutor.ActionCallback}. */
-    private ActionExecutor.ActionCallback<OutputT> convertCallback(CallbackInternal callback) {
-        return new ActionExecutor.ActionCallback<OutputT>() {
-            @Override
-            public void onSuccess(ExecutionResult<OutputT> executionResult) {
-                callback.onSuccess(convertToFulfillmentResponse(executionResult));
-            }
-
-            @Override
-            public void onError(ActionExecutor.ErrorStatus errorStatus) {
-                switch (errorStatus) {
-                    case CANCELLED:
-                        callback.onError(ErrorStatusInternal.CANCELLED);
-                        break;
-                    case TIMEOUT:
-                        callback.onError(ErrorStatusInternal.TIMEOUT);
-                }
-            }
-        };
-    }
-
     /** Converts typed {@link ExecutionResult} to {@link FulfillmentResponse} proto. */
     FulfillmentResponse convertToFulfillmentResponse(ExecutionResult<OutputT> executionResult) {
         FulfillmentResponse.Builder fulfillmentResponseBuilder =
-                FulfillmentResponse.newBuilder().setStartDictation(
-                        executionResult.getStartDictation());
+                FulfillmentResponse.newBuilder()
+                        .setStartDictation(executionResult.getStartDictation());
         OutputT output = executionResult.getOutput();
         if (output != null && !(output instanceof Void)) {
             fulfillmentResponseBuilder.setExecutionOutput(mActionSpec.convertOutputToProto(output));

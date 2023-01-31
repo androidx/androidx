@@ -18,6 +18,8 @@ package androidx.appactions.interaction.capabilities.core;
 
 import androidx.annotation.NonNull;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 /**
  * An interface of executing the action.
  *
@@ -29,39 +31,8 @@ public interface ActionExecutor<ArgumentT, OutputT> {
      * Calls to execute the action.
      *
      * @param argument the argument for this action.
-     * @param callback the callback to send back the action execution result.
+     * @return A ListenableFuture containing the ExecutionResult
      */
-    void execute(@NonNull ArgumentT argument, @NonNull ActionCallback<OutputT> callback);
-
-    /** Reasons for the action execution error. */
-    enum ErrorStatus {
-        CANCELLED,
-        /** The action execution error was caused by a timeout. */
-        TIMEOUT,
-    }
-
-    /**
-     * An interface for receiving the result of action.
-     *
-     * @param <OutputT>
-     */
-    interface ActionCallback<OutputT> {
-
-        /** Invoke to set an action result upon success. */
-        void onSuccess(@NonNull ExecutionResult<OutputT> executionResult);
-
-        /** Invoke to set an action result upon success. */
-        default void onSuccess() {
-            onSuccess(ExecutionResult.<OutputT>newBuilderWithOutput().build());
-        }
-
-        /**
-         * Invokes to set an error status for the action.
-         *
-         * @deprecated
-         */
-        @Deprecated
-        void onError(@NonNull ErrorStatus errorStatus);
-    }
-
+    @NonNull
+    ListenableFuture<ExecutionResult<OutputT>> execute(@NonNull ArgumentT argument);
 }
