@@ -1510,6 +1510,12 @@ class XTypeElementTest(
                 assertWithMessage("$qName  does not report enum constants in declared fields")
                     .that(typeElement.getDeclaredFields().map { it.name })
                     .containsExactly("x")
+                typeElement.getEnclosedElements().let { elements ->
+                    assertThat(elements.filter { it.name == "VAL1" }.all { it is XEnumEntry })
+                        .isTrue()
+                    assertThat(elements.filter { it.name == "VAL2" }.all { it is XEnumEntry })
+                        .isTrue()
+                }
             }
         }
     }
