@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
@@ -1028,19 +1029,84 @@ class FocusMeteringControlTest {
         assertFutureFocusCompleted(future, false)
     }
 
+    @Test
+    fun startFocusMetering_afAutoModeIsSet() {
+        // Arrange.
+        val action = FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF).build()
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl = initFocusMeteringControl(
+            CAMERA_ID_0,
+            setOf(createPreview(Size(1920, 1080))),
+            fakeUseCaseThreads,
+            state3AControl,
+        )
+
+        // Act.
+        focusMeteringControl.startFocusAndMetering(
+            action
+        )[5, TimeUnit.SECONDS]
+
+        // Assert.
+        assertThat(
+            state3AControl.preferredFocusMode
+        ).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+    }
+
+    @Test
+    fun startFocusMetering_AfNotInvolved_afAutoModeNotSet() {
+        // Arrange.
+        val action = FocusMeteringAction.Builder(
+            point1,
+            FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
+        ).build()
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl = initFocusMeteringControl(
+            CAMERA_ID_0,
+            setOf(createPreview(Size(1920, 1080))),
+            fakeUseCaseThreads,
+            state3AControl,
+        )
+
+        // Act.
+        focusMeteringControl.startFocusAndMetering(
+            action
+        )[5, TimeUnit.SECONDS]
+
+        // Assert.
+        assertThat(
+            state3AControl.preferredFocusMode
+        ).isEqualTo(null)
+    }
+
+    @Test
+    fun startAndThenCancel_afAutoModeNotSet(): Unit = runBlocking {
+        // Arrange.
+        val action = FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF).build()
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl = initFocusMeteringControl(
+            CAMERA_ID_0,
+            setOf(createPreview(Size(1920, 1080))),
+            fakeUseCaseThreads,
+            state3AControl,
+        )
+
+        // Act.
+        focusMeteringControl.startFocusAndMetering(
+            action
+        )[5, TimeUnit.SECONDS]
+        focusMeteringControl.cancelFocusAndMeteringAsync().join()
+
+        // Assert.
+        assertThat(
+            state3AControl.preferredFocusMode
+        ).isEqualTo(null)
+    }
+
     // TODO: Port the following tests once their corresponding logics have been implemented.
     //  - [b/255679866] triggerAfWithTemplate, triggerAePrecaptureWithTemplate,
     //          cancelAfAeTriggerWithTemplate
     //  - startFocusAndMetering_AfRegionCorrectedByQuirk
     //  - [b/262225455] cropRegionIsSet_resultBasedOnCropRegion
-    //  The following ones will depend on how exactly they will be implemented.
-    //  - [b/264018162] addFocusMeteringOptions_hasCorrectAfMode,
-    //                  startFocusMetering_isAfAutoModeIsTrue,
-    //                  startFocusMetering_AfNotInvolved_isAfAutoModeIsSet,
-    //                  startAndThenCancel_isAfAutoModeIsFalse
-    //      (an alternative way can be checking the AF mode
-    //      at the frame with AF_TRIGGER_START request in capture callback, but this requires
-    //      invoking actual camera operations, ref: TapToFocusDeviceTest)
 
     private fun assertFutureFocusCompleted(
         future: ListenableFuture<FocusMeteringResult>,
@@ -1135,8 +1201,11 @@ class FocusMeteringControlTest {
         cameraId: String,
         useCases: Set<UseCase> = emptySet(),
         useCaseThreads: UseCaseThreads = fakeUseCaseThreads,
+        state3AControl: State3AControl = createState3AControl(cameraId),
     ) = FocusMeteringControl(
-            cameraPropertiesMap[cameraId]!!, useCaseThreads
+            cameraPropertiesMap[cameraId]!!,
+            state3AControl,
+            useCaseThreads
         ).apply {
             fakeUseCaseCamera.runningUseCasesLiveData.value = useCases
             useCaseCamera = fakeUseCaseCamera
@@ -1260,4 +1329,12 @@ class FocusMeteringControlTest {
                     StreamSpec.builder(suggestedStreamSpecResolution).build()
                 )
             }
+
+    private fun createState3AControl(
+        cameraId: String = CAMERA_ID_0,
+        properties: CameraProperties = cameraPropertiesMap[cameraId]!!,
+        useCaseCamera: UseCaseCamera = fakeUseCaseCamera,
+    ) = State3AControl(properties).apply {
+        this.useCaseCamera = useCaseCamera
+    }
 }
