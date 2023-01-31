@@ -164,10 +164,12 @@ class CreateEntry internal constructor(
          * credential being created, and where it is being stored. Providers are free
          * to phrase this however they see fit.
          *
-         * This description must be no more than 150 characters long. Any characters beyond
-         * that limit will be trimmed off.
+         * @throws IllegalArgumentException if [description] is longer than 150 characters.
          */
         fun setDescription(description: CharSequence?): Builder {
+            if (description?.length != null && description.length > DESCRIPTION_MAX_CHAR_LIMIT) {
+                throw IllegalArgumentException("Description must follow a limit of 150 characters.")
+            }
             this.description = description
             return this
         }
@@ -194,6 +196,7 @@ class CreateEntry internal constructor(
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "CreateEntry"
+        private const val DESCRIPTION_MAX_CHAR_LIMIT = 150
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
