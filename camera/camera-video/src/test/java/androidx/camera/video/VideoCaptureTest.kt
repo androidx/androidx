@@ -145,14 +145,17 @@ class VideoCaptureTest {
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Arrange.
         setupCamera()
-        createCameraUseCaseAdapter()
         val processor = createFakeSurfaceProcessor()
         val videoCapture = createVideoCapture(createVideoOutput(), processor = processor)
-        // Act.
-        videoCapture.setHasCameraTransform(false)
-        addAndAttachUseCases(videoCapture)
-        // Assert.
+        // Act: set no transform and create pipeline.
+        videoCapture.hasCameraTransform = false
+        videoCapture.bindToCamera(camera, null, null)
+        videoCapture.updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build())
+        videoCapture.onStateAttached()
+        // Assert: camera edge does not have transform.
         assertThat(videoCapture.cameraEdge!!.hasCameraTransform()).isFalse()
+        videoCapture.onStateDetached()
+        videoCapture.unbindFromCamera(camera)
     }
 
     @Test

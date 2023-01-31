@@ -141,6 +141,11 @@ class CameraUseCaseAdapterTest {
         // Assert: StreamSharing children are bound
         assertThat(preview.camera).isNotNull()
         assertThat(video.camera).isNotNull()
+        // Assert: has camera transform bit.
+        assertThat(preview.hasCameraTransform).isFalse()
+        assertThat(video.hasCameraTransform).isFalse()
+        assertThat(image.hasCameraTransform).isTrue()
+        assertThat(adapter.getStreamSharing().hasCameraTransform).isTrue()
     }
 
     @Test
@@ -154,6 +159,8 @@ class CameraUseCaseAdapterTest {
             Preview::class.java,
             FakeUseCase::class.java
         )
+        assertThat(preview.hasCameraTransform).isTrue()
+        assertThat(video.hasCameraTransform).isTrue()
     }
 
     @Test(expected = CameraException::class)
@@ -176,6 +183,8 @@ class CameraUseCaseAdapterTest {
             FakeUseCase::class.java,
             ImageCapture::class.java
         )
+        assertThat(image.hasCameraTransform).isTrue()
+        assertThat(video.hasCameraTransform).isTrue()
         // Act: add a new UseCase that needs StreamSharing
         adapter.addUseCases(setOf(preview))
         // Assert: StreamSharing is created.
@@ -187,6 +196,11 @@ class CameraUseCaseAdapterTest {
         assertThat(preview.camera).isNotNull()
         assertThat(video.camera).isNotNull()
         assertThat(image.camera).isNotNull()
+        // Assert: hasCameraTransform bit
+        assertThat(preview.hasCameraTransform).isFalse()
+        assertThat(video.hasCameraTransform).isFalse()
+        assertThat(image.hasCameraTransform).isTrue()
+        assertThat(adapter.getStreamSharing().hasCameraTransform).isTrue()
     }
 
     @Test
@@ -203,6 +217,11 @@ class CameraUseCaseAdapterTest {
         val streamSharing =
             adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
         assertThat(streamSharing.camera).isNotNull()
+        // Assert: hasCameraTransform bit
+        assertThat(preview.hasCameraTransform).isFalse()
+        assertThat(video.hasCameraTransform).isFalse()
+        assertThat(image.hasCameraTransform).isTrue()
+        assertThat(adapter.getStreamSharing().hasCameraTransform).isTrue()
         // Act: remove UseCase so that StreamSharing is no longer needed
         adapter.removeUseCases(setOf(video))
         // Assert: StreamSharing removed and unbound.
@@ -211,6 +230,9 @@ class CameraUseCaseAdapterTest {
             ImageCapture::class.java
         )
         assertThat(streamSharing.camera).isNull()
+        // Assert: hasCameraTransform bit
+        assertThat(image.hasCameraTransform).isTrue()
+        assertThat(preview.hasCameraTransform).isTrue()
     }
 
     @Test(expected = CameraException::class)
@@ -229,7 +251,7 @@ class CameraUseCaseAdapterTest {
         // Act: add UseCases that require StreamSharing
         adapter.addUseCases(setOf(preview, video, image))
         // Assert: StreamSharing is used.
-        val streamSharing = adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        val streamSharing = adapter.getStreamSharing()
         adapter.cameraUseCases.hasExactTypes(
             StreamSharing::class.java,
             ImageCapture::class.java
@@ -237,14 +259,16 @@ class CameraUseCaseAdapterTest {
         // Act: add another UseCase
         adapter.addUseCases(setOf(analysis))
         // Assert: the same StreamSharing instance is kept.
-        assertThat(
-            adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
-        ).isSameInstanceAs(streamSharing)
+        assertThat(adapter.getStreamSharing()).isSameInstanceAs(streamSharing)
         adapter.cameraUseCases.hasExactTypes(
             StreamSharing::class.java,
             ImageCapture::class.java,
             ImageAnalysis::class.java
         )
+    }
+
+    private fun CameraUseCaseAdapter.getStreamSharing(): StreamSharing {
+        return this.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
     }
 
     private fun createFakeVideoCapture(): FakeUseCase {
