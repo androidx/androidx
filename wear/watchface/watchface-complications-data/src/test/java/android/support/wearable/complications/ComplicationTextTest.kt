@@ -18,11 +18,13 @@ package android.support.wearable.complications
 
 import android.content.Context
 import android.os.Parcel
+import android.support.wearable.complications.ComplicationText.FORMAT_STYLE_DEFAULT
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.complications.data.StringExpression
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
+import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Test
@@ -34,6 +36,33 @@ import java.util.concurrent.TimeUnit
 @RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationTextTest {
     private val mResources = ApplicationProvider.getApplicationContext<Context>().resources
+
+    @Test
+    public fun testEquality() {
+        fun dup(builder: () -> ComplicationText) = arrayOf(builder(), builder())
+        fun timeFormat(value: String) = TimeFormatText(value, FORMAT_STYLE_DEFAULT, null)
+
+        // Verifying all possible constructors, with duplicate values and different values for each
+        // constructor argument.
+        EqualsTester()
+            .addEqualityGroup(dup { ComplicationText("surrounding") })
+            .addEqualityGroup(dup { ComplicationText("surrounding 2") })
+            .addEqualityGroup(dup { ComplicationText("surrounding", timeFormat("%h")) })
+            .addEqualityGroup(dup { ComplicationText("surrounding 2", timeFormat("%h")) })
+            .addEqualityGroup(dup { ComplicationText("surrounding", timeFormat("%m")) })
+            .addEqualityGroup(dup { ComplicationText(DynamicString.constant("expression")) })
+            .addEqualityGroup(dup { ComplicationText(DynamicString.constant("expression 2")) })
+            .addEqualityGroup(
+                dup { ComplicationText("surrounding", DynamicString.constant("expression")) }
+            )
+            .addEqualityGroup(
+                dup { ComplicationText("surrounding 2", DynamicString.constant("expression")) }
+            )
+            .addEqualityGroup(
+                dup { ComplicationText("surrounding", DynamicString.constant("expression 2")) }
+            )
+            .testEquals()
+    }
 
     @Test
     public fun testPlainText() {
@@ -803,7 +832,7 @@ public class ComplicationTextTest {
 
     @Test
     public fun stringExpressionToParcelRoundTrip() {
-        val text = ComplicationText(StringExpression(byteArrayOf(1, 2, 3)))
+        val text = ComplicationText(DynamicString.constant("hello"))
 
         Truth.assertThat(text.toParcelRoundTrip()).isEqualTo(text)
     }
@@ -812,7 +841,7 @@ public class ComplicationTextTest {
     public fun getTextAt_ignoresStringExpressionIfSurroundingStringPresent() {
         val text = ComplicationText(
             "hello" as CharSequence,
-            StringExpression(byteArrayOf(1, 2, 3))
+            DynamicString.constant("world")
         )
 
         Truth.assertThat(text.getTextAt(mResources, 132456789).toString())

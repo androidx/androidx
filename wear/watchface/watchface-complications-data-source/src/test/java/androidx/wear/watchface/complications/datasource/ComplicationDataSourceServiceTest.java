@@ -32,13 +32,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationText;
 import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.data.LongTextComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
-import androidx.wear.watchface.complications.data.StringExpression;
-import androidx.wear.watchface.complications.data.StringExpressionComplicationText;
+import androidx.wear.watchface.complications.data.ComplicationTextExpression;
 
 import org.junit.After;
 import org.junit.Before;
@@ -195,8 +196,9 @@ public class ComplicationDataSourceServiceTest {
             throws Exception {
         mService.responseData =
                 new LongTextComplicationData.Builder(
-                        new StringExpressionComplicationText(
-                                new StringExpression(new byte[]{1, 2})),
+                        new ComplicationTextExpression(
+                                DynamicString.constant("hello").concat(
+                                        DynamicString.constant(" world"))),
                         ComplicationText.EMPTY)
                         .build();
 
@@ -209,8 +211,9 @@ public class ComplicationDataSourceServiceTest {
         verify(mRemoteManager).updateComplicationData(
                 eq(123),
                 eq(new LongTextComplicationData.Builder(
-                        new StringExpressionComplicationText(
-                                new StringExpression(new byte[]{1, 2})),
+                        new ComplicationTextExpression(
+                                DynamicString.constant("hello").concat(
+                                        DynamicString.constant(" world"))),
                         ComplicationText.EMPTY)
                         .build()
                         .asWireComplicationData()));
@@ -222,8 +225,9 @@ public class ComplicationDataSourceServiceTest {
             throws Exception {
         mService.responseData =
                 new LongTextComplicationData.Builder(
-                        new StringExpressionComplicationText(
-                                new StringExpression(new byte[]{1, 2})),
+                        new ComplicationTextExpression(
+                                DynamicString.constant("hello").concat(
+                                        DynamicString.constant(" world"))),
                         ComplicationText.EMPTY)
                         .build();
 
@@ -236,9 +240,10 @@ public class ComplicationDataSourceServiceTest {
         verify(mRemoteManager).updateComplicationData(
                 eq(123),
                 eq(new LongTextComplicationData.Builder(
-                        // TODO(b/260065006): Verify that it is actually evaluated.
-                        new StringExpressionComplicationText(
-                                new StringExpression(new byte[]{1, 2})),
+                        // TODO(b/260065006): new PlainComplicationText.Builder("hello world")
+                        new ComplicationTextExpression(
+                                DynamicString.constant("hello").concat(
+                                        DynamicString.constant(" world"))),
                         ComplicationText.EMPTY)
                         .build()
                         .asWireComplicationData()));

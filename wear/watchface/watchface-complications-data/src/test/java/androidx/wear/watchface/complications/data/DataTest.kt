@@ -32,6 +32,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -151,11 +153,11 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "ShortTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
-                "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
-                "mSurroundingText=title, mTimeDependentText=null, mStringExpression=null}, " +
+                "mTimeDependentText=null, mExpression=null}, title=ComplicationText{" +
+                "mSurroundingText=title, mTimeDependentText=null, mExpression=null}, " +
                 "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}, tapActionLostDueToSerialization=false, tapAction=null, " +
+                "mExpression=null}, tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=1, displayPolicy=1)"
@@ -204,13 +206,13 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "ShortTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
-                "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
-                "mSurroundingText=title, mTimeDependentText=null, mStringExpression=null}, " +
+                "mTimeDependentText=null, mExpression=null}, title=ComplicationText{" +
+                "mSurroundingText=title, mTimeDependentText=null, mExpression=null}, " +
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=URI uri=someuri), " +
                 "ambientImage=null), smallImage=SmallImage(image=Icon(typ=URI uri=someuri2), " +
                 "type=PHOTO, ambientImage=null), contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}, tapActionLostDueToSerialization=false, tapAction=null, " +
+                "mExpression=null}, tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
@@ -248,11 +250,11 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "LongTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
-                "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
-                "mSurroundingText=title, mTimeDependentText=null, mStringExpression=null}, " +
+                "mTimeDependentText=null, mExpression=null}, title=ComplicationText{" +
+                "mSurroundingText=title, mTimeDependentText=null, mExpression=null}, " +
                 "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
@@ -301,13 +303,13 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "LongTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
-                "mTimeDependentText=null, mStringExpression=null}, " +
+                "mTimeDependentText=null, mExpression=null}, " +
                 "title=ComplicationText{mSurroundingText=title, mTimeDependentText=null, " +
-                "mStringExpression=null}, monochromaticImage=MonochromaticImage(" +
+                "mExpression=null}, monochromaticImage=MonochromaticImage(" +
                 "image=Icon(typ=URI uri=someuri), ambientImage=null), smallImage=SmallImage(" +
                 "image=Icon(typ=URI uri=someuri2), type=PHOTO, ambientImage=null), " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -353,9 +355,9 @@ public class AsWireComplicationDataTest {
             "RangedValueComplicationData(value=95.0, valueExpression=null, valueType=0, " +
                 "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=battery, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=null, contentDescription=ComplicationText{" +
+                "mExpression=null}, text=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
@@ -366,7 +368,7 @@ public class AsWireComplicationDataTest {
     @Test
     public fun rangedValueComplicationData_withValueExpression() {
         val data = RangedValueComplicationData.Builder(
-            valueExpression = byteArrayOf(42, 107).toFloatExpression(),
+            valueExpression = DynamicFloat.constant(20f),
             min = 5f,
             max = 100f,
             contentDescription = "content description".complicationText
@@ -377,7 +379,7 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationData.Builder(WireComplicationData.TYPE_RANGED_VALUE)
-                    .setRangedValueExpression(byteArrayOf(42, 107).toFloatExpression())
+                    .setRangedValueExpression(DynamicFloat.constant(20f))
                     .setRangedValue(5f) // min as a sensible default
                     .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                     .setRangedMinValue(5f)
@@ -393,7 +395,8 @@ public class AsWireComplicationDataTest {
         val deserialized = serializeAndDeserialize(data) as RangedValueComplicationData
         assertThat(deserialized.max).isEqualTo(100f)
         assertThat(deserialized.min).isEqualTo(5f)
-        assertThat(deserialized.valueExpression!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
+        assertThat(deserialized.valueExpression?.toDynamicFloatByteArray())
+            .isEqualTo(DynamicFloat.constant(20f).toDynamicFloatByteArray())
         assertThat(deserialized.value).isEqualTo(5f) // min as a sensible default
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
@@ -402,12 +405,12 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "RangedValueComplicationData(value=5.0, " +
-                "valueExpression=FloatExpressionPlaceholder[42, 107], valueType=0, min=5.0, " +
+                "valueExpression=FixedFloat{value=20.0}, valueType=0, min=5.0, " +
                 "max=100.0, monochromaticImage=null, smallImage=null, title=ComplicationText{" +
-                "mSurroundingText=battery, mTimeDependentText=null, mStringExpression=null}, " +
+                "mSurroundingText=battery, mTimeDependentText=null, mExpression=null}, " +
                 "text=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
                 "ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
@@ -421,9 +424,7 @@ public class AsWireComplicationDataTest {
             value = 95f, min = 0f, max = 100f,
             contentDescription = "content description".complicationText
         )
-            .setTitle(
-                StringExpressionComplicationText(StringExpression(byteArrayOf(1, 2, 3, 4, 5)))
-            )
+            .setTitle(ComplicationTextExpression(DynamicString.constant("title")))
             .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -433,9 +434,7 @@ public class AsWireComplicationDataTest {
                     .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                     .setRangedMinValue(0f)
                     .setRangedMaxValue(100f)
-                    .setShortTitle(
-                        WireComplicationText(StringExpression(byteArrayOf(1, 2, 3, 4, 5)))
-                    )
+                    .setShortTitle(WireComplicationText(DynamicString.constant("title")))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
@@ -454,9 +453,9 @@ public class AsWireComplicationDataTest {
             "RangedValueComplicationData(value=95.0, valueExpression=null, valueType=0, " +
                 "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=(null), mTimeDependentText=null, " +
-                "mStringExpression=StringExpression(expression=[1, 2, 3, 4, 5])}, text=null, " +
+                "mExpression=FixedString{value=title}}, text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -516,9 +515,9 @@ public class AsWireComplicationDataTest {
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=URI uri=someuri), " +
                 "ambientImage=null), smallImage=SmallImage(image=Icon(typ=URI uri=someuri2), " +
                 "type=PHOTO, ambientImage=null), title=ComplicationText{mSurroundingText=battery," +
-                " mTimeDependentText=null, mStringExpression=null}, text=null, " +
+                " mTimeDependentText=null, mExpression=null}, text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -562,9 +561,9 @@ public class AsWireComplicationDataTest {
             "GoalProgressComplicationData(value=1200.0, valueExpression=null, " +
                 "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=steps, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=null, contentDescription=ComplicationText{" +
+                "mExpression=null}, text=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
@@ -575,7 +574,7 @@ public class AsWireComplicationDataTest {
     @Test
     public fun goalProgressComplicationData_withValueExpression() {
         val data = GoalProgressComplicationData.Builder(
-            valueExpression = byteArrayOf(42, 107).toFloatExpression(),
+            valueExpression = DynamicFloat.constant(10f),
             targetValue = 10000f,
             contentDescription = "content description".complicationText
         )
@@ -585,7 +584,7 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationData.Builder(WireComplicationData.TYPE_GOAL_PROGRESS)
-                    .setRangedValueExpression(byteArrayOf(42, 107).toFloatExpression())
+                    .setRangedValueExpression(DynamicFloat.constant(10f))
                     .setRangedValue(0f) // sensible default
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
@@ -597,7 +596,8 @@ public class AsWireComplicationDataTest {
             )
         testRoundTripConversions(data)
         val deserialized = serializeAndDeserialize(data) as GoalProgressComplicationData
-        assertThat(deserialized.valueExpression!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
+        assertThat(deserialized.valueExpression?.toDynamicFloatByteArray())
+            .isEqualTo(DynamicFloat.constant(10f).toDynamicFloatByteArray())
         assertThat(deserialized.value).isEqualTo(0f) // sensible default
         assertThat(deserialized.targetValue).isEqualTo(10000f)
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
@@ -607,11 +607,11 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "GoalProgressComplicationData(value=0.0, valueExpression=" +
-                "FloatExpressionPlaceholder[42, 107], targetValue=10000.0, " +
+                "FixedFloat{value=10.0}, targetValue=10000.0, " +
                 "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
-                "mSurroundingText=steps, mTimeDependentText=null, mStringExpression=null}, " +
+                "mSurroundingText=steps, mTimeDependentText=null, mExpression=null}, " +
                 "text=null, contentDescription=ComplicationText{mSurroundingText=content " +
-                "description, mTimeDependentText=null, mStringExpression=null}), " +
+                "description, mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -657,9 +657,9 @@ public class AsWireComplicationDataTest {
             "GoalProgressComplicationData(value=1200.0, valueExpression=null, " +
                 "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=steps, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=null, contentDescription=ComplicationText{" +
+                "mExpression=null}, text=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, " +
@@ -717,9 +717,9 @@ public class AsWireComplicationDataTest {
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=URI uri=someuri), " +
                 "ambientImage=null), smallImage=SmallImage(image=Icon(typ=URI uri=someuri2), " +
                 "type=PHOTO, ambientImage=null), title=ComplicationText{mSurroundingText=steps, " +
-                "mTimeDependentText=null, mStringExpression=null}, text=null, " +
+                "mTimeDependentText=null, mExpression=null}, text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -768,9 +768,9 @@ public class AsWireComplicationDataTest {
             "RangedValueComplicationData(value=95.0, valueExpression=null, " +
                 "valueType=0, min=0.0, max=100.0, " +
                 "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
-                "mSurroundingText=battery, mTimeDependentText=null, mStringExpression=null}, " +
+                "mSurroundingText=battery, mTimeDependentText=null, mExpression=null}, " +
                 "text=null, contentDescription=ComplicationText{mSurroundingText=content " +
-                "description, mTimeDependentText=null, mStringExpression=null}), " +
+                "description, mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -839,9 +839,9 @@ public class AsWireComplicationDataTest {
                 " Element(color=-16711936, weight=1.0), Element(color=-16776961, weight=2.0), " +
                 "elementBackgroundColor=-7829368, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=calories, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=null, contentDescription=ComplicationText{" +
+                "mExpression=null}, text=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
@@ -906,9 +906,9 @@ public class AsWireComplicationDataTest {
                 "image=Icon(typ=URI uri=someuri), ambientImage=null), " +
                 "smallImage=SmallImage(image=Icon(typ=URI uri=someuri2), type=PHOTO, " +
                 "ambientImage=null), title=ComplicationText{mSurroundingText=calories, " +
-                "mTimeDependentText=null, mStringExpression=null}, text=null, " +
+                "mTimeDependentText=null, mExpression=null}, text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -943,7 +943,7 @@ public class AsWireComplicationDataTest {
             "MonochromaticImageComplicationData(monochromaticImage=MonochromaticImage(" +
                 "image=Icon(typ=URI uri=someuri), ambientImage=null), contentDescription=" +
                 "ComplicationText{mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
@@ -980,7 +980,7 @@ public class AsWireComplicationDataTest {
             "SmallImageComplicationData(smallImage=SmallImage(image=Icon(" +
                 "typ=URI uri=someuri), type=PHOTO, ambientImage=null), " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -1048,7 +1048,7 @@ public class AsWireComplicationDataTest {
         assertThat(data.toString()).isEqualTo(
             "PhotoImageComplicationData(photoImage=Icon(typ=URI uri=someuri), " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -1078,7 +1078,7 @@ public class AsWireComplicationDataTest {
 
         assertThat(data.toString()).isEqualTo(
             "NoPermissionComplicationData(text=ComplicationText{mSurroundingText=needs location, " +
-                "mTimeDependentText=null, mStringExpression=null}, title=null, " +
+                "mTimeDependentText=null, mExpression=null}, title=null, " +
                 "monochromaticImage=null, smallImage=null, tapActionLostDueToSerialization=false," +
                 " tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
@@ -1115,7 +1115,7 @@ public class AsWireComplicationDataTest {
         assertThat(data.toString()).isEqualTo(
             "NoPermissionComplicationData(text=ComplicationText{" +
                 "mSurroundingText=needs location, mTimeDependentText=null, " +
-                "mStringExpression=null}, title=null, monochromaticImage=MonochromaticImage(" +
+                "mExpression=null}, title=null, monochromaticImage=MonochromaticImage(" +
                 "image=Icon(typ=URI uri=someuri), ambientImage=null), smallImage=SmallImage(" +
                 "image=Icon(typ=URI uri=someuri2), type=PHOTO, ambientImage=null), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
@@ -1165,13 +1165,13 @@ public class AsWireComplicationDataTest {
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=ShortTextComplicationData(text=" +
                 "ComplicationText{mSurroundingText=__placeholder__, mTimeDependentText=null, " +
-                "mStringExpression=null}, title=ComplicationText{" +
+                "mExpression=null}, title=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null, " +
-                "mStringExpression=null}, monochromaticImage=MonochromaticImage(" +
+                "mExpression=null}, monochromaticImage=MonochromaticImage(" +
                 "image=Icon(typ=RESOURCE pkg= id=0xffffffff), ambientImage=null), " +
                 "smallImage=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}, tapActionLostDueToSerialization=false, tapAction=null, " +
+                "mExpression=null}, tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
@@ -1216,9 +1216,9 @@ public class AsWireComplicationDataTest {
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=LongTextComplicationData(" +
                 "text=ComplicationText{mSurroundingText=text, mTimeDependentText=null, " +
-                "mStringExpression=null}, title=null, monochromaticImage=null, smallImage=null, " +
+                "mExpression=null}, title=null, monochromaticImage=null, smallImage=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -1275,9 +1275,9 @@ public class AsWireComplicationDataTest {
                 "value=3.4028235E38, valueExpression=null, valueType=0, min=0.0, max=100.0, " +
                 "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null, " +
-                "mStringExpression=null}, contentDescription=ComplicationText{" +
+                "mExpression=null}, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
@@ -1333,9 +1333,9 @@ public class AsWireComplicationDataTest {
                 "value=3.4028235E38, valueExpression=null, targetValue=10000.0, " +
                 "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null, " +
-                "mStringExpression=null}, contentDescription=ComplicationText{" +
+                "mExpression=null}, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
@@ -1396,9 +1396,9 @@ public class AsWireComplicationDataTest {
                 "weight=1.0), Element(color=-16776961, weight=2.0), " +
                 "elementBackgroundColor=-7829368, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=calories, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=null, contentDescription=ComplicationText{" +
+                "mExpression=null}, text=null, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
@@ -1458,9 +1458,9 @@ public class AsWireComplicationDataTest {
                 "value=3.4028235E38, valueExpression=null, valueType=1, min=0.0, max=100.0, " +
                 "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null, " +
-                "mStringExpression=null}, contentDescription=ComplicationText{" +
+                "mExpression=null}, contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, " +
@@ -1508,7 +1508,7 @@ public class AsWireComplicationDataTest {
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=RESOURCE pkg= " +
                 "id=0xffffffff), ambientImage=null), contentDescription=ComplicationText{" +
                 "mSurroundingText=content description, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
@@ -1555,7 +1555,7 @@ public class AsWireComplicationDataTest {
             "NoDataComplicationData(placeholder=SmallImageComplicationData(smallImage=" +
                 "SmallImage(image=Icon(typ=RESOURCE pkg= id=0xffffffff), type=ICON, " +
                 "ambientImage=null), contentDescription=ComplicationText{mSurroundingText=" +
-                "content description, mTimeDependentText=null, mStringExpression=null}), " +
+                "content description, mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -1602,7 +1602,7 @@ public class AsWireComplicationDataTest {
             "NoDataComplicationData(placeholder=PhotoImageComplicationData(" +
                 "photoImage=Icon(typ=RESOURCE pkg= id=0xffffffff), " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
@@ -1714,7 +1714,7 @@ public class FromWireComplicationDataTest {
     public fun rangedValueComplicationData_withValueExpression() {
         assertRoundtrip(
             WireComplicationData.Builder(WireComplicationData.TYPE_RANGED_VALUE)
-                .setRangedValueExpression(byteArrayOf(42, 107).toFloatExpression())
+                .setRangedValueExpression(DynamicFloat.constant(10f))
                 .setRangedMinValue(0f)
                 .setRangedMaxValue(100f)
                 .setShortTitle(WireComplicationText.plainText("battery"))
@@ -1763,7 +1763,7 @@ public class FromWireComplicationDataTest {
     public fun goalProgressComplicationData_withValueExpression() {
         assertRoundtrip(
             WireComplicationData.Builder(WireComplicationData.TYPE_GOAL_PROGRESS)
-                .setRangedValueExpression(byteArrayOf(42, 107).toFloatExpression())
+                .setRangedValueExpression(DynamicFloat.constant(10f))
                 .setTargetValue(10000f)
                 .setShortTitle(WireComplicationText.plainText("steps"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
@@ -2695,10 +2695,10 @@ public class RedactionTest {
 
         assertThat(data.toString()).isEqualTo(
             "ShortTextComplicationData(text=ComplicationText{mSurroundingText=REDACTED, " +
-                "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
-                "mSurroundingText=REDACTED, mTimeDependentText=null, mStringExpression=null}, " +
+                "mTimeDependentText=null, mExpression=null}, title=ComplicationText{" +
+                "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}, " +
                 "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText{" +
-                "mSurroundingText=REDACTED, mTimeDependentText=null, mStringExpression=null}, " +
+                "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}, " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
                 "displayPolicy=0)"
@@ -2719,10 +2719,10 @@ public class RedactionTest {
 
         assertThat(data.toString()).isEqualTo(
             "LongTextComplicationData(text=ComplicationText{mSurroundingText=REDACTED, " +
-                "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
-                "mSurroundingText=REDACTED, mTimeDependentText=null, mStringExpression=null}, " +
+                "mTimeDependentText=null, mExpression=null}, title=ComplicationText{" +
+                "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}, " +
                 "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText{" +
-                "mSurroundingText=REDACTED, mTimeDependentText=null, mStringExpression=null}), " +
+                "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
                 "displayPolicy=0)"
@@ -2748,10 +2748,10 @@ public class RedactionTest {
             "RangedValueComplicationData(value=REDACTED, valueExpression=REDACTED, " +
                 "valueType=0, min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=ComplicationText{mSurroundingText=REDACTED, " +
-                "mTimeDependentText=null, mStringExpression=null}, contentDescription=" +
+                "mExpression=null}, text=ComplicationText{mSurroundingText=REDACTED, " +
+                "mTimeDependentText=null, mExpression=null}, contentDescription=" +
                 "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null, " +
-                "mStringExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
+                "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(REDACTED), dataSource=null, colorRamp=null, " +
                 "persistencePolicy=0, displayPolicy=0)"
         )
@@ -2775,8 +2775,8 @@ public class RedactionTest {
             "GoalProgressComplicationData(value=REDACTED, valueExpression=REDACTED, " +
                 "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
                 "title=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null, " +
-                "mStringExpression=null}, text=null, contentDescription=ComplicationText{" +
-                "mSurroundingText=REDACTED, mTimeDependentText=null, mStringExpression=null}), " +
+                "mExpression=null}, text=null, contentDescription=ComplicationText{" +
+                "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(REDACTED), dataSource=null, colorRamp=ColorRamp(colors=[-65536, " +
                 "-16711936, -16776961], interpolated=true), persistencePolicy=0, displayPolicy=0)"
@@ -2798,9 +2798,9 @@ public class RedactionTest {
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=LongTextComplicationData(" +
                 "text=ComplicationText{mSurroundingText=__placeholder__, mTimeDependentText=null," +
-                " mStringExpression=null}, title=null, monochromaticImage=null, smallImage=null, " +
+                " mExpression=null}, title=null, monochromaticImage=null, smallImage=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
-                "mTimeDependentText=null, mStringExpression=null}), " +
+                "mTimeDependentText=null, mExpression=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
                 "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +

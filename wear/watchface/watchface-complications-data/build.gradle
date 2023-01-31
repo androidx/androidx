@@ -30,6 +30,11 @@ dependencies {
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
+
+    // TODO(b/267170061): Use released protolayout-expression, remove protolayout-proto.
+    api(project(":wear:protolayout:protolayout-expression"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
+
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
@@ -44,6 +49,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.testParameterInjector)
+    testImplementation(libs.guavaTestlib)
 
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
