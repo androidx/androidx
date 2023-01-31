@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,7 +94,7 @@ public class UiDevice implements Searchable {
     private final Map<Integer, Context> mUiContexts = new HashMap<>();
 
     // Track registered UiWatchers, and whether currently in a UiWatcher execution.
-    private final Map<String, UiWatcher> mWatchers = new HashMap<>();
+    private final Map<String, UiWatcher> mWatchers = new LinkedHashMap<>();
     private final List<String> mWatchersTriggers = new ArrayList<>();
     private boolean mInWatcherContext = false;
 
