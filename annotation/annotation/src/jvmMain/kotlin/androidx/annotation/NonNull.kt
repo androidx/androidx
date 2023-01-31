@@ -41,7 +41,7 @@ import java.lang.annotation.ElementType.PARAMETER
 )
 // Needed due to Kotlin's lack of PACKAGE annotation target
 // https://youtrack.jetbrains.com/issue/KT-45921
-@Suppress("DEPRECATED_JAVA_ANNOTATION", "SupportAnnotationUsage")
+@Suppress("DEPRECATED_JAVA_ANNOTATION")
 @java.lang.annotation.Target(
     METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE
 )
