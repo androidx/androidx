@@ -91,18 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int POST_NOTIFICATIONS_PERMISSION_REQUEST_CODE = 5001;
     private static final boolean ENABLE_DEFAULT_CONTROL_CHECK_BOX = false;
 
-    private MediaRouter mMediaRouter;
-    private RoutesManager mRoutesManager;
-    private MediaRouteSelector mSelector;
-    private PlaylistAdapter mPlayListItems;
-    private TextView mInfoTextView;
-    private ListView mPlayListView;
-    CheckBox mUseDefaultControlCheckBox;
-    private ImageButton mPauseResumeButton;
-    private SeekBar mSeekBar;
-
-    final Handler mHandler = new Handler();
-
+    private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable =
             new Runnable() {
                 @Override
@@ -112,10 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     mHandler.postDelayed(this, 1000);
                 }
             };
-
-    final SessionManager mSessionManager = new SessionManager("app");
-    Player mPlayer;
-
+    private final SessionManager mSessionManager = new SessionManager("app");
     private final MediaRouter.OnPrepareTransferListener mOnPrepareTransferListener =
             (fromRoute, toRoute) -> {
                 Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
@@ -125,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
                     return "onPrepareTransfer";
                 });
             };
-
     private final MediaRouter.Callback mMediaRouterCB = new MediaRouter.Callback() {
         // Return a custom callback that will simply log all of the route events
         // for demonstration purposes.
@@ -216,7 +201,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    MediaSessionCompat mMediaSession;
+    private MediaRouter mMediaRouter;
+    private MediaRouteSelector mSelector;
+    private PlaylistAdapter mPlayListItems;
+    private TextView mInfoTextView;
+    private ListView mPlayListView;
+    private CheckBox mUseDefaultControlCheckBox;
+    private ImageButton mPauseResumeButton;
+    private SeekBar mSeekBar;
+    private Player mPlayer;
+    private MediaSessionCompat mMediaSession;
     private ComponentName mEventReceiver;
     private PendingIntent mMediaPendingIntent;
 
@@ -229,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
         mMediaRouter = MediaRouter.getInstance(this);
         mMediaRouter.setRouterParams(getRouterParams());
 
-        mRoutesManager = RoutesManager.getInstance(getApplicationContext());
-        mRoutesManager.reloadDialogType();
+        RoutesManager routesManager = RoutesManager.getInstance(getApplicationContext());
+        routesManager.reloadDialogType();
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
@@ -399,6 +393,61 @@ public class MainActivity extends AppCompatActivity {
         updateUi();
     }
 
+    @Override
+    protected void onDestroy() {
+        mSessionManager.stop();
+        mPlayer.release();
+        mMediaSession.release();
+        mMediaRouter.removeCallback(mMediaRouterCB);
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        // Be sure to call the super class.
+        super.onCreateOptionsMenu(menu);
+
+        // Inflate the menu and configure the media router action provider.
+        getMenuInflater().inflate(R.menu.sample_media_router_menu, menu);
+
+        MenuItem mediaRouteMenuItem = menu.findItem(R.id.media_route_menu_item);
+        MediaRouteActionProvider mediaRouteActionProvider =
+                (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
+        if (mediaRouteActionProvider != null) {
+            mediaRouteActionProvider.setRouteSelector(mSelector);
+            mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
+                @NonNull
+                @Override
+                public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
+                    return new ControllerDialogFragment(MainActivity.this,
+                            mUseDefaultControlCheckBox);
+                }
+            });
+        }
+
+        // Return true to show the menu.
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.settings_menu_item) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, @Nullable KeyEvent event) {
+        return handleMediaKey(event) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, @Nullable KeyEvent event) {
+        return handleMediaKey(event) || super.onKeyUp(keyCode, event);
+    }
+
     private void requestRequiredPermissions() {
         requestDisplayOverOtherAppsPermission();
         requestPostNotificationsPermission();
@@ -464,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Handle media key events.
      */
-    public boolean handleMediaKey(@Nullable KeyEvent event) {
+    private boolean handleMediaKey(@Nullable KeyEvent event) {
         if (event != null && event.getAction() == KeyEvent.ACTION_DOWN
                 && event.getRepeatCount() == 0) {
             switch (event.getKeyCode()) {
@@ -504,74 +553,13 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, @Nullable KeyEvent event) {
-        return handleMediaKey(event) || super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, @Nullable KeyEvent event) {
-        return handleMediaKey(event) || super.onKeyUp(keyCode, event);
-    }
-
-    @Override
-    public void onStart() {
-        // Be sure to call the super class.
-        super.onStart();
-    }
-
-    @Override
-    public void onDestroy() {
-        mSessionManager.stop();
-        mPlayer.release();
-        mMediaSession.release();
-        mMediaRouter.removeCallback(mMediaRouterCB);
-        super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        // Be sure to call the super class.
-        super.onCreateOptionsMenu(menu);
-
-        // Inflate the menu and configure the media router action provider.
-        getMenuInflater().inflate(R.menu.sample_media_router_menu, menu);
-
-        MenuItem mediaRouteMenuItem = menu.findItem(R.id.media_route_menu_item);
-        MediaRouteActionProvider mediaRouteActionProvider =
-                (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
-        if (mediaRouteActionProvider != null) {
-            mediaRouteActionProvider.setRouteSelector(mSelector);
-            mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
-                @NonNull
-                @Override
-                public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                    return new ControllerDialogFragment(MainActivity.this,
-                            mUseDefaultControlCheckBox);
-                }
-            });
-        }
-
-        // Return true to show the menu.
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.settings_menu_item) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    void updateStatusFromSessionManager() {
+    private void updateStatusFromSessionManager() {
         if (mPlayer != null && mSessionManager != null) {
             mSessionManager.updateStatus();
         }
     }
 
-    void updateProgress() {
+    private void updateProgress() {
         // Estimate content position from last status time and elapsed time.
         // (Note this might be slightly out of sync with remote side, however
         // it avoids frequent polling the MRP.)
@@ -595,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
         mSeekBar.setProgress(progress);
     }
 
-    void updateUi() {
+    private void updateUi() {
         updatePlaylist();
         updateRouteDescription();
         updateButtons();
@@ -645,7 +633,8 @@ public class MainActivity extends AppCompatActivity {
         mSeekBar.setEnabled(item != null && item.getDuration() > 0);
     }
 
-    PlaylistItem getCheckedPlaylistItem() {
+    @Nullable
+    private PlaylistItem getCheckedPlaylistItem() {
         int count = mPlayListView.getCount();
         int index = mPlayListView.getCheckedItemPosition();
         if (count > 0) {
@@ -659,7 +648,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @NonNull
-    public MediaRouterParams getRouterParams() {
+    private MediaRouterParams getRouterParams() {
         return new MediaRouterParams.Builder()
                 .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
                 .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
