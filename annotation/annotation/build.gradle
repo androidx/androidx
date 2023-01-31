@@ -9,7 +9,9 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm()
+    jvm {
+        withJava() // Remove after b/247980072
+    }
     mac()
     linux()
     ios()
@@ -44,6 +46,7 @@ androidXMultiplatform {
 }
 
 jvmJar {
+    from sourceSets.main.output
     // Strip out typedef classes. For Android libraries, this is done
     // automatically by the Gradle plugin, but the Annotation library is a
     // plain jar, built by the regular Gradle java plugin. The typedefs

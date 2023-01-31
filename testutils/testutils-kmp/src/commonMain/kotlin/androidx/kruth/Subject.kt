@@ -34,7 +34,6 @@ open class Subject<out T>(val actual: T?) {
     /**
      *  Fails if the subject is not null.
      */
-    @Suppress("SyntheticAccessor")
     fun isNull() {
         actual.standardIsEqualTo(null)
     }
@@ -59,7 +58,6 @@ open class Subject<out T>(val actual: T?) {
      * that will return the same result as long as [equals] is implemented according to the contract
      * for its type.
      */
-    @Suppress("SyntheticAccessor")
     open fun isEqualTo(expected: Any?) {
         actual.standardIsEqualTo(expected)
     }
