@@ -247,6 +247,16 @@ class CustomCredentialEntry internal constructor(
             return this
         }
 
+        /**
+         * Sets whether the entry should be auto-selected.
+         * The value is false by default
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+            this.autoSelectAllowed = autoSelectAllowed
+            return this
+        }
+
         /** Sets the display name of this credential type, to be shown on the UI with this entry. */
         fun setTypeDisplayName(typeDisplayName: CharSequence?): Builder {
             this.typeDisplayName = typeDisplayName

@@ -16,6 +16,7 @@
 
 package androidx.credentials.provider
 
+import android.credentials.ClearCredentialStateException
 import android.credentials.GetCredentialException
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
@@ -23,9 +24,11 @@ import android.service.credentials.BeginCreateCredentialRequest
 import android.service.credentials.BeginCreateCredentialResponse
 import android.service.credentials.BeginGetCredentialRequest
 import android.service.credentials.BeginGetCredentialResponse
+import android.service.credentials.ClearCredentialStateRequest
 import android.service.credentials.CredentialProviderService
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.provider.utils.BeginCreateCredentialUtil
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
@@ -93,6 +96,49 @@ abstract class CredentialProviderService : CredentialProviderService() {
             BeginCreateCredentialUtil.convertToStructuredRequest(request),
             cancellationSignal, outcome)
     }
+
+    final override fun onClearCredentialState(
+        request: ClearCredentialStateRequest,
+        cancellationSignal: CancellationSignal,
+        callback: OutcomeReceiver<Void, ClearCredentialStateException>
+    ) {
+        val outcome = object : OutcomeReceiver<Void, ClearCredentialException> {
+            override fun onResult(response: Void) {
+                Log.i(
+                    TAG, "onClearCredentialState result returned from provider to jetpack ")
+                callback.onResult(response)
+            }
+            override fun onError(error: ClearCredentialException) {
+                Log.i(
+                    TAG, "onClearCredentialState result returned from provider to jetpack")
+                super.onError(error)
+                // TODO("Change error code to provider error when ready on framework")
+                callback.onError(ClearCredentialStateException(error.type, error.message))
+            }
+        }
+        onClearCredentialStateRequest(request, cancellationSignal, outcome)
+    }
+
+    /**
+     * Called by the Credential Manager Jetpack library when the developer wishes to clear the
+     * state of credentials.
+     *
+     * On this call, providers must clear previously stored state.
+     * On completion, providers must call one of the [callback] methods to notify the result of the
+     * request.
+     *
+     * @param [request] the [androidx.credentials.ClearCredentialStateRequest] to handle
+     * @param cancellationSignal signal for observing cancellation requests. The system will
+     * use this to notify you that the result is no longer needed and you should stop
+     * handling it in order to save your resources
+     * @param callback the callback object to be used to notify the response or error
+     */
+    abstract fun onClearCredentialStateRequest(
+        request: ClearCredentialStateRequest,
+        cancellationSignal: CancellationSignal,
+        callback: OutcomeReceiver<Void,
+            ClearCredentialException>
+    )
 
     /**
      * Called by the Credential Manager Jetpack library to get credentials stored with a provider
