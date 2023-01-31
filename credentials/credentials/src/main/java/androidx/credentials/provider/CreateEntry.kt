@@ -51,7 +51,7 @@ class CreateEntry internal constructor(
     val icon: Icon?,
     val description: CharSequence?,
     val lastUsedTime: Instant?,
-    private val credentialCountInformationMap: Map<String, Int>
+    private val credentialCountInformationMap: MutableMap<String, Int?>
     ) : android.service.credentials.CreateEntry(
     toSlice(
         accountName,
@@ -61,6 +61,46 @@ class CreateEntry internal constructor(
         credentialCountInformationMap,
         pendingIntent)
 ) {
+
+    /**
+     * Creates an entry to be displayed on the selector during create flows.
+     *
+     * @param accountName the name of the account where the credential will be saved
+     * @param pendingIntent the [PendingIntent] that will get invoked when user selects this entry
+     * @param description the description shown on UI about where the credential is stored
+     * @param icon the icon to be displayed with this entry on the UI
+     * @param lastUsedTime the last time the account underlying this entry was used by the user
+     * @param passwordCredentialCount the no. of password credentials saved by the provider
+     * @param publicKeyCredentialCount the no. of public key credentials saved by the provider
+     * @param totalCredentialCount the total no. of credentials saved by the provider
+     *
+     * @throws IllegalArgumentException If [accountName] is empty
+     * @throws NullPointerException If [accountName] or [pendingIntent] is null
+     */
+    constructor(
+        accountName: CharSequence,
+        pendingIntent: PendingIntent,
+        description: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon? = null,
+        @Suppress("AutoBoxing")
+        passwordCredentialCount: Int? = null,
+        @Suppress("AutoBoxing")
+        publicKeyCredentialCount: Int? = null,
+        @Suppress("AutoBoxing")
+        totalCredentialCount: Int? = null
+    ) : this(
+        accountName,
+        pendingIntent,
+        icon,
+        description,
+        lastUsedTime,
+        mutableMapOf(
+            PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
+            PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
+            TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+        )
+    )
 
     init {
         require(accountName.isNotEmpty()) { "accountName must not be empty" }
@@ -109,11 +149,14 @@ class CreateEntry internal constructor(
         private val pendingIntent: PendingIntent
     ) {
 
-        private var credentialCountInformationMap: MutableMap<String, Int> =
+        private var credentialCountInformationMap: MutableMap<String, Int?> =
             mutableMapOf()
         private var icon: Icon? = null
         private var description: CharSequence? = null
         private var lastUsedTime: Instant? = null
+        private var passwordCredentialCount: Int? = null
+        private var publicKeyCredentialCount: Int? = null
+        private var totalCredentialCount: Int? = null
 
         /** Sets the password credential count, denoting how many credentials of type
          * [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] does the provider have stored.
@@ -122,6 +165,7 @@ class CreateEntry internal constructor(
          * make a choice.
          */
         fun setPasswordCredentialCount(count: Int): Builder {
+            passwordCredentialCount = count
             credentialCountInformationMap[PasswordCredential.TYPE_PASSWORD_CREDENTIAL] = count
             return this
         }
@@ -133,6 +177,7 @@ class CreateEntry internal constructor(
          * make a choice.
          */
         fun setPublicKeyCredentialCount(count: Int): Builder {
+            publicKeyCredentialCount = count
             credentialCountInformationMap[PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] = count
             return this
         }
@@ -147,6 +192,7 @@ class CreateEntry internal constructor(
          * make a choice.
          */
         fun setTotalCredentialCount(count: Int): Builder {
+            totalCredentialCount = count
             credentialCountInformationMap[TYPE_TOTAL_CREDENTIAL] = count
             return this
         }
@@ -229,7 +275,7 @@ class CreateEntry internal constructor(
             icon: Icon?,
             description: CharSequence?,
             lastUsedTime: Instant?,
-            credentialCountInformationMap: Map<String, Int>,
+            credentialCountInformationMap: Map<String, Int?>,
             pendingIntent: PendingIntent
         ): Slice {
             // TODO("Use the right type and revision")
@@ -238,20 +284,15 @@ class CreateEntry internal constructor(
                 accountName, /*subType=*/null,
                 listOf(SLICE_HINT_ACCOUNT_NAME)
             )
-
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
-                    lastUsedTime.toEpochMilli(),
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
-                )
+                    lastUsedTime.toEpochMilli(), /*subType=*/null, listOf(
+                        SLICE_HINT_LAST_USED_TIME_MILLIS))
             }
-
             if (description != null) {
                 sliceBuilder.addText(description, null,
                     listOf(SLICE_HINT_NOTE))
             }
-
             if (icon != null) {
                 sliceBuilder.addIcon(
                     icon, /*subType=*/null,
@@ -294,9 +335,9 @@ class CreateEntry internal constructor(
             var accountName: CharSequence = ""
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
-            var credentialCountInfo: Map<String, Int> = mapOf()
+            var credentialCountInfo: MutableMap<String, Int?> = mutableMapOf()
             var description: CharSequence? = null
-            var lastUsedTime: Instant? = null
+            var lastUsedTime: Long? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
                     accountName = it.text
@@ -306,17 +347,17 @@ class CreateEntry internal constructor(
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)) {
                     credentialCountInfo = convertBundleToCredentialCountInfo(it.bundle)
+                        as MutableMap<String, Int?>
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
-                    lastUsedTime = Instant.ofEpochMilli(it.long)
+                    lastUsedTime = it.long
                 } else if (it.hasHint(SLICE_HINT_NOTE)) {
                     description = it.text
                 }
             }
             return try {
                 CreateEntry(
-
                     accountName, pendingIntent!!, icon, description,
-                    lastUsedTime, credentialCountInfo
+                    Instant.ofEpochMilli(lastUsedTime!!), credentialCountInfo
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -327,8 +368,8 @@ class CreateEntry internal constructor(
         /** @hide **/
         @JvmStatic
         internal fun convertBundleToCredentialCountInfo(bundle: Bundle?):
-            Map<String, Int> {
-            val credentialCountMap = HashMap<String, Int>()
+            Map<String, Int?> {
+            val credentialCountMap = HashMap<String, Int?>()
             if (bundle == null) {
                 return credentialCountMap
             }
@@ -345,14 +386,13 @@ class CreateEntry internal constructor(
         /** @hide **/
         @JvmStatic
         internal fun convertCredentialCountInfoToBundle(
-            credentialCountInformationMap: Map<String, Int>
+            credentialCountInformationMap: Map<String, Int?>
         ): Bundle? {
-            if (credentialCountInformationMap.isEmpty()) {
-                return null
-            }
             val bundle = Bundle()
             credentialCountInformationMap.forEach {
-                bundle.putInt(it.key, it.value)
+                if (it.value != null) {
+                    bundle.putInt(it.key, it.value!!)
+                }
             }
             return bundle
         }

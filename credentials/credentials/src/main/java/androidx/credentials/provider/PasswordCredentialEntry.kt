@@ -67,7 +67,7 @@ class PasswordCredentialEntry internal constructor(
     val typeDisplayName: CharSequence,
     val pendingIntent: PendingIntent,
     val lastUsedTime: Instant?,
-    val icon: Icon,
+    val icon: Icon?,
     val isAutoSelectAllowed: Boolean
 ) : CredentialEntry(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
@@ -82,6 +82,26 @@ class PasswordCredentialEntry internal constructor(
         isAutoSelectAllowed
     )
 ) {
+    init {
+        require(username.isNotEmpty()) { "username must not be empty" }
+    }
+    constructor(
+        context: Context,
+        username: CharSequence,
+        pendingIntent: PendingIntent,
+        displayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon? = Icon.createWithResource(context, R.drawable.ic_password),
+    ) : this(
+        username,
+        displayName,
+        typeDisplayName = context.getString(
+            R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL),
+        pendingIntent,
+        lastUsedTime,
+        icon,
+        isAutoSelectAllowed = false
+    )
 
     override fun describeContents(): Int {
         return 0

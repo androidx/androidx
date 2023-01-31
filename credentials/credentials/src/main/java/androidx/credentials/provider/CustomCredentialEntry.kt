@@ -56,12 +56,13 @@ import java.util.Collections
 class CustomCredentialEntry internal constructor(
     type: String,
     val title: CharSequence,
+    val pendingIntent: PendingIntent,
+    @get:Suppress("AutoBoxing")
+    val isAutoSelectAllowed: Boolean,
     val subtitle: CharSequence?,
     val typeDisplayName: CharSequence?,
-    val icon: Icon,
+    val icon: Icon?,
     val lastUsedTime: Instant?,
-    val pendingIntent: PendingIntent,
-    val isAutoSelectAllowed: Boolean
     ) : android.service.credentials.CredentialEntry(
     type,
     toSlice(
@@ -77,7 +78,29 @@ class CustomCredentialEntry internal constructor(
 ) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
+        require(title.isNotEmpty()) { "title must not be empty" }
     }
+    constructor(
+        context: Context,
+        type: String,
+        title: CharSequence,
+        pendingIntent: PendingIntent,
+        subtitle: CharSequence? = null,
+        typeDisplayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon? = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        @Suppress("AutoBoxing")
+        isAutoSelectAllowed: Boolean = false
+    ) : this(
+        type,
+        title,
+        pendingIntent,
+        isAutoSelectAllowed,
+        subtitle,
+        typeDisplayName,
+        icon,
+        lastUsedTime
+    )
 
     override fun describeContents(): Int {
         return 0
@@ -127,10 +150,10 @@ class CustomCredentialEntry internal constructor(
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
             icon: Icon?,
-            isAutoSelectAllowed: Boolean
+            isAutoSelectAllowed: Boolean?
         ): Slice {
             // TODO("Put the right revision value")
-            val autoSelectAllowed = if (isAutoSelectAllowed) {
+            val autoSelectAllowed = if (isAutoSelectAllowed == true) {
                 AUTO_SELECT_TRUE_STRING
             } else {
                 AUTO_SELECT_FALSE_STRING
@@ -203,10 +226,12 @@ class CustomCredentialEntry internal constructor(
 
             return try {
                 CustomCredentialEntry(slice.spec!!.type, title!!,
+                    pendingIntent!!,
+                    autoSelectAllowed,
                     subtitle,
                     typeDisplayName,
                     icon!!,
-                    lastUsedTime, pendingIntent!!, autoSelectAllowed)
+                    lastUsedTime)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
@@ -247,16 +272,6 @@ class CustomCredentialEntry internal constructor(
             return this
         }
 
-        /**
-         * Sets whether the entry should be auto-selected.
-         * The value is false by default
-         */
-        @Suppress("MissingGetterMatchingBuilder")
-        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
-            this.autoSelectAllowed = autoSelectAllowed
-            return this
-        }
-
         /** Sets the display name of this credential type, to be shown on the UI with this entry. */
         fun setTypeDisplayName(typeDisplayName: CharSequence?): Builder {
             this.typeDisplayName = typeDisplayName
@@ -269,6 +284,16 @@ class CustomCredentialEntry internal constructor(
          */
         fun setIcon(icon: Icon?): Builder {
             this.icon = icon
+            return this
+        }
+
+        /**
+         * Sets whether the entry should be auto-selected.
+         * The value is false by default
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+            this.autoSelectAllowed = autoSelectAllowed
             return this
         }
 
@@ -289,12 +314,12 @@ class CustomCredentialEntry internal constructor(
             return CustomCredentialEntry(
                 type,
                 title,
+                pendingIntent,
+                autoSelectAllowed,
                 subtitle,
                 typeDisplayName,
                 icon!!,
                 lastUsedTime,
-                pendingIntent,
-                autoSelectAllowed
             )
         }
     }
