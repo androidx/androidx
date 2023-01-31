@@ -25,6 +25,7 @@ import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
+import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +50,8 @@ import kotlinx.coroutines.flow.update
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
     val unevaluatedData: WireComplicationData,
+    private val sensorGateway: SensorGateway? = null,
+    private val stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
 ) : AutoCloseable {
     /**
      * Java compatibility class for [ComplicationDataExpressionEvaluator].
@@ -163,8 +166,8 @@ class ComplicationDataExpressionEvaluator(
         if (state.value.pending.isEmpty()) return
         evaluator = DynamicTypeEvaluator(
             /* platformDataSourcesInitiallyEnabled = */ true,
-            /* sensorGateway = */ null,
-            ObservableStateStore(emptyMap()),
+            sensorGateway,
+            stateStore,
         )
         for (receiver in state.value.pending) receiver.bind()
         evaluator.enablePlatformDataSources()
