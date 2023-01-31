@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity.contextaware
 
-package androidx.activity.contextaware;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
+import android.content.Context
 
 /**
- * Listener for receiving a callback at the first moment a {@link Context} is made
- * available to the {@link ContextAware} class.
+ * Listener for receiving a callback at the first moment a [Context] is made
+ * available to the [ContextAware] class.
  *
- * @see ContextAware#addOnContextAvailableListener(OnContextAvailableListener)
+ * @see ContextAware.addOnContextAvailableListener
  */
-public interface OnContextAvailableListener {
-
+fun interface OnContextAvailableListener {
     /**
-     * Called when the {@link ContextAware} object this listener was added to is associated to a
-     * {@link Context}.
+     * Called when the [ContextAware] object this listener was added to is associated to a
+     * [Context].
      *
-     * @param context The {@link Context} the {@link ContextAware} object is now associated with.
+     * @param context The [Context] the [ContextAware] object is now associated with.
      */
-    void onContextAvailable(@NonNull Context context);
+    fun onContextAvailable(context: Context)
 }
