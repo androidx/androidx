@@ -35,10 +35,8 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -110,7 +108,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -228,7 +225,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore("b/266588723")
     @Test
     fun createTextWithFillMaxDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -347,7 +343,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore("b/265078768")
     @Test
     fun createRowWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
@@ -365,6 +360,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
             val children = row.notGoneChildren.toList()
             val child1 = children[0].getTargetView<TextView>()
             val child2 = assertIs<TextView>(children[1])
+
             assertViewSize(child1, DpSize(mHostRule.portraitSize.width / 2, 100.dp))
             assertViewSize(
                 child2,
@@ -399,7 +395,10 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
     }
 
     @Test
-    fun createColumnWithTwoTexts2() {
+    fun columnWithWeightedItemRespectsSizeOfOtherItem() {
+        // When one item has a default weight, it should scale to respect the size of the other item
+        // in this case the other item fills the column, so the weighted item should take up no
+        // space, that is, has height 0.
         TestGlanceAppWidget.uiDefinition = {
             Column(modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()) {
                 Text("Inside 1", modifier = GlanceModifier.fillMaxWidth().defaultWeight())
@@ -767,7 +766,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/259718271
     @Test
     fun compoundButtonAction() {
         val checkbox = "checkbox"
@@ -1105,9 +1103,11 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
     private fun assertViewSize(view: View, expectedSize: DpSize) {
         val density = view.context.resources.displayMetrics.density
-        assertThat(view.width / density).isWithin(1.1f / density)
+        assertWithMessage("${view.accessibilityClassName} width").that(view.width / density)
+            .isWithin(1.1f / density)
             .of(expectedSize.width.value)
-        assertThat(view.height / density).isWithin(1.1f / density)
+        assertWithMessage("${view.accessibilityClassName} height").that(view.height / density)
+            .isWithin(1.1f / density)
             .of(expectedSize.height.value)
     }
 

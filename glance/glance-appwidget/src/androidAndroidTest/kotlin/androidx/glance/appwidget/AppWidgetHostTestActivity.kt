@@ -25,6 +25,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.LocaleList
 import android.util.Log
@@ -100,7 +101,6 @@ class AppWidgetHostTestActivity : Activity() {
         val context = this.createConfigurationContext(config)
 
         val hostView = host.createView(context, appWidgetId, info) as TestAppWidgetHostView
-        hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
         contentFrame.addView(hostView)
         hostView.setSizes(portraitSize, landscapeSize)
@@ -213,7 +213,18 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
         val displayMetrics = resources.displayMetrics
         val width = size.width.toPixels(displayMetrics)
         val height = size.height.toPixels(displayMetrics)
-        layoutParams = LayoutParams(width, height, Gravity.CENTER)
+
+        // The widget host applies a default padding that is difficult to remove. Make the outer
+        // host view bigger by the default padding amount, so that the inner view that we care about
+        // matches the provided size.
+        val hostViewPadding = Rect()
+        val testComponent =
+            ComponentName(context.applicationContext, TestGlanceAppWidgetReceiver::class.java)
+        getDefaultPaddingForWidget(context, testComponent, hostViewPadding)
+        val paddedWidth = width + hostViewPadding.left + hostViewPadding.right
+        val paddedHeight = height + hostViewPadding.top + hostViewPadding.bottom
+
+        layoutParams = LayoutParams(paddedWidth, paddedHeight, Gravity.CENTER)
         requestLayout()
     }
 
