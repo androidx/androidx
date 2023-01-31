@@ -428,6 +428,7 @@ private object EmptyLazyListLayoutInfo : TvLazyListLayoutInfo {
     override val reverseLayout = false
     override val beforeContentPadding = 0
     override val afterContentPadding = 0
+    override val mainAxisItemSpacing = 0
 }
 
 internal class AwaitFirstLayoutModifier : OnGloballyPositionedModifier {
