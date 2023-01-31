@@ -18,6 +18,7 @@ package androidx.compose.ui.text.android
 import android.graphics.Canvas
 import android.graphics.Paint.FontMetricsInt
 import android.graphics.Path
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Trace
 import android.text.BoringLayout
@@ -230,7 +231,9 @@ class TextLayout constructor(
      */
     private val lastLineExtra: Int
 
-    val lineHeightSpans: Array<LineHeightStyleSpan>
+    private val lineHeightSpans: Array<LineHeightStyleSpan>
+
+    private val rect: Rect = Rect()
 
     /**
      * Android Canvas object that overrides the `getClipBounds` method and delegates the rest
@@ -716,6 +719,18 @@ class TextLayout constructor(
     }
 
     fun paint(canvas: Canvas) {
+        // Fix "mDirect" optimization in BoringLayout that directly draws text when it's simple
+        // in the case of an empty canvas, we don't need to do anything (which would typically be
+        // done in Layout.draw), so this skips all work when canvas clips to empty - matching the
+        // behavior in Layout.kt
+        if (!canvas.getClipBounds(rect)) {
+            // this is a pure "no-work" optimization for avoiding work when text is simple enough
+            // to hit BoringLayout mDirect optimization and canvas clips to empty
+
+            // this avoids calling Canvas.drawText on an empty canvas
+            return
+        }
+
         if (topPadding != 0) {
             canvas.translate(0f, topPadding.toFloat())
         }
