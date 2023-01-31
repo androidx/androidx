@@ -17,6 +17,11 @@
 package androidx.appactions.interaction.capabilities.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
+import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
+import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback;
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 
 import java.util.Optional;
 
@@ -32,4 +37,33 @@ public interface ActionCapability {
     /** Returns the unique Id of this capability declaration. */
     @NonNull
     Optional<String> getId();
+
+    /**
+     * Returns an app action proto describing how to fulfill this capability.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    AppAction getAppAction();
+
+    /**
+     * Executes the action and returns the result of execution.
+     *
+     * @param argumentsWrapper The arguments send from assistant to the activity.
+     * @param callback The callback to receive app action result.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void execute(@NonNull ArgumentsWrapper argumentsWrapper, @NonNull CallbackInternal callback);
+
+    /**
+     * Support for manual input. This method should be invoked by AppInteraction SDKs
+     * (background/foreground), so the developers have a way to report state updates back to
+     * Assistant.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void setTouchEventCallback(@NonNull TouchEventCallback callback) {}
 }
