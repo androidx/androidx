@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument;
@@ -60,25 +61,25 @@ public final class ActionCapabilityImplTest {
                             Property::requiredEntityField,
                             Argument.Builder::setRequiredEntityField)
                     .bindOptionalOutput(
-                            "optionalStringOutput", Output::optionalStringField,
+                            "optionalStringOutput",
+                            Output::optionalStringField,
                             TypeConverters::toParamValue)
                     .bindRepeatedOutput(
-                            "repeatedStringOutput", Output::repeatedStringField,
+                            "repeatedStringOutput",
+                            Output::repeatedStringField,
                             TypeConverters::toParamValue)
                     .build();
-    @Rule
-    public final MockitoRule mockito = MockitoJUnit.rule();
-    @Captor
-    ArgumentCaptor<FulfillmentResponse> mCaptor;
-    @Mock
-    private CallbackInternal mCallbackInternal;
+    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
+    @Captor ArgumentCaptor<FulfillmentResponse> mCaptor;
+    @Mock private CallbackInternal mCallbackInternal;
 
     @Test
     @SuppressWarnings("JdkImmutableCollections")
     public void execute_convertExecutionResult() {
         Property property =
-                Property.newBuilder().setRequiredEntityField(
-                        EntityProperty.newBuilder().build()).build();
+                Property.newBuilder()
+                        .setRequiredEntityField(EntityProperty.newBuilder().build())
+                        .build();
 
         ExecutionResult<Output> executionResult =
                 ExecutionResult.<Output>newBuilderWithOutput()
@@ -93,27 +94,33 @@ public final class ActionCapabilityImplTest {
                         ACTION_SPEC,
                         Optional.of("id"),
                         property,
-                        (argument, callback) -> callback.onSuccess(executionResult));
+                        (argument) -> Futures.immediateFuture(executionResult));
         StructuredOutput expectedExecutionOutput =
                 StructuredOutput.newBuilder()
                         .addOutputValues(
                                 OutputValue.newBuilder()
                                         .setName("optionalStringOutput")
-                                        .addValues(ParamValue.newBuilder().setStringValue(
-                                                "test2").build())
+                                        .addValues(
+                                                ParamValue.newBuilder()
+                                                        .setStringValue("test2")
+                                                        .build())
                                         .build())
                         .addOutputValues(
                                 OutputValue.newBuilder()
                                         .setName("repeatedStringOutput")
-                                        .addValues(ParamValue.newBuilder().setStringValue(
-                                                "test3").build())
-                                        .addValues(ParamValue.newBuilder().setStringValue(
-                                                "test4").build())
+                                        .addValues(
+                                                ParamValue.newBuilder()
+                                                        .setStringValue("test3")
+                                                        .build())
+                                        .addValues(
+                                                ParamValue.newBuilder()
+                                                        .setStringValue("test4")
+                                                        .build())
                                         .build())
                         .build();
 
-        capability.execute(ArgumentsWrapper.create(Fulfillment.getDefaultInstance()),
-                mCallbackInternal);
+        capability.execute(
+                ArgumentsWrapper.create(Fulfillment.getDefaultInstance()), mCallbackInternal);
 
         verify(mCallbackInternal).onSuccess(mCaptor.capture());
         assertThat(mCaptor.getValue().getExecutionOutput().getOutputValuesList())
