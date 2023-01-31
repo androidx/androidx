@@ -18,6 +18,7 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,12 +27,11 @@ import java.util.Optional;
 public abstract class Output {
 
     public static Builder builder() {
-        return new AutoValue_Output.Builder();
+        return new AutoValue_Output.Builder().setRepeatedStringField(Collections.emptyList());
     }
 
     public abstract Optional<String> optionalStringField();
 
-    @SuppressWarnings("AutoValueImmutableFields")
     public abstract List<String> repeatedStringField();
 
     @AutoValue.Builder

@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 
 /** The implementation of {@code ActionSpec} interface. */
 final class ActionSpecImpl<
-        PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>, OutputT>
+                PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>, OutputT>
         implements ActionSpec<PropertyT, ArgumentT, OutputT> {
 
     private final String mCapabilityName;
