@@ -2,16 +2,24 @@
 
 [TOC]
 
+This document provides an external-facing explanation of how to file a bug
+against a Jetpack library or infrastructure component and how to interpret the
+various statuses and priorities displayed in the issue tracker.
+
 ## Issue tracker {#tracker}
 
 The public-facing issue tracker URL is
-[issuetracker.google.com](https://issuetracker.google.com). If you visit this
-URL from a Google-internal account, it will immediately redirect you to the
-internal-facing issue tracker URL. Make sure that any links you paste publicly
-have the correct public-facing URL.
+[issuetracker.google.com](https://issuetracker.google.com).
 
 The top-level Jetpack component is
 [`Android Public Tracker > App Development > Jetpack (androidx)`](https://issuetracker.google.com/components/192731/manage#basic).
+**Do not** file bugs against the top-level component. Individual library
+components are organized by group and can be searched by entering the Maven
+group in the issue tracker's component field, e.g. `androidx.core`.
+
+Issues with tools, processes, or infrastructure should be reported under the
+[`Jetpack (androidx) > Infrastructure`](https://issuetracker.google.com/components/705292/manage#basic)
+component.
 
 ## Reporting guidelines {#reporting}
 
@@ -116,3 +124,8 @@ information provided on Google Play.
     propagated into a specific release channel. **Do not** re-open an issue that
     has been fixed unless the fix was reverted or the exact reported issue is
     still occurring.
+1.  A status of **WontFix** means that the issue cannot be resolved within a
+    year due to prioritization, staffing, etc. **Do not** re-open an issue that
+    has been marked as WontFix or file identical issues. Issues that are open to
+    reconsideration will be added to an internal hotlist and revisited when the
+    circumstances surrounding their closure have changed.
