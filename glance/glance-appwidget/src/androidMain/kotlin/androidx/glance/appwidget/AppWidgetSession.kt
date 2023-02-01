@@ -33,7 +33,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
@@ -44,7 +43,6 @@ import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellableContinuation
@@ -81,7 +79,7 @@ internal class AppWidgetSession(
         const val DEBUG = false
     }
 
-    private val glanceState = mutableStateOf(emptyPreferences(), neverEqualPolicy())
+    private val glanceState = mutableStateOf<Any?>(null, neverEqualPolicy())
     private val options = mutableStateOf(Bundle(), neverEqualPolicy())
     private var lambdas = mapOf<String, List<LambdaAction>>()
     @VisibleForTesting
@@ -107,8 +105,10 @@ internal class AppWidgetSession(
             }
             val configIsReady by produceState(false) {
                 options.value = initialOptions ?: manager.getAppWidgetOptions(id.appWidgetId)
-                glanceState.value =
-                    configManager.getValue(context, PreferencesGlanceStateDefinition, key)
+                widget.stateDefinition?.let {
+                    glanceState.value =
+                        configManager.getValue(context, it, key)
+                }
                 value = true
             }
             remember { widget.runGlance(context, id) }
@@ -168,8 +168,9 @@ internal class AppWidgetSession(
         when (event) {
             is UpdateGlanceState -> {
                 if (DEBUG) Log.i(TAG, "Received UpdateGlanceState event for session($key)")
-                val newGlanceState =
-                    configManager.getValue(context, PreferencesGlanceStateDefinition, key)
+                val newGlanceState = widget.stateDefinition?.let {
+                    configManager.getValue(context, it, key)
+                }
                 Snapshot.withMutableSnapshot {
                     glanceState.value = newGlanceState
                 }
