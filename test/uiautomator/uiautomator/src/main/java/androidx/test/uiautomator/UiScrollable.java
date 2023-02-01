@@ -397,8 +397,7 @@ public class UiScrollable extends UiCollection {
         if(node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
         }
-        Rect rect = new Rect();
-        node.getBoundsInScreen(rect);
+        Rect rect = getVisibleBounds(node);
 
         int downX = 0;
         int downY = 0;
@@ -472,8 +471,7 @@ public class UiScrollable extends UiCollection {
         if (node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
         }
-        Rect rect = new Rect();
-        node.getBoundsInScreen(rect);
+        Rect rect = getVisibleBounds(node);
 
         int downX = 0;
         int downY = 0;
