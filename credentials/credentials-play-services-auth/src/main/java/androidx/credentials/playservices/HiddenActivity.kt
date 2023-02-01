@@ -27,6 +27,7 @@ import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -149,7 +150,7 @@ open class HiddenActivity : Activity() {
                                 "failure: ${e.message}")
                 }
             }.addOnFailureListener { e: Exception ->
-                var errName: String = GetCredentialUnknownException::class.java.name
+                var errName: String = NoCredentialException::class.java.name
                 if (e is ApiException && e.statusCode in
                     CredentialProviderBaseController.retryables) {
                     errName = GetCredentialInterruptedException::class.java.name
