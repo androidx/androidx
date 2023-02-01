@@ -337,6 +337,7 @@ package androidx.wear.compose.material {
 
   @androidx.compose.runtime.Stable public final class PickerState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public PickerState(int initialNumberOfOptions, optional int initiallySelectedOption, optional boolean repeatItems);
+    method public suspend Object? animateScrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getNumberOfOptions();
     method public boolean getRepeatItems();
