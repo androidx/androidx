@@ -26,10 +26,15 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialUnknownException
+import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.internal.FrameworkImplHelper
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -63,8 +68,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
             override fun onError(error: android.credentials.GetCredentialException) {
                 Log.i(TAG, "GetCredentialResponse error returned from framework")
-                // TODO("Covert to the appropriate exception")
-                callback.onError(GetCredentialUnknownException(error.message))
+                callback.onError(convertToJetpackGetException(error))
             }
         }
         credentialManager.getCredential(
@@ -99,8 +103,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
             override fun onError(error: android.credentials.CreateCredentialException) {
                 Log.i(TAG, "CreateCredentialResponse error returned from framework")
-                // TODO("Covert to the appropriate exception")
-                callback.onError(CreateCredentialUnknownException(error.message))
+                callback.onError(convertToJetpackCreateException(error))
             }
         }
 
@@ -134,6 +137,40 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     private fun createFrameworkClearCredentialRequest():
         android.credentials.ClearCredentialStateRequest {
         return android.credentials.ClearCredentialStateRequest(Bundle())
+    }
+    internal fun convertToJetpackGetException(error: android.credentials.GetCredentialException):
+        GetCredentialException {
+        return when (error.type) {
+            // TODO ("Change to NoCred exception when ready")
+            android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL ->
+                NoCredentialException(error.message)
+
+            android.credentials.GetCredentialException.TYPE_USER_CANCELED ->
+                GetCredentialCancellationException(error.message)
+
+            android.credentials.GetCredentialException.TYPE_INTERRUPTED ->
+                GetCredentialInterruptedException(error.message)
+
+            else -> GetCredentialUnknownException(error.message)
+        }
+    }
+
+    internal fun convertToJetpackCreateException(
+        error: android.credentials.CreateCredentialException
+    ): CreateCredentialException {
+        return when (error.type) {
+            // TODO ("Change to NoCred exception when ready")
+            android.credentials.CreateCredentialException.TYPE_NO_CREDENTIAL ->
+                CreateCredentialUnknownException(error.message)
+
+            android.credentials.CreateCredentialException.TYPE_USER_CANCELED ->
+                CreateCredentialCancellationException(error.message)
+
+            android.credentials.CreateCredentialException.TYPE_INTERRUPTED ->
+                CreateCredentialInterruptedException(error.message)
+
+            else -> CreateCredentialUnknownException(error.message)
+        }
     }
 
     internal fun convertGetResponseToJetpackClass(
