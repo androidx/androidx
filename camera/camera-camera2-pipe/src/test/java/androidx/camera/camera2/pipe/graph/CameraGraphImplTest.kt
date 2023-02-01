@@ -89,7 +89,8 @@ internal class CameraGraphImplTest {
                 defaultBackendId = backend.id,
                 cameraBackends = mapOf(backend.id to CameraBackendFactory { backend }),
                 context,
-                threads)
+                threads
+            )
         val cameraContext = CameraBackendsImpl.CameraBackendContext(context, threads, backends)
         val streamGraph = StreamGraphImpl(metadata, graphConfig)
         cameraController =
@@ -106,7 +107,8 @@ internal class CameraGraphImplTest {
                 surfaceGraph,
                 cameraController,
                 GraphState3A(),
-                Listener3A())
+                Listener3A()
+            )
         stream1 =
             checkNotNull(graph.streams[stream1Config]) {
                 "Failed to find stream for $stream1Config!"

@@ -49,9 +49,11 @@ public class CameraSurfaceManager @Inject constructor() {
 
     private val lock = Any()
 
-    @GuardedBy("lock") private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
+    @GuardedBy("lock")
+    private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
 
-    @GuardedBy("lock") private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
+    @GuardedBy("lock")
+    private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
 
     /**
      * A new [SurfaceToken] is issued when a [Surface] is registered in CameraSurfaceManager. When

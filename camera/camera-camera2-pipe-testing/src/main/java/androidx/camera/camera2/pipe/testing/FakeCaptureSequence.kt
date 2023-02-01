@@ -20,11 +20,11 @@ package androidx.camera.camera2.pipe.testing
 
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CaptureSequence
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.camera2.pipe.CaptureSequence
-import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 
 /** A CaptureSequence used for testing interactions with a [FakeCaptureSequenceProcessor] **/
 data class FakeCaptureSequence(

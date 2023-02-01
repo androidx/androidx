@@ -212,8 +212,10 @@ constructor(
         }
         return OpenVirtualCameraResult(
             activeCamera =
-                ActiveCamera(
-                    androidCameraState = result.cameraState, scope = scope, channel = requestQueue))
+            ActiveCamera(
+                androidCameraState = result.cameraState, scope = scope, channel = requestQueue
+            )
+        )
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -251,7 +253,8 @@ constructor(
                 // A notable bug is b/264396089 where, because camera opens took too long, we didn't
                 // acquire a WakeLockToken, and thereby not issuing the request to close camera
                 // eventually.
-                startTimeoutOnCreation = true)
+                startTimeoutOnCreation = true
+            )
 
         init {
             listenerJob =

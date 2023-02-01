@@ -50,7 +50,7 @@ internal object AndroidThreads {
             Process.THREAD_PRIORITY_URGENT_DISPLAY + 3,
             Process.THREAD_PRIORITY_URGENT_DISPLAY + 2,
             Process.THREAD_PRIORITY_URGENT_DISPLAY // 10 (Thread.MAX_PRIORITY)
-            )
+        )
 
     public val factory: ThreadFactory = Executors.defaultThreadFactory()
 

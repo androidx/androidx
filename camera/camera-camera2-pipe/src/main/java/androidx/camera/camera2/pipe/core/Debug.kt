@@ -111,7 +111,8 @@ public object Debug {
         val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
         val cameraType =
             if (capabilities != null &&
-                capabilities.contains(REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)) {
+                capabilities.contains(REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
+            ) {
                 "Logical"
             } else {
                 "Physical"

@@ -106,7 +106,8 @@ value class CameraError private constructor(val value: Int) {
                 MAX_CAMERAS_IN_USE -> ERROR_CAMERA_LIMIT_EXCEEDED
                 else -> {
                     throw IllegalArgumentException(
-                        "Unexpected CameraAccessException reason:" + "${exception.reason}")
+                        "Unexpected CameraAccessException reason:" + "${exception.reason}"
+                    )
                 }
             }
 
@@ -119,7 +120,8 @@ value class CameraError private constructor(val value: Int) {
                 StateCallback.ERROR_CAMERA_SERVICE -> ERROR_CAMERA_SERVICE
                 else -> {
                     throw IllegalArgumentException(
-                        "Unexpected StateCallback error code:" + "$stateCallbackError")
+                        "Unexpected StateCallback error code:" + "$stateCallbackError"
+                    )
                 }
             }
     }
