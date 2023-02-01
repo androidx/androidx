@@ -558,6 +558,7 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23) // Bounds include invisible regions prior to API 23.
     public void testGetBounds() throws Exception {
         launchTestActivity(VisibleBoundsTestActivity.class);
 

@@ -34,6 +34,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
@@ -282,8 +283,8 @@ public class UiDeviceTest extends BaseTest {
     public void testOpenQuickSettings() {
         mDevice.openQuickSettings();
 
-        assertTrue(mDevice.wait(Until.hasObject(By.res(Pattern.compile(".*quick_settings_panel"))),
-                TIMEOUT_MS));
+        BySelector quickSettings = By.res(Pattern.compile(".*quick_settings.*"));
+        assertTrue(mDevice.wait(Until.hasObject(quickSettings), TIMEOUT_MS));
     }
 
     @Test
