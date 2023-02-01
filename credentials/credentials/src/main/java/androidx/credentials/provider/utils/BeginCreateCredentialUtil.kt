@@ -23,7 +23,6 @@ import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
-import androidx.credentials.provider.BeginCreateCustomCredentialRequest
 import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
 import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
 import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequestPrivileged
@@ -57,13 +56,13 @@ class BeginCreateCredentialUtil {
                         }
                     }
                     else -> {
-                        BeginCreateCustomCredentialRequest(request.type, request.data,
-                            request.callingAppInfo)
+                        BeginCreateCredentialRequest(request.callingAppInfo,
+                            request.type, request.data)
                     }
                 }
             } catch (e: FrameworkClassParsingException) {
-                BeginCreateCustomCredentialRequest(request.type, request.data,
-                    request.callingAppInfo)
+                BeginCreateCredentialRequest(request.callingAppInfo,
+                    request.type, request.data)
             }
         }
     }
