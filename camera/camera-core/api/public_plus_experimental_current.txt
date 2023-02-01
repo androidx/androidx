@@ -348,6 +348,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
     method public int getWidth();
     method public void setCropRect(android.graphics.Rect?);
+    method public default android.graphics.Bitmap toBitmap();
   }
 
   public static interface ImageProxy.PlaneProxy {
