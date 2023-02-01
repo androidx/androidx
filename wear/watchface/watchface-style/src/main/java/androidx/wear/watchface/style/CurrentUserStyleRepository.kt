@@ -544,6 +544,10 @@ public class UserStyleSchema constructor(
 
                 is UserStyleSetting.CustomValueUserStyleSetting ->
                     customValueUserStyleSettingCount++
+
+                is UserStyleSetting.CustomValueUserStyleSetting2 ->
+                    customValueUserStyleSettingCount++
+
                 else -> {
                     // Nothing
                 }

@@ -50,7 +50,9 @@ import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
 import androidx.wear.watchface.style.data.ComplicationsOptionWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.CustomValueOptionWireFormat
+import androidx.wear.watchface.style.data.CustomValueOption2WireFormat
 import androidx.wear.watchface.style.data.CustomValueUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.CustomValueUserStyleSetting2WireFormat
 import androidx.wear.watchface.style.data.DoubleRangeOptionWireFormat
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ListOptionWireFormat
@@ -309,6 +311,7 @@ public sealed class UserStyleSetting private constructor(
     }
 
     public companion object {
+        @Suppress("NewApi") // CustomValueUserStyleSetting2
         internal fun createFromWireFormat(
             wireFormat: UserStyleSettingWireFormat
         ): UserStyleSetting = when (wireFormat) {
@@ -318,6 +321,8 @@ public sealed class UserStyleSetting private constructor(
                 ComplicationSlotsUserStyleSetting(wireFormat)
 
             is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
+
+            is CustomValueUserStyleSetting2WireFormat -> CustomValueUserStyleSetting2(wireFormat)
 
             is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
 
@@ -577,9 +582,17 @@ public sealed class UserStyleSetting private constructor(
          */
         constructor(id: Id) : this(id, emptyList())
 
+        /** Returns the maximum allowed size for IDs for this Option in bytes. */
+        internal open fun getMaxIdSizeBytes(): Int = Id.MAX_LENGTH
+
         init {
             for (child in childSettings) {
                 child.hasParent = true
+            }
+
+            require(id.value.size <= getMaxIdSizeBytes()) {
+                "Option.Id.value.size (${id.value.size}) must be less than MAX_LENGTH " +
+                    getMaxIdSizeBytes()
             }
         }
 
@@ -617,15 +630,17 @@ public sealed class UserStyleSetting private constructor(
             public constructor(value: String) : this(value.encodeToByteArray())
 
             public companion object {
-                /** Maximum length of the [value] field. */
+                /**
+                 * Maximum length of the [value] field to ensure acceptable companion editing
+                 * latency. Please note the [UserStyleSchema] and the [UserStyleSetting] are sent
+                 * over bluetooth to the companion phone when editing, and that bandwidth is
+                 * limited (2mbps is common). Best practice is to keep these Ids short, ideally
+                 * under 10 bytes.
+                 *
+                 * Note the [UserStyle] has a maximum size ([UserStyle.MAXIMUM_SIZE_BYTES]) and that
+                 * Option Ids are a significant contributor to the overall size of a UserStyle.
+                 */
                 public const val MAX_LENGTH: Int = 1024
-            }
-
-            init {
-                require(value.size <= MAX_LENGTH) {
-                    "Option.Id.value.size (${value.size}) must be less than MAX_LENGTH " +
-                        "($MAX_LENGTH)"
-                }
             }
 
             override fun equals(other: Any?): Boolean {
@@ -649,6 +664,7 @@ public sealed class UserStyleSetting private constructor(
 
         public companion object {
             /** @hide */
+            @Suppress("NewApi")
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun createFromWireFormat(
                 wireFormat: OptionWireFormat
@@ -662,6 +678,9 @@ public sealed class UserStyleSetting private constructor(
 
                     is CustomValueOptionWireFormat ->
                         CustomValueUserStyleSetting.CustomValueOption(wireFormat)
+
+                    is CustomValueOption2WireFormat ->
+                        CustomValueUserStyleSetting2.CustomValueOption(wireFormat)
 
                     is DoubleRangeOptionWireFormat ->
                         DoubleRangeUserStyleSetting.DoubleRangeOption(wireFormat)
@@ -2882,7 +2901,11 @@ public sealed class UserStyleSetting private constructor(
     /**
      * An application specific style setting. This style is ignored by the system editor. This is
      * expected to be used in conjunction with an on watch face editor. Only a single
-     * [ComplicationSlotsUserStyleSetting] is permitted in the [UserStyleSchema].
+     * [ComplicationSlotsUserStyleSetting] or [CustomValueUserStyleSetting2] is permitted in the
+     * [UserStyleSchema].
+     *
+     * The [CustomValueOption] can store at most [Option.Id.MAX_LENGTH] bytes. If you need more
+     * storage, consider using [CustomValueUserStyleSetting2].
      */
     public class CustomValueUserStyleSetting : UserStyleSetting {
         internal companion object {
@@ -2931,7 +2954,10 @@ public sealed class UserStyleSetting private constructor(
          * as the [CustomValueOption.id].
          */
         public class CustomValueOption : Option {
-            /* The [ByteArray] value for this option which is the same as the [id]. */
+            /**
+             * The [ByteArray] value for this option which is the same as the [id]. Note the maximum
+             * size in bytes is [Option.Id.MAX_LENGTH].
+             */
             public val customValue: ByteArray
                 get() = id.value
 
@@ -2939,7 +2965,7 @@ public sealed class UserStyleSetting private constructor(
              * Constructs a CustomValueOption.
              *
              * @param customValue The [ByteArray] [id] and value of this CustomValueOption. This
-             * may not exceed [Id.MAX_LENGTH].
+             * may not exceed [Option.Id.MAX_LENGTH].
              */
             public constructor(customValue: ByteArray) : super(Id(customValue), emptyList())
 
@@ -2958,6 +2984,112 @@ public sealed class UserStyleSetting private constructor(
             override fun write(dos: DataOutputStream) {
                 dos.write(id.value)
             }
+        }
+
+        override fun getOptionForId(optionId: Option.Id): Option =
+            options.find { it.id.value.contentEquals(optionId.value) } ?: CustomValueOption(
+                optionId.value
+            )
+    }
+
+    /**
+     * An application specific style setting which supports a larger maximum size than
+     * [CustomValueUserStyleSetting]. This style is ignored by the system editor. This is
+     * expected to be used in conjunction with an on watch face editor. Only a single
+     * [ComplicationSlotsUserStyleSetting] or [CustomValueUserStyleSetting2] is permitted in the
+     * [UserStyleSchema].
+     *
+     * The [CustomValueOption] can store at most [Option.Id.MAX_LENGTH] bytes.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    public class CustomValueUserStyleSetting2 : UserStyleSetting {
+        internal companion object {
+            internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
+        }
+
+        /**
+         * Constructs a CustomValueUserStyleSetting2.
+         *
+         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
+         * face rendering layers this style affects.
+         * @param defaultValue The default value [ByteArray].
+         */
+        public constructor (
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultValue: ByteArray
+        ) : super(
+            Id(CUSTOM_VALUE_USER_STYLE_SETTING_ID),
+            DisplayText.CharSequenceDisplayText(""),
+            DisplayText.CharSequenceDisplayText(""),
+            null,
+            null,
+            listOf(CustomValueOption(defaultValue)),
+            0,
+            affectsWatchFaceLayers
+        )
+
+        internal constructor(wireFormat: CustomValueUserStyleSetting2WireFormat) : super(wireFormat)
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        override fun toWireFormat(): CustomValueUserStyleSetting2WireFormat =
+            CustomValueUserStyleSetting2WireFormat(
+                id.value,
+                displayName,
+                description,
+                icon,
+                getWireFormatOptionsList(),
+                affectedWatchFaceLayers.map { it.ordinal },
+                watchFaceEditorData?.toWireFormat(),
+                /* optionsOnWatchFaceEditorIcons = */null
+            )
+
+        /**
+         * An application specific custom value. NB the [CustomValueOption.customValue] is the same
+         * as the [CustomValueOption.id].
+         */
+        public class CustomValueOption : Option {
+            /**
+             * The [ByteArray] value for this option which is the same as the [id]. Note the maximum
+             * size in bytes is [MAX_SIZE].
+             */
+            public val customValue: ByteArray
+                get() = id.value
+
+            /**
+             * Constructs a CustomValueOption.
+             *
+             * @param customValue The [ByteArray] [id] and value of this CustomValueOption. This
+             * may not exceed [Option.Id.MAX_LENGTH].
+             */
+            public constructor(customValue: ByteArray) : super(Id(customValue), emptyList())
+
+            internal constructor(
+                wireFormat: CustomValueOption2WireFormat
+            ) : super(Id(wireFormat.mId), emptyList())
+
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                CustomValueUserStyleSetting2::class.java
+
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            override fun toWireFormat(): CustomValueOption2WireFormat =
+                CustomValueOption2WireFormat(id.value)
+
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+            }
+
+            public companion object {
+                /**
+                 * The maximum size of [customValue] in bytes.  This is based on the following
+                 * assumptions: 2mbps bluetooth bandwidth and a 50 millisecond transfer time (above
+                 * 50ms delays become quite noticeable).
+                 */
+                public const val MAX_SIZE: Int = 125000
+            }
+
+            override fun getMaxIdSizeBytes(): Int = CustomValueOption.MAX_SIZE
         }
 
         override fun getOptionForId(optionId: Option.Id): Option =
