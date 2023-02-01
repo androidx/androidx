@@ -240,6 +240,55 @@ public final class ImageProcessingUtil {
     }
 
     /**
+     * Converts image proxy in YUV to {@link Bitmap}.
+     *
+     * <p> Different from {@link ImageProcessingUtil#convertYUVToRGB(
+     * ImageProxy, ImageReaderProxy, ByteBuffer, int, boolean)}, this function converts to
+     * {@link Bitmap} in RGBA directly. If input format is invalid,
+     * {@link IllegalArgumentException} will be thrown. If the conversion to bitmap failed,
+     * {@link UnsupportedOperationException} will be thrown.
+     *
+     * @param imageProxy input image proxy in YUV.
+     * @return bitmap output bitmap in RGBA.
+     */
+    @NonNull
+    public static Bitmap convertYUVToBitmap(@NonNull ImageProxy imageProxy) {
+        if (imageProxy.getFormat() != ImageFormat.YUV_420_888) {
+            throw new IllegalArgumentException("Input image format must be YUV_420_888");
+        }
+
+        int imageWidth = imageProxy.getWidth();
+        int imageHeight = imageProxy.getHeight();
+        int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
+        int srcStrideU = imageProxy.getPlanes()[1].getRowStride();
+        int srcStrideV = imageProxy.getPlanes()[2].getRowStride();
+        int srcPixelStrideY = imageProxy.getPlanes()[0].getPixelStride();
+        int srcPixelStrideUV = imageProxy.getPlanes()[1].getPixelStride();
+
+        Bitmap bitmap = Bitmap.createBitmap(imageProxy.getWidth(),
+                imageProxy.getHeight(), Bitmap.Config.ARGB_8888);
+        int bitmapStride = bitmap.getRowBytes();
+
+        int result = nativeConvertAndroid420ToBitmap(
+                imageProxy.getPlanes()[0].getBuffer(),
+                srcStrideY,
+                imageProxy.getPlanes()[1].getBuffer(),
+                srcStrideU,
+                imageProxy.getPlanes()[2].getBuffer(),
+                srcStrideV,
+                srcPixelStrideY,
+                srcPixelStrideUV,
+                bitmap,
+                bitmapStride,
+                imageWidth,
+                imageHeight);
+        if (result != 0) {
+            throw new UnsupportedOperationException("YUV to RGB conversion failed");
+        }
+        return bitmap;
+    }
+
+    /**
      * Applies one pixel shift workaround for YUV image
      *
      * @param imageProxy input image proxy in YUV.
@@ -490,7 +539,7 @@ public final class ImageProcessingUtil {
             int srcStrideV,
             int srcPixelStrideY,
             int srcPixelStrideUV,
-            @NonNull Surface surface,
+            @Nullable Surface surface,
             @Nullable ByteBuffer convertedByteBufferRGB,
             int width,
             int height,
@@ -498,6 +547,20 @@ public final class ImageProcessingUtil {
             int startOffsetU,
             int startOffsetV,
             @ImageOutputConfig.RotationDegreesValue int rotationDegrees);
+
+    private static native int nativeConvertAndroid420ToBitmap(
+            @NonNull ByteBuffer srcByteBufferY,
+            int srcStrideY,
+            @NonNull ByteBuffer srcByteBufferU,
+            int srcStrideU,
+            @NonNull ByteBuffer srcByteBufferV,
+            int srcStrideV,
+            int srcPixelStrideY,
+            int srcPixelStrideUV,
+            @NonNull Bitmap bitmap,
+            int bitmapStride,
+            int width,
+            int height);
 
     private static native int nativeShiftPixel(
             @NonNull ByteBuffer srcByteBufferY,

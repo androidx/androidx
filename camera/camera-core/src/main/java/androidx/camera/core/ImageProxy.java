@@ -16,7 +16,12 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.internal.utils.ImageUtil.createBitmapFromImageProxy;
+
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.media.Image;
 
@@ -55,8 +60,8 @@ public interface ImageProxy extends AutoCloseable {
     /**
      * Returns the image format.
      *
-     * <p> The image format can be one of the {@link android.graphics.ImageFormat} or
-     * {@link android.graphics.PixelFormat} constants.
+     * <p> The image format can be one of the {@link ImageFormat} or
+     * {@link PixelFormat} constants.
      *
      * @see android.media.Image#getFormat()
      */
@@ -133,4 +138,19 @@ public interface ImageProxy extends AutoCloseable {
     @Nullable
     @ExperimentalGetImage
     Image getImage();
+
+    /**
+     * Converts {@link ImageProxy} to {@link Bitmap}.
+     *
+     * <p>The supported {@link ImageProxy} format is {@link ImageFormat#YUV_420_888} or
+     * {@link PixelFormat#RGBA_8888}. If format is invalid, an {@link IllegalArgumentException}
+     * will be thrown. If the conversion to bimap failed, an
+     * {@link UnsupportedOperationException} will be thrown.
+     *
+     * @return {@link Bitmap} instance.
+     */
+    @NonNull
+    default Bitmap toBitmap() {
+        return createBitmapFromImageProxy(this);
+    }
 }
