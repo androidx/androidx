@@ -180,4 +180,39 @@ public class FakeUseCase extends UseCase {
     public void setSessionConfigSupplier(@NonNull Supplier<SessionConfig> sessionConfigSupplier) {
         mSessionConfigSupplier = sessionConfigSupplier;
     }
+
+    /**
+     * Calls the protected method {@link UseCase#updateSessionConfig}.
+     */
+    public void updateSessionConfigForTesting(@NonNull SessionConfig sessionConfig) {
+        updateSessionConfig(sessionConfig);
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyActive()}.
+     */
+    public void notifyActiveForTesting() {
+        notifyActive();
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyInactive()}.
+     */
+    public void notifyInactiveForTesting() {
+        notifyInactive();
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyUpdated()}.
+     */
+    public void notifyUpdatedForTesting() {
+        notifyUpdated();
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyReset()}.
+     */
+    public void notifyResetForTesting() {
+        notifyReset();
+    }
 }
