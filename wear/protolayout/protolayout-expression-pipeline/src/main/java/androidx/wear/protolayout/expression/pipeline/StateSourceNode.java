@@ -16,7 +16,7 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
@@ -71,7 +71,7 @@ class StateSourceNode<T>
     }
 
     @Override
-    public void onData(@Nullable StateEntryValue newData) {
+    public void onData(@NonNull StateEntryValue newData) {
         T actualValue = mStateExtractor.apply(newData);
         mDownstream.onData(actualValue);
     }

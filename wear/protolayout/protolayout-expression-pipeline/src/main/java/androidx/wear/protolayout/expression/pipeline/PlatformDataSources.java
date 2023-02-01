@@ -16,6 +16,11 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.collection.SimpleArrayMap;
 import androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback;
@@ -99,9 +104,21 @@ class PlatformDataSources {
                 case PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE:
                     return SensorGateway.SENSOR_DATA_TYPE_HEART_RATE;
                 case PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT:
-                    return SensorGateway.SENSOR_DATA_TYPE_DAILY_STEP_COUNT;
+                    if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+                        return Api29Impl.getSensorDataTypeDailyStepCount();
+                    } else {
+                        return SensorGateway.SENSOR_DATA_TYPE_INVALID;
+                    }
                 default:
                     throw new IllegalArgumentException("Unknown PlatformSourceType");
+            }
+        }
+
+        @RequiresApi(VERSION_CODES.Q)
+        private static class Api29Impl {
+            @DoNotInline
+            static int getSensorDataTypeDailyStepCount() {
+                return SensorGateway.SENSOR_DATA_TYPE_DAILY_STEP_COUNT;
             }
         }
 
