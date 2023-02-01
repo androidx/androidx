@@ -18,9 +18,9 @@ package androidx.room.solver.types
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.ExceptionTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -100,7 +100,7 @@ class RequireNotNullTypeConverter(
                     "throw %L",
                     XCodeBlock.ofNewInstance(
                         language,
-                        ILLEGAL_STATE_EXCEPTION,
+                        ExceptionTypeNames.ILLEGAL_STATE_EXCEPTION,
                         "%S",
                         message
                     )
@@ -110,9 +110,5 @@ class RequireNotNullTypeConverter(
                 addStatement("error(%S)", message)
             }
         }
-    }
-
-    companion object {
-        private val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
     }
 }

@@ -21,7 +21,6 @@ import androidx.room.Dao
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -350,7 +349,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    java.util.Queue::class.asClassName().parametrizedBy(USER_TYPE_NAME)
+                    CommonTypeNames.QUEUE.parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)

@@ -22,7 +22,6 @@ import androidx.room.Query
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
@@ -1539,7 +1538,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
+                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -1556,7 +1555,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
+                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -1572,7 +1571,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
+                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -1588,7 +1587,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
+                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
