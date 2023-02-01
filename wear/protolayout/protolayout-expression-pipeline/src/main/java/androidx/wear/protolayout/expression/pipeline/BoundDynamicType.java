@@ -43,7 +43,7 @@ public interface BoundDynamicType extends AutoCloseable {
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    int getRunningAnimationCount();
+    int getRunningOrStartedAnimationCount();
 
     /** Destroys this dynamic type and it shouldn't be used after this. */
     @UiThread
