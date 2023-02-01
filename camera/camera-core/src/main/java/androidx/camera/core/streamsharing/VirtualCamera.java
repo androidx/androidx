@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
@@ -37,6 +36,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.processing.SurfaceEdge;
@@ -60,9 +60,7 @@ import java.util.Set;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class VirtualCamera implements CameraInternal {
-
     private static final String UNSUPPORTED_MESSAGE = "Operation not supported by VirtualCamera.";
-
     // Children UseCases associated with this virtual camera.
     @NonNull
     final Set<UseCase> mChildren;
@@ -94,7 +92,6 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- API for StreamSharing ---
-
     void mergeChildrenConfigs(@NonNull MutableConfig mutableConfig) {
         Set<UseCaseConfig<?>> childrenConfigs = new HashSet<>();
         for (UseCase useCase : mChildren) {
@@ -188,31 +185,24 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- Handle children state change ---
-
     // TODO(b/264936250): Handle children state changes.
-
     @Override
     public void onUseCaseActive(@NonNull UseCase useCase) {
-
     }
 
     @Override
     public void onUseCaseInactive(@NonNull UseCase useCase) {
-
     }
 
     @Override
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
-
     }
 
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
-
     }
 
     // --- Forward parent camera properties and events ---
-
     @NonNull
     @Override
     public CameraControlInternal getCameraControlInternal() {
@@ -234,20 +224,29 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- private methods ---
-
     @NonNull
     CameraCaptureCallback createCameraCaptureCallback() {
         return new CameraCaptureCallback() {
             @Override
             public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
                 super.onCaptureCompleted(cameraCaptureResult);
-                // TODO(b/265818567): forward metadata to children.
+                for (UseCase child : mChildren) {
+                    sendCameraCaptureResultToChild(cameraCaptureResult, child.getSessionConfig());
+                }
             }
         };
     }
 
-    // --- Unused overrides ---
+    static void sendCameraCaptureResultToChild(
+            @NonNull CameraCaptureResult cameraCaptureResult,
+            @NonNull SessionConfig sessionConfig) {
+        for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(new VirtualCameraCaptureResult(cameraCaptureResult,
+                    sessionConfig.getRepeatingCaptureConfig().getTagBundle()));
+        }
+    }
 
+    // --- Unused overrides ---
     @Override
     public void open() {
         throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
