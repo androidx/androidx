@@ -44,7 +44,7 @@ import java.util.Collections
  * from the selector.
  *
  * @property pendingIntent the [PendingIntent] to be invoked if the user selects
- * this authentication entry on the UI
+ * this authentication entry on the UI.
  *
  * See [android.service.credentials.BeginGetCredentialResponse.createWithAuthentication]
  * for usage details.

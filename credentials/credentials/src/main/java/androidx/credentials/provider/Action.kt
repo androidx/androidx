@@ -40,10 +40,10 @@ import java.util.Collections
  * @throws NullPointerException If [title] or [pendingIntent] is null
  */
 @RequiresApi(34)
-class Action internal constructor(
+class Action constructor(
     val title: CharSequence,
-    val subtitle: CharSequence?,
     val pendingIntent: PendingIntent,
+    val subtitle: CharSequence? = null,
     ) : android.service.credentials.Action(
     toSlice(title, subtitle, pendingIntent)) {
 
@@ -84,7 +84,7 @@ class Action internal constructor(
          * @throws IllegalArgumentException If [title] is empty
          */
         fun build(): Action {
-            return Action(title, subtitle, pendingIntent)
+            return Action(title, pendingIntent, subtitle)
         }
     }
 
@@ -149,7 +149,7 @@ class Action internal constructor(
             }
 
             return try {
-                Action(title, subtitle, pendingIntent!!)
+                Action(title, pendingIntent!!, subtitle)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null

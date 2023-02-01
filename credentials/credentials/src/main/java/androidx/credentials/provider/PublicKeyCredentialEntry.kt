@@ -64,7 +64,7 @@ class PublicKeyCredentialEntry internal constructor(
     val displayName: CharSequence?,
     val typeDisplayName: CharSequence,
     val pendingIntent: PendingIntent,
-    val icon: Icon,
+    val icon: Icon?,
     val lastUsedTime: Instant?,
     val isAutoSelectAllowed: Boolean
 ) : CredentialEntry(
@@ -80,6 +80,30 @@ class PublicKeyCredentialEntry internal constructor(
         isAutoSelectAllowed
     )
 ) {
+
+    init {
+        require(username.isNotEmpty()) { "username must not be empty" }
+        require(typeDisplayName.isNotEmpty()) { "typeDisplayName must not be empty" }
+    }
+
+    constructor(
+        context: Context,
+        username: CharSequence,
+        pendingIntent: PendingIntent,
+        displayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon? = Icon.createWithResource(context, R.drawable.ic_passkey),
+        isAutoSelectAllowed: Boolean = false,
+    ) : this(
+        username,
+        displayName,
+        context.getString(
+            R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL),
+        pendingIntent,
+        icon,
+        lastUsedTime,
+        isAutoSelectAllowed
+    )
 
     override fun describeContents(): Int {
         return 0
