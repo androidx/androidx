@@ -22,12 +22,12 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.core.util.function.Consumer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.function.Consumer;
 
 /**
  * The interface definition that will be used by the WindowManager library to get custom

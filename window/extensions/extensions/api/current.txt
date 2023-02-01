@@ -17,10 +17,10 @@ package androidx.window.extensions {
 package androidx.window.extensions.area {
 
   public interface WindowAreaComponent {
-    method public void addRearDisplayStatusListener(java.util.function.Consumer<java.lang.Integer!>);
+    method public void addRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
     method public void endRearDisplaySession();
-    method public void removeRearDisplayStatusListener(java.util.function.Consumer<java.lang.Integer!>);
-    method public void startRearDisplaySession(android.app.Activity, java.util.function.Consumer<java.lang.Integer!>);
+    method public void removeRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public void startRearDisplaySession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
     field public static final int SESSION_STATE_ACTIVE = 1; // 0x1
     field public static final int SESSION_STATE_INACTIVE = 0; // 0x0
     field public static final int STATUS_AVAILABLE = 2; // 0x2

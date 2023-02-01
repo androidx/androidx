@@ -26,12 +26,12 @@ import androidx.window.TestActivity
 import androidx.window.TestConsumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
+import androidx.window.extensions.core.util.function.Consumer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
-import java.util.function.Consumer
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.TestScope
