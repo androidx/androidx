@@ -51,9 +51,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeUseCase
-import androidx.lifecycle.MutableLiveData
 import androidx.test.filters.MediumTest
-import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.FutureCallback
@@ -67,22 +65,17 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Ignore
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -121,17 +114,10 @@ private val M_RECT_PVIEW_RATIO_4x3_SENSOR_1920x1080 = Rect(
     240 + AREA_WIDTH_2 / 2, AREA_HEIGHT_2 / 2
 )
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @DoNotInstrument
 class FocusMeteringControlTest {
-    private val testScope = TestScope()
-    private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
-
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule(testDispatcher)
-
     private val pointFactory = SurfaceOrientedMeteringPointFactory(1f, 1f)
     private lateinit var focusMeteringControl: FocusMeteringControl
 
@@ -153,15 +139,6 @@ class FocusMeteringControlTest {
             dispatcher,
         )
     }
-
-    // testUseCaseThreads is used to ensure that all coroutines are executed before some specific
-    // point. But fakeUseCaseThreads can not be replaced in all tests because testDispatcher
-    // does not work well with withTimeoutOrNull()
-    private val testUseCaseThreads = UseCaseThreads(
-        testScope,
-        testDispatcher.asExecutor(),
-        testDispatcher
-    )
 
     @Before
     fun setUp() {
@@ -438,16 +415,11 @@ class FocusMeteringControlTest {
         focusMeteringControl = initFocusMeteringControl(
             CAMERA_ID_0,
             setOf(createPreview(Size(1920, 1080))),
-            testUseCaseThreads,
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         startFocusMeteringAndAwait(
             FocusMeteringAction.Builder(point1).build()
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
@@ -462,16 +434,11 @@ class FocusMeteringControlTest {
         focusMeteringControl = initFocusMeteringControl(
             CAMERA_ID_1,
             setOf(createPreview(Size(640, 480))),
-            testUseCaseThreads,
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         startFocusMeteringAndAwait(
             FocusMeteringAction.Builder(point1).build()
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
@@ -492,16 +459,11 @@ class FocusMeteringControlTest {
         focusMeteringControl = initFocusMeteringControl(
             CAMERA_ID_0,
             setOf(createPreview(Size(640, 480))),
-            testUseCaseThreads,
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         startFocusMeteringAndAwait(
             FocusMeteringAction.Builder(point).build()
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
@@ -516,17 +478,13 @@ class FocusMeteringControlTest {
         focusMeteringControl = initFocusMeteringControl(
             CAMERA_ID_0,
             setOf(createPreview(Size(1920, 1080))),
-            testUseCaseThreads,
         )
-        fakeUseCaseCamera.runningUseCasesLiveData.value = emptySet()
-
-        testDispatcher.scheduler.advanceUntilIdle()
+        fakeUseCaseCamera.runningUseCases = emptySet()
+        focusMeteringControl.onRunningUseCasesChanged()
 
         startFocusMeteringAndAwait(
             FocusMeteringAction.Builder(point1).build()
         )
-
-        testDispatcher.scheduler.advanceUntilIdle()
 
         // point1 = (0, 0) is considered as center point of metering rectangle.
         // Since previewAspectRatio is not set, it will be same as cropRegionAspectRatio
@@ -535,37 +493,6 @@ class FocusMeteringControlTest {
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
             assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_1)
-        }
-    }
-
-    @Test
-    fun previewRatioIsNotChanged_whenSameUseCaseCameraSetTwice() {
-        // use 16:9 aspect ratio Preview with sensor region of 4:3 (camera 0)
-        val useCases = setOf<UseCase>(createPreview(Size(1920, 1080)))
-
-        focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_0,
-            useCases,
-            UseCaseThreads(
-                testScope,
-                testDispatcher.asExecutor(),
-                testDispatcher
-            ),
-        )
-        focusMeteringControl.useCaseCamera = fakeUseCaseCamera
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        startFocusMeteringAndAwait(
-            FocusMeteringAction.Builder(point1).build()
-        )
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AF region")
-                .that(afRegions[0].rect).isEqualTo(M_RECT_PVIEW_RATIO_16x9_SENSOR_640x480)
         }
     }
 
@@ -1171,8 +1098,7 @@ class FocusMeteringControlTest {
     }
 
     private val fakeUseCaseCamera = object : UseCaseCamera {
-        override val runningUseCasesLiveData: MutableLiveData<Set<UseCase>> =
-            MutableLiveData(emptySet())
+        override var runningUseCases = setOf<UseCase>()
 
         override val requestControl: UseCaseCameraRequestControl
             get() = fakeRequestControl
@@ -1207,8 +1133,9 @@ class FocusMeteringControlTest {
             state3AControl,
             useCaseThreads
         ).apply {
-            fakeUseCaseCamera.runningUseCasesLiveData.value = useCases
+            fakeUseCaseCamera.runningUseCases = useCases
             useCaseCamera = fakeUseCaseCamera
+            onRunningUseCasesChanged()
         }
 
     private fun initCameraProperties(

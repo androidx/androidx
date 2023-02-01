@@ -25,8 +25,6 @@ import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.lifecycle.Observer
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
@@ -40,26 +38,23 @@ import kotlinx.coroutines.Deferred
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class State3AControl @Inject constructor(
     val cameraProperties: CameraProperties,
-) : UseCaseCameraControl {
+) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
         get() = _useCaseCamera
         set(value) {
-            val previousUseCaseCamera = _useCaseCamera
             _useCaseCamera = value
-            CameraXExecutors.mainThreadExecutor().execute {
-                previousUseCaseCamera?.runningUseCasesLiveData?.removeObserver(
-                    useCaseChangeObserver
-                )
-                value?.let {
-                    it.runningUseCasesLiveData.observeForever(useCaseChangeObserver)
-                    invalidate() // Always apply the settings to the camera.
-                }
+            value?.let {
+                invalidate() // Always apply the settings to the camera.
             }
         }
 
-    private val useCaseChangeObserver =
-        Observer<Set<UseCase>> { useCases -> useCases.updateTemplate() }
+    override fun onRunningUseCasesChanged() {
+        _useCaseCamera?.runningUseCases?.run {
+            updateTemplate()
+        }
+    }
+
     private val afModes = cameraProperties.metadata.getOrDefault(
         CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
         intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
