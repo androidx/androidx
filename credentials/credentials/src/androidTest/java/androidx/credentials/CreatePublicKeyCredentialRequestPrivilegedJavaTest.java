@@ -210,7 +210,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials()).isEqualTo(
                 request.preferImmediatelyAvailableCredentials());
         CreateCredentialRequest.DisplayInfo displayInfo =
-                convertedRequest.getDisplayInfo$credentials_debug();
+                convertedRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isEqualTo(TEST_USER_DISPLAYNAME);
         assertThat(displayInfo.getUserId()).isEqualTo(TEST_USERNAME);
         assertThat(displayInfo.getCredentialTypeIcon().getResId())
