@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
 import kotlin.reflect.KClass
 
 /**
@@ -126,7 +127,10 @@ constructor(
                 Debug.trace("Camera-${camera.value}#keys") {
                     @Suppress("UselessCallOnNotNull") characteristics.keys.orEmpty().toSet()
                 }
-            } catch (ignored: AssertionError) {
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getKeys from Camera-${camera.value}"
+                }
                 emptySet()
             }
         }
@@ -138,7 +142,10 @@ constructor(
                     @Suppress("UselessCallOnNotNull")
                     characteristics.availableCaptureRequestKeys.orEmpty().toSet()
                 }
-            } catch (ignored: AssertionError) {
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getAvailableCaptureRequestKeys from Camera-${camera.value}"
+                }
                 emptySet()
             }
         }
@@ -150,7 +157,10 @@ constructor(
                     @Suppress("UselessCallOnNotNull")
                     characteristics.availableCaptureResultKeys.orEmpty().toSet()
                 }
-            } catch (ignored: AssertionError) {
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getAvailableCaptureResultKeys from Camera-${camera.value}"
+                }
                 emptySet()
             }
         }
@@ -168,9 +178,11 @@ constructor(
                             .map { CameraId(it) }
                             .toSet()
                     }
-                } catch (ignored: AssertionError) {
+                } catch (e: AssertionError) {
+                    Log.warn(e) { "Failed to getPhysicalCameraIds from Camera-${camera.value}" }
                     emptySet()
-                } catch (ignored: NullPointerException) {
+                } catch (e: NullPointerException) {
+                    Log.warn(e) { "Failed to getPhysicalCameraIds from Camera-${camera.value}" }
                     emptySet()
                 }
             }
@@ -187,7 +199,11 @@ constructor(
                             .orEmpty()
                             .toSet()
                     }
-                } catch (ignored: AssertionError) {
+                } catch (e: AssertionError) {
+                    Log.warn(e) {
+                        "Failed to getAvailablePhysicalCameraRequestKeys from " +
+                            "Camera-${camera.value}"
+                    }
                     emptySet()
                 }
             }
@@ -202,7 +218,10 @@ constructor(
                     Debug.trace("Camera-${camera.value}#availableSessionKeys") {
                         Api28Compat.getAvailableSessionKeys(characteristics).orEmpty().toSet()
                     }
-                } catch (ignored: AssertionError) {
+                } catch (e: AssertionError) {
+                    Log.warn(e) {
+                        "Failed to getAvailableSessionKeys from Camera-${camera.value}"
+                    }
                     emptySet()
                 }
             }
