@@ -44,9 +44,11 @@ constructor(
     private val metadata: Map<Metadata.Key<*>, Any?>,
     private val cacheBlocklist: Set<CameraCharacteristics.Key<*>>,
 ) : CameraMetadata {
-    @GuardedBy("values") private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
+    @GuardedBy("values")
+    private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
 
-    @Suppress("UNCHECKED_CAST") override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T =

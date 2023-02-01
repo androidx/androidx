@@ -72,7 +72,8 @@ internal class CaptureSessionState(
     private val activeSurfaceMap = synchronizedMap(HashMap<StreamId, Surface>())
     private var sessionCreatingTimestamp: TimestampNs? = null
 
-    @GuardedBy("lock") private var _cameraDevice: CameraDeviceWrapper? = null
+    @GuardedBy("lock")
+    private var _cameraDevice: CameraDeviceWrapper? = null
     var cameraDevice: CameraDeviceWrapper?
         get() = synchronized(lock) { _cameraDevice }
         set(value) =
@@ -87,14 +88,17 @@ internal class CaptureSessionState(
                 }
             }
 
-    @GuardedBy("lock") private var cameraCaptureSession: ConfiguredCameraCaptureSession? = null
+    @GuardedBy("lock")
+    private var cameraCaptureSession: ConfiguredCameraCaptureSession? = null
 
     @GuardedBy("lock")
     private var pendingOutputMap: Map<StreamId, OutputConfigurationWrapper>? = null
 
-    @GuardedBy("lock") private var pendingSurfaceMap: Map<StreamId, Surface>? = null
+    @GuardedBy("lock")
+    private var pendingSurfaceMap: Map<StreamId, Surface>? = null
 
-    @GuardedBy("lock") private var state = State.PENDING
+    @GuardedBy("lock")
+    private var state = State.PENDING
 
     private enum class State {
         PENDING,
@@ -104,7 +108,8 @@ internal class CaptureSessionState(
         CLOSED
     }
 
-    @GuardedBy("lock") private var _surfaceMap: Map<StreamId, Surface>? = null
+    @GuardedBy("lock")
+    private var _surfaceMap: Map<StreamId, Surface>? = null
 
     @GuardedBy("lock")
     private val _surfaceTokenMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
@@ -197,7 +202,9 @@ internal class CaptureSessionState(
                     ConfiguredCameraCaptureSession(
                         session,
                         GraphRequestProcessor.from(
-                            captureSequenceProcessorFactory.create(session, activeSurfaceMap)))
+                            captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                        )
+                    )
                 cameraCaptureSession = captureSession
             } else {
                 captureSession = cameraCaptureSession
@@ -404,7 +411,8 @@ internal class CaptureSessionState(
                 val availableDeferredSurfaces = _surfaceMap?.filter { deferred.containsKey(it.key) }
 
                 if (availableDeferredSurfaces != null &&
-                    availableDeferredSurfaces.size == deferred.size) {
+                    availableDeferredSurfaces.size == deferred.size
+                ) {
                     pendingSurfaceMap = availableDeferredSurfaces
                 }
             }

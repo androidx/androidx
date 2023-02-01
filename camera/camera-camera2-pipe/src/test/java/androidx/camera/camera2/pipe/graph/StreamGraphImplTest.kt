@@ -84,7 +84,8 @@ internal class StreamGraphImplTest {
                     OutputStream.Config.create(Size(800, 600), StreamFormat.YUV_420_888),
                     OutputStream.Config.create(Size(1600, 1200), StreamFormat.YUV_420_888),
                     OutputStream.Config.create(Size(800, 600), StreamFormat.YUV_420_888),
-                ))
+                )
+            )
         val graphConfig =
             CameraGraph.Config(
                 camera = CameraId("TestCamera"),

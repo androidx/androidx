@@ -120,17 +120,18 @@ constructor(
                         output.camera ?: graphConfig.camera,
                         groupNumber = groupNumbers[streamConfig],
                         deferredOutputType =
-                            if (deferredOutputsAllowed) {
-                                (output as? OutputStream.Config.LazyOutputConfig)?.outputType
-                            } else {
-                                null
-                            },
+                        if (deferredOutputsAllowed) {
+                            (output as? OutputStream.Config.LazyOutputConfig)?.outputType
+                        } else {
+                            null
+                        },
                         mirrorMode = output.mirrorMode,
                         timestampBase = output.timestampBase,
                         dynamicRangeProfile = output.dynamicRangeProfile,
                         streamUseCase = output.streamUseCase,
                         externalOutputConfig =
-                            (output as? OutputStream.Config.ExternalOutputConfig)?.output)
+                        (output as? OutputStream.Config.ExternalOutputConfig)?.output
+                    )
                 outputConfigMap[output] = outputConfig
                 outputConfigListBuilder.add(outputConfig)
             }

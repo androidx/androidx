@@ -89,7 +89,8 @@ internal class CameraGraphSessionImpl(
             awbMode = awbMode,
             aeRegions = aeRegions,
             afRegions = afRegions,
-            awbRegions = awbRegions)
+            awbRegions = awbRegions
+        )
     }
 
     override suspend fun submit3A(
@@ -138,7 +139,8 @@ internal class CameraGraphSessionImpl(
             awbLockBehavior,
             afTriggerStartAeMode,
             frameLimit,
-            timeLimitNs)
+            timeLimitNs
+        )
     }
 
     override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {

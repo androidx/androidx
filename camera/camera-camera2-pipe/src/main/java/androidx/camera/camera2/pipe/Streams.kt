@@ -21,6 +21,10 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile.Companion.STANDARD
+import androidx.camera.camera2.pipe.OutputStream.MirrorMode.Companion.MIRROR_MODE_AUTO
+import androidx.camera.camera2.pipe.OutputStream.StreamUseCase.Companion.DEFAULT
+import androidx.camera.camera2.pipe.OutputStream.TimestampBase.Companion.TIMESTAMP_BASE_DEFAULT
 import androidx.camera.camera2.pipe.compat.Api33Compat
 
 /**
@@ -90,7 +94,8 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                    ))
+                    )
+                )
 
             /**
              * Create a simple [CameraStream] using a previously defined [OutputStream.Config]. This
@@ -161,7 +166,8 @@ public interface OutputStream {
                 streamUseCase: StreamUseCase? = null,
             ): Config =
                 if (outputType == OutputType.SURFACE_TEXTURE ||
-                    outputType == OutputType.SURFACE_VIEW) {
+                    outputType == OutputType.SURFACE_VIEW
+                ) {
                     LazyOutputConfig(
                         size,
                         format,
@@ -170,7 +176,8 @@ public interface OutputStream {
                         mirrorMode,
                         timestampBase,
                         dynamicRangeProfile,
-                        streamUseCase)
+                        streamUseCase
+                    )
                 } else {
                     check(outputType == OutputType.SURFACE)
                     SimpleOutputConfig(
@@ -213,7 +220,8 @@ public interface OutputStream {
                 mirrorMode,
                 timestampBase,
                 dynamicRangeProfile,
-                streamUseCase)
+                streamUseCase
+            )
 
         /**
          * Used to configure an output with a surface that may be provided after the camera is

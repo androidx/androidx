@@ -51,7 +51,8 @@ internal class Controller3AUnlock3ATest {
         FakeCameraMetadata(
             mapOf(
                 CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)),
+                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            ),
         )
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
@@ -68,16 +69,20 @@ internal class Controller3AUnlock3ATest {
         val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                            mapOf(
-                                CaptureResult.CONTROL_AE_STATE to
-                                    CaptureResult.CONTROL_AE_STATE_LOCKED)))
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED
+                        )
+                    )
+                )
                 delay(FRAME_RATE_MS)
             }
         }
@@ -95,16 +100,20 @@ internal class Controller3AUnlock3ATest {
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_SEARCHING)))
+                    mapOf(
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_SEARCHING
+                    )
+                )
+            )
         }
 
         val result3A = result.await()
@@ -120,16 +129,20 @@ internal class Controller3AUnlock3ATest {
         val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                            mapOf(
-                                CaptureResult.CONTROL_AF_STATE to
-                                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)))
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                        )
+                    )
+                )
                 delay(FRAME_RATE_MS)
             }
         }
@@ -148,16 +161,20 @@ internal class Controller3AUnlock3ATest {
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_INACTIVE)))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_INACTIVE
+                    )
+                )
+            )
         }
 
         val result3A = result.await()
@@ -173,16 +190,20 @@ internal class Controller3AUnlock3ATest {
         val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                            mapOf(
-                                CaptureResult.CONTROL_AWB_STATE to
-                                    CaptureResult.CONTROL_AWB_STATE_LOCKED)))
+                        mapOf(
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_LOCKED
+                        )
+                    )
+                )
                 delay(FRAME_RATE_MS)
             }
         }
@@ -200,16 +221,20 @@ internal class Controller3AUnlock3ATest {
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AWB_STATE to
-                                CaptureResult.CONTROL_AWB_STATE_SEARCHING)))
+                    mapOf(
+                        CaptureResult.CONTROL_AWB_STATE to
+                            CaptureResult.CONTROL_AWB_STATE_SEARCHING
+                    )
+                )
+            )
         }
 
         val result3A = result.await()
@@ -225,18 +250,22 @@ internal class Controller3AUnlock3ATest {
         val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                            mapOf(
-                                CaptureResult.CONTROL_AE_STATE to
-                                    CaptureResult.CONTROL_AE_STATE_LOCKED,
-                                CaptureResult.CONTROL_AF_STATE to
-                                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)))
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED,
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                        )
+                    )
+                )
                 delay(FRAME_RATE_MS)
             }
         }
@@ -258,18 +287,22 @@ internal class Controller3AUnlock3ATest {
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_INACTIVE,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_SEARCHING)))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_INACTIVE,
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_SEARCHING
+                    )
+                )
+            )
         }
 
         val result3A = result.await()
@@ -283,7 +316,8 @@ internal class Controller3AUnlock3ATest {
             FakeCameraMetadata(
                 mapOf(
                     CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)),
+                        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                ),
             )
         val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
         val result = controller3A.unlock3A(af = true).await()

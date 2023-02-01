@@ -89,7 +89,10 @@ internal class VirtualCameraStateTest {
             flowOf(
                 CameraStateOpen(
                     AndroidCameraDevice(
-                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId)))
+                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                    )
+                )
+            )
         virtualCamera.connect(
             cameraState,
             object : Token {
@@ -118,12 +121,16 @@ internal class VirtualCameraStateTest {
             listOf(
                 CameraStateOpen(
                     AndroidCameraDevice(
-                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId)),
+                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                    )
+                ),
                 CameraStateClosing(),
                 CameraStateClosed(
                     cameraId,
                     ClosedReason.CAMERA2_ERROR,
-                    cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE))
+                    cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
+                )
+            )
 
         val events = mutableListOf<CameraState>()
         val job = launch { virtualCamera.state.collect { events.add(it) } }
@@ -167,7 +174,8 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource)
+                timeSource
+            )
 
         assertThat(listener.state.value).isInstanceOf(CameraStateUnopened.javaClass)
 
@@ -177,9 +185,10 @@ internal class AndroidCameraDeviceTest {
 
         assertThat(listener.state.value).isInstanceOf(CameraStateOpen::class.java)
         assertThat(
-                (listener.state.value as CameraStateOpen)
-                    .cameraDevice
-                    .unwrapAs(CameraDevice::class))
+            (listener.state.value as CameraStateOpen)
+                .cameraDevice
+                .unwrapAs(CameraDevice::class)
+        )
             .isSameInstanceAs(testCamera.cameraDevice)
 
         mainLooper.idleFor(1000, TimeUnit.MILLISECONDS)
@@ -210,7 +219,8 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource)
+                timeSource
+            )
 
         listener.onDisconnected(testCamera.cameraDevice)
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
@@ -230,7 +240,8 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource)
+                timeSource
+            )
 
         listener.close()
         mainLooper.idle()
@@ -247,7 +258,8 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource)
+                timeSource
+            )
 
         listener.closeWith(IllegalArgumentException("Test Exception"))
         mainLooper.idle()
@@ -264,7 +276,8 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource)
+                timeSource
+            )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
         mainLooper.idle()

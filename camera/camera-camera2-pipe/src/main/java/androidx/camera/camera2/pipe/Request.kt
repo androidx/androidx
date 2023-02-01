@@ -72,7 +72,8 @@ public data class Request(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             timestamp: CameraTimestamp
-        ) {}
+        ) {
+        }
 
         /**
          * This event indicates that the camera sensor has additional information about the frame
@@ -88,7 +89,8 @@ public data class Request(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             captureResult: FrameMetadata
-        ) {}
+        ) {
+        }
 
         /**
          * This event indicates that all of the metadata associated with this frame has been
@@ -105,7 +107,8 @@ public data class Request(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             totalCaptureResult: FrameInfo
-        ) {}
+        ) {
+        }
 
         /**
          * This is an artificial event that will be invoked after onTotalCaptureResult. This may be
@@ -122,7 +125,8 @@ public data class Request(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             result: FrameInfo
-        ) {}
+        ) {
+        }
 
         /**
          * onFailed occurs when a CaptureRequest failed in some way and the frame will not receive
@@ -139,7 +143,8 @@ public data class Request(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             captureFailure: CaptureFailure
-        ) {}
+        ) {
+        }
 
         /**
          * onBufferLost occurs when a CaptureRequest failed to create an image for a given output
@@ -155,7 +160,8 @@ public data class Request(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             stream: StreamId
-        ) {}
+        ) {
+        }
 
         /**
          * This is an artificial callback that will be invoked if a specific request was pending or
@@ -207,7 +213,8 @@ public data class Request(
         public fun onRequestSequenceCompleted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber
-        ) {}
+        ) {
+        }
     }
 
     public operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)

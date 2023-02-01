@@ -89,7 +89,8 @@ internal class FakeGraphProcessor(
                     requests = listOf(currRepeatingRequest),
                     defaultParameters = defaultParameters,
                     requiredParameters = requiredParameters,
-                    listeners = defaultListeners)
+                    listeners = defaultListeners
+                )
         }
     }
 
@@ -163,6 +164,7 @@ internal class FakeGraphProcessor(
             requests = listOf(currRepeatingRequest),
             defaultParameters = defaultParameters,
             requiredParameters = requiredParameters,
-            listeners = defaultListeners)
+            listeners = defaultListeners
+        )
     }
 }

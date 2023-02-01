@@ -73,7 +73,8 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
         Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.openCamera(
-                    instance, cameraId.value, threads.camera2Executor, stateCallback)
+                    instance, cameraId.value, threads.camera2Executor, stateCallback
+                )
             } else {
                 instance.openCamera(cameraId.value, stateCallback, threads.camera2Handler)
             }
@@ -116,7 +117,8 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
             val manager = cameraManager.get()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.registerAvailabilityCallback(
-                    manager, threads.camera2Executor, availabilityCallback)
+                    manager, threads.camera2Executor, availabilityCallback
+                )
             } else {
                 manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
             }
@@ -166,7 +168,8 @@ constructor(
                 requestTimestamp,
                 timeSource,
                 cameraInteropConfig?.cameraDeviceStateCallback,
-                cameraInteropConfig?.cameraSessionStateCallback)
+                cameraInteropConfig?.cameraSessionStateCallback
+            )
 
         try {
             cameraOpener.openCamera(cameraId, cameraState)
@@ -179,10 +182,12 @@ constructor(
                     cameraState.close()
                     return OpenCameraResult(errorCode = result.cameraErrorCode)
                 }
+
                 is CameraStateClosed -> {
                     cameraState.close()
                     return OpenCameraResult(errorCode = result.cameraErrorCode)
                 }
+
                 is CameraStateUnopened -> {
                     cameraState.close()
                     throw IllegalStateException("Unexpected CameraState: $result")
@@ -239,7 +244,8 @@ constructor(
                         attempts,
                         requestTimestamp,
                         timeSource,
-                        devicePolicyManager.camerasDisabled)
+                        devicePolicyManager.camerasDisabled
+                    )
                 // Always notify if the decision is to not retry the camera open, otherwise allow
                 // 1 open call to happen silently without generating an error, and notify about each
                 // error after that point.
@@ -294,6 +300,7 @@ constructor(
                     } else {
                         true
                     }
+
                 CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> true
                 CameraError.ERROR_CAMERA_DISABLED ->
                     // The error indicates indicates that the current camera is currently disabled,
@@ -314,6 +321,7 @@ constructor(
                     } else {
                         true
                     }
+
                 CameraError.ERROR_CAMERA_DEVICE -> true
                 CameraError.ERROR_CAMERA_SERVICE -> true
                 CameraError.ERROR_CAMERA_DISCONNECTED -> true
