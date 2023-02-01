@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.RectF
 import android.graphics.drawable.Icon
@@ -24,6 +25,7 @@ import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.Bo
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -147,11 +149,64 @@ public class UserStyleSettingTest {
     @Test
     public fun maximumOptionIdLength() {
         // OK.
-        Option.Id("x".repeat(Option.Id.MAX_LENGTH))
+        ListOption(
+            Option.Id("x".repeat(Option.Id.MAX_LENGTH)),
+            displayName = "test",
+            screenReaderName = "test",
+            icon = null
+        )
 
         try {
             // Not OK.
-            Option.Id("x".repeat(Option.Id.MAX_LENGTH + 1))
+            ListOption(
+                Option.Id("x".repeat(Option.Id.MAX_LENGTH + 1)),
+                displayName = "test",
+                screenReaderName = "test",
+                icon = null
+            )
+            fail("Should have thrown an exception")
+        } catch (e: Exception) {
+            // Expected
+        }
+    }
+
+    @Test
+    public fun maximumCustomValueOptionSize() {
+        // OK.
+        UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(
+            ByteArray(Option.Id.MAX_LENGTH)
+        )
+
+        try {
+            // Not OK.
+            UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(
+                ByteArray(Option.Id.MAX_LENGTH + 1)
+            )
+            fail("Should have thrown an exception")
+        } catch (e: Exception) {
+            // Expected
+        }
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    public fun maximumCustomValueOption2Size() {
+        // OK.
+        UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption(
+            ByteArray(Option.Id.MAX_LENGTH + 1)
+        )
+
+        UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption(
+            ByteArray(UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption.MAX_SIZE)
+        )
+
+        try {
+            // Not OK.
+            UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption(
+                ByteArray(
+                    UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption.MAX_SIZE + 1
+                )
+            )
             fail("Should have thrown an exception")
         } catch (e: Exception) {
             // Expected

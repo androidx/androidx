@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -26,6 +27,7 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting2
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
@@ -151,6 +153,7 @@ public class StyleParcelableTest {
         assertThat(unmarshalled3.icon!!.uri.toString()).isEqualTo("icon3")
     }
 
+    @SuppressLint("NewApi")
     @Test
     @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelUserStyleSchema() {
@@ -184,11 +187,10 @@ public class StyleParcelableTest {
             listOf(WatchFaceLayer.BASE),
             true
         )
-        val styleSetting4 = CustomValueUserStyleSetting(
+        val styleSetting4 = CustomValueUserStyleSetting2(
             listOf(WatchFaceLayer.BASE),
             "default".encodeToByteArray()
         )
-
         val srcSchema = UserStyleSchema(
             listOf(
                 styleSetting1,
@@ -266,7 +268,7 @@ public class StyleParcelableTest {
             WatchFaceLayer.BASE
         )
 
-        assertThat(schema.userStyleSettings[3] is CustomValueUserStyleSetting).isTrue()
+        assertThat(schema.userStyleSettings[3] is CustomValueUserStyleSetting2).isTrue()
         assertThat(schema.userStyleSettings[3].defaultOption.id.value.decodeToString())
             .isEqualTo("default")
         assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.size).isEqualTo(1)
