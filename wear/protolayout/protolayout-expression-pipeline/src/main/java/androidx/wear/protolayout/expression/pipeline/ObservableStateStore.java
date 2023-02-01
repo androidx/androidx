@@ -16,12 +16,15 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static java.util.stream.Collectors.toMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.wear.protolayout.expression.StateEntryBuilders;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
 import java.util.ArrayList;
@@ -39,22 +42,44 @@ import java.util.Set;
  * must only be used from the UI thread.
  */
 public class ObservableStateStore {
-    @NonNull private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
+    @NonNull
+    private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
 
     @NonNull
     private final Map<String, Set<DynamicTypeValueReceiver<StateEntryValue>>> mRegisteredCallbacks =
             new ArrayMap<>();
 
+    /** Creates a {@link ObservableStateStore}. */
+    @NonNull
+    public static ObservableStateStore create(
+            @NonNull Map<String, StateEntryBuilders.StateEntryValue> initialState) {
+        return new ObservableStateStore(toProto(initialState));
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public ObservableStateStore(@NonNull Map<String, StateEntryValue> initialState) {
         mCurrentState.putAll(initialState);
     }
 
     /**
-     * Sets the given state into a storage. It replaces the current state with the new map and
-     * informs the registered listeners for changed values.
+     * Sets the given state, replacing the current state.
+     *
+     * <p>Informs registered listeners of changed values, ignores removed values.
      */
     @UiThread
-    public void setStateEntryValues(@NonNull Map<String, StateEntryValue> newState) {
+    public void setStateEntryValues(
+            @NonNull Map<String, StateEntryBuilders.StateEntryValue> newState) {
+        setStateEntryValuesProto(toProto(newState));
+    }
+
+    /**
+     * Sets the given state, replacing the current state.
+     *
+     * <p>Informs registered listeners of changed values, ignores removed values.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @UiThread
+    public void setStateEntryValuesProto(@NonNull Map<String, StateEntryValue> newState) {
         // Figure out which nodes have actually changed.
         List<String> changedKeys = new ArrayList<>();
         for (Entry<String, StateEntryValue> newEntry : newState.entrySet()) {
@@ -93,7 +118,7 @@ public class ObservableStateStore {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     @Nullable
-    public StateEntryValue getStateEntryValues(@NonNull String key) {
+    public StateEntryValue getStateEntryValuesProto(@NonNull String key) {
         return mCurrentState.get(key);
     }
 
@@ -116,5 +141,12 @@ public class ObservableStateStore {
         if (callbackSet != null) {
             callbackSet.remove(callback);
         }
+    }
+
+    @NonNull
+    private static Map<String, StateEntryValue> toProto(
+            @NonNull Map<String, StateEntryBuilders.StateEntryValue> value) {
+        return value.entrySet().stream()
+                .collect(toMap(Entry::getKey, entry -> entry.getValue().toStateEntryValueProto()));
     }
 }

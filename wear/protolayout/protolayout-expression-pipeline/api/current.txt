@@ -24,8 +24,8 @@ package androidx.wear.protolayout.expression.pipeline {
   }
 
   public class ObservableStateStore {
-    ctor public ObservableStateStore(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
-    method @UiThread public void setStateEntryValues(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
+    method public static androidx.wear.protolayout.expression.pipeline.ObservableStateStore create(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue!>);
+    method @UiThread public void setStateEntryValues(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue!>);
   }
 
   public interface QuotaManager {
