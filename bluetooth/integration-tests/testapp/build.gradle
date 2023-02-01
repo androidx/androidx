@@ -24,12 +24,11 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 28
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -40,7 +39,6 @@ android {
     buildFeatures {
         viewBinding true
     }
-
     namespace "androidx.bluetooth.integration.testapp"
 }
 
@@ -49,15 +47,14 @@ dependencies {
 
     implementation(project(":bluetooth:bluetooth"))
 
-//    Removing temporarily because core-ktx:1.8.0 is using activity:1.1.0 instead of activity:1.4.0
-//    implementation("androidx.core:core-ktx:1.8.0")
-//    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.6.0")
 
-    implementation("androidx.activity:activity-ktx:1.4.0")
-    implementation("androidx.fragment:fragment-ktx:1.4.1")
+    implementation("androidx.activity:activity-ktx:1.6.1")
+    implementation("androidx.fragment:fragment-ktx:1.5.5")
 
     implementation(libs.constraintLayout)
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.4.2")
-    implementation("androidx.navigation:navigation-ui-ktx:2.4.2")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
 }
