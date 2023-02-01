@@ -258,6 +258,7 @@ class PublicKeyCredentialEntry internal constructor(
             this.icon = icon
             return this
         }
+
         /**
          * Sets whether the entry should be auto-selected.
          * The value is false by default

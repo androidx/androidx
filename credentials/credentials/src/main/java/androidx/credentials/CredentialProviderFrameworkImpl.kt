@@ -25,6 +25,7 @@ import android.os.OutcomeReceiver
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
@@ -130,6 +131,11 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         return builder.build()
     }
 
+    private fun createFrameworkClearCredentialRequest():
+        android.credentials.ClearCredentialStateRequest {
+        return android.credentials.ClearCredentialStateRequest(Bundle())
+    }
+
     internal fun convertGetResponseToJetpackClass(
         response: android.credentials.GetCredentialResponse
     ): GetCredentialResponse {
@@ -152,7 +158,28 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         executor: Executor,
         callback: CredentialManagerCallback<Void?, ClearCredentialException>
     ) {
-        // TODO("Not yet implemented")
+        Log.i(TAG, "In CredentialProviderFrameworkImpl onClearCredential")
+
+        val outcome = object : OutcomeReceiver<Void,
+            android.credentials.ClearCredentialStateException> {
+            override fun onResult(response: Void) {
+                Log.i(TAG, "Clear result returned from framework: ")
+                callback.onResult(response)
+            }
+
+            override fun onError(error: android.credentials.ClearCredentialStateException) {
+                Log.i(TAG, "ClearCredentialStateException error returned from framework")
+                // TODO("Covert to the appropriate exception")
+                callback.onError(ClearCredentialUnknownException())
+            }
+        }
+
+        credentialManager.clearCredentialState(
+            createFrameworkClearCredentialRequest(),
+            cancellationSignal,
+            Executors.newSingleThreadExecutor(),
+            outcome
+        )
     }
 
     /** @hide */
