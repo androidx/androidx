@@ -26,7 +26,7 @@ public class SplitInfo {
     private final ActivityStack mSecondaryActivityStack;
     private final float mSplitRatio;
 
-    public SplitInfo(@NonNull ActivityStack primaryActivityStack,
+    SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack, float splitRatio) {
         mPrimaryActivityStack = primaryActivityStack;
         mSecondaryActivityStack = secondaryActivityStack;

@@ -20,14 +20,8 @@ import android.app.Activity
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
- *
- * @param activitiesInProcess the [Activity] list in this application's process that belongs to this
- * [ActivityStack]. Activities running in other processes will not be contained in this list.
- * @param isEmpty whether there is no [Activity] running in this [ActivityStack]. It can be
- * non-empty when the [activitiesInProcess] is empty, because there can be [Activity] running in
- * other processes, which will not be reported in [activitiesInProcess].
  */
-class ActivityStack(
+class ActivityStack internal constructor(
     /**
      * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *

@@ -35,7 +35,6 @@ package androidx.window.extensions.embedding {
   }
 
   public class ActivityStack {
-    ctor public ActivityStack(java.util.List<android.app.Activity!>, boolean);
     method public java.util.List<android.app.Activity!> getActivities();
     method public boolean isEmpty();
   }
@@ -44,7 +43,6 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitInfo {
-    ctor public SplitInfo(androidx.window.extensions.embedding.ActivityStack, androidx.window.extensions.embedding.ActivityStack, float);
     method public androidx.window.extensions.embedding.ActivityStack getPrimaryActivityStack();
     method public androidx.window.extensions.embedding.ActivityStack getSecondaryActivityStack();
     method public float getSplitRatio();

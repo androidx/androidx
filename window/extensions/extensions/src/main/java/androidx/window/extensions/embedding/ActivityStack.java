@@ -33,7 +33,7 @@ public class ActivityStack {
 
     private final boolean mIsEmpty;
 
-    public ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
     }
