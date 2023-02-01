@@ -291,7 +291,6 @@ internal object Api28Compat {
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@Suppress("DEPRECATION")
 internal object Api33Compat {
     @JvmStatic
     @DoNotInline
