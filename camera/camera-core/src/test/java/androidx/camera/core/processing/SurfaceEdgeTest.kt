@@ -93,6 +93,49 @@ class SurfaceEdgeTest {
     }
 
     @Test
+    fun closeEdgeThenInvalidate_callbackNotInvoked() {
+        // Arrange.
+        var invalidated = false
+        surfaceEdge.addOnInvalidatedListener {
+            invalidated = true
+        }
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        // Act.
+        surfaceEdge.close()
+        surfaceRequest.invalidate()
+        shadowOf(getMainLooper()).idle()
+        // Assert.
+        assertThat(invalidated).isFalse()
+    }
+
+    @Test
+    fun invalidateWithoutProvider_settableSurfaceNotRecreated() {
+        // Arrange.
+        val deferrableSurface = surfaceEdge.deferrableSurfaceForTesting
+        // Act.
+        surfaceEdge.invalidate()
+        // Assert.
+        assertThat(surfaceEdge.deferrableSurfaceForTesting).isSameInstanceAs(deferrableSurface)
+    }
+
+    @Test
+    fun invalidateWithProvider_settableSurfaceNotRecreated() {
+        // Arrange.
+        val deferrableSurface = surfaceEdge.deferrableSurfaceForTesting
+        surfaceEdge.createSurfaceRequest(FakeCamera())
+        // Act.
+        surfaceEdge.invalidate()
+        // Assert.
+        assertThat(surfaceEdge.deferrableSurfaceForTesting).isNotSameInstanceAs(deferrableSurface)
+    }
+
+    @Test
+    fun callCloseTwice_noException() {
+        surfaceEdge.close()
+        surfaceEdge.close()
+    }
+
+    @Test
     fun createWithStreamSpec_canGetStreamSpec() {
         val edge = SurfaceEdge(
             PREVIEW, FRAME_SPEC, Matrix(), true, Rect(), 0, false
@@ -104,6 +147,24 @@ class SurfaceEdgeTest {
     fun setProviderOnClosedEdge_throwsException() {
         surfaceEdge.close()
         surfaceEdge.setProvider(provider)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun getDeferrableSurfaceOnClosedEdge_throwsException() {
+        surfaceEdge.close()
+        surfaceEdge.deferrableSurface
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun getSurfaceOutputOnClosedEdge_throwsException() {
+        surfaceEdge.close()
+        createSurfaceOutputFuture(surfaceEdge)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun createSurfaceRequest_throwsException() {
+        surfaceEdge.close()
+        surfaceEdge.createSurfaceRequest(FakeCamera())
     }
 
     @Test
@@ -189,10 +250,10 @@ class SurfaceEdgeTest {
     }
 
     @Test
-    fun createSurfaceRequestThenClose_surfaceRequestCancelled() {
+    fun createSurfaceRequestThenDisconnect_surfaceRequestCancelled() {
         // Arrange: create a SurfaceRequest then close.
         val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
-        surfaceEdge.close()
+        surfaceEdge.disconnect()
 
         // Act: provide a Surface and get the result.
         var result: SurfaceRequest.Result? = null
@@ -206,9 +267,9 @@ class SurfaceEdgeTest {
     }
 
     @Test
-    fun createSurfaceOutputWithClosedInstance_surfaceOutputNotCreated() {
+    fun createSurfaceOutputWithDisconnectedEdge_surfaceOutputNotCreated() {
         // Arrange: create a SurfaceOutput future from a closed LinkableSurface
-        surfaceEdge.close()
+        surfaceEdge.disconnect()
         val surfaceOutput = createSurfaceOutputFuture(surfaceEdge)
 
         // Act: wait for the SurfaceOutput to return.
@@ -338,7 +399,7 @@ class SurfaceEdgeTest {
         assertThat(isSurfaceReleased).isEqualTo(false)
 
         // Act: close the LinkableSurface, signaling the intention to close the Surface.
-        surfaceEdge.close()
+        surfaceEdge.disconnect()
         shadowOf(getMainLooper()).idle()
 
         // Assert: The close is propagated to the SurfaceRequest.
