@@ -2310,6 +2310,10 @@ package androidx.core.util {
     method public T! get();
   }
 
+  public class TypedValueCompat {
+    method public static float deriveDimension(int, float, android.util.DisplayMetrics);
+  }
+
 }
 
 package androidx.core.view {
