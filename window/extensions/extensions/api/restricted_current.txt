@@ -16,13 +16,30 @@ package androidx.window.extensions {
 
 package androidx.window.extensions.area {
 
+  public interface ExtensionWindowAreaPresentation {
+    method public android.content.Context getPresentationContext();
+    method public void setPresentationView(android.view.View);
+  }
+
+  public interface ExtensionWindowAreaStatus {
+    method public android.util.DisplayMetrics getWindowAreaDisplayMetrics();
+    method public int getWindowAreaStatus();
+  }
+
   public interface WindowAreaComponent {
-    method public void addRearDisplayStatusListener(java.util.function.Consumer<java.lang.Integer!>);
+    method public void addRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
+    method public void addRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public void endRearDisplayPresentationSession();
     method public void endRearDisplaySession();
-    method public void removeRearDisplayStatusListener(java.util.function.Consumer<java.lang.Integer!>);
-    method public void startRearDisplaySession(android.app.Activity, java.util.function.Consumer<java.lang.Integer!>);
+    method public androidx.window.extensions.area.ExtensionWindowAreaPresentation? getRearDisplayPresentation();
+    method public void removeRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
+    method public void removeRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public void startRearDisplayPresentationSession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public void startRearDisplaySession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
     field public static final int SESSION_STATE_ACTIVE = 1; // 0x1
     field public static final int SESSION_STATE_INACTIVE = 0; // 0x0
+    field public static final int SESSION_STATE_INVISIBLE = 3; // 0x3
+    field public static final int SESSION_STATE_VISIBLE = 2; // 0x2
     field public static final int STATUS_AVAILABLE = 2; // 0x2
     field public static final int STATUS_UNAVAILABLE = 1; // 0x1
     field public static final int STATUS_UNSUPPORTED = 0; // 0x0

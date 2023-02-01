@@ -21,18 +21,15 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.window.core.BuildConfig
-import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.WindowAreaComponent
-import java.lang.reflect.InvocationTargetException
+import androidx.window.extensions.core.util.function.Consumer
 import java.util.concurrent.Executor
-import java.util.function.Consumer
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
 
 /**
  * Implementation of WindowAreaController for devices
@@ -53,35 +50,14 @@ internal class WindowAreaControllerImpl(
     private var currentStatus: WindowAreaStatus? = null
 
     override fun rearDisplayStatus(): Flow<WindowAreaStatus> {
-        return flow {
-            val channel = Channel<WindowAreaStatus>(
-                capacity = BUFFER_CAPACITY,
-                onBufferOverflow = BufferOverflow.DROP_OLDEST
-            )
+        return callbackFlow {
             val listener = Consumer<Int> { status ->
                 currentStatus = WindowAreaStatus.translate(status)
                 channel.trySend(currentStatus ?: WindowAreaStatus.UNSUPPORTED)
             }
-            val loader = WindowAreaControllerImpl::class.java.classLoader
-            if (loader == null) {
-                channel.trySend(WindowAreaStatus.UNSUPPORTED)
-            } else {
-                val consumerAdapter = ConsumerAdapter(loader)
-                val subscription = consumerAdapter.createSubscriptionNoActivity(
-                    windowAreaComponent,
-                    Int::class,
-                    "addRearDisplayStatusListener",
-                    "removeRearDisplayStatusListener",
-                ) { value ->
-                    listener.accept(value)
-                }
-                try {
-                    for (item in channel) {
-                        emit(item)
-                    }
-                } finally {
-                    subscription.dispose()
-                }
+            windowAreaComponent.addRearDisplayStatusListener(listener)
+            awaitClose {
+                windowAreaComponent.removeRearDisplayStatusListener(listener)
             }
         }.distinctUntilChanged()
     }
@@ -99,24 +75,7 @@ internal class WindowAreaControllerImpl(
         }
         rearDisplaySessionConsumer =
             RearDisplaySessionConsumer(windowAreaSessionCallback, windowAreaComponent)
-        val loader = WindowAreaControllerImpl::class.java.classLoader
-        loader?.let {
-            val consumerAdapter = ConsumerAdapter(it)
-            try {
-                consumerAdapter.createConsumer(
-                    windowAreaComponent,
-                    Int::class,
-                    "startRearDisplaySession",
-                    activity
-                ) { value ->
-                    rearDisplaySessionConsumer.accept(value)
-                }
-            } catch (exception: InvocationTargetException) {
-                // Rethrow the underlying exception when available because Java reflection wraps
-                // the actual exception with InvocationTargetException.
-                throw exception.cause ?: exception
-            }
-        }
+        windowAreaComponent.startRearDisplaySession(activity, rearDisplaySessionConsumer)
     }
 
     internal class RearDisplaySessionConsumer(
@@ -126,13 +85,13 @@ internal class WindowAreaControllerImpl(
 
         private var session: WindowAreaSession? = null
 
-        override fun accept(sessionStatus: Int) {
-            when (sessionStatus) {
+        override fun accept(t: Int) {
+            when (t) {
                 WindowAreaComponent.SESSION_STATE_ACTIVE -> onSessionStarted()
                 WindowAreaComponent.SESSION_STATE_INACTIVE -> onSessionFinished()
                 else -> {
                     if (BuildConfig.verificationMode == VerificationMode.STRICT) {
-                        Log.d(TAG, "Received an unknown session status value: $sessionStatus")
+                        Log.d(TAG, "Received an unknown session status value: $t")
                     }
                     onSessionFinished()
                 }
