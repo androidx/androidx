@@ -39,7 +39,8 @@ import kotlinx.coroutines.flow.map
  * [PagingDataDiffer] operations.
  */
 public class SnapshotLoader<Value : Any> internal constructor(
-    private val differ: PagingDataDiffer<Value>
+    private val differ: PagingDataDiffer<Value>,
+    private val errorHandler: LoadErrorHandler,
 ) {
     internal val generations = MutableStateFlow(Generation())
 
@@ -52,9 +53,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * This fake paging operation mimics UI-driven refresh signals such as swipe-to-refresh.
      */
     public suspend fun refresh(): @JvmSuppressWildcards Unit {
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
         differ.refresh()
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -79,9 +80,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
     public suspend fun appendScrollWhile(
         predicate: (item: @JvmSuppressWildcards Value) -> @JvmSuppressWildcards Boolean
     ): @JvmSuppressWildcards Unit {
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependScrollWhile(LoadType.APPEND, predicate)
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -106,9 +107,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
     public suspend fun prependScrollWhile(
         predicate: (item: @JvmSuppressWildcards Value) -> @JvmSuppressWildcards Boolean
     ): @JvmSuppressWildcards Unit {
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependScrollWhile(LoadType.PREPEND, predicate)
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
     }
 
     private suspend fun appendOrPrependScrollWhile(
@@ -160,9 +161,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * be loaded in. Supports jumping.
      */
     public suspend fun scrollTo(index: Int): @JvmSuppressWildcards Unit {
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependScrollTo(index)
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -223,9 +224,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * to scroll.
      */
     public suspend fun flingTo(index: Int): @JvmSuppressWildcards Unit {
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependFlingTo(index)
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -365,7 +366,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private suspend fun awaitLoad(index: Int): Pair<Value, Int> {
         differ[index]
-        differ.awaitNotLoading()
+        differ.awaitNotLoading(errorHandler)
         var offsetIndex = index
 
         // awaits for the item to be loaded
