@@ -19,10 +19,12 @@ package androidx.paging.testing
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -2139,6 +2141,143 @@ class PagerFlowSnapshotTest(
         }
     }
 
+    @Test
+    fun errorHandler_throw() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = createFactory(dataFlow)
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, initialLoadSize = 5),
+            pagingSourceFactory = {
+                factory.invoke().also { pagingSources.add(it as TestPagingSource) }
+            },
+        ).flow
+        testScope.runTest {
+            val error = assertFailsWith(IllegalArgumentException::class) {
+                pager.asSnapshot(
+                    coroutineScope = this,
+                    onError = { ErrorRecovery.THROW }
+                ) {
+                    val source = pagingSources.first()
+                    source.errorOnNextLoad = true
+                    scrollTo(12)
+                }
+            }
+            assertThat(error.message).isEqualTo("PagingSource load error")
+        }
+    }
+
+    @Test
+    fun errorHandler_retry() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = createFactory(dataFlow)
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, initialLoadSize = 5),
+            pagingSourceFactory = {
+                factory.invoke().also { pagingSources.add(it as TestPagingSource) }
+            },
+        ).flow
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(
+                coroutineScope = this,
+                onError = { ErrorRecovery.RETRY }
+            ) {
+                val source = pagingSources.first()
+                // should have two loads to far - refresh and append(prefetch)
+                assertThat(source.loads.size).isEqualTo(2)
+
+                // throw error on next load, should trigger a retry
+                source.errorOnNextLoad = true
+                scrollTo(7)
+
+                // make sure it did retry
+                assertThat(source.loads.size).isEqualTo(4)
+                // failed load
+                val failedLoad = source.loads[2]
+                assertThat(failedLoad is LoadParams.Append).isTrue()
+                assertThat(failedLoad.key).isEqualTo(8)
+                // retry load
+                val retryLoad = source.loads[3]
+                assertThat(retryLoad is LoadParams.Append).isTrue()
+                assertThat(retryLoad.key).isEqualTo(8)
+            }
+            // retry success
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+            )
+        }
+    }
+
+    @Test
+    fun errorHandler_retryFails() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = createFactory(dataFlow)
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, initialLoadSize = 5),
+            pagingSourceFactory = {
+                factory.invoke().also { pagingSources.add(it as TestPagingSource) }
+            },
+        ).flow
+        var retryCount = 0
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(
+                coroutineScope = this,
+                onError = {
+                    // retry twice
+                    if (retryCount < 2) {
+                        retryCount++
+                        ErrorRecovery.RETRY
+                    } else {
+                        ErrorRecovery.RETURN_CURRENT_SNAPSHOT
+                    }
+                }
+            ) {
+                val source = pagingSources.first()
+                // should have two loads to far - refresh and append(prefetch)
+                assertThat(source.loads.size).isEqualTo(2)
+
+                source.errorOnLoads = true
+                scrollTo(8)
+
+                // additional failed load + two retries
+                assertThat(source.loads.size).isEqualTo(5)
+            }
+            // retry failed, returned existing snapshot
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+        }
+    }
+
+    @Test
+    fun errorHandler_returnSnapshot() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = createFactory(dataFlow)
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, initialLoadSize = 5),
+            pagingSourceFactory = {
+                factory.invoke().also { pagingSources.add(it as TestPagingSource) }
+            },
+        ).flow
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(
+                coroutineScope = this,
+                onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }
+            ) {
+                val source = pagingSources.first()
+                source.errorOnNextLoad = true
+                scrollTo(12)
+            }
+            // snapshot items before scrollTo
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+        }
+    }
+
     private fun createPager(dataFlow: Flow<List<Int>>, initialKey: Int = 0) =
         createPager(
             dataFlow,
@@ -2200,6 +2339,13 @@ private class TestPagingSource(
     private val originalSource: PagingSource<Int, Int>,
     private val loadDelay: Long,
 ) : PagingSource<Int, Int>() {
+
+    var errorOnNextLoad = false
+    var errorOnLoads = false
+    private val _loads = mutableListOf<LoadParams<Int>>()
+    val loads: List<LoadParams<Int>>
+        get() = _loads.toList()
+
     init {
         originalSource.registerInvalidatedCallback {
             invalidate()
@@ -2207,6 +2353,14 @@ private class TestPagingSource(
     }
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
         delay(loadDelay)
+        _loads.add(params)
+        if (errorOnNextLoad) {
+            errorOnNextLoad = false
+            return LoadResult.Error(IllegalArgumentException("PagingSource load error"))
+        }
+        if (errorOnLoads) {
+            return LoadResult.Error(IllegalArgumentException("PagingSource load error"))
+        }
         return originalSource.load(params)
     }
 
