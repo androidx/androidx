@@ -251,25 +251,23 @@ public class UiScrollableTest extends BaseTest {
     @Ignore // b/266965027
     @Test
     public void testScrollForward_vertical() throws Exception {
-        launchTestActivity(SwipeTestActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
 
         UiScrollable scrollRegion = new UiScrollable(
-                new UiSelector().resourceId(TEST_APP + ":id/swipe_region")).setAsVerticalList();
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout")).setAsVerticalList();
 
-        assertFalse(scrollRegion.scrollForward());
-        assertEquals("swipe_up", scrollRegion.getText());
+        assertTrue(scrollRegion.scrollForward());
     }
 
     @Ignore // b/266965027
     @Test
     public void testScrollForward_horizontal() throws Exception {
-        launchTestActivity(SwipeTestActivity.class);
+        launchTestActivity(HorizontalScrollTestActivity.class);
 
         UiScrollable scrollRegion = new UiScrollable(
-                new UiSelector().resourceId(TEST_APP + ":id/swipe_region")).setAsHorizontalList();
-
-        assertFalse(scrollRegion.scrollForward(50));
-        assertEquals("swipe_left", scrollRegion.getText());
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"))
+                .setAsHorizontalList();
+        assertTrue(scrollRegion.scrollForward());
     }
 
     @Ignore // b/266965027
