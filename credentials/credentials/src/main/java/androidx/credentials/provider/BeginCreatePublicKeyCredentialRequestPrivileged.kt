@@ -26,7 +26,6 @@ import android.service.credentials.CallingAppInfo
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_KEY_RELYING_PARTY
 import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.toCredentialDataBundle
@@ -54,13 +53,12 @@ class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
     val json: String,
     val relyingParty: String,
     val clientDataHash: String,
-    val preferImmediatelyAvailableCredentials: Boolean,
     callingAppInfo: CallingAppInfo,
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     toCredentialDataBundle(json, relyingParty, clientDataHash,
-        preferImmediatelyAvailableCredentials)
+        /*preferImmediatelyAvailableCredentials=*/ false)
 ) {
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -86,14 +84,10 @@ class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
                     .BUNDLE_KEY_REQUEST_JSON)
                 val rp = data.getString(BUNDLE_KEY_RELYING_PARTY)
                 val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
-                val preferImmediatelyAvailableCredentials =
-                    data.getBoolean(CreatePublicKeyCredentialRequestPrivileged
-                        .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return BeginCreatePublicKeyCredentialRequestPrivileged(
                     requestJson!!,
                     rp!!,
                     clientDataHash!!,
-                    (preferImmediatelyAvailableCredentials),
                     callingAppInfo
                 )
             } catch (e: Exception) {

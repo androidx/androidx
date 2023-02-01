@@ -332,12 +332,12 @@ class CreateEntry internal constructor(
         @JvmStatic
         fun fromSlice(slice: Slice): CreateEntry? {
             // TODO("Put the right spec and version value")
-            var accountName: CharSequence = ""
+            var accountName: CharSequence? = null
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
             var credentialCountInfo: MutableMap<String, Int?> = mutableMapOf()
             var description: CharSequence? = null
-            var lastUsedTime: Long? = null
+            var lastUsedTime: Instant? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
                     accountName = it.text
@@ -349,15 +349,15 @@ class CreateEntry internal constructor(
                     credentialCountInfo = convertBundleToCredentialCountInfo(it.bundle)
                         as MutableMap<String, Int?>
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
-                    lastUsedTime = it.long
+                    lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_NOTE)) {
                     description = it.text
                 }
             }
             return try {
                 CreateEntry(
-                    accountName, pendingIntent!!, icon, description,
-                    Instant.ofEpochMilli(lastUsedTime!!), credentialCountInfo
+                    accountName!!, pendingIntent!!, icon, description,
+                    lastUsedTime, credentialCountInfo
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -388,11 +388,16 @@ class CreateEntry internal constructor(
         internal fun convertCredentialCountInfoToBundle(
             credentialCountInformationMap: Map<String, Int?>
         ): Bundle? {
+            var foundCredentialCount = false
             val bundle = Bundle()
             credentialCountInformationMap.forEach {
                 if (it.value != null) {
                     bundle.putInt(it.key, it.value!!)
+                    foundCredentialCount = true
                 }
+            }
+            if (!foundCredentialCount) {
+                return null
             }
             return bundle
         }

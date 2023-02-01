@@ -27,7 +27,7 @@ import androidx.credentials.CredentialOption
  *
  * This request will be added to the intent extras of the activity invoked by the [PendingIntent]
  * set on the [android.service.credentials.CredentialEntry] that the user selected. The request
- * must be extracted using the [PendingIntentHandler.retrieveGetCredentialProviderRequest] helper
+ * must be extracted using the [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper
  * API.
  *
  * @property credentialOption the credential retrieval parameters

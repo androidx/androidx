@@ -46,8 +46,10 @@ import java.util.Collections
  * @property pendingIntent the [PendingIntent] to be invoked if the user selects
  * this authentication entry on the UI.
  *
- * See [android.service.credentials.BeginGetCredentialResponse.createWithAuthentication]
+ * @see android.service.credentials.BeginGetCredentialResponse.createWithAuthentication
  * for usage details.
+ *
+ * @throws NullPointerException If the [pendingIntent] is null
  */
 @RequiresApi(34)
 class AuthenticationAction constructor(

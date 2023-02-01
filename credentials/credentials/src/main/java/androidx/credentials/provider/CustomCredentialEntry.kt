@@ -50,7 +50,7 @@ import java.util.Collections
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
  * to true does not guarantee this behavior. The developer must also set this
- * to true, and the framework must determine that only one entry is present.
+ * to true, and the framework must determine that only one entry is present
  */
 @RequiresApi(34)
 class CustomCredentialEntry internal constructor(

@@ -26,11 +26,10 @@ import androidx.annotation.NonNull
 import androidx.credentials.PasswordCredential
 
 /**
- * A request to a password provider to begin the flow of retrieving the user's saved application
- * passwords.
+ * A request to a password provider to begin the flow of retrieving the user's saved passwords.
  *
- * Providers must use the parameters in this option to retrieve the corresponding credentials,
- * and then return them in the form of a list of [PasswordCredentialEntry]
+ * Providers must use the parameters in this option to retrieve the corresponding credentials'
+ * metadata, and then return them in the form of a list of [PasswordCredentialEntry]
  * set on the [BeginGetCredentialResponse.createWithResponseContent].
  */
 @RequiresApi(34)

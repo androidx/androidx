@@ -34,26 +34,21 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the privileged request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
- * @property preferImmediatelyAvailableCredentials true if it is preferred to return
- * immediately when there is no available credential instead of falling back to discovering remote
- * credentials, and false (default) otherwise
- * [here](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
  * @property relyingParty the expected true RP ID which will override the one in the [requestJson],
  * where relyingParty is defined [here](https://w3c.github.io/webauthn/#rp-id) in more detail
  * @property clientDataHash a hash that is used to verify the [relyingParty] Identity
+ *
  * @throws NullPointerException If any of [requestJson], [relyingParty], or [clientDataHash]
  * is null
  * @throws IllegalArgumentException If any of [requestJson], [relyingParty], or [clientDataHash]
  * is empty
  */
 @RequiresApi(34)
-class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constructor(
+class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
     candidateQueryData: Bundle,
     val requestJson: String,
     val relyingParty: String,
     val clientDataHash: String,
-    @get:JvmName("preferImmediatelyAvailableCredentials")
-    val preferImmediatelyAvailableCredentials: Boolean = true
 ) : BeginGetCredentialOption(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     candidateQueryData
@@ -77,8 +72,6 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
     companion object {
 
         /** @hide */
-        @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
-                                         // boolean value from being returned.
         @JvmStatic
         internal fun createFrom(data: Bundle): BeginGetPublicKeyCredentialOptionPrivileged {
             try {
@@ -88,15 +81,11 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
                     GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RELYING_PARTY)
                 val clientDataHash = data.getString(
                     GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH)
-                val allowHybrid = data.get(
-                    GetPublicKeyCredentialOptionPrivileged
-                        .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return BeginGetPublicKeyCredentialOptionPrivileged(
                     data,
                     requestJson!!,
                     rp!!,
-                    clientDataHash!!,
-                    (allowHybrid!!) as Boolean,
+                    clientDataHash!!
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
