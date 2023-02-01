@@ -18,14 +18,8 @@
 
 package androidx.room.solver
 
-import androidx.room.Dao
-import androidx.room.Database
 import androidx.room.DatabaseProcessingStep
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
@@ -35,11 +29,11 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.RoomAnnotationTypeNames
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
 import org.junit.Test
@@ -288,7 +282,7 @@ class CustomTypeConverterResolutionTest {
         }
         return XTypeSpec.classBuilder(CodeLanguage.JAVA, ENTITY).apply {
             addAnnotation(
-                XAnnotationSpec.builder(CodeLanguage.JAVA, Entity::class.asClassName()).build()
+                XAnnotationSpec.builder(CodeLanguage.JAVA, RoomAnnotationTypeNames.ENTITY).build()
             )
             setVisibility(VisibilityModifier.PUBLIC)
             if (hasCustomField) {
@@ -319,7 +313,7 @@ class CustomTypeConverterResolutionTest {
                 ).addAnnotation(
                     XAnnotationSpec.builder(
                         CodeLanguage.JAVA,
-                        PrimaryKey::class.asClassName()
+                        RoomAnnotationTypeNames.PRIMARY_KEY
                     ).build()
                 ).build()
             )
@@ -348,7 +342,7 @@ class CustomTypeConverterResolutionTest {
                 ).addAnnotation(
                     XAnnotationSpec.builder(
                         CodeLanguage.JAVA,
-                        PrimaryKey::class.asClassName()
+                        RoomAnnotationTypeNames.PRIMARY_KEY
                     ).build()
                 ).build()
             )
@@ -367,7 +361,7 @@ class CustomTypeConverterResolutionTest {
             addAnnotation(
                 XAnnotationSpec.builder(
                     CodeLanguage.JAVA,
-                    Database::class.asClassName()
+                    RoomAnnotationTypeNames.DATABASE
                 ).apply {
                     addMember(
                         "entities",
@@ -420,7 +414,7 @@ class CustomTypeConverterResolutionTest {
             addAbstractModifier()
             addAnnotation(XAnnotationSpec.builder(
                 CodeLanguage.JAVA,
-                Dao::class.asClassName()
+                RoomAnnotationTypeNames.DAO
             ).build())
             setVisibility(VisibilityModifier.PUBLIC)
             if (hasConverters) {
@@ -436,7 +430,7 @@ class CustomTypeConverterResolutionTest {
                         addAbstractModifier()
                         addAnnotation(XAnnotationSpec.builder(
                             CodeLanguage.JAVA,
-                            Query::class.asClassName()
+                            RoomAnnotationTypeNames.QUERY
                         ).addMember(
                             "value",
                             XCodeBlock.of(
@@ -464,7 +458,7 @@ class CustomTypeConverterResolutionTest {
                         addAbstractModifier()
                         addAnnotation(XAnnotationSpec.builder(
                             CodeLanguage.JAVA,
-                            Query::class.asClassName()
+                            RoomAnnotationTypeNames.QUERY
                         ).addMember(
                             "value",
                             XCodeBlock.of(
@@ -500,7 +494,7 @@ class CustomTypeConverterResolutionTest {
         } else {
             CUSTOM_TYPE_CONVERTER
         }
-        return XAnnotationSpec.builder(CodeLanguage.JAVA, TypeConverters::class.asClassName())
+        return XAnnotationSpec.builder(CodeLanguage.JAVA, RoomAnnotationTypeNames.TYPE_CONVERTERS)
             .addMember("value", XCodeBlock.of(CodeLanguage.JAVA, "%T.class", converter)).build()
     }
 }
