@@ -20,15 +20,19 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.autoValueAnnotations)
+    api(libs.kotlinStdlib)
     annotationProcessor(libs.autoValue)
     implementation(libs.protobufLite)
     implementation(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(project(":appactions:interaction:interaction-proto"))
+
+    testAnnotationProcessor(libs.autoValue)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.testCore)
@@ -38,13 +42,16 @@ dependencies {
     testImplementation(libs.androidLintTests)
     testImplementation(libs.autoValueAnnotations)
     testImplementation(libs.testRunner)
-    testAnnotationProcessor(libs.autoValue)
 }
 
 android {
+    buildFeatures {
+        resValues = true
+    }
     defaultConfig {
         // TODO(b/266649259): lower minSdk version to 19.
         minSdkVersion 33
+        resValue "string", "appactions_interaction_library_version", androidx.LibraryVersions.APPACTIONS_INTERACTION.toString()
     }
 
     lintOptions {
