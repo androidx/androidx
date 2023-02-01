@@ -16,11 +16,17 @@
 package androidx.activity
 
 import android.os.Build
+import android.window.BackEvent
+import android.window.OnBackAnimationCallback
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.annotation.DoNotInline
 import androidx.annotation.MainThread
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
+import androidx.core.os.BuildCompat
+import androidx.core.os.BuildCompat.PrereleaseSdkCheck
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -51,6 +57,7 @@ import androidx.lifecycle.LifecycleOwner
  * When constructing an instance of this class, the [fallbackOnBackPressed] can be set to
  * receive a callback if [onBackPressed] is called when [hasEnabledCallbacks] returns `false`.
  */
+@OptIn(PrereleaseSdkCheck::class)
 class OnBackPressedDispatcher @JvmOverloads constructor(
     private val fallbackOnBackPressed: Runnable? = null
 ) {
@@ -99,7 +106,16 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
             enabledChangedCallback = {
                 updateBackInvokedCallbackState()
             }
-            onBackInvokedCallback = Api33Impl.createOnBackInvokedCallback { onBackPressed() }
+            onBackInvokedCallback = if (BuildCompat.isAtLeastU()) {
+                Api34Impl.createOnBackAnimationCallback(
+                    { backEvent -> onBackStarted(backEvent) },
+                    { backEvent -> onBackProgressed(backEvent) },
+                    { onBackPressed() },
+                    { onBackCancelled() }
+                )
+            } else {
+                Api33Impl.createOnBackInvokedCallback { onBackPressed() }
+            }
         }
     }
 
@@ -195,6 +211,44 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         it.isEnabled
     }
 
+    @VisibleForTesting
+    @RequiresApi(34)
+    @MainThread
+    fun dispatchOnBackStarted(backEvent: BackEvent) {
+        onBackStarted(backEvent)
+    }
+
+    @RequiresApi(34)
+    @MainThread
+    private fun onBackStarted(backEvent: BackEvent) {
+        val callback = onBackPressedCallbacks.lastOrNull {
+            it.isEnabled
+        }
+        if (callback != null) {
+            callback.handleOnBackStarted(backEvent)
+            return
+        }
+    }
+
+    @VisibleForTesting
+    @RequiresApi(34)
+    @MainThread
+    fun dispatchOnBackProgressed(backEvent: BackEvent) {
+        onBackProgressed(backEvent)
+    }
+
+    @RequiresApi(34)
+    @MainThread
+    private fun onBackProgressed(backEvent: BackEvent) {
+        val callback = onBackPressedCallbacks.lastOrNull {
+            it.isEnabled
+        }
+        if (callback != null) {
+            callback.handleOnBackProgressed(backEvent)
+            return
+        }
+    }
+
     /**
      * Trigger a call to the currently added [callbacks][OnBackPressedCallback] in reverse
      * order in which they were added. Only if the most recently added callback is not
@@ -214,6 +268,25 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
             return
         }
         fallbackOnBackPressed?.run()
+    }
+
+    @VisibleForTesting
+    @RequiresApi(34)
+    @MainThread
+    fun dispatchOnBackCancelled() {
+        onBackCancelled()
+    }
+
+    @RequiresApi(34)
+    @MainThread
+    private fun onBackCancelled() {
+        val callback = onBackPressedCallbacks.lastOrNull {
+            it.isEnabled
+        }
+        if (callback != null) {
+            callback.handleOnBackCancelled()
+            return
+        }
     }
 
     private inner class OnBackPressedCancellable(
@@ -284,6 +357,35 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         @DoNotInline
         fun createOnBackInvokedCallback(onBackInvoked: () -> Unit): OnBackInvokedCallback {
             return OnBackInvokedCallback { onBackInvoked() }
+        }
+    }
+
+    @RequiresApi(34)
+    internal object Api34Impl {
+        @DoNotInline
+        fun createOnBackAnimationCallback(
+            onBackStarted: (backEvent: BackEvent) -> Unit,
+            onBackProgressed: (backEvent: BackEvent) -> Unit,
+            onBackInvoked: () -> Unit,
+            onBackCancelled: () -> Unit
+        ): OnBackInvokedCallback {
+            return object : OnBackAnimationCallback {
+                override fun onBackStarted(backEvent: BackEvent) {
+                    onBackStarted(backEvent)
+                }
+
+                override fun onBackProgressed(backEvent: BackEvent) {
+                    onBackProgressed(backEvent)
+                }
+
+                override fun onBackInvoked() {
+                    onBackInvoked()
+                }
+
+                override fun onBackCancelled() {
+                    onBackCancelled()
+                }
+            }
         }
     }
 }
