@@ -91,7 +91,7 @@ public class CreatePasswordRequestJavaTest {
 
         assertThat(request.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         CreateCredentialRequest.DisplayInfo displayInfo =
-                request.getDisplayInfo$credentials_debug();
+                request.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
@@ -133,7 +133,7 @@ public class CreatePasswordRequestJavaTest {
         assertThat(convertedCreatePasswordRequest.getPassword()).isEqualTo(request.getPassword());
         assertThat(convertedCreatePasswordRequest.getId()).isEqualTo(request.getId());
         CreateCredentialRequest.DisplayInfo displayInfo =
-                convertedCreatePasswordRequest.getDisplayInfo$credentials_debug();
+                convertedCreatePasswordRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
         assertThat(displayInfo.getCredentialTypeIcon().getResId())

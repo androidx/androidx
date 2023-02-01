@@ -47,7 +47,7 @@ abstract class CreateCredentialRequest internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val isSystemProviderRequired: Boolean,
     /** @hide */
-    internal val displayInfo: DisplayInfo,
+    val displayInfo: DisplayInfo,
 ) {
     /**
      * Information that may be used for display purposes when rendering UIs to collect the user

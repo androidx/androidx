@@ -90,7 +90,7 @@ public class CreateCustomCredentialRequestJavaTest {
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(request.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
-        assertThat(request.getDisplayInfo$credentials_debug()).isEqualTo(expectedDisplayInfo);
+        assertThat(request.getDisplayInfo()).isEqualTo(expectedDisplayInfo);
     }
 
     @Test
