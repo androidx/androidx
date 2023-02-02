@@ -260,7 +260,7 @@ public final class Configuration {
     }
 
     /**
-     * @return the {@link SchedulingExceptionHandler} that can be used to intercept exceptions
+     * @return the {@link Consumer} that can is used to intercept exceptions
      * caused when trying to schedule {@link WorkRequest}s.
      */
     @Nullable
@@ -482,23 +482,6 @@ public final class Configuration {
         @NonNull
         public Builder setRunnableScheduler(@NonNull RunnableScheduler runnableScheduler) {
             mRunnableScheduler = runnableScheduler;
-            return this;
-        }
-
-        /**
-         * Specifies the {@link InitializationExceptionHandler} that can be used to intercept
-         * exceptions caused when trying to initialize {@link WorkManager}.
-         *
-         * @param exceptionHandler The {@link InitializationExceptionHandler} instance.
-         * @return This {@link Builder} instance
-         *
-         * @hide kept around for migration period
-         */
-        @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder setInitializationExceptionHandler(
-                @NonNull InitializationExceptionHandler exceptionHandler) {
-            mExceptionHandler = exceptionHandler::handleException;
             return this;
         }
 
