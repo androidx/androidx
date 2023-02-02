@@ -17,17 +17,17 @@
 package androidx.wear.watchface.complications.data
 
 import android.support.wearable.complications.ComplicationData as WireComplicationData
-import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * Evaluates a [WireComplicationData] with [androidx.wear.remote.expr.DynamicBuilders.DynamicType]
@@ -41,6 +41,32 @@ import kotlinx.coroutines.launch
 class ComplicationDataExpressionEvaluator(
     val unevaluatedData: WireComplicationData,
 ) : AutoCloseable {
+    /**
+     * Java compatibility class for [ComplicationDataExpressionEvaluator].
+     *
+     * Unlike [data], [listener] is not invoked until there is a value (until [data] is non-null).
+     */
+    class Compat(
+        val unevaluatedData: WireComplicationData,
+        private val executor: Executor,
+        private val listener: Consumer<WireComplicationData>,
+    ) : AutoCloseable {
+        private val evaluator = ComplicationDataExpressionEvaluator(unevaluatedData)
+
+        /** @see ComplicationDataExpressionEvaluator.init */
+        fun init() {
+            evaluator.init()
+            evaluator.data
+                .filterNotNull()
+                .onEach(listener::accept)
+                .launchIn(CoroutineScope(executor.asCoroutineDispatcher()))
+        }
+
+        /** @see ComplicationDataExpressionEvaluator.close */
+        override fun close() {
+            evaluator.close()
+        }
+    }
 
     private val _data = MutableStateFlow<WireComplicationData?>(null)
 
@@ -50,9 +76,6 @@ class ComplicationDataExpressionEvaluator(
      */
     val data: StateFlow<WireComplicationData?> = _data.asStateFlow()
 
-    @GuardedBy("listeners")
-    private val listeners = mutableMapOf<Listener, CoroutineScope>()
-
     /** Parses the expression and starts async evaluation. */
     fun init() {
         // TODO(b/260065006): Use real implementation.
@@ -60,36 +83,11 @@ class ComplicationDataExpressionEvaluator(
     }
 
     /**
-     * Java equivalent for `data.collect { ... }`, except it is not invoked for the initial value.
-     */
-    fun addListener(executor: Executor, listener: Listener) {
-        synchronized(listeners) {
-            listeners[listener] = CoroutineScope(executor.asCoroutineDispatcher()).apply {
-                launch {
-                    data.collect {
-                        if (it != null) listener.accept(it)
-                    }
-                }
-            }
-        }
-    }
-
-    fun removeListener(listener: Listener) {
-        synchronized(listeners) {
-            listeners.remove(listener)?.cancel()
-        }
-    }
-
-    /**
      * Stops evaluation.
      *
-     * [data] will not change after this is called, and listeners will not be invoked (also
-     * equivalent to calling [removeListener] on all listeners).
+     * [data] will not change after this is called.
      */
     override fun close() {
         // TODO(b/260065006): Use real implementation.
-        listeners.keys.forEach(this::removeListener)
     }
 }
-
-private typealias Listener = Consumer<WireComplicationData>

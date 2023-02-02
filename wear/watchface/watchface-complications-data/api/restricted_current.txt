@@ -29,9 +29,6 @@ package androidx.wear.watchface.complications.data {
     property public final androidx.wear.watchface.complications.data.TimeRange validTimeRange;
   }
 
-  public final class ComplicationDataExpressionEvaluatorKt {
-  }
-
   public final class ComplicationDisplayPolicies {
     field public static final int ALWAYS_DISPLAY = 0; // 0x0
     field public static final int DO_NOT_SHOW_WHEN_DEVICE_LOCKED = 1; // 0x1
