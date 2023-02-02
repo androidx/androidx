@@ -23,7 +23,7 @@ from AndroidX.
 To share as much common configuration as possible, it is also recommended
 to symlink some common files like `gradle` and `.idea` configuration.
 
-To do that, execute "setup-playground.sh" comamnd in your playground directory.
+To do that, execute "setup-playground.sh" command in your playground directory.
 ```
 cd room;
 ../playground-common/setup-playground.sh
