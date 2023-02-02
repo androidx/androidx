@@ -18,9 +18,15 @@ package androidx.wear.watchface.complications.data
 
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import androidx.annotation.RestrictTo
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
+import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,10 +34,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 
 /**
- * Evaluates a [WireComplicationData] with [androidx.wear.remote.expr.DynamicBuilders.DynamicType]
- * within its fields.
+ * Evaluates a [WireComplicationData] with
+ * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
  *
  * Due to [WireComplicationData]'s shallow copy strategy the input is modified in-place.
  *
@@ -76,10 +83,21 @@ class ComplicationDataExpressionEvaluator(
      */
     val data: StateFlow<WireComplicationData?> = _data.asStateFlow()
 
-    /** Parses the expression and starts async evaluation. */
+    @Volatile // In case init() and close() are called on different threads.
+    private lateinit var evaluator: DynamicTypeEvaluator
+    private val state = MutableStateFlow(State(unevaluatedData))
+
+    /**
+     * Parses the expression and starts blocking evaluation.
+     *
+     * This needs to be called exactly once.
+     */
     fun init() {
-        // TODO(b/260065006): Use real implementation.
-        _data.value = unevaluatedData
+        // Add all the receivers before we start binding them because binding can synchronously
+        // trigger the receiver, which would update the data before all the fields are evaluated.
+        initStateReceivers()
+        initEvaluator()
+        monitorState()
     }
 
     /**
@@ -88,6 +106,101 @@ class ComplicationDataExpressionEvaluator(
      * [data] will not change after this is called.
      */
     override fun close() {
-        // TODO(b/260065006): Use real implementation.
+        for (receiver in state.value.all) receiver.close()
+        if (this::evaluator.isInitialized) evaluator.close()
+    }
+
+    /** Adds [ComplicationEvaluationResultReceiver]s to [state]. */
+    private fun initStateReceivers() {
+        val receivers = mutableSetOf<ComplicationEvaluationResultReceiver<out Any>>()
+
+        if (unevaluatedData.hasRangedValueExpression()) {
+            unevaluatedData.rangedValueExpression?.buildReceiver { setRangedValue(it) }
+                ?.let { receivers += it }
+        }
+
+        state.value = State(unevaluatedData, receivers)
+    }
+
+    private fun DynamicFloat.buildReceiver(
+        setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder
+    ) = ComplicationEvaluationResultReceiver(
+        setter,
+        binder = { receiver -> evaluator.bind(this@buildReceiver, receiver) },
+    )
+
+    /** Initializes the internal [DynamicTypeEvaluator] if there are pending receivers. */
+    private fun initEvaluator() {
+        if (state.value.pending.isEmpty()) return
+        evaluator = DynamicTypeEvaluator(
+            /* platformDataSourcesInitiallyEnabled = */ true,
+            /* sensorGateway = */ null,
+            ObservableStateStore(emptyMap()),
+        )
+        for (receiver in state.value.pending) receiver.bind()
+        evaluator.enablePlatformDataSources()
+    }
+
+    /** Monitors [state] changes and updates [data]. */
+    private fun monitorState() {
+        state.onEach {
+            if (it.invalid.isNotEmpty()) _data.value = INVALID_DATA
+            else if (it.pending.isEmpty()) _data.value = it.data
+        }.launchIn(CoroutineScope(Dispatchers.Main))
+    }
+
+    /**
+     * Holds the state of the continuously evaluated [WireComplicationData] and the various
+     * [ComplicationEvaluationResultReceiver] that are evaluating it.
+     */
+    private class State(
+        val data: WireComplicationData,
+        val pending: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+        val invalid: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+        val complete: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+    ) {
+        val all = pending + invalid + complete
+
+        fun withInvalid(receiver: ComplicationEvaluationResultReceiver<out Any>) =
+            State(data, pending - receiver, invalid + receiver, complete - receiver)
+
+        fun withComplete(
+            data: WireComplicationData,
+            receiver: ComplicationEvaluationResultReceiver<out Any>,
+        ) = State(data, pending - receiver, invalid - receiver, complete + receiver)
+    }
+
+    private inner class ComplicationEvaluationResultReceiver<T : Any>(
+        private val setter: WireComplicationData.Builder.(T) -> WireComplicationData.Builder,
+        private val binder: (ComplicationEvaluationResultReceiver<T>) -> BoundDynamicType,
+    ) : DynamicTypeValueReceiver<T>, AutoCloseable {
+        @Volatile // In case bind() and close() are called on different threads.
+        private lateinit var boundDynamicType: BoundDynamicType
+
+        fun bind() {
+            boundDynamicType = binder(this)
+        }
+
+        override fun close() {
+            boundDynamicType.close()
+        }
+
+        override fun onPreUpdate() {}
+
+        override fun onData(newData: T) {
+            state.update {
+                it.withComplete(
+                    setter(WireComplicationData.Builder(it.data), newData).build(), this
+                )
+            }
+        }
+
+        override fun onInvalidated() {
+            state.update { it.withInvalid(this) }
+        }
+    }
+
+    companion object {
+        val INVALID_DATA: WireComplicationData = NoDataComplicationData().asWireComplicationData()
     }
 }

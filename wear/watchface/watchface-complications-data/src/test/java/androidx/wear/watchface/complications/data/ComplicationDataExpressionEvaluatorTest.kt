@@ -20,6 +20,8 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -28,6 +30,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import java.util.function.Consumer
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowLog
@@ -35,6 +38,9 @@ import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
 
 @RunWith(SharedRobolectricTestRunner::class)
 class ComplicationDataExpressionEvaluatorTest {
+    @get:Rule
+    val expect = Expect.create()
+
     private val listener = mock<Consumer<WireComplicationData>>()
 
     @Before
@@ -43,29 +49,64 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_notInitialized_setNull() {
-        val evaluator = ComplicationDataExpressionEvaluator(
-            ShortTextComplicationData.Builder(
-                text = PlainComplicationText.Builder("text").build(),
-                contentDescription = PlainComplicationText.Builder("description").build(),
-            ).build().asWireComplicationData(),
-        )
-
-        assertThat(evaluator.data.value).isNull()
+    fun data_notInitialized_setToNull() {
+        ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
+            assertThat(evaluator.data.value).isNull()
+        }
     }
 
     @Test
-    fun data_initialized_setToUnevaluated() {
-        val evaluator = ComplicationDataExpressionEvaluator(UNEVALUATED_DATA)
-        evaluator.init()
+    fun data_noExpression_setToUnevaluated() {
+        ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
+            evaluator.init()
+            runUiThreadTasks()
 
-        assertThat(evaluator.data.value).isEqualTo(UNEVALUATED_DATA)
+            assertThat(evaluator.data.value).isEqualTo(DATA_WITH_NO_EXPRESSION)
+        }
+    }
+
+    /**
+     * Scenarios for testing per-field static expressions.
+     *
+     * Each scenario describes how to set the expression in the [WireComplicationData] and how to
+     * set the evaluated value.
+     */
+    enum class StaticExpressionScenario(
+        val expressed: WireComplicationData.Builder.() -> WireComplicationData.Builder,
+        val evaluated: WireComplicationData.Builder.() -> WireComplicationData.Builder,
+    ) {
+        RANGED_VALUE(
+            expressed = { setRangedValueExpression(DynamicFloat.constant(10f)) },
+            evaluated = {
+                setRangedValue(10f).setRangedValueExpression(DynamicFloat.constant(10f))
+            },
+        ),
+    }
+
+    @Test
+    fun data_staticExpression_setToEvaluated() {
+        for (scenario in StaticExpressionScenario.values()) {
+            val base = WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA).build()
+            val expressed = scenario.expressed(WireComplicationData.Builder(base)).build()
+            val evaluated =
+                scenario.evaluated(WireComplicationData.Builder(base)).build()
+
+            ComplicationDataExpressionEvaluator(expressed).use { evaluator ->
+                evaluator.init()
+                runUiThreadTasks()
+
+                expect
+                    .withMessage(scenario.name)
+                    .that(evaluator.data.value)
+                    .isEqualTo(evaluated)
+            }
+        }
     }
 
     @Test
     fun compat_notInitialized_listenerNotInvoked() {
         ComplicationDataExpressionEvaluator.Compat(
-            UNEVALUATED_DATA,
+            DATA_WITH_NO_EXPRESSION,
             ContextCompat.getMainExecutor(getApplicationContext()),
             listener,
         ).use {
@@ -78,21 +119,21 @@ class ComplicationDataExpressionEvaluatorTest {
     @Test
     fun compat_noExpression_listenerInvokedWithData() {
         ComplicationDataExpressionEvaluator.Compat(
-            UNEVALUATED_DATA,
+            DATA_WITH_NO_EXPRESSION,
             ContextCompat.getMainExecutor(getApplicationContext()),
             listener,
         ).use { evaluator ->
             evaluator.init()
             runUiThreadTasks()
 
-            verify(listener, times(1)).accept(UNEVALUATED_DATA)
+            verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
         }
     }
 
     private companion object {
-        val UNEVALUATED_DATA: WireComplicationData = ShortTextComplicationData.Builder(
-            text = PlainComplicationText.Builder("text").build(),
-            contentDescription = PlainComplicationText.Builder("description").build(),
-        ).build().asWireComplicationData()
+        val DATA_WITH_NO_EXPRESSION =
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setRangedValue(10f)
+                .build()
     }
 }

@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.shadows.ShadowLooper.runUiThreadTasks;
 
 import android.content.Intent;
 import android.os.Build;
@@ -32,14 +33,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationText;
+import androidx.wear.watchface.complications.data.ComplicationTextExpression;
 import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.data.LongTextComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
-import androidx.wear.watchface.complications.data.ComplicationTextExpression;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +51,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -236,7 +237,7 @@ public class ComplicationDataSourceServiceTest {
                 ComplicationType.LONG_TEXT.toWireComplicationType(),
                 mLocalManager);
 
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+        runUiThreadTasksWhileAwaitingDataLatch(1000);
         verify(mRemoteManager).updateComplicationData(
                 eq(123),
                 eq(new LongTextComplicationData.Builder(
@@ -399,6 +400,15 @@ public class ComplicationDataSourceServiceTest {
             assertThat(response.get().getLongText().getTextAt(null, 0)).isEqualTo("hello");
         } finally {
             thread.quitSafely();
+        }
+    }
+
+    private void runUiThreadTasksWhileAwaitingDataLatch(long timeout) throws InterruptedException {
+        // Allowing UI thread to execute while we wait for the data latch.
+        long attempts = 0;
+        while (!mUpdateComplicationDataLatch.await(1, TimeUnit.MILLISECONDS)) {
+            runUiThreadTasks();
+            assertThat(attempts++).isLessThan(timeout); // In total waiting ~timeout.
         }
     }
 }
