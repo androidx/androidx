@@ -115,7 +115,7 @@ class CreateEntry internal constructor(
     /** Returns the no. of public key type credentials that the provider with this entry has. */
     @Suppress("AutoBoxing")
     fun getPublicKeyCredentialCount(): Int? {
-        return credentialCountInformationMap[PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
+        return credentialCountInformationMap[PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
     }
 
     /** Returns the no. of total credentials that the provider with this entry has.
