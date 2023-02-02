@@ -619,6 +619,7 @@ class CarouselTest {
         rule.onNodeWithText("Play ${finalSlide + 3}").assertIsFocused()
     }
 
+    @Test
     fun carousel_manualScrolling_onDpadLongPress() {
         rule.setContent {
             SampleCarousel(slideCount = 6) { index ->
