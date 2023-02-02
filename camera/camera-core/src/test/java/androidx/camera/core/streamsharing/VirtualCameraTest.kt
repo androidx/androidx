@@ -16,8 +16,14 @@
 
 package androidx.camera.core.streamsharing
 
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.os.Build
-import androidx.camera.core.Preview
+import android.util.Size
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.UseCase
+import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.processing.SurfaceEdge
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
@@ -37,15 +43,19 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class VirtualCameraTest {
 
+    companion object {
+        private val INPUT_SIZE = Size(800, 600)
+    }
+
     private val parentCamera = FakeCamera()
-    private val preview = Preview.Builder().build()
-    private val video = FakeUseCase()
+    private val child1 = FakeUseCase()
+    private val child2 = FakeUseCase()
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private lateinit var virtualCamera: VirtualCamera
 
     @Before
     fun setUp() {
-        virtualCamera = VirtualCamera(parentCamera, setOf(preview, video), useCaseConfigFactory)
+        virtualCamera = VirtualCamera(parentCamera, setOf(child1, child2), useCaseConfigFactory)
     }
 
     @Test
@@ -53,5 +63,24 @@ class VirtualCameraTest {
         assertThat(virtualCamera.cameraState).isEqualTo(parentCamera.cameraState)
         assertThat(virtualCamera.cameraInfo).isEqualTo(parentCamera.cameraInfo)
         assertThat(virtualCamera.cameraControl).isEqualTo(parentCamera.cameraControl)
+    }
+
+    @Test
+    fun updateChildrenSpec_updateAndNotifyChildren() {
+        // Arrange: create children spec map.
+        val map = mutableMapOf<UseCase, SurfaceEdge>()
+        map[child1] = createSurfaceEdge()
+        map[child2] = createSurfaceEdge()
+        // Act: update children with the map.
+        virtualCamera.setChildrenEdges(map)
+        // Assert: surface size propagated to children
+        assertThat(child1.attachedStreamSpec!!.resolution).isEqualTo(INPUT_SIZE)
+        assertThat(child2.attachedStreamSpec!!.resolution).isEqualTo(INPUT_SIZE)
+    }
+
+    private fun createSurfaceEdge(): SurfaceEdge {
+        return SurfaceEdge(
+            PREVIEW, StreamSpec.builder(INPUT_SIZE).build(), Matrix(), true, Rect(), 0, false
+        )
     }
 }

@@ -527,6 +527,11 @@ public class SurfaceEdge {
         return mSettableSurface;
     }
 
+    @VisibleForTesting
+    public boolean isClosed() {
+        return mIsClosed;
+    }
+
     /**
      * A {@link DeferrableSurface} that sets another {@link DeferrableSurface} as the source.
      *
