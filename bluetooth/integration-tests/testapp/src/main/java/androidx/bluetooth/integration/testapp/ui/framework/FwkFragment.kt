@@ -35,7 +35,7 @@ import android.widget.Toast
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentFwkBinding
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.ViewModelProvider
 
 class FwkFragment : Fragment() {
 
@@ -68,6 +68,8 @@ class FwkFragment : Fragment() {
         }
     }
 
+    private lateinit var fwkViewModel: FwkViewModel
+
     private var _binding: FragmentFwkBinding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
@@ -78,16 +80,16 @@ class FwkFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "onCreateView() called with: inflater = $inflater, " +
+            "container = $container, savedInstanceState = $savedInstanceState")
+        fwkViewModel = ViewModelProvider(this)[FwkViewModel::class.java]
+
         _binding = FragmentFwkBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.buttonNext.setOnClickListener {
-            findNavController().navigate(R.id.action_FwkFragment_to_BtxFragment)
-        }
 
         binding.buttonScan.setOnClickListener {
             scan()
