@@ -884,6 +884,302 @@ public final class DynamicBuilders {
   }
 
   /**
+   * A static interpolation node, between two fixed int32 values.
+   *
+   * @since 1.2
+   */
+  static final class AnimatableFixedInt32 implements DynamicInt32 {
+    private final DynamicProto.AnimatableFixedInt32 mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    AnimatableFixedInt32(
+            DynamicProto.AnimatableFixedInt32 impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the value to start animating from.
+     *
+     * @since 1.2
+     */
+    public int getFromValue() {
+      return mImpl.getFromValue();
+    }
+
+    /**
+     * Gets the value to animate to.
+     *
+     * @since 1.2
+     */
+    public int getToValue() {
+      return mImpl.getToValue();
+    }
+
+    /**
+     * Gets the animation parameters for duration, delay, etc.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public AnimationSpec getSpec() {
+      if (mImpl.hasSpec()) {
+        return AnimationSpec.fromProto(mImpl.getSpec());
+      } else {
+        return null;
+      }
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static AnimatableFixedInt32 fromProto(
+            @NonNull DynamicProto.AnimatableFixedInt32 proto, @Nullable Fingerprint fingerprint) {
+      return new AnimatableFixedInt32(proto, fingerprint);
+    }
+
+    @NonNull
+    static AnimatableFixedInt32 fromProto(@NonNull DynamicProto.AnimatableFixedInt32 proto) {
+      return fromProto(proto, null);
+    }
+
+    /**
+     * Returns the internal proto instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    DynamicProto.AnimatableFixedInt32 toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setAnimatableFixed(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimatableFixedInt32{"
+              + "fromValue="
+              + getFromValue()
+              + ", toValue="
+              + getToValue()
+              + ", spec="
+              + getSpec()
+              + "}";
+    }
+
+    /** Builder for {@link AnimatableFixedInt32}. */
+    public static final class Builder implements DynamicInt32.Builder {
+      private final DynamicProto.AnimatableFixedInt32.Builder mImpl =
+              DynamicProto.AnimatableFixedInt32.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1831435966);
+
+      public Builder() {}
+
+      /**
+       * Sets the value to start animating from.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public AnimatableFixedInt32.Builder setFromValue(int fromValue) {
+        mImpl.setFromValue(fromValue);
+        mFingerprint.recordPropertyUpdate(1, fromValue);
+        return this;
+      }
+
+      /**
+       * Sets the value to animate to.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public AnimatableFixedInt32.Builder setToValue(int toValue) {
+        mImpl.setToValue(toValue);
+        mFingerprint.recordPropertyUpdate(2, toValue);
+        return this;
+      }
+
+      /**
+       * Sets the animation parameters for duration, delay, etc.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public AnimatableFixedInt32.Builder setSpec(@NonNull AnimationSpec spec) {
+        mImpl.setSpec(spec.toProto());
+        mFingerprint.recordPropertyUpdate(
+                3, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public AnimatableFixedInt32 build() {
+        return new AnimatableFixedInt32(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A dynamic interpolation node. This will watch the value of its input and, when the first update
+   * arrives, immediately emit that value. On subsequent updates, it will animate between the old
+   * and new values.
+   *
+   * <p>If this node receives an invalid value (e.g. as a result of an upstream node having no
+   * value), then it will emit a single invalid value, and forget its "stored" value. The next valid
+   * value that arrives is then used as the "first" value again.
+   *
+   * @since 1.2
+   */
+  static final class AnimatableDynamicInt32 implements DynamicInt32 {
+    private final DynamicProto.AnimatableDynamicInt32 mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    AnimatableDynamicInt32(
+            DynamicProto.AnimatableDynamicInt32 impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the value to watch, and animate when it changes.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public DynamicInt32 getInput() {
+      if (mImpl.hasInput()) {
+        return dynamicInt32FromProto(mImpl.getInput());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets the animation parameters for duration, delay, etc.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public AnimationSpec getSpec() {
+      if (mImpl.hasSpec()) {
+        return AnimationSpec.fromProto(mImpl.getSpec());
+      } else {
+        return null;
+      }
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static AnimatableDynamicInt32 fromProto(
+            @NonNull DynamicProto.AnimatableDynamicInt32 proto, @Nullable Fingerprint fingerprint) {
+      return new AnimatableDynamicInt32(proto, fingerprint);
+    }
+
+    @NonNull
+    static AnimatableDynamicInt32 fromProto(@NonNull DynamicProto.AnimatableDynamicInt32 proto) {
+      return fromProto(proto, null);
+    }
+
+    /**
+     * Returns the internal proto instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    DynamicProto.AnimatableDynamicInt32 toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setAnimatableDynamic(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimatableDynamicInt32{" + "input=" + getInput() + ", spec=" + getSpec() + "}";
+    }
+
+    /** Builder for {@link AnimatableDynamicInt32}. */
+    public static final class Builder implements DynamicInt32.Builder {
+      private final DynamicProto.AnimatableDynamicInt32.Builder mImpl =
+              DynamicProto.AnimatableDynamicInt32.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1554674954);
+
+      public Builder() {}
+
+      /**
+       * Sets the value to watch, and animate when it changes.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public AnimatableDynamicInt32.Builder setInput(@NonNull DynamicInt32 input) {
+        mImpl.setInput(input.toDynamicInt32Proto());
+        mFingerprint.recordPropertyUpdate(
+                1, checkNotNull(input.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets the animation parameters for duration, delay, etc.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public AnimatableDynamicInt32.Builder setSpec(@NonNull AnimationSpec spec) {
+        mImpl.setSpec(spec.toProto());
+        mFingerprint.recordPropertyUpdate(
+                2, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public AnimatableDynamicInt32 build() {
+        return new AnimatableDynamicInt32(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
    * Interface defining a dynamic int32 type.
    *
    * <p>It offers a set of helper methods for creating arithmetic and logical expressions, e.g.
@@ -954,6 +1250,84 @@ public final class DynamicBuilders {
     @NonNull
     static DynamicInt32 fromState(@NonNull String stateKey) {
       return new StateInt32Source.Builder().setSourceKey(stateKey).build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} which will animate from {@code start} to {@code end}.
+     *
+     * @param start The start value of the range.
+     * @param end The end value of the range.
+     */
+    @NonNull
+    static DynamicInt32 animate(int start, int end) {
+      return new AnimatableFixedInt32.Builder().setFromValue(start).setToValue(end).build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} which will animate from {@code start} to {@code end} with the
+     * given animation parameters.
+     *
+     * @param start The start value of the range.
+     * @param end The end value of the range.
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    static DynamicInt32 animate(int start, int end, @NonNull AnimationSpec spec) {
+      return new AnimatableFixedInt32.Builder()
+              .setFromValue(start)
+              .setToValue(end)
+              .setSpec(spec)
+              .build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} that is bound to the value of an item of the State. Every time
+     * the state value changes, this {@link DynamicInt32} will animate from its current value to the
+     * new value (from the state).
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with an int value from the provider's
+     *     state.
+     */
+    @NonNull
+    static DynamicInt32 animate(@NonNull String stateKey) {
+      return new AnimatableDynamicInt32.Builder().setInput(fromState(stateKey)).build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} that is bound to the value of an item of the State. Every time
+     * the state value changes, this {@link DynamicInt32} will animate from its current value to the
+     * new value (from the state).
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with an int value from the provider's
+     *     state.
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    static DynamicInt32 animate(@NonNull String stateKey, @NonNull AnimationSpec spec) {
+      return new AnimatableDynamicInt32.Builder()
+              .setInput(fromState(stateKey))
+              .setSpec(spec)
+              .build();
+    }
+
+    /**
+     * Returns a {@link DynamicInt32} that is bound to the value of this {@link DynamicInt32} and
+     * every time its value is changing, it animates from its current value to the new value.
+     *
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    default DynamicInt32 animate(@NonNull AnimationSpec spec) {
+      return new AnimatableDynamicInt32.Builder().setInput(this).setSpec(spec).build();
+    }
+
+    /**
+     * Returns a {@link DynamicInt32} that is bound to the value of this {@link DynamicInt32} and
+     * every time its value is changing, it animates from its current value to the new value.
+     */
+    @NonNull
+    default DynamicInt32 animate() {
+      return new AnimatableDynamicInt32.Builder().setInput(this).build();
     }
 
     /** Convert the value represented by this {@link DynamicInt32} into a {@link DynamicFloat}. */
@@ -1740,6 +2114,12 @@ public final class DynamicBuilders {
     }
     if (proto.hasFloatToInt()) {
       return FloatToInt32Op.fromProto(proto.getFloatToInt());
+    }
+    if (proto.hasAnimatableFixed()) {
+      return AnimatableFixedInt32.fromProto(proto.getAnimatableFixed());
+    }
+    if (proto.hasAnimatableDynamic()) {
+      return AnimatableDynamicInt32.fromProto(proto.getAnimatableDynamic());
     }
     throw new IllegalStateException("Proto was not a recognised instance of DynamicInt32");
   }
@@ -2818,7 +3198,7 @@ public final class DynamicBuilders {
   }
 
   /**
-   * An operation to convert a Int32 value in the dynamic data pipeline to a Float value.
+   * An operation to convert an Int32 value in the dynamic data pipeline to a Float value.
    *
    * @since 1.2
    */
@@ -2907,7 +3287,7 @@ public final class DynamicBuilders {
   }
 
   /**
-   * A static interpolation, between two fixed floating point values.
+   * A static interpolation node, between two fixed floating point values.
    *
    * @since 1.2
    */
@@ -4866,7 +5246,7 @@ public final class DynamicBuilders {
   }
 
   /**
-   * A static interpolation, between two fixed color values.
+   * A static interpolation node, between two fixed color values.
    *
    * @since 1.2
    */

@@ -18,14 +18,23 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.robolectric.Shadows.shadowOf;
+
+import android.os.Looper;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,5 +105,128 @@ public class Int32NodesTest {
                                 .build()));
 
         assertThat(results).containsExactly(12);
+    }
+
+    @Test
+    public void animatableFixedInt32_animates() {
+        int startValue = 3;
+        int endValue = 33;
+        List<Integer> results = new ArrayList<>();
+        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        AnimatableFixedInt32 protoNode =
+                AnimatableFixedInt32.newBuilder().setFromValue(startValue).setToValue(
+                        endValue).build();
+        AnimatableFixedInt32Node node =
+                new AnimatableFixedInt32Node(protoNode, new AddToListCallback<>(results),
+                        quotaManager);
+        node.setVisibility(true);
+
+        node.init();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(results.size()).isGreaterThan(2);
+        assertThat(results.get(0)).isEqualTo(startValue);
+        assertThat(Iterables.getLast(results)).isEqualTo(endValue);
+    }
+
+    @Test
+    public void animatableFixedInt32_whenInvisible_skipToEnd() {
+        int startValue = 3;
+        int endValue = 33;
+        List<Integer> results = new ArrayList<>();
+        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        AnimatableFixedInt32 protoNode =
+                AnimatableFixedInt32.newBuilder().setFromValue(startValue).setToValue(
+                        endValue).build();
+        AnimatableFixedInt32Node node =
+                new AnimatableFixedInt32Node(protoNode, new AddToListCallback<>(results),
+                        quotaManager);
+        node.setVisibility(false);
+
+        node.init();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(endValue);
+    }
+
+    @Test
+    public void animatableFixedInt32_whenNoQuota_skip() {
+        int startValue = 3;
+        int endValue = 33;
+        List<Integer> results = new ArrayList<>();
+        QuotaManager quotaManager = new TestNoQuotaManagerImpl();
+        AnimatableFixedInt32 protoNode =
+                AnimatableFixedInt32.newBuilder().setFromValue(startValue).setToValue(
+                        endValue).build();
+        AnimatableFixedInt32Node node =
+                new AnimatableFixedInt32Node(protoNode, new AddToListCallback<>(results),
+                        quotaManager);
+        node.setVisibility(true);
+
+        node.init();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(endValue);
+    }
+
+    @Test
+    public void dynamicAnimatedInt32_onlyAnimateWhenVisible() {
+        int value1 = 3;
+        int value2 = 11;
+        int value3 = 17;
+        List<Integer> results = new ArrayList<>();
+        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        ObservableStateStore oss =
+                new ObservableStateStore(
+                        ImmutableMap.of(
+                                "foo",
+                                StateEntryValue.newBuilder()
+                                        .setInt32Val(
+                                                FixedInt32.newBuilder().setValue(value1).build())
+                                        .build()));
+        DynamicAnimatedInt32Node int32Node =
+                new DynamicAnimatedInt32Node(
+                        new AddToListCallback<>(results), AnimationSpec.getDefaultInstance(),
+                        quotaManager);
+        int32Node.setVisibility(false);
+        StateInt32SourceNode stateNode =
+                new StateInt32SourceNode(
+                        oss,
+                        StateInt32Source.newBuilder().setSourceKey("foo").build(),
+                        int32Node.getInputCallback());
+
+        stateNode.preInit();
+        stateNode.init();
+
+        results.clear();
+        oss.setStateEntryValuesProto(
+                ImmutableMap.of(
+                        "foo",
+                        StateEntryValue.newBuilder()
+                                .setInt32Val(FixedInt32.newBuilder().setValue(value2))
+                                .build()));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Only contains last value.
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(value2);
+
+        int32Node.setVisibility(true);
+        results.clear();
+        oss.setStateEntryValuesProto(
+                ImmutableMap.of(
+                        "foo",
+                        StateEntryValue.newBuilder()
+                                .setInt32Val(FixedInt32.newBuilder().setValue(value3))
+                                .build()));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Contains intermediate values besides the initial and last.
+        assertThat(results.size()).isGreaterThan(2);
+        assertThat(results.get(0)).isEqualTo(value2);
+        assertThat(Iterables.getLast(results)).isEqualTo(value3);
+        assertThat(results).isInOrder();
     }
 }
