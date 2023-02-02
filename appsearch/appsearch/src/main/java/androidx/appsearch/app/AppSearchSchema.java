@@ -452,6 +452,7 @@ public final class AppSearchSchema {
         private static final String INDEXING_TYPE_FIELD = "indexingType";
         private static final String TOKENIZER_TYPE_FIELD = "tokenizerType";
         private static final String JOINABLE_VALUE_TYPE_FIELD = "joinableValueType";
+        private static final String DELETION_PROPAGATION_FIELD = "deletionPropagation";
 
         /**
          * Encapsulates the configurations on how AppSearch should query/index these terms.
@@ -619,6 +620,16 @@ public final class AppSearchSchema {
             return mBundle.getInt(JOINABLE_VALUE_TYPE_FIELD, JOINABLE_VALUE_TYPE_NONE);
         }
 
+        /**
+         * Returns whether or not documents in this schema should be deleted when the document
+         * referenced by this field is deleted.
+         *
+         * @see JoinSpec
+         */
+        public boolean getDeletionPropagation() {
+            return mBundle.getBoolean(DELETION_PROPAGATION_FIELD, false);
+        }
+
         /** Builder for {@link StringPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
@@ -626,6 +637,7 @@ public final class AppSearchSchema {
             @IndexingType private int mIndexingType = INDEXING_TYPE_NONE;
             @TokenizerType private int mTokenizerType = TOKENIZER_TYPE_NONE;
             @JoinableValueType private int mJoinableValueType = JOINABLE_VALUE_TYPE_NONE;
+            private boolean mDeletionPropagation = false;
 
             /** Creates a new {@link StringPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -700,6 +712,19 @@ public final class AppSearchSchema {
             }
 
             /**
+             * Configures whether or not documents in this schema will be removed when the document
+             * referred to by this property is deleted.
+             *
+             * <p> Requires that a joinable value type is set.
+             */
+            @SuppressWarnings("MissingGetterMatchingBuilder")  // getDeletionPropagation
+            @NonNull
+            public Builder setDeletionPropagation(boolean deletionPropagation) {
+                mDeletionPropagation = deletionPropagation;
+                return this;
+            }
+
+            /**
              * Constructs a new {@link StringPropertyConfig} from the contents of this builder.
              */
             @NonNull
@@ -715,6 +740,9 @@ public final class AppSearchSchema {
                 if (mJoinableValueType == JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
                     Preconditions.checkState(mCardinality != CARDINALITY_REPEATED, "Cannot set "
                             + "JOINABLE_VALUE_TYPE_QUALIFIED_ID with CARDINALITY_REPEATED.");
+                } else {
+                    Preconditions.checkState(!mDeletionPropagation, "Cannot set deletion "
+                            + "propagation without setting a joinable value type");
                 }
                 Bundle bundle = new Bundle();
                 bundle.putString(NAME_FIELD, mPropertyName);
@@ -723,6 +751,7 @@ public final class AppSearchSchema {
                 bundle.putInt(INDEXING_TYPE_FIELD, mIndexingType);
                 bundle.putInt(TOKENIZER_TYPE_FIELD, mTokenizerType);
                 bundle.putInt(JOINABLE_VALUE_TYPE_FIELD, mJoinableValueType);
+                bundle.putBoolean(DELETION_PROPAGATION_FIELD, mDeletionPropagation);
                 return new StringPropertyConfig(bundle);
             }
         }
