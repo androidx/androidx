@@ -77,6 +77,10 @@ package androidx.lifecycle {
     property public abstract androidx.lifecycle.Lifecycle lifecycle;
   }
 
+  public final class LifecycleOwnerKt {
+    method public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
+  }
+
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
     method @Deprecated public abstract androidx.lifecycle.Lifecycle.Event! value();
   }
