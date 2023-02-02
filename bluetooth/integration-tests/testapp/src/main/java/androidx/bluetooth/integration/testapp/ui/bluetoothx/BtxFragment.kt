@@ -21,6 +21,9 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -41,6 +44,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class BtxFragment : Fragment() {
@@ -75,7 +79,7 @@ class BtxFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonScan.setOnClickListener {
-            scan()
+            startScan()
         }
 
         binding.switchAdvertise.setOnCheckedChangeListener { _, isChecked ->
@@ -90,26 +94,49 @@ class BtxFragment : Fragment() {
         advertiseJob?.cancel()
     }
 
-    private fun scan() {
-        Log.d(TAG, "scan() called")
+    private val scanScope = CoroutineScope(Dispatchers.Main + Job())
+    private var scanJob: Job? = null
 
-//        val bluetoothManager = BluetoothManager(requireContext())
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    fun scan(settings: ScanSettings): Flow<ScanResult> = callbackFlow {
+        val callback = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: ScanResult) {
+                trySend(result)
+            }
 
-//        @Suppress("UNUSED_VARIABLE")
-        // TODO(ofy) Use below
-//        val bluetoothAdapter = bluetoothManager.getAdapter()
+            override fun onScanFailed(errorCode: Int) {
+                Log.d(TAG, "scan failed")
+            }
+        }
 
-        // TODO(ofy) Convert to BluetoothX classes
-//        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
-//
-//        val scanSettings = ScanSettings.Builder()
-//            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-//            .build()
-//
-//        bleScanner?.startScan(null, scanSettings, scanCallback)
-//
-//        Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
-//            .show()
+        val bluetoothManager =
+            context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+        val bluetoothAdapter = bluetoothManager?.adapter
+        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
+
+        bleScanner?.startScan(null, settings, callback)
+
+        awaitClose {
+            Log.d(TAG, "awaitClose() called")
+            bleScanner?.stopScan(callback)
+        }
+    }
+
+    private fun startScan() {
+        Log.d(TAG, "startScan() called")
+
+        val scanSettings = ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .build()
+
+        scanJob = scanScope.launch {
+            Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
+                .show()
+            scan(scanSettings).take(1).collect() {
+                Log.d(TAG, "ScanResult collected")
+            }
+        }
     }
 
     private val advertiseScope = CoroutineScope(Dispatchers.Main + Job())
