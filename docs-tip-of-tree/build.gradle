@@ -19,6 +19,7 @@ dependencies {
     kmpDocs(project(":annotation:annotation"))
     docs(project(":annotation:annotation-experimental"))
     docs(project(":appactions:interaction:interaction-capabilities-core"))
+    docs(project(":appactions:interaction:interaction-capabilities-safety"))
     docs(project(":appactions:interaction:interaction-proto"))
     docs(project(":appactions:interaction:interaction-service"))
     docs(project(":appcompat:appcompat"))
