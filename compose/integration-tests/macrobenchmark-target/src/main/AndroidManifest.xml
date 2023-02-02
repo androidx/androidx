@@ -228,7 +228,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
+        
+	<activity
             android:name=".VectorsListActivity"
             android:label="Compose vectors list"
             android:exported="true">
@@ -252,6 +253,14 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.CROSSFADE_ACTIVITY" />
+            </intent-filter>
+	</activity>
+
+	<activity android:name=".PagerOfLazyGridActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.PAGER_LAZYGRID_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
