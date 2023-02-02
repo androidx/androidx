@@ -17,6 +17,8 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
+import android.os.IBinder
 import androidx.core.util.Consumer
 import java.util.concurrent.Executor
 
@@ -53,4 +55,6 @@ internal interface EmbeddingBackend {
     fun isSplitAttributesCalculatorSupported(): Boolean
 
     fun getActivityStack(activity: Activity): ActivityStack?
+
+    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
 }

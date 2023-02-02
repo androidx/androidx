@@ -17,7 +17,9 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.os.IBinder
 import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -50,6 +52,19 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
     @ExperimentalWindowApi
     fun getActivityStack(activity: Activity): ActivityStack? =
         embeddingBackend.getActivityStack(activity)
+
+    /**
+     * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].
+     *
+     * @param options The [android.app.ActivityOptions] to be updated.
+     * @param token The token of the [ActivityStack] to be set.
+     */
+    internal fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions {
+        return embeddingBackend.setLaunchingActivityStack(options, token)
+    }
 
     companion object {
         @Volatile

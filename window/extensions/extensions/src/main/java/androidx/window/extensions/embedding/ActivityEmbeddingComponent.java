@@ -17,6 +17,8 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
+import android.os.IBinder;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
@@ -103,4 +105,14 @@ public interface ActivityEmbeddingComponent {
      * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitAttributesCalculator();
+
+    /**
+     * Sets the launching {@link ActivityStack} to the given {@link ActivityOptions}.
+     *
+     * @param options The {@link ActivityOptions} to be updated.
+     * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
+     */
+    @NonNull
+    ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
+            @NonNull IBinder token);
 }
