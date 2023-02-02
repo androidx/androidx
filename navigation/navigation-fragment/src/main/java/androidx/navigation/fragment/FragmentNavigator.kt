@@ -25,7 +25,11 @@ import androidx.core.content.res.use
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -53,6 +57,67 @@ public open class FragmentNavigator(
     private val containerId: Int
 ) : Navigator<Destination>() {
     private val savedIds = mutableSetOf<String>()
+    private val entriesToPop = mutableSetOf<String>()
+
+    init {
+        fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
+            override fun onBackStackChanged() { }
+
+            override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
+                // We only care about the pop case here since in the navigate case by the time
+                // we get here the fragment will have already been moved to STARTED.
+                // In the case of a pop, we move the top most entry from RESUMED to STARTED by
+                // calling prepareForTransition.
+                if (pop) {
+                    val entry = state.backStack.value.lastOrNull {
+                        it.id == fragment.tag &&
+                            it.lifecycle.currentState == Lifecycle.State.RESUMED
+                    }
+                    entry?.let { state.prepareForTransition(it) }
+                }
+            }
+
+            override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
+                val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
+                    it.id == fragment.tag
+                }
+                if (fragment.view != null && entry != null) {
+                    val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
+                    val currentState = viewLifecycle.currentState
+                    // We only need to add observers while the viewLifecycle has not reached a final
+                    // state
+                    if (currentState == Lifecycle.State.STARTED ||
+                        currentState == Lifecycle.State.CREATED
+                    ) {
+                        viewLifecycle.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(
+                                source: LifecycleOwner,
+                                event: Lifecycle.Event
+                            ) {
+                                // Once the lifecycle reaches RESUMED, we can mark the transition
+                                // complete
+                                if (event == Lifecycle.Event.ON_RESUME) {
+                                    state.markTransitionComplete(entry)
+                                }
+                                // Once the lifecycle reaches DESTROYED, we can mark the transition
+                                // complete and remove the observer.
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    state.markTransitionComplete(entry)
+                                    viewLifecycle.removeObserver(this)
+                                }
+                            }
+                        })
+                    }
+                    entriesToPop.remove(entry.id)
+                } else if (pop && entriesToPop.isEmpty() && fragment.tag == null) {
+                    // This is the case of system back where we will need to make the call to
+                    // popBackStack. Otherwise, popBackStack was called directly and this should
+                    // end up being a no-op.
+                    popBackStack(state.backStack.value.last(), false)
+                }
+            }
+        })
+    }
 
     /**
      * {@inheritDoc}
@@ -100,7 +165,8 @@ public open class FragmentNavigator(
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
         }
-        state.pop(popUpTo, savedState)
+        entriesToPop.add(popUpTo.id)
+        state.popWithTransition(popUpTo, savedState)
     }
 
     public override fun createDestination(): Destination {
@@ -179,7 +245,7 @@ public open class FragmentNavigator(
         if (restoreState) {
             // Restore back stack does all the work to restore the entry
             fragmentManager.restoreBackStack(entry.id)
-            state.push(entry)
+            state.pushWithTransition(entry)
             return
         }
         val ft = createFragmentTransaction(entry, navOptions)
@@ -195,7 +261,7 @@ public open class FragmentNavigator(
         }
         ft.commit()
         // The commit succeeded, update our view of the world
-        state.push(entry)
+        state.pushWithTransition(entry)
     }
 
     /**
@@ -261,7 +327,7 @@ public open class FragmentNavigator(
             popExitAnim = if (popExitAnim != -1) popExitAnim else 0
             ft.setCustomAnimations(enterAnim, exitAnim, popEnterAnim, popExitAnim)
         }
-        ft.replace(containerId, frag)
+        ft.replace(containerId, frag, entry.id)
         ft.setPrimaryNavigationFragment(frag)
         ft.setReorderingAllowed(true)
         return ft
