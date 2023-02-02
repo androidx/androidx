@@ -40,6 +40,7 @@ public class FakeUseCase extends UseCase {
     private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
     private final CaptureType mCaptureType;
     private boolean mMergedConfigRetrieved = false;
+    private int mPipelineCreationCount = 0;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -122,6 +123,7 @@ public class FakeUseCase extends UseCase {
     @Override
     @NonNull
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        mPipelineCreationCount++;
         return suggestedStreamSpec;
     }
 
@@ -144,5 +146,12 @@ public class FakeUseCase extends UseCase {
      */
     public boolean getMergedConfigRetrieved() {
         return mMergedConfigRetrieved;
+    }
+
+    /**
+     * Returns how many times the pipeline has been created.
+     */
+    public int getPipelineCreationCount() {
+        return mPipelineCreationCount;
     }
 }
