@@ -189,6 +189,8 @@ public class Typography {
     // and convert it to SP which is needed to be passed in as a font size. However, we will pass an
     // SP object to it, because the default style is defined in it, but for the case when the font
     // size on device in 1, so the DP is equal to SP.
+    // TODO(b/267744228): Remove the warning suppression.
+    @SuppressWarnings("deprecation")
     private static SpProp dpToSp(@NonNull Context context, @Dimension(unit = DP) float valueDp) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         float scaledSp = (valueDp / metrics.scaledDensity) * metrics.density;

@@ -20,11 +20,11 @@ import android.content.Context
 import android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED
 import android.content.pm.PackageManager.GET_PERMISSIONS
 import android.content.pm.PackageManager.PackageInfoFlags
-import android.healthconnect.ChangeLogsRequest
-import android.healthconnect.HealthConnectException
-import android.healthconnect.HealthConnectManager
-import android.healthconnect.ReadRecordsRequestUsingIds
-import android.healthconnect.RecordIdFilter
+import android.health.connect.ChangeLogsRequest
+import android.health.connect.HealthConnectException
+import android.health.connect.HealthConnectManager
+import android.health.connect.ReadRecordsRequestUsingIds
+import android.health.connect.RecordIdFilter
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.RequiresApi

@@ -18,7 +18,7 @@
 
 package androidx.health.connect.client.impl.platform
 
-import android.healthconnect.HealthConnectException
+import android.health.connect.HealthConnectException
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.RequiresApi

@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import android.location.Location;
 import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.serialization.Bundleable;
 

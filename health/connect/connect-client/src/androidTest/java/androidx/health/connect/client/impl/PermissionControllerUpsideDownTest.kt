@@ -17,7 +17,7 @@
 package androidx.health.connect.client.impl
 
 import android.annotation.TargetApi
-import android.healthconnect.HealthPermissions
+import android.health.connect.HealthPermissions
 import android.os.Build
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource

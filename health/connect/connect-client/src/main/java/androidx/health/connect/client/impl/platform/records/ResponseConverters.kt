@@ -19,13 +19,13 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.healthconnect.AggregateRecordsGroupedByDurationResponse
-import android.healthconnect.AggregateRecordsGroupedByPeriodResponse
-import android.healthconnect.AggregateRecordsResponse
-import android.healthconnect.datatypes.AggregationType
-import android.healthconnect.datatypes.NutritionRecord
-import android.healthconnect.datatypes.units.Energy as PlatformEnergy
-import android.healthconnect.datatypes.units.Mass
+import android.health.connect.AggregateRecordsGroupedByDurationResponse
+import android.health.connect.AggregateRecordsGroupedByPeriodResponse
+import android.health.connect.AggregateRecordsResponse
+import android.health.connect.datatypes.AggregationType
+import android.health.connect.datatypes.NutritionRecord
+import android.health.connect.datatypes.units.Energy as PlatformEnergy
+import android.health.connect.datatypes.units.Mass
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo

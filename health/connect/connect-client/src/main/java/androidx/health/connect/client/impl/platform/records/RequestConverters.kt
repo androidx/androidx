@@ -19,16 +19,16 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.healthconnect.AggregateRecordsRequest
-import android.healthconnect.ChangeLogTokenRequest
-import android.healthconnect.ReadRecordsRequestUsingFilters
-import android.healthconnect.TimeRangeFilter as PlatformTimeRangeFilter
-import android.healthconnect.datatypes.AggregationType
-import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
-import android.healthconnect.datatypes.NutritionRecord as PlatformNutritionRecord
-import android.healthconnect.datatypes.Record as PlatformRecord
-import android.healthconnect.datatypes.StepsRecord as PlatformStepsRecord
-import android.healthconnect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
+import android.health.connect.AggregateRecordsRequest
+import android.health.connect.ChangeLogTokenRequest
+import android.health.connect.ReadRecordsRequestUsingFilters
+import android.health.connect.TimeInstantRangeFilter
+import android.health.connect.datatypes.AggregationType
+import android.health.connect.datatypes.HeartRateRecord as PlatformHeartRateRecord
+import android.health.connect.datatypes.NutritionRecord as PlatformNutritionRecord
+import android.health.connect.datatypes.Record as PlatformRecord
+import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
+import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -74,10 +74,14 @@ fun ReadRecordsRequest<out Record>.toPlatformRequest(
         .build()
 }
 
-fun TimeRangeFilter.toPlatformTimeRangeFilter(timeSource: TimeSource): PlatformTimeRangeFilter {
+fun TimeRangeFilter.toPlatformTimeRangeFilter(
+    timeSource: TimeSource
+): TimeInstantRangeFilter {
     // TODO(b/262571990): pass nullable Instant start/end
     // TODO(b/262571990): pass nullable LocalDateTime start/end
-    return PlatformTimeRangeFilter.Builder(startTime ?: Instant.EPOCH, endTime ?: timeSource.now)
+    return TimeInstantRangeFilter.Builder()
+        .setStartTime(startTime ?: Instant.EPOCH)
+        .setEndTime(endTime ?: timeSource.now)
         .build()
 }
 
