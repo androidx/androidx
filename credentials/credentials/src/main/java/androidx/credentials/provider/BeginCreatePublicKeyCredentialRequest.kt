@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.toCandidateDataBundle
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -50,12 +49,13 @@ import androidx.credentials.internal.FrameworkClassParsingException
 @RequiresApi(34)
 class BeginCreatePublicKeyCredentialRequest internal constructor(
     val json: String,
-    val preferImmediatelyAvailableCredentials: Boolean,
     callingAppInfo: CallingAppInfo,
 ) : BeginCreateCredentialRequest(
     callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toCandidateDataBundle(json, preferImmediatelyAvailableCredentials)
+    // TODO ("Use custom version of toCandidateData in this class")
+    toCandidateDataBundle(json,
+        /*preferImmediatelyAvailableCredentials=*/false)
 ) {
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -78,10 +78,7 @@ class BeginCreatePublicKeyCredentialRequest internal constructor(
             BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                val preferImmediatelyAvailableCredentials =
-                    data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
-                return BeginCreatePublicKeyCredentialRequest(requestJson!!,
-                    (preferImmediatelyAvailableCredentials), callingAppInfo)
+                return BeginCreatePublicKeyCredentialRequest(requestJson!!, callingAppInfo)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

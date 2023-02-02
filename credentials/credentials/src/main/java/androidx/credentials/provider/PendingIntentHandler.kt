@@ -47,7 +47,7 @@ class PendingIntentHandler {
          * [PendingIntent] invoked by the Android system.
          */
         @JvmStatic
-        fun retrieveCreateCredentialProviderRequest(intent: Intent):
+        fun retrieveProviderCreateCredentialRequest(intent: Intent):
             ProviderCreateCredentialRequest? {
             val frameworkReq: CreateCredentialRequest? =
                 intent.getParcelableExtra(
@@ -74,7 +74,7 @@ class PendingIntentHandler {
          * selects an [AuthenticationAction].
          */
         @JvmStatic
-        fun getBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
+        fun retrieveBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
             val request = intent.getParcelableExtra(
                 "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST",
                 BeginGetCredentialRequest::class.java
@@ -85,7 +85,7 @@ class PendingIntentHandler {
         /**
          * Set the [CreateCredentialResponse] on the result of the
          * activity invoked by the [PendingIntent] set on
-         * [CreateEntry]
+         * [CreateEntry].
          */
         @JvmStatic
         fun setCreateCredentialResponse(
@@ -102,7 +102,7 @@ class PendingIntentHandler {
          * [PendingIntent] invoked by the Android system.
          */
         @JvmStatic
-        fun retrieveGetCredentialProviderRequest(intent: Intent):
+        fun retrieveProviderGetCredentialRequest(intent: Intent):
             ProviderGetCredentialRequest? {
             val frameworkReq = intent.getParcelableExtra(
                 CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,

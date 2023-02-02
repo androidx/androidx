@@ -31,19 +31,14 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the privileged request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
- * @property preferImmediatelyAvailableCredentials true if it is preferred to return
- * immediately when there is no available credential instead of falling back to discovering remote
- * credentials, and false (default) otherwise
- * [see](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
+ *
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
  */
 @RequiresApi(34)
-class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
+class BeginGetPublicKeyCredentialOption internal constructor(
     candidateQueryData: Bundle,
     val requestJson: String,
-    @get:JvmName("preferImmediatelyAvailableCredentials")
-    val preferImmediatelyAvailableCredentials: Boolean = true,
 ) : BeginGetCredentialOption(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     candidateQueryData
@@ -63,18 +58,12 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
     @Suppress("AcronymName")
     companion object {
         /** @hide */
-        @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
-                                         // boolean value from being returned.
         @JvmStatic
         internal fun createFrom(data: Bundle): BeginGetPublicKeyCredentialOption {
             try {
                 val requestJson = data.getString(
                     GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON)
-                val allowHybrid = data.get(
-                    GetPublicKeyCredentialOption
-                        .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
-                return BeginGetPublicKeyCredentialOption(data, requestJson!!, (allowHybrid!!)
-                    as Boolean)
+                return BeginGetPublicKeyCredentialOption(data, requestJson!!)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

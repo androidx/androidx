@@ -34,7 +34,15 @@ import java.util.Collections
  * When selected, the associated [PendingIntent] is invoked to launch a provider controlled
  * activity.
  *
- * See [android.service.credentials.CredentialsResponseContent] for usage.
+ * Examples of [Action] entries include and entry that it titled 'Open App', and navigates
+ * to the home page of the credential provider app, or an entry that is titled 'Manage Credentials'
+ * and navigates to a particular page that lists all credentials.
+ *
+ * @property title the title of the entry
+ * @property pendingIntent the [PendingIntent] that will be invoked when the user selects this entry
+ * @property subtitle the optional subtitle that is displayed on the entry
+ *
+ * @see android.service.credentials.CredentialsResponseContent for usage.
  *
  * @throws IllegalArgumentException If [title] is empty
  * @throws NullPointerException If [title] or [pendingIntent] is null
