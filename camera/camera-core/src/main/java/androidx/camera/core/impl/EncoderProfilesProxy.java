@@ -53,49 +53,31 @@ import java.util.List;
  * {@link EncoderProfiles}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@AutoValue
-public abstract class EncoderProfilesProxy {
+public interface EncoderProfilesProxy {
 
     /** Constant representing no codec profile. */
-    public static final int CODEC_PROFILE_NONE = -1;
-
-    /** Creates an EncoderProfilesProxy instance. */
-    @NonNull
-    public static EncoderProfilesProxy create(
-            int defaultDurationSeconds,
-            int recommendedFileFormat,
-            @NonNull List<AudioProfileProxy> audioProfiles,
-            @NonNull List<VideoProfileProxy> videoProfiles) {
-        return new AutoValue_EncoderProfilesProxy(
-                defaultDurationSeconds,
-                recommendedFileFormat,
-                unmodifiableList(new ArrayList<>(audioProfiles)),
-                unmodifiableList(new ArrayList<>(videoProfiles))
-        );
-    }
+    int CODEC_PROFILE_NONE = -1;
 
     /** @see EncoderProfiles#getDefaultDurationSeconds() */
-    public abstract int getDefaultDurationSeconds();
+    int getDefaultDurationSeconds();
 
     /** @see EncoderProfiles#getRecommendedFileFormat() */
-    public abstract int getRecommendedFileFormat();
+    int getRecommendedFileFormat();
 
     /** @see EncoderProfiles#getAudioProfiles() */
-    @SuppressWarnings("AutoValueImmutableFields")
     @NonNull
-    public abstract List<AudioProfileProxy> getAudioProfiles();
+    List<AudioProfileProxy> getAudioProfiles();
 
     /** @see EncoderProfiles#getVideoProfiles() */
-    @SuppressWarnings("AutoValueImmutableFields")
     @NonNull
-    public abstract List<VideoProfileProxy> getVideoProfiles();
+    List<VideoProfileProxy> getVideoProfiles();
 
     /**
      * VideoProfileProxy defines the get methods that is mapping to the fields of
      * {@link EncoderProfiles.VideoProfile}.
      */
     @AutoValue
-    public abstract static class VideoProfileProxy {
+    abstract class VideoProfileProxy {
 
         /** Constant representing no media type. */
         public static final String MEDIA_TYPE_NONE = "video/none";
@@ -174,7 +156,7 @@ public abstract class EncoderProfilesProxy {
      * {@link EncoderProfiles.AudioProfile}.
      */
     @AutoValue
-    public abstract static class AudioProfileProxy {
+    abstract class AudioProfileProxy {
 
         /** Constant representing no media type. */
         public static final String MEDIA_TYPE_NONE = "audio/none";
@@ -223,5 +205,27 @@ public abstract class EncoderProfilesProxy {
 
         /** @see EncoderProfiles.AudioProfile#getProfile() */
         public abstract int getProfile();
+    }
+
+    /**
+     * An implementation of {@link EncoderProfilesProxy} that is immutable.
+     */
+    @AutoValue
+    abstract class ImmutableEncoderProfilesProxy implements EncoderProfilesProxy {
+
+        /** Creates an EncoderProfilesProxy instance. */
+        @NonNull
+        public static ImmutableEncoderProfilesProxy create(
+                int defaultDurationSeconds,
+                int recommendedFileFormat,
+                @NonNull List<AudioProfileProxy> audioProfiles,
+                @NonNull List<VideoProfileProxy> videoProfiles) {
+            return new AutoValue_EncoderProfilesProxy_ImmutableEncoderProfilesProxy(
+                    defaultDurationSeconds,
+                    recommendedFileFormat,
+                    unmodifiableList(new ArrayList<>(audioProfiles)),
+                    unmodifiableList(new ArrayList<>(videoProfiles))
+            );
+        }
     }
 }
