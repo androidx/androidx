@@ -16,16 +16,32 @@
 
 package androidx.bluetooth.integration.testapp.ui.bluetoothx
 
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothManager
+import android.bluetooth.le.AdvertiseCallback
+import android.bluetooth.le.AdvertiseData
+import android.bluetooth.le.AdvertiseSettings
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 
-import androidx.bluetooth.core.BluetoothManager
+import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentBtxBinding
+import androidx.bluetooth.integration.testapp.ui.framework.FwkFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 
 class BtxFragment : Fragment() {
 
@@ -45,8 +61,10 @@ class BtxFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d(TAG, "onCreateView() called with: inflater = $inflater, " +
-            "container = $container, savedInstanceState = $savedInstanceState")
+        Log.d(
+            TAG, "onCreateView() called with: inflater = $inflater, " +
+                "container = $container, savedInstanceState = $savedInstanceState"
+        )
         btxViewModel = ViewModelProvider(this).get(BtxViewModel::class.java)
 
         _binding = FragmentBtxBinding.inflate(inflater, container, false)
@@ -59,21 +77,27 @@ class BtxFragment : Fragment() {
         binding.buttonScan.setOnClickListener {
             scan()
         }
+
+        binding.switchAdvertise.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) startAdvertise()
+            else advertiseJob?.cancel()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        advertiseJob?.cancel()
     }
 
     private fun scan() {
         Log.d(TAG, "scan() called")
 
-        val bluetoothManager = BluetoothManager(requireContext())
+//        val bluetoothManager = BluetoothManager(requireContext())
 
-        @Suppress("UNUSED_VARIABLE")
+//        @Suppress("UNUSED_VARIABLE")
         // TODO(ofy) Use below
-        val bluetoothAdapter = bluetoothManager.getAdapter()
+//        val bluetoothAdapter = bluetoothManager.getAdapter()
 
         // TODO(ofy) Convert to BluetoothX classes
 //        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
@@ -86,5 +110,82 @@ class BtxFragment : Fragment() {
 //
 //        Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
 //            .show()
+    }
+
+    private val advertiseScope = CoroutineScope(Dispatchers.Main + Job())
+    private var advertiseJob: Job? = null
+
+    enum class AdvertiseResult {
+        ADVERTISE_STARTED,
+        ADVERTISE_FAILED_ALREADY_STARTED,
+        ADVERTISE_FAILED_DATA_TOO_LARGE,
+        ADVERTISE_FAILED_FEATURE_UNSUPPORTED,
+        ADVERTISE_FAILED_INTERNAL_ERROR,
+        ADVERTISE_FAILED_TOO_MANY_ADVERTISERS
+    }
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    fun advertise(settings: AdvertiseSettings, data: AdvertiseData): Flow<AdvertiseResult> =
+        callbackFlow {
+            val callback = object : AdvertiseCallback() {
+                override fun onStartFailure(errorCode: Int) {
+                    trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
+                }
+
+                override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
+                    trySend(AdvertiseResult.ADVERTISE_STARTED)
+                }
+            }
+
+            val bluetoothManager =
+                context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+            val bluetoothAdapter = bluetoothManager?.adapter
+            val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
+
+            bleAdvertiser?.startAdvertising(settings, data, callback)
+
+            awaitClose {
+                Log.d(TAG, "awaitClose() called")
+                bleAdvertiser?.stopAdvertising(callback)
+            }
+        }
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    private fun startAdvertise() {
+        Log.d(TAG, "startAdvertise() called")
+
+        val advertiseSettings = AdvertiseSettings.Builder()
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setTimeout(0)
+            .build()
+
+        val advertiseData = AdvertiseData.Builder()
+            .addServiceUuid(FwkFragment.ServiceUUID)
+            .setIncludeDeviceName(true)
+            .build()
+
+        advertiseJob = advertiseScope.launch {
+            advertise(advertiseSettings, advertiseData)
+                .collect {
+                    Log.d(TAG, "advertiseResult received: $it")
+
+                    when (it) {
+                        AdvertiseResult.ADVERTISE_STARTED -> {
+                            Toast.makeText(
+                                context,
+                                getString(R.string.advertise_start_message), Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                        AdvertiseResult.ADVERTISE_FAILED_ALREADY_STARTED -> TODO()
+                        AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> TODO()
+                        AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> TODO()
+                        AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> TODO()
+                        AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> TODO()
+                    }
+                }
+        }
     }
 }
