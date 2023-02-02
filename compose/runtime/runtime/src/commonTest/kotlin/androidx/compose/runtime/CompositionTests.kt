@@ -54,9 +54,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -3730,6 +3737,71 @@ class CompositionTests {
         validate {
             Text("Default")
             Text("Scoped")
+        }
+    }
+
+    @Test(timeout = 10000)
+    fun testCompositionAndRecomposerDeadlock() {
+        runBlocking {
+            withGlobalSnapshotManager {
+                repeat(100) {
+                    val job = Job(parent = coroutineContext[Job])
+                    val coroutineContext = Dispatchers.Unconfined + job
+                    val recomposer = Recomposer(coroutineContext)
+
+                    launch(
+                        coroutineContext + BroadcastFrameClock(),
+                        start = CoroutineStart.UNDISPATCHED
+                    ) {
+                        recomposer.runRecomposeAndApplyChanges()
+                    }
+
+                    val composition = Composition(EmptyApplier(), recomposer)
+                    composition.setContent {
+
+                        val innerComposition = Composition(
+                            EmptyApplier(),
+                            rememberCompositionContext(),
+                        )
+
+                        DisposableEffect(composition) {
+                            onDispose {
+                                innerComposition.dispose()
+                            }
+                        }
+                    }
+
+                    var value by mutableStateOf(1)
+                    launch(Dispatchers.Default + job) {
+                        while (true) {
+                            value += 1
+                            delay(1)
+                        }
+                    }
+
+                    composition.dispose()
+                    recomposer.close()
+                    job.cancel()
+                }
+            }
+        }
+    }
+
+    private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
+        val channel = Channel<Unit>(Channel.CONFLATED)
+        val job = launch {
+            channel.consumeEach {
+                Snapshot.sendApplyNotifications()
+            }
+        }
+        val unregisterToken = Snapshot.registerGlobalWriteObserver {
+            channel.trySend(Unit)
+        }
+        try {
+            block()
+        } finally {
+            unregisterToken.dispose()
+            job.cancel()
         }
     }
 }
