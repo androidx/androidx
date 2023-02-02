@@ -23,16 +23,17 @@ import android.view.View
 import android.view.ViewGroup
 
 import androidx.bluetooth.core.BluetoothManager
-import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentBtxBinding
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.ViewModelProvider
 
 class BtxFragment : Fragment() {
 
     companion object {
         const val TAG = "BtxFragment"
     }
+
+    private lateinit var btxViewModel: BtxViewModel
 
     private var _binding: FragmentBtxBinding? = null
 
@@ -44,16 +45,16 @@ class BtxFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "onCreateView() called with: inflater = $inflater, " +
+            "container = $container, savedInstanceState = $savedInstanceState")
+        btxViewModel = ViewModelProvider(this).get(BtxViewModel::class.java)
+
         _binding = FragmentBtxBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.buttonPrevious.setOnClickListener {
-            findNavController().navigate(R.id.action_BtxFragment_to_FwkFragment)
-        }
 
         binding.buttonScan.setOnClickListener {
             scan()
