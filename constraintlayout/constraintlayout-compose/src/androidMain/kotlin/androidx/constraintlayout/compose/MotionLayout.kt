@@ -316,7 +316,7 @@ internal inline fun MotionLayoutCore(
         motionScene.getTransitionInstance(transitionName)
     }
 
-    val start = remember(motionScene) {
+    val start = remember(motionScene, transition) {
         val startId = transition?.getStartConstraintSetId() ?: "start"
         motionScene.getConstraintSetInstance(startId)
     }
@@ -379,13 +379,12 @@ internal inline fun MotionLayoutCore(
         motionScene.getTransitionInstance(transitionName)
     }
 
-    val startId = transition?.getStartConstraintSetId() ?: "start"
-    val endId = transition?.getEndConstraintSetId() ?: "end"
-
-    val start = remember(motionScene) {
+    val start = remember(motionScene, transition) {
+        val startId = transition?.getStartConstraintSetId() ?: "start"
         motionScene.getConstraintSetInstance(startId)
     }
-    val end = remember(motionScene) {
+    val end = remember(motionScene, transition) {
+        val endId = transition?.getEndConstraintSetId() ?: "end"
         motionScene.getConstraintSetInstance(endId)
     }
 
