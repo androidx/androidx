@@ -512,6 +512,7 @@ package androidx.navigation {
     method @CallSuper public void onLaunchSingleTopWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pop(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
     method public void popWithTransition(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
+    method @CallSuper public void prepareForTransition(androidx.navigation.NavBackStackEntry entry);
     method public void push(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pushWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
