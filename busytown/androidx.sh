@@ -21,6 +21,7 @@ else
   if ! impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
+      -Pandroidx.constraints=true \
       --no-daemon \
       --profile "$@"; then
     EXIT_VALUE=1
