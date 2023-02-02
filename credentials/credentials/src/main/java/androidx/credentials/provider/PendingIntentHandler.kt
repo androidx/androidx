@@ -24,8 +24,14 @@ import android.service.credentials.CreateCredentialRequest
 import android.service.credentials.CredentialProviderService
 import android.service.credentials.CredentialsResponseContent
 import android.util.Log
+import android.service.credentials.CredentialEntry
+import android.service.credentials.BeginGetCredentialResponse
+import android.service.credentials.BeginCreateCredentialResponse
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialResponse
+import android.app.Activity
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
@@ -43,8 +49,13 @@ class PendingIntentHandler {
         private const val TAG = "PendingIntentHandler"
 
         /**
-         * Extract the [ProviderCreateCredentialRequest] from the provider's
+         * Extracts the [ProviderCreateCredentialRequest] from the provider's
          * [PendingIntent] invoked by the Android system.
+         *
+         * @param intent the intent associated with the [Activity] invoked through the
+         * [PendingIntent]
+         *
+         * @throws NullPointerException If [intent] is null
          */
         @JvmStatic
         fun retrieveProviderCreateCredentialRequest(intent: Intent):
@@ -69,9 +80,14 @@ class PendingIntentHandler {
         }
 
         /**
-         * Extract [BeginGetCredentialRequest] from the provider's
+         * Extracts the [BeginGetCredentialRequest] from the provider's
          * [PendingIntent] invoked by the Android system when the user
          * selects an [AuthenticationAction].
+         *
+         * @param intent the intent associated with the [Activity] invoked through the
+         * [PendingIntent]
+         *
+         * @throws NullPointerException If [intent] is null
          */
         @JvmStatic
         fun retrieveBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
@@ -83,9 +99,15 @@ class PendingIntentHandler {
         }
 
         /**
-         * Set the [CreateCredentialResponse] on the result of the
-         * activity invoked by the [PendingIntent] set on
+         * Sets the [CreateCredentialResponse] on the result of the
+         * activity invoked by the [PendingIntent] set on a
          * [CreateEntry].
+         *
+         * @param intent the intent to be set on the result of the [Activity] invoked through the
+         * [PendingIntent]
+         * @param response the response to be set as an extra on the [intent]
+         *
+         * @throws NullPointerException If [intent], or [response] is null
          */
         @JvmStatic
         fun setCreateCredentialResponse(
@@ -98,8 +120,14 @@ class PendingIntentHandler {
         }
 
         /**
-         * Extract the [ProviderGetCredentialRequest] from the provider's
-         * [PendingIntent] invoked by the Android system.
+         * Extracts the [ProviderGetCredentialRequest] from the provider's
+         * [PendingIntent] invoked by the Android system, when the user selects a
+         * [CredentialEntry].
+         *
+         * @param intent the intent associated with the [Activity] invoked through the
+         * [PendingIntent]
+         *
+         * @throws NullPointerException If [intent] is null
          */
         @JvmStatic
         fun retrieveProviderGetCredentialRequest(intent: Intent):
@@ -116,8 +144,14 @@ class PendingIntentHandler {
         }
 
         /**
-         * Set the [android.credentials.GetCredentialResponse] on the result of the
-         * activity invoked by the [PendingIntent] set on [CreateEntry]
+         * Sets the [android.credentials.GetCredentialResponse] on the result of the
+         * activity invoked by the [PendingIntent], set on a [CreateEntry].
+         *
+         * @param intent the intent to be set on the result of the [Activity] invoked through the
+         * [PendingIntent]
+         * @param response the response to be set as an extra on the [intent]
+         *
+         * @throws NullPointerException If [intent], or [response] is null
          */
         @JvmStatic
         fun setGetCredentialResponse(
@@ -133,8 +167,14 @@ class PendingIntentHandler {
         }
 
         /**
-         * Set the [android.service.credentials.CredentialsResponseContent] on the result of the
-         * activity invoked by the [PendingIntent] set on [AuthenticationAction].
+         * Sets the [android.service.credentials.CredentialsResponseContent] on the result of the
+         * activity invoked by the [PendingIntent], set on an [AuthenticationAction].
+         *
+         * @param intent the intent to be set on the result of the [Activity] invoked through the
+         * [PendingIntent]
+         * @param response the response to be set as an extra on the [intent]
+         *
+         * @throws NullPointerException If [intent], or [response] is null
          */
         @JvmStatic
         fun setCredentialsResponseContent(
@@ -144,6 +184,63 @@ class PendingIntentHandler {
             intent.putExtra(
                 CredentialProviderService.EXTRA_CREDENTIALS_RESPONSE_CONTENT,
                 response
+            )
+        }
+
+        /**
+         * Sets the [androidx.credentials.exceptions.GetCredentialException] if an error is
+         * encountered during the final phase of the get credential flow.
+         *
+         * A credential provider service returns a list of [CredentialEntry] as part of
+         * the [BeginGetCredentialResponse] to the query phase of the get-credential flow.
+         * If the user selects one of these entries, the corresponding [PendingIntent]
+         * is fired and the provider's activity is invoked.
+         * If there is an error encountered during the lifetime of that activity, the provider
+         * must use this API to set an exception before finishing this activity.
+         *
+         * @param intent the intent to be set on the result of the [Activity] invoked through the
+         * [PendingIntent]
+         * @param exception the exception to be set as an extra to the [intent]
+         *
+         * @throws NullPointerException If [intent], or [exception] is null
+         */
+        @JvmStatic
+        fun setGetCredentialException(
+            intent: Intent,
+            exception: GetCredentialException
+        ) {
+            intent.putExtra(
+                CredentialProviderService.EXTRA_GET_CREDENTIAL_EXCEPTION,
+                android.credentials.GetCredentialException(exception.type, exception.message)
+            )
+        }
+
+        /**
+         * Sets the [androidx.credentials.exceptions.CreateCredentialException] if an error is
+         * encountered during the final phase of the create credential flow.
+         *
+         * A credential provider service returns a list of [CreateEntry] as part of
+         * the [BeginCreateCredentialResponse] to the query phase of the get-credential flow.
+         *
+         * If the user selects one of these entries, the corresponding [PendingIntent]
+         * is fired and the provider's activity is invoked. If there is an error encountered
+         * during the lifetime of that activity, the provider must use this API to set
+         * an exception before finishing the activity.
+         *
+         * @param intent the intent to be set on the result of the [Activity] invoked through the
+         * [PendingIntent]
+         * @param exception the exception to be set as an extra to the [intent]
+         *
+         * @throws NullPointerException If [intent], or [exception] is null
+         */
+        @JvmStatic
+        fun setCreateCredentialException(
+            intent: Intent,
+            exception: CreateCredentialException
+        ) {
+            intent.putExtra(
+                CredentialProviderService.EXTRA_CREATE_CREDENTIAL_EXCEPTION,
+                android.credentials.CreateCredentialException(exception.type, exception.message)
             )
         }
     }
