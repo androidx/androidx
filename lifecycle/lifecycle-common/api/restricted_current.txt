@@ -62,8 +62,18 @@ package androidx.lifecycle {
     enum_constant public static final androidx.lifecycle.Lifecycle.State STARTED;
   }
 
+  public abstract class LifecycleCoroutineScope implements kotlinx.coroutines.CoroutineScope {
+    method @Deprecated public final kotlinx.coroutines.Job launchWhenCreated(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @Deprecated public final kotlinx.coroutines.Job launchWhenResumed(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @Deprecated public final kotlinx.coroutines.Job launchWhenStarted(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
   public fun interface LifecycleEventObserver extends androidx.lifecycle.LifecycleObserver {
     method public void onStateChanged(androidx.lifecycle.LifecycleOwner source, androidx.lifecycle.Lifecycle.Event event);
+  }
+
+  public final class LifecycleKt {
+    method public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
   }
 
   public interface LifecycleObserver {
@@ -86,6 +96,16 @@ package androidx.lifecycle {
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
     method @Deprecated public abstract androidx.lifecycle.Lifecycle.Event! value();
+  }
+
+  public final class PausingDispatcherKt {
+    method @Deprecated public static suspend <T> Object? whenCreated(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method @Deprecated public static suspend <T> Object? whenCreated(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method @Deprecated public static suspend <T> Object? whenResumed(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method @Deprecated public static suspend <T> Object? whenResumed(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method @Deprecated public static suspend <T> Object? whenStarted(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method @Deprecated public static suspend <T> Object? whenStarted(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method @Deprecated public static suspend <T> Object? whenStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State minState, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
   }
 
 }

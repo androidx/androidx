@@ -26,6 +26,10 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid) {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
