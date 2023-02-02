@@ -31,6 +31,7 @@ import android.view.ViewConfiguration;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
@@ -56,7 +57,8 @@ public class UiObject2Test extends BaseTest {
         assertEquals("sample_text", object.getText());
         object.clear();
         // Verify the text field does not have txt after clear()
-        assertNull(object.getText());
+        BySelector emptyText = By.res(TEST_APP, "edit_text").text("");
+        assertTrue(mDevice.wait(Until.hasObject(emptyText), TIMEOUT_MS));
     }
 
     @Test
@@ -751,7 +753,8 @@ public class UiObject2Test extends BaseTest {
         assertEquals("sample_text", object.getText());
         object.setText("new_text");
         // Verify the text field has "new_text" after setText()
-        assertEquals("new_text", object.getText());
+        BySelector updatedText = By.res(TEST_APP, "edit_text").text("new_text");
+        assertTrue(mDevice.wait(Until.hasObject(updatedText), TIMEOUT_MS));
     }
 
     /* Helper method to get a point inside the object. */
