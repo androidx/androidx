@@ -234,6 +234,11 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                     ThreadUtils.runOnMain(() -> mSurfaceView.onUpdateSelection(oldSelStart,
                             oldSelEnd, newSelStart, newSelEnd));
                 }
+
+                @Override
+                public void showAssist(Bundle args) {
+                    BaseCarAppActivity.this.showAssist(args);
+                }
             };
 
     @RequiresApi(Build.VERSION_CODES.R)
