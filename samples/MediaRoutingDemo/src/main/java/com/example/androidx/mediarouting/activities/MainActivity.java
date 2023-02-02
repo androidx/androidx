@@ -78,6 +78,7 @@ import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.session.SessionManager;
 import com.example.androidx.mediarouting.ui.LibraryAdapter;
 import com.example.androidx.mediarouting.ui.PlaylistAdapter;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 
@@ -103,14 +104,7 @@ public class MainActivity extends AppCompatActivity {
             };
     private final SessionManager mSessionManager = new SessionManager("app");
     private final MediaRouter.OnPrepareTransferListener mOnPrepareTransferListener =
-            (fromRoute, toRoute) -> {
-                Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
-                        + ", to=" + toRoute.getId());
-                return CallbackToFutureAdapter.getFuture(completer -> {
-                    mHandler.postDelayed(() -> completer.set(null), 3000);
-                    return "onPrepareTransfer";
-                });
-            };
+            new TransferListener();
     private final MediaRouter.Callback mMediaRouterCB = new MediaRouter.Callback() {
         // Return a custom callback that will simply log all of the route events
         // for demonstration purposes.
@@ -750,6 +744,21 @@ public class MainActivity extends AppCompatActivity {
         @DoNotInline
         static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
             activity.requestPermissions(permissions, requestCode);
+        }
+    }
+
+    private class TransferListener implements
+            MediaRouter.OnPrepareTransferListener {
+        @Nullable
+        @Override
+        public ListenableFuture<Void> onPrepareTransfer(@NonNull RouteInfo fromRoute,
+                @NonNull RouteInfo toRoute) {
+            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                    + ", to=" + toRoute.getId());
+            return CallbackToFutureAdapter.getFuture(completer -> {
+                mHandler.postDelayed(() -> completer.set(null), 3000);
+                return "onPrepareTransfer";
+            });
         }
     }
 }
