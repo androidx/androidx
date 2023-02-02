@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -671,13 +672,18 @@ class ActivityResultContracts private constructor() {
                 }
             }
 
-            @Suppress("DEPRECATION")
             @JvmStatic
             internal fun isGmsPickerAvailable(context: Context): Boolean {
+                return getGmsPicker(context) != null
+            }
+
+            @Suppress("DEPRECATION")
+            @JvmStatic
+            internal fun getGmsPicker(context: Context): ResolveInfo? {
                 return context.packageManager.resolveActivity(
                     Intent(GMS_ACTION_PICK_IMAGES),
-                    PackageManager.MATCH_DEFAULT_ONLY
-                ) != null
+                    PackageManager.MATCH_DEFAULT_ONLY or PackageManager.MATCH_SYSTEM_ONLY
+                )
             }
 
             internal fun getVisualMimeType(input: VisualMediaType): String? {
@@ -724,7 +730,9 @@ class ActivityResultContracts private constructor() {
                     type = getVisualMimeType(input.mediaType)
                 }
             } else if (isGmsPickerAvailable(context)) {
+                val gmsPicker = checkNotNull(getGmsPicker(context)).activityInfo
                 Intent(GMS_ACTION_PICK_IMAGES).apply {
+                    setClassName(gmsPicker.applicationInfo.packageName, gmsPicker.name)
                     type = getVisualMimeType(input.mediaType)
                 }
             } else {
