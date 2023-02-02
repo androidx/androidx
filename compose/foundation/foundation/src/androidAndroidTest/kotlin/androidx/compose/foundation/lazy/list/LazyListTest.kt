@@ -17,7 +17,12 @@
 package androidx.compose.foundation.lazy.list
 
 import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VelocityTrackerCalculationThreshold
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -25,6 +30,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +50,7 @@ import androidx.compose.foundation.savePointerInputEvents
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -54,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
@@ -67,7 +75,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -106,6 +118,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -2171,6 +2184,640 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun testLookaheadPositionWithOnlyInBoundChanges() {
+        testLookaheadPositionWithPlacementAnimator(
+            initialList = listOf(0, 1, 2, 3),
+            targetList = listOf(3, 2, 1, 0),
+            initialExpectedLookaheadPositions = listOf(0, 100, 200, 300),
+            targetExpectedLookaheadPositions = listOf(300, 200, 100, 0)
+        )
+    }
+
+    @Test
+    fun testLookaheadPositionWithCustomStartingIndex() {
+        testLookaheadPositionWithPlacementAnimator(
+            initialList = listOf(0, 1, 2, 3, 4),
+            targetList = listOf(4, 3, 2, 1, 0),
+            initialExpectedLookaheadPositions = listOf(null, 0, 100, 200, 300),
+            targetExpectedLookaheadPositions = listOf(300, 200, 100, 0, -100),
+            startingIndex = 1
+        )
+    }
+
+    @Test
+    fun testLookaheadPositionWithTwoInBoundTwoOutBound() {
+        testLookaheadPositionWithPlacementAnimator(
+            initialList = listOf(0, 1, 2, 3, 4, 5),
+            targetList = listOf(5, 4, 2, 1, 3, 0),
+            initialExpectedLookaheadPositions = listOf(null, null, 0, 100, 200, 300),
+            targetExpectedLookaheadPositions = listOf(300, 100, 0, 200, -100, -200),
+            startingIndex = 2
+        )
+    }
+
+    private fun testLookaheadPositionWithPlacementAnimator(
+        initialList: List<Int>,
+        targetList: List<Int>,
+        initialExpectedLookaheadPositions: List<Int?>,
+        targetExpectedLookaheadPositions: List<Int?>,
+        startingIndex: Int = 0
+    ) {
+        var list by mutableStateOf(initialList)
+        val lookaheadPosition = mutableMapOf<Int, Int>()
+        val postLookaheadPosition = mutableMapOf<Int, Int>()
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LazyListInLookaheadScope(
+                    list = list,
+                    startingIndex = startingIndex,
+                    lookaheadPosition = lookaheadPosition,
+                    postLookaheadPosition = postLookaheadPosition
+                )
+            }
+        }
+        rule.runOnIdle {
+            repeat(list.size) {
+                assertEquals(initialExpectedLookaheadPositions[it], lookaheadPosition[it])
+                assertEquals(initialExpectedLookaheadPositions[it], postLookaheadPosition[it])
+            }
+            lookaheadPosition.clear()
+            postLookaheadPosition.clear()
+            list = targetList
+        }
+        rule.waitForIdle()
+        repeat(20) {
+            rule.mainClock.advanceTimeByFrame()
+            repeat(list.size) {
+                assertEquals(targetExpectedLookaheadPositions[it], lookaheadPosition[it])
+            }
+        }
+        repeat(list.size) {
+            if (lookaheadPosition[it]?.let { offset -> offset + ItemSize >= 0 } != false) {
+                assertEquals(lookaheadPosition[it], postLookaheadPosition[it])
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @Composable
+    private fun LazyListInLookaheadScope(
+        list: List<Int>,
+        startingIndex: Int,
+        lookaheadPosition: MutableMap<Int, Int>,
+        postLookaheadPosition: MutableMap<Int, Int>
+    ) {
+        LookaheadScope {
+            LazyColumnOrRow(
+                if (vertical) {
+                    Modifier.requiredHeight(ItemSize.dp * (list.size - startingIndex))
+                } else {
+                    Modifier.requiredWidth(ItemSize.dp * (list.size - startingIndex))
+                },
+                state = rememberLazyListState(
+                    initialFirstVisibleItemIndex = startingIndex
+                ),
+
+                ) {
+                items(list, key = { it }) { item ->
+                    Box(
+                        Modifier
+                            .animateItemPlacement(tween(160))
+                            .trackPositions(
+                                lookaheadPosition,
+                                postLookaheadPosition,
+                                this@LookaheadScope,
+                                item
+                            )
+                            .requiredSize(ItemSize.dp)
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun Modifier.trackPositions(
+        lookaheadPosition: MutableMap<Int, Int>,
+        postLookaheadPosition: MutableMap<Int, Int>,
+        lookaheadScope: LookaheadScope,
+        item: Int
+    ): Modifier = this.layout { measurable, constraints ->
+        measurable
+            .measure(constraints)
+            .run {
+                layout(width, height) {
+                    if (isLookingAhead) {
+                        lookaheadPosition[item] =
+                            with(lookaheadScope) {
+                                coordinates!!
+                                    .findRootCoordinates()
+                                    .localLookaheadPositionOf(
+                                        coordinates!!
+                                    )
+                                    .let {
+                                        if (vertical) {
+                                            it.y
+                                        } else {
+                                            it.x
+                                        }.roundToInt()
+                                    }
+                            }
+                    } else {
+                        postLookaheadPosition[item] =
+                            coordinates!!
+                                .positionInRoot()
+                                .let {
+                                    if (vertical) it.y else it.x
+                                }
+                                .roundToInt()
+                    }
+                    place(0, 0)
+                }
+            }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @Test
+    fun animContentSizeWithPlacementAnimator() {
+        val lookaheadPosition = mutableMapOf<Int, Int>()
+        val postLookaheadPosition = mutableMapOf<Int, Int>()
+        var large by mutableStateOf(false)
+        var animateSizeChange by mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    LazyColumnOrRow {
+                        items(4, key = { it }) {
+                            Box(
+                                Modifier
+                                    .animateItemPlacement(tween(160, easing = LinearEasing))
+                                    .trackPositions(
+                                        lookaheadPosition,
+                                        postLookaheadPosition,
+                                        this@LookaheadScope,
+                                        it
+                                    )
+                                    .then(
+                                        if (animateSizeChange) Modifier.animateContentSize(
+                                            tween(160)
+                                        ) else Modifier
+                                    )
+                                    .requiredSize(if (large) ItemSize.dp * 2 else ItemSize.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        repeat(4) {
+            assertEquals(it * ItemSize, lookaheadPosition[it])
+            assertEquals(it * ItemSize, postLookaheadPosition[it])
+        }
+
+        rule.mainClock.autoAdvance = false
+        large = true
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        repeat(20) { frame ->
+            val fraction = (frame * 16 / 160f).coerceAtMost(1f)
+            repeat(4) {
+                assertEquals(it * ItemSize * 2, lookaheadPosition[it])
+                assertEquals(
+                    (it * ItemSize * (1 + fraction)).roundToInt(),
+                    postLookaheadPosition[it]
+                )
+            }
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        // Enable animateContentSize
+        animateSizeChange = true
+        large = false
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        repeat(20) { frame ->
+            val fraction = (frame * 16 / 160f).coerceAtMost(1f)
+            repeat(4) {
+                // Verify that item target offsets are not affected by animateContentSize
+                assertEquals(it * ItemSize, lookaheadPosition[it])
+                assertEquals(
+                    (it * (2 - fraction) * ItemSize).roundToInt(),
+                    postLookaheadPosition[it]
+                )
+            }
+            rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @Test
+    fun animVisibilityWithPlacementAnimator() {
+        val lookaheadPosition = mutableMapOf<Int, Int>()
+        val postLookaheadPosition = mutableMapOf<Int, Int>()
+        var visible by mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    LazyColumnOrRow {
+                        items(4, key = { it }) {
+                            if (vertical) {
+                                Column(
+                                    Modifier
+                                        .animateItemPlacement(tween(160, easing = LinearEasing))
+                                        .trackPositions(
+                                            lookaheadPosition,
+                                            postLookaheadPosition,
+                                            this@LookaheadScope,
+                                            it
+                                        )
+                                ) {
+                                    Box(Modifier.requiredSize(ItemSize.dp))
+                                    AnimatedVisibility(visible = visible) {
+                                        Box(Modifier.requiredSize(ItemSize.dp))
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    Modifier
+                                        .animateItemPlacement(tween(160, easing = LinearEasing))
+                                        .trackPositions(
+                                            lookaheadPosition,
+                                            postLookaheadPosition,
+                                            this@LookaheadScope,
+                                            it
+                                        )
+                                ) {
+                                    Box(Modifier.requiredSize(ItemSize.dp))
+                                    AnimatedVisibility(visible = visible) {
+                                        Box(Modifier.requiredSize(ItemSize.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        repeat(4) {
+            assertEquals(it * ItemSize, lookaheadPosition[it])
+            assertEquals(it * ItemSize, postLookaheadPosition[it])
+        }
+
+        rule.mainClock.autoAdvance = false
+        visible = true
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        repeat(20) { frame ->
+            val fraction = (frame * 16 / 160f).coerceAtMost(1f)
+            repeat(4) {
+                assertEquals(it * ItemSize * 2, lookaheadPosition[it])
+                assertEquals(
+                    (it * ItemSize * (1 + fraction)).roundToInt(),
+                    postLookaheadPosition[it]
+                )
+            }
+            rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun resizeLazyList() {
+        val lookaheadPositions = mutableMapOf<Int, Offset>()
+        val postLookaheadPositions = mutableMapOf<Int, Offset>()
+        var postLookaheadSize by mutableStateOf(ItemSize * 2)
+        rule.setContent {
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyColumnOrRow(Modifier.layout { measurable, _ ->
+                        val constraints = if (isLookingAhead) {
+                            Constraints.fixed(4 * ItemSize, 4 * ItemSize)
+                        } else {
+                            Constraints.fixed(postLookaheadSize, postLookaheadSize)
+                        }
+                        measurable.measure(constraints).run {
+                            layout(width, height) {
+                                place(0, 0)
+                            }
+                        }
+                    }) {
+                        items(4) {
+                            Box(
+                                Modifier
+                                    .requiredSize(ItemSize.dp)
+                                    .layout { measurable, constraints ->
+                                        measurable
+                                            .measure(constraints)
+                                            .run {
+                                                layout(width, height) {
+                                                    if (isLookingAhead) {
+                                                        lookaheadPositions[it] = coordinates!!
+                                                            .findRootCoordinates()
+                                                            .localLookaheadPositionOf(coordinates!!)
+                                                    } else {
+                                                        postLookaheadPositions[it] =
+                                                            coordinates!!.positionInRoot()
+                                                    }
+                                                }
+                                            }
+                                    })
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+        postLookaheadSize = (2.9f * ItemSize).toInt()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(ItemSize * 2, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+        postLookaheadSize = (3.4f * ItemSize).toInt()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(ItemSize * 2, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(ItemSize * 3, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+
+        // Shrinking post-lookahead size
+        postLookaheadSize = (2.7f * ItemSize).toInt()
+        postLookaheadPositions.clear()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(ItemSize * 2, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+
+        // Shrinking post-lookahead size
+        postLookaheadSize = (1.2f * ItemSize).toInt()
+        postLookaheadPositions.clear()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun lookaheadSizeSmallerThanPostLookahead() {
+        val lookaheadPositions = mutableMapOf<Int, Offset>()
+        val postLookaheadPositions = mutableMapOf<Int, Offset>()
+        var lookaheadSize by mutableStateOf(ItemSize * 2)
+        var postLookaheadSize by mutableStateOf(ItemSize * 4)
+        rule.setContent {
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyColumnOrRow(Modifier.layout { measurable, _ ->
+                        val constraints = if (isLookingAhead) {
+                            Constraints.fixed(lookaheadSize, lookaheadSize)
+                        } else {
+                            Constraints.fixed(postLookaheadSize, postLookaheadSize)
+                        }
+                        measurable.measure(constraints).run {
+                            layout(width, height) {
+                                place(0, 0)
+                            }
+                        }
+                    }) {
+                        items(4) {
+                            Box(
+                                Modifier
+                                    .requiredSize(ItemSize.dp)
+                                    .layout { measurable, constraints ->
+                                        measurable
+                                            .measure(constraints)
+                                            .run {
+                                                layout(width, height) {
+                                                    if (isLookingAhead) {
+                                                        lookaheadPositions[it] = coordinates!!
+                                                            .findRootCoordinates()
+                                                            .localLookaheadPositionOf(coordinates!!)
+                                                    } else {
+                                                        postLookaheadPositions[it] =
+                                                            coordinates!!.positionInRoot()
+                                                    }
+                                                }
+                                            }
+                                    })
+                        }
+                    }
+                }
+            }
+        }
+        // postLookaheadSize was initialized to 4 * ItemSize
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(ItemSize * 2, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(ItemSize * 3, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+        postLookaheadSize = (2.9f * ItemSize).toInt()
+        postLookaheadPositions.clear()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(ItemSize * 2, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+        postLookaheadSize = 2 * ItemSize
+        postLookaheadPositions.clear()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+
+        // Growing post-lookahead size
+        postLookaheadSize = (2.7f * ItemSize).toInt()
+        postLookaheadPositions.clear()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(ItemSize * 2, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+
+        // Shrinking post-lookahead size
+        postLookaheadSize = (1.2f * ItemSize).toInt()
+        postLookaheadPositions.clear()
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(it * ItemSize, lookaheadPositions[it]?.mainAxisPosition)
+            }
+            assertEquals(0, postLookaheadPositions[0]?.mainAxisPosition)
+            assertEquals(ItemSize, postLookaheadPositions[1]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[2]?.mainAxisPosition)
+            assertEquals(null, postLookaheadPositions[3]?.mainAxisPosition)
+        }
+    }
+    private val Offset.mainAxisPosition get() = (if (vertical) y else x).roundToInt()
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun postLookaheadItemsComposed() {
+        lateinit var state: LazyListState
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    state = rememberLazyListState()
+                    LazyColumnOrRow(Modifier.requiredSize(300.dp), state) {
+                        items(12, key = { it }) {
+                            Box(
+                                Modifier
+                                    .testTag("$it")
+                                    .then(
+                                        if (it == 0) {
+                                            Modifier.layout { measurable, constraints ->
+                                                val p = measurable.measure(constraints)
+                                                val size = if (isLookingAhead) 300 else 30
+                                                layout(size, size) {
+                                                    p.place(0, 0)
+                                                }
+                                            }
+                                        } else
+                                            Modifier.size(30.dp)
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        // Based on lookahead item 0 would be the only item needed, but post-lookahead calculation
+        // indicates 10 items will be needed to fill the viewport.
+        for (i in 0 until 10) {
+            rule.onNodeWithTag("$i")
+                .assertIsPlaced()
+        }
+        for (i in 10 until 12) {
+            rule.onNodeWithTag("$i")
+                .assertDoesNotExist()
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun postLookaheadItemsComposedBasedOnScrollDelta() {
+        var lookaheadSize by mutableStateOf(30)
+        var postLookaheadSize by mutableStateOf(lookaheadSize)
+        lateinit var state: LazyListState
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    state = rememberLazyListState()
+                    LazyColumnOrRow(Modifier.requiredSize(300.dp), state) {
+                        items(12, key = { it }) {
+                            Box(
+                                Modifier
+                                    .testTag("$it")
+                                    .then(
+                                        if (it == 2) {
+                                            Modifier.layout { measurable, constraints ->
+                                                val p = measurable.measure(constraints)
+                                                val size = if (isLookingAhead)
+                                                    lookaheadSize
+                                                else
+                                                    postLookaheadSize
+                                                layout(size, size) {
+                                                    p.place(0, 0)
+                                                }
+                                            }
+                                        } else
+                                            Modifier.size(30.dp)
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        for (i in 0 until 12) {
+            if (i < 10) {
+                rule.onNodeWithTag("$i")
+                    .assertIsPlaced()
+            } else {
+                rule.onNodeWithTag("$i")
+                    .assertDoesNotExist()
+            }
+        }
+
+        lookaheadSize = 300
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(60f)
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("0").assertIsNotPlaced()
+        rule.onNodeWithTag("1").assertIsNotPlaced()
+        for (i in 2 until 12) {
+            rule.onNodeWithTag("$i").assertIsPlaced()
+        }
+
+        postLookaheadSize = 300
+        for (i in 0 until 12) {
+            if (i == 2) {
+                rule.onNodeWithTag("$i").assertIsPlaced()
+            } else {
+                rule.onNodeWithTag("$i").assertIsNotPlaced()
+            }
+        }
+    }
+
+    @Test
     fun usingFillParentMaxSizeOnInfinityConstraintsIsIgnored() {
         rule.setContentWithTestViewConfiguration {
             Layout(content = {
@@ -2312,3 +2959,5 @@ internal fun SemanticsNodeInteraction.scrollBy(x: Dp = 0.dp, y: Dp = 0.dp, densi
             )
         }
     }
+
+private const val ItemSize = 100

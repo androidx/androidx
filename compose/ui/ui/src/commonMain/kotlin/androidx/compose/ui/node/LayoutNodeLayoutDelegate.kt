@@ -47,6 +47,13 @@ internal class LayoutNodeLayoutDelegate(
         get() = measurePassDelegate.width
 
     /**
+     * This gets set to true via [MeasurePassDelegate.markDetachedFromParentLookaheadPass] and
+     * automatically gets unset in `measure` when the measure call comes from parent with
+     * layoutState being LookaheadMeasuring or LookaheadLayingOut.
+     */
+    private var detachedFromParentLookaheadPass: Boolean = false
+
+    /**
      * The layout state the node is currently in.
      *
      * The mutation of [layoutState] is confined to [LayoutNodeLayoutDelegate], and is therefore
@@ -331,6 +338,10 @@ internal class LayoutNodeLayoutDelegate(
                 childDelegatesDirty = false
                 return _childDelegates.asMutableList()
             }
+
+        internal fun markDetachedFromParentLookaheadPass() {
+            detachedFromParentLookaheadPass = true
+        }
 
         var layingOutChildren = false
             private set
@@ -1135,6 +1146,10 @@ internal class LayoutNodeLayoutDelegate(
         }
 
         override fun measure(constraints: Constraints): Placeable {
+            if (layoutNode.parent?.layoutState == LayoutState.LookaheadMeasuring ||
+                layoutNode.parent?.layoutState == LayoutState.LookaheadLayingOut) {
+                detachedFromParentLookaheadPass = false
+            }
             trackLookaheadMeasurementByParent(layoutNode)
             if (layoutNode.intrinsicsUsageByParent == LayoutNode.UsageByParent.NotUsed) {
                 // This LayoutNode may have asked children for intrinsics. If so, we should
@@ -1482,7 +1497,7 @@ internal class LayoutNodeLayoutDelegate(
      * has a lookahead root.
      */
     private fun LayoutNode.isOutMostLookaheadRoot(): Boolean =
-        lookaheadRoot != null && parent?.lookaheadRoot == null
+        lookaheadRoot != null && (parent?.lookaheadRoot == null || detachedFromParentLookaheadPass)
 
     /**
      * Performs measure with the given constraints and perform necessary state mutations before
