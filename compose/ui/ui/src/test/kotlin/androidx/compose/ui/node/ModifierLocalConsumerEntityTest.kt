@@ -399,7 +399,7 @@ class ModifierLocalConsumerEntityTest {
             TODO("Not yet implemented")
         }
 
-        override fun forceMeasureTheSubtree(layoutNode: LayoutNode) =
+        override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) =
             TODO("Not yet implemented")
         override fun onSemanticsChange() =
             TODO("Not yet implemented")

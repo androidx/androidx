@@ -255,6 +255,7 @@ internal class LayoutNodeLayoutDelegate(
             } else {
                 null
             }
+
         internal var measuredByParent: LayoutNode.UsageByParent = LayoutNode.UsageByParent.NotUsed
         internal var duringAlignmentLinesQuery = false
 
@@ -275,21 +276,21 @@ internal class LayoutNodeLayoutDelegate(
             get() = layoutNode.innerCoordinator
         override val alignmentLines: AlignmentLines = LayoutNodeAlignmentLines(this)
 
-        private val _childMeasurables = MutableVector<Measurable>()
+        private val _childDelegates = MutableVector<MeasurePassDelegate>()
 
-        internal var childMeasurablesDirty: Boolean = true
-        internal val childMeasurables: List<Measurable>
+        internal var childDelegatesDirty: Boolean = true
+        internal val childDelegates: List<MeasurePassDelegate>
             get() {
                 // Update the children list first so we know whether the cached list is
                 // reusable.
                 layoutNode.updateChildrenIfDirty()
 
-                if (!childMeasurablesDirty) return _childMeasurables.asMutableList()
-                layoutNode.updateChildMeasurables(_childMeasurables) {
+                if (!childDelegatesDirty) return _childDelegates.asMutableList()
+                layoutNode.updateChildMeasurables(_childDelegates) {
                     it.layoutDelegate.measurePassDelegate
                 }
-                childMeasurablesDirty = false
-                return _childMeasurables.asMutableList()
+                childDelegatesDirty = false
+                return _childDelegates.asMutableList()
             }
 
         override fun layoutChildren() {
@@ -832,6 +833,42 @@ internal class LayoutNodeLayoutDelegate(
             previousPlaceOrder = NotPlacedPlaceOrder
             isPlaced = false
         }
+
+        /**
+         * Measure the [MeasurePassDelegate] using the lookahead constraints.
+         *
+         * Note: [measure] will only be invoked if we are in the right block. That means if
+         * lookahead measurement was done in the measurement block, this function needs to be
+         * invoked in measurement block. Otherwise, no-op.
+         */
+        fun measureBasedOnLookahead() {
+            val lookaheadDelegate = lookaheadPassDelegate
+            val parent = layoutNode.parent!!
+            requireNotNull(lookaheadDelegate)
+            if (lookaheadDelegate.measuredByParent == LayoutNode.UsageByParent.InMeasureBlock &&
+                parent.layoutState == LayoutState.Measuring
+            ) {
+                measure(lookaheadDelegate.lastConstraints!!)
+            } else if (
+                lookaheadDelegate.measuredByParent == LayoutNode.UsageByParent.InLayoutBlock &&
+                parent.layoutState == LayoutState.LayingOut
+            ) {
+                measure(lookaheadDelegate.lastConstraints!!)
+            }
+        }
+
+        /**
+         * Places the [MeasurePassDelegate] at the same position with the same zIndex and
+         * layerBlock as lookahead.
+         */
+        fun placeBasedOnLookahead() {
+            val lookaheadDelegate = requireNotNull(lookaheadPassDelegate)
+            placeAt(
+                lookaheadDelegate.lastPosition,
+                lookaheadDelegate.lastZIndex,
+                lookaheadDelegate.lastLayerBlock
+            )
+        }
     }
 
     /**
@@ -873,7 +910,8 @@ internal class LayoutNodeLayoutDelegate(
         val lastConstraints: Constraints?
             get() = lookaheadConstraints
         private var lookaheadConstraints: Constraints? = null
-        private var lastPosition: IntOffset = IntOffset.Zero
+        internal var lastPosition: IntOffset = IntOffset.Zero
+            private set
         internal var lastZIndex: Float = 0f
             private set
 
@@ -885,20 +923,20 @@ internal class LayoutNodeLayoutDelegate(
             get() = layoutNode.innerCoordinator
         override val alignmentLines: AlignmentLines = LookaheadAlignmentLines(this)
 
-        private val _childMeasurables = MutableVector<Measurable>()
+        private val _childDelegates = MutableVector<LookaheadPassDelegate>()
 
-        internal var childMeasurablesDirty: Boolean = true
-        internal val childMeasurables: List<Measurable>
+        internal var childDelegatesDirty: Boolean = true
+        internal val childDelegates: List<LookaheadPassDelegate>
             get() {
                 layoutNode.children.let {
                     // Invoke children to get children updated before checking dirty
-                    if (!childMeasurablesDirty) return _childMeasurables.asMutableList()
+                    if (!childDelegatesDirty) return _childDelegates.asMutableList()
                 }
-                layoutNode.updateChildMeasurables(_childMeasurables) {
+                layoutNode.updateChildMeasurables(_childDelegates) {
                     it.layoutDelegate.lookaheadPassDelegate!!
                 }
-                childMeasurablesDirty = false
-                return _childMeasurables.asMutableList()
+                childDelegatesDirty = false
+                return _childDelegates.asMutableList()
             }
 
         private inline fun forEachChildDelegate(block: (LookaheadPassDelegate) -> Unit) =
@@ -1101,6 +1139,15 @@ internal class LayoutNodeLayoutDelegate(
                 val sizeChanged = lastLookaheadSize.width != lookaheadDelegate.width ||
                     lastLookaheadSize.height != lookaheadDelegate.height
                 return sizeChanged
+            } else {
+                // this node doesn't require being remeasured. however in order to make sure we have
+                // the final size we need to also make sure the whole subtree is remeasured as it
+                // can trigger extra remeasure request on our node. we do it now in order to report
+                // the final measured size to our parent without doing extra pass later.
+                layoutNode.owner?.forceMeasureTheSubtree(layoutNode, affectsLookahead = true)
+
+                // Restore the intrinsics usage for the sub-tree
+                layoutNode.resetSubtreeIntrinsicsUsage()
             }
             return false
         }
@@ -1437,14 +1484,14 @@ internal class LayoutNodeLayoutDelegate(
     }
 
     fun markChildrenDirty() {
-        measurePassDelegate.childMeasurablesDirty = true
-        lookaheadPassDelegate?.let { it.childMeasurablesDirty = true }
+        measurePassDelegate.childDelegatesDirty = true
+        lookaheadPassDelegate?.let { it.childDelegatesDirty = true }
     }
 }
 
-private fun LayoutNode.updateChildMeasurables(
-    destination: MutableVector<Measurable>,
-    transform: (LayoutNode) -> Measurable
+private inline fun <T : Measurable> LayoutNode.updateChildMeasurables(
+    destination: MutableVector<T>,
+    transform: (LayoutNode) -> T
 ) {
     forEachChildIndexed { i, layoutNode ->
         if (destination.size <= i) {
