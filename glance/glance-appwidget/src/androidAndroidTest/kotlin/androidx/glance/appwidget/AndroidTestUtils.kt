@@ -20,6 +20,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
@@ -142,4 +143,21 @@ fun <T> AtomicReference<T>.update(updater: (T) -> T) {
         }
     }
     error("Could not update the AtomicReference")
+}
+
+/**
+ * Print the view hierarchy from the current view to the log.
+ *
+ * @param tag Log tag to use for logging
+ * @param parent view to start the hierarchy print from
+ * @param indent to use for the log messages
+ */
+fun logViewHierarchy(tag: String, parent: ViewGroup, indent: String) {
+    for (child in parent.children) {
+        val childString = child.toString()
+        Log.e(tag, "$indent|- $childString")
+        if (child is ViewGroup) {
+            logViewHierarchy(tag, child, "$indent  ")
+        }
+    }
 }
