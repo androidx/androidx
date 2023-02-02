@@ -1837,15 +1837,22 @@ public abstract class GlobalSearchSessionCtsTestBase {
     public void testGlobalQuery_propertyWeights() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
 
-        // Schema registration
+        // RELEVANCE scoring depends on stats for the namespace+type of the scored document, namely
+        // the average document length. This average document length calculation is only updated
+        // when documents are added and when compaction runs. This means that old deleted
+        // documents of the same namespace and type combination *can* affect RELEVANCE scores
+        // through this channel.
+        // To avoid this, we use a unique namespace that will not be shared by any other test
+        // case or any other run of this test.
         mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
         mDb2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
+        String namespace = "propertyWeightsNamespace" + System.currentTimeMillis();
         // Put two documents in separate databases.
         AppSearchEmail emailDb1 =
-                new AppSearchEmail.Builder("namespace", "id1")
+                new AppSearchEmail.Builder(namespace, "id1")
                         .setCreationTimestampMillis(1000)
                         .setSubject("foo")
                         .build();
@@ -1853,7 +1860,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(emailDb1).build()));
         AppSearchEmail emailDb2 =
-                new AppSearchEmail.Builder("namespace", "id2")
+                new AppSearchEmail.Builder(namespace, "id2")
                         .setCreationTimestampMillis(1000)
                         .setBody("foo")
                         .build();
@@ -1868,6 +1875,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE,
                         ImmutableMap.of("subject",
                                 2.0, "body", 0.5))
+                .addFilterNamespaces(namespace)
                 .build());
         List<SearchResult> globalResults = retrieveAllSearchResults(searchResults);
 
@@ -1889,6 +1897,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
                         .setOrder(SearchSpec.ORDER_DESCENDING)
+                        .addFilterNamespaces(namespace)
                         .build());
         List<SearchResult> resultsWithoutWeights =
                 retrieveAllSearchResults(searchResultsWithoutWeights);
