@@ -25,17 +25,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ToggleButton
-        android:id="@+id/button"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textOff="Display Larger Emojis"
-        android:textOn="Display Smaller Emojis" />
+        android:orientation="horizontal">
+        <ToggleButton
+            android:id="@+id/toggle_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textOff="Display Larger Emojis"
+            android:textOn="Display Smaller Emojis" />
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Freq Used As Recent" />
+    </LinearLayout>
 
     <androidx.emoji2.emojipicker.EmojiPickerView
         android:id="@+id/emoji_picker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:emojiGridRows="5"
-        app:emojiGridColumns="20" />
+        app:emojiGridColumns="20"
+        app:emojiGridRows="5" />
 </LinearLayout>
