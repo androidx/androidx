@@ -119,25 +119,25 @@ class PublicKeyCredentialEntry internal constructor(
         private const val TAG = "PublicKeyCredEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TITLE =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_USER_NAME"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_SUBTITLE =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ICON =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_PROFILE_ICON"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_PENDING_INTENT"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
-            "androidx.credentials.provider.publicKeyCredEntry.SLICE_HINT_AUTO_ALLOWED"
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
