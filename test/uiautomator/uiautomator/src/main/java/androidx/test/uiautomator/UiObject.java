@@ -353,7 +353,7 @@ public class UiObject {
      * @param node
      * @return null if node is null, else a Rect containing visible bounds
      */
-    Rect getVisibleBounds(AccessibilityNodeInfo node) {
+    private Rect getVisibleBounds(AccessibilityNodeInfo node) {
         if (node == null) {
             return null;
         }

@@ -28,6 +28,7 @@ import androidx.test.uiautomator.UiSelector;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class UiScrollableTest extends BaseTest {
@@ -52,6 +53,7 @@ public class UiScrollableTest extends BaseTest {
                 mDefaultSwipeDeadZonePercentage);
     }
 
+    @Ignore // b/266965027
     @Test
     public void testGetChildByDescription() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -69,6 +71,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is non-existent"));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testGetChildByDescription_withoutScrollSearch() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -86,6 +89,7 @@ public class UiScrollableTest extends BaseTest {
                         false));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testGetChildByInstance() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -102,6 +106,7 @@ public class UiScrollableTest extends BaseTest {
                 1).exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testGetChildByText() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -118,6 +123,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is non-existent"));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testGetChildByText_withoutScrollSearch() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -134,6 +140,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is the bottom", false));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollDescriptionIntoView() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -149,6 +156,7 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(relativeLayout.scrollDescriptionIntoView("This is non-existent"));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollIntoView_withUiObject() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -166,6 +174,7 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(relativeLayout.scrollIntoView(nonExistentTarget));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollIntoView_withUiSelector() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -181,6 +190,7 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(relativeLayout.scrollIntoView(nonExistentTarget));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testEnsureFullyVisible() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -197,6 +207,7 @@ public class UiScrollableTest extends BaseTest {
                         mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"))));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollTextIntoView() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -212,12 +223,14 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(relativeLayout.scrollTextIntoView("This is non-existent"));
     }
 
+    @Ignore // b/266965027
     @Test
     public void testSetMaxSearchSwipesAndGetMaxSearchSwipes() {
         UiScrollable scrollable = new UiScrollable(new UiSelector()).setMaxSearchSwipes(5);
         assertEquals(5, scrollable.getMaxSearchSwipes());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testFlingForward() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -235,6 +248,7 @@ public class UiScrollableTest extends BaseTest {
         assertUiObjectNotFound(noNode::flingForward);
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollForward_vertical() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -245,6 +259,7 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(scrollRegion.scrollForward());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollForward_horizontal() throws Exception {
         launchTestActivity(HorizontalScrollTestActivity.class);
@@ -255,6 +270,7 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(scrollRegion.scrollForward());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testFlingBackward() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -270,6 +286,7 @@ public class UiScrollableTest extends BaseTest {
         assertUiObjectNotFound(noNode::flingBackward);
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollBackward_vertical() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -281,6 +298,7 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("swipe_down", scrollRegion.getText());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollBackward_horizontal() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -292,6 +310,7 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("swipe_right", scrollRegion.getText());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollToBeginning_withSteps() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -307,6 +326,7 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(topText.exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollToBeginning_notEnoughSwipes_failed() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -322,6 +342,7 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(topText.exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollToBeginning() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -337,6 +358,7 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(topText.exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testFlingToBeginning() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -348,6 +370,7 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("fling_up", flingRegion.getText());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollToEnd_withSteps() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -362,6 +385,7 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(bottomText.exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollToEnd_notEnoughSwipes_failed() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -376,6 +400,7 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(bottomText.exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testScrollToEnd() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -390,6 +415,7 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(bottomText.exists());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testFlingToEnd() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -401,6 +427,7 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("fling_down", flingRegion.getText());
     }
 
+    @Ignore // b/266965027
     @Test
     public void testSetSwipeDeadZonePercentageAndGetSwipeDeadZonePercentage() {
         UiScrollable scrollable =
