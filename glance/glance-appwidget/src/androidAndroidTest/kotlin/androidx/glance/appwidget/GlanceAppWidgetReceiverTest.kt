@@ -26,6 +26,7 @@ import android.text.SpannedString
 import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.FrameLayout
@@ -110,6 +111,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -120,6 +123,9 @@ import org.junit.runners.Parameterized
 class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
     @get:Rule
     val mHostRule = AppWidgetHostRule(useSessionManager = useSessionManager)
+
+    @get:Rule
+    val mViewDumpRule = ViewHierarchyFailureWatcher()
 
     val context = InstrumentationRegistry.getInstrumentation().targetContext!!
 
@@ -1117,6 +1123,16 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
     }
 
     enum class EffectState { Initial, Started, Disposed }
+
+    val logTag: String = "GlanceAppWidgetReceiverTest"
+
+    inner class ViewHierarchyFailureWatcher : TestWatcher() {
+        override fun failed(e: Throwable?, description: Description?) {
+            Log.e(logTag, "$description failed")
+            Log.e(logTag, "Host view hierarchy at failure:")
+            logViewHierarchy(logTag, mHostRule.mHostView, "")
+        }
+    }
 }
 
 private val testKey = intPreferencesKey("testKey")
