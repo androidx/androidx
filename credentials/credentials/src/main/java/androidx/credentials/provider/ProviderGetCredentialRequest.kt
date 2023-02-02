@@ -44,10 +44,10 @@ class ProviderGetCredentialRequest internal constructor(
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
         ProviderGetCredentialRequest {
             val option = CredentialOption.createFrom(
-                request.getCredentialOption.type,
-                request.getCredentialOption.candidateQueryData,
-                request.getCredentialOption.credentialRetrievalData,
-                request.getCredentialOption.isSystemProviderRequired
+                request.credentialOption.type,
+                request.credentialOption.candidateQueryData,
+                request.credentialOption.credentialRetrievalData,
+                request.credentialOption.isSystemProviderRequired
             )
             return ProviderGetCredentialRequest(
                 option,
