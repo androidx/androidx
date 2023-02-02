@@ -2218,6 +2218,9 @@ public final class AppSearchImpl implements Closeable {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
+            if (LogUtil.DEBUG) {
+                Log.d(TAG, "Clear data for package: " + packageName);
+            }
             // TODO(b/193494000): We are calling getPackageToDatabases here and in several other
             //  places within AppSearchImpl. This method is not efficient and does a lot of string
             //  manipulation. We should find a way to cache the package to database map so it can
