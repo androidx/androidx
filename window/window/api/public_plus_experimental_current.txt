@@ -51,7 +51,6 @@ package androidx.window.embedding {
   }
 
   public final class ActivityStack {
-    ctor public ActivityStack(java.util.List<? extends android.app.Activity> activitiesInProcess, optional boolean isEmpty);
     method public operator boolean contains(android.app.Activity activity);
     method public boolean isEmpty();
     property public final boolean isEmpty;
