@@ -16,9 +16,13 @@
 
 package androidx.window.extensions.embedding;
 
+import android.os.IBinder;
+
 import androidx.annotation.NonNull;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.embedding.SplitAttributes.SplitType;
+
+import java.util.Objects;
 
 /** Describes a split of two containers with activities. */
 public class SplitInfo {
@@ -29,13 +33,29 @@ public class SplitInfo {
     @NonNull
     private final SplitAttributes mSplitAttributes;
 
-    /** @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2} */
-    public SplitInfo(@NonNull ActivityStack primaryActivityStack,
+    @NonNull
+    private final IBinder mToken;
+
+    /**
+     * The {@code SplitInfo} constructor
+     *
+     * @param primaryActivityStack The primary {@link ActivityStack}
+     * @param secondaryActivityStack The secondary {@link ActivityStack}
+     * @param splitAttributes The current {@link SplitAttributes} of this split pair
+     * @param token The token to identify this split pair
+     */
+    SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack,
-            @NonNull SplitAttributes splitAttributes) {
+            @NonNull SplitAttributes splitAttributes,
+            @NonNull IBinder token) {
+        Objects.requireNonNull(primaryActivityStack);
+        Objects.requireNonNull(secondaryActivityStack);
+        Objects.requireNonNull(splitAttributes);
+        Objects.requireNonNull(token);
         mPrimaryActivityStack = primaryActivityStack;
         mSecondaryActivityStack = secondaryActivityStack;
         mSplitAttributes = splitAttributes;
+        mToken = token;
     }
 
     @NonNull
@@ -72,6 +92,15 @@ public class SplitInfo {
         return mSplitAttributes;
     }
 
+    /**
+     * Returns a token uniquely identifying the container.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    @NonNull
+    public IBinder getToken() {
+        return mToken;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -79,7 +108,7 @@ public class SplitInfo {
         SplitInfo that = (SplitInfo) o;
         return mSplitAttributes.equals(that.mSplitAttributes) && mPrimaryActivityStack.equals(
                 that.mPrimaryActivityStack) && mSecondaryActivityStack.equals(
-                that.mSecondaryActivityStack);
+                that.mSecondaryActivityStack) && mToken.equals(that.mToken);
     }
 
     @Override
@@ -87,6 +116,7 @@ public class SplitInfo {
         int result = mPrimaryActivityStack.hashCode();
         result = result * 31 + mSecondaryActivityStack.hashCode();
         result = result * 31 + mSplitAttributes.hashCode();
+        result = result * 31 + mToken.hashCode();
         return result;
     }
 
@@ -97,6 +127,7 @@ public class SplitInfo {
                 + "mPrimaryActivityStack=" + mPrimaryActivityStack
                 + ", mSecondaryActivityStack=" + mSecondaryActivityStack
                 + ", mSplitAttributes=" + mSplitAttributes
+                + ", mToken=" + mToken
                 + '}';
     }
 }

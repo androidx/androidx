@@ -32,6 +32,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Binder
 import android.util.LayoutDirection
 import android.view.WindowMetrics
 import androidx.window.core.ExtensionsUtil
@@ -58,45 +59,39 @@ internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {
     private val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
-    private val vendorApiLevel1Impl = VendorApiLevel1Impl(predicateAdapter)
+    private val api1Impl = VendorApiLevel1Impl(predicateAdapter)
+    private val api2Impl = VendorApiLevel2Impl()
 
     fun translate(splitInfoList: List<OEMSplitInfo>): List<SplitInfo> {
         return splitInfoList.map(this::translate)
     }
 
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
-        val primaryActivityStack = splitInfo.primaryActivityStack
-        val isPrimaryStackEmpty = try {
-            primaryActivityStack.isEmpty
-        } catch (e: NoSuchMethodError) {
-            // Users may use older library which #isEmpty hasn't existed. Provide a fallback value
-            // for this case to avoid crash.
-            false
+        return when (vendorApiLevel) {
+            WindowExtensions.VENDOR_API_LEVEL_1 -> api1Impl.translateCompat(splitInfo)
+            WindowExtensions.VENDOR_API_LEVEL_2 -> api2Impl.translateCompat(splitInfo)
+            else -> {
+                val primaryActivityStack = splitInfo.primaryActivityStack
+                val secondaryActivityStack = splitInfo.secondaryActivityStack
+                SplitInfo(
+                    ActivityStack(
+                        primaryActivityStack.activities,
+                        primaryActivityStack.isEmpty,
+                        primaryActivityStack.token,
+                    ),
+                    ActivityStack(
+                        secondaryActivityStack.activities,
+                        secondaryActivityStack.isEmpty,
+                        secondaryActivityStack.token,
+                    ),
+                    translate(splitInfo.splitAttributes),
+                    splitInfo.token,
+                )
+            }
         }
-        val primaryFragment = ActivityStack(primaryActivityStack.activities, isPrimaryStackEmpty)
-
-        val secondaryActivityStack = splitInfo.secondaryActivityStack
-        val isSecondaryStackEmpty = try {
-            secondaryActivityStack.isEmpty
-        } catch (e: NoSuchMethodError) {
-            // Users may use older library which #isEmpty hasn't existed. Provide a fallback value
-            // for this case to avoid crash.
-            false
-        }
-        val secondaryFragment = ActivityStack(
-            secondaryActivityStack.activities,
-            isSecondaryStackEmpty
-        )
-
-        val splitAttributes = if (vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            translate(splitInfo.splitAttributes)
-        } else {
-            vendorApiLevel1Impl.getSplitAttributesCompat(splitInfo)
-        }
-        return SplitInfo(primaryFragment, secondaryFragment, splitAttributes)
     }
 
-    private fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
+    internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
         SplitAttributes.Builder()
             .setSplitType(translate(splitAttributes.splitType))
             .setLayoutDirection(
@@ -168,7 +163,7 @@ internal class EmbeddingAdapter(
         predicateClass: Class<*>
     ): OEMSplitPairRule {
         if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
-            return vendorApiLevel1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
+            return api1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
         } else {
             val activitiesPairPredicate =
                 Predicate<AndroidPair<Activity, Activity>> { activitiesPair ->
@@ -208,7 +203,7 @@ internal class EmbeddingAdapter(
         }
     }
 
-    private fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
+    internal fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
         require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
@@ -258,7 +253,7 @@ internal class EmbeddingAdapter(
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
         if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
-            return vendorApiLevel1Impl.translateSplitPlaceholderRuleCompat(
+            return api1Impl.translateSplitPlaceholderRuleCompat(
                 context,
                 rule,
                 predicateClass
@@ -305,7 +300,7 @@ internal class EmbeddingAdapter(
         predicateClass: Class<*>
     ): OEMActivityRule {
         if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
-            return vendorApiLevel1Impl.translateActivityRuleCompat(rule, predicateClass)
+            return api1Impl.translateActivityRuleCompat(rule, predicateClass)
         } else {
             val activityPredicate = Predicate<Activity> { activity ->
                 rule.filters.any { filter -> filter.matchesActivity(activity) }
@@ -334,6 +329,30 @@ internal class EmbeddingAdapter(
                 else -> throw IllegalArgumentException("Unsupported rule type")
             }
         }.toSet()
+    }
+
+    private inner class VendorApiLevel2Impl {
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo {
+            val primaryActivityStack = splitInfo.primaryActivityStack
+            val primaryFragment = ActivityStack(
+                primaryActivityStack.activities,
+                primaryActivityStack.isEmpty,
+                INVALID_ACTIVITY_STACK_TOKEN,
+            )
+
+            val secondaryActivityStack = splitInfo.secondaryActivityStack
+            val secondaryFragment = ActivityStack(
+                secondaryActivityStack.activities,
+                secondaryActivityStack.isEmpty,
+                INVALID_ACTIVITY_STACK_TOKEN,
+            )
+            return SplitInfo(
+                primaryFragment,
+                secondaryFragment,
+                translate(splitInfo.splitAttributes),
+                INVALID_SPLIT_INFO_TOKEN,
+            )
+        }
     }
 
     /**
@@ -494,5 +513,57 @@ internal class EmbeddingAdapter(
             predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
                 splitRule.checkParentMetrics(context, windowMetrics)
             }
+
+        // TODO(b/267391190): Remove the NoSuchMethodError in EmbeddingAdapter
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo {
+            val primaryActivityStack = splitInfo.primaryActivityStack
+            val isPrimaryStackEmpty = try {
+                primaryActivityStack.isEmpty
+            } catch (e: NoSuchMethodError) {
+                // Users may use older library which #isEmpty hasn't existed. Provide a fallback
+                // value for this case to avoid crash.
+                false
+            }
+            val primaryFragment = ActivityStack(
+                primaryActivityStack.activities,
+                isPrimaryStackEmpty,
+                INVALID_ACTIVITY_STACK_TOKEN,
+            )
+
+            val secondaryActivityStack = splitInfo.secondaryActivityStack
+            val isSecondaryStackEmpty = try {
+                secondaryActivityStack.isEmpty
+            } catch (e: NoSuchMethodError) {
+                // Users may use older library which #isEmpty hasn't existed. Provide a fallback
+                // value for this case to avoid crash.
+                false
+            }
+            val secondaryFragment = ActivityStack(
+                secondaryActivityStack.activities,
+                isSecondaryStackEmpty,
+                INVALID_ACTIVITY_STACK_TOKEN,
+            )
+
+            val splitAttributes = getSplitAttributesCompat(splitInfo)
+            return SplitInfo(
+                primaryFragment,
+                secondaryFragment,
+                splitAttributes,
+                INVALID_SPLIT_INFO_TOKEN,
+            )
+        }
+    }
+
+    internal companion object {
+        /**
+         * The default token of [SplitInfo], which provides compatibility for device prior to
+         * [WindowExtensions.VENDOR_API_LEVEL_3]
+         */
+        val INVALID_SPLIT_INFO_TOKEN = Binder()
+        /**
+         * The default token of [ActivityStack], which provides compatibility for device prior to
+         * [WindowExtensions.VENDOR_API_LEVEL_3]
+         */
+        val INVALID_ACTIVITY_STACK_TOKEN = Binder()
     }
 }

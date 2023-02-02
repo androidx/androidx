@@ -51,4 +51,6 @@ internal interface EmbeddingBackend {
     fun clearSplitAttributesCalculator()
 
     fun isSplitAttributesCalculatorSupported(): Boolean
+
+    fun getActivityStack(activity: Activity): ActivityStack?
 }

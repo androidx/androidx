@@ -22,6 +22,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.area.WindowAreaComponent;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
+import androidx.window.extensions.embedding.ActivityStack;
+import androidx.window.extensions.embedding.SplitInfo;
 import androidx.window.extensions.embedding.SplitPlaceholderRule;
 import androidx.window.extensions.layout.WindowLayoutComponent;
 
@@ -81,6 +83,21 @@ public interface WindowExtensions {
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_2 = 2;
+    // TODO(b/241323716) Removed after we have annotation to check API level
+    /**
+     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
+     * block.
+     * <p>
+     * The added APIs for Vendor API level 3 are:
+     * <ul>
+     *     <li>{@link ActivityStack#getToken()}</li>
+     *     <li>{@link SplitInfo#getToken()}</li>
+     * </ul>
+     * </p>
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int VENDOR_API_LEVEL_3 = 3;
 
     /**
      * Returns the API level of the vendor library on the device. If the returned version is not

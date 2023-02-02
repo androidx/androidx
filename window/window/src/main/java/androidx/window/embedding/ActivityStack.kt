@@ -16,18 +16,13 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.os.IBinder
 
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
- *
- * @param activitiesInProcess the [Activity] list in this application's process that belongs to this
- * [ActivityStack]. Activities running in other processes will not be contained in this list.
- * @param isEmpty whether there is no [Activity] running in this [ActivityStack]. It can be
- * non-empty when the [activitiesInProcess] is empty, because there can be [Activity] running in
- * other processes, which will not be reported in [activitiesInProcess].
  */
-class ActivityStack(
+class ActivityStack internal constructor(
     /**
      * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *
@@ -44,7 +39,11 @@ class ActivityStack(
      * process(es), [activitiesInProcess] will return an empty list, but this method will return
      * `false`.
      */
-    val isEmpty: Boolean = false
+    val isEmpty: Boolean,
+    /**
+     * A token uniquely identifying this `ActivityStack`.
+     */
+    internal val token: IBinder,
 ) {
 
     operator fun contains(activity: Activity): Boolean {
@@ -59,6 +58,7 @@ class ActivityStack(
 
         if (activitiesInProcess != other.activitiesInProcess) return false
         if (isEmpty != other.isEmpty) return false
+        if (token != other.token) return false
 
         return true
     }
@@ -66,6 +66,7 @@ class ActivityStack(
     override fun hashCode(): Int {
         var result = activitiesInProcess.hashCode()
         result = 31 * result + isEmpty.hashCode()
+        result = 31 * result + token.hashCode()
         return result
     }
 
@@ -73,5 +74,6 @@ class ActivityStack(
         "ActivityStack{" +
             "activitiesInProcess=$activitiesInProcess" +
             ", isEmpty=$isEmpty" +
+            ", token=$token" +
             "}"
 }
