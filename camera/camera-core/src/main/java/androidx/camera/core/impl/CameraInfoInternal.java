@@ -65,9 +65,9 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     Quirks getCameraQuirks();
 
-    /** Returns the {@link CamcorderProfileProvider} associated with this camera. */
+    /** Returns the {@link EncoderProfilesProvider} associated with this camera. */
     @NonNull
-    CamcorderProfileProvider getCamcorderProfileProvider();
+    EncoderProfilesProvider getEncoderProfilesProvider();
 
     /** Returns the {@link Timebase} of frame output by this camera. */
     @NonNull

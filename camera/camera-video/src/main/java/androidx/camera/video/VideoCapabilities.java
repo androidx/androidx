@@ -25,10 +25,14 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProvider;
-import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.EncoderProfilesProvider;
+import androidx.camera.core.impl.EncoderProfilesProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
+import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.ResolutionValidatedEncoderProfilesProvider;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.core.util.Preconditions;
@@ -54,55 +58,61 @@ public final class VideoCapabilities {
     private static final String TAG = "VideoCapabilities";
 
     /**
-     * The supported @link CamcorderProfileProxy} map from quality to CamcorderProfileProxy. The
-     * order is from size large to small.
+     * Maps quality to supported {@link VideoValidatedEncoderProfilesProxy}. The order is from
+     * size large to small.
      */
-    private final Map<Quality, CamcorderProfileProxy> mSupportedProfileMap = new LinkedHashMap<>();
+    private final Map<Quality, VideoValidatedEncoderProfilesProxy> mSupportedProfilesMap =
+            new LinkedHashMap<>();
     private final TreeMap<Size, Quality> mAreaSortedSizeToQualityMap =
             new TreeMap<>(new CompareSizesByArea());
-    private final CamcorderProfileProxy mHighestProfile;
-    private final CamcorderProfileProxy mLowestProfile;
+    private final VideoValidatedEncoderProfilesProxy mHighestProfiles;
+    private final VideoValidatedEncoderProfilesProxy mLowestProfiles;
+    private final EncoderProfilesProvider mEncoderProfilesProvider;
 
     /**
      * Creates a VideoCapabilities.
      *
      * @param cameraInfoInternal the cameraInfo
      * @throws IllegalArgumentException if unable to get the capability information from the
-     * CameraInfo.
+     *                                  CameraInfo.
      */
     VideoCapabilities(@NonNull CameraInfoInternal cameraInfoInternal) {
-        CamcorderProfileProvider camcorderProfileProvider =
-                cameraInfoInternal.getCamcorderProfileProvider();
+        Quirks cameraQuirks = cameraInfoInternal.getCameraQuirks();
+        mEncoderProfilesProvider = new ResolutionValidatedEncoderProfilesProvider(
+                cameraInfoInternal.getEncoderProfilesProvider(), cameraQuirks);
 
         // Construct supported profile map
         for (Quality quality : Quality.getSortedQualities()) {
-            // SortedQualities is from size large to small
-            Preconditions.checkState(quality instanceof Quality.ConstantQuality,
-                    "Currently only support ConstantQuality");
-            int qualityValue = ((Quality.ConstantQuality) quality).getValue();
-
-            // Get CamcorderProfile
-            if (!camcorderProfileProvider.hasProfile(qualityValue) || !isDeviceValidQuality(
-                    cameraInfoInternal, quality)) {
+            EncoderProfilesProxy profiles = getEncoderProfiles(cameraInfoInternal, quality);
+            if (profiles == null) {
                 continue;
             }
-            CamcorderProfileProxy profile =
-                    Preconditions.checkNotNull(camcorderProfileProvider.get(qualityValue));
-            Size profileSize = new Size(profile.getVideoFrameWidth(),
-                    profile.getVideoFrameHeight());
-            Logger.d(TAG, "profile = " + profile);
-            mSupportedProfileMap.put(quality, profile);
-            mAreaSortedSizeToQualityMap.put(profileSize, quality);
+
+            // Validate that EncoderProfiles contain video information
+            Logger.d(TAG, "profiles = " + profiles);
+            VideoValidatedEncoderProfilesProxy validatedProfiles = toValidatedProfiles(profiles);
+            if (validatedProfiles == null) {
+                Logger.w(TAG, "EncoderProfiles of quality " + quality + " has no video "
+                        + "validated profiles.");
+                continue;
+            }
+
+            VideoProfileProxy videoProfile = validatedProfiles.getDefaultVideoProfile();
+            Size size = new Size(videoProfile.getWidth(), videoProfile.getHeight());
+            mAreaSortedSizeToQualityMap.put(size, quality);
+
+            // SortedQualities is from size large to small
+            mSupportedProfilesMap.put(quality, validatedProfiles);
         }
-        if (mSupportedProfileMap.isEmpty()) {
-            Logger.e(TAG, "No supported CamcorderProfile");
-            mLowestProfile = null;
-            mHighestProfile = null;
+        if (mSupportedProfilesMap.isEmpty()) {
+            Logger.e(TAG, "No supported EncoderProfiles");
+            mLowestProfiles = null;
+            mHighestProfiles = null;
         } else {
-            Deque<CamcorderProfileProxy> profileQueue = new ArrayDeque<>(
-                    mSupportedProfileMap.values());
-            mHighestProfile = profileQueue.peekFirst();
-            mLowestProfile = profileQueue.peekLast();
+            Deque<VideoValidatedEncoderProfilesProxy> profileQueue = new ArrayDeque<>(
+                    mSupportedProfilesMap.values());
+            mHighestProfiles = profileQueue.peekFirst();
+            mLowestProfiles = profileQueue.peekLast();
         }
     }
 
@@ -116,77 +126,78 @@ public final class VideoCapabilities {
      * Gets all supported qualities on the device.
      *
      * <p>The returned list is sorted by quality size from large to small. For the qualities in
-     * the returned list, calling {@link #getProfile(Quality)} with these qualities will return a
+     * the returned list, calling {@link #getProfiles(Quality)} with these qualities will return a
      * non-null result.
      *
      * <p>Note: Constants {@link Quality#HIGHEST} and {@link Quality#LOWEST} are not included.
      */
     @NonNull
     public List<Quality> getSupportedQualities() {
-        return new ArrayList<>(mSupportedProfileMap.keySet());
+        return new ArrayList<>(mSupportedProfilesMap.keySet());
     }
 
     /**
      * Checks if the quality is supported.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
-     * {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
+     *                {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
+     *                {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
      * @throws IllegalArgumentException if not a quality constant.
      */
     public boolean isQualitySupported(@NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
-        return getProfile(quality) != null;
+        return getProfiles(quality) != null;
     }
 
     /**
-     * Gets the corresponding {@link CamcorderProfileProxy} of the input quality.
+     * Gets the corresponding {@link VideoValidatedEncoderProfilesProxy} of the input quality.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD},
-     * {@link Quality#FHD}, or {@link Quality#UHD}.
-     * @return the CamcorderProfileProxy
+     *                {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
+     *                {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
+     * @return the VideoValidatedEncoderProfilesProxy
      * @throws IllegalArgumentException if not a quality constant
      */
     @Nullable
-    public CamcorderProfileProxy getProfile(@NonNull Quality quality) {
+    public VideoValidatedEncoderProfilesProxy getProfiles(@NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
         if (quality == Quality.HIGHEST) {
-            return mHighestProfile;
+            return mHighestProfiles;
         } else if (quality == Quality.LOWEST) {
-            return mLowestProfile;
+            return mLowestProfiles;
         }
-        return mSupportedProfileMap.get(quality);
+        return mSupportedProfilesMap.get(quality);
     }
 
     /**
-     * Finds the supported CamcorderProfileProxy with the resolution nearest to the given
+     * Finds the supported EncoderProfilesProxy with the resolution nearest to the given
      * {@link Size}.
      *
-     * <p>The supported CamcorderProfileProxy means the corresponding {@link Quality} is also
-     * supported. If the size aligns exactly with the pixel count of a CamcorderProfileProxy, that
-     * CamcorderProfileProxy will be selected. If the size falls between two
-     * CamcorderProfileProxy, the higher resolution will always be selected. Otherwise, the
-     * nearest CamcorderProfileProxy will be selected, whether that CamcorderProfileProxy's
-     * resolution is above or below the given size.
+     * <p>The supported EncoderProfilesProxy means the corresponding {@link Quality} is also
+     * supported. If the size aligns exactly with the pixel count of an EncoderProfilesProxy, that
+     * EncoderProfilesProxy will be selected. If the size falls between two EncoderProfilesProxy,
+     * the higher resolution will always be selected. Otherwise, the nearest EncoderProfilesProxy
+     * will be selected, whether that EncoderProfilesProxy's resolution is above or below the
+     * given size.
      *
      * @see #findHighestSupportedQualityFor(Size)
      */
     @Nullable
-    public CamcorderProfileProxy findHighestSupportedCamcorderProfileFor(@NonNull Size size) {
-        CamcorderProfileProxy camcorderProfile = null;
+    public VideoValidatedEncoderProfilesProxy findHighestSupportedEncoderProfilesFor(
+            @NonNull Size size) {
+        VideoValidatedEncoderProfilesProxy encoderProfiles = null;
         Quality highestSupportedQuality = findHighestSupportedQualityFor(size);
         Logger.d(TAG,
                 "Using supported quality of " + highestSupportedQuality + " for size " + size);
         if (highestSupportedQuality != Quality.NONE) {
-            camcorderProfile = getProfile(highestSupportedQuality);
-            if (camcorderProfile == null) {
+            encoderProfiles = getProfiles(highestSupportedQuality);
+            if (encoderProfiles == null) {
                 throw new AssertionError("Camera advertised available quality but did not "
-                        + "produce CamcorderProfile for advertised quality.");
+                        + "produce EncoderProfiles for advertised quality.");
             }
         }
-        return camcorderProfile;
+        return encoderProfiles;
     }
 
     /**
@@ -196,6 +207,7 @@ public final class VideoCapabilities {
      * will be selected. If the size falls between two qualities, the higher quality will always
      * be selected. Otherwise, the nearest single quality will be selected, whether that
      * quality's size is above or below the given size.
+     *
      * @param size The size representing the number of pixels for comparison. Pixels are assumed
      *             to be square.
      * @return The quality constant defined in {@link Quality}. If no qualities are supported,
@@ -238,4 +250,30 @@ public final class VideoCapabilities {
         return true;
     }
 
+    @Nullable
+    private EncoderProfilesProxy getEncoderProfiles(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality) {
+        Preconditions.checkState(quality instanceof Quality.ConstantQuality,
+                "Currently only support ConstantQuality");
+        int qualityValue = ((Quality.ConstantQuality) quality).getValue();
+
+        if (!mEncoderProfilesProvider.hasProfile(qualityValue) || !isDeviceValidQuality(cameraInfo,
+                quality)) {
+            return null;
+        }
+
+        return mEncoderProfilesProvider.getAll(qualityValue);
+    }
+
+    @Nullable
+    private VideoValidatedEncoderProfilesProxy toValidatedProfiles(
+            @NonNull EncoderProfilesProxy profiles) {
+        // According to the document, the first profile is the default video profile.
+        List<VideoProfileProxy> videoProfiles = profiles.getVideoProfiles();
+        if (videoProfiles.isEmpty()) {
+            return null;
+        }
+
+        return VideoValidatedEncoderProfilesProxy.from(profiles);
+    }
 }

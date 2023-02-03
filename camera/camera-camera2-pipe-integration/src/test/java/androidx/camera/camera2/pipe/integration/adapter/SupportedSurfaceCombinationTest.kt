@@ -21,7 +21,10 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.StreamConfigurationMap
-import android.media.CamcorderProfile
+import android.media.CamcorderProfile.QUALITY_1080P
+import android.media.CamcorderProfile.QUALITY_2160P
+import android.media.CamcorderProfile.QUALITY_480P
+import android.media.CamcorderProfile.QUALITY_720P
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Pair
@@ -50,8 +53,9 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CamcorderProfileProxy
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.EncoderProfilesProxy
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.StreamSpec
@@ -61,16 +65,15 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CamcorderProfileUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.Configs
+import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.MediaSpec
@@ -125,20 +128,17 @@ class SupportedSurfaceCombinationTest {
     private val legacyVideoMaximumVideoSize = Size(1920, 1080)
     private val mod16Size = Size(960, 544)
     private val mod16SizeStreamSpec = StreamSpec.builder(mod16Size).build()
-    private val profileUhd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_2160P, recordSize.width, recordSize
-            .height
+    private val profileUhd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        recordSize.width, recordSize.height
     )
-    private val profileFhd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_1080P, 1920, 1080
+    private val profileFhd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        1920, 1080
     )
-    private val profileHd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_720P, previewSize.width, previewSize
-            .height
+    private val profileHd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        previewSize.width, previewSize.height
     )
-    private val profileSd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_480P, vgaSize.width,
-        vgaSize.height
+    private val profileSd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        vgaSize.width, vgaSize.height
     )
     private val supportedSizes = arrayOf(
         Size(4032, 3024), // 4:3
@@ -161,8 +161,9 @@ class SupportedSurfaceCombinationTest {
     private lateinit var fakeCameraMetadata: FakeCameraMetadata
 
     private val mockCameraAppComponent: CameraAppComponent = mock()
-    private val mockCamcorderProfileAdapter: CamcorderProfileProviderAdapter = mock()
-    private val mockCamcorderProxy: CamcorderProfileProxy = mock()
+    private val mockEncoderProfilesAdapter: EncoderProfilesProviderAdapter = mock()
+    private val mockEncoderProfilesProxy: EncoderProfilesProxy = mock()
+    private val mockVideoProfileProxy: VideoProfileProxy = mock()
 
     @Before
     fun setUp() {
@@ -172,12 +173,12 @@ class SupportedSurfaceCombinationTest {
             displaySize
                 .height
         )
-        whenever(mockCamcorderProfileAdapter.hasProfile(ArgumentMatchers.anyInt()))
-            .thenReturn(true)
-        whenever(mockCamcorderProxy.videoFrameWidth).thenReturn(3840)
-        whenever(mockCamcorderProxy.videoFrameHeight).thenReturn(2160)
-        whenever(mockCamcorderProfileAdapter[ArgumentMatchers.anyInt()])
-            .thenReturn(mockCamcorderProxy)
+        whenever(mockEncoderProfilesAdapter.hasProfile(ArgumentMatchers.anyInt())).thenReturn(true)
+        whenever(mockVideoProfileProxy.width).thenReturn(3840)
+        whenever(mockVideoProfileProxy.height).thenReturn(2160)
+        whenever(mockEncoderProfilesProxy.videoProfiles).thenReturn(listOf(mockVideoProfileProxy))
+        whenever(mockEncoderProfilesAdapter.getAll(ArgumentMatchers.anyInt()))
+            .thenReturn(mockEncoderProfilesProxy)
     }
 
     @After
@@ -190,7 +191,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLegacySupportedCombinationList()
         for (combination in combinationList) {
@@ -205,7 +206,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLegacySupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
@@ -217,7 +218,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLimitedSupportedCombinationList()
         for (combination in combinationList) {
@@ -232,7 +233,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
@@ -247,7 +248,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
@@ -262,7 +263,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLimitedSupportedCombinationList()
         for (combination in combinationList) {
@@ -277,7 +278,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLimitedSupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
@@ -289,7 +290,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
@@ -304,7 +305,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
@@ -319,7 +320,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
@@ -334,7 +335,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getFullSupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
@@ -346,7 +347,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
@@ -365,7 +366,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLimitedSupportedCombinationList()
         for (combination in combinationList) {
@@ -384,7 +385,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLegacySupportedCombinationList()
         for (combination in combinationList) {
@@ -403,7 +404,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
@@ -422,7 +423,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getRAWSupportedCombinationList()
         for (combination in combinationList) {
@@ -437,7 +438,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
@@ -452,7 +453,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val combinationList = getLevel3SupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
@@ -464,7 +465,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val fakeUseCase = FakeUseCaseConfig.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -499,7 +500,7 @@ class SupportedSurfaceCombinationTest {
             .build()
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
-            SurfaceTextureProvider.createSurfaceTextureProvider(mock<SurfaceTextureCallback>())
+            SurfaceTextureProvider.createSurfaceTextureProvider(mock())
         )
         val imageCapture = ImageCapture.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -540,12 +541,12 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
-            SurfaceTextureProvider.createSurfaceTextureProvider(mock<SurfaceTextureCallback>())
+            SurfaceTextureProvider.createSurfaceTextureProvider(mock())
         )
         val imageCapture = ImageCapture.Builder().build()
         val imageAnalysis = ImageAnalysis.Builder().build()
@@ -610,7 +611,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         /* This test case is for b/139018208 that get small resolution 144x256 with below
@@ -658,7 +659,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         // Sets each of mSupportedSizes as target resolution and also sets target rotation as
@@ -685,7 +686,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         // Sets target resolution as 1280x640, all supported resolutions will be put into aspect
@@ -709,7 +710,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val imageCapture = ImageCapture.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -740,7 +741,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         // Legacy camera only support (PRIV, PREVIEW) + (PRIV, PREVIEW)
@@ -774,7 +775,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val imageCapture = ImageCapture.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -818,7 +819,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val imageCapture = ImageCapture.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -869,7 +870,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val imageCapture = ImageCapture.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3) // mMaximumSize(4032x3024) is 4:3
@@ -919,7 +920,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         /* This test case is for b/132603284 that divide by zero issue crash happened in below
@@ -1007,7 +1008,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val formatResolutionsPairList: MutableList<Pair<Int, Array<Size>>> = ArrayList()
         formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, arrayOf(vgaSize)))
@@ -1059,7 +1060,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.YUV_420_888, vgaSize
@@ -1074,7 +1075,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.YUV_420_888, previewSize
@@ -1089,7 +1090,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.YUV_420_888, recordSize
@@ -1104,7 +1105,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.YUV_420_888, maximumSize
@@ -1119,7 +1120,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.JPEG, vgaSize
@@ -1134,7 +1135,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.JPEG, previewSize
@@ -1149,7 +1150,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.JPEG, recordSize
@@ -1164,7 +1165,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
             ImageFormat.JPEG, maximumSize
@@ -1179,7 +1180,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val maximumYUVSize =
             supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.YUV_420_888)
@@ -1194,7 +1195,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val preview = Preview.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -1256,7 +1257,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().build()
 
@@ -1285,7 +1286,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .build()
@@ -1319,7 +1320,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetAspectRatio(
             AspectRatio.RATIO_16_9
@@ -1354,7 +1355,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetResolution(
             Size(1080, 1920)
@@ -1391,7 +1392,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetRotation(
             Surface.ROTATION_90
@@ -1427,7 +1428,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetRotation(
             Surface.ROTATION_90
@@ -1458,7 +1459,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetRotation(
             Surface.ROTATION_90
@@ -1491,7 +1492,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetResolution(
             Size(1280, 600)
@@ -1521,7 +1522,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(Size(1280, 720)).build()
 
@@ -1545,7 +1546,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val customOrderedResolutions = listOf(
             Size(640, 480),
@@ -1583,7 +1584,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setDefaultResolution(
             Size(
@@ -1613,7 +1614,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setDefaultResolution(
             Size(1280, 720)
@@ -1657,7 +1658,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetResolution(
             Size(1920, 1080)
@@ -1685,7 +1686,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(
             Size(320, 240)
@@ -1718,7 +1719,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(
             Size(320, 180)
@@ -1753,7 +1754,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(
             Size(320, 240)
@@ -1782,7 +1783,7 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(
             Size(1920, 1080)
@@ -1826,7 +1827,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(
             Size(320, 200)
@@ -1861,7 +1862,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetResolution(
             Size(192, 144)
@@ -1893,7 +1894,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(
             Size(192, 144)
@@ -1919,7 +1920,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetResolution(
             Size(185, 90)
@@ -1959,7 +1960,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetResolution(
             Size(1080, 2016)
@@ -2000,7 +2001,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetAspectRatio(
             AspectRatio.RATIO_16_9
@@ -2050,7 +2051,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetAspectRatio(
             AspectRatio.RATIO_16_9
@@ -2087,7 +2088,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetAspectRatio(
             AspectRatio.RATIO_16_9
@@ -2135,7 +2136,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val useCase = FakeUseCaseConfig.Builder().setTargetAspectRatio(
             AspectRatio.RATIO_16_9
@@ -2172,7 +2173,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         // Checks the determined RECORD size
@@ -2201,7 +2202,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         // Sets the target resolution as 640x480 with target rotation as ROTATION_90 because the
@@ -2229,7 +2230,7 @@ class SupportedSurfaceCombinationTest {
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
 
         // Sets the max resolution as 720x1280
@@ -2250,13 +2251,13 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
             SurfaceTextureProvider.createSurfaceTextureProvider(
-                mock<SurfaceTextureCallback>()
+                mock()
             )
         )
 
@@ -2299,13 +2300,13 @@ class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
-            mockCamcorderProfileAdapter
+            mockEncoderProfilesAdapter
         )
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
             SurfaceTextureProvider.createSurfaceTextureProvider(
-                mock<SurfaceTextureCallback>()
+                mock()
             )
         )
 
@@ -2428,15 +2429,12 @@ class SupportedSurfaceCombinationTest {
             CameraCharacteristics.LENS_FACING_BACK
         )
         val cameraInfo = FakeCameraInfoInternal(fakeCameraMetadata.camera.value)
-        cameraInfo.camcorderProfileProvider = FakeCamcorderProfileProvider.Builder()
-            .addProfile(
-                CamcorderProfileUtil.asHighQuality(profileUhd),
-                profileUhd,
-                profileFhd,
-                profileHd,
-                profileSd,
-                CamcorderProfileUtil.asLowQuality(profileSd)
-            ).build()
+        cameraInfo.encoderProfilesProvider = FakeEncoderProfilesProvider.Builder()
+            .add(QUALITY_2160P, profileUhd)
+            .add(QUALITY_1080P, profileFhd)
+            .add(QUALITY_720P, profileHd)
+            .add(QUALITY_480P, profileSd)
+            .build()
         cameraFactory!!.insertCamera(
             lensFacingEnum, fakeCameraMetadata.camera.value
         ) { FakeCamera(fakeCameraMetadata.camera.value, null, cameraInfo) }

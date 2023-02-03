@@ -25,8 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
-import androidx.camera.camera2.internal.compat.workaround.CamcorderProfileResolutionValidator;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.EncoderProfilesResolutionValidator;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.quirk.ProfileResolutionQuirk;
 
@@ -52,7 +52,7 @@ import java.util.List;
  *                  resolution is contained in the list returned.
  *     Device(s): All legacy devices
  *     @see CamcorderProfile#hasProfile
- *     @see CamcorderProfileResolutionValidator
+ *     @see EncoderProfilesResolutionValidator
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CamcorderProfileResolutionQuirk implements ProfileResolutionQuirk {

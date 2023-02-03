@@ -21,36 +21,36 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.internal.AudioSource;
 import androidx.core.util.Supplier;
 
 /**
  * An {@link AudioSource.Settings} supplier that resolves requested source settings from an
- * {@link AudioSpec} using a {@link CamcorderProfileProxy}.
+ * {@link AudioSpec} using an {@link AudioProfileProxy}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AudioSourceSettingsCamcorderProfileResolver implements
+public final class AudioSourceSettingsAudioProfileResolver implements
         Supplier<AudioSource.Settings> {
 
-    private static final String TAG = "AudioSrcCmcrdrPrflRslvr";
+    private static final String TAG = "AudioSrcAdPrflRslvr";
 
     private final AudioSpec mAudioSpec;
-    private final CamcorderProfileProxy mCamcorderProfile;
+    private final AudioProfileProxy mAudioProfile;
 
     /**
-     * Constructor for an AudioSourceSettingsCamcorderProfileResolver.
+     * Constructor for an AudioSourceSettingsAudioProfileResolver.
      *
-     * @param camcorderProfile The {@link CamcorderProfileProxy} used to resolve automatic and
-     *                         range settings.
-     * @param audioSpec        The {@link AudioSpec} which defines the settings that should be
-     *                         used with the audio source.
+     * @param audioProfile  The {@link AudioProfileProxy} used to resolve automatic and range
+     *                      settings.
+     * @param audioSpec     The {@link AudioSpec} which defines the settings that should be used
+     *                      with the audio source.
      */
-    public AudioSourceSettingsCamcorderProfileResolver(@NonNull AudioSpec audioSpec,
-            @NonNull CamcorderProfileProxy camcorderProfile) {
+    public AudioSourceSettingsAudioProfileResolver(@NonNull AudioSpec audioSpec,
+            @NonNull AudioProfileProxy audioProfile) {
         mAudioSpec = audioSpec;
-        mCamcorderProfile = camcorderProfile;
+        mAudioProfile = audioProfile;
     }
 
     @Override
@@ -67,25 +67,25 @@ public final class AudioSourceSettingsCamcorderProfileResolver implements
         Range<Integer> audioSpecSampleRate = mAudioSpec.getSampleRate();
         int resolvedSampleRate;
         int resolvedChannelCount;
-        int camcorderProfileChannelCount = mCamcorderProfile.getAudioChannels();
+        int audioProfileChannelCount = mAudioProfile.getChannels();
         if (audioSpecChannelCount == AudioSpec.CHANNEL_COUNT_AUTO) {
-            resolvedChannelCount = camcorderProfileChannelCount;
-            Logger.d(TAG, "Resolved AUDIO channel count from CamcorderProfile: "
+            resolvedChannelCount = audioProfileChannelCount;
+            Logger.d(TAG, "Resolved AUDIO channel count from AudioProfile: "
                     + resolvedChannelCount);
         } else {
             resolvedChannelCount = audioSpecChannelCount;
-            Logger.d(TAG, "Media spec AUDIO channel count overrides CamcorderProfile "
-                    + "[CamcorderProfile channel count: " + camcorderProfileChannelCount
+            Logger.d(TAG, "Media spec AUDIO channel count overrides AudioProfile "
+                    + "[AudioProfile channel count: " + audioProfileChannelCount
                     + ", Resolved Channel Count: " + resolvedChannelCount + "]");
         }
 
-        int camcorderProfileAudioSampleRate = mCamcorderProfile.getAudioSampleRate();
+        int audioProfileSampleRate = mAudioProfile.getSampleRate();
         resolvedSampleRate = AudioConfigUtil.selectSampleRateOrNearestSupported(
                 audioSpecSampleRate, resolvedChannelCount, resolvedSourceFormat,
-                camcorderProfileAudioSampleRate);
+                audioProfileSampleRate);
         Logger.d(TAG, "Using resolved AUDIO sample rate or nearest supported from "
-                + "CamcorderProfile: " + resolvedSampleRate + "Hz. [CamcorderProfile sample rate: "
-                + camcorderProfileAudioSampleRate + "Hz]");
+                + "AudioProfile: " + resolvedSampleRate + "Hz. [AudioProfile sample rate: "
+                + audioProfileSampleRate + "Hz]");
 
         return AudioSource.Settings.builder()
                 .setAudioSource(resolvedAudioSource)

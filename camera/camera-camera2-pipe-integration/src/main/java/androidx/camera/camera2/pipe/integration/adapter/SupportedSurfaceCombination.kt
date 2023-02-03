@@ -34,7 +34,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.AttachedSurfaceInfo
-import androidx.camera.core.impl.CamcorderProfileProxy
+import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.StreamSpec
@@ -70,7 +70,7 @@ import java.util.Collections
 class SupportedSurfaceCombination(
     context: Context,
     private val cameraMetadata: CameraMetadata,
-    private val camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
 ) {
     private val cameraId = cameraMetadata.camera.value
     private val hardwareLevel =
@@ -289,12 +289,12 @@ class SupportedSurfaceCombination(
             // StreamConfigurationMap to determine the RECORD size.
             return getRecordSizeFromStreamConfigurationMap()
         }
-        var profile: CamcorderProfileProxy? = null
-        if (camcorderProfileProviderAdapter.hasProfile(cameraId)) {
-            profile = camcorderProfileProviderAdapter.get(cameraId)
+        var profiles: EncoderProfilesProxy? = null
+        if (encoderProfilesProviderAdapter.hasProfile(cameraId)) {
+            profiles = encoderProfilesProviderAdapter.getAll(cameraId)
         }
-        return if (profile != null) {
-            Size(profile.videoFrameWidth, profile.videoFrameHeight)
+        return if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
+            Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         } else getRecordSizeByHasProfile()
     }
 
@@ -337,25 +337,25 @@ class SupportedSurfaceCombination(
      */
     private fun getRecordSizeByHasProfile(): Size {
         var recordSize: Size = RESOLUTION_480P
-        var profile: CamcorderProfileProxy? = null
+        var profiles: EncoderProfilesProxy? = null
 
         // Check whether 4KDCI, 2160P, 2K, 1080P, 720P, 480P (sorted by size) are supported by
-        // CamcorderProfile
-        if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_4KDCI)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_4KDCI)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2160P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_2160P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2K)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_2K)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_1080P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_1080P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_720P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_720P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_480P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_480P)
+        // EncoderProfiles
+        if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_4KDCI)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_4KDCI)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2160P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_2160P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2K)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_2K)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_1080P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_1080P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_720P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_720P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_480P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_480P)
         }
-        if (profile != null) {
-            recordSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
+        if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
+            recordSize = Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         }
         return recordSize
     }
