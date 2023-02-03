@@ -31,7 +31,7 @@ import javax.xml.parsers.SAXParserFactory
  * Simple check that the test config templates are able to be parsed as valid xml.
  */
 @RunWith(JUnit4::class)
-class AndroidTestXmlBuilderTest {
+class AndroidTestConfigBuilderTest {
 
     private lateinit var builder: ConfigBuilder
     private lateinit var mediaBuilder: MediaConfigBuilder
@@ -39,12 +39,14 @@ class AndroidTestXmlBuilderTest {
     @Before
     fun init() {
         builder = ConfigBuilder()
-        builder.isBenchmark(false)
+        builder.configName("placeHolderAndroidTest.xml")
+            .isBenchmark(false)
             .applicationId("com.androidx.placeholder.Placeholder")
             .isPostsubmit(true)
             .minSdk("15")
             .tag("placeholder_tag")
             .testApkName("placeholder.apk")
+            .testApkSha256("123456")
             .testRunner("com.example.Runner")
         mediaBuilder = MediaConfigBuilder()
         mediaBuilder.clientApplicationId("com.androidx.client.Placeholder")
@@ -60,10 +62,95 @@ class AndroidTestXmlBuilderTest {
     }
 
     @Test
-    fun testAgainstGoldenDefault() {
+    fun testXmlAgainstGoldenDefault() {
         MatcherAssert.assertThat(
-            builder.build(),
+            builder.buildXml(),
             CoreMatchers.`is`(goldenDefaultConfig)
+        )
+    }
+
+    @Test
+    fun testJsonAgainstGoldenDefault() {
+        MatcherAssert.assertThat(
+            builder.buildJson(),
+            CoreMatchers.`is`("""
+                {
+                  "name": "placeHolderAndroidTest.xml",
+                  "minSdkVersion": "15",
+                  "testSuiteTags": [
+                    "placeholder_tag"
+                  ],
+                  "testApk": "placeholder.apk",
+                  "testApkSha256": "123456",
+                  "instrumentationArgs": [
+                    {
+                      "key": "notAnnotation",
+                      "value": "androidx.test.filters.FlakyTest"
+                    }
+                  ]
+                }
+            """.trimIndent()
+            )
+        )
+    }
+
+    @Test
+    fun testJsonAgainstGoldenPresubmitBenchmark() {
+        builder.isBenchmark(true)
+            .isPostsubmit(false)
+        MatcherAssert.assertThat(
+            builder.buildJson(),
+            CoreMatchers.`is`("""
+                {
+                  "name": "placeHolderAndroidTest.xml",
+                  "minSdkVersion": "15",
+                  "testSuiteTags": [
+                    "placeholder_tag"
+                  ],
+                  "testApk": "placeholder.apk",
+                  "testApkSha256": "123456",
+                  "instrumentationArgs": [
+                    {
+                      "key": "notAnnotation",
+                      "value": "androidx.test.filters.FlakyTest"
+                    },
+                    {
+                      "key": "androidx.benchmark.dryRunMode.enable",
+                      "value": "true"
+                    }
+                  ]
+                }
+            """.trimIndent()
+            )
+        )
+    }
+
+    @Test
+    fun testJsonAgainstAppTestGolden() {
+        builder.appApkName("app-placeholder.apk")
+            .appApkSha256("654321")
+        MatcherAssert.assertThat(
+            builder.buildJson(),
+            CoreMatchers.`is`("""
+                {
+                  "name": "placeHolderAndroidTest.xml",
+                  "minSdkVersion": "15",
+                  "testSuiteTags": [
+                    "placeholder_tag"
+                  ],
+                  "testApk": "placeholder.apk",
+                  "testApkSha256": "123456",
+                  "appApk": "app-placeholder.apk",
+                  "appApkSha256": "654321",
+                  "instrumentationArgs": [
+                    {
+                      "key": "notAnnotation",
+                      "value": "androidx.test.filters.FlakyTest"
+                    }
+                  ]
+                }
+            """.trimIndent()
+            )
         )
     }
 
@@ -77,61 +164,52 @@ class AndroidTestXmlBuilderTest {
 
     @Test
     fun testValidTestConfigXml_default() {
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_benchmarkTrue() {
         builder.isBenchmark(true)
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_withAppApk() {
         builder.appApkName("Placeholder.apk")
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_presubmitWithAppApk() {
         builder.isPostsubmit(false)
             .appApkName("Placeholder.apk")
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_runAllTests() {
         builder.runAllTests(false)
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_multipleTags() {
         builder.tag("another_tag")
         MatcherAssert.assertThat(builder.tags.size, CoreMatchers.`is`(2))
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_presubmit() {
         builder.isPostsubmit(false)
-        validate(builder.build())
+        validate(builder.buildXml())
     }
 
     @Test
     fun testValidTestConfigXml_presubmitBenchmark() {
         builder.isPostsubmit(false)
             .isBenchmark(true)
-        validate(builder.build())
-    }
-
-    @Test
-    fun testValidTestConfigXml_disableDeviceTests() {
-        builder.disableDeviceTests(true)
-        MatcherAssert.assertThat(
-            builder.build(),
-            CoreMatchers.`is`(disableDeviceTestsConfig)
-        )
+        validate(builder.buildXml())
     }
 
     @Test
@@ -157,21 +235,6 @@ class AndroidTestXmlBuilderTest {
         )
     }
 }
-
-private val disableDeviceTestsConfig = """
-    <?xml version="1.0" encoding="utf-8"?>
-    <!-- Copyright (C) 2020 The Android Open Source Project
-    Licensed under the Apache License, Version 2.0 (the "License")
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions
-    and limitations under the License.-->
-
-""".trimIndent()
 
 private val goldenDefaultConfig = """
     <?xml version="1.0" encoding="utf-8"?>
