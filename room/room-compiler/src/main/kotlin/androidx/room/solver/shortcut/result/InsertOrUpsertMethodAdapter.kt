@@ -106,7 +106,9 @@ class InsertOrUpsertMethodAdapter private constructor(
             singleParamMultiReturnError: String
         ): Boolean {
             if (params.isEmpty() || params.size > 1) {
-                return returnInfo == ReturnInfo.VOID || returnInfo == ReturnInfo.UNIT
+                return returnInfo == ReturnInfo.VOID ||
+                    returnInfo == ReturnInfo.UNIT ||
+                    returnInfo == ReturnInfo.VOID_OBJECT
             }
             if (params.first().isMultiple) {
                 val isValid = returnInfo in MULTIPLE_ITEM_SET
