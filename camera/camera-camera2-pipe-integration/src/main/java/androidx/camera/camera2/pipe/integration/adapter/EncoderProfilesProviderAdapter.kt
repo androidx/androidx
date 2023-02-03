@@ -22,6 +22,8 @@ import android.os.Build
 import androidx.annotation.DoNotInline
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -51,7 +53,6 @@ class EncoderProfilesProviderAdapter(private val cameraIdString: String) : Encod
         cameraId = intCameraId
 
         // TODO(b/241296464): CamcorderProfileResolutionQuirk
-        // TODO(b/265613005): InvalidVideoProfilesQuirk
     }
 
     override fun hasProfile(quality: Int): Boolean {
@@ -72,23 +73,44 @@ class EncoderProfilesProviderAdapter(private val cameraIdString: String) : Encod
     }
 
     @Nullable
-    @Suppress("DEPRECATION")
     private fun getProfilesInternal(quality: Int): EncoderProfilesProxy? {
-        return if (Build.VERSION.SDK_INT >= 31) {
-            val profiles: EncoderProfiles? = Api31Impl.getAll(cameraIdString, quality)
-            if (profiles != null) EncoderProfilesProxyCompat.from(profiles) else null
-        } else {
-            var profile: CamcorderProfile? = null
-            try {
-                profile = CamcorderProfile.get(cameraId, quality)
-            } catch (e: RuntimeException) {
-                // CamcorderProfile.get() will throw
-                // - RuntimeException if not able to retrieve camcorder profile params.
-                // - IllegalArgumentException if quality is not valid.
-                Logger.w(TAG, "Unable to get CamcorderProfile by quality: $quality", e)
+        if (Build.VERSION.SDK_INT >= 31) {
+            val profiles: EncoderProfiles = Api31Impl.getAll(cameraIdString, quality) ?: return null
+
+            val isVideoProfilesInvalid = DeviceQuirks[InvalidVideoProfilesQuirk::class.java] != null
+            if (isVideoProfilesInvalid) {
+                Logger.d(
+                    TAG, "EncoderProfiles contains invalid video profiles, use " +
+                        "CamcorderProfile to create EncoderProfilesProxy."
+                )
+            } else {
+                try {
+                    return EncoderProfilesProxyCompat.from(profiles)
+                } catch (e: NullPointerException) {
+                    Logger.w(
+                        TAG, "Failed to create EncoderProfilesProxy, EncoderProfiles might " +
+                            "contain invalid video profiles. Use CamcorderProfile instead.", e
+                    )
+                }
             }
-            if (profile != null) EncoderProfilesProxyCompat.from(profile) else null
         }
+
+        return createProfilesFromCamcorderProfile(quality)
+    }
+
+    @Nullable
+    @Suppress("DEPRECATION")
+    private fun createProfilesFromCamcorderProfile(quality: Int): EncoderProfilesProxy? {
+        var profile: CamcorderProfile? = null
+        try {
+            profile = CamcorderProfile.get(cameraId, quality)
+        } catch (e: RuntimeException) {
+            // CamcorderProfile.get() will throw
+            // - RuntimeException if not able to retrieve camcorder profile params.
+            // - IllegalArgumentException if quality is not valid.
+            Logger.w(TAG, "Unable to get CamcorderProfile by quality: $quality", e)
+        }
+        return if (profile != null) EncoderProfilesProxyCompat.from(profile) else null
     }
 
     @RequiresApi(31)
