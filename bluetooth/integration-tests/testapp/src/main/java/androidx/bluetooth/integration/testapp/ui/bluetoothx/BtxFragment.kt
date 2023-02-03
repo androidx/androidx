@@ -92,6 +92,7 @@ class BtxFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         advertiseJob?.cancel()
+        scanJob?.cancel()
     }
 
     private val scanScope = CoroutineScope(Dispatchers.Main + Job())
@@ -133,7 +134,7 @@ class BtxFragment : Fragment() {
         scanJob = scanScope.launch {
             Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
                 .show()
-            scan(scanSettings).take(1).collect() {
+            scan(scanSettings).take(1).collect {
                 Log.d(TAG, "ScanResult collected")
             }
         }
