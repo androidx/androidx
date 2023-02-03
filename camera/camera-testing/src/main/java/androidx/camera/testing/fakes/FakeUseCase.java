@@ -22,12 +22,15 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
+import androidx.core.util.Supplier;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,11 +39,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
+
     private volatile boolean mIsDetached = false;
     private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
     private final CaptureType mCaptureType;
     private boolean mMergedConfigRetrieved = false;
     private int mPipelineCreationCount = 0;
+    private Supplier<SessionConfig> mSessionConfigSupplier;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -123,9 +128,23 @@ public class FakeUseCase extends UseCase {
     @Override
     @NonNull
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        mPipelineCreationCount++;
+        SessionConfig sessionConfig = createPipeline();
+        if (sessionConfig != null) {
+            updateSessionConfig(sessionConfig);
+        }
         return suggestedStreamSpec;
     }
+
+    @Nullable
+    SessionConfig createPipeline() {
+        mPipelineCreationCount++;
+        if (mSessionConfigSupplier != null) {
+            return mSessionConfigSupplier.get();
+        } else {
+            return null;
+        }
+    }
+
 
     /**
      * Returns true if {@link #onUnbind()} has been called previously.
@@ -153,5 +172,12 @@ public class FakeUseCase extends UseCase {
      */
     public int getPipelineCreationCount() {
         return mPipelineCreationCount;
+    }
+
+    /**
+     * Returns {@link CameraCaptureResult} received by this use case.
+     */
+    public void setSessionConfigSupplier(@NonNull Supplier<SessionConfig> sessionConfigSupplier) {
+        mSessionConfigSupplier = sessionConfigSupplier;
     }
 }
