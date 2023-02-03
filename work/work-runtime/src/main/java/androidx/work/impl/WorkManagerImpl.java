@@ -716,7 +716,7 @@ public class WorkManagerImpl extends WorkManager {
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor
                 .executeOnTaskThread(
-                        new StartWorkRunnable(this, workSpecId, runtimeExtras));
+                        new StartWorkRunnable(mProcessor, workSpecId, runtimeExtras));
     }
 
     /**
@@ -725,7 +725,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(@NonNull StartStopToken workSpecId) {
-        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this, workSpecId, false));
+        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(mProcessor, workSpecId, false));
     }
 
     /**
@@ -735,7 +735,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopForegroundWork(@NonNull WorkGenerationalId id) {
-        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this,
+        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(mProcessor,
                 new StartStopToken(id), true));
     }
 

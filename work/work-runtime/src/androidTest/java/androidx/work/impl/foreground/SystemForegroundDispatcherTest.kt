@@ -35,23 +35,23 @@ import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
-import androidx.work.impl.WorkDatabase
-import androidx.work.impl.model.WorkGenerationalId
-import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.StartStopToken
+import androidx.work.impl.WorkDatabase
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
-import androidx.work.impl.utils.StopWorkRunnable
+import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.UUID
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -59,14 +59,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
-import java.util.UUID
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -397,10 +396,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
-        val stopWorkRunnable = StopWorkRunnable(
-            workManager, StartStopToken(WorkGenerationalId(request.stringId, 0)), false
-        )
-        stopWorkRunnable.run()
+        processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
         val state = workDatabase.workSpecDao().getState(request.stringId)
         assertThat(state, `is`(WorkInfo.State.RUNNING))
         val stopAndCancelIntent = createCancelWorkIntent(context, request.stringId)
