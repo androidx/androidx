@@ -87,7 +87,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void setEpicenter(@NonNull Object transitionObj, @NonNull View view) {
+    public void setEpicenter(@NonNull Object transitionObj, @Nullable View view) {
         if (view != null) {
             Transition transition = (Transition) transitionObj;
             final Rect epicenter = new Rect();
@@ -135,8 +135,8 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
     @NonNull
     @Override
-    public Object mergeTransitionsTogether(@NonNull Object transition1,
-            @NonNull Object transition2, @Nullable Object transition3) {
+    public Object mergeTransitionsTogether(@Nullable Object transition1,
+            @Nullable Object transition2, @Nullable Object transition3) {
         TransitionSet transitionSet = new TransitionSet();
         if (transition1 != null) {
             transitionSet.addTransition((Transition) transition1);

@@ -22,6 +22,7 @@ import androidx.annotation.CallSuper
 import androidx.core.os.CancellationSignal
 import androidx.core.view.ViewCompat
 import androidx.fragment.R
+import androidx.fragment.app.SpecialEffectsController.Operation.State.Companion.asOperationState
 
 /**
  * Controller for all "special effects" (such as Animation, Animator, framework Transition, and
@@ -164,7 +165,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             updateFinalState()
             val lastEnteringFragment = pendingOperations.lastOrNull { operation ->
                 // Only consider operations with entering transitions
-                val currentState = Operation.State.from(operation.fragment.mView)
+                val currentState = operation.fragment.mView.asOperationState()
                 operation.finalState == Operation.State.VISIBLE &&
                     currentState != Operation.State.VISIBLE
             }?.fragment
@@ -433,18 +434,12 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             companion object {
                 /**
                  * Create a new State from the [view's visibility][View.getVisibility].
-                 *
-                 * @param view The view to get the current visibility from.
-                 * @return A new State from the view's visibility.
                  */
-                @JvmStatic
-                fun from(view: View): State {
+                fun View.asOperationState() = if (alpha == 0f && visibility == View.VISIBLE) {
                     // We should consider views with an alpha of 0 as INVISIBLE.
-                    return if (view.alpha == 0f && view.visibility == View.VISIBLE) {
-                        INVISIBLE
-                    } else {
-                        from(view.visibility)
-                    }
+                    INVISIBLE
+                } else {
+                    from(visibility)
                 }
 
                 /**
