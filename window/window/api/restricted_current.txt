@@ -55,15 +55,13 @@ package androidx.window.embedding {
   }
 
   public final class EmbeddingAspectRatio {
-    method public static androidx.window.embedding.EmbeddingAspectRatio alwaysAllow();
-    method public static androidx.window.embedding.EmbeddingAspectRatio alwaysDisallow();
     method public static androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
+    field public static final androidx.window.embedding.EmbeddingAspectRatio ALWAYS_ALLOW;
+    field public static final androidx.window.embedding.EmbeddingAspectRatio ALWAYS_DISALLOW;
     field public static final androidx.window.embedding.EmbeddingAspectRatio.Companion Companion;
   }
 
   public static final class EmbeddingAspectRatio.Companion {
-    method public androidx.window.embedding.EmbeddingAspectRatio alwaysAllow();
-    method public androidx.window.embedding.EmbeddingAspectRatio alwaysDisallow();
     method public androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
   }
 
