@@ -30,7 +30,7 @@ dependencies {
     compileOnly("androidx.inspection:inspection:1.0.0")
     compileOnly(project(":lifecycle:lifecycle-runtime"))
     compileOnly(project(":work:work-runtime"))
-    compileOnly("androidx.room:room-runtime:2.5.0-beta01")
+    compileOnly("androidx.room:room-runtime:2.5.0")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(":work:work-runtime"))
     androidTestImplementation(project(":work:work-runtime-ktx"))

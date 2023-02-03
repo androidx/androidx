@@ -24,8 +24,8 @@ plugins {
 
 dependencies {
     api(project(":work:work-runtime-ktx"))
-    implementation("androidx.lifecycle:lifecycle-livedata-core:2.1.0")
-    implementation("androidx.room:room-runtime:2.5.0-beta01")
+    implementation("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
+    implementation("androidx.room:room-runtime:2.5.0")
 
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(libs.testExtJunit)
