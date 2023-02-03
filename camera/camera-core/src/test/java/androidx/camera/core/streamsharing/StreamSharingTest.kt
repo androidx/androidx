@@ -17,23 +17,33 @@
 package androidx.camera.core.streamsharing
 
 import android.os.Build
+import android.os.Looper.getMainLooper
 import android.util.Size
+import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -45,13 +55,13 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class StreamSharingTest {
 
-    private val parentCamera = FakeCamera()
     private val child1 = FakeUseCase()
     private val child2 = FakeUseCase()
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private val camera = FakeCamera()
     private lateinit var streamSharing: StreamSharing
     private val size = Size(800, 600)
+    private lateinit var defaultConfig: UseCaseConfig<*>
 
     @Before
     fun setUp() {
@@ -60,17 +70,60 @@ class StreamSharingTest {
                 mainThreadExecutor()
             )
         }
-        streamSharing = StreamSharing(parentCamera, setOf(child1, child2), useCaseConfigFactory)
+        streamSharing = StreamSharing(camera, setOf(child1, child2), useCaseConfigFactory)
+        defaultConfig = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
+    }
+
+    @After
+    fun tearDown() {
+        if (streamSharing.camera != null) {
+            streamSharing.unbindFromCamera(streamSharing.camera!!)
+        }
+        shadowOf(getMainLooper()).idle()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun feedMetadataToParent_propagatesToChildren() {
+        // Arrange: set tag bundle in children SessionConfig.
+        val key = "key"
+        val value = "value"
+        val result1 = child1.setTagBundleOnSessionConfigAsync(key, value)
+        val result2 = child2.setTagBundleOnSessionConfigAsync(key, value)
+        streamSharing.bindToCamera(camera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+
+        // Act: feed metadata to the parent.
+        streamSharing.sessionConfig.repeatingCameraCaptureCallbacks.single()
+            .onCaptureCompleted(FakeCameraCaptureResult())
+
+        // Assert: children receives the metadata with the tag bundle overridden.
+        assertThat(result1.getCompleted().tagBundle.getTag(key)).isEqualTo(value)
+        assertThat(result2.getCompleted().tagBundle.getTag(key)).isEqualTo(value)
+    }
+
+    private fun FakeUseCase.setTagBundleOnSessionConfigAsync(
+        key: String,
+        value: String
+    ): Deferred<CameraCaptureResult> {
+        val deferredResult = CompletableDeferred<CameraCaptureResult>()
+        this.setSessionConfigSupplier {
+            val builder = SessionConfig.Builder()
+            builder.addTag(key, value)
+            builder.addRepeatingCameraCaptureCallback(object : CameraCaptureCallback() {
+                override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+                    deferredResult.complete(cameraCaptureResult)
+                }
+            })
+            builder.build()
+        }
+        return deferredResult
     }
 
     @Test
     fun updateStreamSpec_propagatesToChildren() {
         // Arrange: bind StreamSharing to the camera.
-        streamSharing.bindToCamera(
-            camera,
-            null,
-            streamSharing.getDefaultConfig(true, useCaseConfigFactory)
-        )
+        streamSharing.bindToCamera(camera, null, defaultConfig)
 
         // Act: update suggested specs.
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
@@ -100,11 +153,7 @@ class StreamSharingTest {
     @Test
     fun onError_restartsPipeline() {
         // Arrange: bind stream sharing and update specs.
-        streamSharing.bindToCamera(
-            camera,
-            null,
-            streamSharing.getDefaultConfig(true, useCaseConfigFactory)
-        )
+        streamSharing.bindToCamera(camera, null, defaultConfig)
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
         val cameraEdge = streamSharing.cameraEdge
         val node = streamSharing.node
