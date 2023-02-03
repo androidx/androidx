@@ -24,6 +24,8 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.InvalidVideoProfilesQuirk;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
@@ -80,23 +82,44 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
     }
 
     @Nullable
-    @SuppressWarnings("deprecation")
     private EncoderProfilesProxy getProfilesInternal(int quality) {
         if (Build.VERSION.SDK_INT >= 31) {
             EncoderProfiles profiles = Api31Impl.getAll(mCameraId, quality);
-            return profiles != null ? EncoderProfilesProxyCompat.from(profiles) : null;
-        } else {
-            CamcorderProfile profile = null;
-            try {
-                profile = CamcorderProfile.get(mIntCameraId, quality);
-            } catch (RuntimeException e) {
-                // CamcorderProfile.get() will throw
-                // - RuntimeException if not able to retrieve camcorder profile params.
-                // - IllegalArgumentException if quality is not valid.
-                Logger.w(TAG, "Unable to get CamcorderProfile by quality: " + quality, e);
+            if (profiles == null) {
+                return null;
             }
-            return profile != null ? EncoderProfilesProxyCompat.from(profile) : null;
+
+            boolean isVideoProfilesInvalid = DeviceQuirks.get(InvalidVideoProfilesQuirk.class)
+                    != null;
+            if (isVideoProfilesInvalid) {
+                Logger.d(TAG, "EncoderProfiles contains invalid video profiles, use "
+                        + "CamcorderProfile to create EncoderProfilesProxy.");
+            } else {
+                try {
+                    return EncoderProfilesProxyCompat.from(profiles);
+                } catch (NullPointerException e) {
+                    Logger.w(TAG, "Failed to create EncoderProfilesProxy, EncoderProfiles might "
+                            + " contain invalid video profiles. Use CamcorderProfile instead.", e);
+                }
+            }
         }
+
+        return createProfilesFromCamcorderProfile(quality);
+    }
+
+    @Nullable
+    @SuppressWarnings("deprecation")
+    private EncoderProfilesProxy createProfilesFromCamcorderProfile(int quality) {
+        CamcorderProfile profile = null;
+        try {
+            profile = CamcorderProfile.get(mIntCameraId, quality);
+        } catch (RuntimeException e) {
+            // CamcorderProfile.get() will throw
+            // - RuntimeException if not able to retrieve camcorder profile params.
+            // - IllegalArgumentException if quality is not valid.
+            Logger.w(TAG, "Unable to get CamcorderProfile by quality: " + quality, e);
+        }
+        return profile != null ? EncoderProfilesProxyCompat.from(profile) : null;
     }
 
     @RequiresApi(31)
