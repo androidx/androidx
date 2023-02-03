@@ -21,8 +21,6 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 /**
  * Defines [Shape] for all TV [Interaction] states of a Clickable Surface.
@@ -168,6 +166,50 @@ class ClickableSurfaceScale internal constructor(
 }
 
 /**
+ * Defines [Border] for all TV states of [Surface].
+ */
+@ExperimentalTvMaterial3Api
+@Immutable
+class ClickableSurfaceBorder internal constructor(
+    internal val border: Border,
+    internal val focusedBorder: Border,
+    internal val pressedBorder: Border,
+    internal val disabledBorder: Border,
+    internal val focusedDisabledBorder: Border
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ClickableSurfaceBorder
+
+        if (border != other.border) return false
+        if (focusedBorder != other.focusedBorder) return false
+        if (pressedBorder != other.pressedBorder) return false
+        if (disabledBorder != other.disabledBorder) return false
+        if (focusedDisabledBorder != other.focusedDisabledBorder) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = border.hashCode()
+        result = 31 * result + focusedBorder.hashCode()
+        result = 31 * result + pressedBorder.hashCode()
+        result = 31 * result + disabledBorder.hashCode()
+        result = 31 * result + focusedDisabledBorder.hashCode()
+
+        return result
+    }
+
+    override fun toString(): String {
+        return "${this.javaClass.simpleName}(border=$border, focusedBorder=$focusedBorder, " +
+            "pressedBorder=$pressedBorder, disabledBorder=$disabledBorder, " +
+            "focusedDisabledBorder=$focusedDisabledBorder)"
+    }
+}
+
+/**
  * Defines [Glow] for all TV states of [Surface].
  */
 @ExperimentalTvMaterial3Api
@@ -201,59 +243,5 @@ class ClickableSurfaceGlow internal constructor(
     override fun toString(): String {
         return "ClickableSurfaceGlow(glow=$glow, focusedGlow=$focusedGlow, " +
             "pressedGlow=$pressedGlow)"
-    }
-}
-
-/**
- * Defines the shadow for a TV component.
- * @param elevationColor [Color] to be applied on the shadow
- * @param elevation defines how strong should be the shadow. Larger its value, further the
- * shadow goes from the center of the component.
- */
-@ExperimentalTvMaterial3Api
-@Immutable
-class Glow(
-    val elevationColor: Color,
-    val elevation: Dp
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as Glow
-
-        if (elevationColor != other.elevationColor) return false
-        if (elevation != other.elevation) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = elevationColor.hashCode()
-        result = 31 * result + elevation.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "Glow(elevationColor=$elevationColor, elevation=$elevation)"
-    }
-
-    fun copy(
-        glowColor: Color? = null,
-        glowElevation: Dp? = null
-    ): Glow = Glow(
-        elevationColor = glowColor ?: this.elevationColor,
-        elevation = glowElevation ?: this.elevation
-    )
-
-    companion object {
-        /**
-         * Signifies the absence of a glow in TV Components. Use this if you do not want to display
-         * a glow indication in any of the Leanback TV Components.
-         */
-        val None = Glow(
-            elevationColor = Color.Transparent,
-            elevation = 0.dp
-        )
     }
 }

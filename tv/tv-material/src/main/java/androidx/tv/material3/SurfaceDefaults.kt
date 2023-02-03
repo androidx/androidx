@@ -17,11 +17,13 @@
 package androidx.tv.material3
 
 import androidx.annotation.FloatRange
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 
 /**
  * Contains the default values used by clickable Surface.
@@ -172,6 +174,55 @@ object ClickableSurfaceDefaults {
         pressedScale = pressedScale,
         disabledScale = disabledScale,
         focusedDisabledScale = focusedDisabledScale
+    )
+
+    internal fun border(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        border: ClickableSurfaceBorder
+    ): Border {
+        return when {
+            pressed && enabled -> border.pressedBorder
+            focused && enabled -> border.focusedBorder
+            focused && !enabled -> border.focusedDisabledBorder
+            enabled -> border.border
+            else -> border.disabledBorder
+        }
+    }
+
+    /**
+     * Creates a [ClickableSurfaceBorder] that represents the default [Border]s applied on a
+     * Surface in different [Interaction] states.
+     *
+     * @param border the [Border] to be used for this Surface when enabled
+     * @param focusedBorder the [Border] to be used for this Surface when focused
+     * @param pressedBorder the [Border] to be used for this Surface when pressed
+     * @param disabledBorder the [Border] to be used for this Surface when disabled
+     * @param focusedDisabledBorder the [Border] to be used for this Surface when disabled and
+     * focused
+     */
+    @ReadOnlyComposable
+    @Composable
+    fun border(
+        border: Border = Border.None,
+        focusedBorder: Border = border,
+        pressedBorder: Border = focusedBorder,
+        disabledBorder: Border = border,
+        focusedDisabledBorder: Border = Border(
+            border = BorderStroke(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.border
+            ),
+            inset = 0.dp,
+            shape = ShapeDefaults.Small
+        )
+    ) = ClickableSurfaceBorder(
+        border = border,
+        focusedBorder = focusedBorder,
+        pressedBorder = pressedBorder,
+        disabledBorder = disabledBorder,
+        focusedDisabledBorder = focusedDisabledBorder
     )
 
     internal fun glow(
