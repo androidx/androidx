@@ -35,7 +35,7 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.getDeclaredFunctions
-import com.google.devtools.ksp.symbol.impl.kotlin.KSNameImpl
+import com.google.devtools.ksp.processing.impl.KSNameImpl
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
