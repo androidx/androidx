@@ -16,8 +16,8 @@ internal class MyDatabase_AutoMigration_1_2_Impl : Migration {
         this.callback = callback
     }
 
-    public override fun migrate(database: SupportSQLiteDatabase): Unit {
-        database.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL")
-        callback.onPostMigrate(database)
+    public override fun migrate(db: SupportSQLiteDatabase): Unit {
+        db.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL")
+        callback.onPostMigrate(db)
     }
 }
