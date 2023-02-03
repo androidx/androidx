@@ -68,13 +68,15 @@ internal class EmojiPickerBodyAdapter(
                         onEmojiPickedListener(emojiViewItem)
                     },
                     onEmojiPickedFromPopupListener = { emoji ->
-                        with(
-                            emojiPickerItemsProvider().getBodyItem(bindingAdapterPosition)
-                                as EmojiViewData
-                        ) {
-                            if (updateToSticky) {
-                                this.emoji = emoji
-                                notifyItemChanged(bindingAdapterPosition)
+                        val baseEmoji = BundledEmojiListLoader.getEmojiVariantsLookup()[emoji]!![0]
+                        emojiPickerItemsProvider().forEachIndexed { index, itemViewData ->
+                            if (itemViewData is EmojiViewData &&
+                                BundledEmojiListLoader.getEmojiVariantsLookup()
+                                    [itemViewData.emoji]?.get(0) == baseEmoji &&
+                                itemViewData.updateToSticky
+                            ) {
+                                itemViewData.emoji = emoji
+                                notifyItemChanged(index)
                             }
                         }
                     })
