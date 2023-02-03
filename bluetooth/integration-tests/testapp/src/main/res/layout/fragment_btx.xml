@@ -23,6 +23,16 @@
     android:padding="16dp"
     tools:context=".ui.bluetoothx.BtxFragment">
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch_advertise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/advertise_using_btx"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button_scan"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <Button
         android:id="@+id/button_scan"
         android:layout_width="wrap_content"
@@ -30,6 +40,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/scan_using_btx"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

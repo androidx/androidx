@@ -14,7 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -29,6 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/advertise_using_fwk"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/button_scan"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -39,6 +40,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/scan_using_fwk"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
