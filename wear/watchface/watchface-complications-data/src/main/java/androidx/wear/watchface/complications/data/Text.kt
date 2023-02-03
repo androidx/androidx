@@ -38,7 +38,6 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-@JvmDefaultWithCompatibility
 /**
  * The text within a complication.
  *
@@ -46,6 +45,7 @@ import java.util.concurrent.TimeUnit
  * text to show with [getTextAt] but also a way to know whether the text needs to be
  * re-rendered, by means of [returnsSameText], [getNextChangeTime], and [isAlwaysEmpty].
  */
+@JvmDefaultWithCompatibility
 public interface ComplicationText {
     /**
      * Returns the text that should be displayed for the given timestamp.
@@ -356,7 +356,9 @@ public class TimeDifferenceComplicationText internal constructor(
          *
          * To use the `^` character within the text, escape it as `^^`.
          *
-         * The text may contain spans, but the watch face is not required to respect them.
+         * The text may contain spans, but the watch face is not required to respect them. The
+         * watch face is allowed to treat [ForegroundColorSpan] as a hint that it should render the
+         * affected text with an alternative color of its choosing.
          *
          * The allowed spans are [ForegroundColorSpan], [LocaleSpan], [SubscriptSpan],
          * [SuperscriptSpan], [StyleSpan], [StrikethroughSpan], [TypefaceSpan] and [UnderlineSpan].
