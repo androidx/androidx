@@ -40,7 +40,6 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
@@ -54,7 +53,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 
 /**
@@ -74,6 +72,7 @@ import kotlinx.coroutines.launch
  * @param shape Defines the surface's shape.
  * @param color Color to be used on background of the Surface
  * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param scale Defines size of the Surface relative to its original size.
  * @param glow Diffused shadow to be shown behind the Surface.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
@@ -92,6 +91,7 @@ fun Surface(
     shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
     color: ClickableSurfaceColor = ClickableSurfaceDefaults.color(),
     contentColor: ClickableSurfaceColor = ClickableSurfaceDefaults.contentColor(),
+    scale: ClickableSurfaceScale = ClickableSurfaceDefaults.scale(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable (BoxScope.() -> Unit)
@@ -102,8 +102,11 @@ fun Surface(
         modifier = modifier.tvClickable(
             enabled = enabled,
             onClick = onClick,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
+            value = false,
+            onValueChanged = null
         ),
+        selected = false,
         enabled = enabled,
         tonalElevation = tonalElevation,
         shape = ClickableSurfaceDefaults.shape(
@@ -124,6 +127,12 @@ fun Surface(
             pressed = pressed,
             color = contentColor
         ),
+        scale = ClickableSurfaceDefaults.scale(
+            enabled = enabled,
+            focused = focused,
+            pressed = pressed,
+            scale = scale
+        ),
         glow = ClickableSurfaceDefaults.glow(
             enabled = enabled,
             focused = focused,
@@ -138,14 +147,15 @@ fun Surface(
 @ExperimentalTvMaterial3Api
 @Composable
 private fun SurfaceImpl(
-    modifier: Modifier = Modifier,
-    selected: Boolean = false,
+    modifier: Modifier,
+    selected: Boolean,
     enabled: Boolean,
-    shape: Shape = RectangleShape,
+    shape: Shape,
     color: Color,
     contentColor: Color,
+    scale: Float,
     glow: Glow,
-    tonalElevation: Dp = 0.dp,
+    tonalElevation: Dp,
     interactionSource: MutableInteractionSource,
     content: @Composable (BoxScope.() -> Unit)
 ) {
@@ -176,6 +186,10 @@ private fun SurfaceImpl(
 
         Box(
             modifier = modifier
+                .indication(
+                    interactionSource = interactionSource,
+                    indication = remember(scale) { ScaleIndication(scale = scale) }
+                )
                 .indication(
                     interactionSource = interactionSource,
                     indication = rememberGlowIndication(
@@ -235,9 +249,9 @@ private fun SurfaceImpl(
  */
 private fun Modifier.tvClickable(
     enabled: Boolean,
-    onClick: (() -> Unit)? = null,
-    value: Boolean = false,
-    onValueChanged: ((Boolean) -> Unit)? = null,
+    onClick: (() -> Unit)?,
+    value: Boolean,
+    onValueChanged: ((Boolean) -> Unit)?,
     interactionSource: MutableInteractionSource
 ) = this
     .handleDPadEnter(
@@ -335,10 +349,10 @@ private fun stateAlpha(
     selected: Boolean
 ): Float {
     return when {
-        enabled -> EnabledContentAlpha
         !enabled && pressed -> DisabledPressedStateAlpha
         !enabled && focused -> DisabledFocusedStateAlpha
         !enabled && selected -> DisabledSelectedStateAlpha
+        enabled -> EnabledContentAlpha
         else -> DisabledDefaultStateAlpha
     }
 }

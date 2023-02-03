@@ -16,6 +16,7 @@
 
 package androidx.tv.material3
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -129,6 +130,48 @@ object ClickableSurfaceDefaults {
         focusedColor = focusedColor,
         pressedColor = pressedColor,
         disabledColor = disabledColor
+    )
+
+    internal fun scale(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        scale: ClickableSurfaceScale
+    ): Float {
+        return when {
+            pressed && enabled -> scale.pressedScale
+            focused && enabled -> scale.focusedScale
+            focused && !enabled -> scale.focusedDisabledScale
+            enabled -> scale.scale
+            else -> scale.disabledScale
+        }
+    }
+
+    /**
+     * Creates a [ClickableSurfaceScale] that represents the default scales used in a
+     * Surface. scales are used to modify the size of a composable in different [Interaction]
+     * states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
+     * 0.8f (scaled down) in pressed state, etc.
+     *
+     * @param scale the scale to be used for this Surface when enabled
+     * @param focusedScale the scale to be used for this Surface when focused
+     * @param pressedScale the scale to be used for this Surface when pressed
+     * @param disabledScale the scale to be used for this Surface when disabled
+     * @param focusedDisabledScale the scale to be used for this Surface when disabled and
+     * focused
+     */
+    fun scale(
+        @FloatRange(from = 0.0) scale: Float = 1f,
+        @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
+        @FloatRange(from = 0.0) pressedScale: Float = scale,
+        @FloatRange(from = 0.0) disabledScale: Float = scale,
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+    ) = ClickableSurfaceScale(
+        scale = scale,
+        focusedScale = focusedScale,
+        pressedScale = pressedScale,
+        disabledScale = disabledScale,
+        focusedDisabledScale = focusedDisabledScale
     )
 
     internal fun glow(
