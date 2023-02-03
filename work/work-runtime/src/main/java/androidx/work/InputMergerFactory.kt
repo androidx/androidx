@@ -57,11 +57,7 @@ abstract class InputMergerFactory {
         return inputMerger
     }
 }
-/**
- * A default [InputMergerFactory] with no custom behavior.
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object NoOpInputMergerFactory : InputMergerFactory() {
+
+internal object NoOpInputMergerFactory : InputMergerFactory() {
     override fun createInputMerger(className: String) = null
 }
