@@ -341,16 +341,16 @@ data class WorkSpec(
      */
     data class WorkInfoPojo(
         @ColumnInfo(name = "id")
-        var id: String,
+        val id: String,
 
         @ColumnInfo(name = "state")
-        var state: WorkInfo.State,
+        val state: WorkInfo.State,
 
         @ColumnInfo(name = "output")
-        var output: Data,
+        val output: Data,
 
         @ColumnInfo(name = "run_attempt_count")
-        var runAttemptCount: Int,
+        val runAttemptCount: Int,
 
         @ColumnInfo(name = "generation")
         val generation: Int,
@@ -361,7 +361,7 @@ data class WorkSpec(
             entity = WorkTag::class,
             projection = ["tag"]
         )
-        var tags: List<String>,
+        val tags: List<String>,
 
         // This is actually a 1-1 relationship. However Room 2.1 models the type as a List.
         // This will change in Room 2.2
@@ -371,7 +371,7 @@ data class WorkSpec(
             entity = WorkProgress::class,
             projection = ["progress"]
         )
-        var progress: List<Data>,
+        val progress: List<Data>,
     ) {
         /**
          * Converts this POJO to a [WorkInfo].
