@@ -17,8 +17,14 @@
 package androidx.window.embedding
 
 import android.util.LayoutDirection.LOCALE
+import android.util.LayoutDirection.LTR
+import android.util.LayoutDirection.RTL
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW
+import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
 
 /**
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
@@ -37,7 +43,10 @@ class SplitPairRule : SplitRule {
     /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary container.
-     * @see SplitRule.SplitFinishBehavior
+     *
+     * @see SplitRule.FINISH_NEVER
+     * @see SplitRule.FINISH_ALWAYS
+     * @see SplitRule.FINISH_ADJACENT
      */
     @SplitFinishBehavior
     val finishPrimaryWithSecondary: Int
@@ -45,7 +54,10 @@ class SplitPairRule : SplitRule {
     /**
      * Determines what happens with the secondary container when all activities are finished in the
      * associated primary container.
-     * @see SplitRule.SplitFinishBehavior
+     *
+     * @see SplitRule.FINISH_NEVER
+     * @see SplitRule.FINISH_ALWAYS
+     * @see SplitRule.FINISH_ADJACENT
      */
     @SplitFinishBehavior
     val finishSecondaryWithPrimary: Int
@@ -79,7 +91,8 @@ class SplitPairRule : SplitRule {
     /**
      * Builder for [SplitPairRule].
      *
-     * @param filters See [SplitPairRule.filters].
+     * @param filters Filters used to choose when to apply this rule. The rule may be used if any
+     * one of the provided filters matches.
      */
     class Builder(
         private val filters: Set<SplitPairFilter>,
@@ -101,31 +114,74 @@ class SplitPairRule : SplitRule {
         private var layoutDirection = LOCALE
 
         /**
-         * @see SplitPairRule.minWidthDp
+         * Sets the smallest value of width of the parent window when the split should be used, in
+         * DP.
+         * When the window size is smaller than requested here, activities in the secondary
+         * container will be stacked on top of the activities in the primary one, completely
+         * overlapping them.
+         *
+         * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+         * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
          */
         fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
             apply { this.minWidthDp = minWidthDp }
 
         /**
-         * @see SplitPairRule.minSmallestWidthDp
+         * Sets the smallest value of the smallest possible width of the parent window in any
+         * rotation  when the split should be used, in DP. When the window size is smaller than
+         * requested here, activities in the secondary container will be stacked on top of the
+         * activities in the primary one, completely overlapping them.
+         *
+         * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+         * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
          */
         fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
             apply { this.minSmallestWidthDp = minSmallestWidthDp }
 
         /**
-         * @see SplitPairRule.maxAspectRatioInPortrait
+         * Sets the largest value of the aspect ratio, expressed as `height / width` in decimal
+         * form, of the parent window bounds in portrait when the split should be used. When the
+         * window aspect ratio is greater than requested here, activities in the secondary container
+         * will be stacked on top of the activities in the primary one, completely overlapping them.
+         *
+         * This value is only used when the parent window is in portrait (height >= width).
+         *
+         * The default is [SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT] if the app doesn't set, which is
+         * the recommend value to only allow split when the parent window is not too stretched in
+         * portrait.
+         *
+         * @see EmbeddingAspectRatio.ratio
+         * @see EmbeddingAspectRatio.ALWAYS_ALLOW
+         * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
          */
         fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder =
             apply { this.maxAspectRatioInPortrait = aspectRatio }
 
         /**
-         * @see SplitPairRule.maxAspectRatioInLandscape
+         * Sets the largest value of the aspect ratio, expressed as `width / height` in decimal
+         * form, of the parent window bounds in landscape when the split should be used. When the
+         * window aspect ratio is greater than requested here, activities in the secondary container
+         * will be stacked on top of the activities in the primary one, completely overlapping them.
+         *
+         * This value is only used when the parent window is in landscape (width > height).
+         *
+         * The default is [SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT] if the app doesn't set, which
+         * is the recommend value to always allow split when the parent window is in landscape.
+         *
+         * @see EmbeddingAspectRatio.ratio
+         * @see EmbeddingAspectRatio.ALWAYS_ALLOW
+         * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
          */
         fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder =
             apply { this.maxAspectRatioInLandscape = aspectRatio }
 
         /**
-         * @see SplitPairRule.finishPrimaryWithSecondary
+         * Sets the behavior of the primary container when all activities are finished in the
+         * associated secondary container.
+         *
+         * @see SplitRule.FINISH_NEVER
+         * @see SplitRule.FINISH_ALWAYS
+         * @see SplitRule.FINISH_ADJACENT
          */
         fun setFinishPrimaryWithSecondary(
             @SplitFinishBehavior finishPrimaryWithSecondary: Int
@@ -133,7 +189,12 @@ class SplitPairRule : SplitRule {
             apply { this.finishPrimaryWithSecondary = finishPrimaryWithSecondary }
 
         /**
-         * @see SplitPairRule.finishSecondaryWithPrimary
+         * Sets the behavior of the secondary container when all activities are finished in the
+         * associated primary container.
+         *
+         * @see SplitRule.FINISH_NEVER
+         * @see SplitRule.FINISH_ALWAYS
+         * @see SplitRule.FINISH_ADJACENT
          */
         fun setFinishSecondaryWithPrimary(
             @SplitFinishBehavior finishSecondaryWithPrimary: Int
@@ -141,20 +202,31 @@ class SplitPairRule : SplitRule {
             apply { this.finishSecondaryWithPrimary = finishSecondaryWithPrimary }
 
         /**
-         * @see SplitPairRule.clearTop
+         * Sets whether the existing secondary container on top and all activities in it should be
+         * destroyed when a new split is created using this rule. Otherwise the new secondary will
+         * appear on top by default.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
         fun setClearTop(clearTop: Boolean): Builder =
             apply { this.clearTop = clearTop }
 
         /**
-         * @see SplitPairRule.splitRatio
+         * Sets what part of the width should be given to the primary activity.
+         *
+         * The default is `0.5` if the app doesn't set, which is to split with equal width.
          */
         fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
             apply { this.splitRatio = splitRatio }
 
         /**
-         * @see SplitPairRule.layoutDirection
+         * Sets the layout direction for the split. The value must be one of [LTR], [RTL] or
+         * [LOCALE].
+         * - [LTR]: It splits the task bounds vertically, and put the primary container on the left
+         *   portion, and the secondary container on the right portion.
+         * - [RTL]: It splits the task bounds vertically, and put the primary container on the right
+         *   portion, and the secondary container on the left portion.
+         * - [LOCALE]: It splits the task bounds vertically, and the direction is deduced from the
+         *   default language script of locale. The direction can be either [LTR] or [RTL].
          */
         fun setLayoutDirection(@LayoutDirection layoutDirection: Int): Builder =
             apply { this.layoutDirection = layoutDirection }

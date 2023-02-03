@@ -22,8 +22,8 @@ import android.content.Intent
 import android.graphics.Rect
 import android.util.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
-import androidx.window.embedding.EmbeddingAspectRatio.Companion.alwaysAllow
-import androidx.window.embedding.EmbeddingAspectRatio.Companion.alwaysDisallow
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.ALWAYS_ALLOW
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.ALWAYS_DISALLOW
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.ratio
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
@@ -84,7 +84,7 @@ class EmbeddingRuleConstructionTests {
         assertEquals(123, rule.minWidthDp)
         assertEquals(456, rule.minSmallestWidthDp)
         assertEquals(1.23f, rule.maxAspectRatioInPortrait.value)
-        assertEquals(alwaysDisallow(), rule.maxAspectRatioInLandscape)
+        assertEquals(ALWAYS_DISALLOW, rule.maxAspectRatioInLandscape)
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithSecondary)
         assertEquals(FINISH_NEVER, rule.finishSecondaryWithPrimary)
         assertEquals(true, rule.clearTop)
@@ -203,8 +203,8 @@ class EmbeddingRuleConstructionTests {
         var rule = SplitPairRule.Builder(HashSet())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .build()
         var width = 100
         var height = 1000
@@ -215,8 +215,8 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPairRule.Builder(HashSet())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysDisallow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_DISALLOW)
             .build()
         width = 100
         height = 101
@@ -230,7 +230,7 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPairRule.Builder(HashSet())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .setMaxAspectRatioInPortrait(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
@@ -258,8 +258,8 @@ class EmbeddingRuleConstructionTests {
         var rule = SplitPairRule.Builder(HashSet())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .build()
         var width = 1000
         var height = 100
@@ -270,8 +270,8 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPairRule.Builder(HashSet())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysDisallow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_DISALLOW)
             .build()
         width = 101
         height = 100
@@ -285,7 +285,7 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPairRule.Builder(HashSet())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .setMaxAspectRatioInLandscape(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
@@ -338,7 +338,7 @@ class EmbeddingRuleConstructionTests {
         assertEquals(123, rule.minWidthDp)
         assertEquals(456, rule.minSmallestWidthDp)
         assertEquals(1.23f, rule.maxAspectRatioInPortrait.value)
-        assertEquals(alwaysDisallow(), rule.maxAspectRatioInLandscape)
+        assertEquals(ALWAYS_DISALLOW, rule.maxAspectRatioInLandscape)
         assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithPlaceholder)
         assertEquals(true, rule.isSticky)
         assertEquals(0.1f, rule.splitRatio)
@@ -461,8 +461,8 @@ class EmbeddingRuleConstructionTests {
         var rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .build()
         var width = 100
         var height = 1000
@@ -473,8 +473,8 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysDisallow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_DISALLOW)
             .build()
         width = 100
         height = 101
@@ -488,7 +488,7 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .setMaxAspectRatioInPortrait(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
@@ -516,8 +516,8 @@ class EmbeddingRuleConstructionTests {
         var rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .build()
         var width = 1000
         var height = 100
@@ -531,8 +531,8 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysDisallow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_DISALLOW)
             .build()
         width = 101
         height = 100
@@ -546,7 +546,7 @@ class EmbeddingRuleConstructionTests {
         rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .setMaxAspectRatioInLandscape(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
