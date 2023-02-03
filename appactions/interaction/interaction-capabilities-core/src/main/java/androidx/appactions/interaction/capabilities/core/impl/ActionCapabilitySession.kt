@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 
 /**
  * Internal interface for a session, contains developer's Session instance
@@ -35,4 +36,13 @@ interface ActionCapabilitySession {
         argumentsWrapper: ArgumentsWrapper,
         callback: CallbackInternal,
     )
+
+    /**
+     * Support for manual input. This method should be invoked by AppInteraction SDKs
+     * (background/foreground), so the developers have a way to report state updates back to
+     * Assistant.
+     */
+    fun setTouchEventCallback(callback: TouchEventCallback)
+
+    val state: AppAction
 }

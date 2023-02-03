@@ -21,8 +21,6 @@ import java.util.Objects
 /**
  * Class that represents the response after all slots are filled and accepted and the task is ready
  * to enter the confirmation turn.
- *
- * @param <ConfirmationT>
  */
 class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: ConfirmationT?) {
     override fun toString() =
@@ -36,8 +34,6 @@ class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: C
 
     /**
      * Builder for ConfirmationOutput.
-     *
-     * @param <ConfirmationT>
      */
     class Builder<ConfirmationT> {
         private var confirmation: ConfirmationT? = null

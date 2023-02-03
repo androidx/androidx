@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
@@ -34,14 +35,13 @@ public final class CapabilityTwoEntityValues {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
-                    .bindOptionalEntityParameter("slotA", Property::slotA,
-                            Argument.Builder::setSlotA)
-                    .bindOptionalEntityParameter("slotB", Property::slotB,
-                            Argument.Builder::setSlotB)
+                    .bindOptionalEntityParameter(
+                            "slotA", Property::slotA, Argument.Builder::setSlotA)
+                    .bindOptionalEntityParameter(
+                            "slotB", Property::slotB, Argument.Builder::setSlotB)
                     .build();
 
-    private CapabilityTwoEntityValues() {
-    }
+    private CapabilityTwoEntityValues() {}
 
     /** Two required strings */
     @AutoValue
@@ -94,4 +94,6 @@ public final class CapabilityTwoEntityValues {
             public abstract Property build();
         }
     }
+
+    public interface Session extends BaseSession<Argument, Void> {}
 }

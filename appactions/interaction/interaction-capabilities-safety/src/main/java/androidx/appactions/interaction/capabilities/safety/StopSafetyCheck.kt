@@ -18,6 +18,7 @@ package androidx.appactions.interaction.capabilities.safety
 
 import androidx.appactions.interaction.capabilities.core.AbstractCapabilityBuilder
 import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -53,7 +54,7 @@ class StopSafetyCheck private constructor() {
     // TODO(b/267805819): Update to include the SessionBuilder once Session API is ready.
     class CapabilityBuilder :
         AbstractCapabilityBuilder<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater,
+            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
             >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property())
@@ -179,4 +180,6 @@ class StopSafetyCheck private constructor() {
     class Confirmation internal constructor()
 
     class TaskUpdater internal constructor() : AbstractTaskUpdater()
+
+    sealed interface Session : BaseSession<Argument, Output>
 }

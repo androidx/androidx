@@ -19,8 +19,6 @@ package androidx.appactions.interaction.capabilities.core
 import java.util.Objects
 /**
  * Class that represents the response after an ActionCapability fulfills an action.
- *
- * @param <OutputT>
  */
 class ExecutionResult<OutputT> internal constructor(
     val startDictation: Boolean,
@@ -37,8 +35,6 @@ class ExecutionResult<OutputT> internal constructor(
 
     /**
      * Builder for ExecutionResult.
-     *
-     * @param <OutputT>
      */
     class Builder<OutputT> {
         private var startDictation: Boolean = false

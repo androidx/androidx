@@ -21,9 +21,6 @@ import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * An interface of executing the action.
- *
- * @param <ArgumentT>
- * @param <OutputT>
  */
 interface ActionExecutor<ArgumentT, OutputT> {
     /**
