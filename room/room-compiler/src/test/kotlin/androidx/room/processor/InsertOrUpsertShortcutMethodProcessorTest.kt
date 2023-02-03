@@ -465,6 +465,23 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     }
 
     @Test
+    fun multipleParamCompletable() {
+        listOf(
+            RxJava2TypeNames.COMPLETABLE.canonicalName,
+            RxJava3TypeNames.COMPLETABLE.canonicalName
+        ).forEach { type ->
+            singleInsertUpsertShortcutMethodKotlin(
+                """
+                @${annotation.java.canonicalName}
+                abstract fun bookUserCompletable(user: User, book: Book): $type
+                """
+            ) { insertionUpsertion, _ ->
+                assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
+            }
+        }
+    }
+
+    @Test
     fun twoNullableDifferentParamError() {
         singleInsertUpsertShortcutMethodKotlin(
             """
