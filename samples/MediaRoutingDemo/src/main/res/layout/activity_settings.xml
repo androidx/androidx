@@ -23,6 +23,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/go_to_route_listing_preference_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Route listing preference"/>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"

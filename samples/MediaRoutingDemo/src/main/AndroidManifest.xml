@@ -63,6 +63,17 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activities.RouteListingPreferenceActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="Route Listing Preference">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.androidx.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
             android:exported="true" />
 

@@ -23,20 +23,28 @@ import static com.example.androidx.mediarouting.data.RouteItem.PlaybackStream.MU
 import static com.example.androidx.mediarouting.data.RouteItem.PlaybackType.REMOTE;
 import static com.example.androidx.mediarouting.data.RouteItem.VolumeHandling.VARIABLE;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
+import android.media.MediaRouter2;
+import android.media.RouteListingPreference;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.androidx.mediarouting.data.RouteItem;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /** Holds the data needed to control the provider for the routes dynamically. */
 public final class RoutesManager {
@@ -51,12 +59,18 @@ public final class RoutesManager {
     private final Map<String, RouteItem> mRouteItems;
     private boolean mDynamicRoutingEnabled;
     private DialogType mDialogType;
+    private final MediaRouter2 mPlatformMediaRouter2;
+    private boolean mRouteListingPreferenceEnabled;
+    private List<RouteListingPreferenceItem> mRouteListingPreferenceItems;
 
+    @SuppressLint({"NewApi", "ClassVerificationFailure"})
     private RoutesManager(Context context) {
         mContext = context;
         mDynamicRoutingEnabled = true;
         mDialogType = DialogType.OUTPUT_SWITCHER;
         mRouteItems = new HashMap<>();
+        mRouteListingPreferenceItems = Collections.emptyList();
+        mPlatformMediaRouter2 = MediaRouter2.getInstance(context);
         initTestRoutes();
     }
 
@@ -111,6 +125,68 @@ public final class RoutesManager {
     /** Adds the given route to the manager, replacing any existing route with a matching id. */
     public void addRoute(@NonNull RouteItem routeItem) {
         mRouteItems.put(routeItem.getId(), routeItem);
+    }
+
+    /**
+     * Returns whether route listing preference is enabled.
+     *
+     * @see #setRouteListingPreferenceEnabled
+     */
+    public boolean isRouteListingPreferenceEnabled() {
+        return mRouteListingPreferenceEnabled;
+    }
+
+    /**
+     * Sets whether the use of route listing preference is enabled or not.
+     *
+     * <p>If route listing preference is enabled, the route listing preference configuration for
+     * this app is maintained following the item list provided via {@link
+     * #setRouteListingPreferenceItems}. Otherwise, if route listing preference is disabled, the
+     * route listing preference for this app is set to null.
+     *
+     * @throws UnsupportedOperationException If called on a device running API 33 or older.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void setRouteListingPreferenceEnabled(boolean routeListingPreferenceEnabled) {
+        if (BuildCompat.isAtLeastU()) {
+            mRouteListingPreferenceEnabled = routeListingPreferenceEnabled;
+            Api34Impl.updatePlatformRouteListingPreference(
+                    mPlatformMediaRouter2,
+                    mRouteListingPreferenceEnabled,
+                    mRouteListingPreferenceItems);
+        } else {
+            throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
+        }
+    }
+
+    /**
+     * Sets the route listing preference items.
+     *
+     * @see #setRouteListingPreferenceEnabled
+     * @throws UnsupportedOperationException If called on a device running API 33 or older.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void setRouteListingPreferenceItems(
+            @NonNull List<RouteListingPreferenceItem> preference) {
+        if (BuildCompat.isAtLeastU()) {
+            mRouteListingPreferenceItems =
+                    Collections.unmodifiableList(new ArrayList<>(preference));
+            Api34Impl.updatePlatformRouteListingPreference(
+                    mPlatformMediaRouter2,
+                    mRouteListingPreferenceEnabled,
+                    mRouteListingPreferenceItems);
+        } else {
+            throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
+        }
+    }
+
+    /**
+     * The current list of route listing preference items, as set via {@link
+     * #setRouteListingPreferenceItems}.
+     */
+    @NonNull
+    public List<RouteListingPreferenceItem> getRouteListingPreferenceItems() {
+        return mRouteListingPreferenceItems;
     }
 
     /** Changes the media router dialog type with the type stored in {@link RoutesManager} */
@@ -201,5 +277,59 @@ public final class RoutesManager {
         DEFAULT,
         DYNAMIC_GROUP,
         OUTPUT_SWITCHER
+    }
+
+    /** An item corresponding to a route in the route listing preference of this app. */
+    public static final class RouteListingPreferenceItem {
+
+        @NonNull public final String mRouteId;
+        @NonNull public final String mRouteName;
+        // TODO(b/266561322): Add flags, disable reason, and others.
+
+        public RouteListingPreferenceItem(@NonNull String routeId, @NonNull String routeName) {
+            mRouteId = routeId;
+            mRouteName = routeName;
+        }
+
+        /** Returns the name of the corresponding route. */
+        @Override
+        @NonNull
+        public String toString() {
+            return mRouteName;
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+
+        // TODO(b/266561322): Update the media router listing preference once the AndroidX api is
+        // in place.
+        private static void updatePlatformRouteListingPreference(
+                MediaRouter2 platformRouter,
+                boolean routeListingPreferenceEnabled,
+                List<RouteListingPreferenceItem> items) {
+            if (routeListingPreferenceEnabled) {
+                List<RouteListingPreference.Item> platformItems =
+                        items.stream()
+                                .map(
+                                        it ->
+                                                new RouteListingPreference.Item.Builder(it.mRouteId)
+                                                        .build())
+                                .collect(Collectors.toList());
+                // TODO(b/266561322): Make setUseSystemOrdering configurable.
+                RouteListingPreference routeListingPreference =
+                        new RouteListingPreference.Builder()
+                                .setUseSystemOrdering(false)
+                                .setItems(platformItems)
+                                .build();
+                platformRouter.setRouteListingPreference(routeListingPreference);
+            } else {
+                platformRouter.setRouteListingPreference(null);
+            }
+        }
+
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
     }
 }
