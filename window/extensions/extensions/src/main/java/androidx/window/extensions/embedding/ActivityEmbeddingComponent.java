@@ -84,12 +84,30 @@ public interface ActivityEmbeddingComponent {
     boolean isActivityEmbedded(@NonNull Activity activity);
 
     /**
-     * Sets a callback to compute the {@link SplitAttributes} for the {@link SplitRule} and current
-     * window state provided in {@link SplitAttributesCalculatorParams}. This method can be used
-     * to dynamically configure the split layout properties when new activities are launched or
-     * window properties change. If set, {@link SplitRule#getDefaultSplitAttributes() the default
-     * split properties} and {@link SplitRule#checkParentMetrics(WindowMetrics) restrictions}
-     * will be ignored, and the callback will be invoked for every change.
+     * Sets a function to compute the {@link SplitAttributes} for the {@link SplitRule} and current
+     * window state provided in {@link SplitAttributesCalculatorParams}.
+     * <p>
+     * This method can be used to dynamically configure the split layout properties when new
+     * activities are launched or window properties change.
+     * <p>
+     * If the {@link SplitAttributes} calculator function is not set or is cleared by
+     * {@link #clearSplitAttributesCalculator()}, apps will update its split layout with
+     * registered {@link SplitRule} configurations:
+     * <ul>
+     *     <li>Split with {@link SplitRule#getDefaultSplitAttributes()} if parent task
+     *     container size constraints defined by
+     *     {@link SplitRule#checkParentMetrics(WindowMetrics)} are satisfied</li>
+     *     <li>Occupy the whole parent task bounds if the constraints are not satisfied. </li>
+     * </ul>
+     * <p>
+     * If the function is set, {@link SplitRule#getDefaultSplitAttributes()} and
+     * {@link SplitRule#checkParentMetrics(WindowMetrics)} will be passed to
+     * {@link SplitAttributesCalculatorParams} as
+     * {@link SplitAttributesCalculatorParams#getDefaultSplitAttributes()} and
+     * {@link SplitAttributesCalculatorParams#areDefaultConstraintsSatisfied()} instead, and the
+     * function will be invoked for every device and window state change regardless of the size
+     * constraints. Users can determine to follow the {@link SplitRule} behavior or customize
+     * the {@link SplitAttributes} with the {@link SplitAttributes} calculator function.
      *
      * @param calculator the callback to set. It will replace the previously set callback if it
      *                  exists.
