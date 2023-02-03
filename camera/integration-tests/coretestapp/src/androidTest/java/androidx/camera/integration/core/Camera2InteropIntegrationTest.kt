@@ -262,7 +262,9 @@ class Camera2InteropIntegrationTest(
             setAnalyzer(
                 CameraXExecutors.highPriorityExecutor()
             ) {
-                // Analyzer nothing to to
+                // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
+                // closing of the CameraDevice from being stuck.
+                it.close()
             }
         }
 
