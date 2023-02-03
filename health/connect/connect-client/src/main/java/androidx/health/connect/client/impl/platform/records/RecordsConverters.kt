@@ -21,26 +21,33 @@ package androidx.health.connect.client.impl.platform.records
 
 import android.healthconnect.datatypes.DataOrigin as PlatformDataOrigin
 import android.healthconnect.datatypes.Device as PlatformDevice
+import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
 import android.healthconnect.datatypes.Metadata as PlatformMetadata
+import android.healthconnect.datatypes.NutritionRecord as PlatformNutritionRecord
 import android.healthconnect.datatypes.Record as PlatformRecord
 import android.healthconnect.datatypes.StepsRecord as PlatformStepsRecord
-import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
+import android.healthconnect.datatypes.units.Energy as PlatformEnergy
+import android.healthconnect.datatypes.units.Mass as PlatformMass
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Mass
 import kotlin.reflect.KClass
 
-fun KClass<out Record>.toPlatformRecordClass():
-    Class<out PlatformRecord> {
+fun KClass<out Record>.toPlatformRecordClass(): Class<out PlatformRecord> {
     return when (this) {
         StepsRecord::class -> PlatformStepsRecord::class.java
         HeartRateRecord::class -> PlatformHeartRateRecord::class.java
+        NutritionRecord::class -> PlatformNutritionRecord::class.java
         else -> throw IllegalArgumentException("Unsupported record type $this")
     }
 }
@@ -48,39 +55,60 @@ fun KClass<out Record>.toPlatformRecordClass():
 fun Record.toPlatformRecord(): PlatformRecord {
     return when (this) {
         is StepsRecord ->
-            PlatformStepsRecord.Builder(
-                metadata.toPlatformMetadata(),
-                startTime,
-                endTime,
-                count
-            )
+            PlatformStepsRecord.Builder(metadata.toPlatformMetadata(), startTime, endTime, count)
                 .apply {
                     startZoneOffset?.let { setStartZoneOffset(it) }
                     endZoneOffset?.let { setEndZoneOffset(it) }
                 }
                 .build()
-
+        is HeartRateRecord ->
+            PlatformHeartRateRecord.Builder(
+                    metadata.toPlatformMetadata(),
+                    startTime,
+                    endTime,
+                    samples.map { it.toPlatformHeartRateSample() })
+                .apply {
+                    startZoneOffset?.let { setStartZoneOffset(it) }
+                    endZoneOffset?.let { setEndZoneOffset(it) }
+                }
+                .build()
+        is NutritionRecord ->
+            PlatformNutritionRecord.Builder(metadata.toPlatformMetadata(), startTime, endTime)
+                .apply {
+                    startZoneOffset?.let { setStartZoneOffset(it) }
+                    endZoneOffset?.let { setEndZoneOffset(it) }
+                    caffeine?.let { setCaffeine(it.toPlatformMass()) }
+                    energy?.let { setEnergy(it.toPlatformEnergy()) }
+                }
+                .build()
         else -> throw IllegalArgumentException("Unsupported record $this")
     }
+}
+
+private fun Mass.toPlatformMass(): PlatformMass {
+    return PlatformMass.fromKilograms(inKilograms)
+}
+
+private fun Energy.toPlatformEnergy(): PlatformEnergy {
+    return PlatformEnergy.fromJoules(inJoules)
+}
+
+private fun HeartRateRecord.Sample.toPlatformHeartRateSample():
+    PlatformHeartRateRecord.HeartRateSample {
+    return PlatformHeartRateRecord.HeartRateSample(beatsPerMinute, time)
 }
 
 fun PlatformRecord.toSdkRecord(): Record {
     return when (this) {
         is PlatformStepsRecord ->
             StepsRecord(
-                startTime,
-                startZoneOffset,
-                endTime,
-                endZoneOffset,
-                count,
-                metadata.toSdkMetadata()
-            )
-
+                startTime, startZoneOffset, endTime, endZoneOffset, count, metadata.toSdkMetadata())
         else -> throw IllegalArgumentException("Unsupported record $this")
     }
 }
 
-fun Metadata.toPlatformMetadata(): PlatformMetadata {
+@VisibleForTesting
+internal fun Metadata.toPlatformMetadata(): PlatformMetadata {
     return PlatformMetadata.Builder()
         .apply {
             device?.toPlatformDevice()?.let { setDevice(it) }
@@ -93,18 +121,18 @@ fun Metadata.toPlatformMetadata(): PlatformMetadata {
         .build()
 }
 
-fun PlatformMetadata.toSdkMetadata(): Metadata {
+@VisibleForTesting
+internal fun PlatformMetadata.toSdkMetadata(): Metadata {
     return Metadata(
         id,
         dataOrigin.toSdkDataOrigin(),
         lastModifiedTime,
         clientRecordId,
         clientRecordVersion,
-        device.toSdkDevice()
-    )
+        device.toSdkDevice())
 }
 
-fun Device.toPlatformDevice(): PlatformDevice {
+private fun Device.toPlatformDevice(): PlatformDevice {
     @Suppress("WrongConstant") // Platform intdef and jetpack intdef match in value.
     return PlatformDevice.Builder()
         .apply {
@@ -115,17 +143,15 @@ fun Device.toPlatformDevice(): PlatformDevice {
         .build()
 }
 
-fun PlatformDevice.toSdkDevice(): Device {
+private fun PlatformDevice.toSdkDevice(): Device {
     @Suppress("WrongConstant") // Platform intdef and jetpack intdef match in value.
     return Device(manufacturer, model, type)
 }
 
-fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
-    return PlatformDataOrigin.Builder()
-        .apply { setPackageName(packageName) }
-        .build()
+internal fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
+    return PlatformDataOrigin.Builder().apply { setPackageName(packageName) }.build()
 }
 
-fun PlatformDataOrigin.toSdkDataOrigin(): DataOrigin {
+private fun PlatformDataOrigin.toSdkDataOrigin(): DataOrigin {
     return DataOrigin(packageName)
 }
