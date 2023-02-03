@@ -22,7 +22,6 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
@@ -216,7 +215,6 @@ class WorkUpdateTest {
         workManager.awaitSuccess(requestId)
     }
 
-    @RequiresDevice // b/266498479
     @Test
     @MediumTest
     fun progressReset() {
@@ -230,7 +228,8 @@ class WorkUpdateTest {
         lateinit var runningObserver: Observer<WorkInfo>
         val liveData = workManager.getWorkInfoByIdLiveData(request.id)
         runningObserver = Observer {
-            if (it.state == State.RUNNING) {
+            // not only running, but setProgressAsync call was made
+            if (it.state == State.RUNNING && it.progress.size() != 0) {
                 runningLatch.countDown()
                 liveData.removeObserver(runningObserver)
             }
