@@ -46,4 +46,14 @@ internal interface EmbeddingInterfaceCompat {
     fun isSplitAttributesCalculatorSupported(): Boolean
 
     fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+
+    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
+
+    fun isFinishActivityStacksSupported(): Boolean
+
+    fun invalidateTopVisibleSplitAttributes()
+
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
+
+    fun areSplitAttributesUpdatesSupported(): Boolean
 }

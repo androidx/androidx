@@ -193,8 +193,10 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                 splitRules.add(rule)
             } else if (tagRuleMap.containsKey(tag)) {
                 if (throwOnDuplicateTag) {
-                    throw IllegalArgumentException("Duplicated tag: $tag. Tag must be unique " +
-                        "among all registered rules")
+                    throw IllegalArgumentException(
+                        "Duplicated tag: $tag. Tag must be unique " +
+                            "among all registered rules"
+                    )
                 } else {
                     // Update the rule if throwOnDuplicateTag = false
                     val oldRule = tagRuleMap[tag]
@@ -344,4 +346,25 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
+
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        embeddingExtension?.finishActivityStacks(activityStacks)
+    }
+
+    override fun isFinishActivityStacksSupported(): Boolean =
+        embeddingExtension?.isFinishActivityStacksSupported() ?: false
+
+    override fun invalidateTopVisibleSplitAttributes() {
+        embeddingExtension?.invalidateTopVisibleSplitAttributes()
+    }
+
+    override fun updateSplitAttributes(
+        splitInfo: SplitInfo,
+        splitAttributes: SplitAttributes
+    ) {
+        embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
+    }
+
+    override fun areSplitAttributesUpdatesSupported(): Boolean =
+        embeddingExtension?.areSplitAttributesUpdatesSupported() ?: false
 }
