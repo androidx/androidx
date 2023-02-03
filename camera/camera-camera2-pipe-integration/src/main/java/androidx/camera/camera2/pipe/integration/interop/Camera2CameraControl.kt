@@ -69,7 +69,7 @@ private constructor(
             _useCaseCamera?.also {
                 requestListener.removeListener(compat)
                 requestListener.addListener(compat, threads.sequentialExecutor)
-                compat.applyAsync(it)
+                compat.applyAsync(it, false)
             }
         }
 
