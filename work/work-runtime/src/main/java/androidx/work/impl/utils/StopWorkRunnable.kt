@@ -13,55 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.utils
 
-package androidx.work.impl.utils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Logger;
-import androidx.work.impl.StartStopToken;
-import androidx.work.impl.WorkManagerImpl;
+import androidx.annotation.RestrictTo
+import androidx.work.Logger
+import androidx.work.impl.Processor
+import androidx.work.impl.StartStopToken
 
 /**
- * A {@link Runnable} that requests {@link androidx.work.impl.Processor} to stop the work
+ * A [Runnable] that requests [androidx.work.impl.Processor] to stop the work
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StopWorkRunnable implements Runnable {
-
-    private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
-
-    private final WorkManagerImpl mWorkManagerImpl;
-    private final StartStopToken mToken;
-    private final boolean mStopInForeground;
-
-    public StopWorkRunnable(
-            @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull StartStopToken startStopToken,
-            boolean stopInForeground) {
-        mWorkManagerImpl = workManagerImpl;
-        mToken = startStopToken;
-        mStopInForeground = stopInForeground;
-    }
-    @Override
-    public void run() {
-        boolean isStopped;
-        if (mStopInForeground) {
-            isStopped = mWorkManagerImpl
-                    .getProcessor()
-                    .stopForegroundWork(mToken);
+class StopWorkRunnable(
+    private val processor: Processor,
+    private val token: StartStopToken,
+    private val stopInForeground: Boolean
+) : Runnable {
+    override fun run() {
+        val isStopped = if (stopInForeground) {
+            processor.stopForegroundWork(token)
         } else {
             // This call is safe to make for foreground work because Processor ignores requests
             // to stop for foreground work.
-            isStopped = mWorkManagerImpl
-                    .getProcessor()
-                    .stopWork(mToken);
+            processor.stopWork(token)
         }
-
         Logger.get().debug(
-                TAG,
-                "StopWorkRunnable for " + mToken.getId().getWorkSpecId() + "; Processor"
-                + ".stopWork" + " = " + isStopped);
-
+            Logger.tagWithPrefix("StopWorkRunnable"),
+            "StopWorkRunnable for ${token.id.workSpecId}; Processor.stopWork = $isStopped"
+        )
     }
 }

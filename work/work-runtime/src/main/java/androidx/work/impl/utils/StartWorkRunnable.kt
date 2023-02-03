@@ -13,39 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.utils
 
-package androidx.work.impl.utils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.work.WorkerParameters;
-import androidx.work.impl.StartStopToken;
-import androidx.work.impl.WorkManagerImpl;
+import androidx.annotation.RestrictTo
+import androidx.work.WorkerParameters
+import androidx.work.impl.Processor
+import androidx.work.impl.StartStopToken
 
 /**
- * A {@link Runnable} that can start work on the
- * {@link androidx.work.impl.Processor}.
+ * A [Runnable] that can start work on the
+ * [androidx.work.impl.Processor].
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StartWorkRunnable implements Runnable {
-
-    private WorkManagerImpl mWorkManagerImpl;
-    private StartStopToken mWorkSpecId;
-    private WorkerParameters.RuntimeExtras mRuntimeExtras;
-
-    public StartWorkRunnable(
-            @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull StartStopToken workSpecId,
-            @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
-        mWorkManagerImpl = workManagerImpl;
-        mWorkSpecId = workSpecId;
-        mRuntimeExtras = runtimeExtras;
-    }
-
-    @Override
-    public void run() {
-        mWorkManagerImpl.getProcessor().startWork(mWorkSpecId, mRuntimeExtras);
+class StartWorkRunnable(
+    private val processor: Processor,
+    private val startStopToken: StartStopToken,
+    private val runtimeExtras: WorkerParameters.RuntimeExtras?
+) : Runnable {
+    override fun run() {
+        processor.startWork(startStopToken, runtimeExtras)
     }
 }
