@@ -27,12 +27,11 @@ import androidx.collection.ArraySet;
 import androidx.wear.protolayout.expression.StateEntryBuilders;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * State storage for ProtoLayout, which also supports sending callback when data items change.
@@ -64,7 +63,7 @@ public class ObservableStateStore {
     /**
      * Sets the given state, replacing the current state.
      *
-     * <p>Informs registered listeners of changed values, ignores removed values.
+     * <p>Informs registered listeners of changed values, invalidates removed values.
      */
     @UiThread
     public void setStateEntryValues(
@@ -75,37 +74,36 @@ public class ObservableStateStore {
     /**
      * Sets the given state, replacing the current state.
      *
-     * <p>Informs registered listeners of changed values, ignores removed values.
+     * <p>Informs registered listeners of changed values, invalidates removed values.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @UiThread
     public void setStateEntryValuesProto(@NonNull Map<String, StateEntryValue> newState) {
         // Figure out which nodes have actually changed.
-        List<String> changedKeys = new ArrayList<>();
-        for (Entry<String, StateEntryValue> newEntry : newState.entrySet()) {
-            StateEntryValue currentEntry = mCurrentState.get(newEntry.getKey());
-            if (currentEntry == null || !currentEntry.equals(newEntry.getValue())) {
-                changedKeys.add(newEntry.getKey());
-            }
-        }
+        Set<String> removedKeys = getRemovedKeys(newState);
+        Map<String, StateEntryValue> changedEntries = getChangedEntries(newState);
 
-        for (String key : changedKeys) {
-            for (DynamicTypeValueReceiver<StateEntryValue> callback :
-                    mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
-                callback.onPreUpdate();
-            }
-        }
+        Stream.concat(removedKeys.stream(), changedEntries.keySet().stream())
+                .forEach(key -> {
+                    for (DynamicTypeValueReceiver<StateEntryValue> callback :
+                            mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
+                        callback.onPreUpdate();
+                    }
+                });
 
         mCurrentState.clear();
         mCurrentState.putAll(newState);
 
-        for (String key : changedKeys) {
+        for (String key : removedKeys) {
             for (DynamicTypeValueReceiver<StateEntryValue> callback :
                     mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
-                if (newState.containsKey(key)) {
-                    // The keys come from newState, so this should never be null.
-                    callback.onData(newState.get(key));
-                }
+                callback.onInvalidated();
+            }
+        }
+        for (Entry<String, StateEntryValue> entry : changedEntries.entrySet()) {
+            for (DynamicTypeValueReceiver<StateEntryValue> callback :
+                    mRegisteredCallbacks.getOrDefault(entry.getKey(), Collections.emptySet())) {
+                callback.onData(entry.getValue());
             }
         }
     }
@@ -148,5 +146,25 @@ public class ObservableStateStore {
             @NonNull Map<String, StateEntryBuilders.StateEntryValue> value) {
         return value.entrySet().stream()
                 .collect(toMap(Entry::getKey, entry -> entry.getValue().toStateEntryValueProto()));
+    }
+
+    @NonNull
+    private Set<String> getRemovedKeys(@NonNull Map<String, StateEntryValue> newState) {
+        Set<String> result = new ArraySet<>(mCurrentState.keySet());
+        result.removeAll(newState.keySet());
+        return result;
+    }
+
+    @NonNull
+    private Map<String, StateEntryValue> getChangedEntries(
+            @NonNull Map<String, StateEntryValue> newState) {
+        Map<String, StateEntryValue> result = new ArrayMap<>();
+        for (Entry<String, StateEntryValue> newEntry : newState.entrySet()) {
+            StateEntryValue currentEntry = mCurrentState.get(newEntry.getKey());
+            if (currentEntry == null || !currentEntry.equals(newEntry.getValue())) {
+                result.put(newEntry.getKey(), newEntry.getValue());
+            }
+        }
+        return result;
     }
 }

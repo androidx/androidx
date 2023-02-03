@@ -138,6 +138,26 @@ public class ObservableStateStoreTest {
         verify(cbBaz, never()).onData(buildStateEntry("test"));
     }
 
+    @Test
+    public void removeStateFiresInvalidated() {
+        mStateStoreUnderTest.setStateEntryValuesProto(
+                ImmutableMap.of(
+                        "invalidated", buildStateEntry("value"),
+                        "notInvalidated", buildStateEntry("value")));
+        DynamicTypeValueReceiver<StateEntryValue> invalidated = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiver<StateEntryValue> notInvalidated = buildStateUpdateCallbackMock();
+        mStateStoreUnderTest.registerCallback("invalidated", invalidated);
+        mStateStoreUnderTest.registerCallback("notInvalidated", notInvalidated);
+
+        mStateStoreUnderTest.setStateEntryValuesProto(
+                ImmutableMap.of("notInvalidated", buildStateEntry("value")));
+
+        verify(invalidated).onPreUpdate();
+        verify(invalidated).onInvalidated();
+        verify(invalidated, never()).onData(any());
+        verifyNoInteractions(notInvalidated);
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void canUnregisterListeners() {
