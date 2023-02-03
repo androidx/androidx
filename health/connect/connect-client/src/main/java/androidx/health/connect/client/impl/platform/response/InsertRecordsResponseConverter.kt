@@ -18,7 +18,7 @@
 
 package androidx.health.connect.client.impl.platform.response
 
-import android.healthconnect.InsertRecordsResponse
+import android.health.connect.InsertRecordsResponse
 import android.os.Build
 import androidx.annotation.RequiresApi
 

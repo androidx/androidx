@@ -19,15 +19,15 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.healthconnect.datatypes.DataOrigin as PlatformDataOrigin
-import android.healthconnect.datatypes.Device as PlatformDevice
-import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
-import android.healthconnect.datatypes.Metadata as PlatformMetadata
-import android.healthconnect.datatypes.NutritionRecord as PlatformNutritionRecord
-import android.healthconnect.datatypes.Record as PlatformRecord
-import android.healthconnect.datatypes.StepsRecord as PlatformStepsRecord
-import android.healthconnect.datatypes.units.Energy as PlatformEnergy
-import android.healthconnect.datatypes.units.Mass as PlatformMass
+import android.health.connect.datatypes.DataOrigin as PlatformDataOrigin
+import android.health.connect.datatypes.Device as PlatformDevice
+import android.health.connect.datatypes.HeartRateRecord as PlatformHeartRateRecord
+import android.health.connect.datatypes.Metadata as PlatformMetadata
+import android.health.connect.datatypes.NutritionRecord as PlatformNutritionRecord
+import android.health.connect.datatypes.Record as PlatformRecord
+import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
+import android.health.connect.datatypes.units.Energy as PlatformEnergy
+import android.health.connect.datatypes.units.Mass as PlatformMass
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo

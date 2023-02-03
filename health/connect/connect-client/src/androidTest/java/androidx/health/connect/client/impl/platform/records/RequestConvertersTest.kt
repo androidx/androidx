@@ -17,11 +17,12 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.TargetApi
-import android.healthconnect.datatypes.DataOrigin as PlatformDataOrigin
-import android.healthconnect.datatypes.HeartRateRecord as PlatformHeartRateRecord
-import android.healthconnect.datatypes.NutritionRecord as PlatformNutritionRecord
-import android.healthconnect.datatypes.StepsRecord as PlatformStepsRecord
-import android.healthconnect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
+import android.health.connect.datatypes.DataOrigin as PlatformDataOrigin
+import android.health.connect.datatypes.HeartRateRecord as PlatformHeartRateRecord
+import android.health.connect.datatypes.NutritionRecord as PlatformNutritionRecord
+import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
+import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
+import android.health.connect.TimeInstantRangeFilter
 import android.os.Build
 import androidx.health.connect.client.impl.platform.time.FakeTimeSource
 import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
@@ -122,8 +123,10 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1")))
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
-            assertThat(timeRangeFilter.startTime).isEqualTo(Instant.ofEpochMilli(123L))
-            assertThat(timeRangeFilter.endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            with(timeRangeFilter as TimeInstantRangeFilter) {
+                assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
+                assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            }
             assertThat(aggregationTypes)
                 .containsExactly(
                     PlatformStepsRecord.STEPS_COUNT_TOTAL, PlatformNutritionRecord.CAFFEINE_TOTAL)
@@ -142,8 +145,10 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1"), DataOrigin("package2")))
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
-            assertThat(timeRangeFilter.startTime).isEqualTo(Instant.ofEpochMilli(123L))
-            assertThat(timeRangeFilter.endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            with(timeRangeFilter as TimeInstantRangeFilter) {
+                assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
+                assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            }
             assertThat(aggregationTypes).containsExactly(PlatformNutritionRecord.ENERGY_TOTAL)
             assertThat(dataOriginsFilters)
                 .containsExactly(
@@ -162,8 +167,10 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3")))
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
-            assertThat(timeRangeFilter.startTime).isEqualTo(Instant.ofEpochMilli(123L))
-            assertThat(timeRangeFilter.endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            with(timeRangeFilter as TimeInstantRangeFilter) {
+                assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
+                assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            }
             assertThat(aggregationTypes)
                 .containsExactly(
                     PlatformHeartRateRecord.BPM_MAX,
