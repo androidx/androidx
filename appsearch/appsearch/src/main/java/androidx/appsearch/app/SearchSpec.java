@@ -732,7 +732,7 @@ public final class SearchSpec {
          * </ul>
          *
          * <p>Syntax errors and type errors will fail the entire search and will cause
-         * {@link SearchResults#getNextPageAsync()} to throw an {@link AppSearchException}.
+         * {@link SearchResults#getNextPageAsync} to throw an {@link AppSearchException}.
          * <p>Evaluation errors will result in the offending documents receiving the default score.
          * For {@link #ORDER_DESCENDING}, the default score will be 0, for
          * {@link #ORDER_ASCENDING} the default score will be infinity.
