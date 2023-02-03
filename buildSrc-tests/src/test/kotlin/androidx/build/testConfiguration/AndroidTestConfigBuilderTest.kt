@@ -87,6 +87,36 @@ class AndroidTestConfigBuilderTest {
                       "key": "notAnnotation",
                       "value": "androidx.test.filters.FlakyTest"
                     }
+                  ],
+                  "additionalApkKeys": []
+                }
+            """.trimIndent()
+            )
+        )
+    }
+
+    @Test
+    fun testJsonAgainstGoldenAdditionalApkKey() {
+        builder.additionalApkKeys(listOf("customKey"))
+        MatcherAssert.assertThat(
+            builder.buildJson(),
+            CoreMatchers.`is`("""
+                {
+                  "name": "placeHolderAndroidTest.xml",
+                  "minSdkVersion": "15",
+                  "testSuiteTags": [
+                    "placeholder_tag"
+                  ],
+                  "testApk": "placeholder.apk",
+                  "testApkSha256": "123456",
+                  "instrumentationArgs": [
+                    {
+                      "key": "notAnnotation",
+                      "value": "androidx.test.filters.FlakyTest"
+                    }
+                  ],
+                  "additionalApkKeys": [
+                    "customKey"
                   ]
                 }
             """.trimIndent()
@@ -118,7 +148,8 @@ class AndroidTestConfigBuilderTest {
                       "key": "androidx.benchmark.dryRunMode.enable",
                       "value": "true"
                     }
-                  ]
+                  ],
+                  "additionalApkKeys": []
                 }
             """.trimIndent()
             )
@@ -147,7 +178,8 @@ class AndroidTestConfigBuilderTest {
                       "key": "notAnnotation",
                       "value": "androidx.test.filters.FlakyTest"
                     }
-                  ]
+                  ],
+                  "additionalApkKeys": []
                 }
             """.trimIndent()
             )
