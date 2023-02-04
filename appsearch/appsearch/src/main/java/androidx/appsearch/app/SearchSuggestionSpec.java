@@ -45,7 +45,7 @@ import java.util.Set;
  * This class represents the specification logic for AppSearch. It can be used to set the filter
  * and settings of search a suggestions.
  *
- * @see AppSearchSession#searchSuggestionAsync(String, SearchSuggestionSpec)
+ * @see AppSearchSession#searchSuggestionAsync
  */
 public class SearchSuggestionSpec {
     static final String NAMESPACE_FIELD = "namespace";
