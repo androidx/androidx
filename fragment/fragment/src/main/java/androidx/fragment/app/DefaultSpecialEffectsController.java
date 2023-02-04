@@ -53,7 +53,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     }
 
     @Override
-    void executeOperations(@NonNull List<Operation> operations, boolean isPop) {
+    public void executeOperations(@NonNull List<Operation> operations, boolean isPop) {
         // Shared element transitions are done between the first fragment leaving and
         // the last fragment coming in. Finding these operations is the first priority
         Operation firstOut = null;
