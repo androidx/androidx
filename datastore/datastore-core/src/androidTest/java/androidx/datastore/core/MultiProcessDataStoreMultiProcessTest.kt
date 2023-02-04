@@ -27,7 +27,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
-import kotlin.jvm.Throws
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -43,7 +42,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -276,7 +274,6 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
-    @Ignore // b/242765757
     @Test
     fun testInterleavedUpdateDataWithLocalRead() = runTest(UnconfinedTestDispatcher()) {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)

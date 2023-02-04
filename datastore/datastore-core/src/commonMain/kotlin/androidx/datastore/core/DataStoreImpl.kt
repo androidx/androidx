@@ -17,22 +17,24 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
-import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -50,9 +52,10 @@ internal class DataStoreImpl<T>(
      * result in deadlock.
      */
     initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),
-    private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
+    private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler(),
     private val scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob())
 ) : DataStore<T> {
+
     override val data: Flow<T> = flow {
         /**
          * If downstream flow is UnInitialized, no data has been read yet, we need to trigger a new
@@ -74,7 +77,7 @@ internal class DataStoreImpl<T>(
          * Data can transition to another Data or Final. Final will not change.
          */
         val latestVersionAtRead = coordinator.getVersion()
-        val currentDownStreamFlowState = downstreamFlow.value
+        val currentDownStreamFlowState = inMemoryCache.currentState
 
         if ((currentDownStreamFlowState !is Data) ||
             (currentDownStreamFlowState.version < latestVersionAtRead)
@@ -84,7 +87,7 @@ internal class DataStoreImpl<T>(
         }
 
         emitAll(
-            downstreamFlow.takeWhile {
+            inMemoryCache.flow.takeWhile {
                 // end the flow if we reach the final value
                 it !is Final
             }.dropWhile {
@@ -112,7 +115,7 @@ internal class DataStoreImpl<T>(
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
         val ack = CompletableDeferred<T>()
-        val currentDownStreamFlowState = downstreamFlow.value
+        val currentDownStreamFlowState = inMemoryCache.currentState
 
         val updateMsg =
             Message.Update(transform, ack, currentDownStreamFlowState, coroutineContext)
@@ -122,12 +125,11 @@ internal class DataStoreImpl<T>(
         return ack.await()
     }
 
-    private val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
-        "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
-    // TODO(b/255419657): update the shared lock IOException handling logic
-    private val INVALID_VERSION = -1
-    private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
-        initTasksList.toList()
+    private val inMemoryCache = DataStoreInMemoryCache<T>()
+
+    private val readAndInit = InitDataStore(initTasksList)
+
+    private lateinit var updateCollector: Job
 
     // TODO(b/269772127): make this private after we allow multiple instances of DataStore on the
     //  same file
@@ -136,16 +138,11 @@ internal class DataStoreImpl<T>(
     }
     private val coordinator: InterProcessCoordinator by lazy { storageConnection.coordinator }
 
-    @Suppress("UNCHECKED_CAST")
-    private val downstreamFlow = MutableStateFlow(UnInitialized as State<T>)
-
-    private lateinit var updateCollector: Job
-
     private val writeActor = SimpleActor<Message.Update<T>>(
         scope = scope,
         onComplete = {
             it?.let {
-                downstreamFlow.value = Final(it)
+                inMemoryCache.tryUpdate(Final(it))
             }
             // We expect it to always be non-null but we will leave the alternative as a no-op
             // just in case.
@@ -173,39 +170,33 @@ internal class DataStoreImpl<T>(
             }
         },
         onUndeliveredElement = { _, _ -> }
-    ) { msg ->
-        handleRead(msg)
+    ) {
+        handleRead()
     }
 
-    private suspend fun handleRead(read: Message.Read<T>) {
-        when (val currentState = downstreamFlow.value) {
-            is Data -> {
-                readDataAndUpdateCache()
-            }
-            is ReadException -> {
-                if (currentState === read.lastState) {
-                    readAndInitOrPropagateFailure()
-                }
-
-                // Someone else beat us but also failed. The collector has already
-                // been signalled so we don't need to do anything.
-            }
-            UnInitialized -> {
-                readAndInitOrPropagateFailure()
-            }
-            is Final -> error("Can't read in final state.") // won't happen
+    private suspend fun handleRead() {
+        try {
+            // make sure we initialize properly before reading from file.
+            readAndInitOrPropagateAndThrowFailure()
+            // after init, try to read again. If the init run for this block, it won't
+            // re-read the file and use cache, so this is an OK call to make wrt performance.
+            readDataAndUpdateCache()
+        } catch (throwable: Throwable) {
+            // init or read failed, it is already updated in the cached value
+            // so we don't need to do anything.
         }
     }
 
     private suspend fun handleUpdate(update: Message.Update<T>) {
         update.ack.completeWith(
             runCatching {
-                var result: T
-                when (val currentState = downstreamFlow.value) {
+                val result: T
+                when (val currentState = inMemoryCache.currentState) {
                     is Data -> {
                         // We are already initialized, we just need to perform the update
                         result = transformAndWrite(update.transform, update.callerContext)
                     }
+
                     is ReadException, is UnInitialized -> {
                         if (currentState === update.lastState) {
                             // we need to try to read again
@@ -230,47 +221,115 @@ internal class DataStoreImpl<T>(
     }
 
     private suspend fun readAndInitOrPropagateAndThrowFailure() {
+        val preReadVersion = coordinator.getVersion()
         try {
-            readAndInit()
+            readAndInit.runIfNeeded()
         } catch (throwable: Throwable) {
-            downstreamFlow.value = ReadException(throwable)
+            inMemoryCache.tryUpdate(ReadException(throwable, preReadVersion))
             throw throwable
         }
     }
 
-    private suspend fun readAndInitOrPropagateFailure() {
-        try {
-            readAndInit()
-        } catch (throwable: Throwable) {
-            downstreamFlow.value = ReadException(throwable)
+    /**
+     * Reads the file and updates the cache unless current cached value is Data and
+     * its version is equal to the latest version.
+     *
+     * Calling this method when state is UnInitialized is a bug and this method
+     * will throw if that happens.
+     */
+    private suspend fun readDataAndUpdateCache() {
+        // Check if the cached version matches with shared memory counter
+        val currentState = inMemoryCache.currentState
+        // should not call this without initialization first running
+        check(currentState !is UnInitialized) {
+            BUG_MESSAGE
         }
+        val version = coordinator.getVersion()
+        val cachedVersion = if (currentState is Data) currentState.version else -1
+
+        // Return cached value if cached version is latest
+        if (currentState is Data && version == cachedVersion) {
+            return
+        }
+        val data = try {
+            coordinator.tryLock { locked ->
+                val result = readDataFromFileOrDefault()
+                Data(
+                    result,
+                    result.hashCode(),
+                    // use the latest version if we have the lock. Otherwise, use the
+                    // previous version that we read before entering the tryLock
+                    if (locked) coordinator.getVersion() else version
+                )
+            }
+        } catch (throwable: Throwable) {
+            ReadException(throwable, version)
+        }
+        inMemoryCache.tryUpdate(data)
     }
 
-    // It handles the read when data needs to be initialized.
-    private suspend fun readAndInit() {
-        initTaskLock.withLock() {
-            // This should only be called if we don't already have cached data.
-            if (downstreamFlow.value != UnInitialized && downstreamFlow.value !is ReadException) {
-                // downstreamFlow.value is Data or Final, no need to readAndInit. As there are two
-                // actors, we return here instead of throwing exception to properly handle the race
-                // condition where one actor call `readAndInit()` after the other has completed
-                // successfully.
-                return
-            }
+    // Caller is responsible for (try to) getting file lock. It reads from the file directly without
+    // checking shared counter version and returns serializer default value if file is not found.
+    private suspend fun readDataFromFileOrDefault(): T {
+        return storageConnection.readData()
+    }
 
-            var initData: Data<T>
-            if ((initTasks == null) || initTasks!!.isEmpty()) {
-                initData = readDataOrHandleCorruption(hasWriteFileLock = false)
+    private suspend fun transformAndWrite(
+        transform: suspend (t: T) -> T,
+        callerContext: CoroutineContext
+    ): T = coordinator.lock {
+        val curData = readDataFromFileOrDefault()
+        val curDataAndHash = Data(curData, curData.hashCode(), /* unused */ version = 0)
+        val newData = withContext(callerContext) { transform(curData) }
+
+        // Check that curData has not changed...
+        curDataAndHash.checkHashCode()
+
+        if (curData != newData) {
+            writeData(newData, updateCache = true)
+        }
+        newData
+    }
+
+    // Write data to disk and return the corresponding version if succeed.
+    internal suspend fun writeData(newData: T, updateCache: Boolean): Int {
+        var newVersion = 0
+
+        // The code in `writeScope` is run synchronously, i.e. the newVersion isn't returned until
+        // the code in `writeScope` completes.
+        storageConnection.writeScope {
+            writeData(newData)
+            newVersion = coordinator.incrementAndGetVersion()
+            if (updateCache) {
+                inMemoryCache.tryUpdate(Data(newData, newData.hashCode(), newVersion))
+            }
+        }
+
+        return newVersion
+    }
+
+    private inner class InitDataStore(
+        initTasksList: List<suspend (api: InitializerApi<T>) -> Unit>
+    ) : RunOnce() {
+        // cleaned after initialization is complete
+        private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
+            initTasksList.toList()
+
+        override suspend fun doRun() {
+            val initData = if ((initTasks == null) || initTasks!!.isEmpty()) {
+                // if there are no init tasks, we can directly read
+                readDataOrHandleCorruption(hasWriteFileLock = false)
             } else {
-                var version = INVALID_VERSION
-                val currentValue = coordinator.lock {
+                // if there are init tasks, we need to obtain a lock to ensure migrations
+                // run as 1 chunk
+                coordinator.lock {
                     val updateLock = Mutex()
-                    var initializationComplete: Boolean = false
+                    var initializationComplete = false
                     var currentData = readDataOrHandleCorruption(hasWriteFileLock = true).value
 
                     val api = object : InitializerApi<T> {
                         override suspend fun updateData(transform: suspend (t: T) -> T): T {
-                            return updateLock.withLock() {
+                            return updateLock.withLock {
                                 check(!initializationComplete) {
                                     "InitializerApi.updateData should not be called after " +
                                         "initialization is complete."
@@ -293,153 +352,108 @@ internal class DataStoreImpl<T>(
                     updateLock.withLock {
                         initializationComplete = true
                     }
-                    version = coordinator.getVersion()
-
                     // only to make compiler happy
-                    currentData
+                    Data(
+                        value = currentData,
+                        hashCode = currentData.hashCode(),
+                        version = coordinator.getVersion()
+                    )
                 }
-                initData = Data(currentValue, currentValue.hashCode(), version)
             }
-            downstreamFlow.value = initData
-            // TODO(b/267792241): consider scope it with active datastore.data observers
+            inMemoryCache.tryUpdate(initData)
             if (!::updateCollector.isInitialized) {
                 updateCollector = scope.launch {
                     coordinator.updateNotifications.collect {
-                        if (downstreamFlow.value !is Final) {
-                            readActor.offer(Message.Read(downstreamFlow.value))
+                        val currentState = inMemoryCache.currentState
+                        if (currentState !is Final) {
+                            readActor.offer(Message.Read(currentState))
                         }
                     }
                 }
             }
         }
-    }
 
-    // Only be called from `readAndInit`. State is UnInitialized or ReadException.
-    private suspend fun readDataOrHandleCorruption(hasWriteFileLock: Boolean): Data<T> {
-        try {
-            if (hasWriteFileLock) {
-                val data = readDataFromFileOrDefault()
-                return Data(data, data.hashCode(), version = coordinator.getVersion())
+        @OptIn(ExperimentalContracts::class)
+        private suspend fun <R> doWithWriteFileLock(
+            hasWriteFileLock: Boolean,
+            block: suspend () -> R
+        ): R {
+            contract {
+                callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+            }
+            return if (hasWriteFileLock) {
+                block()
             } else {
-                var version = INVALID_VERSION
-                val data = coordinator.tryLock {
-                    val result = readDataFromFileOrDefault()
-                    if (it) {
-                        version = coordinator.getVersion()
-                    }
-                    result
-                }
-                return Data(
-                    data,
-                    data.hashCode(),
-                    version
-                )
+                coordinator.lock { block() }
             }
-        } catch (ex: CorruptionException) {
-            var newData: T = corruptionHandler.handleCorruption(ex)
-            var version: Int = INVALID_VERSION // should be overridden if write successfully
+        }
 
+        // Only be called from `readAndInit`. State is UnInitialized or ReadException.
+        private suspend fun readDataOrHandleCorruption(hasWriteFileLock: Boolean): Data<T> {
             try {
-                doWithWriteFileLock(hasWriteFileLock) {
-                    // Confirms the file is still corrupted before overriding
-                    try {
-                        newData = readDataFromFileOrDefault()
-                        version = coordinator.getVersion()
-                    } catch (ignoredEx: CorruptionException) {
-                        version = writeData(newData)
+                return if (hasWriteFileLock) {
+                    val data = readDataFromFileOrDefault()
+                    Data(data, data.hashCode(), version = coordinator.getVersion())
+                } else {
+                    val preLockVersion = coordinator.getVersion()
+                    coordinator.tryLock { locked ->
+                        val data = readDataFromFileOrDefault()
+                        val version = if (locked) coordinator.getVersion() else preLockVersion
+                        Data(
+                            data,
+                            data.hashCode(),
+                            version
+                        )
                     }
-                    newData
                 }
-            } catch (writeEx: IOException) {
-                // If we fail to write the handled data, add the new exception as a suppressed
-                // exception.
-                ex.addSuppressed(writeEx)
-                throw ex
-            }
+            } catch (ex: CorruptionException) {
+                var newData: T = corruptionHandler.handleCorruption(ex)
+                var version: Int // initialized inside the try block
 
-            // If we reach this point, we've successfully replaced the data on disk with newData.
-            return Data(newData, newData.hashCode(), version)
-        }
-    }
-
-    private suspend fun doWithWriteFileLock(hasWriteFileLock: Boolean, block: suspend () -> T) {
-        if (hasWriteFileLock) block() else coordinator.lock { block() }
-    }
-
-    // It handles the read when the current state is Data
-    private suspend fun readDataAndUpdateCache() {
-        // Check if the cached version matches with shared memory counter
-        val currentState = downstreamFlow.value
-        val version = coordinator.getVersion()
-        val cachedVersion = if (currentState is Data) currentState.version else INVALID_VERSION
-
-        // Return cached value if cached version is latest
-        if (currentState is Data && version == cachedVersion) {
-            return
-        }
-        var latestVersion = INVALID_VERSION
-        try {
-            val data = coordinator.tryLock { locked ->
-                val result = readDataFromFileOrDefault()
-                if (locked) {
-                    latestVersion = coordinator.getVersion()
+                try {
+                    doWithWriteFileLock(hasWriteFileLock) {
+                        // Confirms the file is still corrupted before overriding
+                        try {
+                            newData = readDataFromFileOrDefault()
+                            version = coordinator.getVersion()
+                        } catch (ignoredEx: CorruptionException) {
+                            version = writeData(newData, updateCache = true)
+                        }
+                    }
+                } catch (writeEx: Throwable) {
+                    // If we fail to write the handled data, add the new exception as a suppressed
+                    // exception.
+                    ex.addSuppressed(writeEx)
+                    throw ex
                 }
-                result
-            }
-            downstreamFlow.value = Data(data, data.hashCode(), latestVersion)
-        } catch (throwable: Throwable) {
-            downstreamFlow.value = ReadException(throwable)
-            if (throwable is CancellationException) {
-                // let cancellation propagate
-                throw throwable
+
+                // If we reach this point, we've successfully replaced the data on disk with newData.
+                return Data(newData, newData.hashCode(), version)
             }
         }
     }
 
-    // Caller is responsible for (try to) getting file lock. It reads from the file directly without
-    // checking shared counter version and returns serializer default value if file is not found.
-    private suspend fun readDataFromFileOrDefault(): T {
-        return storageConnection.readData()
+    companion object {
+        private const val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
+            "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
     }
+}
 
-    private suspend fun transformAndWrite(
-        transform: suspend (t: T) -> T,
-        callerContext: CoroutineContext
-    ): T = coordinator.lock {
-        val curData = readDataFromFileOrDefault()
-        val curDataAndHash = Data(curData, curData.hashCode(), /* unused */ version = 0)
-        val newData = withContext(callerContext) { transform(curData) }
+/**
+ * Helper class that executes [doRun] up to 1 time to completion. If it fails, it will be retried
+ * in the next [runIfNeeded] call.
+ */
+internal abstract class RunOnce {
+    private val runMutex = Mutex()
+    private var didRun: Boolean = false
+    protected abstract suspend fun doRun()
 
-        // Check that curData has not changed...
-        curDataAndHash.checkHashCode()
-
-        if (curData != newData) {
-            writeData(newData)
+    suspend fun runIfNeeded() {
+        if (didRun) return
+        runMutex.withLock {
+            if (didRun) return
+            doRun()
+            didRun = true
         }
-        newData
-    }
-
-    // Write data to disk and return the corresponding version if succeed.
-    internal suspend fun writeData(newData: T, updateCache: Boolean = true): Int {
-        var newVersion: Int = 0
-
-        // The code in `writeScope` is run synchronously, i.e. the newVersion isn't returned until
-        // the code in `writeScope` completes.
-        storageConnection.writeScope {
-            // TODO(b/256242862): decide the long term solution to increment version after write to
-            // scratch file. We used to increment version after scratch file write for performance
-            // optimization for concurrent reads and failed writes.
-            newVersion = coordinator.incrementAndGetVersion()
-            writeData(newData)
-            if (updateCache) {
-                downstreamFlow.value = Data(newData, newData.hashCode(), newVersion)
-            }
-        }
-
-        return newVersion
-    }
-
-    internal companion object {
-        internal val initTaskLock = Mutex()
     }
 }
