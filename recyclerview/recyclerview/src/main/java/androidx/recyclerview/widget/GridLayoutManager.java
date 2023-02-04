@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
 
@@ -35,6 +36,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A {@link RecyclerView.LayoutManager} implementations that lays out items in a grid.
@@ -71,6 +73,13 @@ public class GridLayoutManager extends LinearLayoutManager {
     final Rect mDecorInsets = new Rect();
 
     private boolean mUsingSpansToEstimateScrollBarDimensions;
+
+    /**
+     * Used to track the position of the target node brought on screen by
+     * {@code ACTIONS_SCROLL_IN_DIRECTION} so that a {@code TYPE_VIEW_TARGETED_BY_SCROLL} event can
+     * be emitted.
+     */
+    private int mPositionTargetedByScrollInDirection = INVALID_POSITION;
 
     /**
      * Constructor used when layout manager is set in XML by RecyclerView attribute
@@ -203,26 +212,51 @@ public class GridLayoutManager extends LinearLayoutManager {
             if (args == null) {
                 return false;
             }
+
             final int direction = args.getInt(
                     AccessibilityNodeInfo.ACTION_ARGUMENT_DIRECTION_INT, INVALID_POSITION);
 
-            // CollectionItemInfo must be populated.
-            final AccessibilityNodeInfoCompat startingNodeInfoCompat =
-                    AccessibilityNodeInfoCompat.wrap(
-                            viewWithAccessibilityFocus.createAccessibilityNodeInfo());
-            if (startingNodeInfoCompat.getCollectionItemInfo() == null) {
+            RecyclerView.ViewHolder vh =
+                    mRecyclerView.getChildViewHolder(viewWithAccessibilityFocus);
+            if (vh == null) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "viewHolder is null for " + viewWithAccessibilityFocus);
+                }
                 return false;
             }
 
-            switch (direction) {
-                case View.FOCUS_UP:
-                case View.FOCUS_DOWN:
-                case View.FOCUS_LEFT:
-                case View.FOCUS_RIGHT:
-                    return false; // TODO: add actual implement for each direction.
-                default:
-                    return super.performAccessibilityAction(action, null);
+            int startingAdapterPosition = vh.getAbsoluteAdapterPosition();
+            int startingRow = getRowIndex(startingAdapterPosition);
+            int startingColumn = getColumnIndex(startingAdapterPosition);
+
+            if (startingRow < 0 || startingColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("startingRow equals " + startingRow + ", and "
+                            + "startingColumn equals " + startingColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return false;
             }
+
+            int scrollTargetPosition;
+
+            if (direction == View.FOCUS_RIGHT) {
+                scrollTargetPosition = findScrollTargetPositionOnTheRight(startingRow,
+                        startingColumn, startingAdapterPosition);
+            } else {
+                // TODO: add actual implement for View.FOCUS_LEFT, View.FOCUS_DOWN, and
+                //  View.FOCUS_UP
+                return false;
+            }
+
+            if (scrollTargetPosition != INVALID_POSITION) {
+                scrollToPosition(scrollTargetPosition);
+                mPositionTargetedByScrollInDirection = scrollTargetPosition;
+                return true;
+            }
+
+            return false;
         } else if (action == android.R.id.accessibilityActionScrollToPosition) {
             final int noRow = -1;
             final int noColumn = -1;
@@ -272,6 +306,60 @@ public class GridLayoutManager extends LinearLayoutManager {
         return super.performAccessibilityAction(action, args);
     }
 
+    private int findScrollTargetPositionOnTheRight(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition + 1; i < getItemCount(); i++) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            // Canonical case: target is on the same row. TODO (b/268487724): handle RTL.
+            if (currentRow == startingRow && currentColumn > startingColumn) {
+                return i;
+            } else {
+                if (mOrientation == VERTICAL) {
+                    /*
+                    * Grids with vertical layouts are laid out row by row...
+                    * 1   2   3
+                    * 4   5   6
+                    * 7   8
+                    * ... and the scroll target may lie on a following row.
+                    */
+                    if (currentRow > startingRow) {
+                        scrollTargetPosition = i;
+                        break;
+                    }
+                } else { // HORIZONTAL
+                    // TODO (b/268487724): look for scroll target on a following row.
+                    // TODO (b/268487724): handle case where the scroll target spans multiple
+                    //  rows/columns.
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int getRowIndex(int position) {
+        return mOrientation == VERTICAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position);
+    }
+
+    private int getColumnIndex(int position) {
+        return mOrientation == HORIZONTAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position);
+    }
+
     @Nullable
     private View findChildWithAccessibilityFocus() {
         View child = null;
@@ -280,7 +368,7 @@ public class GridLayoutManager extends LinearLayoutManager {
             boolean childFound = false;
             int i;
             for (i = 0; i < getChildCount(); i++) {
-                if (Api21Impl.isAccessibilityFocused(getChildAt(i))) {
+                if (Api21Impl.isAccessibilityFocused(Objects.requireNonNull(getChildAt(i)))) {
                     childFound = true;
                     break;
                 }
@@ -308,6 +396,19 @@ public class GridLayoutManager extends LinearLayoutManager {
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         mPendingSpanCountChange = false;
+        if (mPositionTargetedByScrollInDirection != INVALID_POSITION) {
+            View viewTargetedByScrollInDirection = findViewByPosition(
+                    mPositionTargetedByScrollInDirection);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                    && viewTargetedByScrollInDirection != null) {
+                // Send event after the scroll associated with ACTION_SCROLL_IN_DIRECTION (see
+                // performAccessibilityAction()) concludes and layout completes. Accessibility
+                // services can listen for this event and change UI state as needed.
+                viewTargetedByScrollInDirection.sendAccessibilityEvent(
+                        AccessibilityEvent.TYPE_VIEW_TARGETED_BY_SCROLL);
+                mPositionTargetedByScrollInDirection = INVALID_POSITION;
+            }
+        }
     }
 
     private void clearPreLayoutSpanMappingCache() {
