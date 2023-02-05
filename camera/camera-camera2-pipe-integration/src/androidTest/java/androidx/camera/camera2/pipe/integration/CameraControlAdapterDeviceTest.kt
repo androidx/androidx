@@ -111,7 +111,9 @@ class CameraControlAdapterDeviceTest {
     private val imageAnalysis = ImageAnalysis.Builder().build().apply {
         // set analyzer to make it active.
         setAnalyzer(Dispatchers.Default.asExecutor()) {
-            // Fake analyzer, do nothing.
+            // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the closing
+            // of the CameraDevice from being stuck.
+            it.close()
         }
     }
 
