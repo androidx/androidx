@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -40,16 +41,26 @@ abstract class CameraAppModule {
         @Provides
         fun provideCameraPipe(
             context: Context,
-            cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
-        ): CameraPipe = CameraPipe(
-            CameraPipe.Config(
-                appContext = context.applicationContext,
-                cameraInteropConfig = CameraPipe.CameraInteropConfig(
-                    cameraInteropStateCallbackRepository.deviceStateCallback,
-                    cameraInteropStateCallbackRepository.sessionStateCallback
+            cameraThreadConfig: CameraThreadConfig,
+            cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository,
+        ): CameraPipe {
+            val executor = cameraThreadConfig.cameraExecutor
+            val sequentialExecutor = CameraXExecutors.newSequentialExecutor(executor)
+            return CameraPipe(
+                CameraPipe.Config(
+                    appContext = context.applicationContext,
+                    cameraInteropConfig = CameraPipe.CameraInteropConfig(
+                        cameraInteropStateCallbackRepository.deviceStateCallback,
+                        cameraInteropStateCallbackRepository.sessionStateCallback
+                    ),
+                    threadConfig = CameraPipe.ThreadConfig(
+                        defaultLightweightExecutor = sequentialExecutor,
+                        defaultBackgroundExecutor = executor,
+                        defaultCameraExecutor = sequentialExecutor,
+                    )
                 )
             )
-        )
+        }
 
         @Provides
         fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
