@@ -224,8 +224,8 @@ public class ProfileInstaller {
     @DiagnosticCode public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 4;
 
     /**
-     * Indicates that the profile is compressed and a newer version of bundletool needs to be used
-     * to build the app.
+     * Indicates that the profile is compressed and a version of bundletool newer than 1.13.2
+     * needs to be used to build the app.
      */
     @DiagnosticCode public static final int DIAGNOSTIC_PROFILE_IS_COMPRESSED = 5;
 
