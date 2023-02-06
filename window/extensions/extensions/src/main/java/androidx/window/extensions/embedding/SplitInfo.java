@@ -27,6 +27,10 @@ import java.util.Objects;
 
 /** Describes a split of two containers with activities. */
 public class SplitInfo {
+
+    /** Only used for compatibility with the deprecated constructor. */
+    private static final IBinder INVALID_SPLIT_INFO_TOKEN = new Binder();
+
     @NonNull
     private final ActivityStack mPrimaryActivityStack;
     @NonNull
@@ -68,7 +72,8 @@ public class SplitInfo {
     SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack,
             @NonNull SplitAttributes splitAttributes) {
-        this(primaryActivityStack, secondaryActivityStack, splitAttributes, new Binder());
+        this(primaryActivityStack, secondaryActivityStack, splitAttributes,
+                INVALID_SPLIT_INFO_TOKEN);
     }
 
     @NonNull
