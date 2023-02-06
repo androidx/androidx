@@ -61,6 +61,7 @@ public final class RoutesManager {
     private DialogType mDialogType;
     private final MediaRouter2 mPlatformMediaRouter2;
     private boolean mRouteListingPreferenceEnabled;
+    private boolean mRouteListingSystemOrderingPreferred;
     private List<RouteListingPreferenceItem> mRouteListingPreferenceItems;
 
     @SuppressLint({"NewApi", "ClassVerificationFailure"})
@@ -153,10 +154,47 @@ public final class RoutesManager {
             Api34Impl.updatePlatformRouteListingPreference(
                     mPlatformMediaRouter2,
                     mRouteListingPreferenceEnabled,
+                    mRouteListingSystemOrderingPreferred,
                     mRouteListingPreferenceItems);
         } else {
             throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
         }
+    }
+
+    /** Returns whether the system ordering for route listing is preferred. */
+    public boolean getRouteListingSystemOrderingPreferred() {
+        return mRouteListingSystemOrderingPreferred;
+    }
+
+    /**
+     * Sets whether to prefer the system ordering for route listing.
+     *
+     * <p>True means that the ordering for route listing is the one in the {@link #getRouteItems()}
+     * list. If false, the ordering of said list is ignored, and the system uses its builtin
+     * ordering for the items.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void setRouteListingSystemOrderingPreferred(
+            boolean routeListingSystemOrderringPreferred) {
+        if (BuildCompat.isAtLeastU()) {
+            mRouteListingSystemOrderingPreferred = routeListingSystemOrderringPreferred;
+            Api34Impl.updatePlatformRouteListingPreference(
+                    mPlatformMediaRouter2,
+                    mRouteListingPreferenceEnabled,
+                    mRouteListingSystemOrderingPreferred,
+                    mRouteListingPreferenceItems);
+        } else {
+            throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
+        }
+    }
+
+    /**
+     * The current list of route listing preference items, as set via {@link
+     * #setRouteListingPreferenceItems}.
+     */
+    @NonNull
+    public List<RouteListingPreferenceItem> getRouteListingPreferenceItems() {
+        return mRouteListingPreferenceItems;
     }
 
     /**
@@ -174,19 +212,11 @@ public final class RoutesManager {
             Api34Impl.updatePlatformRouteListingPreference(
                     mPlatformMediaRouter2,
                     mRouteListingPreferenceEnabled,
+                    mRouteListingSystemOrderingPreferred,
                     mRouteListingPreferenceItems);
         } else {
             throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
         }
-    }
-
-    /**
-     * The current list of route listing preference items, as set via {@link
-     * #setRouteListingPreferenceItems}.
-     */
-    @NonNull
-    public List<RouteListingPreferenceItem> getRouteListingPreferenceItems() {
-        return mRouteListingPreferenceItems;
     }
 
     /** Changes the media router dialog type with the type stored in {@link RoutesManager} */
@@ -307,6 +337,7 @@ public final class RoutesManager {
         private static void updatePlatformRouteListingPreference(
                 MediaRouter2 platformRouter,
                 boolean routeListingPreferenceEnabled,
+                boolean routeListingSystemOrderingPreferred,
                 List<RouteListingPreferenceItem> items) {
             if (routeListingPreferenceEnabled) {
                 List<RouteListingPreference.Item> platformItems =
@@ -319,7 +350,7 @@ public final class RoutesManager {
                 // TODO(b/266561322): Make setUseSystemOrdering configurable.
                 RouteListingPreference routeListingPreference =
                         new RouteListingPreference.Builder()
-                                .setUseSystemOrdering(false)
+                                .setUseSystemOrdering(routeListingSystemOrderingPreferred)
                                 .setItems(platformItems)
                                 .build();
                 platformRouter.setRouteListingPreference(routeListingPreference);
