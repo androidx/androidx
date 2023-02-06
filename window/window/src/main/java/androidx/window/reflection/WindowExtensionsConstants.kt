@@ -58,4 +58,17 @@ internal object WindowExtensionsConstants {
      */
     internal const val ACTIVITY_EMBEDDING_COMPONENT_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.embedding.ActivityEmbeddingComponent"
+
+    /**
+     * Constant name for class [androidx.window.extensions.core.util.function]
+     * used for reflection
+     */
+    internal const val WINDOW_CONSUMER =
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.core.util.function.Consumer"
+
+    /**
+     * Constant name for class [java.util.function.Consumer]
+     * used for reflection
+     */
+    internal const val JAVA_CONSUMER = "java.util.function.Consumer"
 }
