@@ -24,8 +24,8 @@ import android.graphics.Rect
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
-import androidx.window.embedding.EmbeddingAspectRatio.Companion.alwaysAllow
-import androidx.window.embedding.EmbeddingAspectRatio.Companion.alwaysDisallow
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.ALWAYS_ALLOW
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.ALWAYS_DISALLOW
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.ratio
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -116,7 +116,7 @@ class EmbeddingRuleConstructionTests {
         assertEquals(456, rule.minHeightDp)
         assertEquals(789, rule.minSmallestWidthDp)
         assertEquals(1.23f, rule.maxAspectRatioInPortrait.value)
-        assertEquals(alwaysDisallow(), rule.maxAspectRatioInLandscape)
+        assertEquals(ALWAYS_DISALLOW, rule.maxAspectRatioInLandscape)
         assertEquals(ALWAYS, rule.finishPrimaryWithSecondary)
         assertEquals(NEVER, rule.finishSecondaryWithPrimary)
         assertEquals(true, rule.clearTop)
@@ -264,8 +264,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .build()
         var width = 100
         var height = 1000
@@ -277,8 +277,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysDisallow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_DISALLOW)
             .build()
         width = 100
         height = 101
@@ -293,7 +293,7 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .setMaxAspectRatioInPortrait(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
@@ -322,8 +322,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .build()
         var width = 1000
         var height = 100
@@ -335,8 +335,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysDisallow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_DISALLOW)
             .build()
         width = 101
         height = 100
@@ -351,7 +351,7 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .setMaxAspectRatioInLandscape(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
@@ -416,7 +416,7 @@ class EmbeddingRuleConstructionTests {
         assertEquals(456, rule.minHeightDp)
         assertEquals(789, rule.minSmallestWidthDp)
         assertEquals(1.23f, rule.maxAspectRatioInPortrait.value)
-        assertEquals(alwaysDisallow(), rule.maxAspectRatioInLandscape)
+        assertEquals(ALWAYS_DISALLOW, rule.maxAspectRatioInLandscape)
         assertEquals(ADJACENT, rule.finishPrimaryWithPlaceholder)
         assertEquals(true, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
@@ -573,8 +573,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .build()
         var width = 100
         var height = 1000
@@ -586,8 +586,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
-            .setMaxAspectRatioInPortrait(alwaysDisallow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+            .setMaxAspectRatioInPortrait(ALWAYS_DISALLOW)
             .build()
         width = 100
         height = 101
@@ -602,7 +602,7 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .setMaxAspectRatioInPortrait(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
@@ -631,8 +631,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
             .build()
         var width = 1000
         var height = 100
@@ -647,8 +647,8 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
-            .setMaxAspectRatioInLandscape(alwaysDisallow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+            .setMaxAspectRatioInLandscape(ALWAYS_DISALLOW)
             .build()
         width = 101
         height = 100
@@ -663,7 +663,7 @@ class EmbeddingRuleConstructionTests {
             .setMinWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
-            .setMaxAspectRatioInPortrait(alwaysAllow())
+            .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
             .setMaxAspectRatioInLandscape(ratio(1.1f))
             .build()
         // Equals to the max aspect ratio
