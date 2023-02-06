@@ -49,7 +49,8 @@ import java.util.Collections
  * @property username the username of the account holding the public key credential
  * @property displayName the displayName of the account holding the public key credential
  * @property lastUsedTime the last used time of this entry
- * @property icon the icon to be displayed with this entry on the selector
+ * @property icon the icon to be displayed with this entry on the selector. If not set, a
+ * default icon representing a public key credential type is set by the library
  * @param pendingIntent the [PendingIntent] to be invoked when the user
  * selects this entry
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
@@ -65,7 +66,7 @@ class PublicKeyCredentialEntry internal constructor(
     val displayName: CharSequence?,
     val typeDisplayName: CharSequence,
     val pendingIntent: PendingIntent,
-    val icon: Icon?,
+    val icon: Icon,
     val lastUsedTime: Instant?,
     val isAutoSelectAllowed: Boolean,
     beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
@@ -96,7 +97,7 @@ class PublicKeyCredentialEntry internal constructor(
         beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon? = Icon.createWithResource(context, R.drawable.ic_passkey),
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
         isAutoSelectAllowed: Boolean = false,
     ) : this(
         username,
@@ -301,7 +302,7 @@ class PublicKeyCredentialEntry internal constructor(
         }
 
         /** Sets the icon to be shown on the UI with this entry */
-        fun setIcon(icon: Icon?): Builder {
+        fun setIcon(icon: Icon): Builder {
             this.icon = icon
             return this
         }

@@ -44,7 +44,8 @@ import java.util.Collections
  * @property subtitle the subTitle shown with this entry on the selector UI
  * @property lastUsedTime the last used time the credential underlying this entry was
  * used by the user
- * @property icon the icon to be displayed with this entry on the selector UI
+ * @property icon the icon to be displayed with this entry on the selector UI. If not set, a
+ * default icon representing a custom credential type is set by the library
  * @property pendingIntent the [PendingIntent] to be invoked when this entry
  * is selected by the user
  * @property typeDisplayName the friendly name to be displayed on the UI for
@@ -63,7 +64,7 @@ class CustomCredentialEntry internal constructor(
     val isAutoSelectAllowed: Boolean,
     val subtitle: CharSequence?,
     val typeDisplayName: CharSequence?,
-    val icon: Icon?,
+    val icon: Icon,
     val lastUsedTime: Instant?,
     beginGetCredentialOption: BeginGetCredentialOption
     ) : android.service.credentials.CredentialEntry(
@@ -92,7 +93,7 @@ class CustomCredentialEntry internal constructor(
         subtitle: CharSequence? = null,
         typeDisplayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon? = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
         @Suppress("AutoBoxing")
         isAutoSelectAllowed: Boolean = false
     ) : this(
@@ -314,7 +315,7 @@ class CustomCredentialEntry internal constructor(
          * Sets the icon to be show on the UI.
          * If no icon is set, a default icon representing a custom credential will be set.
          */
-        fun setIcon(icon: Icon?): Builder {
+        fun setIcon(icon: Icon): Builder {
             this.icon = icon
             return this
         }

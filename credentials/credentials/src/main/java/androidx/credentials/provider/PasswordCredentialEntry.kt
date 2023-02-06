@@ -49,7 +49,8 @@ import java.util.Collections
  * @property username the username of the account holding the password credential
  * @property displayName the displayName of the account holding the password credential
  * @property lastUsedTime the last used time of this entry
- * @property icon the icon to be displayed with this entry on the selector
+ * @property icon the icon to be displayed with this entry on the selector. If not set, a
+ * default icon representing a password credential type is set by the library
  * @property pendingIntent the [PendingIntent] to be invoked when user selects
  * this entry
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
@@ -68,7 +69,7 @@ class PasswordCredentialEntry internal constructor(
     val typeDisplayName: CharSequence,
     val pendingIntent: PendingIntent,
     val lastUsedTime: Instant?,
-    val icon: Icon?,
+    val icon: Icon,
     val isAutoSelectAllowed: Boolean,
     beginGetPasswordOption: BeginGetPasswordOption
     ) : CredentialEntry(
@@ -95,7 +96,7 @@ class PasswordCredentialEntry internal constructor(
         beginGetPasswordOption: BeginGetPasswordOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon? = Icon.createWithResource(context, R.drawable.ic_password),
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
     ) : this(
         username,
         displayName,
@@ -319,7 +320,7 @@ class PasswordCredentialEntry internal constructor(
         }
 
         /** Sets the icon to be shown on the UI with this entry */
-        fun setIcon(icon: Icon?): Builder {
+        fun setIcon(icon: Icon): Builder {
             this.icon = icon
             return this
         }
