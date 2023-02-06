@@ -23,6 +23,7 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHI
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
@@ -82,6 +83,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
+import androidx.camera.core.internal.utils.SizeUtil;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.core.util.Preconditions;
@@ -267,35 +270,38 @@ public final class ImageAnalysis extends UseCase {
                     ? mSubscribedAnalyzer.getDefaultTargetResolution() : null;
         }
 
-        if (analyzerResolution != null) {
-            if (!builder.getMutableConfig().containsOption(OPTION_RESOLUTION_SELECTOR)) {
-                int targetRotation = builder.getMutableConfig().retrieveOption(
-                        OPTION_TARGET_ROTATION, Surface.ROTATION_0);
-                // analyzerResolution is a size in the sensor coordinate system, but the legacy
-                // target resolution setting is in the view coordinate system. Flips the
-                // analyzerResolution according to the sensor rotation degrees.
-                if (cameraInfo.getSensorRotationDegrees(targetRotation) % 180 == 90) {
-                    analyzerResolution = new Size(/* width= */ analyzerResolution.getHeight(),
-                            /* height= */ analyzerResolution.getWidth());
-                }
+        if (analyzerResolution == null) {
+            return builder.getUseCaseConfig();
+        }
 
-                if (!builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
-                    builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION,
-                            analyzerResolution);
-                }
-            } else {
-                // Merges analyzerResolution or default resolution to ResolutionSelector.
-                ResolutionSelector resolutionSelector =
-                        builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR);
+        int targetRotation = builder.getMutableConfig().retrieveOption(
+                OPTION_TARGET_ROTATION, Surface.ROTATION_0);
+        // analyzerResolution is a size in the sensor coordinate system, but the legacy
+        // target resolution setting is in the view coordinate system. Flips the
+        // analyzerResolution according to the sensor rotation degrees.
+        if (cameraInfo.getSensorRotationDegrees(targetRotation) % 180 == 90) {
+            analyzerResolution = new Size(/* width= */ analyzerResolution.getHeight(),
+                    /* height= */ analyzerResolution.getWidth());
+        }
 
-                if (resolutionSelector.getPreferredResolution() == null) {
-                    ResolutionSelector.Builder resolutionSelectorBuilder =
-                            ResolutionSelector.Builder.fromSelector(resolutionSelector);
-                    resolutionSelectorBuilder.setPreferredResolution(analyzerResolution);
-                    builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
-                            resolutionSelectorBuilder.build());
-                }
-            }
+        // Merges the analyzerResolution as legacy target resolution setting so that it can take
+        // effect when running the legacy resolution selection logic flow.
+        if (!builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
+            builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION,
+                    analyzerResolution);
+        }
+
+        // Merges the analyzerResolution to ResolutionSelector.
+        ResolutionSelector resolutionSelector =
+                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
+        if (resolutionSelector != null && resolutionSelector.getResolutionStrategy() == null) {
+            ResolutionSelector.Builder resolutionSelectorBuilder =
+                    ResolutionSelector.Builder.fromResolutionSelector(resolutionSelector);
+            resolutionSelectorBuilder.setResolutionStrategy(
+                    ResolutionStrategy.create(analyzerResolution,
+                            ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+            builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
+                    resolutionSelectorBuilder.build());
         }
 
         return builder.getUseCaseConfig();
@@ -999,13 +1005,21 @@ public final class ImageAnalysis extends UseCase {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
+        private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
+                        ResolutionStrategy.create(SizeUtil.RESOLUTION_VGA,
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                        .build();
+
         private static final ImageAnalysisConfig DEFAULT_CONFIG;
 
         static {
             Builder builder = new Builder()
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
-                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
+                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1397,7 +1411,7 @@ public final class ImageAnalysis extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setDefaultResolution(@NonNull Size resolution) {
-            getMutableConfig().insertOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION,
+            getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION,
                     resolution);
             return this;
         }

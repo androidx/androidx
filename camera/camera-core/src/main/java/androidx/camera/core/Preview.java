@@ -89,6 +89,7 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.core.util.Consumer;
@@ -587,20 +588,6 @@ public final class Preview extends UseCase {
         builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
 
-        // Merges Preview's default max resolution setting when resolution selector is used
-        ResolutionSelector resolutionSelector =
-                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
-        if (resolutionSelector != null && resolutionSelector.getMaxResolution() == null) {
-            Size maxResolution = builder.getMutableConfig().retrieveOption(OPTION_MAX_RESOLUTION);
-            if (maxResolution != null) {
-                ResolutionSelector.Builder resolutionSelectorBuilder =
-                        ResolutionSelector.Builder.fromSelector(resolutionSelector);
-                resolutionSelectorBuilder.setMaxResolution(maxResolution);
-                builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
-                        resolutionSelectorBuilder.build());
-            }
-        }
-
         return builder.getUseCaseConfig();
     }
 
@@ -752,11 +739,18 @@ public final class Preview extends UseCase {
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
         private static final int DEFAULT_MIRROR_MODE = MIRROR_MODE_FRONT_ON;
 
+        private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
+                        ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build();
+
         private static final PreviewConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder = new Builder().setSurfaceOccupancyPriority(
-                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY).setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
+            Builder builder = new Builder()
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 

@@ -48,7 +48,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
@@ -63,6 +62,8 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
+import androidx.camera.core.resolutionselector.HighResolution
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -1582,11 +1583,12 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // Only runs the test when the device has high resolution output sizes
         assumeTrue(maxHighResolutionOutputSize != null)
 
-        val resolutionSelector =
-            ResolutionSelector.Builder()
-                .setPreferredResolution(maxHighResolutionOutputSize!!)
-                .setHighResolutionEnabled(true)
-                .build()
+        val resolutionSelector = ResolutionSelector.Builder()
+            .setHighResolutionEnabledFlags(HighResolution.FLAG_DEFAULT_MODE_ON)
+            .setResolutionFilter { _, _ ->
+                listOf(maxHighResolutionOutputSize)
+            }
+            .build()
         val sensorOrientation = CameraUtil.getSensorOrientation(BACK_SELECTOR.lensFacing!!)
         // Sets the target rotation to the camera sensor orientation to avoid the captured image
         // buffer data rotated by the HAL and impact the final image resolution check
