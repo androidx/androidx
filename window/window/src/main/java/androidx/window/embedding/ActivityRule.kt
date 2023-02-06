@@ -29,7 +29,7 @@ class ActivityRule internal constructor(
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
-     * activity that blocks all user interactions, like a warning dialog.
+     * activity that blocks all user interactions, such as a warning dialog.
      */
     val alwaysExpand: Boolean = false
 ) : EmbeddingRule() {
@@ -45,7 +45,9 @@ class ActivityRule internal constructor(
         private var alwaysExpand: Boolean = false
 
         /**
-         * @see ActivityRule.alwaysExpand
+         * Whether the activity should always be expanded on launch. Some activities are supposed to
+         * expand to the full task bounds, independent of the state of the split. An example is an
+         * activity that blocks all user interactions, such as a warning dialog.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
         fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
