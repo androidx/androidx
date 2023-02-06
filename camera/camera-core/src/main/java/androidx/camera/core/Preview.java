@@ -40,6 +40,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.core.util.Preconditions.checkNotNull;
@@ -54,6 +55,7 @@ import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -155,7 +157,6 @@ public final class Preview extends UseCase {
 
     /**
      * Provides a static configuration with implementation-agnostic options.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -575,7 +576,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -596,7 +596,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -611,7 +610,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -622,7 +620,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -632,7 +629,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -646,7 +642,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY)
@@ -656,6 +651,7 @@ public final class Preview extends UseCase {
     }
 
     /**
+     *
      */
     @VisibleForTesting
     @NonNull
@@ -674,6 +670,24 @@ public final class Preview extends UseCase {
         Set<Integer> targets = new HashSet<>();
         targets.add(PREVIEW);
         return targets;
+    }
+
+    /**
+     * Returns the target frame rate range, in frames per second, for the associated Preview use
+     * case.
+     * <p>The target frame rate can be set prior to constructing a Preview using
+     * {@link Preview.Builder#setTargetFrameRate(Range)}.
+     * If not set, the target frame rate defaults to the value of
+     * {@link StreamSpec#FRAME_RATE_RANGE_UNSPECIFIED}.
+     *
+     * <p>This is just the frame rate range requested by the user, and may not necessarily be
+     * equal to the range the camera is actually operating at.
+     *
+     *  @return the target frame rate range of this Preview.
+     */
+    @NonNull
+    public Range<Integer> getTargetFrameRate() {
+        return getTargetFrameRateInternal();
     }
 
     /**
@@ -749,7 +763,6 @@ public final class Preview extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
@@ -812,7 +825,6 @@ public final class Preview extends UseCase {
 
         /**
          * Generates a Builder from another Config object
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -834,7 +846,6 @@ public final class Preview extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -988,7 +999,6 @@ public final class Preview extends UseCase {
 
         /**
          * setMirrorMode is not supported on Preview.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1133,6 +1143,30 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setBackgroundExecutor(@NonNull Executor executor) {
             getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
+            return this;
+        }
+
+        /**
+         * Sets the target frame rate range in frames per second for the associated Preview use
+         * case.
+         *
+         * <p>
+         * Device will try to get as close as possible to the target frame rate. This may affect
+         * the selected resolutions of the surfaces, resulting in better frame rates at the
+         * potential reduction of resolution.
+         *
+         * <p>
+         * Achieving target frame rate is dependent on device capabilities, as well as other
+         * concurrently attached use cases and their target frame rates.
+         * Because of this, the frame rate that is ultimately selected is not guaranteed to be a
+         * perfect match to the requested target.
+         *
+         * @param targetFrameRate a desired frame rate range.
+         * @return the current Builder.
+         */
+        @NonNull
+        public Builder setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
+            getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
             return this;
         }
 
