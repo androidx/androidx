@@ -170,7 +170,8 @@ BENCHMARK = { group = "androidx.benchmark", atomicGroupVersion = "versions.BENCH
 BIOMETRIC = { group = "androidx.biometric", atomicGroupVersion = "versions.BIOMETRIC" }
 BLUETOOTH = { group = "androidx.bluetooth", atomicGroupVersion = "versions.BLUETOOTH" }
 BROWSER = { group = "androidx.browser", atomicGroupVersion = "versions.BROWSER" }
-BUILDSRC_TESTS = { group = "androidx.buildSrc-tests", atomicGroupVersion = "versions.BUILDSRC_TESTS", overrideInclude = [ ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main"] }
+BUILDSRC_TESTS_MAX_DEP_VERSIONS_DEP = { group = "androidx.buildSrc-tests-max-dep-versions-dep", atomicGroupVersion = "versions.BUILDSRC_TESTS", overrideInclude = [ ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep" ] }
+BUILDSRC_TESTS_MAX_DEP_VERSIONS_MAIN = { group = "androidx.buildSrc-tests-max-dep-versions-main", atomicGroupVersion = "versions.BUILDSRC_TESTS", overrideInclude = [ ":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main" ] }
 CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
