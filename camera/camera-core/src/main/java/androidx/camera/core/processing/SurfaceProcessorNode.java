@@ -25,6 +25,8 @@ import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkArgument;
 
+import static java.util.UUID.randomUUID;
+
 import android.graphics.Rect;
 import android.util.Size;
 
@@ -54,6 +56,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A {@link Node} implementation that wraps around the public {@link SurfaceProcessor} interface.
@@ -328,6 +331,15 @@ public class SurfaceProcessorNode implements
     public abstract static class OutConfig {
 
         /**
+         * Unique ID of the config.
+         *
+         * <p> This is for making sure two {@link OutConfig} with the same value can be stored as
+         * different keys in a {@link HashMap}.
+         */
+        @NonNull
+        abstract UUID getUuid();
+
+        /**
          * The target {@link UseCase} of the output stream.
          */
         @CameraEffect.Targets
@@ -371,7 +383,8 @@ public class SurfaceProcessorNode implements
         @NonNull
         public static OutConfig of(int targets, @NonNull Rect cropRect, @NonNull Size size,
                 boolean mirroring) {
-            return new AutoValue_SurfaceProcessorNode_OutConfig(targets, cropRect, size, mirroring);
+            return new AutoValue_SurfaceProcessorNode_OutConfig(randomUUID(), targets, cropRect,
+                    size, mirroring);
         }
     }
 }
