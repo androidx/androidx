@@ -30,7 +30,7 @@
     <string name="call_action_title" msgid="6218977436905001611">"କଲ କରନ୍ତୁ"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"ପ୍ରାଥମିକ"</string>
     <string name="options_action_title" msgid="1168121856107932984">"ବିକଳ୍ପଗୁଡ଼ିକ"</string>
-    <string name="search_action_title" msgid="3483459674263446335">"ସନ୍ଧାନ କରନ୍ତୁ"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="checked_action_title" msgid="906023941445896399">"ଚେକ କରାଯାଇଛି"</string>
     <string name="unchecked_action_title" msgid="802503415474307811">"ଅନଚେକ କରାଯାଇଛି"</string>
     <string name="on_action_title" msgid="4129601573763429611">"ଚାଲୁ ଅଛି"</string>
@@ -52,7 +52,7 @@
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ଜୁମ ଆଉଟ କରାଯାଇଛି"</string>
     <string name="triggered_toast_msg" msgid="3396166539208366382">"ଟ୍ରିଗର କରାଯାଇଛି"</string>
     <string name="primary_toast_msg" msgid="7153771322662005447">"ପ୍ରାଥମିକ ବଟନ ଦବାଯାଇଛି"</string>
-    <string name="search_toast_msg" msgid="7826530065407699347">"ସନ୍ଧାନ ବଟନ ଦବାଯାଇଛି"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"ସର୍ଚ୍ଚ ବଟନ ଦବାଯାଇଛି"</string>
     <string name="options_toast_msg" msgid="2146223786877557730">"ବିକଳ୍ପ ବଟନକୁ ଦବାଯାଇଛି"</string>
     <string name="favorite_toast_msg" msgid="522064494016370117">"ପସନ୍ଦ!"</string>
     <string name="not_favorite_toast_msg" msgid="6831181108681007428">"ପସନ୍ଦର ନୁହେଁ!"</string>
@@ -234,8 +234,8 @@
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ପେନ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ସ୍ଥାନର ତାଲିକାର ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ସ୍ଥାନଗୁଡ଼ିକୁ ବ୍ରାଉଜ କରନ୍ତୁ"</string>
-    <string name="search_template_demo_title" msgid="1770474418958318114">"ସନ୍ଧାନ ଟେମ୍ପଲେଟ ଡେମୋ"</string>
-    <string name="search_hint" msgid="978495498991026792">"ଏଠାରେ ସନ୍ଧାନ କରନ୍ତୁ"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"ସର୍ଚ୍ଚ ଟେମ୍ପଲେଟ ଡେମୋ"</string>
+    <string name="search_hint" msgid="978495498991026792">"ଏଠାରେ ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="additional_text" msgid="8410289578276941586">"ଦୟାକରି ଆମର ସେବାର ସର୍ତ୍ତାବଳୀର ସମୀକ୍ଷା କରନ୍ତୁ"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google ସାଇନ-ଇନ"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN ବ୍ୟବହାର କରନ୍ତୁ"</string>
