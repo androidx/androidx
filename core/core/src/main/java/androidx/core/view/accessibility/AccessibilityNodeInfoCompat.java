@@ -2762,12 +2762,11 @@ public class AccessibilityNodeInfoCompat {
      * </p>
      *
      * @see AccessibilityEventCompat#getContentChangeTypes for all content change types.
-     * @param minMillisBetweenContentChanges the minimum duration between content change events.
+     * @param duration the minimum duration between content change events.
      */
-    public void setMinMillisBetweenContentChanges(int minMillisBetweenContentChanges) {
+    public void setMinMillisBetweenContentChanges(int duration) {
         if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.getExtras(mInfo).putInt(MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY,
-                    minMillisBetweenContentChanges);
+            Api19Impl.getExtras(mInfo).putInt(MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY, duration);
         }
     }
 
