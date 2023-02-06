@@ -16,6 +16,7 @@
 
 package androidx.window.extensions.embedding;
 
+import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -43,6 +44,7 @@ public class SplitInfo {
      * @param secondaryActivityStack The secondary {@link ActivityStack}
      * @param splitAttributes The current {@link SplitAttributes} of this split pair
      * @param token The token to identify this split pair
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack,
@@ -56,6 +58,17 @@ public class SplitInfo {
         mSecondaryActivityStack = secondaryActivityStack;
         mSplitAttributes = splitAttributes;
         mToken = token;
+    }
+
+    /**
+     * @deprecated Use the {@link WindowExtensions#VENDOR_API_LEVEL_3} version.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     */
+    @Deprecated
+    SplitInfo(@NonNull ActivityStack primaryActivityStack,
+            @NonNull ActivityStack secondaryActivityStack,
+            @NonNull SplitAttributes splitAttributes) {
+        this(primaryActivityStack, secondaryActivityStack, splitAttributes, new Binder());
     }
 
     @NonNull

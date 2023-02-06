@@ -22,6 +22,7 @@ import android.os.IBinder;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.core.util.function.Function;
@@ -40,6 +41,7 @@ public interface ActivityEmbeddingComponent {
 
     /**
      * Updates the rules of embedding activities that are started in the client process.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     void setEmbeddingRules(@NonNull Set<EmbeddingRule> splitRules);
 
@@ -48,6 +50,7 @@ public interface ActivityEmbeddingComponent {
      * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
      * {@link #setSplitInfoCallback(Consumer)} can't be called on
      * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
@@ -73,13 +76,14 @@ public interface ActivityEmbeddingComponent {
      * {@link ActivityEmbeddingComponent#setSplitInfoCallback(Consumer)}.
      * Added in {@link WindowExtensions#getVendorApiLevel()} 2, calling an earlier version will
      * throw {@link java.lang.NoSuchMethodError}.
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitInfoCallback();
 
     /**
      * Checks if an activity's' presentation is customized by its or any other process and only
      * occupies a portion of Task bounds.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     boolean isActivityEmbedded(@NonNull Activity activity);
 
@@ -111,16 +115,43 @@ public interface ActivityEmbeddingComponent {
      *
      * @param calculator the callback to set. It will replace the previously set callback if it
      *                  exists.
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void setSplitAttributesCalculator(
             @NonNull Function<SplitAttributesCalculatorParams, SplitAttributes> calculator);
+
+    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
+    // the latest library.
+    /**
+     * @deprecated Use {@link #setSplitAttributesCalculator(Function)}.
+     *
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * @hide
+     */
+    @Deprecated
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void setSplitAttributesCalculator(@NonNull SplitAttributesCalculator calculator) {
+        final Function<SplitAttributesCalculatorParams, SplitAttributes> function =
+                params -> {
+                    SplitAttributesCalculator.SplitAttributesCalculatorParams legacyParams =
+                            new SplitAttributesCalculator.SplitAttributesCalculatorParams(
+                                    params.getParentWindowMetrics(),
+                                    params.getParentConfiguration(),
+                                    params.getDefaultSplitAttributes(),
+                                    params.areDefaultConstraintsSatisfied(),
+                                    params.getParentWindowLayoutInfo(),
+                                    params.getSplitRuleTag()
+                            );
+                    return calculator.computeSplitAttributesForParams(legacyParams);
+                };
+        setSplitAttributesCalculator(function);
+    }
 
     /**
      * Clears the previously callback set in {@link #setSplitAttributesCalculator(Function)}.
      *
      * @see #setSplitAttributesCalculator(Function)
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitAttributesCalculator();
 
@@ -129,6 +160,7 @@ public interface ActivityEmbeddingComponent {
      *
      * @param options The {@link ActivityOptions} to be updated.
      * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @NonNull
     ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
