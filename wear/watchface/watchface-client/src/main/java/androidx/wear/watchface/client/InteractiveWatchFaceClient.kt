@@ -702,5 +702,5 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
     }
 
-    override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 7
+    override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 8
 }

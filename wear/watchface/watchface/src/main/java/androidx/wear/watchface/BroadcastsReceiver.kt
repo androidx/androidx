@@ -78,6 +78,11 @@ public class BroadcastsReceiver constructor(
         @UiThread
         public fun onActionScreenOn() {
         }
+
+        /** Called when we receive [Intent.ACTION_USER_PRESENT] */
+        @UiThread
+        public fun onActionUserPresent() {
+        }
     }
 
     companion object {
@@ -101,6 +106,7 @@ public class BroadcastsReceiver constructor(
                 Intent.ACTION_TIMEZONE_CHANGED -> observer.onActionTimeZoneChanged()
                 Intent.ACTION_SCREEN_OFF -> observer.onActionScreenOff()
                 Intent.ACTION_SCREEN_ON -> observer.onActionScreenOn()
+                Intent.ACTION_USER_PRESENT -> observer.onActionUserPresent()
                 WatchFaceImpl.MOCK_TIME_INTENT -> observer.onMockTime(intent)
                 else -> System.err.println("<< IGNORING $intent")
             }
@@ -119,6 +125,7 @@ public class BroadcastsReceiver constructor(
                 addAction(Intent.ACTION_BATTERY_OKAY)
                 addAction(Intent.ACTION_POWER_CONNECTED)
                 addAction(Intent.ACTION_POWER_DISCONNECTED)
+                addAction(Intent.ACTION_USER_PRESENT)
                 addAction(WatchFaceImpl.MOCK_TIME_INTENT)
             }
         )
