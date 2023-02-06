@@ -20,6 +20,7 @@ import static androidx.work.ExistingWorkPolicy.APPEND;
 import static androidx.work.ExistingWorkPolicy.APPEND_OR_REPLACE;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
+import static androidx.work.NetworkType.CONNECTED;
 import static androidx.work.NetworkType.METERED;
 import static androidx.work.NetworkType.NOT_REQUIRED;
 import static androidx.work.WorkInfo.State.BLOCKED;
@@ -40,6 +41,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
@@ -1168,6 +1170,24 @@ public class WorkManagerImplTest {
         WorkInfo workInfo = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
         assertThat(workInfo.getId().toString(), is(work.getStringId()));
         assertThat(workInfo.getState(), is(SUCCEEDED));
+    }
+
+    @Test
+    @MediumTest
+    public void testGetWorkInfoByIdSyncConstraints() throws Exception {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresCharging(true)
+                .setRequiredNetworkType(CONNECTED)
+                .build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(SUCCEEDED)
+                .setConstraints(constraints)
+                .build();
+        insertWorkSpecAndTags(work);
+
+        WorkInfo workInfo = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+        assertThat(workInfo.getId().toString(), is(work.getStringId()));
+        assertThat(workInfo.getConstraints(), equalTo(constraints));
     }
 
     @Test
