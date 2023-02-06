@@ -90,6 +90,7 @@ package androidx.window.extensions.embedding {
     method @ColorInt public int getAnimationBackgroundColor();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
+    field @ColorInt public static final int DEFAULT_ANIMATION_BACKGROUND_COLOR = 0; // 0x0
   }
 
   public static final class SplitAttributes.Builder {

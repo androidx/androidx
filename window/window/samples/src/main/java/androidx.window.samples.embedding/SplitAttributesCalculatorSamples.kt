@@ -57,7 +57,7 @@ fun splitAttributesCalculatorSample() {
                         }
                     )
                     // Set the color to use when switching between vertical and horizontal
-                    .setAnimationBackgroundColor(Color.GRAY)
+                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             }
             return@setSplitAttributesCalculator if (
@@ -67,7 +67,7 @@ fun splitAttributesCalculatorSample() {
                 SplitAttributes.Builder()
                     .setSplitType(SplitAttributes.SplitType.splitEqually())
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                    .setAnimationBackgroundColor(Color.GRAY)
+                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else {
                 // Expand containers if the device is in portrait or the width is less than 600 dp.
@@ -90,13 +90,13 @@ fun splitWithOrientations() {
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                     // Set the color to use when switching between vertical and horizontal
-                    .setAnimationBackgroundColor(Color.GRAY)
+                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else if (parentConfiguration.screenHeightDp >= 600) {
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
                     // Set the color to use when switching between vertical and horizontal
-                    .setAnimationBackgroundColor(Color.GRAY)
+                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else {
                 // Fallback to expand the secondary container

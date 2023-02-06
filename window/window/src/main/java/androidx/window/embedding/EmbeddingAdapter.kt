@@ -106,7 +106,9 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor)
+            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.buildFromValue(
+                splitAttributes.animationBackgroundColor)
+            )
             .build()
 
     private fun translate(splitType: OEMSplitType): SplitType =
@@ -221,7 +223,7 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor)
+            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor.value)
             .build()
     }
 

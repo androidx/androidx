@@ -63,7 +63,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitEqually())
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                .setAnimationBackgroundColor(0)
+                .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
                 .build(),
             INVALID_SPLIT_INFO_TOKEN,
         )
@@ -141,7 +141,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitByHinge(SplitType.ratio(0.3f)))
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(Color.YELLOW)
+                .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.YELLOW))
                 .build(),
             INVALID_SPLIT_INFO_TOKEN,
         )
@@ -172,7 +172,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitByHinge(SplitType.ratio(0.3f)))
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(Color.YELLOW)
+                .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.YELLOW))
                 .build(),
             testSplitInfoToken,
         )

@@ -16,8 +16,8 @@
 
 package androidx.window.demo.embedding
 
-import androidx.annotation.ColorInt
 import androidx.annotation.GuardedBy
+import androidx.window.embedding.SplitAttributes
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -27,16 +27,14 @@ class DemoActivityEmbeddingController private constructor() {
     private val lock = Object()
 
     @GuardedBy("lock")
-    @ColorInt
-    private var _animationBackgroundColor = 0
+    private var _animationBackgroundColor = SplitAttributes.BackgroundColor.DEFAULT
 
     /** Animation background color to use when the animation requires a background. */
-    var animationBackgroundColor: Int
-        @ColorInt
+    var animationBackgroundColor: SplitAttributes.BackgroundColor
         get() = synchronized(lock) {
             _animationBackgroundColor
         }
-        set(@ColorInt value) = synchronized(lock) {
+        set(value) = synchronized(lock) {
             _animationBackgroundColor = value
         }
 
