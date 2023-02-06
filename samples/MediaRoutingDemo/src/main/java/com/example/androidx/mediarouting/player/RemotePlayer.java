@@ -161,7 +161,8 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public void getStatus(final @NonNull PlaylistItem item, final boolean shouldUpdate) {
+    public void getPlaylistItemStatus(
+            final @NonNull PlaylistItem item, final boolean shouldUpdate) {
         if (!mClient.hasSession() || item.getRemoteItemId() == null) {
             // if session is not valid or item id not assigend yet.
             // just return, it's not fatal
