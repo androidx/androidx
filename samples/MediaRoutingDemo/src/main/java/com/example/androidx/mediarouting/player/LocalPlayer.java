@@ -150,7 +150,8 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
     }
 
     @Override
-    public void getStatus(@NonNull final PlaylistItem item, final boolean shouldUpdate) {
+    public void getPlaylistItemStatus(
+            @NonNull final PlaylistItem item, final boolean shouldUpdate) {
         if (mState == STATE_PLAYING || mState == STATE_PAUSED) {
             item.setDuration(mMediaPlayer.getDuration());
             item.setPosition(getCurrentPosition());
