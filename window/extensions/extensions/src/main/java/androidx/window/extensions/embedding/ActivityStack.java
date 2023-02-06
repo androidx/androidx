@@ -33,6 +33,10 @@ import java.util.Objects;
  * container, all within the same task.
  */
 public class ActivityStack {
+
+    /** Only used for compatibility with the deprecated constructor. */
+    private static final IBinder INVALID_ACTIVITY_STACK_TOKEN = new Binder();
+
     @NonNull
     private final List<Activity> mActivities;
 
@@ -65,7 +69,7 @@ public class ActivityStack {
      */
     @Deprecated
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
-        this(activities, isEmpty, new Binder());
+        this(activities, isEmpty, INVALID_ACTIVITY_STACK_TOKEN);
     }
 
     /**
