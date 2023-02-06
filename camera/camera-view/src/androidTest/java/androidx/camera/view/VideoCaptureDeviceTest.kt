@@ -29,6 +29,7 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError
@@ -186,7 +187,7 @@ class VideoCaptureDeviceTest(
 
     @Before
     fun setUp() {
-        skipVideoRecordingTestOnCuttlefishApi29()
+        skipVideoRecordingTestIfNotSupportedByEmulator()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 
         initialLifecycleOwner()
@@ -660,14 +661,6 @@ class VideoCaptureDeviceTest(
 
             assertThat(value).isEqualTo(if (hasAudio) "yes" else null)
         }
-    }
-
-    private fun skipVideoRecordingTestOnCuttlefishApi29() {
-        // Skip test for b/168175357
-        Assume.assumeFalse(
-            "Cuttlefish has MediaCodec dequeInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
-        )
     }
 
     private fun skipTestWithSurfaceProcessingOnCuttlefishApi30() {
