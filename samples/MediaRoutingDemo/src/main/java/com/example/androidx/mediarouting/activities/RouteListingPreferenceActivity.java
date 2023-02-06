@@ -75,13 +75,24 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
 
         mRoutesManager = RoutesManager.getInstance(/* context= */ this);
 
+        Switch preferSystemOrderingSwitch = findViewById(R.id.prefer_system_ordering_switch);
+        preferSystemOrderingSwitch.setChecked(
+                mRoutesManager.getRouteListingSystemOrderingPreferred());
+        preferSystemOrderingSwitch.setOnCheckedChangeListener(
+                (unusedButton, isChecked) -> {
+                    mRoutesManager.setRouteListingSystemOrderingPreferred(isChecked);
+                });
+        preferSystemOrderingSwitch.setEnabled(mRoutesManager.isRouteListingPreferenceEnabled());
+
         Switch enableRouteListingPreferenceSwitch =
                 findViewById(R.id.enable_route_listing_preference_switch);
         enableRouteListingPreferenceSwitch.setChecked(
                 mRoutesManager.isRouteListingPreferenceEnabled());
         enableRouteListingPreferenceSwitch.setOnCheckedChangeListener(
-                (unusedButton, isChecked) ->
-                        mRoutesManager.setRouteListingPreferenceEnabled(isChecked));
+                (unusedButton, isChecked) -> {
+                    mRoutesManager.setRouteListingPreferenceEnabled(isChecked);
+                    preferSystemOrderingSwitch.setEnabled(isChecked);
+                });
 
         mRouteListingPreferenceRecyclerView =
                 findViewById(R.id.route_listing_preference_recycler_view);
