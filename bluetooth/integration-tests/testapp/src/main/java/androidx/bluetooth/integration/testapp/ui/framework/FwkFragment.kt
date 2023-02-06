@@ -95,8 +95,9 @@ class FwkFragment : Fragment() {
             scan()
         }
 
-        binding.switchAdvertise.setOnClickListener {
-            if (binding.switchAdvertise.isChecked) startAdvertise()
+        binding.switchAdvertise.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) startAdvertise()
+            else stopAdvertise()
         }
     }
 
@@ -151,7 +152,22 @@ class FwkFragment : Fragment() {
 
         bleAdvertiser?.startAdvertising(advertiseSettings, advertiseData, advertiseCallback)
 
-        Toast.makeText(context, getString(R.string.advertise_start_message), Toast.LENGTH_LONG)
+        Toast.makeText(context, getString(R.string.advertise_start_message), Toast.LENGTH_SHORT)
             .show()
+    }
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    private fun stopAdvertise() {
+        Log.d(TAG, "stopAdvertise() called")
+
+        val bluetoothManager =
+            context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+
+        val bluetoothAdapter = bluetoothManager?.adapter
+
+        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
+
+        bleAdvertiser?.stopAdvertising(advertiseCallback)
     }
 }
