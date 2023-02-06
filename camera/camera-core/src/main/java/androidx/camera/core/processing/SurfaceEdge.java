@@ -523,13 +523,21 @@ public class SurfaceEdge {
 
     @VisibleForTesting
     @NonNull
-    DeferrableSurface getDeferrableSurfaceForTesting() {
+    public DeferrableSurface getDeferrableSurfaceForTesting() {
         return mSettableSurface;
     }
 
     @VisibleForTesting
     public boolean isClosed() {
         return mIsClosed;
+    }
+
+    /**
+     * @return true if this edge is connected to a Surface provider.
+     */
+    @VisibleForTesting
+    public boolean hasProvider() {
+        return mSettableSurface.hasProvider();
     }
 
     /**
@@ -564,6 +572,11 @@ public class SurfaceEdge {
         boolean canSetProvider() {
             checkMainThread();
             return mProvider == null && !isClosed();
+        }
+
+        @VisibleForTesting
+        boolean hasProvider() {
+            return mProvider != null;
         }
 
         /**

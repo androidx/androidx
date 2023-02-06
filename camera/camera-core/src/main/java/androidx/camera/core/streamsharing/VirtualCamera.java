@@ -19,13 +19,19 @@ import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
+import static androidx.core.util.Preconditions.checkState;
+
+import static java.util.Objects.requireNonNull;
 
 import android.os.Build;
 import android.util.Size;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -34,6 +40,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
@@ -67,6 +74,9 @@ class VirtualCamera implements CameraInternal {
     // Specs for children UseCase, calculated and set by StreamSharing.
     @NonNull
     final Map<UseCase, SurfaceEdge> mChildrenEdges = new HashMap<>();
+    // Whether a children is in the active state. See: UseCase.State.ACTIVE
+    @NonNull
+    final Map<UseCase, Boolean> mChildrenActiveState = new HashMap<>();
     // Config factory for getting children's config.
     @NonNull
     private final UseCaseConfigFactory mUseCaseConfigFactory;
@@ -89,6 +99,10 @@ class VirtualCamera implements CameraInternal {
         mParentCamera = parentCamera;
         mUseCaseConfigFactory = useCaseConfigFactory;
         mChildren = children;
+        // Set children state to inactive by default.
+        for (UseCase child : children) {
+            mChildrenActiveState.put(child, false);
+        }
     }
 
     // --- API for StreamSharing ---
@@ -185,21 +199,66 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- Handle children state change ---
-    // TODO(b/264936250): Handle children state changes.
+    @MainThread
     @Override
     public void onUseCaseActive(@NonNull UseCase useCase) {
+        checkMainThread();
+        if (isUseCaseActive(useCase)) {
+            return;
+        }
+        mChildrenActiveState.put(useCase, true);
+        DeferrableSurface childSurface = getChildRepeatingSurface(useCase);
+        if (childSurface != null) {
+            forceSetProvider(getUseCaseEdge(useCase), childSurface);
+        }
     }
 
+    @MainThread
     @Override
     public void onUseCaseInactive(@NonNull UseCase useCase) {
+        checkMainThread();
+        if (!isUseCaseActive(useCase)) {
+            return;
+        }
+        mChildrenActiveState.put(useCase, false);
+        getUseCaseEdge(useCase).disconnect();
     }
 
+    @MainThread
     @Override
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
+        checkMainThread();
+        if (!isUseCaseActive(useCase)) {
+            // No-op if the child is inactive. It will connect when it becomes active.
+            return;
+        }
+        SurfaceEdge edge = getUseCaseEdge(useCase);
+        DeferrableSurface childSurface = getChildRepeatingSurface(useCase);
+        if (childSurface != null) {
+            // If the child has a Surface, connect. VideoCapture uses this mechanism to
+            // resume/start recording.
+            forceSetProvider(edge, childSurface);
+        } else {
+            // If the child has no Surface, disconnect. VideoCapture uses this mechanism to
+            // pause/stop recording.
+            edge.disconnect();
+        }
     }
 
+    @MainThread
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
+        checkMainThread();
+        SurfaceEdge edge = getUseCaseEdge(useCase);
+        edge.invalidate();
+        if (!isUseCaseActive(useCase)) {
+            // No-op if the child is inactive. It will connect when it becomes active.
+            return;
+        }
+        DeferrableSurface childSurface = getChildRepeatingSurface(useCase);
+        if (childSurface != null) {
+            forceSetProvider(edge, childSurface);
+        }
     }
 
     // --- Forward parent camera properties and events ---
@@ -225,6 +284,40 @@ class VirtualCamera implements CameraInternal {
 
     // --- private methods ---
     @NonNull
+    private SurfaceEdge getUseCaseEdge(@NonNull UseCase useCase) {
+        return requireNonNull(mChildrenEdges.get(useCase));
+    }
+
+    private boolean isUseCaseActive(@NonNull UseCase useCase) {
+        return requireNonNull(mChildrenActiveState.get(useCase));
+    }
+
+    private void forceSetProvider(@NonNull SurfaceEdge edge,
+            @NonNull DeferrableSurface surface) {
+        edge.invalidate();
+        try {
+            edge.setProvider(surface);
+        } catch (DeferrableSurface.SurfaceClosedException e) {
+            // Throws an exception when DeferrableSurface is closed, which should never happen.
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Gets the {@link DeferrableSurface} associated with the child.
+     */
+    @Nullable
+    private static DeferrableSurface getChildRepeatingSurface(@NonNull UseCase child) {
+        // TODO(b/267620162): use non-repeating surface for ImageCapture.
+        List<DeferrableSurface> surfaces =
+                child.getSessionConfig().getRepeatingCaptureConfig().getSurfaces();
+        checkState(surfaces.size() <= 1);
+        if (surfaces.size() == 1) {
+            return surfaces.get(0);
+        }
+        return null;
+    }
+
     CameraCaptureCallback createCameraCaptureCallback() {
         return new CameraCaptureCallback() {
             @Override
