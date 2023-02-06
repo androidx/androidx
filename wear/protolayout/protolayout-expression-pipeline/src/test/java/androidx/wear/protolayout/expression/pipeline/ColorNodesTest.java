@@ -97,7 +97,7 @@ public class ColorNodesTest {
 
         node.preInit();
         node.init();
-        oss.setStateEntryValues(
+        oss.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo",
                         StateEntryValue.newBuilder()
@@ -127,7 +127,7 @@ public class ColorNodesTest {
 
         results.clear();
         node.destroy();
-        oss.setStateEntryValues(
+        oss.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo",
                         StateEntryValue.newBuilder()
@@ -211,7 +211,7 @@ public class ColorNodesTest {
         stateNode.preInit();
         stateNode.init();
 
-        oss.setStateEntryValues(
+        oss.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo",
                         StateEntryValue.newBuilder()
@@ -257,7 +257,7 @@ public class ColorNodesTest {
         stateNode.init();
 
         results.clear();
-        oss.setStateEntryValues(
+        oss.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo",
                         StateEntryValue.newBuilder()
@@ -271,7 +271,7 @@ public class ColorNodesTest {
 
         colorNode.setVisibility(true);
         results.clear();
-        oss.setStateEntryValues(
+        oss.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo",
                         StateEntryValue.newBuilder()

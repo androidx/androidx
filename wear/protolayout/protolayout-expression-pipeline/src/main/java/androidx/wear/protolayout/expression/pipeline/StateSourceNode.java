@@ -50,7 +50,7 @@ class StateSourceNode<T>
     @UiThread
     public void init() {
         mObservableStateStore.registerCallback(mBindKey, this);
-        StateEntryValue item = mObservableStateStore.getStateEntryValues(mBindKey);
+        StateEntryValue item = mObservableStateStore.getStateEntryValuesProto(mBindKey);
 
         if (item != null) {
             this.onData(item);
