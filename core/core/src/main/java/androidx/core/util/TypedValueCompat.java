@@ -103,6 +103,68 @@ public class TypedValueCompat {
         }
     }
 
+    /**
+     * Converts a density-independent pixels (DP) value to pixels
+     *
+     * <p>This is a convenience function for
+     * {@link TypedValue#applyDimension(int, float, DisplayMetrics)}
+     *
+     * @param dpValue The value in DP to convert from.
+     * @param metrics Current display metrics to use in the conversion --
+     *                supplies display density and scaling information.
+     *
+     * @return A raw pixel value
+     */
+    public static float dpToPx(float dpValue, @NonNull DisplayMetrics metrics) {
+        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, dpValue, metrics);
+    }
+
+    /**
+     * Converts a pixel value to density-independent pixels (DP)
+     *
+     * <p>This is a convenience function for {@link #deriveDimension(int, float, DisplayMetrics)}
+     *
+     * @param pixelValue The raw pixels value to convert from.
+     * @param metrics Current display metrics to use in the conversion --
+     *                supplies display density and scaling information.
+     *
+     * @return A dimension value (in DP) representing the given number of pixels.
+     */
+    public static float pxToDp(float pixelValue, @NonNull DisplayMetrics metrics) {
+        return deriveDimension(COMPLEX_UNIT_DIP, pixelValue, metrics);
+    }
+
+    /**
+     * Converts a scaled pixels (SP) value to pixels
+     *
+     * <p>This is a convenience function for
+     * {@link TypedValue#applyDimension(int, float, DisplayMetrics)}
+     *
+     * @param spValue The value in SP to convert from.
+     * @param metrics Current display metrics to use in the conversion --
+     *                supplies display density and scaling information.
+     *
+     * @return A raw pixel value
+     */
+    public static float spToPx(float spValue, @NonNull DisplayMetrics metrics) {
+        return TypedValue.applyDimension(COMPLEX_UNIT_SP, spValue, metrics);
+    }
+
+    /**
+     * Converts a pixel value to scaled pixels (SP)
+     *
+     * <p>This is a convenience function for {@link #deriveDimension(int, float, DisplayMetrics)}
+     *
+     * @param pixelValue The raw pixels value to convert from.
+     * @param metrics Current display metrics to use in the conversion --
+     *                supplies display density and scaling information.
+     *
+     * @return A dimension value (in SP) representing the given number of pixels.
+     */
+    public static float pxToSp(float pixelValue, @NonNull DisplayMetrics metrics) {
+        return deriveDimension(COMPLEX_UNIT_SP, pixelValue, metrics);
+    }
+
     @RequiresApi(34)
     private static class Api34Impl {
         @DoNotInline

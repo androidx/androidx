@@ -123,6 +123,27 @@ class TypedValueCompatTest {
             }
     }
 
+    @Test
+    fun convenienceFunctionsCallCorrectAliases() {
+        val metrics: DisplayMetrics = mock(DisplayMetrics::class.java)
+        metrics.density = 1f
+        metrics.xdpi = 2f
+        metrics.scaledDensity = 2f
+
+        assertThat(TypedValueCompat.pxToDp(20f, metrics))
+            .isWithin(0.05f)
+            .of(TypedValueCompat.deriveDimension(TypedValue.COMPLEX_UNIT_DIP, 20f, metrics))
+        assertThat(TypedValueCompat.pxToSp(20f, metrics))
+            .isWithin(0.05f)
+            .of(TypedValueCompat.deriveDimension(TypedValue.COMPLEX_UNIT_SP, 20f, metrics))
+        assertThat(TypedValueCompat.dpToPx(20f, metrics))
+            .isWithin(0.05f)
+            .of(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20f, metrics))
+        assertThat(TypedValueCompat.spToPx(20f, metrics))
+            .isWithin(0.05f)
+            .of(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20f, metrics))
+    }
+
     private fun assertRoundTripIsEqual(
         dimenValueToTest: Float,
         dimenType: Int,
