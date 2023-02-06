@@ -17,8 +17,8 @@ impl/androidx-native-mac-simulator-setup.sh
 
 impl/build.sh buildOnServer :docs-kmp:zipCombinedKmpDocs --no-configuration-cache -Pandroidx.displayTestOutput=false
 
-# run a separate createArchive task to prepare a repository
+# run a separate createAllArchives task to prepare a repository
 # folder in DIST.
 # This cannot be merged with the buildOnServer run because
 # snapshot version is not a proper release version.
-DIST_DIR=$DIST_DIR/snapshots SNAPSHOT=true impl/build.sh createArchive --no-configuration-cache
+DIST_DIR=$DIST_DIR/snapshots SNAPSHOT=true impl/build.sh createAllArchives --no-configuration-cache -Pandroidx.constraints=true
