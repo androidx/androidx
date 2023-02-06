@@ -125,18 +125,38 @@ dependencies {
     testImplementation(libs.mockitoCore4)
 }
 
-// KSP does not support argument per flavor so we set schema location globally, for other per
-// flavor options we use flavor named tasks. See https://github.com/google/ksp/issues/861.
-ksp {
-    arg("room.schemaLocation","$projectDir/schemas-ksp".toString())
-}
+class RoomSchemaArgProvider implements CommandLineArgumentProvider {
 
-// Commented out as workaround suggested by KSP team due to bug in KSP 1.8.10-1.0.9
-// TODO: Tracking as b/267692813
-/*
-tasks.withType(KspTask).configureEach { kspTask ->
-    if (kspTask.name.contains("GenKotlin")) {
-        kspTask.apOptions.put("room.generateKotlin", "true")
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File schemaDir
+
+    @Input
+    Provider<Boolean> generateKotlin;
+
+    RoomSchemaArgProvider(File schemaDir, Provider<Boolean> generateKotlin) {
+        this.schemaDir = schemaDir
+        this.generateKotlin = generateKotlin
+    }
+
+    @Override
+    Iterable<String> asArguments() {
+        // Note: If you're using KSP, you should change the line below to return
+        // ["room.schemaLocation=${schemaDir.path}"]
+        return [
+            "room.schemaLocation=" + schemaDir.path,
+            "room.generateKotlin=" + generateKotlin.get()
+        ]
     }
 }
-*/
+
+// KSP does not support argument per flavor so for per flavor options we use flavor named tasks.
+// See https://github.com/google/ksp/issues/861.
+tasks.withType(KspTask).configureEach { kspTask ->
+    kspTask.commandLineArgumentProviders.add(
+        new RoomSchemaArgProvider(
+            new File(projectDir, "schemas-ksp"),
+            provider { kspTask.name.contains("GenKotlin") }
+        )
+    )
+}
