@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
@@ -106,6 +107,30 @@ class SurfaceProcessorNodeTest {
             videoSurfaceRequest.deferrableSurface.close()
         }
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun identicalOutConfigs_returnDifferentEdges() {
+        // Arrange: create 2 OutConfig with identical values
+        createSurfaceProcessorNode()
+        val inputEdge = SurfaceEdge(
+            PREVIEW,
+            StreamSpec.builder(INPUT_SIZE).build(),
+            Matrix.IDENTITY_MATRIX,
+            true,
+            PREVIEW_CROP_RECT,
+            0,
+            false
+        )
+        val outConfig1 = OutConfig.of(inputEdge)
+        val outConfig2 = OutConfig.of(inputEdge)
+        val input = SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig1, outConfig2))
+        // Act.
+        val output = node.transform(input)
+        // Assert: there are two outputs
+        assertThat(output).hasSize(2)
+        // Cleanup
+        inputEdge.close()
     }
 
     @Test
