@@ -49,7 +49,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.math.roundToInt
-import org.junit.Ignore
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -70,7 +69,6 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
-    @Ignore("Awaiting fix for b/236217874")
     @Test
     fun visibleItemsAreCorrect() {
         lateinit var state: ScalingLazyListState
