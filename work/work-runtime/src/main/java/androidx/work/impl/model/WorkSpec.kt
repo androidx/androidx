@@ -355,6 +355,9 @@ data class WorkSpec(
         @ColumnInfo(name = "generation")
         val generation: Int,
 
+        @Embedded
+        val constraints: Constraints,
+
         @Relation(
             parentColumn = "id",
             entityColumn = "work_spec_id",
@@ -387,7 +390,8 @@ data class WorkSpec(
                 output,
                 progress,
                 runAttemptCount,
-                generation
+                generation,
+                constraints
             )
         }
     }
