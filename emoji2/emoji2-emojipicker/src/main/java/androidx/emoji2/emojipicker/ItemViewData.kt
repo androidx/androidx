@@ -33,19 +33,19 @@ internal sealed class ItemViewData(itemType: ItemType, val occupyEntireRow: Bool
 /**
  * Title of each category.
  */
-internal class CategoryTitle(val title: String) :
+internal data class CategoryTitle(val title: String) :
     ItemViewData(ItemType.CATEGORY_TITLE, occupyEntireRow = true)
 
 /**
  * Text to display when the category contains no items.
  */
-internal class PlaceholderText(val text: String) :
+internal data class PlaceholderText(val text: String) :
     ItemViewData(ItemType.PLACEHOLDER_TEXT, occupyEntireRow = true)
 
 /**
  * Represents an emoji.
  */
-internal class EmojiViewData(
+internal data class EmojiViewData(
     var emoji: String,
     val updateToSticky: Boolean = true
 ) : ItemViewData(ItemType.EMOJI)

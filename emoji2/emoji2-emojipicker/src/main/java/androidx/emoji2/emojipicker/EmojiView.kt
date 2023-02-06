@@ -41,8 +41,6 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
 
     companion object {
         private const val EMOJI_DRAW_TEXT_SIZE_SP = 30
-        private val emojiCompatLoaded = EmojiCompat.isConfigured() &&
-            EmojiCompat.get().loadState == EmojiCompat.LOAD_STATE_SUCCEEDED
     }
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
@@ -80,22 +78,24 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
     var emoji: CharSequence? = null
         set(value) {
             field = value
-            offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
             if (value != null) {
                 post {
                     if (value == this.emoji) {
                         drawEmoji(
-                            if (emojiCompatLoaded)
+                            if (EmojiPickerView.emojiCompatLoaded)
                                 EmojiCompat.get().process(value) ?: value else value
                         )
                         contentDescription = value
                     }
                     invalidate()
                 }
+            } else {
+                offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
             }
         }
 
     private fun drawEmoji(emoji: CharSequence) {
+        offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
         offscreenCanvasBitmap.applyCanvas {
             if (emoji is Spanned) {
                 createStaticLayout(emoji, width).draw(this)

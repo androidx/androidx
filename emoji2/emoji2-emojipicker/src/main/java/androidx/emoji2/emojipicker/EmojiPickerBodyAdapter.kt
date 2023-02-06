@@ -35,7 +35,7 @@ internal class EmojiPickerBodyAdapter(
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
     private val stickyVariantProvider: StickyVariantProvider,
-    private val emojiPickerItems: EmojiPickerItems,
+    private val emojiPickerItemsProvider: () -> EmojiPickerItems,
     private val onEmojiPickedListener: EmojiPickerBodyAdapter.(EmojiViewItem) -> Unit,
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
@@ -69,7 +69,7 @@ internal class EmojiPickerBodyAdapter(
                     },
                     onEmojiPickedFromPopupListener = { emoji ->
                         with(
-                            emojiPickerItems.getBodyItem(bindingAdapterPosition)
+                            emojiPickerItemsProvider().getBodyItem(bindingAdapterPosition)
                                 as EmojiViewData
                         ) {
                             if (updateToSticky) {
@@ -84,7 +84,7 @@ internal class EmojiPickerBodyAdapter(
         }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val item = emojiPickerItems.getBodyItem(position)
+        val item = emojiPickerItemsProvider().getBodyItem(position)
         when (getItemViewType(position).toItemType()) {
             ItemType.CATEGORY_TITLE -> ViewCompat.requireViewById<TextView>(
                 viewHolder.itemView, R.id.category_name
@@ -102,12 +102,15 @@ internal class EmojiPickerBodyAdapter(
         }
     }
 
+    override fun getItemId(position: Int): Long =
+        emojiPickerItemsProvider().getBodyItem(position).hashCode().toLong()
+
     override fun getItemCount(): Int {
-        return emojiPickerItems.size
+        return emojiPickerItemsProvider().size
     }
 
     override fun getItemViewType(position: Int): Int {
-        return emojiPickerItems.getBodyItem(position).viewType
+        return emojiPickerItemsProvider().getBodyItem(position).viewType
     }
 
     private fun getParentWidth(parent: ViewGroup): Int {

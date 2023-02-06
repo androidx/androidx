@@ -25,6 +25,7 @@ import android.widget.FrameLayout
 import androidx.core.util.Consumer
 import androidx.core.view.ViewCompat
 import androidx.emoji2.emojipicker.EmojiPickerConstants.DEFAULT_MAX_RECENT_ITEM_ROWS
+import androidx.emoji2.text.EmojiCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,6 +45,11 @@ class EmojiPickerView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) :
     FrameLayout(context, attrs, defStyleAttr) {
+
+    internal companion object {
+        internal var emojiCompatLoaded: Boolean = false
+    }
+
     /**
      * The number of rows of the emoji picker.
      *
@@ -103,6 +109,27 @@ class EmojiPickerView @JvmOverloads constructor(
         )
         typedArray.recycle()
 
+        if (EmojiCompat.isConfigured()) {
+            when (EmojiCompat.get().loadState) {
+                EmojiCompat.LOAD_STATE_SUCCEEDED -> emojiCompatLoaded = true
+
+                EmojiCompat.LOAD_STATE_LOADING, EmojiCompat.LOAD_STATE_DEFAULT ->
+                    EmojiCompat.get().registerInitCallback(object : EmojiCompat.InitCallback() {
+                        override fun onInitialized() {
+                            emojiCompatLoaded = true
+                            scope.launch(Dispatchers.IO) {
+                                BundledEmojiListLoader.load(context)
+                                withContext(Dispatchers.Main) {
+                                    emojiPickerItems = buildEmojiPickerItems()
+                                    bodyAdapter.notifyDataSetChanged()
+                                }
+                            }
+                        }
+
+                        override fun onFailed(throwable: Throwable?) {}
+                    })
+            }
+        }
         scope.launch(Dispatchers.IO) {
             val load = launch { BundledEmojiListLoader.load(context) }
             refreshRecentItems()
@@ -114,15 +141,13 @@ class EmojiPickerView @JvmOverloads constructor(
         }
     }
 
-    private fun createEmojiPickerBodyAdapter(
-        emojiPickerItems: EmojiPickerItems,
-    ): EmojiPickerBodyAdapter {
+    private fun createEmojiPickerBodyAdapter(): EmojiPickerBodyAdapter {
         return EmojiPickerBodyAdapter(
             context,
             emojiGridColumns,
             emojiGridRows,
             stickyVariantProvider,
-            emojiPickerItems,
+            emojiPickerItemsProvider = { emojiPickerItems },
             onEmojiPickedListener = { emojiViewItem ->
                 onEmojiPickedListener?.accept(emojiViewItem)
 
@@ -134,30 +159,32 @@ class EmojiPickerView @JvmOverloads constructor(
         )
     }
 
-    private fun showEmojiPickerView() {
-        emojiPickerItems = EmojiPickerItems(buildList {
-            add(ItemGroup(
-                R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
-                CategoryTitle(context.getString(R.string.emoji_category_recent)),
-                recentItems,
-                forceContentSize = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
-                emptyPlaceholderItem = PlaceholderText(
-                    context.getString(R.string.emoji_empty_recent_category)
-                )
-            ).also { recentItemGroup = it })
+    internal fun buildEmojiPickerItems() = EmojiPickerItems(buildList {
+        add(ItemGroup(
+            R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
+            CategoryTitle(context.getString(R.string.emoji_category_recent)),
+            recentItems,
+            forceContentSize = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
+            emptyPlaceholderItem = PlaceholderText(
+                context.getString(R.string.emoji_empty_recent_category)
+            )
+        ).also { recentItemGroup = it })
 
-            for ((headerIconId, name, emojis) in BundledEmojiListLoader.getCategorizedEmojiData()) {
-                add(
-                    ItemGroup(
-                        headerIconId,
-                        CategoryTitle(name),
-                        emojis.map {
-                            EmojiViewData(stickyVariantProvider[it.emoji])
-                        },
-                    )
+        for ((headerIconId, name, emojis) in BundledEmojiListLoader.getCategorizedEmojiData()) {
+            add(
+                ItemGroup(
+                    headerIconId,
+                    CategoryTitle(name),
+                    emojis.map {
+                        EmojiViewData(stickyVariantProvider[it.emoji])
+                    },
                 )
-            }
-        })
+            )
+        }
+    })
+
+    private fun showEmojiPickerView() {
+        emojiPickerItems = buildEmojiPickerItems()
 
         val bodyLayoutManager = GridLayoutManager(
             context,
@@ -205,7 +232,9 @@ class EmojiPickerView @JvmOverloads constructor(
             // set bodyView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_body).apply {
                 layoutManager = bodyLayoutManager
-                adapter = createEmojiPickerBodyAdapter(emojiPickerItems).also { bodyAdapter = it }
+                adapter = createEmojiPickerBodyAdapter().apply {
+                    setHasStableIds(true)
+                }.also { bodyAdapter = it }
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
