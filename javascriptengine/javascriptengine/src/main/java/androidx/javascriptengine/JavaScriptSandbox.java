@@ -174,7 +174,15 @@ public final class JavaScriptSandbox implements AutoCloseable {
         @Override
         @SuppressWarnings("NullAway")
         public void onServiceConnected(ComponentName name, IBinder service) {
-            IJsSandboxService jsSandboxService = IJsSandboxService.Stub.asInterface(service);
+            // It's possible for the service to die and already have been restarted before
+            // we've actually observed the original death (b/267864650). If that happens,
+            // onServiceConnected will be called a second time immediately after
+            // onServiceDisconnected even though we already unbound. Just do nothing.
+            if (mCompleter == null) {
+                return;
+            }
+            IJsSandboxService jsSandboxService =
+                    IJsSandboxService.Stub.asInterface(service);
             mJsSandbox = new JavaScriptSandbox(this, jsSandboxService);
             mCompleter.set(mJsSandbox);
             mCompleter = null;
