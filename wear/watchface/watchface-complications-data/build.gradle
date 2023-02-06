@@ -33,6 +33,7 @@ dependencies {
 
     // TODO(b/267170061): Use released protolayout-expression, remove protolayout-proto.
     api(project(":wear:protolayout:protolayout-expression"))
+    api(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:protolayout:protolayout-proto"))
 
     implementation("androidx.core:core:1.1.0")

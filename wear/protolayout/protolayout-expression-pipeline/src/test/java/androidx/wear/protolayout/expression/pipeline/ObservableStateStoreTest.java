@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.StateEntryBuilders;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
@@ -48,34 +49,44 @@ public class ObservableStateStoreTest {
                             "baz", buildStateEntry("foobar")));
 
     @Test
+    public void setBuilderApi() {
+        mStateStoreUnderTest.setStateEntryValues(
+                ImmutableMap.of("foo", StateEntryBuilders.StateEntryValue.fromString("baz")));
+
+        mExpect
+                .that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
+                .isEqualTo(buildStateEntry("baz"));
+    }
+
+    @Test
     public void canReadInitialState() {
-        mExpect.that(mStateStoreUnderTest.getStateEntryValues("foo"))
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
                 .isEqualTo(buildStateEntry("bar"));
         mExpect
-                .that(mStateStoreUnderTest.getStateEntryValues("baz"))
+                .that(mStateStoreUnderTest.getStateEntryValuesProto("baz"))
                 .isEqualTo(buildStateEntry("foobar"));
     }
 
     @Test
     public void unsetStateReturnsNull() {
-        mExpect.that(mStateStoreUnderTest.getStateEntryValues("AAAAAA")).isNull();
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("AAAAAA")).isNull();
     }
 
     @Test
     public void canSetNewState() {
-        mStateStoreUnderTest.setStateEntryValues(
+        mStateStoreUnderTest.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo", buildStateEntry("test"),
                         "newKey", buildStateEntry("testNewKey")));
 
-        mExpect.that(mStateStoreUnderTest.getStateEntryValues("foo"))
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
                 .isEqualTo(buildStateEntry("test"));
         mExpect
-                .that(mStateStoreUnderTest.getStateEntryValues("newKey"))
+                .that(mStateStoreUnderTest.getStateEntryValuesProto("newKey"))
                 .isEqualTo(buildStateEntry("testNewKey"));
 
         // This should have been cleared...
-        mExpect.that(mStateStoreUnderTest.getStateEntryValues("baz")).isNull();
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("baz")).isNull();
     }
 
     @Test
@@ -83,7 +94,8 @@ public class ObservableStateStoreTest {
         DynamicTypeValueReceiver<StateEntryValue> cb = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cb);
 
-        mStateStoreUnderTest.setStateEntryValues(ImmutableMap.of("foo", buildStateEntry("test")));
+        mStateStoreUnderTest.setStateEntryValuesProto(
+                ImmutableMap.of("foo", buildStateEntry("test")));
 
         verify(cb).onPreUpdate();
         verify(cb).onData(buildStateEntry("test"));
@@ -98,7 +110,7 @@ public class ObservableStateStoreTest {
         mStateStoreUnderTest.registerCallback("foo", cb);
         mStateStoreUnderTest.registerCallback("baz", cb);
 
-        mStateStoreUnderTest.setStateEntryValues(
+        mStateStoreUnderTest.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo", buildStateEntry("testFoo"),
                         "baz", buildStateEntry("testBaz")));
@@ -115,7 +127,7 @@ public class ObservableStateStoreTest {
         mStateStoreUnderTest.registerCallback("foo", cbFoo);
         mStateStoreUnderTest.registerCallback("baz", cbBaz);
 
-        mStateStoreUnderTest.setStateEntryValues(
+        mStateStoreUnderTest.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo", buildStateEntry("test"),
                         "baz", buildStateEntry("foobar")));
@@ -126,18 +138,39 @@ public class ObservableStateStoreTest {
         verify(cbBaz, never()).onData(buildStateEntry("test"));
     }
 
+    @Test
+    public void removeStateFiresInvalidated() {
+        mStateStoreUnderTest.setStateEntryValuesProto(
+                ImmutableMap.of(
+                        "invalidated", buildStateEntry("value"),
+                        "notInvalidated", buildStateEntry("value")));
+        DynamicTypeValueReceiver<StateEntryValue> invalidated = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiver<StateEntryValue> notInvalidated = buildStateUpdateCallbackMock();
+        mStateStoreUnderTest.registerCallback("invalidated", invalidated);
+        mStateStoreUnderTest.registerCallback("notInvalidated", notInvalidated);
+
+        mStateStoreUnderTest.setStateEntryValuesProto(
+                ImmutableMap.of("notInvalidated", buildStateEntry("value")));
+
+        verify(invalidated).onPreUpdate();
+        verify(invalidated).onInvalidated();
+        verify(invalidated, never()).onData(any());
+        verifyNoInteractions(notInvalidated);
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void canUnregisterListeners() {
         DynamicTypeValueReceiver<StateEntryValue> cb = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cb);
 
-        mStateStoreUnderTest.setStateEntryValues(ImmutableMap.of("foo", buildStateEntry("test")));
+        mStateStoreUnderTest.setStateEntryValuesProto(
+                ImmutableMap.of("foo", buildStateEntry("test")));
 
         reset(cb);
         mStateStoreUnderTest.unregisterCallback("foo", cb);
 
-        mStateStoreUnderTest.setStateEntryValues(
+        mStateStoreUnderTest.setStateEntryValuesProto(
                 ImmutableMap.of("foo", buildStateEntry("testAgain"))
         );
 

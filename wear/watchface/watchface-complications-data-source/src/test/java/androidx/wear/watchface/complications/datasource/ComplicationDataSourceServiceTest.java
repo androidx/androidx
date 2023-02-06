@@ -18,10 +18,13 @@ package androidx.wear.watchface.complications.datasource;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.shadows.ShadowLooper.runUiThreadTasks;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -32,14 +35,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationText;
+import androidx.wear.watchface.complications.data.ComplicationTextExpression;
 import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.data.LongTextComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
-import androidx.wear.watchface.complications.data.ComplicationTextExpression;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +53,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -187,7 +190,8 @@ public class ComplicationDataSourceServiceTest {
                 ArgumentCaptor.forClass(
                         android.support.wearable.complications.ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
-        assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo("hello");
+        assertThat(data.getValue().getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo(
+                "hello");
     }
 
     @Test
@@ -236,17 +240,12 @@ public class ComplicationDataSourceServiceTest {
                 ComplicationType.LONG_TEXT.toWireComplicationType(),
                 mLocalManager);
 
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+        runUiThreadTasksWhileAwaitingDataLatch(1000);
         verify(mRemoteManager).updateComplicationData(
                 eq(123),
-                eq(new LongTextComplicationData.Builder(
-                        // TODO(b/260065006): new PlainComplicationText.Builder("hello world")
-                        new ComplicationTextExpression(
-                                DynamicString.constant("hello").concat(
-                                        DynamicString.constant(" world"))),
-                        ComplicationText.EMPTY)
-                        .build()
-                        .asWireComplicationData()));
+                argThat(data ->
+                        data.getLongText().getTextAt(Resources.getSystem(), 0)
+                                .equals("hello world")));
     }
 
     @Test
@@ -297,7 +296,7 @@ public class ComplicationDataSourceServiceTest {
 
         assertThat(mProvider.getComplicationPreviewData(
                 ComplicationType.LONG_TEXT.toWireComplicationType()
-        ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
+        ).getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo("hello preview");
     }
 
     @Test
@@ -346,7 +345,7 @@ public class ComplicationDataSourceServiceTest {
                 ArgumentCaptor.forClass(
                         android.support.wearable.complications.ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
-        assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
+        assertThat(data.getValue().getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo(
                 "default"
         );
         List<android.support.wearable.complications.ComplicationData> timeLineEntries =
@@ -355,13 +354,15 @@ public class ComplicationDataSourceServiceTest {
         assertThat(timeLineEntries.size()).isEqualTo(2);
         assertThat(timeLineEntries.get(0).getTimelineStartEpochSecond()).isEqualTo(1000);
         assertThat(timeLineEntries.get(0).getTimelineEndEpochSecond()).isEqualTo(4000);
-        assertThat(timeLineEntries.get(0).getLongText().getTextAt(null, 0)).isEqualTo(
+        assertThat(timeLineEntries.get(0).getLongText().getTextAt(Resources.getSystem(),
+                0)).isEqualTo(
                 "A"
         );
 
         assertThat(timeLineEntries.get(1).getTimelineStartEpochSecond()).isEqualTo(6000);
         assertThat(timeLineEntries.get(1).getTimelineEndEpochSecond()).isEqualTo(8000);
-        assertThat(timeLineEntries.get(1).getLongText().getTextAt(null, 0)).isEqualTo(
+        assertThat(timeLineEntries.get(1).getLongText().getTextAt(Resources.getSystem(),
+                0)).isEqualTo(
                 "B"
         );
     }
@@ -396,9 +397,19 @@ public class ComplicationDataSourceServiceTest {
             );
 
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
-            assertThat(response.get().getLongText().getTextAt(null, 0)).isEqualTo("hello");
+            assertThat(response.get().getLongText().getTextAt(Resources.getSystem(), 0)).isEqualTo(
+                    "hello");
         } finally {
             thread.quitSafely();
+        }
+    }
+
+    private void runUiThreadTasksWhileAwaitingDataLatch(long timeout) throws InterruptedException {
+        // Allowing UI thread to execute while we wait for the data latch.
+        long attempts = 0;
+        while (!mUpdateComplicationDataLatch.await(1, TimeUnit.MILLISECONDS)) {
+            runUiThreadTasks();
+            assertThat(attempts++).isLessThan(timeout); // In total waiting ~timeout.
         }
     }
 }

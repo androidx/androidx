@@ -88,7 +88,7 @@ public class Int32NodesTest {
 
         results.clear();
 
-        oss.setStateEntryValues(
+        oss.setStateEntryValuesProto(
                 ImmutableMap.of(
                         "foo",
                         StateEntryValue.newBuilder()
