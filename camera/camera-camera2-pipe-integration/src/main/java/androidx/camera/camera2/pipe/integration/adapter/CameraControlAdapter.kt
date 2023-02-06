@@ -117,12 +117,10 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun setZoomRatio(ratio: Float): ListenableFuture<Void> =
-        zoomControl.setZoomRatioAsync(ratio)
+        zoomControl.setZoomRatio(ratio)
 
-    override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
-        val ratio = zoomControl.toZoomRatio(linearZoom)
-        return setZoomRatio(ratio)
-    }
+    override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> =
+        zoomControl.setLinearZoom(linearZoom)
 
     override fun getFlashMode(): Int {
         return flashControl.flashMode

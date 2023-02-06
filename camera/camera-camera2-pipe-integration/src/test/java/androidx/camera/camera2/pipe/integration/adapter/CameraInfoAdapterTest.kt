@@ -98,12 +98,12 @@ class CameraInfoAdapterTest {
         // if useCaseCamera is null, zoom setting operation will be cancelled
         zoomControl.useCaseCamera = FakeUseCaseCamera()
 
-        zoomControl.setZoomRatioAsync(3.0f)[3, TimeUnit.SECONDS]
+        val expectedZoomState = ZoomValue(3.0f, 1.0f, 10.0f)
+        zoomControl.setZoomValue(expectedZoomState)[3, TimeUnit.SECONDS]
 
-        // minZoom and maxZoom will be set as 0 due to FakeZoomCompat using those values
-        assertWithMessage("zoomState did not return default zoom ratio successfully")
+        assertWithMessage("zoomState did not return the correct zoom state successfully")
             .that(currentZoomState)
-            .isEqualTo(ZoomValue(3.0f, zoomControl.minZoom, zoomControl.maxZoom))
+            .isEqualTo(expectedZoomState)
     }
 
     @Test
