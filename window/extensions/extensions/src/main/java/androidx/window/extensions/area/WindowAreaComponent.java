@@ -16,11 +16,15 @@
 
 package androidx.window.extensions.area;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.Build;
+import android.util.ArrayMap;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
@@ -115,6 +119,14 @@ public interface WindowAreaComponent {
     })
     @interface WindowAreaSessionState {}
 
+    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
+    // the latest library.
+    /** @hide */
+    @SuppressLint({"NewApi", "ClassVerificationFailure"})
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    ArrayMap<java.util.function.Consumer<Integer>, Consumer<Integer>> JAVA_TO_EXTENSIONS_MAP =
+            new ArrayMap<>();
+
     /**
      * Adds a listener interested in receiving updates on the RearDisplayStatus
      * of the device. Because this is being called from the OEM provided
@@ -125,39 +137,59 @@ public interface WindowAreaComponent {
      * correspond to the [WindowAreaStatus] value that aligns with the current status
      * of the rear display.
      * @param consumer interested in receiving updates to WindowAreaStatus.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void addRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
 
+    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
+    // the latest library.
+    /**
+     * @deprecated Use {@link #addRearDisplayStatusListener(Consumer)}.
+     *
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * @hide
+     */
+    @Deprecated
+    @SuppressLint("ClassVerificationFailure")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    default void addRearDisplayStatusListener(
+            @NonNull java.util.function.Consumer<Integer> consumer) {
+        if (JAVA_TO_EXTENSIONS_MAP.containsKey(consumer)) {
+            return;
+        }
+        final Consumer<Integer> extensionsConsumer = consumer::accept;
+        JAVA_TO_EXTENSIONS_MAP.put(consumer, extensionsConsumer);
+        addRearDisplayStatusListener(extensionsConsumer);
+    }
+
     /**
      * Removes a listener no longer interested in receiving updates.
      * @param consumer no longer interested in receiving updates to WindowAreaStatus
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void removeRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
 
+    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
+    // the latest library.
     /**
-     * Adds a listener interested in receiving updates on the rear display presentation status
-     * of the device. Because this is being called from the OEM provided
-     * extensions, the library will post the result of the listener on the executor
-     * provided by the developer.
+     * @deprecated Use {@link #removeRearDisplayStatusListener(Consumer)}.
      *
-     * The listener provided will receive {@link ExtensionWindowAreaStatus} values that
-     * correspond to the current status of the feature.
-     *
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
-     * @param consumer interested in receiving updates to {@link ExtensionWindowAreaStatus}.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * @hide
      */
-    void addRearDisplayPresentationStatusListener(
-            @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
-
-    /**
-     * Removes a listener no longer interested in receiving updates.
-     *
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
-     * @param consumer no longer interested in receiving updates to WindowAreaStatus
-     */
-    void removeRearDisplayPresentationStatusListener(
-            @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
-
+    @Deprecated
+    @SuppressLint("ClassVerificationFailure")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    default void removeRearDisplayStatusListener(
+            @NonNull java.util.function.Consumer<Integer> consumer) {
+        if (!JAVA_TO_EXTENSIONS_MAP.containsKey(consumer)) {
+            return;
+        }
+        final Consumer<Integer> extensionsConsumer = JAVA_TO_EXTENSIONS_MAP.remove(consumer);
+        removeRearDisplayStatusListener(extensionsConsumer);
+    }
 
     /**
      * Creates and starts a rear display session and sends state updates to the
@@ -176,17 +208,61 @@ public interface WindowAreaComponent {
      * @throws UnsupportedOperationException if this method is called when RearDisplay
      * mode is not available. This could be to an incompatible device state or when
      * another process is currently in this mode.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
     void startRearDisplaySession(@NonNull Activity activity,
             @NonNull Consumer<@WindowAreaSessionState Integer> consumer);
 
+    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
+    // the latest library.
+    /**
+     * @deprecated Use {@link #startRearDisplaySession(Activity, Consumer)}.
+     *
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * @hide
+     */
+    @Deprecated
+    @SuppressLint("ClassVerificationFailure")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    default void startRearDisplaySession(@NonNull Activity activity,
+            @NonNull java.util.function.Consumer<@WindowAreaSessionState Integer> consumer) {
+        final Consumer<Integer> extensionsConsumer = consumer::accept;
+        startRearDisplaySession(activity, extensionsConsumer);
+    }
+
     /**
      * Ends a RearDisplaySession and sends [STATE_INACTIVE] to the consumer
      * provided in the {@code startRearDisplaySession} method. This method is only
      * called through the {@code RearDisplaySession} provided to the developer.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void endRearDisplaySession();
+
+    /**
+     * Adds a listener interested in receiving updates on the rear display presentation status
+     * of the device. Because this is being called from the OEM provided
+     * extensions, the library will post the result of the listener on the executor
+     * provided by the developer.
+     *
+     * The listener provided will receive {@link ExtensionWindowAreaStatus} values that
+     * correspond to the current status of the feature.
+     *
+     * @param consumer interested in receiving updates to {@link ExtensionWindowAreaStatus}.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    void addRearDisplayPresentationStatusListener(
+            @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
+
+    /**
+     * Removes a listener no longer interested in receiving updates.
+     *
+     * @param consumer no longer interested in receiving updates to WindowAreaStatus
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    void removeRearDisplayPresentationStatusListener(
+            @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
 
     /**
      * Creates and starts a rear display presentation session and sends state updates to the
@@ -202,8 +278,6 @@ public interface WindowAreaComponent {
      * as the rear camera (i.e. the cover display on a fold-in style device). The calling
      * {@link Activity} stays on the user-facing display.
      *
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
-     *
      * @param activity that the OEM implementation will use as a base
      * context and to identify the source display area of the request.
      * The reference to the activity instance must not be stored in the OEM
@@ -212,6 +286,7 @@ public interface WindowAreaComponent {
      * @throws UnsupportedOperationException if this method is called when rear display presentation
      * mode is not available. This could be to an incompatible device state or when
      * another process is currently in this mode.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void startRearDisplayPresentationSession(@NonNull Activity activity,
             @NonNull Consumer<@WindowAreaSessionState Integer> consumer);
@@ -223,7 +298,7 @@ public interface WindowAreaComponent {
      * Because this is being called from the OEM provided extensions, the result of the listener
      * will be posted on the executor provided by the developer at the initial call site.
      *
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void endRearDisplayPresentationSession();
 
@@ -232,7 +307,7 @@ public interface WindowAreaComponent {
      * rear display presentation session. If there is no session currently active, then it will
      * return null.
      *
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @Nullable
     ExtensionWindowAreaPresentation getRearDisplayPresentation();

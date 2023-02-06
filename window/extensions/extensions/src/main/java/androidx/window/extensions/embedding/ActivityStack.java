@@ -17,6 +17,7 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,7 @@ public class ActivityStack {
      * @param isEmpty Indicates whether there's any {@link Activity} running in this
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
         Objects.requireNonNull(activities);
@@ -55,6 +57,15 @@ public class ActivityStack {
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
         mToken = token;
+    }
+
+    /**
+     * @deprecated Use the {@link WindowExtensions#VENDOR_API_LEVEL_3} version.
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     */
+    @Deprecated
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
+        this(activities, isEmpty, new Binder());
     }
 
     /**
