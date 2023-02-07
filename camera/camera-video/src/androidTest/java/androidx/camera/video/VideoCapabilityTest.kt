@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.AndroidUtil.isEmulatorAndAPI21
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -89,6 +90,7 @@ class VideoCapabilityTest(
     @Test
     fun supportedQualitiesIsNotEmpty() {
         Assume.assumeFalse(isSpecificSkippedDevice())
+        Assume.assumeFalse(isEmulatorAndAPI21())
         Truth.assertThat(videoCapabilities.supportedQualities).isNotEmpty()
     }
 
