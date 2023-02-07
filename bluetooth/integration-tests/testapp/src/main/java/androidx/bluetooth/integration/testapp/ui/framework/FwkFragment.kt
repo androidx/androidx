@@ -17,6 +17,12 @@
 package androidx.bluetooth.integration.testapp.ui.framework
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattServer
+import android.bluetooth.BluetoothGattServerCallback
+import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
@@ -80,8 +86,10 @@ class FwkFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d(TAG, "onCreateView() called with: inflater = $inflater, " +
-            "container = $container, savedInstanceState = $savedInstanceState")
+        Log.d(
+            TAG, "onCreateView() called with: inflater = $inflater, " +
+                "container = $container, savedInstanceState = $savedInstanceState"
+        )
         fwkViewModel = ViewModelProvider(this)[FwkViewModel::class.java]
 
         _binding = FragmentFwkBinding.inflate(inflater, container, false)
@@ -99,11 +107,19 @@ class FwkFragment : Fragment() {
             if (isChecked) startAdvertise()
             else stopAdvertise()
         }
+
+        binding.switchGattServer.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) openGattServer()
+            else closeGattServer()
+        }
     }
 
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        bluetoothGattServer?.close()
     }
 
     // Permissions are handled by MainActivity requestBluetoothPermissions
@@ -169,5 +185,155 @@ class FwkFragment : Fragment() {
         val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
 
         bleAdvertiser?.stopAdvertising(advertiseCallback)
+    }
+
+    private var bluetoothGattServer: BluetoothGattServer? = null
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    private fun openGattServer() {
+        Log.d(TAG, "openGattServer() called")
+
+        val bluetoothManager =
+            context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+
+        bluetoothGattServer = bluetoothManager?.openGattServer(
+            requireContext(),
+            object : BluetoothGattServerCallback() {
+                override fun onConnectionStateChange(
+                    device: BluetoothDevice?,
+                    status: Int,
+                    newState: Int
+                ) {
+                    Log.d(
+                        TAG,
+                        "onConnectionStateChange() called with: device = $device" +
+                            ", status = $status, newState = $newState"
+                    )
+                }
+
+                override fun onServiceAdded(status: Int, service: BluetoothGattService?) {
+                    Log.d(TAG, "onServiceAdded() called with: status = $status, service = $service")
+                }
+
+                override fun onCharacteristicReadRequest(
+                    device: BluetoothDevice?,
+                    requestId: Int,
+                    offset: Int,
+                    characteristic: BluetoothGattCharacteristic?
+                ) {
+                    Log.d(
+                        TAG,
+                        "onCharacteristicReadRequest() called with: device = $device" +
+                            ", requestId = $requestId, offset = $offset" +
+                            ", characteristic = $characteristic"
+                    )
+                }
+
+                override fun onCharacteristicWriteRequest(
+                    device: BluetoothDevice?,
+                    requestId: Int,
+                    characteristic: BluetoothGattCharacteristic?,
+                    preparedWrite: Boolean,
+                    responseNeeded: Boolean,
+                    offset: Int,
+                    value: ByteArray?
+                ) {
+                    Log.d(
+                        TAG,
+                        "onCharacteristicWriteRequest() called with: device = $device" +
+                            ", requestId = $requestId, characteristic = $characteristic" +
+                            ", preparedWrite = $preparedWrite, responseNeeded = $responseNeeded" +
+                            ", offset = $offset, value = $value"
+                    )
+                }
+
+                override fun onDescriptorReadRequest(
+                    device: BluetoothDevice?,
+                    requestId: Int,
+                    offset: Int,
+                    descriptor: BluetoothGattDescriptor?
+                ) {
+                    Log.d(
+                        TAG,
+                        "onDescriptorReadRequest() called with: device = $device" +
+                            ", requestId = $requestId, offset = $offset, descriptor = $descriptor"
+                    )
+                }
+
+                override fun onDescriptorWriteRequest(
+                    device: BluetoothDevice?,
+                    requestId: Int,
+                    descriptor: BluetoothGattDescriptor?,
+                    preparedWrite: Boolean,
+                    responseNeeded: Boolean,
+                    offset: Int,
+                    value: ByteArray?
+                ) {
+                    Log.d(
+                        TAG,
+                        "onDescriptorWriteRequest() called with: device = $device" +
+                            ", requestId = $requestId, descriptor = $descriptor" +
+                            ", preparedWrite = $preparedWrite, responseNeeded = $responseNeeded" +
+                            ", offset = $offset, value = $value"
+                    )
+                }
+
+                override fun onExecuteWrite(
+                    device: BluetoothDevice?,
+                    requestId: Int,
+                    execute: Boolean
+                ) {
+                    Log.d(
+                        TAG,
+                        "onExecuteWrite() called with: device = $device, requestId = $requestId" +
+                            ", execute = $execute"
+                    )
+                }
+
+                override fun onNotificationSent(device: BluetoothDevice?, status: Int) {
+                    Log.d(
+                        TAG,
+                        "onNotificationSent() called with: device = $device, status = $status"
+                    )
+                }
+
+                override fun onMtuChanged(device: BluetoothDevice?, mtu: Int) {
+                    Log.d(TAG, "onMtuChanged() called with: device = $device, mtu = $mtu")
+                }
+
+                override fun onPhyUpdate(
+                    device: BluetoothDevice?,
+                    txPhy: Int,
+                    rxPhy: Int,
+                    status: Int
+                ) {
+                    Log.d(
+                        TAG, "onPhyUpdate() called with: device = $device, txPhy = $txPhy" +
+                            ", rxPhy = $rxPhy, status = $status"
+                    )
+                }
+
+                override fun onPhyRead(
+                    device: BluetoothDevice?,
+                    txPhy: Int,
+                    rxPhy: Int,
+                    status: Int
+                ) {
+                    Log.d(
+                        TAG,
+                        "onPhyRead() called with: device = $device, txPhy = $txPhy" +
+                            ", rxPhy = $rxPhy, status = $status"
+                    )
+                }
+            })
+    }
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    private fun closeGattServer() {
+        Log.d(TAG, "closeGattServer() called")
+
+        bluetoothGattServer?.close()
     }
 }
