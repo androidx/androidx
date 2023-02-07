@@ -26,6 +26,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
+import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
@@ -81,7 +82,7 @@ class ComplicationDataExpressionEvaluatorTest {
      * Each scenario describes the expressed data, the flow of states, and the flow of the evaluated
      * data output.
      */
-    enum class ExpressionScenario(
+    enum class DataExpressionScenario(
         val expressed: WireComplicationData,
         val states: List<Map<String, StateEntryValue>>,
         val evaluated: List<WireComplicationData>,
@@ -127,7 +128,8 @@ class ComplicationDataExpressionEvaluatorTest {
                 .setShortTitle(WireComplicationText(DynamicString.fromState("short_title")))
                 .setContentDescription(WireComplicationText(DynamicString.fromState("description")))
                 .build(),
-            states = aggregate( // Each map piles on top of the previous ones.
+            states = aggregate(
+                // Each map piles on top of the previous ones.
                 mapOf("ranged_value" to StateEntryValue.fromFloat(1f)),
                 mapOf("long_text" to StateEntryValue.fromString("Long Text")),
                 mapOf("long_title" to StateEntryValue.fromString("Long Title")),
@@ -213,7 +215,7 @@ class ComplicationDataExpressionEvaluatorTest {
 
     @Test
     fun data_expression_setToEvaluated() {
-        for (scenario in ExpressionScenario.values()) {
+        for (scenario in DataExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
@@ -240,6 +242,51 @@ class ComplicationDataExpressionEvaluatorTest {
                     .isEqualTo(scenario.evaluated)
             }
         }
+    }
+
+    enum class HasExpressionDataWithExpressionScenario(val data: WireComplicationData) {
+        RANGED_VALUE(
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setRangedValueExpression(DynamicFloat.constant(1f))
+                .build()
+        ),
+        LONG_TEXT(
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
+                .build()
+        ),
+        LONG_TITLE(
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
+                .build()
+        ),
+        SHORT_TEXT(
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
+                .build()
+        ),
+        SHORT_TITLE(
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
+                .build()
+        ),
+        CONTENT_DESCRIPTION(
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
+                .build()
+        ),
+    }
+
+    @Test
+    fun hasExpression_dataWithExpression_returnsTrue() {
+        for (scenario in HasExpressionDataWithExpressionScenario.values()) {
+            expect.withMessage(scenario.name).that(hasExpression(scenario.data)).isTrue()
+        }
+    }
+
+    @Test
+    fun hasExpression_dataWithoutExpression_returnsFalse() {
+        assertThat(hasExpression(DATA_WITH_NO_EXPRESSION)).isFalse()
     }
 
     @Test

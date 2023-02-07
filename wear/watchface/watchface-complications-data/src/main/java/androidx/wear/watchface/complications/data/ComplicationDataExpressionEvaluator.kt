@@ -234,5 +234,14 @@ class ComplicationDataExpressionEvaluator(
 
     companion object {
         val INVALID_DATA: WireComplicationData = NoDataComplicationData().asWireComplicationData()
+
+        fun hasExpression(data: WireComplicationData): Boolean = data.run {
+            (hasRangedValueExpression() && rangedValueExpression != null) ||
+                (hasLongText() && longText?.stringExpression != null) ||
+                (hasLongTitle() && longTitle?.stringExpression != null) ||
+                (hasShortText() && shortText?.stringExpression != null) ||
+                (hasShortTitle() && shortTitle?.stringExpression != null) ||
+                (hasContentDescription() && contentDescription?.stringExpression != null)
+        }
     }
 }

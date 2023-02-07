@@ -26,19 +26,26 @@ import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
 import androidx.wear.protolayout.expression.DynamicBuilders
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationTextExpression
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.argThat
@@ -55,6 +62,9 @@ import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
 @RunWith(ComplicationsTestRunner::class)
 @DoNotInstrument
 class ComplicationDataSourceServiceTest {
+    @get:Rule
+    val expect = Expect.create()
+
     private var mPretendMainThread = HandlerThread("testThread")
     private lateinit var mPretendMainThreadHandler: Handler
 
@@ -260,6 +270,65 @@ class ComplicationDataSourceServiceTest {
                 ComplicationType.LONG_TEXT.toWireComplicationType()
             ).longText!!.getTextAt(Resources.getSystem(), 0)
         ).isEqualTo("hello preview")
+    }
+
+    enum class DataWithExpressionScenario(val data: ComplicationData) {
+        RANGED_VALUE(
+            RangedValueComplicationData.Builder(
+                valueExpression = DynamicFloat.constant(1f),
+                min = 0f,
+                max = 10f,
+                contentDescription = ComplicationText.EMPTY
+            ).setText(ComplicationText.EMPTY).build()
+        ),
+        LONG_TEXT(
+            LongTextComplicationData.Builder(
+                text = ComplicationTextExpression(DynamicString.constant("Long Text")),
+                contentDescription = ComplicationText.EMPTY
+            ).build()
+        ),
+        LONG_TITLE(
+            LongTextComplicationData.Builder(
+                text = ComplicationText.EMPTY,
+                contentDescription = ComplicationText.EMPTY
+            ).setTitle(ComplicationTextExpression(DynamicString.constant("Long Title"))).build()
+        ),
+        SHORT_TEXT(
+            ShortTextComplicationData.Builder(
+                text = ComplicationTextExpression(DynamicString.constant("Short Text")),
+                contentDescription = ComplicationText.EMPTY
+            ).build()
+        ),
+        SHORT_TITLE(
+            ShortTextComplicationData.Builder(
+                text = ComplicationText.EMPTY,
+                contentDescription = ComplicationText.EMPTY
+            ).setTitle(ComplicationTextExpression(DynamicString.constant("Short Title"))).build()
+        ),
+        CONTENT_DESCRIPTION(
+            LongTextComplicationData.Builder(
+                text = ComplicationText.EMPTY,
+                contentDescription = ComplicationTextExpression(
+                    DynamicString.constant("Long Text")
+                ),
+            ).build()
+        ),
+    }
+
+    @Test
+    fun testGetComplicationPreviewData_withExpression_fails() {
+        for (scenario in DataWithExpressionScenario.values()) {
+            mService.previewData = scenario.data
+
+            val exception = assertFailsWith<IllegalArgumentException> {
+                mProvider.getComplicationPreviewData(scenario.data.type.toWireComplicationType())
+            }
+
+            expect.withMessage(scenario.name)
+                .that(exception)
+                .hasMessageThat()
+                .isEqualTo("Preview data must not have expressions.")
+        }
     }
 
     @Test
