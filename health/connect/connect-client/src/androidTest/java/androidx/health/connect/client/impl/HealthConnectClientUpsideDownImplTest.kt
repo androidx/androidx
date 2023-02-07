@@ -101,7 +101,7 @@ class HealthConnectClientUpsideDownImplTest {
             healthConnectClient.insertRecords(
                 listOf(
                     StepsRecord(
-                        count = 100,
+                        count = 10,
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
@@ -116,19 +116,19 @@ class HealthConnectClientUpsideDownImplTest {
                 .insertRecords(
                     listOf(
                         StepsRecord(
-                            count = 100,
+                            count = 10,
                             startTime = Instant.ofEpochMilli(1234L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(5678L),
                             endZoneOffset = null),
                         StepsRecord(
-                            count = 150,
+                            count = 15,
                             startTime = Instant.ofEpochMilli(12340L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(56780L),
                             endZoneOffset = null),
                         StepsRecord(
-                            count = 200,
+                            count = 20,
                             startTime = Instant.ofEpochMilli(123400L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(567800L),
@@ -196,7 +196,7 @@ class HealthConnectClientUpsideDownImplTest {
                 .insertRecords(
                     listOf(
                         StepsRecord(
-                            count = 100,
+                            count = 10,
                             startTime = Instant.ofEpochMilli(1234L),
                             startZoneOffset = null,
                             endTime = Instant.ofEpochMilli(5678L),
@@ -208,7 +208,7 @@ class HealthConnectClientUpsideDownImplTest {
         healthConnectClient.updateRecords(
             listOf(
                 StepsRecord(
-                    count = 50,
+                    count = 5,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(5678L),
@@ -217,7 +217,7 @@ class HealthConnectClientUpsideDownImplTest {
 
         val updatedRecord = healthConnectClient.readRecord(StepsRecord::class, id).record
 
-        assertThat(updatedRecord.count).isEqualTo(50L)
+        assertThat(updatedRecord.count).isEqualTo(5L)
     }
 
     @Test
@@ -226,7 +226,7 @@ class HealthConnectClientUpsideDownImplTest {
             healthConnectClient.insertRecords(
                 listOf(
                     StepsRecord(
-                        count = 100,
+                        count = 10,
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = ZoneOffset.UTC,
                         endTime = Instant.ofEpochMilli(5678L),
@@ -236,7 +236,7 @@ class HealthConnectClientUpsideDownImplTest {
             healthConnectClient.readRecord(StepsRecord::class, insertResponse.recordIdsList[0])
 
         with(readResponse.record) {
-            assertThat(count).isEqualTo(100)
+            assertThat(count).isEqualTo(10)
             assertThat(startTime).isEqualTo(Instant.ofEpochMilli(1234L))
             assertThat(startZoneOffset).isEqualTo(ZoneOffset.UTC)
             assertThat(endTime).isEqualTo(Instant.ofEpochMilli(5678L))
@@ -249,13 +249,13 @@ class HealthConnectClientUpsideDownImplTest {
         healthConnectClient.insertRecords(
             listOf(
                 StepsRecord(
-                    count = 100,
+                    count = 10,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = ZoneOffset.UTC),
                 StepsRecord(
-                    count = 50,
+                    count = 5,
                     startTime = Instant.ofEpochMilli(12340L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(56780L),
@@ -267,7 +267,7 @@ class HealthConnectClientUpsideDownImplTest {
                 ReadRecordsRequest(
                     StepsRecord::class, TimeRangeFilter.after(Instant.ofEpochMilli(10_000L))))
 
-        assertThat(readResponse.records[0].count).isEqualTo(50)
+        assertThat(readResponse.records[0].count).isEqualTo(5)
     }
 
     @Test
@@ -280,13 +280,13 @@ class HealthConnectClientUpsideDownImplTest {
         healthConnectClient.insertRecords(
             listOf(
                 StepsRecord(
-                    count = 100,
+                    count = 10,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = ZoneOffset.UTC),
                 StepsRecord(
-                    count = 50,
+                    count = 5,
                     startTime = Instant.ofEpochMilli(12340L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(56780L),
@@ -330,7 +330,7 @@ class HealthConnectClientUpsideDownImplTest {
                     TimeRangeFilter.none()))
 
         with(aggregateResponse) {
-            assertThat(this[StepsRecord.COUNT_TOTAL]).isEqualTo(150L)
+            assertThat(this[StepsRecord.COUNT_TOTAL]).isEqualTo(15L)
             assertThat(this[HeartRateRecord.BPM_MIN]).isEqualTo(47L)
             assertThat(this[HeartRateRecord.BPM_MAX]).isEqualTo(120L)
             assertThat(this[NutritionRecord.ENERGY_TOTAL]).isEqualTo(Energy.kilocalories(200.0))
@@ -345,19 +345,19 @@ class HealthConnectClientUpsideDownImplTest {
         healthConnectClient.insertRecords(
             listOf(
                 StepsRecord(
-                    count = 100,
+                    count = 1,
                     startTime = Instant.ofEpochMilli(1200L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(1240L),
                     endZoneOffset = ZoneOffset.UTC),
                 StepsRecord(
-                    count = 200,
+                    count = 2,
                     startTime = Instant.ofEpochMilli(1300L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(1500L),
                     endZoneOffset = ZoneOffset.UTC),
                 StepsRecord(
-                    count = 50,
+                    count = 5,
                     startTime = Instant.ofEpochMilli(2400L),
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = Instant.ofEpochMilli(3500L),
@@ -374,8 +374,8 @@ class HealthConnectClientUpsideDownImplTest {
 
         with(aggregateResponse) {
             assertThat(this).hasSize(2)
-            assertThat(this[0].result[StepsRecord.COUNT_TOTAL]).isEqualTo(300)
-            assertThat(this[1].result[StepsRecord.COUNT_TOTAL]).isEqualTo(50)
+            assertThat(this[0].result[StepsRecord.COUNT_TOTAL]).isEqualTo(3)
+            assertThat(this[1].result[StepsRecord.COUNT_TOTAL]).isEqualTo(5)
         }
     }
 
@@ -439,7 +439,7 @@ class HealthConnectClientUpsideDownImplTest {
                 .insertRecords(
                     listOf(
                         StepsRecord(
-                            count = 100,
+                            count = 10,
                             startTime = Instant.ofEpochMilli(1234L),
                             startZoneOffset = ZoneOffset.UTC,
                             endTime = Instant.ofEpochMilli(5678L),
