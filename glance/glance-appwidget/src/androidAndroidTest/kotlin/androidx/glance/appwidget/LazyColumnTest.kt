@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -358,6 +357,10 @@ class LazyColumnTest {
 
     private inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
         val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))
+        // Each list item frame has an explicit focusable = true, see
+        // "Glance.AppWidget.Theme.ListChildren" style.
+        assertThat(remoteViewFrame.isFocusable).isTrue()
+
         // Android S- have a RemoteViewsAdapter$RemoteViewsFrameLayout first, Android T+ do not.
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
             return remoteViewFrame.getChildAt(0).getTargetView()
