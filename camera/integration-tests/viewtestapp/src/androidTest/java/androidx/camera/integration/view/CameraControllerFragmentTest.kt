@@ -37,6 +37,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.AndroidUtil.isEmulator
 import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -68,6 +69,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
@@ -177,10 +179,7 @@ class CameraControllerFragmentTest(
 
     @Test
     fun onPreviewViewTapped_previewIsFocused() {
-        Assume.assumeFalse(
-            "Ignore Cuttlefish",
-            Build.MODEL.contains("Cuttlefish")
-        )
+        assumeFalse("Ignore emulators", isEmulator())
         // Arrange: listens to LiveData updates.
         fragment.assertPreviewIsStreaming()
         val focused = Semaphore(0)

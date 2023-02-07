@@ -43,7 +43,8 @@ public final class AndroidUtil {
                 || Build.MODEL.contains("Android SDK built for x86")
                 || Build.MANUFACTURER.contains("Genymotion")
                 || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || Build.PRODUCT.equals("google_sdk");
+                || Build.PRODUCT.equals("google_sdk")
+                || Build.HARDWARE.contains("ranchu");
     }
 
     /**
