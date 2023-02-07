@@ -116,6 +116,11 @@ import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+/** Enable verbose logging for test failure investigation. Enable for b/267494219 */
+const val VERBOSE_LOG = true
+
+const val RECEIVER_TEST_TAG = "GAWRT" // shorten to avoid long tag lint
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -928,6 +933,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
                 )
             assertThat(view.hasOnClickListeners()).isTrue()
         }
+
         updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
             it[testBoolKey] = false
         }
@@ -1124,13 +1130,21 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
     enum class EffectState { Initial, Started, Disposed }
 
-    val logTag: String = "GlanceAppWidgetReceiverTest"
-
     inner class ViewHierarchyFailureWatcher : TestWatcher() {
+        override fun starting(description: Description) {
+            super.starting(description)
+            if (VERBOSE_LOG) {
+                Log.d(RECEIVER_TEST_TAG, "")
+                Log.d(RECEIVER_TEST_TAG, "")
+                Log.d(RECEIVER_TEST_TAG, "Starting: ${description.methodName}")
+                Log.d(RECEIVER_TEST_TAG, "---------------------")
+            }
+        }
+
         override fun failed(e: Throwable?, description: Description?) {
-            Log.e(logTag, "$description failed")
-            Log.e(logTag, "Host view hierarchy at failure:")
-            logViewHierarchy(logTag, mHostRule.mHostView, "")
+            Log.e(RECEIVER_TEST_TAG, "$description failed")
+            Log.e(RECEIVER_TEST_TAG, "Host view hierarchy at failure:")
+            logViewHierarchy(RECEIVER_TEST_TAG, mHostRule.mHostView, "")
         }
     }
 }
