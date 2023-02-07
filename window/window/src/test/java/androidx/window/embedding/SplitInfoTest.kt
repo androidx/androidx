@@ -29,7 +29,8 @@ class SplitInfoTest {
         val activity = mock<Activity>()
         val firstStack = ActivityStack(listOf(activity))
         val secondStack = ActivityStack(emptyList())
-        val info = SplitInfo(firstStack, secondStack, 0.5f)
+        val attributes = SplitAttributes()
+        val info = SplitInfo(firstStack, secondStack, attributes)
 
         assertTrue(info.contains(activity))
     }
@@ -39,7 +40,8 @@ class SplitInfoTest {
         val activity = mock<Activity>()
         val firstStack = ActivityStack(emptyList())
         val secondStack = ActivityStack(listOf(activity))
-        val info = SplitInfo(firstStack, secondStack, 0.5f)
+        val attributes = SplitAttributes()
+        val info = SplitInfo(firstStack, secondStack, attributes)
 
         assertTrue(info.contains(activity))
     }
@@ -49,8 +51,9 @@ class SplitInfoTest {
         val activity = mock<Activity>()
         val firstStack = ActivityStack(emptyList())
         val secondStack = ActivityStack(listOf(activity))
-        val firstInfo = SplitInfo(firstStack, secondStack, 0.5f)
-        val secondInfo = SplitInfo(firstStack, secondStack, 0.5f)
+        val attributes = SplitAttributes()
+        val firstInfo = SplitInfo(firstStack, secondStack, attributes)
+        val secondInfo = SplitInfo(firstStack, secondStack, attributes)
 
         assertEquals(firstInfo, secondInfo)
         assertEquals(firstInfo.hashCode(), secondInfo.hashCode())

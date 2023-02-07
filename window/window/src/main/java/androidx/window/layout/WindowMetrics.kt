@@ -19,7 +19,6 @@ import android.graphics.Rect
 import android.os.Build.VERSION_CODES
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.TESTS
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.core.ExperimentalWindowApi
@@ -42,7 +41,7 @@ class WindowMetrics internal constructor(
      * An internal constructor for [WindowMetrics]
      * @suppress
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(RestrictTo.Scope.TESTS)
     constructor(
         bounds: Rect,
         insets: WindowInsetsCompat = WindowInsetsCompat.Builder().build()

@@ -36,6 +36,7 @@ dependencies {
     api(libs.kotlinCoroutinesRx3)
     api(libs.rxjava3)
     api(project(":window:window"))
+    implementation 'androidx.annotation:annotation:1.5.0'
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

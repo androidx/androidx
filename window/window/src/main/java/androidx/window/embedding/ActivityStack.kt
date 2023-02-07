@@ -63,11 +63,9 @@ class ActivityStack internal constructor(
         return result
     }
 
-    override fun toString(): String {
-        return buildString {
-            append("ActivityStack{")
-            append("activitiesInProcess=$activitiesInProcess")
-            append("isEmpty=$isEmpty}")
-        }
-    }
+    override fun toString(): String =
+        "ActivityStack{" +
+            "activitiesInProcess=$activitiesInProcess" +
+            ", isEmpty=$isEmpty" +
+            "}"
 }
