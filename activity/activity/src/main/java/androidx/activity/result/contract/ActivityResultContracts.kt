@@ -34,6 +34,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents.Companion.getClipDataUris
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.GMS_ACTION_PICK_IMAGES
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.GMS_EXTRA_PICK_IMAGES_MAX
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.getGmsPicker
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.ACTION_INTENT_SENDER_REQUEST
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
 import androidx.annotation.CallSuper
@@ -808,8 +809,9 @@ class ActivityResultContracts private constructor() {
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
                 }
             } else if (PickVisualMedia.isGmsPickerAvailable(context)) {
+                val gmsPicker = checkNotNull(getGmsPicker(context)).activityInfo
                 Intent(GMS_ACTION_PICK_IMAGES).apply {
-                    type = PickVisualMedia.getVisualMimeType(input.mediaType)
+                    setClassName(gmsPicker.applicationInfo.packageName, gmsPicker.name)
                     putExtra(GMS_EXTRA_PICK_IMAGES_MAX, maxItems)
                 }
             } else {
