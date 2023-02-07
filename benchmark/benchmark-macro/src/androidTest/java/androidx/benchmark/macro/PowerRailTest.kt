@@ -40,6 +40,15 @@ class PowerRailTest {
     }
 
     @Test
+    fun hasMetrics_oldDevice() {
+        assumeTrue(Build.VERSION.SDK_INT <= 29) // powerstats didn't exist
+        assertFalse(PowerRail.hasMetrics(throwOnMissingMetrics = false))
+        assertFailsWith<UnsupportedOperationException> {
+            PowerRail.hasMetrics(throwOnMissingMetrics = true)
+        }
+    }
+
+    @Test
     fun hasMetrics_false() {
         // The test is using a mocked output of `dumpsys powerstats`
         val output = """
