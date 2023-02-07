@@ -77,10 +77,10 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<CameraSelector> OPTION_CAMERA_SELECTOR =
             Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
     /**
-     * Option: camerax.core.useCase.targetFramerate
+     * Option: camerax.core.useCase.targetFrameRate
      */
     Option<Range<Integer>> OPTION_TARGET_FRAME_RATE =
-            Config.Option.create("camerax.core.useCase.targetFrameRate", CameraSelector.class);
+            Config.Option.create("camerax.core.useCase.targetFrameRate", Range.class);
 
     /**
      * Option: camerax.core.useCase.zslDisabled
