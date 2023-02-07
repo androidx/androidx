@@ -31,7 +31,7 @@ import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
-import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BACK_EXTENSION
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BADMINTON
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
@@ -579,7 +579,7 @@ class AllRecordsConverterTest {
     fun testActivitySession() {
         val data =
             ExerciseSessionRecord(
-                exerciseType = EXERCISE_TYPE_BACK_EXTENSION,
+                exerciseType = EXERCISE_TYPE_BADMINTON,
                 title = null,
                 notes = null,
                 startTime = START_TIME,
