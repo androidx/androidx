@@ -41,25 +41,6 @@ function regenerateVerificationMetadata() {
   # update verification metadata file
   cat "$WORK_DIR/old.head" "$WORK_DIR/new.middle" "$WORK_DIR/old.tail" > gradle/verification-metadata.xml
 
-  echo "sorting keyring and removing duplicates"
-  # sort and unique the keyring
-  # https://github.com/gradle/gradle/issues/20140
-  # `sed 's/$/NEWLINE/g'` adds the word NEWLINE at the end of each line
-  # `tr -d '\n'` deletes the actual newlines
-  # `sed` again adds a newline at the end of each key, so each key is one line
-  # `sort` orders the keys deterministically
-  # `uniq` removes identical keys
-  # `sed 's/NEWLINE/\n/g'` puts the newlines back
-  cat gradle/verification-keyring-dryrun.keys \
-    | sed 's/$/NEWLINE/g' \
-    | tr -d '\n' \
-    | sed 's/\(-----END PGP PUBLIC KEY BLOCK-----\)/\1\n/g' \
-    | grep "END PGP PUBLIC KEY BLOCK" \
-    | sort \
-    | uniq \
-    | sed 's/NEWLINE/\n/g' \
-    > gradle/verification-keyring.keys
-
   # remove temporary files
   rm -rf "$WORK_DIR"
   rm -f gradle/verification-keyring-dryrun.gpg
