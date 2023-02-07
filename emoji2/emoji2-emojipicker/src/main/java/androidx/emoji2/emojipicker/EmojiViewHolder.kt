@@ -76,7 +76,10 @@ internal class EmojiViewHolder(
         itemView.layoutParams = LayoutParams(width, height)
         emojiView = itemView.findViewById(R.id.emoji_view)
         emojiView.isClickable = true
-        emojiView.setOnClickListener { onEmojiPickedListener(emojiViewItem) }
+        emojiView.setOnClickListener {
+            it.sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT)
+            onEmojiPickedListener(emojiViewItem)
+        }
         indicator = itemView.findViewById(R.id.variant_availability_indicator)
     }
 
