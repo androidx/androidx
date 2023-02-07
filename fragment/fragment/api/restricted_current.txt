@@ -456,12 +456,12 @@ package androidx.fragment.app {
     method protected void getBoundsOnScreen(android.view.View!, android.graphics.Rect!);
     method protected static boolean isNullOrEmpty(java.util.List!);
     method public abstract Object! mergeTransitionsInSequence(Object?, Object?, Object?);
-    method public abstract Object! mergeTransitionsTogether(Object, Object, Object?);
+    method public abstract Object! mergeTransitionsTogether(Object?, Object?, Object?);
     method public abstract void removeTarget(Object, android.view.View);
     method public abstract void replaceTargets(Object, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract void scheduleHideFragmentView(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public abstract void scheduleRemoveTargets(Object, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?);
-    method public abstract void setEpicenter(Object, android.view.View);
+    method public abstract void setEpicenter(Object, android.view.View?);
     method public abstract void setEpicenter(Object, android.graphics.Rect);
     method public void setListenerForTransitionEnd(androidx.fragment.app.Fragment, Object, androidx.core.os.CancellationSignal, Runnable);
     method public abstract void setSharedElementTargets(Object, android.view.View, java.util.ArrayList<android.view.View!>);

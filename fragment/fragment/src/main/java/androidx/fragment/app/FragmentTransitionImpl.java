@@ -72,7 +72,7 @@ public abstract class FragmentTransitionImpl {
     /**
      * Sets a transition epicenter to the rectangle of a given View.
      */
-    public abstract void setEpicenter(@NonNull Object transitionObj, @NonNull View view);
+    public abstract void setEpicenter(@NonNull Object transitionObj, @Nullable View view);
 
     /**
      * Replacement for view.getBoundsOnScreen because that is not public. This returns a rect
@@ -122,8 +122,8 @@ public abstract class FragmentTransitionImpl {
      * transitions passed will not be added to the set. If all are null, then an empty
      * TransitionSet will be returned.
      */
-    public abstract Object mergeTransitionsTogether(@NonNull Object transition1,
-            @NonNull Object transition2, @Nullable Object transition3);
+    public abstract Object mergeTransitionsTogether(@Nullable Object transition1,
+            @Nullable Object transition2, @Nullable Object transition3);
 
     /**
      * After the transition completes, the fragment's view is set to GONE and the exiting
