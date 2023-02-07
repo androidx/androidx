@@ -193,9 +193,11 @@ class EmojiPickerView @JvmOverloads constructor(
         ).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return if (emojiPickerItems.getBodyItem(position).occupyEntireRow)
-                        emojiGridColumns
-                    else 1
+                    return when (emojiPickerItems.getBodyItem(position).itemType) {
+                        ItemType.PLACEHOLDER_EMOJI -> 0
+                        ItemType.CATEGORY_TITLE, ItemType.PLACEHOLDER_TEXT -> emojiGridColumns
+                        else -> 1
+                    }
                 }
             }
         }
