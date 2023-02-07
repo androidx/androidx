@@ -220,7 +220,7 @@ public final class SearchSpecToProtoConverter {
         if (mNestedConverter != null) {
             mNestedConverter.removeInaccessibleSchemaFilterCached(
                     callerAccess, visibilityStore, inaccessibleSchemaPrefixes,
-                    mTargetPrefixedSchemaFilters, visibilityChecker);
+                    accessibleSchemaPrefixes, visibilityChecker);
         }
     }
 
