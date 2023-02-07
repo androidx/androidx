@@ -48,7 +48,7 @@ public class SplitInfo {
      * @param secondaryActivityStack The secondary {@link ActivityStack}
      * @param splitAttributes The current {@link SplitAttributes} of this split pair
      * @param token The token to identify this split pair
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack,
@@ -66,7 +66,7 @@ public class SplitInfo {
 
     /**
      * @deprecated Use the {@link WindowExtensions#VENDOR_API_LEVEL_3} version.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     SplitInfo(@NonNull ActivityStack primaryActivityStack,
@@ -103,7 +103,7 @@ public class SplitInfo {
 
     /**
      * Returns the {@link SplitAttributes} of this split.
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @NonNull
     public SplitAttributes getSplitAttributes() {
@@ -112,7 +112,7 @@ public class SplitInfo {
 
     /**
      * Returns a token uniquely identifying the container.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @NonNull
     public IBinder getToken() {

@@ -63,7 +63,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+ * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
 public class SplitAttributes {
     /**

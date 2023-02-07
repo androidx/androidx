@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
  * An interface representing a container in an extension window area in which app content can be
  * shown.
  *
- * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
+ * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
  * @see WindowAreaComponent#getRearDisplayPresentation()
  */
 public interface ExtensionWindowAreaPresentation {

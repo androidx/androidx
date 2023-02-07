@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 /**
  * Interface to provide information around the current status of a window area feature.
  *
- * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
+ * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
  * @see WindowAreaComponent#addRearDisplayPresentationStatusListener
  */
 public interface ExtensionWindowAreaStatus {

@@ -53,7 +53,7 @@ public class ActivityStack {
      * @param isEmpty Indicates whether there's any {@link Activity} running in this
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
         Objects.requireNonNull(activities);
@@ -65,7 +65,7 @@ public class ActivityStack {
 
     /**
      * @deprecated Use the {@link WindowExtensions#VENDOR_API_LEVEL_3} version.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
@@ -101,7 +101,7 @@ public class ActivityStack {
 
     /**
      * Returns a token uniquely identifying the container.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

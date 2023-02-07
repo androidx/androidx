@@ -129,7 +129,7 @@ public class SplitPlaceholderRule extends SplitRule {
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary/placeholder container.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     // TODO(b/238905747): Add api guard for extensions.
     @SplitPlaceholderFinishBehavior
@@ -192,7 +192,7 @@ public class SplitPlaceholderRule extends SplitRule {
          * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the placeholder
          *                                     {@link Activity} should be launched with the given
          *                                     {@link WindowMetrics}
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
@@ -238,7 +238,7 @@ public class SplitPlaceholderRule extends SplitRule {
          * Overrides values if set in {@link #setSplitRatio(float)} and
          * {@link #setLayoutDirection(int)}
          *
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         @NonNull
         public Builder setDefaultSplitAttributes(@NonNull SplitAttributes attrs) {
@@ -269,7 +269,7 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @see SplitPlaceholderRule#getFinishPrimaryWithPlaceholder()
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         // TODO(b/238905747): Add api guard for extensions.
         @NonNull
@@ -281,7 +281,7 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @see SplitPlaceholderRule#getTag()
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         @NonNull
         public Builder setTag(@NonNull String tag) {

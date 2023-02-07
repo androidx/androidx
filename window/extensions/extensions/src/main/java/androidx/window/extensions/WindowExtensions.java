@@ -71,6 +71,7 @@ public interface WindowExtensions {
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_1 = 1;
+
     // TODO(b/241323716) Removed after we have annotation to check API level
     /**
      * A vendor API level constant. It helps to unify the format of documenting {@code @since}
@@ -86,6 +87,7 @@ public interface WindowExtensions {
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_2 = 2;
+
     // TODO(b/241323716) Removed after we have annotation to check API level
     /**
      * A vendor API level constant. It helps to unify the format of documenting {@code @since}
