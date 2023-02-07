@@ -75,6 +75,9 @@ public class SearchSpecCtsTest {
                 .addProjection("schemaType2", expectedPropertyPaths2)
                 .setPropertyWeights("schemaType1", expectedPropertyWeights)
                 .setPropertyWeightPaths("schemaType2", expectedPropertyWeightPaths)
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
                 .build();
 
         assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
@@ -109,6 +112,9 @@ public class SearchSpecCtsTest {
                         new PropertyPath("property2"), 2.0);
         assertThat(searchSpec.getPropertyWeightPaths().get("schemaType2"))
                 .containsExactly(new PropertyPath("property1.nested"), 1.0);
+        assertThat(searchSpec.isNumericSearchEnabled()).isTrue();
+        assertThat(searchSpec.isVerbatimSearchEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
     }
 
     @Test
@@ -331,6 +337,27 @@ public class SearchSpecCtsTest {
                 SearchSpec.RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION);
         assertThat(searchSpec.getAdvancedRankingExpression()).isEqualTo("this.documentScore()");
     }
+
+    @Test
+    public void testSetFeatureEnabledToFalse() {
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec = builder.setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+        assertThat(searchSpec.isNumericSearchEnabled()).isTrue();
+        assertThat(searchSpec.isVerbatimSearchEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+
+        searchSpec = builder.setNumericSearchEnabled(false)
+                .setVerbatimSearchEnabled(false)
+                .setListFilterQueryLanguageEnabled(false)
+                .build();
+        assertThat(searchSpec.isNumericSearchEnabled()).isFalse();
+        assertThat(searchSpec.isVerbatimSearchEnabled()).isFalse();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isFalse();
+    }
+
 
     @Test
     public void testInvalidAdvancedRanking() {
