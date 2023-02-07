@@ -100,6 +100,7 @@ dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
+dexmakerMockitoInlineExtended = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline-extended", version.ref = "dexmaker" }
 dexMemberList = { module = "com.jakewharton.dex:dex-member-list", version = "4.1.1" }
 dokkaCli = { module = "org.jetbrains.dokka:dokka-cli", version.ref = "dokka" }
 dokkaAnalysis = { module = "org.jetbrains.dokka:dokka-analysis", version.ref = "dokka" }
