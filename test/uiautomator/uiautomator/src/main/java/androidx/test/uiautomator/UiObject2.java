@@ -749,7 +749,8 @@ public class UiObject2 implements Searchable {
                 // Select the existing text. Expect this to fail if there is no existing text.
                 Bundle args = new Bundle();
                 args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
-                args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, text.length());
+                args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT,
+                        currentText == null ? 0 : currentText.length());
                 if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, args) &&
                         currentText != null && currentText.length() > 0) {
                     // TODO: Decide if we should throw here
