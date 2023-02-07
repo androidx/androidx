@@ -138,7 +138,9 @@ internal abstract class InternalCameraGraphModules {
 
             val cameraBackendId = graphConfig.cameraBackendId
             if (cameraBackendId != null) {
-                cameraBackends[cameraBackendId]
+                return checkNotNull(cameraBackends[cameraBackendId]) {
+                    "Failed to initialize $cameraBackendId from $graphConfig"
+                }
             }
             return cameraBackends.default
         }
