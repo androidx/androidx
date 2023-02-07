@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
+import android.annotation.SuppressLint
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import androidx.annotation.RequiresApi
@@ -31,6 +32,7 @@ internal class PlatformImpl(
     private val controller: SdkSandboxController
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
+    @SuppressLint("NewApi") // b/249981547
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return controller
             .sandboxedSdks
@@ -38,6 +40,7 @@ internal class PlatformImpl(
     }
 
     companion object {
+        @SuppressLint("NewApi") // b/249981547
         fun from(context: Context): PlatformImpl {
             val sdkSandboxController = context.getSystemService(SdkSandboxController::class.java)
             return PlatformImpl(sdkSandboxController)
