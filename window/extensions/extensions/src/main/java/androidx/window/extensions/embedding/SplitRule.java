@@ -141,7 +141,7 @@ public abstract class SplitRule extends EmbeddingRule {
      * Returns the default {@link SplitAttributes} which is applied if
      * {@link #checkParentMetrics(WindowMetrics)} is {@code true}.
      *
-     * since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @NonNull
     public SplitAttributes getDefaultSplitAttributes() {

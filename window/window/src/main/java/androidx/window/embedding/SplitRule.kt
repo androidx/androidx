@@ -63,8 +63,8 @@ open class SplitRule internal constructor(
      * When the window size is smaller than requested here, activities in the secondary container
      * will be stacked on top of the activities in the primary one, completely overlapping them.
      *
-     * Uses `0` to always allow split regardless of the parent task width.
-     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT].
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+     * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      */
     @IntRange(from = 0)
     val minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
@@ -75,8 +75,8 @@ open class SplitRule internal constructor(
      * will be stacked on top of the activities in the primary one, completely overlapping them.
      * It is useful if it's necessary to split the parent window horizontally for this [SplitRule].
      *
-     * Uses `0` to always allow split regardless of the parent task height.
-     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT].
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+     * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      *
      * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
      * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
@@ -90,8 +90,8 @@ open class SplitRule internal constructor(
      * activities in the secondary container will be stacked on top of the activities in the primary
      * one, completely overlapping them.
      *
-     * Uses `0` to always allow split regardless of the parent task smallest width.
-     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT].
+     * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
+     * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      */
     @IntRange(from = 0)
     val minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
@@ -132,7 +132,8 @@ open class SplitRule internal constructor(
 
     /**
      * The default [SplitAttributes] to apply on the activity containers pair when the host task
-     * bounds satisfy [minWidthDp], [minHeightDp] and [minSmallestWidthDp] requirements.
+     * bounds satisfy [minWidthDp], [minHeightDp], [minSmallestWidthDp],
+     * [maxAspectRatioInPortrait] and [maxAspectRatioInLandscape] requirements.
      */
     val defaultSplitAttributes: SplitAttributes,
 ) : EmbeddingRule(tag) {

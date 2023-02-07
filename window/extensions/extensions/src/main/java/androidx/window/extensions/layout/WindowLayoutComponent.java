@@ -84,7 +84,7 @@ public interface WindowLayoutComponent {
      *                      {@link Context#createWindowContext(Display, int , Bundle)}, or
      *                      {@link android.inputmethodservice.InputMethodService}.
      * @param consumer interested in receiving updates to {@link WindowLayoutInfo}
-     * since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     // TODO(b/238905747): Add api guard for extensions.
     @SuppressWarnings("PairedRegistration")
@@ -99,7 +99,7 @@ public interface WindowLayoutComponent {
      * Removes a listener no longer interested in receiving updates.
      *
      * @param consumer no longer interested in receiving updates to {@link WindowLayoutInfo}
-     * since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     default void removeWindowLayoutInfoListener(@NonNull Consumer<WindowLayoutInfo> consumer) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"

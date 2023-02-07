@@ -27,8 +27,8 @@ class SplitInfoTest {
     @Test
     fun testSplitInfoContainsActivityFirstStack() {
         val activity = mock<Activity>()
-        val firstStack = ActivityStack(listOf(activity))
-        val secondStack = ActivityStack(emptyList())
+        val firstStack = createTestActivityStack(listOf(activity))
+        val secondStack = createTestActivityStack(emptyList())
         val attributes = SplitAttributes()
         val info = SplitInfo(firstStack, secondStack, attributes)
 
@@ -38,8 +38,8 @@ class SplitInfoTest {
     @Test
     fun testSplitInfoContainsActivitySecondStack() {
         val activity = mock<Activity>()
-        val firstStack = ActivityStack(emptyList())
-        val secondStack = ActivityStack(listOf(activity))
+        val firstStack = createTestActivityStack(emptyList())
+        val secondStack = createTestActivityStack(listOf(activity))
         val attributes = SplitAttributes()
         val info = SplitInfo(firstStack, secondStack, attributes)
 
@@ -49,8 +49,8 @@ class SplitInfoTest {
     @Test
     fun testEqualsImpliesHashCode() {
         val activity = mock<Activity>()
-        val firstStack = ActivityStack(emptyList())
-        val secondStack = ActivityStack(listOf(activity))
+        val firstStack = createTestActivityStack(emptyList())
+        val secondStack = createTestActivityStack(listOf(activity))
         val attributes = SplitAttributes()
         val firstInfo = SplitInfo(firstStack, secondStack, attributes)
         val secondInfo = SplitInfo(firstStack, secondStack, attributes)
@@ -58,4 +58,9 @@ class SplitInfoTest {
         assertEquals(firstInfo, secondInfo)
         assertEquals(firstInfo.hashCode(), secondInfo.hashCode())
     }
+
+    private fun createTestActivityStack(
+        activitiesInProcess: List<Activity>,
+        isEmpty: Boolean = false,
+    ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
 }

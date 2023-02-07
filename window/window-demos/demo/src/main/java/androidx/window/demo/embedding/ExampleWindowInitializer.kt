@@ -43,10 +43,10 @@ import androidx.window.layout.WindowMetrics
 /**
  * Initializes SplitController with a set of statically defined rules.
  */
-@OptIn(ExperimentalWindowApi::class)
 class ExampleWindowInitializer : Initializer<RuleController> {
     private val mDemoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
 
+    @OptIn(ExperimentalWindowApi::class)
     override fun create(context: Context): RuleController {
         SplitController.getInstance(context).apply {
             if (isSplitAttributesCalculatorSupported()) {

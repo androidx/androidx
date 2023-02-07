@@ -65,15 +65,13 @@ public interface WindowExtensions {
     /**
      * A vendor API level constant. It helps to unify the format of documenting {@code @since}
      * block.
-     * <p>
      * The added APIs for Vendor API level 2 are:
      * <ul>
-     *     <li>{@link SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder}</li>
-     *     <li>{@link androidx.window.extensions.embedding.SplitAttributes} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitAttributes}</li>
      *     <li>{@link ActivityEmbeddingComponent#setSplitAttributesCalculator(
-     *         androidx.window.extensions.core.util.function.Function)}</li>
+     *      androidx.window.extensions.core.util.function.Function)}</li>
      * </ul>
-     * </p>
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)

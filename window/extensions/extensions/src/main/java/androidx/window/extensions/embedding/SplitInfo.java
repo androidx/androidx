@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.embedding.SplitAttributes.SplitType;
 
+import java.util.Objects;
+
 /** Describes a split of two containers with activities. */
 public class SplitInfo {
     @NonNull
@@ -29,9 +31,19 @@ public class SplitInfo {
     @NonNull
     private final SplitAttributes mSplitAttributes;
 
+    /**
+     * The {@code SplitInfo} constructor.
+     *
+     * @param primaryActivityStack The primary {@link ActivityStack}.
+     * @param secondaryActivityStack The secondary {@link ActivityStack}.
+     * @param splitAttributes The current {@link SplitAttributes} of this split pair.
+     */
     SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack,
             @NonNull SplitAttributes splitAttributes) {
+        Objects.requireNonNull(primaryActivityStack);
+        Objects.requireNonNull(secondaryActivityStack);
+        Objects.requireNonNull(splitAttributes);
         mPrimaryActivityStack = primaryActivityStack;
         mSecondaryActivityStack = secondaryActivityStack;
         mSplitAttributes = splitAttributes;
@@ -64,7 +76,7 @@ public class SplitInfo {
 
     /**
      * Returns the {@link SplitAttributes} of this split.
-     * since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @NonNull
     public SplitAttributes getSplitAttributes() {

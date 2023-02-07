@@ -23,7 +23,6 @@ import android.util.Log
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
-import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
@@ -90,7 +89,7 @@ internal class EmbeddingCompat constructor(
             throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
                 "on the device.")
         }
-        return embeddingExtension.setSplitAttributesCalculator(
+        embeddingExtension.setSplitAttributesCalculator(
             adapter.translateSplitAttributesCalculator(calculator)
         )
     }
@@ -100,11 +99,11 @@ internal class EmbeddingCompat constructor(
             throw UnsupportedOperationException("#clearSplitAttributesCalculator is not " +
                 "supported on the device.")
         }
-        return embeddingExtension.clearSplitAttributesCalculator()
+        embeddingExtension.clearSplitAttributesCalculator()
     }
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_2
 
     companion object {
         const val DEBUG = true

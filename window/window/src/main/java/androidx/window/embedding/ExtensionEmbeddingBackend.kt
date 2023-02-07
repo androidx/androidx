@@ -191,8 +191,10 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                 splitRules.add(rule)
             } else if (tagRuleMap.containsKey(tag)) {
                 if (throwOnDuplicateTag) {
-                    throw IllegalArgumentException("Duplicated tag: $tag. Tag must be unique " +
-                        "among all registered rules")
+                    throw IllegalArgumentException(
+                        "Duplicated tag: $tag. Tag must be unique " +
+                            "among all registered rules"
+                    )
                 } else {
                     // Update the rule if throwOnDuplicateTag = false
                     val oldRule = tagRuleMap[tag]

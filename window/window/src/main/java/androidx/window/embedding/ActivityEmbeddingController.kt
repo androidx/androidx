@@ -33,9 +33,8 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
      * @param activity the [Activity] to check.
      */
     // TODO(b/204399167) Migrate to a Flow
-    fun isActivityEmbedded(activity: Activity): Boolean {
-        return embeddingBackend.isActivityEmbedded(activity)
-    }
+    fun isActivityEmbedded(activity: Activity): Boolean =
+        embeddingBackend.isActivityEmbedded(activity)
 
     companion object {
         @Volatile
