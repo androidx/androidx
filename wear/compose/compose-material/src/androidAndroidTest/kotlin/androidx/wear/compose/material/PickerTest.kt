@@ -45,6 +45,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -246,6 +248,118 @@ class PickerTest {
     }
 
     @Test
+    fun scroll_to_next_item_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 3,
+            totalOptions = 10,
+            expectedItemsScrolled = 1,
+        )
+    }
+
+    @Test
+    fun scroll_forward_by_two_items_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 4,
+            totalOptions = 10,
+            expectedItemsScrolled = 2,
+        )
+    }
+
+    @Test
+    fun scroll_to_prev_item_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 1,
+            totalOptions = 5,
+            expectedItemsScrolled = -1,
+        )
+    }
+
+    @Test
+    fun scroll_backward_by_two_items_with_animation() {
+        animateScrollTo(
+            initialOption = 3,
+            targetOption = 1,
+            totalOptions = 5,
+            expectedItemsScrolled = -2,
+        )
+    }
+
+    @Test
+    fun scroll_forward_to_repeated_items_with_animation() {
+        animateScrollTo(
+            initialOption = 8,
+            targetOption = 2,
+            totalOptions = 10,
+            expectedItemsScrolled = 4,
+        )
+    }
+
+    @Test
+    fun scroll_backward_to_repeated_items_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 8,
+            totalOptions = 10,
+            expectedItemsScrolled = -4,
+        )
+    }
+
+    @Test
+    fun scroll_to_the_closest_item_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 0,
+            totalOptions = 4,
+            expectedItemsScrolled = -2,
+        )
+    }
+
+    @Test
+    fun animate_scroll_cancels_previous_animation() {
+        val initialOption = 5
+        val totalOptions = 10
+        val firstTarget = 7
+        val secondTarget = 9
+
+        val targetDelta = 4
+
+        lateinit var state: PickerState
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            state = rememberPickerState(
+                initialNumberOfOptions = totalOptions,
+                initiallySelectedOption = initialOption
+            )
+            SimplePicker(state)
+        }
+        val initialItemIndex = state.scalingLazyListState.centerItemIndex
+
+        // The first animation starts, but before it's finished - a second animation starts,
+        // which cancels the first animation. In the end it doesn't matter how far picker was
+        // scrolled during first animation, because the second animation should bring
+        // picker to its final target.
+        rule.runOnIdle {
+            scope.launch {
+                async {
+                    state.animateScrollToOption(firstTarget)
+                }
+                delay(100) // a short delay so that the first async will be triggered first
+                async {
+                    state.animateScrollToOption(secondTarget)
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(secondTarget)
+        assertThat(state.scalingLazyListState.centerItemIndex)
+            .isEqualTo(initialItemIndex + targetDelta)
+    }
+
+    @Test
     fun scrolls_with_negative_separation() = scrolls_to_index_correctly(-1, 3)
 
     @Test
@@ -289,6 +403,7 @@ class PickerTest {
             }
         }
 
+        val initialItemIndex = state.scalingLazyListState.centerItemIndex
         rule.runOnIdle {
             runBlocking {
                 state.numberOfOptions = 31
@@ -298,6 +413,7 @@ class PickerTest {
         rule.waitForIdle()
 
         assertThat(state.selectedOption).isEqualTo(initialOption)
+        assertThat(state.scalingLazyListState.centerItemIndex).isEqualTo(initialItemIndex)
     }
 
     @Test
@@ -579,6 +695,49 @@ class PickerTest {
         rule.waitForIdle()
 
         rule.onNodeWithText("2").assertExists()
+    }
+
+    private fun animateScrollTo(
+        initialOption: Int,
+        targetOption: Int,
+        totalOptions: Int,
+        expectedItemsScrolled: Int,
+    ) {
+        lateinit var state: PickerState
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            state = rememberPickerState(
+                initialNumberOfOptions = totalOptions,
+                initiallySelectedOption = initialOption
+            )
+            SimplePicker(state)
+        }
+
+        val initialItemIndex = state.scalingLazyListState.centerItemIndex
+        rule.runOnIdle {
+            scope.launch {
+                async {
+                    state.animateScrollToOption(targetOption)
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(targetOption)
+        assertThat(state.scalingLazyListState.centerItemIndex)
+            .isEqualTo(initialItemIndex + expectedItemsScrolled)
+    }
+
+    @Composable
+    private fun SimplePicker(state: PickerState) {
+        WithTouchSlop(0f) {
+            Picker(
+                state = state,
+                contentDescription = CONTENT_DESCRIPTION,
+            ) {
+                Box(Modifier.requiredSize(itemSizeDp))
+            }
+        }
     }
 
     private fun scroll_snaps(

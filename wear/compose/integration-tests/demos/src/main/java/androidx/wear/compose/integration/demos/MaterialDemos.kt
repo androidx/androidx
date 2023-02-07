@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
+import androidx.wear.compose.material.samples.AnimateOptionChangePicker
 import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
@@ -210,6 +211,7 @@ val WearMaterialDemos = DemoCategory(
                     },
                     ComposableDemo("Simple Picker") { SimplePicker() },
                     ComposableDemo("No gradient") { PickerWithoutGradient() },
+                    ComposableDemo("Animate picker change") { AnimateOptionChangePicker() },
                 )
             } else {
                 listOf(
