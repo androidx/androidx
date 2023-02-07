@@ -116,6 +116,7 @@ class SandboxedSdkCompatTest {
     @Test
     // TODO(b/265295473) Update version check after AdServices V5 finalisation.
     @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @SuppressLint("NewApi") // b/24998154
     fun getSdkInfo_whenCreatedFromSandboxedSdkAndSharedLibraryInfoAvailable_returnsSdkInfo() {
         assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         assumeTrue(
@@ -155,6 +156,7 @@ class SandboxedSdkCompatTest {
 
         @Suppress("SameParameterValue")
         @RequiresApi(34)
+        @SuppressLint("NewApi") // b/24998154
         fun mockSandboxedSdkWithSharedLibraryInfo(
             sharedLibraryInfo: SharedLibraryInfo
         ): SandboxedSdk {

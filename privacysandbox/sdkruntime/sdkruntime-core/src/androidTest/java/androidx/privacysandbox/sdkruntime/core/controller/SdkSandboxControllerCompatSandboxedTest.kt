@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller
 
+import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
@@ -71,6 +72,7 @@ class SdkSandboxControllerCompatSandboxedTest {
     @Test
     // TODO(b/265295473) Update version check after AdServices V5 finalisation.
     @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @SuppressLint("NewApi") // b/249981547
     fun getSandboxedSdks_whenApiAvailable_returnsListFromPlatformApi() {
         assumeTrue(
             "Requires SandboxController API available",

@@ -134,6 +134,7 @@ class SandboxedSdkCompat private constructor(
 
     // TODO(b/265295473): Replace @RequiresApi with correct @RequiresExtension
     @RequiresApi(34)
+    @SuppressLint("NewApi") // b/249981547
     private class ApiAdServicesV5Impl(
         sandboxedSdk: SandboxedSdk
     ) : ApiAdServicesV4Impl(sandboxedSdk) {
@@ -148,6 +149,7 @@ class SandboxedSdkCompat private constructor(
     }
 
     private object SdkImplFactory {
+        @SuppressLint("NewApi") // b/249981547
         fun createSdkImpl(sandboxedSdk: SandboxedSdk): SandboxedSdkImpl {
             return if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(sandboxedSdk)
