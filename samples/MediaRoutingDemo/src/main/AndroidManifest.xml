@@ -27,7 +27,8 @@
         android:icon="@drawable/app_sample_code"
         android:label="@string/media_router_app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SampleMediaRouter">
+        android:theme="@style/Theme.SampleMediaRouter"
+        android:name="androidx.multidex.MultiDexApplication">
 
         <activity
             android:name=".activities.MainActivity"
