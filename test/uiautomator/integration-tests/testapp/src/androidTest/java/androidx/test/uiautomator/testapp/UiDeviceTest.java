@@ -24,12 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.UiAutomation;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -447,29 +445,17 @@ public class UiDeviceTest extends BaseTest {
         validateMainActivityXml(xml);
     }
 
-
-    @FlakyTest(bugId = 259299647)
     @Test
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testWaitForWindowUpdate() {
-        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
-            return; // b/262909049: Do not run this test on pre-release Android U.
-        }
-
         launchTestActivity(WaitTestActivity.class);
 
-        // Returns false when the current window doesn't have the specified package name.
+        // Times out if package mismatch or no content changes detected.
         assertFalse(mDevice.waitForWindowUpdate("non-existent package name", 1_000));
+        assertFalse(mDevice.waitForWindowUpdate(TEST_APP, 1_000));
 
-        UiObject2 text1 = mDevice.findObject(By.res(TEST_APP, "text_1"));
-
-        // Returns true when change happens in the current window within the timeout.
-        text1.click();
-        assertTrue(mDevice.waitForWindowUpdate(PACKAGE_NAME, 5_000));
-
-        // Returns false when no change happens in the current window within the timeout.
-        text1.click();
-        assertFalse(mDevice.waitForWindowUpdate(PACKAGE_NAME, 1_000));
+        // Detects content changes (text updated after click).
+        mDevice.findObject(By.res(TEST_APP, "text_1")).click();
+        assertTrue(mDevice.waitForWindowUpdate(TEST_APP, 5_000));
     }
 
     @Test
