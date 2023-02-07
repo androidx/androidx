@@ -132,8 +132,6 @@ public class BroadcastsObserver(
     }
 
     override fun onActionScreenOn() {
-        (watchState.isLocked as MutableStateFlow).value = false
-
         // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
         // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
         if (sysUiHasSentWatchUiState) {
@@ -142,5 +140,9 @@ public class BroadcastsObserver(
 
         val isAmbient = watchState.isAmbient as MutableStateFlow
         isAmbient.value = false
+    }
+
+    override fun onActionUserPresent() {
+        (watchState.isLocked as MutableStateFlow).value = false
     }
 }

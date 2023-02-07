@@ -40,7 +40,7 @@ interface IInteractiveWatchFace {
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 7;
+    const int API_VERSION = 8;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;

@@ -19,6 +19,7 @@ package androidx.wear.watchface
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -6622,6 +6623,97 @@ public class WatchFaceServiceTest {
         complicationSlotsManager.selectComplicationDataForInstant(Instant.EPOCH)
         assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value)
             .isInstanceOf(ShortTextComplicationData::class.java)
+    }
+
+    @Test
+    fun actionScreenOff_keyguardLocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        val shadowKeyguardManager = shadowOf(context.getSystemService(KeyguardManager::class.java))
+        shadowKeyguardManager.setIsDeviceLocked(true)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+
+        assertThat(watchState.isLocked.value).isTrue()
+    }
+
+    @Test
+    fun actionScreenOff_keyguardUnlocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        val shadowKeyguardManager = shadowOf(context.getSystemService(KeyguardManager::class.java))
+        shadowKeyguardManager.setIsDeviceLocked(false)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+
+        assertThat(watchState.isLocked.value).isFalse()
+    }
+
+    @Test
+    fun actionUserUnlocked_after_keyguardLocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        val shadowKeyguardManager = shadowOf(context.getSystemService(KeyguardManager::class.java))
+        shadowKeyguardManager.setIsDeviceLocked(true)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        watchFaceImpl.broadcastsObserver.onActionUserPresent()
+
+        assertThat(watchState.isLocked.value).isFalse()
     }
 
     @SuppressLint("NewApi")

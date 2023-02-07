@@ -967,7 +967,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         val mockIInteractiveWatchFace = mock(IInteractiveWatchFace::class.java)
         val mockIBinder = mock(IBinder::class.java)
         `when`(mockIInteractiveWatchFace.asBinder()).thenReturn(mockIBinder)
-        `when`(mockIInteractiveWatchFace.apiVersion).thenReturn(6)
+        `when`(mockIInteractiveWatchFace.apiVersion).thenReturn(7)
 
         val interactiveInstance = InteractiveWatchFaceClientImpl(
             mockIInteractiveWatchFace,
