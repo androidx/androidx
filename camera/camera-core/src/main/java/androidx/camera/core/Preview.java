@@ -558,7 +558,6 @@ public final class Preview extends UseCase {
      * <p>This setting is set when constructing an ImageCapture using
      * {@link Builder#setResolutionSelector(ResolutionSelector)}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public ResolutionSelector getResolutionSelector() {
         return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
@@ -1101,7 +1100,6 @@ public final class Preview extends UseCase {
          *
          * @return The current Builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {

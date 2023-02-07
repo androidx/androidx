@@ -32,9 +32,11 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * The resolution strategy defines the resolution selection sequence to select the best size.
+ *
+ * <p>Applications can create a {@link ResolutionSelector} with a proper ResolutionStrategy to
+ * choose the preferred resolution.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResolutionStrategy {
     /**
      * A resolution strategy chooses the highest available resolution. This strategy does not
@@ -47,6 +49,10 @@ public final class ResolutionStrategy {
 
     /**
      * CameraX doesn't select an alternate size when the specified bound size is unavailable.
+     *
+     * <p>Applications will receive {@link IllegalArgumentException} when binding the
+     * {@link UseCase}s with this fallback rule if the device doesn't support the specified bound
+     * size.
      */
     public static final int FALLBACK_RULE_NONE = 0;
     /**
@@ -86,58 +92,14 @@ public final class ResolutionStrategy {
     public @interface ResolutionFallbackRule {
     }
 
-    private boolean mIsHighestAvailableStrategy = false;
     @Nullable
     private Size mBoundSize = null;
-    @Nullable
-    private Integer mFallbackRule = null;
+    private int mFallbackRule = ResolutionStrategy.FALLBACK_RULE_NONE;
 
     /**
      * Creates a default ResolutionStrategy instance to select the highest available resolution.
      */
     private ResolutionStrategy() {
-        mIsHighestAvailableStrategy = true;
-    }
-
-    /**
-     * Creates a ResolutionStrategy instance to select resolution according to the specified bound
-     * size and fallback rule.
-     */
-    private ResolutionStrategy(@NonNull Size boundSize,
-            @NonNull Integer fallbackRule) {
-        mBoundSize = boundSize;
-        mFallbackRule = fallbackRule;
-    }
-
-    /**
-     * Returns {@code true} if the instance is a highest available resolution strategy.
-     * Otherwise, returns {@code false}.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isHighestAvailableStrategy() {
-        return mIsHighestAvailableStrategy;
-    }
-
-    /**
-     * Returns the specified bound size.
-     *
-     * @return the specified bound size or {@code null} if this is instance of
-     * {@link #HIGHEST_AVAILABLE_STRATEGY}.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
-    public Size getBoundSize() {
-        return mBoundSize;
-    }
-
-    /**
-     * Returns the fallback rule for choosing an alternate size when the specified bound size is
-     * unavailable.
-     */
-    @Nullable
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Integer getFallbackRule() {
-        return mFallbackRule;
     }
 
     /**
@@ -163,10 +125,28 @@ public final class ResolutionStrategy {
      * @param boundSize the bound size to select the best resolution with the fallback rule.
      * @param fallbackRule the rule to follow when the specified bound size is not available.
      */
-    @NonNull
-    public static ResolutionStrategy create(
-            @NonNull Size boundSize,
-            @ResolutionFallbackRule int fallbackRule) {
-        return new ResolutionStrategy(boundSize, fallbackRule);
+    public ResolutionStrategy(@NonNull Size boundSize, @ResolutionFallbackRule int fallbackRule) {
+        mBoundSize = boundSize;
+        mFallbackRule = fallbackRule;
+    }
+
+    /**
+     * Returns the specified bound size.
+     *
+     * @return the specified bound size or {@code null} if this is instance of
+     * {@link #HIGHEST_AVAILABLE_STRATEGY}.
+     */
+    @Nullable
+    public Size getBoundSize() {
+        return mBoundSize;
+    }
+
+    /**
+     * Returns the fallback rule for choosing an alternate size when the specified bound size is
+     * unavailable.
+     */
+    @ResolutionFallbackRule
+    public int getFallbackRule() {
+        return mFallbackRule;
     }
 }

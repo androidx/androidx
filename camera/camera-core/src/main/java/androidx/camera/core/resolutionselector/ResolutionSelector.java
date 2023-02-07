@@ -18,11 +18,15 @@ package androidx.camera.core.resolutionselector;
 
 import static androidx.camera.core.resolutionselector.AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A set of requirements and priorities used to select a resolution for the {@link UseCase}.
@@ -30,7 +34,8 @@ import androidx.camera.core.UseCase;
  * <p>The resolution selection mechanism is determined by the following three steps:
  * <ol>
  *     <li> Collect the supported output sizes and add them to the candidate resolution list.
- *     <li> Filter and sort the candidate resolution list according to the preference settings.
+ *     <li> Filter and sort the candidate resolution list according to the {@link Builder}
+ *     resolution settings.
  *     <li> Consider all the resolution selector settings of bound {@link UseCase}s to find the
  *     resolution that best suits each {@link UseCase}.
  * </ol>
@@ -41,7 +46,7 @@ import androidx.camera.core.UseCase;
  * <p>ResolutionSelector provides the following function for applications to adjust the candidate
  * resolution settings.
  * <ul>
- *     <li> {@link Builder#setHighResolutionEnabledFlags(int)}
+ *     <li> {@link Builder#setHighResolutionEnabledFlag(int)}
  * </ul>
  *
  * <p>For the second step, ResolutionSelector provides the following three functions for
@@ -76,36 +81,69 @@ import androidx.camera.core.UseCase;
  *
  * <p>When creating a ResolutionSelector instance, the
  * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} will be the default
- * {@link AspectRatioStrategy} if it is not set. However, if neither the
- * {@link ResolutionStrategy} nor the high resolution enabled flags are set, there will be no
- * default value specified.
+ * {@link AspectRatioStrategy} if it is not set.
+ * {@link ResolutionSelector#HIGH_RESOLUTION_FLAG_OFF} is the default value of high resolution
+ * enabled flag. However, if neither the {@link ResolutionStrategy} nor the
+ * {@link ResolutionFilter} are set, there will be no default value specified.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResolutionSelector {
-    @Nullable
+    /**
+     * This flag disables high resolution support.
+     */
+    public static final int HIGH_RESOLUTION_FLAG_OFF = 0;
+    /**
+     * This flag enables high resolution in the default sensor pixel mode.
+     *
+     * <p>This flag allows CameraX to select the highest resolution output sizes available on the
+     * camera device. The high resolution is retrieved via the
+     * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
+     * from the stream configuration map obtained with the
+     * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP}
+     * camera characteristics. However, please note that using a high resolution may result in
+     * slower capture times. Please see the javadoc of
+     * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
+     * for more details.
+     *
+     * <p>Since Android 12, some devices might support a maximum resolution sensor pixel mode,
+     * which allows them to capture additional ultra high resolutions retrieved from
+     * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION}
+     * . Enabling high resolution with this flag does not allow applications to select those
+     * ultra high resolutions.
+     */
+    public static final int HIGH_RESOLUTION_FLAG_ON = 1;
+
+    @IntDef({HIGH_RESOLUTION_FLAG_OFF, HIGH_RESOLUTION_FLAG_ON})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface HighResolutionFlag {
+    }
+    @NonNull
     private final AspectRatioStrategy mAspectRatioStrategy;
     @Nullable
     private final ResolutionStrategy mResolutionStrategy;
     @Nullable
     private final ResolutionFilter mResolutionFilter;
-    private final int mHighResolutionEnabledFlags;
+    @HighResolutionFlag
+    private final int mHighResolutionEnabledFlag;
 
     ResolutionSelector(
-            @Nullable AspectRatioStrategy aspectRatioStrategy,
+            @NonNull AspectRatioStrategy aspectRatioStrategy,
             @Nullable ResolutionStrategy resolutionStrategy,
             @Nullable ResolutionFilter resolutionFilter,
-            int highResolutionEnabledFlags) {
+            @HighResolutionFlag int highResolutionEnabledFlag) {
         mAspectRatioStrategy = aspectRatioStrategy;
         mResolutionStrategy = resolutionStrategy;
         mResolutionFilter = resolutionFilter;
-        mHighResolutionEnabledFlags = highResolutionEnabledFlags;
+        mHighResolutionEnabledFlag = highResolutionEnabledFlag;
     }
 
     /**
-     * Returns the specified {@link AspectRatioStrategy}, or null if not specified.
+     * Returns the specified {@link AspectRatioStrategy}, or
+     * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} if none is specified when
+     * creating the ResolutionSelector.
      */
-    @Nullable
+    @NonNull
     public AspectRatioStrategy getAspectRatioStrategy() {
         return mAspectRatioStrategy;
     }
@@ -127,10 +165,11 @@ public final class ResolutionSelector {
     }
 
     /**
-     * Returns the specified high resolution enabled flags.
+     * Returns the specified high resolution enabled flag.
      */
-    public int getHighResolutionEnabledFlags() {
-        return mHighResolutionEnabledFlags;
+    @HighResolutionFlag
+    public int getHighResolutionEnabledFlag() {
+        return mHighResolutionEnabledFlag;
     }
 
     /**
@@ -143,7 +182,8 @@ public final class ResolutionSelector {
         private ResolutionStrategy mResolutionStrategy = null;
         @Nullable
         private ResolutionFilter mResolutionFilter = null;
-        private int mHighResolutionEnabledFlags = 0;
+        @HighResolutionFlag
+        private int mHighResolutionEnabledFlag = HIGH_RESOLUTION_FLAG_OFF;
 
         /**
          * Creates a Builder instance.
@@ -155,7 +195,7 @@ public final class ResolutionSelector {
             mAspectRatioStrategy = resolutionSelector.getAspectRatioStrategy();
             mResolutionStrategy = resolutionSelector.getResolutionStrategy();
             mResolutionFilter = resolutionSelector.getResolutionFilter();
-            mHighResolutionEnabledFlags = resolutionSelector.getHighResolutionEnabledFlags();
+            mHighResolutionEnabledFlag = resolutionSelector.getHighResolutionEnabledFlag();
         }
 
         /**
@@ -172,6 +212,9 @@ public final class ResolutionSelector {
          * Sets the aspect ratio selection strategy for the {@link UseCase}. The aspect ratio
          * selection strategy determines how the {@link UseCase} will choose the aspect ratio of
          * the captured image.
+         *
+         * <p>If the aspect ratio strategy is not specified,
+         * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} will be used as the default.
          */
         @NonNull
         public Builder setAspectRatioStrategy(@NonNull AspectRatioStrategy aspectRatioStrategy) {
@@ -202,15 +245,16 @@ public final class ResolutionSelector {
         }
 
         /**
-         * Sets high resolutions enabled flags to allow the application to select high
+         * Sets high resolutions enabled flag to allow the application to select high
          * resolutions for the {@link UseCase}s. This will enable the application to choose high
          * resolutions for the captured image, which may result in better quality images.
          *
-         * <p>Now, only {@link HighResolution#FLAG_DEFAULT_MODE_ON} is allowed for this function.
+         * <p>If not specified, the default setting is
+         * {@link ResolutionSelector#HIGH_RESOLUTION_FLAG_OFF}.
          */
         @NonNull
-        public Builder setHighResolutionEnabledFlags(int flags) {
-            mHighResolutionEnabledFlags = flags;
+        public Builder setHighResolutionEnabledFlag(@HighResolutionFlag int flag) {
+            mHighResolutionEnabledFlag = flag;
             return this;
         }
 
@@ -221,7 +265,7 @@ public final class ResolutionSelector {
         @NonNull
         public ResolutionSelector build() {
             return new ResolutionSelector(mAspectRatioStrategy, mResolutionStrategy,
-                    mResolutionFilter, mHighResolutionEnabledFlags);
+                    mResolutionFilter, mHighResolutionEnabledFlag);
         }
     }
 }
