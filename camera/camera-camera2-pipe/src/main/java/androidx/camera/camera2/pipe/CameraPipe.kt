@@ -49,7 +49,7 @@ internal val cameraPipeIds = atomic(0)
  * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
  * the [CameraGraph] interface.
  */
-public class CameraPipe(config: Config) {
+class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent =
         DaggerCameraPipeComponent.builder()
@@ -61,7 +61,7 @@ public class CameraPipe(config: Config) {
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
-    public fun create(config: CameraGraph.Config): CameraGraph {
+    fun create(config: CameraGraph.Config): CameraGraph {
         return component
             .cameraGraphComponentBuilder()
             .cameraGraphConfigModule(CameraGraphConfigModule(config))
@@ -70,12 +70,12 @@ public class CameraPipe(config: Config) {
     }
 
     /** This provides access to information about the available cameras on the device. */
-    public fun cameras(): CameraDevices {
+    fun cameras(): CameraDevices {
         return component.cameras()
     }
 
     /** This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe. */
-    public fun cameraSurfaceManager(): CameraSurfaceManager {
+    fun cameraSurfaceManager(): CameraSurfaceManager {
         return component.cameraSurfaceManager()
     }
 
@@ -83,7 +83,7 @@ public class CameraPipe(config: Config) {
      * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable
      * defaults will be provided if values are not specified.
      */
-    public data class Config(
+    data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
         val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
@@ -95,7 +95,7 @@ public class CameraPipe(config: Config) {
      * Application level configuration for Camera2Interop callbacks. If set, these callbacks will be
      * triggered at the appropriate places in Camera-Pipe.
      */
-    public data class CameraInteropConfig(
+    data class CameraInteropConfig(
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
         val cameraSessionStateCallback: CameraCaptureSession.StateCallback? = null
     )
@@ -114,7 +114,7 @@ public class CameraPipe(config: Config) {
      * - [testOnlyScope] is used for testing to overwrite the internal global scope with the test
      *   method scope.
      */
-    public data class ThreadConfig(
+    data class ThreadConfig(
         val defaultLightweightExecutor: Executor? = null,
         val defaultBackgroundExecutor: Executor? = null,
         val defaultBlockingExecutor: Executor? = null,
@@ -132,9 +132,9 @@ public class CameraPipe(config: Config) {
      * @param cameraCacheBlocklist is used to prevent the metadata backend from caching the results
      *   of specific keys for specific cameraIds.
      */
-    public class CameraMetadataConfig(
-        public val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
-        public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
+    class CameraMetadataConfig(
+        val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
+        val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
             emptyMap()
     )
 
@@ -187,7 +187,7 @@ public class CameraPipe(config: Config) {
             "CameraPipe.External is deprecated, use customCameraBackend on " +
                 "GraphConfig instead."
         )
-        public fun create(
+        fun create(
             config: CameraGraph.Config,
             cameraMetadata: CameraMetadata,
             requestProcessor: RequestProcessor

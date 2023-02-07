@@ -22,7 +22,7 @@ package androidx.camera.camera2.pipe
  *
  * A CaptureSequence should be created from a [CaptureSequenceProcessor].
  */
-public interface CaptureSequence<out TCaptureRequest> {
+interface CaptureSequence<out TCaptureRequest> {
     val cameraId: CameraId
     val repeating: Boolean
     val captureRequestList: List<TCaptureRequest>

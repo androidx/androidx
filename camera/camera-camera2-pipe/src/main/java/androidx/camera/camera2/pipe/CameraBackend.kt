@@ -20,7 +20,7 @@ import kotlinx.coroutines.Deferred
 
 /** This is used to uniquely identify a specific backend implementation. */
 @JvmInline
-value class CameraBackendId(public val value: String)
+value class CameraBackendId(val value: String)
 
 /**
  * A CameraBackend is used by [CameraPipe] to abstract out the lifecycle, state, and interactions

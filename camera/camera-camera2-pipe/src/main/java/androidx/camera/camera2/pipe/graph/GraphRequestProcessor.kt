@@ -37,7 +37,7 @@ internal val graphRequestProcessorIds = atomic(0)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Suppress("NOTHING_TO_INLINE")
-public class GraphRequestProcessor
+class GraphRequestProcessor
 private constructor(
     private val captureSequenceProcessor: CaptureSequenceProcessor<Any, CaptureSequence<Any>>
 ) {
