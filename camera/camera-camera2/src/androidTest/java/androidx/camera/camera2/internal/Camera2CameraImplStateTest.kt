@@ -440,6 +440,10 @@ internal class Camera2CameraImplStateTest {
             return forwardCameraManager.cameraIdList
         }
 
+        override fun getConcurrentCameraIds(): MutableSet<MutableSet<String>> {
+            return forwardCameraManager.concurrentCameraIds
+        }
+
         override fun registerAvailabilityCallback(
             executor: Executor,
             callback: CameraManager.AvailabilityCallback

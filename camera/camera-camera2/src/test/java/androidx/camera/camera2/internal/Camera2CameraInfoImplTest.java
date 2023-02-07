@@ -57,6 +57,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -73,6 +75,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
@@ -815,6 +818,12 @@ public class Camera2CameraInfoImplTest {
         @Override
         public String[] getCameraIdList() throws CameraAccessExceptionCompat {
             return mCameraIdCharacteristics.keySet().toArray(new String[0]);
+        }
+
+        @NonNull
+        @Override
+        public Set<Set<String>> getConcurrentCameraIds() throws CameraAccessExceptionCompat {
+            return ImmutableSet.of(mCameraIdCharacteristics.keySet());
         }
 
         @Override
