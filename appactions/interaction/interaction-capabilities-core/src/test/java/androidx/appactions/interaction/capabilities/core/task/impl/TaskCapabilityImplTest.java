@@ -90,7 +90,6 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1703,7 +1702,6 @@ public final class TaskCapabilityImplTest {
             return RequiredTaskUpdater::new;
         }
 
-        @CanIgnoreReturnValue
         public TaskHandlerBuilder setOnReadyToConfirmListener(
                 OnReadyToConfirmListenerInternal<Confirmation> listener) {
             return super.setOnReadyToConfirmListenerInternal(listener);
@@ -1761,7 +1759,6 @@ public final class TaskCapabilityImplTest {
             return RequiredTaskUpdater::new;
         }
 
-        @CanIgnoreReturnValue
         public TaskHandlerBuilderWithRequiredConfirmation setOnReadyToConfirmListener(
                 OnReadyToConfirmListenerInternal<Confirmation> listener) {
             return super.setOnReadyToConfirmListenerInternal(listener);
