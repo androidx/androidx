@@ -181,6 +181,10 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     }
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "updateAppWidget() called with: $remoteViews")
+        }
+
         super.updateAppWidget(remoteViews)
         synchronized(this) {
             mRemoteViews = remoteViews
@@ -188,6 +192,14 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
                 mLatch?.countDown()
             }
         }
+    }
+
+    override fun prepareView(view: View?) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "prepareView() called with: view = $view")
+        }
+
+        super.prepareView(view)
     }
 
     /** Reset the latch used to detect the arrival of a new RemoteViews. */

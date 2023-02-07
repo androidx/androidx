@@ -30,6 +30,10 @@ class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "Test Receiver onReceive ${intent.action}")
+        }
+
         if (ignoreBroadcasts) {
             Log.w("TestGlanceAppWidgetReceiver", "Ignored $intent")
             return
