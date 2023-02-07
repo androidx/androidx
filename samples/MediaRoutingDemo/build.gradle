@@ -9,6 +9,8 @@ dependencies {
     implementation(project(":recyclerview:recyclerview"))
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(libs.material)
+
+    implementation ("androidx.multidex:multidex:2.0.1")
 }
 
 android {
@@ -20,6 +22,7 @@ android {
     }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     lint {
         baseline = file("lint-baseline.xml")
