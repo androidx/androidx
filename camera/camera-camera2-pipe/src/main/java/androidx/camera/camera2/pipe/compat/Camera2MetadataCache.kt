@@ -89,6 +89,7 @@ constructor(
 
         return Debug.trace("Camera-${cameraId.value}#readCameraMetadata") {
             try {
+                Log.debug { "Loading metadata for $cameraId" }
                 val cameraManager =
                     cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                 val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
