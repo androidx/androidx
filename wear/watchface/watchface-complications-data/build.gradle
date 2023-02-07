@@ -44,7 +44,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.truth)
     testImplementation(libs.junit)

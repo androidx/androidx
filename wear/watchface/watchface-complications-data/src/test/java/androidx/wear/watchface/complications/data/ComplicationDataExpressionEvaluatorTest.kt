@@ -28,11 +28,6 @@ import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +38,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
 
