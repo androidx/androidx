@@ -402,6 +402,7 @@ public class UiObject2Test extends BaseTest {
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertFalse(checkBox.isChecked());
         checkBox.click();
+        checkBox.wait(Until.checked(true), TIMEOUT_MS);
         assertTrue(checkBox.isChecked());
     }
 
@@ -446,6 +447,7 @@ public class UiObject2Test extends BaseTest {
         assertFalse(textView.isFocused());
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
         button.click();
+        textView.wait(Until.focused(true), TIMEOUT_MS);
         assertTrue(textView.isFocused());
     }
 
@@ -477,9 +479,11 @@ public class UiObject2Test extends BaseTest {
     public void testIsSelected() {
         launchTestActivity(IsSelectedTestActivity.class);
 
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "selected_target"));
+        assertFalse(textView.isSelected());
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "selected_button"));
         button.click();
-        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "selected_target"));
+        textView.wait(Until.selected(true), TIMEOUT_MS);
         assertTrue(textView.isSelected());
     }
 
