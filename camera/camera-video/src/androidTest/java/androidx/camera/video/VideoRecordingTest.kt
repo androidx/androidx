@@ -45,6 +45,7 @@ import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
@@ -185,12 +186,7 @@ class VideoRecordingTest(
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
-        // Skip for b/168175357, b/233661493
-        assumeFalse(
-            "Skip tests for Cuttlefish MediaCodec issues",
-            Build.MODEL.contains("Cuttlefish") &&
-                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
-        )
+        skipVideoRecordingTestIfNotSupportedByEmulator()
 
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()

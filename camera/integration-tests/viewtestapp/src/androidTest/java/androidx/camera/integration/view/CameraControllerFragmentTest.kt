@@ -37,6 +37,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
@@ -464,7 +465,7 @@ class CameraControllerFragmentTest(
 
     @Test
     fun fragmentLaunched_cannotRecordVideo() {
-        skipVideoRecordingTestOnCuttlefishApi29()
+        skipVideoRecordingTestIfNotSupportedByEmulator()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 
         // Arrange.
@@ -479,7 +480,7 @@ class CameraControllerFragmentTest(
 
     @Test
     fun recordEnabled_canRecordVideo() {
-        skipVideoRecordingTestOnCuttlefishApi29()
+        skipVideoRecordingTestIfNotSupportedByEmulator()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 
         // Arrange.
@@ -495,7 +496,7 @@ class CameraControllerFragmentTest(
 
     @Test
     fun cameraToggled_canRecordVideo() {
-        skipVideoRecordingTestOnCuttlefishApi29()
+        skipVideoRecordingTestIfNotSupportedByEmulator()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 
         // Arrange.
@@ -513,7 +514,7 @@ class CameraControllerFragmentTest(
 
     @Test
     fun recordDisabledAndEnabledMultipleTimes_canRecordVideo() {
-        skipVideoRecordingTestOnCuttlefishApi29()
+        skipVideoRecordingTestIfNotSupportedByEmulator()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 
         // Arrange.
@@ -536,14 +537,6 @@ class CameraControllerFragmentTest(
         onView(withId(R.id.capture_enabled)).perform(click())
         onView(withId(R.id.analysis_enabled)).perform(click())
         onView(withId(R.id.video_enabled)).perform(click())
-    }
-
-    private fun skipVideoRecordingTestOnCuttlefishApi29() {
-        // Skip test for b/168175357
-        Assume.assumeFalse(
-            "Cuttlefish has MediaCodec dequeInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
-        )
     }
 
     private fun skipTestWithSurfaceProcessingOnCuttlefishApi30() {
@@ -695,14 +688,17 @@ class CameraControllerFragmentTest(
                         finalize = it
                         videoSavedSemaphore.release()
                     }
+
                     is VideoRecordEvent.Status -> {
                         videoRecordingSemaphore.release()
                     }
+
                     is VideoRecordEvent.Start,
                     is VideoRecordEvent.Pause,
                     is VideoRecordEvent.Resume -> {
                         // no op for this test, skip these event now.
                     }
+
                     else -> {
                         throw IllegalStateException()
                     }
