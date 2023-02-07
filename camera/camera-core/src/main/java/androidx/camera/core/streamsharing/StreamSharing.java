@@ -180,7 +180,7 @@ public class StreamSharing extends UseCase {
                 getSensorToBufferTransformMatrix(),
                 getHasCameraTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
-                getRelativeRotation(camera),
+                /*rotationDegrees=*/0, // Rotation are handled by each child.
                 /*mirroring=*/false); // Mirroring will be decided by each child.
         mNode = new SurfaceProcessorNode(camera, DefaultSurfaceProcessor.Factory.newInstance());
 
