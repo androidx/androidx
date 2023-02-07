@@ -17,13 +17,7 @@
 package androidx.bluetooth.integration.testapp.ui.bluetoothx
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
-import android.bluetooth.BluetoothGattServerCallback
-import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.ScanCallback
@@ -39,6 +33,9 @@ import android.widget.Toast
 
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentBtxBinding
+import androidx.bluetooth.integration.testapp.experimental.AdvertiseResult
+import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
+import androidx.bluetooth.integration.testapp.experimental.GattServerCallback
 import androidx.bluetooth.integration.testapp.ui.framework.FwkFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -57,6 +54,8 @@ class BtxFragment : Fragment() {
     companion object {
         const val TAG = "BtxFragment"
     }
+
+    private lateinit var bluetoothLe: BluetoothLe
 
     private lateinit var btxViewModel: BtxViewModel
 
@@ -82,6 +81,8 @@ class BtxFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        bluetoothLe = BluetoothLe(requireContext())
 
         binding.buttonScan.setOnClickListener {
             startScan()
@@ -154,42 +155,6 @@ class BtxFragment : Fragment() {
     private val advertiseScope = CoroutineScope(Dispatchers.Main + Job())
     private var advertiseJob: Job? = null
 
-    enum class AdvertiseResult {
-        ADVERTISE_STARTED,
-        ADVERTISE_FAILED_ALREADY_STARTED,
-        ADVERTISE_FAILED_DATA_TOO_LARGE,
-        ADVERTISE_FAILED_FEATURE_UNSUPPORTED,
-        ADVERTISE_FAILED_INTERNAL_ERROR,
-        ADVERTISE_FAILED_TOO_MANY_ADVERTISERS
-    }
-
-    // Permissions are handled by MainActivity requestBluetoothPermissions
-    @SuppressLint("MissingPermission")
-    fun advertise(settings: AdvertiseSettings, data: AdvertiseData): Flow<AdvertiseResult> =
-        callbackFlow {
-            val callback = object : AdvertiseCallback() {
-                override fun onStartFailure(errorCode: Int) {
-                    trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
-                }
-
-                override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
-                    trySend(AdvertiseResult.ADVERTISE_STARTED)
-                }
-            }
-
-            val bluetoothManager =
-                context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-            val bluetoothAdapter = bluetoothManager?.adapter
-            val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
-
-            bleAdvertiser?.startAdvertising(settings, data, callback)
-
-            awaitClose {
-                Log.d(TAG, "awaitClose() called")
-                bleAdvertiser?.stopAdvertising(callback)
-            }
-        }
-
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
     private fun startAdvertise() {
@@ -206,7 +171,7 @@ class BtxFragment : Fragment() {
             .build()
 
         advertiseJob = advertiseScope.launch {
-            advertise(advertiseSettings, advertiseData)
+            bluetoothLe.advertise(advertiseSettings, advertiseData)
                 .collect {
                     Log.d(TAG, "advertiseResult received: $it")
 
@@ -231,242 +196,13 @@ class BtxFragment : Fragment() {
     private val gattServerScope = CoroutineScope(Dispatchers.Main + Job())
     private var gattServerJob: Job? = null
 
-    sealed interface GattServerCallback {
-        data class OnConnectionStateChange(
-            val device: BluetoothDevice?,
-            val status: Int,
-            val newState: Int
-        ) : GattServerCallback
-
-        data class OnServiceAdded(
-            val status: Int,
-            val service: BluetoothGattService?
-        ) : GattServerCallback
-
-        data class OnCharacteristicReadRequest(
-            val device: BluetoothDevice?,
-            val requestId: Int,
-            val offset: Int,
-            val characteristic: BluetoothGattCharacteristic?
-        ) : GattServerCallback
-
-        data class OnCharacteristicWriteRequest(
-            val device: BluetoothDevice?,
-            val requestId: Int,
-            val characteristic: BluetoothGattCharacteristic?,
-            val preparedWrite: Boolean,
-            val responseNeeded: Boolean,
-            val offset: Int,
-            val value: ByteArray?
-        ) : GattServerCallback
-
-        data class OnDescriptorReadRequest(
-            val device: BluetoothDevice?,
-            val requestId: Int,
-            val offset: Int,
-            val descriptor: BluetoothGattDescriptor?
-        ) : GattServerCallback
-
-        data class OnDescriptorWriteRequest(
-            val device: BluetoothDevice?,
-            val requestId: Int,
-            val descriptor: BluetoothGattDescriptor?,
-            val preparedWrite: Boolean,
-            val responseNeeded: Boolean,
-            val offset: Int,
-            val value: ByteArray?
-        ) : GattServerCallback
-
-        data class OnExecuteWrite(
-            val device: BluetoothDevice?,
-            val requestId: Int,
-            val execute: Boolean
-        ) : GattServerCallback
-
-        data class OnNotificationSent(
-            val device: BluetoothDevice?,
-            val status: Int
-        ) : GattServerCallback
-
-        data class OnMtuChanged(
-            val device: BluetoothDevice?,
-            val mtu: Int
-        ) : GattServerCallback
-
-        data class OnPhyUpdate(
-            val device: BluetoothDevice?,
-            val txPhy: Int,
-            val rxPhy: Int,
-            val status: Int
-        ) : GattServerCallback
-
-        data class OnPhyRead(
-            val device: BluetoothDevice?,
-            val txPhy: Int,
-            val rxPhy: Int,
-            val status: Int
-        ) : GattServerCallback
-    }
-
-    @SuppressLint("MissingPermission")
-    fun gattServer(): Flow<GattServerCallback> =
-        callbackFlow {
-            val callback = object : BluetoothGattServerCallback() {
-                override fun onConnectionStateChange(
-                    device: BluetoothDevice?,
-                    status: Int,
-                    newState: Int
-                ) {
-                    trySend(
-                        GattServerCallback.OnConnectionStateChange(device, status, newState)
-                    )
-                }
-
-                override fun onServiceAdded(status: Int, service: BluetoothGattService?) {
-                    trySend(
-                        GattServerCallback.OnServiceAdded(status, service)
-                    )
-                }
-
-                override fun onCharacteristicReadRequest(
-                    device: BluetoothDevice?,
-                    requestId: Int,
-                    offset: Int,
-                    characteristic: BluetoothGattCharacteristic?
-                ) {
-                    trySend(
-                        GattServerCallback.OnCharacteristicReadRequest(
-                            device,
-                            requestId,
-                            offset,
-                            characteristic
-                        )
-                    )
-                }
-
-                override fun onCharacteristicWriteRequest(
-                    device: BluetoothDevice?,
-                    requestId: Int,
-                    characteristic: BluetoothGattCharacteristic?,
-                    preparedWrite: Boolean,
-                    responseNeeded: Boolean,
-                    offset: Int,
-                    value: ByteArray?
-                ) {
-                    trySend(
-                        GattServerCallback.OnCharacteristicWriteRequest(
-                            device,
-                            requestId,
-                            characteristic,
-                            preparedWrite,
-                            responseNeeded,
-                            offset,
-                            value
-                        )
-                    )
-                }
-
-                override fun onDescriptorReadRequest(
-                    device: BluetoothDevice?,
-                    requestId: Int,
-                    offset: Int,
-                    descriptor: BluetoothGattDescriptor?
-                ) {
-                    trySend(
-                        GattServerCallback.OnDescriptorReadRequest(
-                            device,
-                            requestId,
-                            offset,
-                            descriptor
-                        )
-                    )
-                }
-
-                override fun onDescriptorWriteRequest(
-                    device: BluetoothDevice?,
-                    requestId: Int,
-                    descriptor: BluetoothGattDescriptor?,
-                    preparedWrite: Boolean,
-                    responseNeeded: Boolean,
-                    offset: Int,
-                    value: ByteArray?
-                ) {
-                    trySend(
-                        GattServerCallback.OnDescriptorWriteRequest(
-                            device,
-                            requestId,
-                            descriptor,
-                            preparedWrite,
-                            responseNeeded,
-                            offset,
-                            value
-                        )
-                    )
-                }
-
-                override fun onExecuteWrite(
-                    device: BluetoothDevice?,
-                    requestId: Int,
-                    execute: Boolean
-                ) {
-                    trySend(
-                        GattServerCallback.OnExecuteWrite(device, requestId, execute)
-                    )
-                }
-
-                override fun onNotificationSent(device: BluetoothDevice?, status: Int) {
-                    trySend(
-                        GattServerCallback.OnNotificationSent(device, status)
-                    )
-                }
-
-                override fun onMtuChanged(device: BluetoothDevice?, mtu: Int) {
-                    trySend(
-                        GattServerCallback.OnMtuChanged(device, mtu)
-                    )
-                }
-
-                override fun onPhyUpdate(
-                    device: BluetoothDevice?,
-                    txPhy: Int,
-                    rxPhy: Int,
-                    status: Int
-                ) {
-                    trySend(
-                        GattServerCallback.OnPhyUpdate(device, txPhy, rxPhy, status)
-                    )
-                }
-
-                override fun onPhyRead(
-                    device: BluetoothDevice?,
-                    txPhy: Int,
-                    rxPhy: Int,
-                    status: Int
-                ) {
-                    trySend(
-                        GattServerCallback.OnPhyRead(device, txPhy, rxPhy, status)
-                    )
-                }
-            }
-
-            val bluetoothManager =
-                context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-
-            val bluetoothGattServer = bluetoothManager?.openGattServer(requireContext(), callback)
-
-            awaitClose {
-                Log.d(TAG, "awaitClose() called")
-                bluetoothGattServer?.close()
-            }
-        }
-
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
     private fun openGattServer() {
         Log.d(TAG, "openGattServer() called")
 
         gattServerJob = gattServerScope.launch {
-            gattServer().collect { gattServerCallback ->
+            bluetoothLe.gattServer().collect { gattServerCallback ->
                 when (gattServerCallback) {
                     is GattServerCallback.OnCharacteristicReadRequest -> {
                         val onCharacteristicReadRequest:
