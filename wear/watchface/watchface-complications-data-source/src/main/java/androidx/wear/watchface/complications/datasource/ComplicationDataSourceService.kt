@@ -34,6 +34,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator
+import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
@@ -545,6 +546,9 @@ public abstract class ComplicationDataSourceService : Service() {
             if (complicationData != null) {
                 require(complicationData.validTimeRange == TimeRange.ALWAYS) {
                     "Preview data should have time range set to ALWAYS."
+                }
+                require(!hasExpression(complicationData.asWireComplicationData())) {
+                    "Preview data must not have expressions."
                 }
             }
             return complicationData?.asWireComplicationData()
