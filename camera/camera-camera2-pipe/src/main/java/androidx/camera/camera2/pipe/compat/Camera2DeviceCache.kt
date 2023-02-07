@@ -42,7 +42,7 @@ constructor(
     @GuardedBy("lock")
     private var openableCameras: List<CameraId>? = null
 
-    suspend fun getCameraIds(): List<CameraId>? {
+    suspend fun getCameraIds(): List<CameraId> {
         val cameras = synchronized(lock) { openableCameras }
         if (!cameras.isNullOrEmpty()) {
             return cameras
@@ -79,9 +79,10 @@ constructor(
         val cameraIdArray =
             try {
                 // WARNING: This method can, at times, return an empty list of cameras on devices
-                // that
-                //  will normally return a valid list of cameras (b/159052778)
-                cameraManager.cameraIdList
+                // that will normally return a valid list of cameras (b/159052778)
+                val ids = cameraManager.cameraIdList
+                Log.info { "Loaded CameraIdList $ids" }
+                ids
             } catch (e: CameraAccessException) {
                 Log.warn(e) { "Failed to query CameraManager#getCameraIdList!" }
                 return null

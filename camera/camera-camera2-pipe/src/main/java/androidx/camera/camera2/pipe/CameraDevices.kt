@@ -103,8 +103,17 @@ interface CameraDevices {
     fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
+/**
+ * CameraId represents a typed identifier for a camera represented as a non-blank String.
+ */
 @JvmInline
 value class CameraId(val value: String) {
+    init {
+        require(value.isNotBlank()) {
+            "CameraId cannot be null or blank!"
+        }
+    }
+
     companion object {
         inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
         inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
