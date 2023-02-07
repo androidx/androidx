@@ -34,9 +34,7 @@
     <uses-permission android:name="android.permission.health.READ_BODY_WATER_MASS"/>
     <uses-permission android:name="android.permission.health.READ_BONE_MASS"/>
     <uses-permission android:name="android.permission.health.READ_HEIGHT"/>
-    <uses-permission android:name="android.permission.health.READ_HIP_CIRCUMFERENCE"/>
     <uses-permission android:name="android.permission.health.READ_LEAN_BODY_MASS"/>
-    <uses-permission android:name="android.permission.health.READ_WAIST_CIRCUMFERENCE"/>
     <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
 
     <!-- Read permissions for CYCLE_TRACKING. -->
@@ -82,9 +80,7 @@
     <uses-permission android:name="android.permission.health.WRITE_BODY_WATER_MASS"/>
     <uses-permission android:name="android.permission.health.WRITE_BONE_MASS"/>
     <uses-permission android:name="android.permission.health.WRITE_HEIGHT"/>
-    <uses-permission android:name="android.permission.health.WRITE_HIP_CIRCUMFERENCE"/>
     <uses-permission android:name="android.permission.health.WRITE_LEAN_BODY_MASS"/>
-    <uses-permission android:name="android.permission.health.WRITE_WAIST_CIRCUMFERENCE"/>
     <uses-permission android:name="android.permission.health.WRITE_WEIGHT"/>
 
     <!-- Write permissions for CYCLE_TRACKING. -->

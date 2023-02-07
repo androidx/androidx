@@ -44,12 +44,8 @@ import androidx.health.connect.client.units.Mass
 import kotlin.reflect.KClass
 
 fun KClass<out Record>.toPlatformRecordClass(): Class<out PlatformRecord> {
-    return when (this) {
-        StepsRecord::class -> PlatformStepsRecord::class.java
-        HeartRateRecord::class -> PlatformHeartRateRecord::class.java
-        NutritionRecord::class -> PlatformNutritionRecord::class.java
-        else -> throw IllegalArgumentException("Unsupported record type $this")
-    }
+    return SDK_TO_PLATFORM_RECORD_CLASS[this]
+        ?: throw IllegalArgumentException("Unsupported record type $this")
 }
 
 fun Record.toPlatformRecord(): PlatformRecord {

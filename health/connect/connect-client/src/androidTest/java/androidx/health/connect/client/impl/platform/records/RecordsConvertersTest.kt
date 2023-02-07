@@ -67,7 +67,7 @@ class RecordsConvertersTest {
                 count = 100,
                 startTime = Instant.ofEpochMilli(1234L),
                 startZoneOffset = ZoneOffset.UTC,
-                endTime = Instant.ofEpochMilli(5678L),
+                endTime = Instant.ofEpochMilli(56780L),
                 endZoneOffset = ZoneOffset.UTC,
                 metadata = Metadata(id = "someId"))
 
@@ -77,7 +77,7 @@ class RecordsConvertersTest {
             assertThat(count).isEqualTo(100)
             assertThat(startTime).isEqualTo(Instant.ofEpochMilli(1234L))
             assertThat(startZoneOffset).isEqualTo(ZoneOffset.UTC)
-            assertThat(endTime).isEqualTo(Instant.ofEpochMilli(5678L))
+            assertThat(endTime).isEqualTo(Instant.ofEpochMilli(56780L))
             assertThat(endZoneOffset).isEqualTo(ZoneOffset.UTC)
             assertThat(metadata.id).isEqualTo("someId")
         }
@@ -258,7 +258,7 @@ class RecordsConvertersTest {
                         }
                         .build(),
                     Instant.ofEpochMilli(5678L),
-                    Instant.ofEpochMilli(9012L),
+                    Instant.ofEpochMilli(90120L),
                     200)
                 .build()
 
@@ -267,7 +267,7 @@ class RecordsConvertersTest {
         with(sdkSteps) {
             assertThat(count).isEqualTo(200)
             assertThat(startTime).isEqualTo(Instant.ofEpochMilli(5678L))
-            assertThat(endTime).isEqualTo(Instant.ofEpochMilli(9012L))
+            assertThat(endTime).isEqualTo(Instant.ofEpochMilli(90120L))
 
             with(metadata) {
                 assertThat(device).isEqualTo(Device(type = Device.TYPE_WATCH))
