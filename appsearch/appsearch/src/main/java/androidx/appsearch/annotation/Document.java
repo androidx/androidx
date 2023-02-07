@@ -215,6 +215,28 @@ public @interface Document {
                 default AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
 
         /**
+         * Configures how a property should be processed so that the document can be joined.
+         *
+         * <p>Properties configured with
+         * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID} enable
+         * the documents to be joined with other documents that have the same qualified ID as the
+         * value of this field. (A qualified ID is a compact representation of the tuple <package
+         * name, database name, namespace, document ID> that uniquely identifies a document
+         * indexed in the AppSearch storage backend.) This property name can be specified as the
+         * child property expression in {@link androidx.appsearch.app.JoinSpec.Builder(String)} for
+         * join operations.
+         *
+         * <p>This attribute doesn't apply to properties of a repeated type (e.g., a list).
+         *
+         * <p>If not specified, defaults to
+         * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_NONE}, which means the
+         * property can not be used in a child property expression to configure a
+         * {@link androidx.appsearch.app.JoinSpec.Builder(String)}.
+         */
+        @AppSearchSchema.StringPropertyConfig.JoinableValueType int joinableValueType()
+                default AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).

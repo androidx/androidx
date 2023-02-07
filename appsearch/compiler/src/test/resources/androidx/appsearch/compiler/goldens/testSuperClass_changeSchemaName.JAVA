@@ -24,11 +24,13 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("sender")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .build();
   }
