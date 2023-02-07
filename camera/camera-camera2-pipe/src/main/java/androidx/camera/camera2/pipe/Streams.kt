@@ -66,12 +66,12 @@ import androidx.camera.camera2.pipe.compat.Api33Compat
  *                 \-> OutputConfig-2 -> OutputStream-2
  *   ```
  */
-public class CameraStream
-internal constructor(public val id: StreamId, public val outputs: List<OutputStream>) {
+class CameraStream
+internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
     override fun toString(): String = id.toString()
 
     /** Configuration that may be used to define a [CameraStream] on a [CameraGraph] */
-    public class Config internal constructor(val outputs: List<OutputStream.Config>) {
+    class Config internal constructor(val outputs: List<OutputStream.Config>) {
         companion object {
             /** Create a simple [CameraStream] to [OutputStream] configuration */
             fun create(
@@ -117,7 +117,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
  * This identifies a single surface that is used to tell the camera to produce one or more outputs.
  */
 @JvmInline
-public value class StreamId(public val value: Int) {
+value class StreamId(val value: Int) {
     override fun toString(): String = "Stream-$value"
 }
 
@@ -127,18 +127,18 @@ public value class StreamId(public val value: Int) {
  * the underlying HAL on the device may produce different sized images for the same request. This
  * represents one of those potential outputs.
  */
-public interface OutputStream {
+interface OutputStream {
     // Every output comes from one, and exactly one, CameraStream
-    public val stream: CameraStream
+    val stream: CameraStream
 
-    public val id: OutputId
-    public val size: Size
-    public val format: StreamFormat
-    public val camera: CameraId
-    public val mirrorMode: MirrorMode?
-    public val timestampBase: TimestampBase?
-    public val dynamicRangeProfile: DynamicRangeProfile?
-    public val streamUseCase: StreamUseCase?
+    val id: OutputId
+    val size: Size
+    val format: StreamFormat
+    val camera: CameraId
+    val mirrorMode: MirrorMode?
+    val timestampBase: TimestampBase?
+    val dynamicRangeProfile: DynamicRangeProfile?
+    val streamUseCase: StreamUseCase?
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
@@ -146,13 +146,13 @@ public interface OutputStream {
      * Camera.
      */
     sealed class Config(
-        public val size: Size,
-        public val format: StreamFormat,
-        public val camera: CameraId?,
-        public val mirrorMode: MirrorMode?,
-        public val timestampBase: TimestampBase?,
-        public val dynamicRangeProfile: DynamicRangeProfile?,
-        public val streamUseCase: StreamUseCase?,
+        val size: Size,
+        val format: StreamFormat,
+        val camera: CameraId?,
+        val mirrorMode: MirrorMode?,
+        val timestampBase: TimestampBase?,
+        val dynamicRangeProfile: DynamicRangeProfile?,
+        val streamUseCase: StreamUseCase?,
     ) {
         companion object {
             fun create(
@@ -371,21 +371,21 @@ public interface OutputStream {
 
 /** This identifies a single output. */
 @JvmInline
-public value class OutputId(public val value: Int) {
+value class OutputId(val value: Int) {
     override fun toString(): String = "Output-$value"
 }
 
 /** Configuration for defining the properties of a Camera2 InputStream for reprocessing requests. */
-public interface InputStream {
-    public val id: InputId
-    public val format: StreamFormat
+interface InputStream {
+    val id: InputId
+    val format: StreamFormat
     // TODO: This may accept
 
-    public class Config(val stream: CameraStream.Config)
+    class Config(val stream: CameraStream.Config)
 }
 
 /** This identifies a single input. */
 @JvmInline
-public value class InputId(public val value: Int) {
+value class InputId(val value: Int) {
     override fun toString(): String = "Input-$value"
 }
