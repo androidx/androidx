@@ -51,6 +51,8 @@ internal class ItemGroup(
         if (contentIndex == 0 && emptyPlaceholderItem != null) return emptyPlaceholderItem
         return PlaceholderEmoji
     }
+
+    fun getAll(): List<ItemViewData> = IntRange(0, size - 1).map { get(it) }
 }
 
 /**
@@ -58,7 +60,7 @@ internal class ItemGroup(
  */
 internal class EmojiPickerItems(
     private val groups: List<ItemGroup>,
-) {
+) : Iterable<ItemViewData> {
     val size: Int get() = groups.sumOf { it.size }
 
     init {
@@ -103,4 +105,6 @@ internal class EmojiPickerItems(
         val index = groups.indexOf(group)
         return firstItemPositionByGroupIndex(index).let { it until it + group.size }
     }
+
+    override fun iterator(): Iterator<ItemViewData> = groups.flatMap { it.getAll() }.iterator()
 }

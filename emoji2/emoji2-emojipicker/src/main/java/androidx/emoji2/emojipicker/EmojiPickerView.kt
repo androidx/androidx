@@ -132,7 +132,7 @@ class EmojiPickerView @JvmOverloads constructor(
         }
         scope.launch(Dispatchers.IO) {
             val load = launch { BundledEmojiListLoader.load(context) }
-            refreshRecentItems()
+            refreshRecent()
             load.join()
 
             withContext(Dispatchers.Main) {
@@ -153,7 +153,6 @@ class EmojiPickerView @JvmOverloads constructor(
 
                 scope.launch {
                     recentEmojiProvider.recordSelection(emojiViewItem.emoji)
-                    refreshRecentItems()
                 }
             }
         )
@@ -203,10 +202,14 @@ class EmojiPickerView @JvmOverloads constructor(
 
         val headerAdapter =
             EmojiPickerHeaderAdapter(context, emojiPickerItems, onHeaderIconClicked = {
-                bodyLayoutManager.scrollToPositionWithOffset(
-                    emojiPickerItems.firstItemPositionByGroupIndex(it),
-                    0
-                )
+                with(emojiPickerItems.firstItemPositionByGroupIndex(it)) {
+                    if (this == emojiPickerItems.groupRange(recentItemGroup).first) {
+                        scope.launch {
+                            refreshRecent()
+                        }
+                    }
+                    bodyLayoutManager.scrollToPositionWithOffset(this, 0)
+                }
             })
 
         // clear view's children in case of resetting layout
@@ -242,6 +245,11 @@ class EmojiPickerView @JvmOverloads constructor(
                             bodyLayoutManager.findFirstCompletelyVisibleItemPosition()
                         headerAdapter.selectedGroupIndex =
                             emojiPickerItems.groupIndexByItemPosition(position)
+                        if (position !in emojiPickerItems.groupRange(recentItemGroup)) {
+                            scope.launch {
+                                refreshRecent()
+                            }
+                        }
                     }
                 })
                 // Disable item insertion/deletion animation. This keeps view holder unchanged when
@@ -257,7 +265,7 @@ class EmojiPickerView @JvmOverloads constructor(
         }
     }
 
-    private suspend fun refreshRecentItems() {
+    internal suspend fun refreshRecent() {
         val recent = recentEmojiProvider.getRecentEmojiList()
         recentItems.clear()
         recentItems.addAll(recent.map {
@@ -266,6 +274,12 @@ class EmojiPickerView @JvmOverloads constructor(
                 updateToSticky = false,
             )
         })
+        if (isLaidOut) {
+            val range = emojiPickerItems.groupRange(recentItemGroup)
+            withContext(Dispatchers.Main) {
+                bodyAdapter.notifyItemRangeChanged(range.first, range.last + 1)
+            }
+        }
     }
 
     /**
@@ -278,15 +292,8 @@ class EmojiPickerView @JvmOverloads constructor(
 
     fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
         this.recentEmojiProvider = recentEmojiProvider
-
         scope.launch {
-            refreshRecentItems()
-            if (::emojiPickerItems.isInitialized) {
-                val range = emojiPickerItems.groupRange(recentItemGroup)
-                withContext(Dispatchers.Main) {
-                    bodyAdapter.notifyItemRangeChanged(range.first, range.last + 1)
-                }
-            }
+            refreshRecent()
         }
     }
 
