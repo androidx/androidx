@@ -47,6 +47,7 @@ fun collectBaselineProfile(
     val scope = buildMacrobenchmarkScope(packageName)
     val startTime = System.nanoTime()
     val killProcessBlock = scope.killProcessBlock()
+    val finalIterations = if (Arguments.dryRunMode) 1 else iterations
 
     // always kill the process at beginning of a collection.
     killProcessBlock.invoke()
@@ -56,9 +57,10 @@ fun collectBaselineProfile(
             // Disable because we're *creating* a baseline profile, not using it yet
             CompilationMode.Partial(
                 baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = iterations
+                warmupIterations = finalIterations
             ).resetAndCompile(
                 packageName = packageName,
+                allowCompilationSkipping = false,
                 killProcessBlock = killProcessBlock
             ) {
                 scope.iteration = iteration++
@@ -115,8 +117,9 @@ fun collectStableBaselineProfile(
         var stableCount = 1
         var lastProfile: String? = null
         var iteration = 1
+        val finalMaxIterations = if (Arguments.dryRunMode) 1 else maxIterations
 
-        while (iteration <= maxIterations) {
+        while (iteration <= finalMaxIterations) {
             userspaceTrace("generate profile for $packageName ($iteration)") {
                 val mode = CompilationMode.Partial(
                     baselineProfileMode = BaselineProfileMode.Disable,
@@ -126,6 +129,7 @@ fun collectStableBaselineProfile(
                     Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
                     mode.resetAndCompile(
                         packageName = packageName,
+                        allowCompilationSkipping = false,
                         killProcessBlock = killProcessBlock
                     ) {
                         scope.iteration = iteration
@@ -172,7 +176,7 @@ fun collectStableBaselineProfile(
             iteration += 1
         }
 
-        if (strictStability) {
+        if (strictStability && !Arguments.dryRunMode) {
             check(stableCount == stableIterations) {
                 "Baseline profiles for $packageName are not stable after $maxIterations."
             }

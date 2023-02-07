@@ -74,11 +74,12 @@ import org.junit.AssumptionViolatedException
 sealed class CompilationMode {
     internal fun resetAndCompile(
         packageName: String,
+        allowCompilationSkipping: Boolean = true,
         killProcessBlock: () -> Unit,
         warmupBlock: () -> Unit
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
-            if (Arguments.enableCompilation) {
+            if (Arguments.enableCompilation || !allowCompilationSkipping) {
                 Log.d(TAG, "Resetting $packageName")
                 // The compilation mode chooses whether a reset is required or not.
                 // Currently the only compilation mode that does not perform a reset is
