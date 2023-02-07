@@ -16,6 +16,10 @@
 
 package com.example.androidx.mediarouting.activities;
 
+import static com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItem.FLAG_ONGOING_SESSION;
+import static com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItem.FLAG_ONGOING_SESSION_MANAGED;
+import static com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItem.FLAG_SUGGESTED;
+
 import android.annotation.SuppressLint;
 import android.media.MediaRoute2Info;
 import android.media.MediaRouter2;
@@ -25,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -131,13 +136,29 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
 
         Spinner routeSpinner = dialogView.findViewById(R.id.rlp_item_dialog_route_name_spinner);
         List<RoutesManager.RouteListingPreferenceItem> spinnerEntries = new ArrayList<>();
+
+        CheckBox ongoingSessionCheckBox =
+                dialogView.findViewById(R.id.rlp_item_dialog_ongoing_session_checkbox);
+        CheckBox sessionManagedCheckBox =
+                dialogView.findViewById(R.id.rlp_item_dialog_session_managed_checkbox);
+        CheckBox suggestedRouteCheckBox =
+                dialogView.findViewById(R.id.rlp_item_dialog_suggested_checkbox);
+
         if (itemPositionInList < routeListingPreference.size()) {
-            spinnerEntries.add(routeListingPreference.get(itemPositionInList));
+            RoutesManager.RouteListingPreferenceItem itemToEdit =
+                    routeListingPreference.get(itemPositionInList);
+            spinnerEntries.add(itemToEdit);
+            ongoingSessionCheckBox.setChecked((itemToEdit.mFlags & FLAG_ONGOING_SESSION) != 0);
+            sessionManagedCheckBox.setChecked(
+                    (itemToEdit.mFlags & FLAG_ONGOING_SESSION_MANAGED) != 0);
+            suggestedRouteCheckBox.setChecked((itemToEdit.mFlags & FLAG_SUGGESTED) != 0);
         }
         for (MediaRoute2Info mediaRoute2Info : routesWithNoAssociatedListingPreferenceItem) {
             spinnerEntries.add(
                     new RoutesManager.RouteListingPreferenceItem(
-                            mediaRoute2Info.getId(), String.valueOf(mediaRoute2Info.getName())));
+                            mediaRoute2Info.getId(),
+                            String.valueOf(mediaRoute2Info.getName()),
+                            /* flags= */ 0));
         }
         routeSpinner.setAdapter(
                 new ArrayAdapter<>(
@@ -148,26 +169,41 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                         .setView(dialogView)
                         .setPositiveButton(
                                 "Accept",
-                                (unusedDialog, unusedWhich) ->
-                                        onEditRlpItemDialogAccepted(
-                                                routeSpinner, itemPositionInList))
+                                (unusedDialog, unusedWhich) -> {
+                                    RoutesManager.RouteListingPreferenceItem item =
+                                            (RoutesManager.RouteListingPreferenceItem)
+                                                    routeSpinner.getSelectedItem();
+                                    int flags = 0;
+                                    flags |=
+                                            ongoingSessionCheckBox.isChecked()
+                                                    ? FLAG_ONGOING_SESSION
+                                                    : 0;
+                                    flags |=
+                                            sessionManagedCheckBox.isChecked()
+                                                    ? FLAG_ONGOING_SESSION_MANAGED
+                                                    : 0;
+                                    flags |=
+                                            suggestedRouteCheckBox.isChecked() ? FLAG_SUGGESTED : 0;
+                                    onEditRlpItemDialogAccepted(
+                                            item.copyWithFlags(flags), itemPositionInList);
+                                })
                         .setNegativeButton("Dismiss", (unusedDialog, unusedWhich) -> {})
                         .create();
 
         editRlpItemDialog.show();
     }
 
-    private void onEditRlpItemDialogAccepted(Spinner routeSpinner, int itemPositionInList) {
+    private void onEditRlpItemDialogAccepted(
+            RoutesManager.RouteListingPreferenceItem routeListingPreferenceItem,
+            int itemPositionInList) {
         ArrayList<RoutesManager.RouteListingPreferenceItem> newRouteListingPreference =
                 new ArrayList<>(mRoutesManager.getRouteListingPreferenceItems());
-        RoutesManager.RouteListingPreferenceItem selectedItem =
-                (RoutesManager.RouteListingPreferenceItem) routeSpinner.getSelectedItem();
         RecyclerView.Adapter<?> adapter = mRouteListingPreferenceRecyclerView.getAdapter();
         if (itemPositionInList < newRouteListingPreference.size()) {
-            newRouteListingPreference.set(itemPositionInList, selectedItem);
+            newRouteListingPreference.set(itemPositionInList, routeListingPreferenceItem);
             adapter.notifyItemChanged(itemPositionInList);
         } else {
-            newRouteListingPreference.add(selectedItem);
+            newRouteListingPreference.add(routeListingPreferenceItem);
             adapter.notifyItemInserted(itemPositionInList);
         }
         mRoutesManager.setRouteListingPreferenceItems(newRouteListingPreference);

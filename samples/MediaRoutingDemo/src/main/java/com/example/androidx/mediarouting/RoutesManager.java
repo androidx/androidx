@@ -29,6 +29,7 @@ import android.content.res.Resources;
 import android.media.MediaRouter2;
 import android.media.RouteListingPreference;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -39,6 +40,8 @@ import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.androidx.mediarouting.data.RouteItem;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -151,11 +154,7 @@ public final class RoutesManager {
     public void setRouteListingPreferenceEnabled(boolean routeListingPreferenceEnabled) {
         if (BuildCompat.isAtLeastU()) {
             mRouteListingPreferenceEnabled = routeListingPreferenceEnabled;
-            Api34Impl.updatePlatformRouteListingPreference(
-                    mPlatformMediaRouter2,
-                    mRouteListingPreferenceEnabled,
-                    mRouteListingSystemOrderingPreferred,
-                    mRouteListingPreferenceItems);
+            updatePlatformListingPreference();
         } else {
             throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
         }
@@ -178,11 +177,7 @@ public final class RoutesManager {
             boolean routeListingSystemOrderringPreferred) {
         if (BuildCompat.isAtLeastU()) {
             mRouteListingSystemOrderingPreferred = routeListingSystemOrderringPreferred;
-            Api34Impl.updatePlatformRouteListingPreference(
-                    mPlatformMediaRouter2,
-                    mRouteListingPreferenceEnabled,
-                    mRouteListingSystemOrderingPreferred,
-                    mRouteListingPreferenceItems);
+            updatePlatformListingPreference();
         } else {
             throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
         }
@@ -209,11 +204,7 @@ public final class RoutesManager {
         if (BuildCompat.isAtLeastU()) {
             mRouteListingPreferenceItems =
                     Collections.unmodifiableList(new ArrayList<>(preference));
-            Api34Impl.updatePlatformRouteListingPreference(
-                    mPlatformMediaRouter2,
-                    mRouteListingPreferenceEnabled,
-                    mRouteListingSystemOrderingPreferred,
-                    mRouteListingPreferenceItems);
+            updatePlatformListingPreference();
         } else {
             throw new UnsupportedOperationException("RouteListingPreference requires Android U+.");
         }
@@ -303,6 +294,15 @@ public final class RoutesManager {
         mRouteItems.put(r4.getId(), r4);
     }
 
+    @RequiresApi(api = 34)
+    private void updatePlatformListingPreference() {
+        Api34Impl.updatePlatformRouteListingPreference(
+                mPlatformMediaRouter2,
+                mRouteListingPreferenceEnabled,
+                mRouteListingSystemOrderingPreferred,
+                mRouteListingPreferenceItems);
+    }
+
     public enum DialogType {
         DEFAULT,
         DYNAMIC_GROUP,
@@ -312,13 +312,37 @@ public final class RoutesManager {
     /** An item corresponding to a route in the route listing preference of this app. */
     public static final class RouteListingPreferenceItem {
 
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef(
+                flag = true,
+                value = {FLAG_ONGOING_SESSION, FLAG_ONGOING_SESSION_MANAGED, FLAG_SUGGESTED})
+        public @interface Flags {}
+
+        // TODO(b/266561322): Replace literals with constant references. We need to use their values
+        // directly because AndroidX still depends on an old SDK, where the new one has changed the
+        // values of the flags.
+        public static final int FLAG_ONGOING_SESSION = 1;
+
+        public static final int FLAG_ONGOING_SESSION_MANAGED = 1 << 1;
+
+        public static final int FLAG_SUGGESTED = 1 << 2;
+
         @NonNull public final String mRouteId;
         @NonNull public final String mRouteName;
-        // TODO(b/266561322): Add flags, disable reason, and others.
+        public final int mFlags;
+        // TODO(b/266561322): Add subtext, deep-link-to-app, and others.
 
-        public RouteListingPreferenceItem(@NonNull String routeId, @NonNull String routeName) {
+        public RouteListingPreferenceItem(
+                @NonNull String routeId, @NonNull String routeName, int flags) {
             mRouteId = routeId;
             mRouteName = routeName;
+            mFlags = flags;
+        }
+
+        /** Returns a copy of this instance with the provided {@link #mFlags}. */
+        @NonNull
+        public RouteListingPreferenceItem copyWithFlags(@Flags int flags) {
+            return new RouteListingPreferenceItem(mRouteId, mRouteName, flags);
         }
 
         /** Returns the name of the corresponding route. */
@@ -345,9 +369,9 @@ public final class RoutesManager {
                                 .map(
                                         it ->
                                                 new RouteListingPreference.Item.Builder(it.mRouteId)
+                                                        .setFlags(it.mFlags)
                                                         .build())
                                 .collect(Collectors.toList());
-                // TODO(b/266561322): Make setUseSystemOrdering configurable.
                 RouteListingPreference routeListingPreference =
                         new RouteListingPreference.Builder()
                                 .setUseSystemOrdering(routeListingSystemOrderingPreferred)
