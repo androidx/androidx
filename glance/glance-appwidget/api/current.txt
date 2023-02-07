@@ -10,18 +10,6 @@ package androidx.glance.appwidget {
     method public static androidx.glance.GlanceModifier appWidgetBackground(androidx.glance.GlanceModifier);
   }
 
-  public final class AppWidgetModifiersKt {
-  }
-
-  public final class AppWidgetSessionKt {
-  }
-
-  public final class AppWidgetUtilsKt {
-  }
-
-  public final class ApplyModifiersKt {
-  }
-
   public final class BackgroundKt {
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long day, long night);
   }
@@ -48,12 +36,6 @@ package androidx.glance.appwidget {
   public final class CornerRadiusKt {
     method public static androidx.glance.GlanceModifier cornerRadius(androidx.glance.GlanceModifier, float radius);
     method public static androidx.glance.GlanceModifier cornerRadius(androidx.glance.GlanceModifier, @DimenRes int radius);
-  }
-
-  public final class CoroutineBroadcastReceiverKt {
-  }
-
-  public final class GeneratedLayoutsKt {
   }
 
   public abstract class GlanceAppWidget {
@@ -86,9 +68,6 @@ package androidx.glance.appwidget {
     method public <T extends androidx.glance.appwidget.GlanceAppWidgetReceiver> boolean requestPinGlanceAppWidget(Class<T> receiver, optional androidx.glance.appwidget.GlanceAppWidget? preview, optional Object? previewState, optional android.app.PendingIntent? successCallback);
   }
 
-  public final class GlanceAppWidgetManagerKt {
-  }
-
   public abstract class GlanceAppWidgetReceiver extends android.appwidget.AppWidgetProvider {
     ctor public GlanceAppWidgetReceiver();
     method public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
@@ -100,28 +79,13 @@ package androidx.glance.appwidget {
   public static final class GlanceAppWidgetReceiver.Companion {
   }
 
-  public final class GlanceAppWidgetReceiverKt {
-  }
-
-  public final class GlanceRemoteViewsKt {
-  }
-
-  public final class IgnoreResultKt {
-  }
-
   public final class ImageProvidersKt {
     method public static androidx.glance.ImageProvider ImageProvider(android.net.Uri uri);
-  }
-
-  public final class LayoutSelectionKt {
   }
 
   public final class LinearProgressIndicatorKt {
     method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(float progress, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider color, optional androidx.glance.unit.ColorProvider backgroundColor);
     method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider color, optional androidx.glance.unit.ColorProvider backgroundColor);
-  }
-
-  public final class NormalizeCompositionTreeKt {
   }
 
   public final class ProgressIndicatorDefaults {
@@ -141,12 +105,6 @@ package androidx.glance.appwidget {
     method public static androidx.glance.appwidget.RadioButtonColors radioButtonColors(long checkedColor, long uncheckedColor);
     method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.RadioButtonColors radioButtonColors();
     method public static androidx.glance.GlanceModifier selectableGroup(androidx.glance.GlanceModifier);
-  }
-
-  public final class RemoteViewsTranslatorKt {
-  }
-
-  public final class SizeBoxKt {
   }
 
   public sealed interface SizeMode {
@@ -175,24 +133,12 @@ package androidx.glance.appwidget {
     method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.SwitchColors switchColors();
   }
 
-  public final class UtilsKt {
-  }
-
-  public final class WidgetLayoutKt {
-  }
-
 }
 
 package androidx.glance.appwidget.action {
 
   public interface ActionCallback {
     method public suspend Object? onAction(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-  public final class ActionTrampolineKt {
-  }
-
-  public final class ApplyActionKt {
   }
 
   public final class RunCallbackActionKt {
@@ -310,9 +256,6 @@ package androidx.glance.appwidget.template {
     method @androidx.compose.runtime.Composable public static void GalleryTemplate(androidx.glance.template.GalleryTemplateData data);
   }
 
-  public final class GlanceAppWidgetTemplatesKt {
-  }
-
   public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
     ctor public GlanceTemplateAppWidget();
     method @androidx.compose.runtime.Composable public final void Content();
@@ -331,47 +274,6 @@ package androidx.glance.appwidget.template {
 
   public final class SingleEntityTemplateLayoutsKt {
     method @androidx.compose.runtime.Composable public static void SingleEntityTemplate(androidx.glance.template.SingleEntityTemplateData data);
-  }
-
-}
-
-package androidx.glance.appwidget.translators {
-
-  public final class CheckBoxTranslatorKt {
-  }
-
-  public final class CircularProgressIndicatorTranslatorKt {
-  }
-
-  public final class CompoundButtonTranslatorKt {
-  }
-
-  public final class ImageTranslatorKt {
-  }
-
-  public final class LazyListTranslatorKt {
-  }
-
-  public final class LazyVerticalGridTranslatorKt {
-  }
-
-  public final class LinearProgressIndicatorTranslatorKt {
-  }
-
-  public final class RadioButtonTranslatorKt {
-  }
-
-  public final class SwitchTranslatorKt {
-  }
-
-  public final class TextTranslatorKt {
-  }
-
-}
-
-package androidx.glance.appwidget.unit {
-
-  public final class ColorProviderKt {
   }
 
 }

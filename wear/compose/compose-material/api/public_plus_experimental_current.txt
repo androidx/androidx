@@ -1,9 +1,6 @@
 // Signature format: 4.0
 package androidx.wear.compose.material {
 
-  public final class AnimationKt {
-  }
-
   @Deprecated @androidx.compose.runtime.Immutable public final class AutoCenteringParams {
     ctor @Deprecated public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
   }
@@ -188,9 +185,6 @@ package androidx.wear.compose.material {
     method @Deprecated public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
-  public final class DefaultTimeSourceKt {
-  }
-
   @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterialApi {
   }
 
@@ -233,9 +227,6 @@ package androidx.wear.compose.material {
 
   public final class ListHeaderKt {
     method @androidx.compose.runtime.Composable public static void ListHeader(optional androidx.compose.ui.Modifier modifier, optional long backgroundColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
-  }
-
-  public final class MaterialTextSelectionColorsKt {
   }
 
   public final class MaterialTheme {
@@ -451,9 +442,6 @@ package androidx.wear.compose.material {
     field public static final androidx.wear.compose.material.RadioButtonDefaults INSTANCE;
   }
 
-  public final class RangeDefaultsKt {
-  }
-
   @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class ResistanceConfig {
     ctor public ResistanceConfig(float basis, optional float factorAtMin, optional float factorAtMax);
     method public float computeResistance(float overflow);
@@ -463,9 +451,6 @@ package androidx.wear.compose.material {
     property public final float basis;
     property public final float factorAtMax;
     property public final float factorAtMin;
-  }
-
-  public final class Resources_androidKt {
   }
 
   public final class ScaffoldKt {
@@ -484,9 +469,6 @@ package androidx.wear.compose.material {
     method @Deprecated public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method @Deprecated public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
     method @Deprecated public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-  }
-
-  public final class ScalingLazyColumnMeasureKt {
   }
 
   @Deprecated @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScalingLazyListAnchorType {
@@ -620,9 +602,6 @@ package androidx.wear.compose.material {
     property public final androidx.compose.foundation.shape.CornerBasedShape large;
     property public final androidx.compose.foundation.shape.CornerBasedShape medium;
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
-  }
-
-  public final class ShapesKt {
   }
 
   public final class SliderKt {
@@ -887,9 +866,6 @@ package androidx.wear.compose.material {
     property public final androidx.compose.ui.text.TextStyle title1;
     property public final androidx.compose.ui.text.TextStyle title2;
     property public final androidx.compose.ui.text.TextStyle title3;
-  }
-
-  public final class TypographyKt {
   }
 
   public final class VignetteKt {

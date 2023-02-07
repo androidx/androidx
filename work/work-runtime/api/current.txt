@@ -62,9 +62,6 @@ package androidx.work {
     property public abstract androidx.work.Configuration workManagerConfiguration;
   }
 
-  public final class ConfigurationKt {
-  }
-
   public final class Constraints {
     ctor public Constraints(optional @androidx.room.ColumnInfo(name="required_network_type") androidx.work.NetworkType requiredNetworkType, optional @androidx.room.ColumnInfo(name="requires_charging") boolean requiresCharging, optional @androidx.room.ColumnInfo(name="requires_device_idle") boolean requiresDeviceIdle, optional @androidx.room.ColumnInfo(name="requires_battery_not_low") boolean requiresBatteryNotLow, optional @androidx.room.ColumnInfo(name="requires_storage_not_low") boolean requiresStorageNotLow, optional @androidx.room.ColumnInfo(name="trigger_content_update_delay") long contentTriggerUpdateDelayMillis, optional @androidx.room.ColumnInfo(name="trigger_max_content_delay") long contentTriggerMaxDelayMillis, optional @androidx.room.ColumnInfo(name="content_uri_triggers") java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
     ctor public Constraints(androidx.work.Constraints other);
@@ -108,9 +105,6 @@ package androidx.work {
     method public boolean isTriggeredForDescendants();
     property public final boolean isTriggeredForDescendants;
     property public final android.net.Uri uri;
-  }
-
-  public final class ConstraintsKt {
   }
 
   public final class Data {
@@ -202,9 +196,6 @@ package androidx.work {
   public abstract class InputMergerFactory {
     ctor public InputMergerFactory();
     method public abstract androidx.work.InputMerger? createInputMerger(String className);
-  }
-
-  public final class InputMergerKt {
   }
 
   public abstract class ListenableWorker {

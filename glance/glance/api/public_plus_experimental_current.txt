@@ -423,9 +423,6 @@ package androidx.glance.semantics {
 
 package androidx.glance.session {
 
-  public final class SessionKt {
-  }
-
   public final class SessionManagerKt {
   }
 

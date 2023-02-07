@@ -542,9 +542,6 @@ package androidx.constraintlayout.compose {
     method public boolean hasItemsWithProperties();
   }
 
-  public final class MotionKt {
-  }
-
   public enum MotionLayoutDebugFlags {
     method public static androidx.constraintlayout.compose.MotionLayoutDebugFlags valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.constraintlayout.compose.MotionLayoutDebugFlags[] values();
@@ -721,13 +718,6 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.Wrap Aligned;
     property public final androidx.constraintlayout.compose.Wrap Chain;
     property public final androidx.constraintlayout.compose.Wrap None;
-  }
-
-}
-
-package androidx.constraintlayout.compose.carousel {
-
-  public final class CarouselSwipeableKt {
   }
 
 }

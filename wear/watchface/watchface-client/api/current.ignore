@@ -21,3 +21,7 @@ ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getPrev
     Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getPreviewReferenceInstant added thrown exception android.os.RemoteException
 ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getUserStyleSchema():
     Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getUserStyleSchema added thrown exception android.os.RemoteException
+
+
+RemovedClass: androidx.wear.watchface.client.WatchFaceExceptionKt:
+    Removed class androidx.wear.watchface.client.WatchFaceExceptionKt

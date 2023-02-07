@@ -82,9 +82,6 @@ package androidx.paging {
     property public final androidx.paging.LoadState loadState;
   }
 
-  public final class NullPaddedListDiffHelperKt {
-  }
-
   @Deprecated public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
     ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
