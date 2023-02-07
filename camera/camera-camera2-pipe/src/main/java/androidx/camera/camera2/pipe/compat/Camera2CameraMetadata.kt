@@ -172,9 +172,11 @@ constructor(
             } else {
                 try {
                     Debug.trace("Camera-${camera.value}#physicalCameraIds") {
+                        val ids = Api28Compat.getPhysicalCameraIds(characteristics)
+                        Log.info { "Loaded physicalCameraIds from $camera: $ids" }
+
                         @Suppress("UselessCallOnNotNull")
-                        Api28Compat.getPhysicalCameraIds(characteristics)
-                            .orEmpty()
+                        ids.orEmpty()
                             .map { CameraId(it) }
                             .toSet()
                     }
