@@ -335,9 +335,6 @@ package androidx.wear.compose.material {
     property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> Saver;
   }
 
-  public final class PlaceholderKt {
-  }
-
   @kotlin.jvm.JvmInline public final value class PositionIndicatorAlignment {
     field public static final androidx.wear.compose.material.PositionIndicatorAlignment.Companion Companion;
   }
@@ -622,9 +619,6 @@ package androidx.wear.compose.material {
     method public static androidx.wear.compose.material.SwipeToDismissValue[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Default;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
-  }
-
-  public final class SwipeableKt {
   }
 
   @androidx.compose.runtime.Stable public interface SwitchColors {

@@ -9,9 +9,6 @@ package androidx.tv.foundation {
     property public final float parentFraction;
   }
 
-  public final class ScrollableWithPivotKt {
-  }
-
 }
 
 package androidx.tv.foundation.lazy.grid {

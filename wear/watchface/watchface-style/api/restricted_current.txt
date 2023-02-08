@@ -296,9 +296,6 @@ package androidx.wear.watchface.style {
     property public final android.graphics.drawable.Icon? icon;
   }
 
-  public final class UserStyleSettingKt {
-  }
-
   public enum WatchFaceLayer {
     method public static androidx.wear.watchface.style.WatchFaceLayer valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.wear.watchface.style.WatchFaceLayer[] values();

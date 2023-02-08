@@ -196,9 +196,6 @@ package androidx.wear.compose.foundation.lazy {
     method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
-  public final class ScalingLazyColumnMeasureKt {
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScalingLazyListAnchorType {
     field public static final androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType.Companion Companion;
   }

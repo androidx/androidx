@@ -72,9 +72,6 @@ package androidx.wear.watchface.client {
     property public final boolean hasLowBitAmbient;
   }
 
-  public final class DeviceConfigKt {
-  }
-
   public final class DisconnectReasons {
     field public static final int ENGINE_DETACHED = 2; // 0x2
     field public static final int ENGINE_DIED = 1; // 0x1
@@ -102,9 +99,6 @@ package androidx.wear.watchface.client {
     property public final boolean shouldCommitChanges;
     property public final androidx.wear.watchface.style.UserStyleData userStyle;
     property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
-  }
-
-  public final class EditorStateKt {
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
