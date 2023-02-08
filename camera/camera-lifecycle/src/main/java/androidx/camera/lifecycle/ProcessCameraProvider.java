@@ -46,6 +46,9 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.concurrent.ConcurrentCamera;
+import androidx.camera.core.concurrent.ConcurrentCameraConfig;
+import androidx.camera.core.concurrent.SingleCameraConfig;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
@@ -387,6 +390,51 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         return bindToLifecycle(lifecycleOwner, cameraSelector,
                 useCaseGroup.getViewPort(), useCaseGroup.getEffects(),
                 useCaseGroup.getUseCases().toArray(new UseCase[0]));
+    }
+
+    /**
+     * Binds a {@link ConcurrentCameraConfig} to {@link LifecycleOwner}.
+     *
+     * <p>The concurrent camera is only supporting two cameras currently. If the input
+     * {@link ConcurrentCameraConfig} has less or more than two {@link SingleCameraConfig},
+     * {@link IllegalArgumentException} will be thrown.
+     *
+     * @param concurrentCameraConfig input configuration for concurrent camera.
+     * @return output concurrent camera instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @SuppressWarnings({"lambdaLast"})
+    @MainThread
+    @NonNull
+    public ConcurrentCamera bindToLifecycle(
+            @NonNull ConcurrentCameraConfig concurrentCameraConfig) {
+        // TODO(b/268347532): enable concurrent mode in camera coordinator
+        if (concurrentCameraConfig.getSingleCameraConfigs().size() < 2) {
+            throw new IllegalArgumentException("Concurrent camera needs two camera configs");
+        }
+
+        if (concurrentCameraConfig.getSingleCameraConfigs().size() > 2) {
+            throw new UnsupportedOperationException("Concurrent camera is only supporting two  "
+                    + "cameras at maximum.");
+        }
+
+        List<Camera> cameras = new ArrayList<>();
+        for (SingleCameraConfig config : concurrentCameraConfig.getSingleCameraConfigs()) {
+            Camera camera = bindToLifecycle(
+                    config.getLifecycleOwner(),
+                    config.getCameraSelector(),
+                    config.getUseCaseGroup().getViewPort(),
+                    config.getUseCaseGroup().getEffects(),
+                    config.getUseCaseGroup().getUseCases().toArray(new UseCase[0]));
+
+            cameras.add(camera);
+        }
+
+        return new ConcurrentCamera.Builder()
+                .setCameras(cameras)
+                .builder();
     }
 
     /**
