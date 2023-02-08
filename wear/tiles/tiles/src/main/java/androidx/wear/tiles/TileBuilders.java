@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.TimelineBuilders.Timeline;
 import androidx.wear.tiles.proto.TileProto;
-import androidx.wear.protolayout.proto.VersionProto.VersionInfo;
+import androidx.wear.protolayout.expression.proto.VersionProto.VersionInfo;
 
 /** Builders for the components of a tile that can be rendered by a tile renderer. */
 public final class TileBuilders {

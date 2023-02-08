@@ -22,7 +22,7 @@ message Tile {
   androidx.wear.protolayout.proto.Timeline timeline = 2;
 
   // The schema version that this tile was built with.
-  androidx.wear.protolayout.proto.VersionInfo schema_version = 3;
+  androidx.wear.protolayout.expression.proto.VersionInfo schema_version = 3;
 
   // How many milliseconds of elapsed time (**not** wall clock time) this tile
   // can be considered to be "fresh". The platform will attempt to refresh
