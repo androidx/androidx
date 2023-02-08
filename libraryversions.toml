@@ -1,5 +1,5 @@
 [versions]
-ACTIVITY = "1.8.0-alpha01"
+ACTIVITY = "1.8.0-alpha02"
 ADS_IDENTIFIER = "1.0.0-alpha05"
 ANNOTATION = "1.7.0-alpha01"
 ANNOTATION_KMP = "1.6.0-dev01"
