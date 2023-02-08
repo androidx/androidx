@@ -28,10 +28,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
-import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.RenderParameters.HighlightLayer
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -39,9 +39,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-/**
- * This fragment lets the user select a non-background complication to configure.
- */
+/** This fragment lets the user select a non-background complication to configure. */
 internal class ComplicationConfigFragment : Fragment() {
 
     override fun onCreateView(
@@ -49,10 +47,7 @@ internal class ComplicationConfigFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return ConfigView(
-            requireContext(),
-            activity as WatchFaceConfigActivity
-        ).apply {
+        return ConfigView(requireContext(), activity as WatchFaceConfigActivity).apply {
             isSwipeable = true
             addCallback(
                 object : SwipeDismissFrameLayout.Callback() {
@@ -77,7 +72,6 @@ internal class ComplicationConfigFragment : Fragment() {
 )
 internal class ConfigView(
     context: Context,
-
     private val watchFaceConfigActivity: WatchFaceConfigActivity
 ) : SwipeDismissFrameLayout(context) {
 
@@ -88,9 +82,10 @@ internal class ConfigView(
     private val complicationButtons =
         watchFaceConfigActivity.editorSession.complicationSlotsState.value.mapValues { entry ->
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
-            if (entry.value.fixedComplicationDataSource ||
-                !entry.value.isEnabled ||
-                entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
+            if (
+                entry.value.fixedComplicationDataSource ||
+                    !entry.value.isEnabled ||
+                    entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
             ) {
                 // Do not create a button for fixed complicationSlots, disabled complicationSlots,
                 // or background complicationSlots.
@@ -99,20 +94,22 @@ internal class ConfigView(
                 Button(context).apply {
                     // Make the button transparent unless tapped upon.
                     setBackgroundResource(
-                        TypedValue().apply {
-                            context.theme.resolveAttribute(
-                                android.R.attr.selectableItemBackground,
-                                this,
-                                true
-                            )
-                        }.resourceId
+                        TypedValue()
+                            .apply {
+                                context.theme.resolveAttribute(
+                                    android.R.attr.selectableItemBackground,
+                                    this,
+                                    true
+                                )
+                            }
+                            .resourceId
                     )
                     setOnClickListener { onComplicationButtonClicked(entry.key) }
                     setOnLongClickListener {
                         watchFaceConfigActivity.coroutineScope.launch {
                             val dataSourceInfo =
-                                watchFaceConfigActivity.editorSession
-                                    .complicationsDataSourceInfo.value[entry.key]
+                                watchFaceConfigActivity.editorSession.complicationsDataSourceInfo
+                                    .value[entry.key]
                             it.tooltipText =
                                 dataSourceInfo?.name ?: "Empty complication data source"
                         }
@@ -120,9 +117,7 @@ internal class ConfigView(
                         // default handler.
                         false
                     }
-                    entry.value.nameResourceId?.let {
-                        contentDescription = context.getString(it)
-                    }
+                    entry.value.nameResourceId?.let { contentDescription = context.getString(it) }
                     addView(this)
                 }
             }
@@ -147,12 +142,7 @@ internal class ConfigView(
             button?.width = rect.width()
             button?.height = rect.width()
             button?.layoutParams = LayoutParams(rect.width(), rect.height())
-            button?.layout(
-                rect.left,
-                rect.top,
-                rect.right,
-                rect.bottom
-            )
+            button?.layout(rect.left, rect.top, rect.right, rect.bottom)
         }
     }
 
@@ -172,25 +162,25 @@ internal class ConfigView(
 
     override fun onDraw(canvas: Canvas) {
         val editingSession = watchFaceConfigActivity.editorSession
-        val bitmap = editingSession.renderWatchFaceToBitmap(
-            RenderParameters(
-                DrawMode.INTERACTIVE,
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplicationSlots,
-                    Color.RED, // Red complication highlight.
-                    Color.argb(128, 0, 0, 0) // Darken everything else.
-                )
-            ),
-            editingSession.previewReferenceInstant,
-            previewComplicationData.value
-        )
+        val bitmap =
+            editingSession.renderWatchFaceToBitmap(
+                RenderParameters(
+                    DrawMode.INTERACTIVE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    HighlightLayer(
+                        RenderParameters.HighlightedElement.AllComplicationSlots,
+                        Color.RED, // Red complication highlight.
+                        Color.argb(128, 0, 0, 0) // Darken everything else.
+                    )
+                ),
+                editingSession.previewReferenceInstant,
+                previewComplicationData.value
+            )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }
 
     private fun updateUi(
-        @Suppress("UNUSED_PARAMETER")
-        chosenComplicationDataSource: ChosenComplicationDataSource?
+        @Suppress("UNUSED_PARAMETER") chosenComplicationDataSource: ChosenComplicationDataSource?
     ) {
         // The fragment can use the chosen complication to update the UI.
     }

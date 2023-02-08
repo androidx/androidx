@@ -82,29 +82,30 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             R.string.colors_style_setting,
             R.string.colors_style_setting_description,
             icon = null,
-            options = listOf(
-                UserStyleSetting.ListUserStyleSetting.ListOption(
-                    Option.Id(RED_STYLE),
-                    resources,
-                    R.string.colors_style_red,
-                    R.string.colors_style_red_screen_reader,
-                    Icon.createWithResource(this, R.drawable.red_style)
+            options =
+                listOf(
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        Option.Id(RED_STYLE),
+                        resources,
+                        R.string.colors_style_red,
+                        R.string.colors_style_red_screen_reader,
+                        Icon.createWithResource(this, R.drawable.red_style)
+                    ),
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        Option.Id(GREEN_STYLE),
+                        resources,
+                        R.string.colors_style_green,
+                        R.string.colors_style_green_screen_reader,
+                        Icon.createWithResource(this, R.drawable.green_style)
+                    ),
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        Option.Id(BLUE_STYLE),
+                        resources,
+                        R.string.colors_style_blue,
+                        R.string.colors_style_blue_screen_reader,
+                        Icon.createWithResource(this, R.drawable.blue_style)
+                    )
                 ),
-                UserStyleSetting.ListUserStyleSetting.ListOption(
-                    Option.Id(GREEN_STYLE),
-                    resources,
-                    R.string.colors_style_green,
-                    R.string.colors_style_green_screen_reader,
-                    Icon.createWithResource(this, R.drawable.green_style)
-                ),
-                UserStyleSetting.ListUserStyleSetting.ListOption(
-                    Option.Id(BLUE_STYLE),
-                    resources,
-                    R.string.colors_style_blue,
-                    R.string.colors_style_blue_screen_reader,
-                    Icon.createWithResource(this, R.drawable.blue_style)
-                )
-            ),
             listOf(
                 WatchFaceLayer.BASE,
                 WatchFaceLayer.COMPLICATIONS,
@@ -113,150 +114,166 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         )
     }
 
-    private val canvasComplicationFactory =
-        CanvasComplicationFactory { watchState, listener ->
-            CanvasComplicationDrawable(
-                watchFaceStyle.getDrawable(this@ExampleCanvasDigitalWatchFaceService)!!,
-                watchState,
-                listener
-            )
-        }
+    private val canvasComplicationFactory = CanvasComplicationFactory { watchState, listener ->
+        CanvasComplicationDrawable(
+            watchFaceStyle.getDrawable(this@ExampleCanvasDigitalWatchFaceService)!!,
+            watchState,
+            listener
+        )
+    }
 
-    private val leftComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        ComplicationID.LEFT.ordinal,
-        canvasComplicationFactory,
+    private val leftComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                ComplicationID.LEFT.ordinal,
+                canvasComplicationFactory,
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.GOAL_PROGRESS,
+                    ComplicationType.WEIGHTED_ELEMENTS,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
+                    ComplicationType.SHORT_TEXT
+                ),
+                ComplicationSlotBounds(
+                    createBoundsRect(
+                        LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                    )
+                )
+            )
+            .setNameResourceId(R.string.left_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name)
+            .build()
+
+    private val rightComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                ComplicationID.RIGHT.ordinal,
+                canvasComplicationFactory,
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.GOAL_PROGRESS,
+                    ComplicationType.WEIGHTED_ELEMENTS,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_DATE,
+                    ComplicationType.SHORT_TEXT
+                ),
+                ComplicationSlotBounds(
+                    createBoundsRect(
+                        RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                    )
+                )
+            )
+            .setNameResourceId(R.string.right_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name)
+            .build()
+
+    private val upperAndLowerComplicationTypes =
         listOf(
+            ComplicationType.LONG_TEXT,
             ComplicationType.RANGED_VALUE,
             ComplicationType.GOAL_PROGRESS,
             ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
-        ),
-        DefaultComplicationDataSourcePolicy(
-            SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
-            ComplicationType.SHORT_TEXT
-        ),
-        ComplicationSlotBounds(
-            createBoundsRect(
-                LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
-            )
         )
-    ).setNameResourceId(R.string.left_complication_screen_name)
-        .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name).build()
-
-    private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        ComplicationID.RIGHT.ordinal,
-        canvasComplicationFactory,
-        listOf(
-            ComplicationType.RANGED_VALUE,
-            ComplicationType.GOAL_PROGRESS,
-            ComplicationType.WEIGHTED_ELEMENTS,
-            ComplicationType.SHORT_TEXT,
-            ComplicationType.MONOCHROMATIC_IMAGE,
-            ComplicationType.SMALL_IMAGE
-        ),
-        DefaultComplicationDataSourcePolicy(
-            SystemDataSources.DATA_SOURCE_DATE,
-            ComplicationType.SHORT_TEXT
-        ),
-        ComplicationSlotBounds(
-            createBoundsRect(
-                RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
-            )
-        )
-    ).setNameResourceId(R.string.right_complication_screen_name)
-        .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name).build()
-
-    private val upperAndLowerComplicationTypes = listOf(
-        ComplicationType.LONG_TEXT,
-        ComplicationType.RANGED_VALUE,
-        ComplicationType.GOAL_PROGRESS,
-        ComplicationType.WEIGHTED_ELEMENTS,
-        ComplicationType.SHORT_TEXT,
-        ComplicationType.MONOCHROMATIC_IMAGE,
-        ComplicationType.SMALL_IMAGE
-    )
 
     // The upper and lower complicationSlots change shape depending on the complication's type.
-    private val upperComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        ComplicationID.UPPER.ordinal,
-        canvasComplicationFactory,
-        upperAndLowerComplicationTypes,
-        DefaultComplicationDataSourcePolicy(
-            SystemDataSources.DATA_SOURCE_WORLD_CLOCK,
-            ComplicationType.LONG_TEXT
-        ),
-        ComplicationSlotBounds(
-            ComplicationType.values().associateWith {
-                if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
-                    createBoundsRect(
-                        UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                        ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                    )
-                } else {
-                    createBoundsRect(
-                        UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                    )
-                }
-            },
-            ComplicationType.values().associateWith { RectF() }
-        )
-    ).setNameResourceId(R.string.upper_complication_screen_name)
-        .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name).build()
+    private val upperComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                ComplicationID.UPPER.ordinal,
+                canvasComplicationFactory,
+                upperAndLowerComplicationTypes,
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_WORLD_CLOCK,
+                    ComplicationType.LONG_TEXT
+                ),
+                ComplicationSlotBounds(
+                    ComplicationType.values().associateWith {
+                        if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
+                            createBoundsRect(
+                                UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                                ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                            )
+                        } else {
+                            createBoundsRect(
+                                UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                            )
+                        }
+                    },
+                    ComplicationType.values().associateWith { RectF() }
+                )
+            )
+            .setNameResourceId(R.string.upper_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name)
+            .build()
 
-    private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        ComplicationID.LOWER.ordinal,
-        canvasComplicationFactory,
-        upperAndLowerComplicationTypes,
-        DefaultComplicationDataSourcePolicy(
-            SystemDataSources.DATA_SOURCE_NEXT_EVENT,
-            ComplicationType.LONG_TEXT
-        ),
-        ComplicationSlotBounds(
-            ComplicationType.values().associateWith {
-                if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
-                    createBoundsRect(
-                        LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                        ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                    )
-                } else {
-                    createBoundsRect(
-                        LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                    )
-                }
-            },
-            ComplicationType.values().associateWith { RectF() }
-        )
-    ).setNameResourceId(R.string.lower_complication_screen_name)
-        .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name).build()
+    private val lowerComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                ComplicationID.LOWER.ordinal,
+                canvasComplicationFactory,
+                upperAndLowerComplicationTypes,
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_NEXT_EVENT,
+                    ComplicationType.LONG_TEXT
+                ),
+                ComplicationSlotBounds(
+                    ComplicationType.values().associateWith {
+                        if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
+                            createBoundsRect(
+                                LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                                ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                            )
+                        } else {
+                            createBoundsRect(
+                                LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                            )
+                        }
+                    },
+                    ComplicationType.values().associateWith { RectF() }
+                )
+            )
+            .setNameResourceId(R.string.lower_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name)
+            .build()
 
-    private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
-        ComplicationID.BACKGROUND.ordinal,
-        canvasComplicationFactory,
-        listOf(ComplicationType.PHOTO_IMAGE),
-        DefaultComplicationDataSourcePolicy()
-    ).setNameResourceId(R.string.background_complication_screen_name)
-        .setScreenReaderNameResourceId(R.string.background_complication_screen_reader_name).build()
+    private val backgroundComplication =
+        ComplicationSlot.createBackgroundComplicationSlotBuilder(
+                ComplicationID.BACKGROUND.ordinal,
+                canvasComplicationFactory,
+                listOf(ComplicationType.PHOTO_IMAGE),
+                DefaultComplicationDataSourcePolicy()
+            )
+            .setNameResourceId(R.string.background_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.background_complication_screen_reader_name)
+            .build()
 
     override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = ComplicationSlotsManager(
-        listOf(
-            leftComplication,
-            rightComplication,
-            upperComplication,
-            lowerComplication,
-            backgroundComplication
-        ),
-        currentUserStyleRepository
-    )
+    ) =
+        ComplicationSlotsManager(
+            listOf(
+                leftComplication,
+                rightComplication,
+                upperComplication,
+                lowerComplication,
+                backgroundComplication
+            ),
+            currentUserStyleRepository
+        )
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -264,15 +281,16 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
-        val renderer = ExampleDigitalWatchCanvasRenderer(
-            surfaceHolder,
-            this,
-            watchFaceStyle,
-            currentUserStyleRepository,
-            watchState,
-            colorStyleSetting,
-            complicationSlotsManager
-        )
+        val renderer =
+            ExampleDigitalWatchCanvasRenderer(
+                surfaceHolder,
+                this,
+                watchFaceStyle,
+                currentUserStyleRepository,
+                watchState,
+                colorStyleSetting,
+                complicationSlotsManager
+            )
 
         // createWatchFace is called on a worker thread but the observers should be called from the
         // UiThread.
@@ -294,9 +312,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             }
         }
         return WatchFace(WatchFaceType.DIGITAL, renderer)
-            .setComplicationDeniedDialogIntent(
-                Intent(this, ComplicationDeniedActivity::class.java)
-            )
+            .setComplicationDeniedDialogIntent(Intent(this, ComplicationDeniedActivity::class.java))
             .setComplicationRationaleDialogIntent(
                 Intent(this, ComplicationRationalActivity::class.java)
             )
@@ -313,29 +329,29 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
         private val complicationSlotsManager: ComplicationSlotsManager
-    ) : Renderer.CanvasRenderer(
-        surfaceHolder,
-        currentUserStyleRepository,
-        watchState,
-        CanvasType.HARDWARE,
-        INTERACTIVE_UPDATE_RATE_MS,
-        clearWithBackgroundTintBeforeRenderingHighlightLayer = true
-    ) {
+    ) :
+        Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            INTERACTIVE_UPDATE_RATE_MS,
+            clearWithBackgroundTintBeforeRenderingHighlightLayer = true
+        ) {
         internal var oldBounds = Rect(0, 0, 0, 0)
 
-        private fun getBaseDigitPaint() = Paint().apply {
-            typeface = Typeface.create(DIGITAL_TYPE_FACE, Typeface.NORMAL)
-            isAntiAlias = true
-        }
+        private fun getBaseDigitPaint() =
+            Paint().apply {
+                typeface = Typeface.create(DIGITAL_TYPE_FACE, Typeface.NORMAL)
+                isAntiAlias = true
+            }
 
         private val digitTextHoursPaint = getBaseDigitPaint()
         private val digitTextMinutesPaint = getBaseDigitPaint()
         private val digitTextSecondsPaint = getBaseDigitPaint()
 
         // Used for drawing the cached digits to the watchface.
-        private val digitBitmapPaint = Paint().apply {
-            isFilterBitmap = true
-        }
+        private val digitBitmapPaint = Paint().apply { isFilterBitmap = true }
 
         // Used for computing text sizes, not directly used for rendering.
         private var digitTextPaint = getBaseDigitPaint()
@@ -357,60 +373,50 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         private var prevDrawMode = DrawMode.INTERACTIVE
 
         // Animation played when exiting ambient mode.
-        private val ambientExitAnimator = AnimatorSet().apply {
-            val linearOutSlow = AnimationUtils.loadInterpolator(
-                context,
-                android.R.interpolator.linear_out_slow_in
-            )
-            playTogether(
-                ObjectAnimator.ofFloat(
-                    drawProperties,
-                    DrawProperties.TIME_SCALE,
-                    1.0f
-                ).apply {
-                    duration = AMBIENT_TRANSITION_MS
-                    interpolator = linearOutSlow
-                    setAutoCancel(true)
-                },
-                ObjectAnimator.ofFloat(
-                    drawProperties,
-                    DrawProperties.SECONDS_SCALE,
-                    1.0f
-                ).apply {
-                    duration = AMBIENT_TRANSITION_MS
-                    interpolator = linearOutSlow
-                    setAutoCancel(true)
-                }
-            )
-        }
+        private val ambientExitAnimator =
+            AnimatorSet().apply {
+                val linearOutSlow =
+                    AnimationUtils.loadInterpolator(
+                        context,
+                        android.R.interpolator.linear_out_slow_in
+                    )
+                playTogether(
+                    ObjectAnimator.ofFloat(drawProperties, DrawProperties.TIME_SCALE, 1.0f).apply {
+                        duration = AMBIENT_TRANSITION_MS
+                        interpolator = linearOutSlow
+                        setAutoCancel(true)
+                    },
+                    ObjectAnimator.ofFloat(drawProperties, DrawProperties.SECONDS_SCALE, 1.0f)
+                        .apply {
+                            duration = AMBIENT_TRANSITION_MS
+                            interpolator = linearOutSlow
+                            setAutoCancel(true)
+                        }
+                )
+            }
 
         // Animation played when entering ambient mode.
-        private val ambientEnterAnimator = AnimatorSet().apply {
-            val fastOutLinearIn = AnimationUtils.loadInterpolator(
-                context,
-                android.R.interpolator.fast_out_linear_in
-            )
-            playTogether(
-                ObjectAnimator.ofFloat(
-                    drawProperties,
-                    DrawProperties.TIME_SCALE,
-                    1.0f
-                ).apply {
-                    duration = AMBIENT_TRANSITION_MS
-                    interpolator = fastOutLinearIn
-                    setAutoCancel(true)
-                },
-                ObjectAnimator.ofFloat(
-                    drawProperties,
-                    DrawProperties.SECONDS_SCALE,
-                    0.0f
-                ).apply {
-                    duration = AMBIENT_TRANSITION_MS
-                    interpolator = fastOutLinearIn
-                    setAutoCancel(true)
-                }
-            )
-        }
+        private val ambientEnterAnimator =
+            AnimatorSet().apply {
+                val fastOutLinearIn =
+                    AnimationUtils.loadInterpolator(
+                        context,
+                        android.R.interpolator.fast_out_linear_in
+                    )
+                playTogether(
+                    ObjectAnimator.ofFloat(drawProperties, DrawProperties.TIME_SCALE, 1.0f).apply {
+                        duration = AMBIENT_TRANSITION_MS
+                        interpolator = fastOutLinearIn
+                        setAutoCancel(true)
+                    },
+                    ObjectAnimator.ofFloat(drawProperties, DrawProperties.SECONDS_SCALE, 0.0f)
+                        .apply {
+                            duration = AMBIENT_TRANSITION_MS
+                            interpolator = fastOutLinearIn
+                            setAutoCancel(true)
+                        }
+                )
+            }
 
         // A mapping from digit type to cached bitmap. One bitmap is cached per digit type, and the
         // digit shown in the cached image is stored in [currentCachedDigits].
@@ -432,11 +438,12 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                             userStyle[colorStyleSetting]!!.toString()
                         )
 
-                    watchfaceColors = WatchFaceColors(
-                        Color.valueOf(watchFaceColorStyle.activeStyle.primaryColor),
-                        Color.valueOf(watchFaceColorStyle.activeStyle.secondaryColor),
-                        Color.valueOf(Color.DKGRAY)
-                    )
+                    watchfaceColors =
+                        WatchFaceColors(
+                            Color.valueOf(watchFaceColorStyle.activeStyle.primaryColor),
+                            Color.valueOf(watchFaceColorStyle.activeStyle.secondaryColor),
+                            Color.valueOf(Color.DKGRAY)
+                        )
 
                     // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
                     // of the styles are defined in XML so we need to replace the complication's
@@ -475,32 +482,35 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         }
 
         private fun applyColorStyleAndDrawMode(drawMode: DrawMode) {
-            digitTextHoursPaint.color = when (drawMode) {
-                DrawMode.INTERACTIVE -> watchFaceColorStyle.activeStyle.primaryColor
-                DrawMode.LOW_BATTERY_INTERACTIVE ->
-                    multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.6f)
+            digitTextHoursPaint.color =
+                when (drawMode) {
+                    DrawMode.INTERACTIVE -> watchFaceColorStyle.activeStyle.primaryColor
+                    DrawMode.LOW_BATTERY_INTERACTIVE ->
+                        multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.6f)
+                    DrawMode.MUTE ->
+                        multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.8f)
+                    DrawMode.AMBIENT -> watchFaceColorStyle.ambientStyle.primaryColor
+                }
 
-                DrawMode.MUTE -> multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.8f)
-                DrawMode.AMBIENT -> watchFaceColorStyle.ambientStyle.primaryColor
-            }
+            digitTextMinutesPaint.color =
+                when (drawMode) {
+                    DrawMode.INTERACTIVE -> watchFaceColorStyle.activeStyle.primaryColor
+                    DrawMode.LOW_BATTERY_INTERACTIVE ->
+                        multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.6f)
+                    DrawMode.MUTE ->
+                        multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.8f)
+                    DrawMode.AMBIENT -> watchFaceColorStyle.ambientStyle.primaryColor
+                }
 
-            digitTextMinutesPaint.color = when (drawMode) {
-                DrawMode.INTERACTIVE -> watchFaceColorStyle.activeStyle.primaryColor
-                DrawMode.LOW_BATTERY_INTERACTIVE ->
-                    multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.6f)
-
-                DrawMode.MUTE -> multiplyColor(watchFaceColorStyle.activeStyle.primaryColor, 0.8f)
-                DrawMode.AMBIENT -> watchFaceColorStyle.ambientStyle.primaryColor
-            }
-
-            digitTextSecondsPaint.color = when (drawMode) {
-                DrawMode.INTERACTIVE -> watchFaceColorStyle.activeStyle.secondaryColor
-                DrawMode.LOW_BATTERY_INTERACTIVE ->
-                    multiplyColor(watchFaceColorStyle.activeStyle.secondaryColor, 0.6f)
-
-                DrawMode.MUTE -> multiplyColor(watchFaceColorStyle.activeStyle.secondaryColor, 0.8f)
-                DrawMode.AMBIENT -> watchFaceColorStyle.ambientStyle.secondaryColor
-            }
+            digitTextSecondsPaint.color =
+                when (drawMode) {
+                    DrawMode.INTERACTIVE -> watchFaceColorStyle.activeStyle.secondaryColor
+                    DrawMode.LOW_BATTERY_INTERACTIVE ->
+                        multiplyColor(watchFaceColorStyle.activeStyle.secondaryColor, 0.6f)
+                    DrawMode.MUTE ->
+                        multiplyColor(watchFaceColorStyle.activeStyle.secondaryColor, 0.8f)
+                    DrawMode.AMBIENT -> watchFaceColorStyle.ambientStyle.secondaryColor
+                }
 
             if (prevDrawMode != drawMode) {
                 prevDrawMode = drawMode
@@ -530,10 +540,11 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 val animationStartFraction =
                     DIGIT_ANIMATION_START_TIME_FRACTION[DigitMode.OUTGOING]!!
                 this.interactiveDrawModeUpdateDelayMillis =
-                    if (secondProgress < animationStartFraction &&
-                        !ambientEnterAnimator.isRunning
+                    if (
+                        secondProgress < animationStartFraction && !ambientEnterAnimator.isRunning
                     ) {
-                        // The seconds only animate part of the time so we can sleep until the seconds next need to
+                        // The seconds only animate part of the time so we can sleep until the
+                        // seconds next need to
                         // animate, which improves battery life.
                         max(
                             INTERACTIVE_UPDATE_RATE_MS,
@@ -544,22 +555,22 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     }
 
                 // Move the left position to the left if there are fewer than two hour digits, to
-                // ensure it is centered. If the clock is in transition from one to two hour digits or
+                // ensure it is centered. If the clock is in transition from one to two hour digits
+                // or
                 // vice versa, interpolate to animate the clock's position.
-                // Move the left position to the left if there are fewer than two hour digits, to ensure
+                // Move the left position to the left if there are fewer than two hour digits, to
+                // ensure
                 // it is centered. If the clock is in transition from one to two hour digits or
                 // vice versa, interpolate to animate the clock's position.
-                val centeringAdjustment = (
-                    getInterpolatedValue(
+                val centeringAdjustment =
+                    (getInterpolatedValue(
                         (2 - currentDigitStrings.getNumberOfHoursDigits()).toFloat(),
                         (2 - nextDigitStrings.getNumberOfHoursDigits()).toFloat(),
                         POSITION_ANIMATION_START_TIME,
                         POSITION_ANIMATION_END_TIME,
                         secondProgress,
                         CENTERING_ADJUSTMENT_INTERPOLATOR
-                    ) *
-                        digitWidth
-                    )
+                    ) * digitWidth)
 
                 // This total width assumes two hours digits.
                 val totalWidth = 2f * digitWidth + gapWidth + 2f * smallDigitWidth
@@ -569,8 +580,10 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 val wholeTimeSaveCount = canvas.save()
                 try {
                     canvas.scale(
-                        drawProperties.timeScale, drawProperties.timeScale,
-                        clockBounds.exactCenterX(), clockBounds.exactCenterY()
+                        drawProperties.timeScale,
+                        drawProperties.timeScale,
+                        clockBounds.exactCenterX(),
+                        clockBounds.exactCenterY()
                     )
 
                     // Draw hours.
@@ -617,8 +630,9 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     // Scale the seconds if they're not fully showing, in and out of ambient for
                     // example.
                     val scaleSeconds = drawProperties.secondsScale < 1.0f
-                    if (drawProperties.secondsScale > 0f &&
-                        (renderParameters.drawMode != DrawMode.AMBIENT || scaleSeconds)
+                    if (
+                        drawProperties.secondsScale > 0f &&
+                            (renderParameters.drawMode != DrawMode.AMBIENT || scaleSeconds)
                     ) {
                         val restoreCount = canvas.save()
                         if (scaleSeconds) {
@@ -689,17 +703,19 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     complicationSlotsManager[it]!!.isActiveAt(zonedDateTime.toInstant())
                 }
 
-            val marginX = if (hasHorizontalComplication) {
-                (MARGIN_FRACTION_WITH_COMPLICATION.x * bounds.width().toFloat()).toInt()
-            } else {
-                (MARGIN_FRACTION_WITHOUT_COMPLICATION.x * bounds.width().toFloat()).toInt()
-            }
+            val marginX =
+                if (hasHorizontalComplication) {
+                    (MARGIN_FRACTION_WITH_COMPLICATION.x * bounds.width().toFloat()).toInt()
+                } else {
+                    (MARGIN_FRACTION_WITHOUT_COMPLICATION.x * bounds.width().toFloat()).toInt()
+                }
 
-            val marginY = if (hasVerticalComplication) {
-                (MARGIN_FRACTION_WITH_COMPLICATION.y * bounds.height().toFloat()).toInt()
-            } else {
-                (MARGIN_FRACTION_WITHOUT_COMPLICATION.y * bounds.height().toFloat()).toInt()
-            }
+            val marginY =
+                if (hasVerticalComplication) {
+                    (MARGIN_FRACTION_WITH_COMPLICATION.y * bounds.height().toFloat()).toInt()
+                } else {
+                    (MARGIN_FRACTION_WITHOUT_COMPLICATION.y * bounds.height().toFloat()).toInt()
+                }
 
             clockBounds.set(
                 bounds.left + marginX,
@@ -725,7 +741,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
 
             // Calculate the total width fraction base on the text height.
             val totalWidthFraction: Float =
-                (2f * DIGIT_WIDTH_FRACTION) + (DIGIT_WIDTH_FRACTION * GAP_WIDTH_FRACTION) +
+                (2f * DIGIT_WIDTH_FRACTION) +
+                    (DIGIT_WIDTH_FRACTION * GAP_WIDTH_FRACTION) +
                     (2f * SMALL_DIGIT_SIZE_FRACTION * SMALL_DIGIT_WIDTH_FRACTION)
 
             textSize =
@@ -758,17 +775,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         }
 
         private fun drawBackground(canvas: Canvas) {
-            val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
-                watchFaceColorStyle.ambientStyle.backgroundColor
-            } else {
-                watchFaceColorStyle.activeStyle.backgroundColor
-            }
+            val backgroundColor =
+                if (renderParameters.drawMode == DrawMode.AMBIENT) {
+                    watchFaceColorStyle.ambientStyle.backgroundColor
+                } else {
+                    watchFaceColorStyle.activeStyle.backgroundColor
+                }
             canvas.drawColor(
-                getRGBColor(
-                    backgroundColor,
-                    drawProperties.backgroundAlpha,
-                    Color.BLACK
-                )
+                getRGBColor(backgroundColor, drawProperties.backgroundAlpha, Color.BLACK)
             )
         }
 
@@ -777,11 +791,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             if (renderParameters.drawMode != DrawMode.AMBIENT) {
                 complicationSlotsManager[ComplicationID.BACKGROUND.ordinal]?.let {
                     if (it.complicationData.value.type != ComplicationType.NO_DATA) {
-                        it.render(
-                            canvas,
-                            zonedDateTime,
-                            renderParameters
-                        )
+                        it.render(canvas, zonedDateTime, renderParameters)
                     }
                 }
             }
@@ -855,7 +865,10 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             digitMode: DigitMode
         ) {
             getDigitDrawProperties(
-                secondProgress, getTimeOffsetSeconds(digitType), digitMode, digitDrawProperties
+                secondProgress,
+                getTimeOffsetSeconds(digitType),
+                digitMode,
+                digitDrawProperties
             )
 
             if (!digitDrawProperties.shouldDraw) {
@@ -875,11 +888,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             canvas.restoreToCount(restoreCount)
         }
 
-        private fun createBitmap(
-            width: Int,
-            height: Int,
-            digitType: DigitType
-        ): Bitmap {
+        private fun createBitmap(width: Int, height: Int, digitType: DigitType): Bitmap {
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             digitBitmapCache.put(digitType.ordinal, bitmap)
             return bitmap
@@ -894,19 +903,20 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             val height: Int
             val paint: Paint
             when (digitType) {
-                DigitType.HOUR_TENS, DigitType.HOUR_UNITS -> {
+                DigitType.HOUR_TENS,
+                DigitType.HOUR_UNITS -> {
                     width = digitWidth
                     height = digitHeight
                     paint = digitTextHoursPaint
                 }
-
-                DigitType.MINUTE_TENS, DigitType.MINUTE_UNITS -> {
+                DigitType.MINUTE_TENS,
+                DigitType.MINUTE_UNITS -> {
                     width = smallDigitWidth
                     height = smallDigitHeight
                     paint = digitTextMinutesPaint
                 }
-
-                DigitType.SECOND_TENS, DigitType.SECOND_UNITS -> {
+                DigitType.SECOND_TENS,
+                DigitType.SECOND_UNITS -> {
                     width = smallDigitWidth
                     height = smallDigitHeight
                     paint = digitTextSecondsPaint
@@ -945,7 +955,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         BACKGROUND
     }
 
-    // Changing digits are animated. This enum is used to label the start and end animation parameters.
+    // Changing digits are animated. This enum is used to label the start and end animation
+    // parameters.
     private enum class DigitMode {
         OUTGOING,
         INCOMING
@@ -993,7 +1004,9 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             secondUnits = getUnitsDigitString(secondsValue)
         }
 
-        /** Returns a string representing the specified digit of the time represented by this object. */
+        /**
+         * Returns a string representing the specified digit of the time represented by this object.
+         */
         fun get(digitType: DigitType): String {
             return when (digitType) {
                 DigitType.HOUR_TENS -> hourTens
@@ -1006,8 +1019,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         }
 
         /**
-         * Returns the number of hour digits in this object. If the representation is 24-hour, this will
-         * always return 2. If 12-hour, this will return 1 or 2.
+         * Returns the number of hour digits in this object. If the representation is 24-hour, this
+         * will always return 2. If 12-hour, this will return 1 or 2.
          */
         fun getNumberOfHoursDigits(): Int {
             return if (hourTens == "") 1 else 2
@@ -1022,7 +1035,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             if (value < 10 && !padWithZeroes) {
                 return ""
             }
-            // We don't use toString() because during draw calls we don't want to avoid allocating objects.
+            // We don't use toString() because during draw calls we don't want to avoid allocating
+            // objects.
             return DIGITS[(value / 10) % 10]
         }
 
@@ -1031,7 +1045,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
          * value}.
          */
         private fun getUnitsDigitString(value: Int): String {
-            // We don't use toString() because during draw calls we don't want to avoid allocating objects.
+            // We don't use toString() because during draw calls we don't want to avoid allocating
+            // objects.
             return DIGITS[value % 10]
         }
     }
@@ -1049,25 +1064,27 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         var secondsScale: Float = 1f
     ) {
         companion object {
-            val TIME_SCALE = object : FloatProperty<DrawProperties>("timeScale") {
-                override fun setValue(obj: DrawProperties, value: Float) {
-                    obj.timeScale = value
+            val TIME_SCALE =
+                object : FloatProperty<DrawProperties>("timeScale") {
+                    override fun setValue(obj: DrawProperties, value: Float) {
+                        obj.timeScale = value
+                    }
+
+                    override fun get(obj: DrawProperties): Float {
+                        return obj.timeScale
+                    }
                 }
 
-                override fun get(obj: DrawProperties): Float {
-                    return obj.timeScale
-                }
-            }
+            val SECONDS_SCALE =
+                object : FloatProperty<DrawProperties>("secondsScale") {
+                    override fun setValue(obj: DrawProperties, value: Float) {
+                        obj.secondsScale = value
+                    }
 
-            val SECONDS_SCALE = object : FloatProperty<DrawProperties>("secondsScale") {
-                override fun setValue(obj: DrawProperties, value: Float) {
-                    obj.secondsScale = value
+                    override fun get(obj: DrawProperties): Float {
+                        return obj.secondsScale
+                    }
                 }
-
-                override fun get(obj: DrawProperties): Float {
-                    return obj.secondsScale
-                }
-            }
         }
     }
 
@@ -1102,18 +1119,17 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         private val MARGIN_FRACTION_WITHOUT_COMPLICATION = Vec2f(0.2f, 0.2f)
         private val MARGIN_FRACTION_WITH_COMPLICATION = Vec2f(0.4f, 0.4f)
 
-        private val VERTICAL_COMPLICATION_IDS = arrayOf(
-            ComplicationID.UPPER.ordinal,
-            ComplicationID.LOWER.ordinal
-        )
-        private val HORIZONTAL_COMPLICATION_IDS = arrayOf(
-            ComplicationID.LEFT.ordinal,
-            ComplicationID.RIGHT.ordinal
-        )
-        private val FOREGROUND_COMPLICATION_IDS = arrayOf(
-            ComplicationID.UPPER.ordinal, ComplicationID.RIGHT.ordinal,
-            ComplicationID.LOWER.ordinal, ComplicationID.LEFT.ordinal
-        )
+        private val VERTICAL_COMPLICATION_IDS =
+            arrayOf(ComplicationID.UPPER.ordinal, ComplicationID.LOWER.ordinal)
+        private val HORIZONTAL_COMPLICATION_IDS =
+            arrayOf(ComplicationID.LEFT.ordinal, ComplicationID.RIGHT.ordinal)
+        private val FOREGROUND_COMPLICATION_IDS =
+            arrayOf(
+                ComplicationID.UPPER.ordinal,
+                ComplicationID.RIGHT.ordinal,
+                ComplicationID.LOWER.ordinal,
+                ComplicationID.LEFT.ordinal
+            )
 
         // The name of the font used for drawing the text in the digit watch face.
         private const val DIGITAL_TYPE_FACE = "sans-serif-condensed-light"
@@ -1121,18 +1137,21 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         // The width of the large digit bitmaps, as a fraction of their height.
         private const val DIGIT_WIDTH_FRACTION = 0.65f
 
-        // The height of the small digits (used for minutes and seconds), given as a fraction of the  height
+        // The height of the small digits (used for minutes and seconds), given as a fraction of the
+        //  height
         // of the large digits.
         private const val SMALL_DIGIT_SIZE_FRACTION = 0.45f
 
         // The width of the small digit bitmaps, as a fraction of their height.
         private const val SMALL_DIGIT_WIDTH_FRACTION = 0.7f
 
-        // The padding at the top and bottom of the digit bitmaps, given as a fraction of the height.
+        // The padding at the top and bottom of the digit bitmaps, given as a fraction of the
+        // height.
         // Needed as some characters may ascend or descend slightly (e.g. "8").
         private const val DIGIT_PADDING_FRACTION = 0.05f
 
-        // The gap between the hours and the minutes/seconds, given as a fraction of the width of the large
+        // The gap between the hours and the minutes/seconds, given as a fraction of the width of
+        // the large
         // digits.
         private const val GAP_WIDTH_FRACTION = 0.1f
 
@@ -1145,53 +1164,53 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         // (So 0.5 means that the animation of that digit will begin half-way through the second).
         // Note that because we only cache one digit of each type, the current and next times must
         // not overlap.
-        private val DIGIT_ANIMATION_START_TIME_FRACTION = mapOf(
-            DigitMode.OUTGOING to 0.5f,
-            DigitMode.INCOMING to 0.667f
-        )
-        private val DIGIT_ANIMATION_END_TIME = mapOf(
-            DigitMode.OUTGOING to 0.667f,
-            DigitMode.INCOMING to 1f
-        )
+        private val DIGIT_ANIMATION_START_TIME_FRACTION =
+            mapOf(DigitMode.OUTGOING to 0.5f, DigitMode.INCOMING to 0.667f)
+        private val DIGIT_ANIMATION_END_TIME =
+            mapOf(DigitMode.OUTGOING to 0.667f, DigitMode.INCOMING to 1f)
         private const val POSITION_ANIMATION_START_TIME = 0.0833f
         private const val POSITION_ANIMATION_END_TIME = 0.5833f
 
-        // Parameters governing the animation of the current and next digits. NB Scale is a size multiplier.
-        // The first index is the values for the outgoing digit, and the second index for the incoming
-        // digit. If seconds are changing from 1 -> 2 for example, the 1 will scale from 1f to 0.65f, and
+        // Parameters governing the animation of the current and next digits. NB Scale is a size
+        // multiplier.
+        // The first index is the values for the outgoing digit, and the second index for the
+        // incoming
+        // digit. If seconds are changing from 1 -> 2 for example, the 1 will scale from 1f to
+        // 0.65f, and
         // rotate from 0f to 82f. The 2 will scale from 0.65f to 1f, and rotate from -97f to 0f.
         private val DIGIT_SCALE_START = mapOf(DigitMode.OUTGOING to 1f, DigitMode.INCOMING to 0.65f)
         private val DIGIT_SCALE_END = mapOf(DigitMode.OUTGOING to 0.65f, DigitMode.INCOMING to 1f)
-        private val DIGIT_ROTATE_START_DEGREES = mapOf(
-            DigitMode.OUTGOING to 0f,
-            DigitMode.INCOMING to -97f
-        )
+        private val DIGIT_ROTATE_START_DEGREES =
+            mapOf(DigitMode.OUTGOING to 0f, DigitMode.INCOMING to -97f)
         private val DIGIT_ROTATE_END_DEGREES =
             mapOf(DigitMode.OUTGOING to 82f, DigitMode.INCOMING to 0f)
         private val DIGIT_OPACITY_START =
             mapOf(DigitMode.OUTGOING to 1f, DigitMode.INCOMING to 0.07f)
         private val DIGIT_OPACITY_END = mapOf(DigitMode.OUTGOING to 0f, DigitMode.INCOMING to 1f)
 
-        // The offset used to stagger the animation when multiple digits are animating at the same time.
+        // The offset used to stagger the animation when multiple digits are animating at the same
+        // time.
         private const val TIME_OFFSET_SECONDS_PER_DIGIT_TYPE = -5 / 60f
 
         // The duration of the ambient mode change animation.
         private const val AMBIENT_TRANSITION_MS = 333L
 
-        private val DIGIT_SCALE_INTERPOLATOR = mapOf(
-            DigitMode.OUTGOING to PathInterpolator(0.4f, 0f, 0.67f, 1f),
-            DigitMode.INCOMING to PathInterpolator(0.33f, 0f, 0.2f, 1f)
-        )
-        private val DIGIT_ROTATION_INTERPOLATOR = mapOf(
-            DigitMode.OUTGOING to PathInterpolator(0.57f, 0f, 0.73f, 0.49f),
-            DigitMode.INCOMING to PathInterpolator(0.15f, 0.49f, 0.37f, 1f)
-        )
-        private val DIGIT_OPACITY_INTERPOLATOR = mapOf(
-            DigitMode.OUTGOING to PathInterpolator(0.4f, 0f, 1f, 1f),
-            DigitMode.INCOMING to PathInterpolator(0f, 0f, 0.2f, 1f)
-        )
-        private val CENTERING_ADJUSTMENT_INTERPOLATOR =
-            PathInterpolator(0.4f, 0f, 0.2f, 1f)
+        private val DIGIT_SCALE_INTERPOLATOR =
+            mapOf(
+                DigitMode.OUTGOING to PathInterpolator(0.4f, 0f, 0.67f, 1f),
+                DigitMode.INCOMING to PathInterpolator(0.33f, 0f, 0.2f, 1f)
+            )
+        private val DIGIT_ROTATION_INTERPOLATOR =
+            mapOf(
+                DigitMode.OUTGOING to PathInterpolator(0.57f, 0f, 0.73f, 0.49f),
+                DigitMode.INCOMING to PathInterpolator(0.15f, 0.49f, 0.37f, 1f)
+            )
+        private val DIGIT_OPACITY_INTERPOLATOR =
+            mapOf(
+                DigitMode.OUTGOING to PathInterpolator(0.4f, 0f, 1f, 1f),
+                DigitMode.INCOMING to PathInterpolator(0f, 0f, 0.2f, 1f)
+            )
+        private val CENTERING_ADJUSTMENT_INTERPOLATOR = PathInterpolator(0.4f, 0f, 0.2f, 1f)
 
         @ColorInt
         private fun colorRgb(red: Float, green: Float, blue: Float) =
@@ -1207,8 +1226,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         private fun blueFraction(@ColorInt color: Int) = Color.blue(color).toFloat() / 255.0f
 
         /**
-         * Returns an RGB color that has the same effect as drawing `color` with `alphaFraction` over a
-         * `backgroundColor` background.
+         * Returns an RGB color that has the same effect as drawing `color` with `alphaFraction`
+         * over a `backgroundColor` background.
          *
          * @param color the foreground color
          * @param alphaFraction the fraction of the alpha value, range from 0 to 1
@@ -1226,7 +1245,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             )
         }
 
-        /** Returns a linear interpolation between a and b using the scalar s.  */
+        /** Returns a linear interpolation between a and b using the scalar s. */
         private fun lerp(a: Float, b: Float, s: Float) = a + s * (b - a)
 
         /**
@@ -1245,11 +1264,12 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             currentTime: Float,
             interpolator: TimeInterpolator
         ): Float {
-            val progress = when {
-                currentTime < startTime -> 0f
-                currentTime > endTime -> 1f
-                else -> interpolator.getInterpolation(lerpInv(startTime, endTime, currentTime))
-            }
+            val progress =
+                when {
+                    currentTime < startTime -> 0f
+                    currentTime > endTime -> 1f
+                    else -> interpolator.getInterpolation(lerpInv(startTime, endTime, currentTime))
+                }
             return lerp(startValue, endValue, progress)
         }
 
@@ -1257,8 +1277,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
          * Sets the [DigitDrawProperties] that should be used for drawing, given the specified
          * parameters.
          *
-         * @param secondProgress the sub-second part of the current time, where 0 means the current second
-         * has just begun, and 1 means the current second has just ended
+         * @param secondProgress the sub-second part of the current time, where 0 means the current
+         *   second has just begun, and 1 means the current second has just ended
          * @param offsetSeconds a value added to the start and end time of the animations
          * @param digitMode whether the digit is OUTGOING or INCOMING
          * @param output the [DigitDrawProperties] that will be set
@@ -1271,35 +1291,39 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ) {
             val startTime = DIGIT_ANIMATION_START_TIME_FRACTION[digitMode]!! + offsetSeconds
             val endTime = DIGIT_ANIMATION_END_TIME[digitMode]!! + offsetSeconds
-            output.shouldDraw = if (digitMode == DigitMode.OUTGOING) {
-                secondProgress < endTime
-            } else {
-                secondProgress >= startTime
-            }
-            output.scale = getInterpolatedValue(
-                DIGIT_SCALE_START[digitMode]!!,
-                DIGIT_SCALE_END[digitMode]!!,
-                startTime,
-                endTime,
-                secondProgress,
-                DIGIT_SCALE_INTERPOLATOR[digitMode]!!
-            )
-            output.rotation = getInterpolatedValue(
-                DIGIT_ROTATE_START_DEGREES[digitMode]!!,
-                DIGIT_ROTATE_END_DEGREES[digitMode]!!,
-                startTime,
-                endTime,
-                secondProgress,
-                DIGIT_ROTATION_INTERPOLATOR[digitMode]!!
-            )
-            output.opacity = getInterpolatedValue(
-                DIGIT_OPACITY_START[digitMode]!!,
-                DIGIT_OPACITY_END[digitMode]!!,
-                startTime,
-                endTime,
-                secondProgress,
-                DIGIT_OPACITY_INTERPOLATOR[digitMode]!!
-            )
+            output.shouldDraw =
+                if (digitMode == DigitMode.OUTGOING) {
+                    secondProgress < endTime
+                } else {
+                    secondProgress >= startTime
+                }
+            output.scale =
+                getInterpolatedValue(
+                    DIGIT_SCALE_START[digitMode]!!,
+                    DIGIT_SCALE_END[digitMode]!!,
+                    startTime,
+                    endTime,
+                    secondProgress,
+                    DIGIT_SCALE_INTERPOLATOR[digitMode]!!
+                )
+            output.rotation =
+                getInterpolatedValue(
+                    DIGIT_ROTATE_START_DEGREES[digitMode]!!,
+                    DIGIT_ROTATE_END_DEGREES[digitMode]!!,
+                    startTime,
+                    endTime,
+                    secondProgress,
+                    DIGIT_ROTATION_INTERPOLATOR[digitMode]!!
+                )
+            output.opacity =
+                getInterpolatedValue(
+                    DIGIT_OPACITY_START[digitMode]!!,
+                    DIGIT_OPACITY_END[digitMode]!!,
+                    startTime,
+                    endTime,
+                    secondProgress,
+                    DIGIT_OPACITY_INTERPOLATOR[digitMode]!!
+                )
         }
 
         private fun getTimeOffsetSeconds(digitType: DigitType): Float {
@@ -1323,10 +1347,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             )
         }
 
-        private fun createBoundsRect(
-            centerFraction: PointF,
-            size: Vec2f
-        ): RectF {
+        private fun createBoundsRect(centerFraction: PointF, size: Vec2f): RectF {
             val halfWidth = size.x / 2.0f
             val halfHeight = size.y / 2.0f
             return RectF(

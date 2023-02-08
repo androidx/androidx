@@ -18,13 +18,13 @@ package androidx.wear.watchface.client
 
 import android.os.IBinder
 import androidx.wear.watchface.control.IInteractiveWatchFace
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 
 @RunWith(ClientTestRunner::class)
 class InteractiveWatchFaceClientTest {
@@ -37,11 +37,12 @@ class InteractiveWatchFaceClientTest {
 
     @Test
     public fun sendDisconnectNotification() {
-        val client = InteractiveWatchFaceClientImpl(
-            iInteractiveWatchFace,
-            previewImageUpdateRequestedExecutor = null,
-            previewImageUpdateRequestedListener = null
-        )
+        val client =
+            InteractiveWatchFaceClientImpl(
+                iInteractiveWatchFace,
+                previewImageUpdateRequestedExecutor = null,
+                previewImageUpdateRequestedListener = null
+            )
 
         val listener = mock<InteractiveWatchFaceClient.ClientDisconnectListener>()
         client.addClientDisconnectListener(listener, { it.run() })

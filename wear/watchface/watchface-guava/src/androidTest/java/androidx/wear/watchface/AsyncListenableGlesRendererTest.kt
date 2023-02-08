@@ -28,12 +28,12 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
-import kotlinx.coroutines.async
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.async
+import org.junit.Test
+import org.junit.runner.RunWith
 
 internal class TestAsyncGlesRenderInitWatchFaceService(
     testContext: Context,
@@ -58,41 +58,36 @@ internal class TestAsyncGlesRenderInitWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("Deprecation")
-        object : ListenableGlesRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            16
-        ) {
-            override fun onUiThreadGlSurfaceCreatedFuture(
-                width: Int,
-                height: Int
-            ): ListenableFuture<Unit> {
-                onUiThreadGlSurfaceCreatedFutureLatch.countDown()
-                return onUiThreadGlSurfaceCreatedFuture
-            }
-
-            override fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
-                onBackgroundThreadGlContextFutureLatch.countDown()
-                return onBackgroundThreadGlContextFuture
-            }
-
-            override fun render(zonedDateTime: ZonedDateTime) {
-                // GLES rendering is complicated and not strictly necessary for our test.
-                synchronized(lock) {
-                    hasRendered = true
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("Deprecation")
+            object :
+                ListenableGlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, 16) {
+                override fun onUiThreadGlSurfaceCreatedFuture(
+                    width: Int,
+                    height: Int
+                ): ListenableFuture<Unit> {
+                    onUiThreadGlSurfaceCreatedFutureLatch.countDown()
+                    return onUiThreadGlSurfaceCreatedFuture
                 }
-                renderLatch.countDown()
-            }
 
-            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
-                // NOP
+                override fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
+                    onBackgroundThreadGlContextFutureLatch.countDown()
+                    return onBackgroundThreadGlContextFuture
+                }
+
+                override fun render(zonedDateTime: ZonedDateTime) {
+                    // GLES rendering is complicated and not strictly necessary for our test.
+                    synchronized(lock) { hasRendered = true }
+                    renderLatch.countDown()
+                }
+
+                override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+                    // NOP
+                }
             }
-        }
-    )
+        )
 }
 
 @MediumTest
@@ -104,63 +99,56 @@ public class AsyncListenableGlesRendererTest : WatchFaceControlClientServiceTest
     public fun asyncTest() {
         val onUiThreadGlSurfaceCreatedFuture = SettableFuture.create<Unit>()
         val onBackgroundThreadGlContextFuture = SettableFuture.create<Unit>()
-        val watchFaceService = TestAsyncGlesRenderInitWatchFaceService(
-            context,
-            glSurfaceHolder,
-            onUiThreadGlSurfaceCreatedFuture,
-            onBackgroundThreadGlContextFuture
-        )
-
-        val deferredClient = handlerCoroutineScope.async {
-            @Suppress("deprecation")
-            watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                null,
-                emptyMap()
+        val watchFaceService =
+            TestAsyncGlesRenderInitWatchFaceService(
+                context,
+                glSurfaceHolder,
+                onUiThreadGlSurfaceCreatedFuture,
+                onBackgroundThreadGlContextFuture
             )
-        }
 
-        handler.post {
-            watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
+        val deferredClient =
+            handlerCoroutineScope.async {
+                @Suppress("deprecation")
+                watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
+                    "testId",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    null,
+                    emptyMap()
+                )
+            }
+
+        handler.post { watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper }
 
         val client = awaitWithTimeout(deferredClient)
         try {
             assertThat(
-                watchFaceService.onBackgroundThreadGlContextFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
+                    watchFaceService.onBackgroundThreadGlContextFutureLatch.await(
+                        TIMEOUT_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()
             }
             onBackgroundThreadGlContextFuture.set(Unit)
 
             assertThat(
-                watchFaceService.onUiThreadGlSurfaceCreatedFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
+                    watchFaceService.onUiThreadGlSurfaceCreatedFutureLatch.await(
+                        TIMEOUT_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()
             }
             onUiThreadGlSurfaceCreatedFuture.set(Unit)
 
-            assertThat(
-                watchFaceService.renderLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
+            assertThat(watchFaceService.renderLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+                .isTrue()
         } finally {
             // Make sure we don't deadlock in case of a timeout which aborts the test mid way
             // leaving these futures incomplete.

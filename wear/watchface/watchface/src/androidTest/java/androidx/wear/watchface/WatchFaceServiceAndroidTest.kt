@@ -34,40 +34,42 @@ class WatchFaceServiceAndroidTest {
     @Test
     fun measuresWatchFaceIconsFromCustomContext() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        val serviceSpy = object : SimpleWatchFaceTestService() {
-            override val resourcesContext: Context
-                get() = this.createPackageContext(context.packageName,
-                    Context.CONTEXT_RESTRICTED
-                )
-        }
+        val serviceSpy =
+            object : SimpleWatchFaceTestService() {
+                override val resourcesContext: Context
+                    get() =
+                        this.createPackageContext(context.packageName, Context.CONTEXT_RESTRICTED)
+            }
         val engine = serviceSpy.onCreateEngine() as WatchFaceService.EngineWrapper
 
         try {
-            val schema = UserStyleSchema(
-                listOf(
-                    UserStyleSetting.ListUserStyleSetting(
-                        UserStyleSetting.Id("someId"),
-                        "displayName",
-                        "description",
-                        Icon.createWithResource(
-                            context,
-                            androidx.wear.watchface.test.R.drawable.example_icon_24
-                        ),
-                        listOf(
-                            UserStyleSetting.ListUserStyleSetting.ListOption(
-                                UserStyleSetting.Option.Id("red_style"),
-                                displayName = "Red",
-                                screenReaderName = "Red watchface style",
-                                icon = Icon.createWithResource(
-                                    context,
-                                    androidx.wear.watchface.test.R.drawable.example_icon_24
-                                ),
-                            )
-                        ),
-                        listOf(WatchFaceLayer.BASE)
+            val schema =
+                UserStyleSchema(
+                    listOf(
+                        UserStyleSetting.ListUserStyleSetting(
+                            UserStyleSetting.Id("someId"),
+                            "displayName",
+                            "description",
+                            Icon.createWithResource(
+                                context,
+                                androidx.wear.watchface.test.R.drawable.example_icon_24
+                            ),
+                            listOf(
+                                UserStyleSetting.ListUserStyleSetting.ListOption(
+                                    UserStyleSetting.Option.Id("red_style"),
+                                    displayName = "Red",
+                                    screenReaderName = "Red watchface style",
+                                    icon =
+                                        Icon.createWithResource(
+                                            context,
+                                            androidx.wear.watchface.test.R.drawable.example_icon_24
+                                        ),
+                                )
+                            ),
+                            listOf(WatchFaceLayer.BASE)
+                        )
                     )
                 )
-            )
 
             // expect no exception
             engine.validateSchemaWireSize(schema)

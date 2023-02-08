@@ -27,8 +27,8 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import kotlinx.coroutines.MainScope
 
 /**
- * Test shim to allow us to connect to WatchFaceControlService from
- * [WatchFaceControlClientTest] and to optionally override the reported API version.
+ * Test shim to allow us to connect to WatchFaceControlService from [WatchFaceControlClientTest] and
+ * to optionally override the reported API version.
  */
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceControlTestService : WatchFaceControlService() {
@@ -44,10 +44,8 @@ public class WatchFaceControlTestService : WatchFaceControlService() {
         object : WatchFaceControlService() {
             override fun createServiceStub(): IWatchFaceInstanceServiceStub =
                 @RequiresApi(Build.VERSION_CODES.O_MR1)
-                object : IWatchFaceInstanceServiceStub(
-                    this@WatchFaceControlTestService,
-                    MainScope()
-                ) {
+                object :
+                    IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope()) {
                     override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
                 }
 

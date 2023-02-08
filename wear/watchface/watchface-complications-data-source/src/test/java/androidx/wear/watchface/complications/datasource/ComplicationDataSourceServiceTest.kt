@@ -15,13 +15,13 @@
  */
 package androidx.wear.watchface.complications.datasource
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
@@ -62,20 +62,23 @@ import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
 @RunWith(ComplicationsTestRunner::class)
 @DoNotInstrument
 class ComplicationDataSourceServiceTest {
-    @get:Rule
-    val expect = Expect.create()
+    @get:Rule val expect = Expect.create()
 
     private var mPretendMainThread = HandlerThread("testThread")
     private lateinit var mPretendMainThreadHandler: Handler
 
     private val mRemoteManager = mock<IComplicationManager>()
     private val mUpdateComplicationDataLatch = CountDownLatch(1)
-    private val mLocalManager: IComplicationManager.Stub = object : IComplicationManager.Stub() {
-        override fun updateComplicationData(complicationSlotId: Int, data: WireComplicationData?) {
-            mRemoteManager.updateComplicationData(complicationSlotId, data)
-            mUpdateComplicationDataLatch.countDown()
+    private val mLocalManager: IComplicationManager.Stub =
+        object : IComplicationManager.Stub() {
+            override fun updateComplicationData(
+                complicationSlotId: Int,
+                data: WireComplicationData?
+            ) {
+                mRemoteManager.updateComplicationData(complicationSlotId, data)
+                mUpdateComplicationDataLatch.countDown()
+            }
         }
-    }
     private lateinit var mProvider: IComplicationProvider.Stub
 
     /**
@@ -136,9 +139,10 @@ class ComplicationDataSourceServiceTest {
     @Before
     fun setUp() {
         ShadowLog.setLoggable("ComplicationData", Log.DEBUG)
-        mProvider = mService.onBind(
-            Intent(ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST)
-        ) as IComplicationProvider.Stub
+        mProvider =
+            mService.onBind(
+                Intent(ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST)
+            ) as IComplicationProvider.Stub
 
         mPretendMainThread.start()
         mPretendMainThreadHandler = Handler(mPretendMainThread.looper)
@@ -151,10 +155,12 @@ class ComplicationDataSourceServiceTest {
 
     @Test
     fun testOnComplicationRequest() {
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -168,14 +174,15 @@ class ComplicationDataSourceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
     fun testOnComplicationRequestWithExpression_doesNotEvaluateExpression() {
-        mService.responseData = LongTextComplicationData.Builder(
-            ComplicationTextExpression(
-                DynamicBuilders.DynamicString.constant("hello").concat(
-                    DynamicBuilders.DynamicString.constant(" world")
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    ComplicationTextExpression(
+                        DynamicBuilders.DynamicString.constant("hello")
+                            .concat(DynamicBuilders.DynamicString.constant(" world"))
+                    ),
+                    ComplicationText.EMPTY
                 )
-            ),
-            ComplicationText.EMPTY
-        ).build()
+                .build()
         mProvider.onUpdate(
             /* complicationInstanceId = */ 123,
             ComplicationType.LONG_TEXT.toWireComplicationType(),
@@ -183,32 +190,35 @@ class ComplicationDataSourceServiceTest {
         )
 
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-        verify(mRemoteManager).updateComplicationData(
-            eq(123),
-            eq(
-                LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicBuilders.DynamicString.constant("hello").concat(
-                            DynamicBuilders.DynamicString.constant(" world")
+        verify(mRemoteManager)
+            .updateComplicationData(
+                eq(123),
+                eq(
+                    LongTextComplicationData.Builder(
+                            ComplicationTextExpression(
+                                DynamicBuilders.DynamicString.constant("hello")
+                                    .concat(DynamicBuilders.DynamicString.constant(" world"))
+                            ),
+                            ComplicationText.EMPTY
                         )
-                    ),
-                    ComplicationText.EMPTY
-                ).build().asWireComplicationData()
+                        .build()
+                        .asWireComplicationData()
+                )
             )
-        )
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
     fun testOnComplicationRequestWithExpressionPreT_evaluatesExpression() {
-        mService.responseData = LongTextComplicationData.Builder(
-            ComplicationTextExpression(
-                DynamicBuilders.DynamicString.constant("hello").concat(
-                    DynamicBuilders.DynamicString.constant(" world")
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    ComplicationTextExpression(
+                        DynamicBuilders.DynamicString.constant("hello")
+                            .concat(DynamicBuilders.DynamicString.constant(" world"))
+                    ),
+                    ComplicationText.EMPTY
                 )
-            ),
-            ComplicationText.EMPTY
-        ).build()
+                .build()
 
         mProvider.onUpdate(
             /* complicationInstanceId = */ 123,
@@ -217,19 +227,23 @@ class ComplicationDataSourceServiceTest {
         )
 
         runUiThreadTasksWhileAwaitingDataLatch(1000)
-        verify(mRemoteManager).updateComplicationData(
-            eq(123),
-            argThat { data ->
-                data.longText!!.getTextAt(Resources.getSystem(), 0) == "hello world"
-            })
+        verify(mRemoteManager)
+            .updateComplicationData(
+                eq(123),
+                argThat { data ->
+                    data.longText!!.getTextAt(Resources.getSystem(), 0) == "hello world"
+                }
+            )
     }
 
     @Test
     fun testOnComplicationRequestWrongType() {
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val id = 123
         val exception = AtomicReference<Throwable>()
         val exceptionLatch = CountDownLatch(1)
@@ -260,58 +274,70 @@ class ComplicationDataSourceServiceTest {
 
     @Test
     fun testGetComplicationPreviewData() {
-        mService.previewData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello preview").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.previewData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello preview").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
 
         assertThat(
-            mProvider.getComplicationPreviewData(
-                ComplicationType.LONG_TEXT.toWireComplicationType()
-            ).longText!!.getTextAt(Resources.getSystem(), 0)
-        ).isEqualTo("hello preview")
+                mProvider
+                    .getComplicationPreviewData(ComplicationType.LONG_TEXT.toWireComplicationType())
+                    .longText!!
+                    .getTextAt(Resources.getSystem(), 0)
+            )
+            .isEqualTo("hello preview")
     }
 
     enum class DataWithExpressionScenario(val data: ComplicationData) {
         RANGED_VALUE(
             RangedValueComplicationData.Builder(
-                valueExpression = DynamicFloat.constant(1f),
-                min = 0f,
-                max = 10f,
-                contentDescription = ComplicationText.EMPTY
-            ).setText(ComplicationText.EMPTY).build()
+                    valueExpression = DynamicFloat.constant(1f),
+                    min = 0f,
+                    max = 10f,
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .setText(ComplicationText.EMPTY)
+                .build()
         ),
         LONG_TEXT(
             LongTextComplicationData.Builder(
-                text = ComplicationTextExpression(DynamicString.constant("Long Text")),
-                contentDescription = ComplicationText.EMPTY
-            ).build()
+                    text = ComplicationTextExpression(DynamicString.constant("Long Text")),
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .build()
         ),
         LONG_TITLE(
             LongTextComplicationData.Builder(
-                text = ComplicationText.EMPTY,
-                contentDescription = ComplicationText.EMPTY
-            ).setTitle(ComplicationTextExpression(DynamicString.constant("Long Title"))).build()
+                    text = ComplicationText.EMPTY,
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .setTitle(ComplicationTextExpression(DynamicString.constant("Long Title")))
+                .build()
         ),
         SHORT_TEXT(
             ShortTextComplicationData.Builder(
-                text = ComplicationTextExpression(DynamicString.constant("Short Text")),
-                contentDescription = ComplicationText.EMPTY
-            ).build()
+                    text = ComplicationTextExpression(DynamicString.constant("Short Text")),
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .build()
         ),
         SHORT_TITLE(
             ShortTextComplicationData.Builder(
-                text = ComplicationText.EMPTY,
-                contentDescription = ComplicationText.EMPTY
-            ).setTitle(ComplicationTextExpression(DynamicString.constant("Short Title"))).build()
+                    text = ComplicationText.EMPTY,
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .setTitle(ComplicationTextExpression(DynamicString.constant("Short Title")))
+                .build()
         ),
         CONTENT_DESCRIPTION(
             LongTextComplicationData.Builder(
-                text = ComplicationText.EMPTY,
-                contentDescription = ComplicationTextExpression(
-                    DynamicString.constant("Long Text")
-                ),
-            ).build()
+                    text = ComplicationText.EMPTY,
+                    contentDescription =
+                        ComplicationTextExpression(DynamicString.constant("Long Text")),
+                )
+                .build()
         ),
     }
 
@@ -320,11 +346,15 @@ class ComplicationDataSourceServiceTest {
         for (scenario in DataWithExpressionScenario.values()) {
             mService.previewData = scenario.data
 
-            val exception = assertFailsWith<IllegalArgumentException> {
-                mProvider.getComplicationPreviewData(scenario.data.type.toWireComplicationType())
-            }
+            val exception =
+                assertFailsWith<IllegalArgumentException> {
+                    mProvider.getComplicationPreviewData(
+                        scenario.data.type.toWireComplicationType()
+                    )
+                }
 
-            expect.withMessage(scenario.name)
+            expect
+                .withMessage(scenario.name)
                 .that(exception)
                 .hasMessageThat()
                 .isEqualTo("Preview data must not have expressions.")
@@ -339,34 +369,37 @@ class ComplicationDataSourceServiceTest {
             TimelineEntry(
                 TimeInterval(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(4000)),
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder("A").build(),
-                    ComplicationText.EMPTY
-                ).build()
+                        PlainComplicationText.Builder("A").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
             )
         )
         timeline.add(
             TimelineEntry(
                 TimeInterval(Instant.ofEpochSecond(6000), Instant.ofEpochSecond(8000)),
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder("B").build(),
-                    ComplicationText.EMPTY
-                ).build()
+                        PlainComplicationText.Builder("B").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
             )
         )
-        mService.responseDataTimeline = ComplicationDataTimeline(
-            LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("default").build(),
-                ComplicationText.EMPTY
-            ).build(),
-            timeline
-        )
+        mService.responseDataTimeline =
+            ComplicationDataTimeline(
+                LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder("default").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build(),
+                timeline
+            )
 
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         val data = argumentCaptor<WireComplicationData>()
-        verify(mRemoteManager)
-            .updateComplicationData(eq(id), data.capture())
+        verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.firstValue.longText!!.getTextAt(Resources.getSystem(), 0))
             .isEqualTo("default")
         val timeLineEntries: List<WireComplicationData?> = data.firstValue.timelineEntries!!
@@ -384,10 +417,12 @@ class ComplicationDataSourceServiceTest {
 
     @Test
     fun testImmediateRequest() {
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val thread = HandlerThread("testThread")
 
         try {

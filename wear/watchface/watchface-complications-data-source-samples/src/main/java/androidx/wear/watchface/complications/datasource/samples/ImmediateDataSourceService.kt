@@ -17,12 +17,12 @@
 package androidx.wear.watchface.complications.datasource.samples
 
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
-import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
 
 /** A minimal complication data source which reports the ID of the complication immediately. */
 class ImmediateDataSourceService : ComplicationDataSourceService() {
@@ -35,34 +35,29 @@ class ImmediateDataSourceService : ComplicationDataSourceService() {
             when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(
-                        plainText("# ${request.complicationInstanceId}"),
-                        ComplicationText.EMPTY
-                    ).build()
-
+                            plainText("# ${request.complicationInstanceId}"),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
                 ComplicationType.LONG_TEXT ->
                     LongTextComplicationData.Builder(
-                        plainText("hello ${request.complicationInstanceId}"),
-                        ComplicationText.EMPTY
-                    ).build()
-
+                            plainText("hello ${request.complicationInstanceId}"),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
                 else -> null
             }
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(
-                plainText("# 123"),
-                ComplicationText.EMPTY
-            ).build()
-
-        ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(
-                plainText("hello 123"),
-                ComplicationText.EMPTY
-            ).build()
-
-        else -> null
-    }
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.SHORT_TEXT ->
+                ShortTextComplicationData.Builder(plainText("# 123"), ComplicationText.EMPTY)
+                    .build()
+            ComplicationType.LONG_TEXT ->
+                LongTextComplicationData.Builder(plainText("hello 123"), ComplicationText.EMPTY)
+                    .build()
+            else -> null
+        }
 }

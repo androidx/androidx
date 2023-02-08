@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.complications
 
-import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.app.Service
 import android.content.ComponentName
 import android.content.Context
@@ -25,6 +24,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.IBinder
+import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import androidx.annotation.RequiresApi
@@ -37,10 +37,10 @@ import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.Instant
 
 private const val LEFT_COMPLICATION_ID = 101
 private const val RIGHT_COMPLICATION_ID = 102
@@ -62,39 +62,49 @@ public class TestProviderInfoServiceStub : IProviderInfoService.Stub() {
     private val dataSourceIcon2: Icon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
 
-    private val dataSourceInfos = mapOf(
-        LEFT_COMPLICATION_ID to ComplicationDataSourceInfo(
-            "DataSourceApp1",
-            "DataSource1",
-            dataSourceIcon1,
-            ComplicationType.SHORT_TEXT,
-            dataSource1
-        ),
-        RIGHT_COMPLICATION_ID to ComplicationDataSourceInfo(
-            "DataSourceApp2",
-            "DataSource2",
-            dataSourceIcon2,
-            ComplicationType.LONG_TEXT,
-            dataSource2
+    private val dataSourceInfos =
+        mapOf(
+            LEFT_COMPLICATION_ID to
+                ComplicationDataSourceInfo(
+                    "DataSourceApp1",
+                    "DataSource1",
+                    dataSourceIcon1,
+                    ComplicationType.SHORT_TEXT,
+                    dataSource1
+                ),
+            RIGHT_COMPLICATION_ID to
+                ComplicationDataSourceInfo(
+                    "DataSourceApp2",
+                    "DataSource2",
+                    dataSourceIcon2,
+                    ComplicationType.LONG_TEXT,
+                    dataSource2
+                )
         )
-    )
-    private val previewData = mapOf(
-        dataSource1 to
-            ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("Left").build(),
-                ComplicationText.EMPTY
-            ).build().asWireComplicationData(),
-        dataSource2 to
-            LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Right").build(),
-                ComplicationText.EMPTY
-            ).build().asWireComplicationData(),
-        dataSource3 to
-            LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("DataSource3").build(),
-                ComplicationText.EMPTY
-            ).build().asWireComplicationData(),
-    )
+    private val previewData =
+        mapOf(
+            dataSource1 to
+                ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Left").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
+                    .asWireComplicationData(),
+            dataSource2 to
+                LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Right").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
+                    .asWireComplicationData(),
+            dataSource3 to
+                LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder("DataSource3").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
+                    .asWireComplicationData(),
+        )
 
     override fun getProviderInfos(
         watchFaceComponentName: ComponentName,
@@ -103,11 +113,13 @@ public class TestProviderInfoServiceStub : IProviderInfoService.Stub() {
         if (watchFaceComponentName != watchFaceComponent) {
             return null
         }
-        return ArrayList<WireComplicationProviderInfo?>().apply {
-            for (id in ids) {
-                add(dataSourceInfos[id]?.toWireComplicationProviderInfo())
+        return ArrayList<WireComplicationProviderInfo?>()
+            .apply {
+                for (id in ids) {
+                    add(dataSourceInfos[id]?.toWireComplicationProviderInfo())
+                }
             }
-        }.toTypedArray()
+            .toTypedArray()
     }
 
     override fun getApiVersion() = IProviderInfoService.API_VERSION
@@ -128,10 +140,11 @@ public class ComplicationDataSourceInfoRetrieverTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val serviceIntent = Intent(context, TestProviderInfoService::class.java)
-    private val complicationDataSourceInfoRetriever = ComplicationDataSourceInfoRetriever(
-        ApplicationProvider.getApplicationContext<Context>(),
-        serviceIntent
-    )
+    private val complicationDataSourceInfoRetriever =
+        ComplicationDataSourceInfoRetriever(
+            ApplicationProvider.getApplicationContext<Context>(),
+            serviceIntent
+        )
 
     @Test
     public fun retrieveComplicationDataSourceInfo() {
@@ -163,9 +176,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     dataSource1,
                     ComplicationType.SHORT_TEXT
                 ) as ShortTextComplicationData
-            assertThat(
-                complicationData.text.getTextAt(context.resources, Instant.EPOCH)
-            ).isEqualTo("Left")
+            assertThat(complicationData.text.getTextAt(context.resources, Instant.EPOCH))
+                .isEqualTo("Left")
             complicationDataSourceInfoRetriever.close()
         }
     }

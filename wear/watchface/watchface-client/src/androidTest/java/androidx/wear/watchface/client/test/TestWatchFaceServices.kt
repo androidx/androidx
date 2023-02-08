@@ -82,29 +82,26 @@ internal class TestLifeCycleWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.GlesRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            16
-        ) {
-            init {
-                lifeCycleEvents.add("Renderer.constructed")
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, 16) {
+                init {
+                    lifeCycleEvents.add("Renderer.constructed")
+                }
+
+                override fun onDestroy() {
+                    super.onDestroy()
+                    lifeCycleEvents.add("Renderer.onDestroy")
+                }
+
+                override fun render(zonedDateTime: ZonedDateTime) {}
+
+                override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
             }
-
-            override fun onDestroy() {
-                super.onDestroy()
-                lifeCycleEvents.add("Renderer.onDestroy")
-            }
-
-            override fun render(zonedDateTime: ZonedDateTime) {}
-
-            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
-        }
-    )
+        )
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -125,12 +122,13 @@ internal class TestExampleCanvasAnalogWatchFaceService(
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
-        watchFace = super.createWatchFace(
-            surfaceHolder,
-            watchState,
-            complicationSlotsManager,
-            currentUserStyleRepository
-        )
+        watchFace =
+            super.createWatchFace(
+                surfaceHolder,
+                watchState,
+                complicationSlotsManager,
+                currentUserStyleRepository
+            )
         return watchFace
     }
 
@@ -138,11 +136,12 @@ internal class TestExampleCanvasAnalogWatchFaceService(
         var systemTimeMillis = 1000000000L
     }
 
-    override fun getSystemTimeProvider() = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = systemTimeMillis
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = systemTimeMillis
 
-        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    }
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+        }
 }
 
 internal class TestExampleOpenGLBackgroundInitWatchFaceService(
@@ -163,12 +162,13 @@ internal class TestExampleOpenGLBackgroundInitWatchFaceService(
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
-        watchFace = super.createWatchFace(
-            surfaceHolder,
-            watchState,
-            complicationSlotsManager,
-            currentUserStyleRepository
-        )
+        watchFace =
+            super.createWatchFace(
+                surfaceHolder,
+                watchState,
+                complicationSlotsManager,
+                currentUserStyleRepository
+            )
         return watchFace
     }
 }
@@ -185,15 +185,16 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
         return ComplicationSlotsManager(
             listOf(
                 ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                    COMPLICATION_ID,
-                    { _, _ -> throw Exception("Deliberately crashing") },
-                    listOf(ComplicationType.LONG_TEXT),
-                    DefaultComplicationDataSourcePolicy(
-                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-                        ComplicationType.LONG_TEXT
-                    ),
-                    ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.4f, 0.4f))
-                ).build()
+                        COMPLICATION_ID,
+                        { _, _ -> throw Exception("Deliberately crashing") },
+                        listOf(ComplicationType.LONG_TEXT),
+                        DefaultComplicationDataSourcePolicy(
+                            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                            ComplicationType.LONG_TEXT
+                        ),
+                        ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.4f, 0.4f))
+                    )
+                    .build()
             ),
             currentUserStyleRepository
         )
@@ -226,29 +227,36 @@ internal class TestWatchfaceOverlayStyleWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                // Actually rendering something isn't required.
-            }
+    ) =
+        WatchFace(
+                WatchFaceType.DIGITAL,
+                @Suppress("deprecation")
+                object :
+                    Renderer.CanvasRenderer(
+                        surfaceHolder,
+                        currentUserStyleRepository,
+                        watchState,
+                        CanvasType.HARDWARE,
+                        16
+                    ) {
+                    override fun render(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime
+                    ) {
+                        // Actually rendering something isn't required.
+                    }
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
-                // Actually rendering something isn't required.
-            }
-        }
-    ).setOverlayStyle(watchFaceOverlayStyle)
+                    override fun renderHighlightLayer(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime
+                    ) {
+                        // Actually rendering something isn't required.
+                    }
+                }
+            )
+            .setOverlayStyle(watchFaceOverlayStyle)
 }
 
 internal class TestAsyncCanvasRenderInitWatchFaceService(
@@ -268,39 +276,42 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override suspend fun init() {
-                initCompletableDeferred.await()
-            }
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override suspend fun init() {
+                    initCompletableDeferred.await()
+                }
 
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                // Actually rendering something isn't required.
-            }
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Actually rendering something isn't required.
+                }
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
-                TODO("Not yet implemented")
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    TODO("Not yet implemented")
+                }
             }
+        )
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
         }
-    )
-
-    override fun getSystemTimeProvider() = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = 123456789L
-
-        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    }
 }
 
 internal class TestAsyncGlesRenderInitWatchFaceService(
@@ -322,32 +333,29 @@ internal class TestAsyncGlesRenderInitWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.GlesRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            16
-        ) {
-            override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
-                onUiThreadGlSurfaceCreatedCompletableDeferred.await()
-            }
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, 16) {
+                override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
+                    onUiThreadGlSurfaceCreatedCompletableDeferred.await()
+                }
 
-            override suspend fun onBackgroundThreadGlContextCreated() {
-                onBackgroundThreadGlContextCreatedCompletableDeferred.await()
-            }
+                override suspend fun onBackgroundThreadGlContextCreated() {
+                    onBackgroundThreadGlContextCreatedCompletableDeferred.await()
+                }
 
-            override fun render(zonedDateTime: ZonedDateTime) {
-                // GLES rendering is complicated and not strictly necessary for our test.
-            }
+                override fun render(zonedDateTime: ZonedDateTime) {
+                    // GLES rendering is complicated and not strictly necessary for our test.
+                }
 
-            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
-                TODO("Not yet implemented")
+                override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+                    TODO("Not yet implemented")
+                }
             }
-        }
-    )
+        )
 }
 
 internal class TestComplicationProviderDefaultsWatchFaceService(
@@ -367,53 +375,48 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
         return ComplicationSlotsManager(
             listOf(
                 ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                    123,
-                    { _, _ ->
-                        object : CanvasComplication {
-                            override fun render(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                zonedDateTime: ZonedDateTime,
-                                renderParameters: RenderParameters,
-                                slotId: Int
-                            ) {
-                            }
+                        123,
+                        { _, _ ->
+                            object : CanvasComplication {
+                                override fun render(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    zonedDateTime: ZonedDateTime,
+                                    renderParameters: RenderParameters,
+                                    slotId: Int
+                                ) {}
 
-                            override fun drawHighlight(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                boundsType: Int,
-                                zonedDateTime: ZonedDateTime,
-                                color: Int
-                            ) {
-                            }
+                                override fun drawHighlight(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    boundsType: Int,
+                                    zonedDateTime: ZonedDateTime,
+                                    color: Int
+                                ) {}
 
-                            override fun getData() = NoDataComplicationData()
+                                override fun getData() = NoDataComplicationData()
 
-                            override fun loadData(
-                                complicationData: ComplicationData,
-                                loadDrawablesAsynchronous: Boolean
-                            ) {
+                                override fun loadData(
+                                    complicationData: ComplicationData,
+                                    loadDrawablesAsynchronous: Boolean
+                                ) {}
                             }
-                        }
-                    },
-                    listOf(
-                        ComplicationType.PHOTO_IMAGE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    DefaultComplicationDataSourcePolicy(
-                        ComponentName("com.package1", "com.app1"),
-                        ComplicationType.PHOTO_IMAGE,
-                        ComponentName("com.package2", "com.app2"),
-                        ComplicationType.LONG_TEXT,
-                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    ComplicationSlotBounds(
-                        RectF(0.1f, 0.2f, 0.3f, 0.4f)
+                        },
+                        listOf(
+                            ComplicationType.PHOTO_IMAGE,
+                            ComplicationType.LONG_TEXT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        DefaultComplicationDataSourcePolicy(
+                            ComponentName("com.package1", "com.app1"),
+                            ComplicationType.PHOTO_IMAGE,
+                            ComponentName("com.package2", "com.app2"),
+                            ComplicationType.LONG_TEXT,
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        ComplicationSlotBounds(RectF(0.1f, 0.2f, 0.3f, 0.4f))
                     )
-                )
                     .build()
             ),
             currentUserStyleRepository
@@ -425,26 +428,27 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
-    )
+        )
 }
 
 internal class TestEdgeComplicationWatchFaceService(
@@ -465,54 +469,49 @@ internal class TestEdgeComplicationWatchFaceService(
         return ComplicationSlotsManager(
             listOf(
                 ComplicationSlot.createEdgeComplicationSlotBuilder(
-                    123,
-                    { _, _ ->
-                        object : CanvasComplication {
-                            override fun render(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                zonedDateTime: ZonedDateTime,
-                                renderParameters: RenderParameters,
-                                slotId: Int
-                            ) {
-                            }
+                        123,
+                        { _, _ ->
+                            object : CanvasComplication {
+                                override fun render(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    zonedDateTime: ZonedDateTime,
+                                    renderParameters: RenderParameters,
+                                    slotId: Int
+                                ) {}
 
-                            override fun drawHighlight(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                boundsType: Int,
-                                zonedDateTime: ZonedDateTime,
-                                color: Int
-                            ) {
-                            }
+                                override fun drawHighlight(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    boundsType: Int,
+                                    zonedDateTime: ZonedDateTime,
+                                    color: Int
+                                ) {}
 
-                            override fun getData() = NoDataComplicationData()
+                                override fun getData() = NoDataComplicationData()
 
-                            override fun loadData(
-                                complicationData: ComplicationData,
-                                loadDrawablesAsynchronous: Boolean
-                            ) {
+                                override fun loadData(
+                                    complicationData: ComplicationData,
+                                    loadDrawablesAsynchronous: Boolean
+                                ) {}
                             }
-                        }
-                    },
-                    listOf(
-                        ComplicationType.PHOTO_IMAGE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    DefaultComplicationDataSourcePolicy(
-                        ComponentName("com.package1", "com.app1"),
-                        ComplicationType.PHOTO_IMAGE,
-                        ComponentName("com.package2", "com.app2"),
-                        ComplicationType.LONG_TEXT,
-                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    ComplicationSlotBounds(
-                        RectF(0f, 0f, 1f, 1f)
-                    ),
-                    BoundingArc(45f, 90f, 0.1f)
-                )
+                        },
+                        listOf(
+                            ComplicationType.PHOTO_IMAGE,
+                            ComplicationType.LONG_TEXT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        DefaultComplicationDataSourcePolicy(
+                            ComponentName("com.package1", "com.app1"),
+                            ComplicationType.PHOTO_IMAGE,
+                            ComponentName("com.package2", "com.app2"),
+                            ComplicationType.LONG_TEXT,
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
+                        BoundingArc(45f, 90f, 0.1f)
+                    )
                     .build()
             ),
             currentUserStyleRepository
@@ -524,26 +523,27 @@ internal class TestEdgeComplicationWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
-    )
+        )
 }
 
 internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
@@ -558,8 +558,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    @Suppress("deprecation")
-    private lateinit var renderer: Renderer.CanvasRenderer
+    @Suppress("deprecation") private lateinit var renderer: Renderer.CanvasRenderer
 
     fun triggerPreviewImageUpdateRequest() {
         renderer.sendPreviewImageNeedsUpdateRequest()
@@ -572,26 +571,27 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         @Suppress("deprecation")
-        renderer = object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override suspend fun init() {
-                rendererInitializedLatch.countDown()
-            }
+        renderer =
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override suspend fun init() {
+                    rendererInitializedLatch.countDown()
+                }
 
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
         return WatchFace(WatchFaceType.DIGITAL, renderer)
     }
 }
@@ -613,35 +613,35 @@ internal class TestComplicationStyleUpdateWatchFaceService(
             R.string.watchface_complications_setting,
             R.string.watchface_complications_setting_description,
             icon = null,
-            complicationConfig = listOf(
-                UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id(NO_COMPLICATIONS),
-                    resources,
-                    R.string.watchface_complications_setting_none,
-                    null,
-                    listOf(
-                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
-                            123,
-                            enabled = false
+            complicationConfig =
+                listOf(
+                    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id(NO_COMPLICATIONS),
+                        resources,
+                        R.string.watchface_complications_setting_none,
+                        null,
+                        listOf(
+                            UserStyleSetting.ComplicationSlotsUserStyleSetting
+                                .ComplicationSlotOverlay(123, enabled = false)
+                        )
+                    ),
+                    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id(LEFT_COMPLICATION),
+                        resources,
+                        R.string.watchface_complications_setting_left,
+                        null,
+                        listOf(
+                            UserStyleSetting.ComplicationSlotsUserStyleSetting
+                                .ComplicationSlotOverlay(
+                                    123,
+                                    enabled = true,
+                                    nameResourceId = R.string.left_complication_screen_name,
+                                    screenReaderNameResourceId =
+                                        R.string.left_complication_screen_reader_name
+                                )
                         )
                     )
                 ),
-                UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id(LEFT_COMPLICATION),
-                    resources,
-                    R.string.watchface_complications_setting_left,
-                    null,
-                    listOf(
-                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
-                            123,
-                            enabled = true,
-                            nameResourceId = R.string.left_complication_screen_name,
-                            screenReaderNameResourceId =
-                            R.string.left_complication_screen_reader_name
-                        )
-                    )
-                )
-            ),
             listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
@@ -656,53 +656,49 @@ internal class TestComplicationStyleUpdateWatchFaceService(
         return ComplicationSlotsManager(
             listOf(
                 ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                    123,
-                    { _, _ ->
-                        object : CanvasComplication {
-                            override fun render(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                zonedDateTime: ZonedDateTime,
-                                renderParameters: RenderParameters,
-                                slotId: Int
-                            ) {
-                            }
+                        123,
+                        { _, _ ->
+                            object : CanvasComplication {
+                                override fun render(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    zonedDateTime: ZonedDateTime,
+                                    renderParameters: RenderParameters,
+                                    slotId: Int
+                                ) {}
 
-                            override fun drawHighlight(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                boundsType: Int,
-                                zonedDateTime: ZonedDateTime,
-                                color: Int
-                            ) {
-                            }
+                                override fun drawHighlight(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    boundsType: Int,
+                                    zonedDateTime: ZonedDateTime,
+                                    color: Int
+                                ) {}
 
-                            override fun getData() = NoDataComplicationData()
+                                override fun getData() = NoDataComplicationData()
 
-                            override fun loadData(
-                                complicationData: ComplicationData,
-                                loadDrawablesAsynchronous: Boolean
-                            ) {
+                                override fun loadData(
+                                    complicationData: ComplicationData,
+                                    loadDrawablesAsynchronous: Boolean
+                                ) {}
                             }
-                        }
-                    },
-                    listOf(
-                        ComplicationType.PHOTO_IMAGE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    DefaultComplicationDataSourcePolicy(
-                        ComponentName("com.package1", "com.app1"),
-                        ComplicationType.PHOTO_IMAGE,
-                        ComponentName("com.package2", "com.app2"),
-                        ComplicationType.LONG_TEXT,
-                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    ComplicationSlotBounds(
-                        RectF(0.1f, 0.2f, 0.3f, 0.4f)
+                        },
+                        listOf(
+                            ComplicationType.PHOTO_IMAGE,
+                            ComplicationType.LONG_TEXT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        DefaultComplicationDataSourcePolicy(
+                            ComponentName("com.package1", "com.app1"),
+                            ComplicationType.PHOTO_IMAGE,
+                            ComponentName("com.package2", "com.app2"),
+                            ComplicationType.LONG_TEXT,
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        ComplicationSlotBounds(RectF(0.1f, 0.2f, 0.3f, 0.4f))
                     )
-                ).build()
+                    .build()
             ),
             currentUserStyleRepository
         )
@@ -713,26 +709,27 @@ internal class TestComplicationStyleUpdateWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.ANALOG,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+    ) =
+        WatchFace(
+            WatchFaceType.ANALOG,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
-    )
+        )
 }
 
 internal class TestCustomTapFilterWatchFaceService(
@@ -753,62 +750,57 @@ internal class TestCustomTapFilterWatchFaceService(
         return ComplicationSlotsManager(
             listOf(
                 ComplicationSlot.createEdgeComplicationSlotBuilder(
-                    123,
-                    { _, _ ->
-                        object : CanvasComplication {
-                            override fun render(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                zonedDateTime: ZonedDateTime,
-                                renderParameters: RenderParameters,
-                                slotId: Int
-                            ) {
-                            }
+                        123,
+                        { _, _ ->
+                            object : CanvasComplication {
+                                override fun render(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    zonedDateTime: ZonedDateTime,
+                                    renderParameters: RenderParameters,
+                                    slotId: Int
+                                ) {}
 
-                            override fun drawHighlight(
-                                canvas: Canvas,
-                                bounds: Rect,
-                                boundsType: Int,
-                                zonedDateTime: ZonedDateTime,
-                                color: Int
-                            ) {
-                            }
+                                override fun drawHighlight(
+                                    canvas: Canvas,
+                                    bounds: Rect,
+                                    boundsType: Int,
+                                    zonedDateTime: ZonedDateTime,
+                                    color: Int
+                                ) {}
 
-                            override fun getData() = NoDataComplicationData()
+                                override fun getData() = NoDataComplicationData()
 
-                            override fun loadData(
-                                complicationData: ComplicationData,
-                                loadDrawablesAsynchronous: Boolean
-                            ) {
+                                override fun loadData(
+                                    complicationData: ComplicationData,
+                                    loadDrawablesAsynchronous: Boolean
+                                ) {}
                             }
+                        },
+                        listOf(
+                            ComplicationType.PHOTO_IMAGE,
+                            ComplicationType.LONG_TEXT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        DefaultComplicationDataSourcePolicy(
+                            ComponentName("com.package1", "com.app1"),
+                            ComplicationType.PHOTO_IMAGE,
+                            ComponentName("com.package2", "com.app2"),
+                            ComplicationType.LONG_TEXT,
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                        ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
+                        object : ComplicationTapFilter {
+                            override fun hitTest(
+                                complicationSlot: ComplicationSlot,
+                                screenBounds: Rect,
+                                @Px x: Int,
+                                @Px y: Int,
+                                includeMargins: Boolean
+                            ): Boolean = (x % 2 == 0) && (y % 2 == 0)
                         }
-                    },
-                    listOf(
-                        ComplicationType.PHOTO_IMAGE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    DefaultComplicationDataSourcePolicy(
-                        ComponentName("com.package1", "com.app1"),
-                        ComplicationType.PHOTO_IMAGE,
-                        ComponentName("com.package2", "com.app2"),
-                        ComplicationType.LONG_TEXT,
-                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
-                        ComplicationType.SHORT_TEXT
-                    ),
-                    ComplicationSlotBounds(
-                        RectF(0f, 0f, 1f, 1f)
-                    ),
-                    object : ComplicationTapFilter {
-                        override fun hitTest(
-                            complicationSlot: ComplicationSlot,
-                            screenBounds: Rect,
-                            @Px x: Int,
-                            @Px y: Int,
-                            includeMargins: Boolean
-                        ): Boolean = (x % 2 == 0) && (y % 2 == 0)
-                    }
-                )
+                    )
                     .build()
             ),
             currentUserStyleRepository
@@ -820,58 +812,65 @@ internal class TestCustomTapFilterWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
-    )
+        )
 }
 
 internal object TestServicesHelpers {
-    fun createTestComplications(context: Context) = mapOf(
-        ExampleCanvasAnalogWatchFaceService.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("ID").build(),
-                ComplicationText.EMPTY
-            ).setTitle(PlainComplicationText.Builder("Left").build())
-                .setTapAction(
-                    PendingIntent.getActivity(context, 0, Intent("left"),
-                        PendingIntent.FLAG_IMMUTABLE
+    fun createTestComplications(context: Context) =
+        mapOf(
+            ExampleCanvasAnalogWatchFaceService.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("ID").build(),
+                        ComplicationText.EMPTY
                     )
-                )
-                .build(),
-        ExampleCanvasAnalogWatchFaceService.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("ID").build(),
-                ComplicationText.EMPTY
-            ).setTitle(PlainComplicationText.Builder("Right").build())
-                .setTapAction(
-                    PendingIntent.getActivity(context, 0, Intent("right"),
-                        PendingIntent.FLAG_IMMUTABLE
+                    .setTitle(PlainComplicationText.Builder("Left").build())
+                    .setTapAction(
+                        PendingIntent.getActivity(
+                            context,
+                            0,
+                            Intent("left"),
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
                     )
-                )
-                .build()
-    )
-
-    inline fun <reified T>componentOf(): ComponentName {
-        return ComponentName(
-            T::class.java.`package`?.name!!,
-            T::class.java.name
+                    .build(),
+            ExampleCanvasAnalogWatchFaceService.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("ID").build(),
+                        ComplicationText.EMPTY
+                    )
+                    .setTitle(PlainComplicationText.Builder("Right").build())
+                    .setTapAction(
+                        PendingIntent.getActivity(
+                            context,
+                            0,
+                            Intent("right"),
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
+                    )
+                    .build()
         )
+
+    inline fun <reified T> componentOf(): ComponentName {
+        return ComponentName(T::class.java.`package`?.name!!, T::class.java.name)
     }
 }

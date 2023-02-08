@@ -40,17 +40,17 @@ import java.util.Objects;
 /**
  * Activity to handle permission requests for complications.
  *
- * <p>This can be used to start the complication data source chooser, making a permission request
- * if necessary, or to just make a permission request, and update all active complications if the
+ * <p>This can be used to start the complication data source chooser, making a permission request if
+ * necessary, or to just make a permission request, and update all active complications if the
  * permission is granted.
  *
  * <p>To use, add this activity to your app, and also add the {@code
  * com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA} permission.
  *
- * <p>Then, to start the complication data source chooser chooser, use
- * {@link #createComplicationDataSourceChooserHelperIntent} to obtain an intent. If the
- * permission has not yet been granted, the permission will be requested and the complication
- * data source chooser chooser will only be started if the request is accepted by the user.
+ * <p>Then, to start the complication data source chooser chooser, use {@link
+ * #createComplicationDataSourceChooserHelperIntent} to obtain an intent. If the permission has not
+ * yet been granted, the permission will be requested and the complication data source chooser
+ * chooser will only be started if the request is accepted by the user.
  *
  * <p>Or, to request the permission, for instance if {@link ComplicationData} of {@link
  * ComplicationData#TYPE_NO_PERMISSION TYPE_NO_PERMISSION} has been received and tapped on, use
@@ -66,7 +66,7 @@ public final class ComplicationHelperActivity extends FragmentActivity
      * Whether to invoke a specified activity instead of the system's complication data source
      * chooser.
      *
-     * To be used in tests.
+     * <p>To be used in tests.
      */
     public static boolean useTestComplicationDataSourceChooserActivity = false;
 
@@ -74,7 +74,7 @@ public final class ComplicationHelperActivity extends FragmentActivity
      * Whether to skip th permission check and directly attempt to invoke the complication data
      * source chooser.
      *
-     * To be used in tests.
+     * <p>To be used in tests.
      */
     public static boolean skipPermissionCheck = false;
 
@@ -114,14 +114,10 @@ public final class ComplicationHelperActivity extends FragmentActivity
     private static final String COMPLICATIONS_PERMISSION_PRIVILEGED =
             "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED";
 
-    @Nullable
-    ComponentName mWatchFace;
+    @Nullable ComponentName mWatchFace;
     int mWfComplicationId;
-    @Nullable
-    Bundle mAdditionalExtras;
-    @Nullable
-    @ComplicationData.ComplicationType
-    int[] mTypes;
+    @Nullable Bundle mAdditionalExtras;
+    @Nullable @ComplicationData.ComplicationType int[] mTypes;
     Delegate mDelegate = new DelegateImpl(this);
 
     /** Allows the logic to be tested. */
@@ -159,27 +155,28 @@ public final class ComplicationHelperActivity extends FragmentActivity
         @Override
         public boolean checkPermission() {
             return ActivityCompat.checkSelfPermission(
-                    mActivity, COMPLICATIONS_PERMISSION_PRIVILEGED)
-                    == PackageManager.PERMISSION_GRANTED
+                                    mActivity, COMPLICATIONS_PERMISSION_PRIVILEGED)
+                            == PackageManager.PERMISSION_GRANTED
                     || ActivityCompat.checkSelfPermission(mActivity, COMPLICATIONS_PERMISSION)
-                    == PackageManager.PERMISSION_GRANTED
+                            == PackageManager.PERMISSION_GRANTED
                     || skipPermissionCheck;
         }
 
         @Override
         public void requestPermissions(int requestCode) {
             ActivityCompat.requestPermissions(
-                    mActivity,
-                    new String[]{COMPLICATIONS_PERMISSION},
-                    requestCode);
+                    mActivity, new String[] {COMPLICATIONS_PERMISSION}, requestCode);
         }
 
         @Override
         @SuppressWarnings("deprecation") // startActivityForResult
         public boolean launchComplicationRationaleActivity() {
             Intent complicationRationalIntent =
-                    mActivity.getIntent().getParcelableExtra(
-                            ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE);
+                    mActivity
+                            .getIntent()
+                            .getParcelableExtra(
+                                    ComplicationDataSourceChooserIntent
+                                            .EXTRA_COMPLICATION_RATIONALE);
 
             if (complicationRationalIntent != null) {
                 mActivity.startActivityForResult(
@@ -194,8 +191,10 @@ public final class ComplicationHelperActivity extends FragmentActivity
         @SuppressWarnings("deprecation")
         public void launchComplicationDeniedActivity() {
             Intent complicationDeniedIntent =
-                    mActivity.getIntent().getParcelableExtra(
-                            ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED);
+                    mActivity
+                            .getIntent()
+                            .getParcelableExtra(
+                                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED);
 
             if (complicationDeniedIntent != null) {
                 mActivity.startActivity(complicationDeniedIntent);
@@ -216,10 +215,11 @@ public final class ComplicationHelperActivity extends FragmentActivity
             extras.putAll(intent.getExtras());
             intent.replaceExtras(extras);
             if (useTestComplicationDataSourceChooserActivity) {
-                intent.setComponent(new ComponentName(
-                        "androidx.wear.watchface.editor.test",
-                        "androidx.wear.watchface.editor"
-                                + ".TestComplicationDataSourceChooserActivity"));
+                intent.setComponent(
+                        new ComponentName(
+                                "androidx.wear.watchface.editor.test",
+                                "androidx.wear.watchface.editor"
+                                        + ".TestComplicationDataSourceChooserActivity"));
             }
             mActivity.startActivityForResult(intent, START_REQUEST_CODE_PROVIDER_CHOOSER);
         }
@@ -257,33 +257,39 @@ public final class ComplicationHelperActivity extends FragmentActivity
 
         switch (Objects.requireNonNull(intent.getAction())) {
             case ACTION_START_PROVIDER_CHOOSER:
-                mWatchFace = intent.getParcelableExtra(
-                        ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+                mWatchFace =
+                        intent.getParcelableExtra(
+                                ComplicationDataSourceChooserIntent
+                                        .EXTRA_WATCH_FACE_COMPONENT_NAME);
                 mWfComplicationId =
                         intent.getIntExtra(
                                 ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_ID, 0);
-                mTypes = intent.getIntArrayExtra(
-                        ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES);
+                mTypes =
+                        intent.getIntArrayExtra(
+                                ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES);
                 mAdditionalExtras = getAdditionalExtras(intent);
                 if (mDelegate.checkPermission()) {
                     mDelegate.startComplicationDataSourceChooser();
                 } else {
-                    int requestCode = shouldShowRequestPermissionRationale
-                            ? PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER :
-                            PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT;
+                    int requestCode =
+                            shouldShowRequestPermissionRationale
+                                    ? PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER
+                                    : PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT;
                     mDelegate.requestPermissions(requestCode);
                 }
                 break;
             case ACTION_PERMISSION_REQUEST_ONLY:
-                mWatchFace = intent.getParcelableExtra(
-                        ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+                mWatchFace =
+                        intent.getParcelableExtra(
+                                ComplicationDataSourceChooserIntent
+                                        .EXTRA_WATCH_FACE_COMPONENT_NAME);
                 if (mDelegate.checkPermission()) {
                     finish();
                 } else {
                     mDelegate.requestPermissions(
                             shouldShowRequestPermissionRationale
-                                    ? PERMISSION_REQUEST_CODE_REQUEST_ONLY :
-                                    PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT);
+                                    ? PERMISSION_REQUEST_CODE_REQUEST_ONLY
+                                    : PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT);
                 }
                 break;
             default:
@@ -302,8 +308,7 @@ public final class ComplicationHelperActivity extends FragmentActivity
         }
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER
-                    || requestCode
-                    == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT) {
+                    || requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT) {
                 mDelegate.startComplicationDataSourceChooser();
             } else {
                 finish();
@@ -353,28 +358,25 @@ public final class ComplicationHelperActivity extends FragmentActivity
      * RESULT_OK} if a complication data source was successfully set, or a result code of {@link
      * Activity#RESULT_CANCELED RESULT_CANCELED} if no complication data source was set. In the case
      * where a complication data source was set, {@link ComplicationProviderInfo} for the chosen
-     * complication data source will be included in the data intent of the result, as an extra
-     * with the key android.support.wearable.complications.EXTRA_PROVIDER_INFO.
+     * complication data source will be included in the data intent of the result, as an extra with
+     * the key android.support.wearable.complications.EXTRA_PROVIDER_INFO.
      *
      * <p>The package of the calling app must match the package of the watch face, or this will not
      * work.
      *
      * <p>From android R onwards this API can only be called during an editing session.
      *
-     * @param context                 context for the current app, that must contain a
-     *                                ComplicationHelperActivity
-     * @param watchFace               the ComponentName of the WatchFaceService being configured.
+     * @param context context for the current app, that must contain a ComplicationHelperActivity
+     * @param watchFace the ComponentName of the WatchFaceService being configured.
      * @param watchFaceComplicationId the watch face's id for the complication being configured.
-     *                                This must match the id passed in when the watch face calls
-     *                                WatchFaceService.Engine#setActiveComplications.
-     * @param supportedTypes          the types supported by the complication, in decreasing
-     *                                order of
-     *                                preference. If a complication data source can supply data for
-     *                                more than one of these types, the type chosen will be
-     *                                whichever was specified first.
-     * @param watchFaceInstanceId     The ID of the watchface being edited.
-     * @param complicationDenied      Intent to launch the complication permission denied dialog.
-     * @param complicationRationale   Intent to launch the complication permission rationale dialog.
+     *     This must match the id passed in when the watch face calls
+     *     WatchFaceService.Engine#setActiveComplications.
+     * @param supportedTypes the types supported by the complication, in decreasing order of
+     *     preference. If a complication data source can supply data for more than one of these
+     *     types, the type chosen will be whichever was specified first.
+     * @param watchFaceInstanceId The ID of the watchface being edited.
+     * @param complicationDenied Intent to launch the complication permission denied dialog.
+     * @param complicationRationale Intent to launch the complication permission rationale dialog.
      */
     @NonNull
     public static Intent createComplicationDataSourceChooserHelperIntent(
@@ -392,15 +394,18 @@ public final class ComplicationHelperActivity extends FragmentActivity
         intent.putExtra(
                 ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_ID, watchFaceComplicationId);
         if (watchFaceInstanceId != null) {
-            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID,
+            intent.putExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID,
                     watchFaceInstanceId);
         }
         if (complicationDenied != null) {
-            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED,
+            intent.putExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED,
                     complicationDenied);
         }
         if (complicationRationale != null) {
-            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
+            intent.putExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
                     complicationRationale);
         }
         int[] wireSupportedTypes = new int[supportedTypes.size()];
@@ -408,8 +413,8 @@ public final class ComplicationHelperActivity extends FragmentActivity
         for (ComplicationType supportedType : supportedTypes) {
             wireSupportedTypes[i++] = supportedType.toWireComplicationType();
         }
-        intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES,
-                wireSupportedTypes);
+        intent.putExtra(
+                ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES, wireSupportedTypes);
         return intent;
     }
 
@@ -429,11 +434,9 @@ public final class ComplicationHelperActivity extends FragmentActivity
      * watch face will be triggered. The provided {@code watchFace} must match the current watch
      * face for this to occur.
      *
-     * @param context               context for the current app, that must contain a
-     *                              ComplicationHelperActivity
-     * @param watchFace             the ComponentName of the WatchFaceService for the current
-     *                              watch face
-     * @param complicationDenied    Intent to launch the complication permission denied dialog.
+     * @param context context for the current app, that must contain a ComplicationHelperActivity
+     * @param watchFace the ComponentName of the WatchFaceService for the current watch face
+     * @param complicationDenied Intent to launch the complication permission denied dialog.
      * @param complicationRationale Intent to launch the complication permission rationale dialog.
      */
     @NonNull
@@ -444,14 +447,16 @@ public final class ComplicationHelperActivity extends FragmentActivity
             @Nullable Intent complicationRationale) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_PERMISSION_REQUEST_ONLY);
-        intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME,
-                watchFace);
+        intent.putExtra(
+                ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
         if (complicationDenied != null) {
-            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED,
+            intent.putExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED,
                     complicationDenied);
         }
         if (complicationRationale != null) {
-            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
+            intent.putExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
                     complicationRationale);
         }
         return intent;

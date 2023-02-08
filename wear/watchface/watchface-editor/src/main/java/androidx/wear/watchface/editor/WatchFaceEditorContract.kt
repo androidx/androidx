@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.editor
 
-import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
@@ -34,11 +33,12 @@ import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiDeviceConfig
+import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
-import kotlinx.coroutines.TimeoutCancellationException
 import java.time.Instant
+import kotlinx.coroutines.TimeoutCancellationException
 
 internal const val INSTANCE_ID_KEY: String = "INSTANCE_ID_KEY"
 internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
@@ -84,24 +84,25 @@ public class PreviewScreenshotParams(
  * @param watchFaceComponentName The [ComponentName] of the watch face being edited.
  * @param editorPackageName The package name of the watch face editor APK.
  * @param initialUserStyle The initial [UserStyle] stored as a [UserStyleData] or `null`. Only
- * required for a headless [EditorSession].
+ *   required for a headless [EditorSession].
  * @param watchFaceId Unique ID for the instance of the watch face being edited, only defined for
- * Android R and beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName]
- * can have multiple instances.
- * @param headlessDeviceConfig If `non-null` then this is the [DeviceConfig] to use when creating
- * a headless instance to back the [EditorSession]. If `null` then the current interactive instance
- * will be used. If there isn't one then the [EditorSession] won't launch until it's been created.
- * Note [supportsWatchFaceHeadlessEditing] can be used to determine if this feature is supported.
- * If it's not supported this parameter will be ignored.
- * @param previewScreenshotParams If `non-null` then [EditorSession] upon
- * closing will render a screenshot with [PreviewScreenshotParams] using the existing interactive
- * or headless instance which will be sent in [EditorState] to any registered clients.
+ *   Android R and beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName]
+ *   can have multiple instances.
+ * @param headlessDeviceConfig If `non-null` then this is the [DeviceConfig] to use when creating a
+ *   headless instance to back the [EditorSession]. If `null` then the current interactive instance
+ *   will be used. If there isn't one then the [EditorSession] won't launch until it's been created.
+ *   Note [supportsWatchFaceHeadlessEditing] can be used to determine if this feature is supported.
+ *   If it's not supported this parameter will be ignored.
+ * @param previewScreenshotParams If `non-null` then [EditorSession] upon closing will render a
+ *   screenshot with [PreviewScreenshotParams] using the existing interactive or headless instance
+ *   which will be sent in [EditorState] to any registered clients.
  */
-public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
+public class EditorRequest
+@RequiresApi(Build.VERSION_CODES.R)
+constructor(
     public val watchFaceComponentName: ComponentName,
     public val editorPackageName: String,
     public val initialUserStyle: UserStyleData?,
-
     @get:RequiresApi(Build.VERSION_CODES.R)
     @RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId,
@@ -114,8 +115,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
      * @param watchFaceComponentName The [ComponentName] of the watch face being edited.
      * @param editorPackageName The package name of the watch face editor APK.
      * @param initialUserStyle The initial [UserStyle] stored as a [UserStyleData] or `null`. Only
-     * required for a headless [EditorSession].
-     * [EditorSession].
+     *   required for a headless [EditorSession]. [EditorSession].
      */
     @SuppressLint("NewApi")
     public constructor(
@@ -135,39 +135,45 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
         /**
          * Returns an [EditorRequest] saved to a [Intent] by [WatchFaceEditorContract.createIntent]
          * if there is one or `null` otherwise. Intended for use by the watch face editor activity.
+         *
          * @throws [TimeoutCancellationException] in case of en error.
          */
         @Suppress("DEPRECATION")
         @SuppressLint("NewApi")
         @JvmStatic
         @Throws(TimeoutCancellationException::class)
-        public fun createFromIntent(intent: Intent): EditorRequest = EditorRequest(
-            watchFaceComponentName = intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)!!,
-            editorPackageName = intent.getPackage() ?: "",
-            initialUserStyle = intent.getStringArrayExtra(USER_STYLE_KEY)?.let {
-                UserStyleData(
-                    HashMap<String, ByteArray>().apply {
-                        for (i in it.indices) {
-                            val userStyleValue =
-                                intent.getByteArrayExtra(USER_STYLE_VALUES + i)!!
-                            put(it[i], userStyleValue)
+        public fun createFromIntent(intent: Intent): EditorRequest =
+            EditorRequest(
+                watchFaceComponentName =
+                    intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)!!,
+                editorPackageName = intent.getPackage() ?: "",
+                initialUserStyle =
+                    intent.getStringArrayExtra(USER_STYLE_KEY)?.let {
+                        UserStyleData(
+                            HashMap<String, ByteArray>().apply {
+                                for (i in it.indices) {
+                                    val userStyleValue =
+                                        intent.getByteArrayExtra(USER_STYLE_VALUES + i)!!
+                                    put(it[i], userStyleValue)
+                                }
+                            }
+                        )
+                    },
+                watchFaceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: ""),
+                headlessDeviceConfig =
+                    intent
+                        .getParcelableExtra<WireDeviceConfig>(HEADLESS_DEVICE_CONFIG_KEY)
+                        ?.asApiDeviceConfig(),
+                previewScreenshotParams =
+                    intent
+                        .getParcelableExtra<RenderParametersWireFormat>(RENDER_PARAMETERS_KEY)
+                        ?.let {
+                            PreviewScreenshotParams(
+                                RenderParameters(it),
+                                Instant.ofEpochMilli(intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0))
+                            )
                         }
-                    }
-                )
-            },
-            watchFaceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: ""),
-            headlessDeviceConfig = intent.getParcelableExtra<WireDeviceConfig>(
-                HEADLESS_DEVICE_CONFIG_KEY
-            )?.asApiDeviceConfig(),
-            previewScreenshotParams = intent.getParcelableExtra<RenderParametersWireFormat>(
-                RENDER_PARAMETERS_KEY
-            )?.let {
-                PreviewScreenshotParams(
-                    RenderParameters(it),
-                    Instant.ofEpochMilli(intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0))
-                )
-            }
-        )
+            )
 
         internal const val ANDROIDX_WATCHFACE_API_VERSION = "androidx.wear.watchface.api_version"
         internal const val WATCHFACE_CONTROL_SERVICE =
@@ -179,7 +185,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
          *
          * @param packageManager The [PackageManager].
          * @param watchfacePackageName The package name of the watchface, see
-         * [ComponentName.getPackageName].
+         *   [ComponentName.getPackageName].
          * @throws [PackageManager.NameNotFoundException] if watchfacePackageName is not recognized.
          * @hide
          */
@@ -191,10 +197,14 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
             packageManager: PackageManager,
             watchfacePackageName: String
         ): Boolean {
-            val metaData = packageManager.getServiceInfo(
-                ComponentName(watchfacePackageName, WATCHFACE_CONTROL_SERVICE),
-                PackageManager.GET_META_DATA
-            ).metaData ?: return false
+            val metaData =
+                packageManager
+                    .getServiceInfo(
+                        ComponentName(watchfacePackageName, WATCHFACE_CONTROL_SERVICE),
+                        PackageManager.GET_META_DATA
+                    )
+                    .metaData
+                    ?: return false
             return metaData.getInt(ANDROIDX_WATCHFACE_API_VERSION) >= 4
         }
     }
@@ -214,10 +224,7 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
             "androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"
     }
 
-    override fun createIntent(
-        context: Context,
-        input: EditorRequest
-    ): Intent {
+    override fun createIntent(context: Context, input: EditorRequest): Intent {
         return Intent(ACTION_WATCH_FACE_EDITOR).apply {
             setPackage(input.editorPackageName)
             putExtra(COMPONENT_NAME_KEY, input.watchFaceComponentName)

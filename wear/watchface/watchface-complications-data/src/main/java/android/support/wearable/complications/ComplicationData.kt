@@ -48,11 +48,9 @@ import java.util.Objects
 /**
  * Container for complication data of all types.
  *
- * A [androidx.wear.watchface.complications.ComplicationProviderService] should create
- * instances of
- * this class using [ComplicationData.Builder] and send them to the complication system in
- * response to
- * [androidx.wear.watchface.complications.ComplicationProviderService.onComplicationRequest].
+ * A [androidx.wear.watchface.complications.ComplicationProviderService] should create instances of
+ * this class using [ComplicationData.Builder] and send them to the complication system in response
+ * to [androidx.wear.watchface.complications.ComplicationProviderService.onComplicationRequest].
  * Depending on the type of complication data, some fields will be required and some will be
  * optional - see the documentation for each type, and for the builder's set methods, for details.
  *
@@ -95,8 +93,7 @@ class ComplicationData : Parcelable, Serializable {
     annotation class ImageStyle
 
     /** Returns the type of this complication data. */
-    @ComplicationType
-    val type: Int
+    @ComplicationType val type: Int
 
     private val fields: Bundle
 
@@ -113,18 +110,18 @@ class ComplicationData : Parcelable, Serializable {
 
     internal constructor(input: Parcel) {
         type = input.readInt()
-        fields = input.readBundle(javaClass.classLoader) ?: run {
-            Log.w(TAG, "ComplicationData parcel input has null bundle.")
-            Bundle()
-        }
+        fields =
+            input.readBundle(javaClass.classLoader)
+                ?: run {
+                    Log.w(TAG, "ComplicationData parcel input has null bundle.")
+                    Bundle()
+                }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private class SerializedForm
     @JvmOverloads
-    constructor(
-        private var complicationData: ComplicationData? = null
-    ) : Serializable {
+    constructor(private var complicationData: ComplicationData? = null) : Serializable {
 
         @Throws(IOException::class)
         private fun writeObject(oos: ObjectOutputStream) {
@@ -163,9 +160,7 @@ class ComplicationData : Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
                 oos.writeObject(
-                    IconSerializableHelper.create(
-                        complicationData.burnInProtectionSmallImage
-                    )
+                    IconSerializableHelper.create(complicationData.burnInProtectionSmallImage)
                 )
             }
             if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
@@ -286,7 +281,8 @@ class ComplicationData : Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) {
                 putIfNotNull(
-                    fields, FIELD_CONTENT_DESCRIPTION,
+                    fields,
+                    FIELD_CONTENT_DESCRIPTION,
                     ois.readObject() as ComplicationText?
                 )
             }
@@ -295,7 +291,8 @@ class ComplicationData : Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
                 putIfNotNull(
-                    fields, FIELD_ICON_BURN_IN_PROTECTION,
+                    fields,
+                    FIELD_ICON_BURN_IN_PROTECTION,
                     IconSerializableHelper.read(ois)
                 )
             }
@@ -305,7 +302,8 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
                 putIfNotNull(
                     fields,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, IconSerializableHelper.read(ois)
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    IconSerializableHelper.read(ois)
                 )
             }
             if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
@@ -318,9 +316,8 @@ class ComplicationData : Parcelable, Serializable {
                 fields.putFloat(FIELD_VALUE, ois.readFloat())
             }
             if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
-                ois.readNullable { ois.readByteArray() }?.let {
-                    fields.putByteArray(FIELD_VALUE_EXPRESSION, it)
-                }
+                ois.readNullable { ois.readByteArray() }
+                    ?.let { fields.putByteArray(FIELD_VALUE_EXPRESSION, it) }
             }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
                 fields.putInt(FIELD_VALUE_TYPE, ois.readInt())
@@ -335,24 +332,20 @@ class ComplicationData : Parcelable, Serializable {
                 fields.putFloat(FIELD_TARGET_VALUE, ois.readFloat())
             }
             if (isFieldValidForType(FIELD_COLOR_RAMP, type)) {
-                ois.readNullable { ois.readIntArray() }?.let {
-                    fields.putIntArray(FIELD_COLOR_RAMP, it)
-                }
+                ois.readNullable { ois.readIntArray() }
+                    ?.let { fields.putIntArray(FIELD_COLOR_RAMP, it) }
             }
             if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
-                ois.readNullable { ois.readBoolean() }?.let {
-                    fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, it)
-                }
+                ois.readNullable { ois.readBoolean() }
+                    ?.let { fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, it) }
             }
             if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
-                ois.readNullable { ois.readFloatArray() }?.let {
-                    fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, it)
-                }
+                ois.readNullable { ois.readFloatArray() }
+                    ?.let { fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, it) }
             }
             if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
-                ois.readNullable { ois.readIntArray() }?.let {
-                    fields.putIntArray(FIELD_ELEMENT_COLORS, it)
-                }
+                ois.readNullable { ois.readIntArray() }
+                    ?.let { fields.putIntArray(FIELD_ELEMENT_COLORS, it) }
             }
             if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
                 fields.putInt(FIELD_ELEMENT_BACKGROUND_COLOR, ois.readInt())
@@ -400,7 +393,8 @@ class ComplicationData : Parcelable, Serializable {
                     fields.remove(FIELD_DATA_SOURCE)
                 } else {
                     fields.putParcelable(
-                        FIELD_DATA_SOURCE, ComponentName.unflattenFromString(componentName)
+                        FIELD_DATA_SOURCE,
+                        ComponentName.unflattenFromString(componentName)
                     )
                 }
             }
@@ -424,17 +418,16 @@ class ComplicationData : Parcelable, Serializable {
                 .takeIf { it.isNotEmpty() }
                 ?.let { fields.putParcelableArray(EXP_FIELD_LIST_ENTRIES, it.toTypedArray()) }
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
-                ois.readNullable { SerializedForm().apply { readObject(ois) } }?.let {
-                    fields.putInt(FIELD_PLACEHOLDER_TYPE, it.complicationData!!.type)
-                    fields.putBundle(FIELD_PLACEHOLDER_FIELDS, it.complicationData!!.fields)
-                }
+                ois.readNullable { SerializedForm().apply { readObject(ois) } }
+                    ?.let {
+                        fields.putInt(FIELD_PLACEHOLDER_TYPE, it.complicationData!!.type)
+                        fields.putBundle(FIELD_PLACEHOLDER_FIELDS, it.complicationData!!.fields)
+                    }
             }
             ois.readList { SerializedForm().apply { readObject(ois) } }
                 .map { it.complicationData!!.fields }
                 .takeIf { it.isNotEmpty() }
-                ?.let {
-                    fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, it.toTypedArray())
-                }
+                ?.let { fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, it.toTypedArray()) }
             complicationData = ComplicationData(type, fields)
         }
 
@@ -450,8 +443,7 @@ class ComplicationData : Parcelable, Serializable {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
-    fun writeReplace(): Any = SerializedForm(this)
+    @RequiresApi(api = Build.VERSION_CODES.P) fun writeReplace(): Any = SerializedForm(this)
 
     @Throws(InvalidObjectException::class)
     private fun readObject(@Suppress("UNUSED_PARAMETER") stream: ObjectInputStream) {
@@ -528,8 +520,8 @@ class ComplicationData : Parcelable, Serializable {
     /** The list of [ComplicationData] timeline entries. */
     val timelineEntries: List<ComplicationData>?
         @Suppress("DEPRECATION")
-        get() = fields.getParcelableArray(FIELD_TIMELINE_ENTRIES)
-            ?.map { parcelable ->
+        get() =
+            fields.getParcelableArray(FIELD_TIMELINE_ENTRIES)?.map { parcelable ->
                 val bundle = parcelable as Bundle
                 bundle.classLoader = javaClass.classLoader
                 // Use the serialized FIELD_TIMELINE_ENTRY_TYPE or the outer type if it's not there.
@@ -546,11 +538,13 @@ class ComplicationData : Parcelable, Serializable {
         } else {
             fields.putParcelableArray(
                 FIELD_TIMELINE_ENTRIES,
-                timelineEntries.map {
-                    // This supports timeline entry of NoDataComplicationData.
-                    it.fields.putInt(FIELD_TIMELINE_ENTRY_TYPE, it.type)
-                    it.fields
-                }.toTypedArray()
+                timelineEntries
+                    .map {
+                        // This supports timeline entry of NoDataComplicationData.
+                        it.fields.putInt(FIELD_TIMELINE_ENTRY_TYPE, it.type)
+                        it.fields
+                    }
+                    .toTypedArray()
             )
         }
     }
@@ -558,8 +552,8 @@ class ComplicationData : Parcelable, Serializable {
     /** The list of [ComplicationData] entries for a ListComplicationData. */
     val listEntries: List<ComplicationData>?
         @Suppress("deprecation")
-        get() = fields.getParcelableArray(EXP_FIELD_LIST_ENTRIES)
-            ?.map { parcelable ->
+        get() =
+            fields.getParcelableArray(EXP_FIELD_LIST_ENTRIES)?.map { parcelable ->
                 val bundle = parcelable as Bundle
                 bundle.classLoader = javaClass.classLoader
                 ComplicationData(bundle.getInt(EXP_FIELD_LIST_ENTRY_TYPE), bundle)
@@ -610,8 +604,9 @@ class ComplicationData : Parcelable, Serializable {
     val rangedValueExpression: DynamicFloat?
         get() {
             checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE_EXPRESSION, type)
-            return fields.getByteArray(FIELD_VALUE_EXPRESSION)
-                ?.let { DynamicFloat.fromByteArray(it) }
+            return fields.getByteArray(FIELD_VALUE_EXPRESSION)?.let {
+                DynamicFloat.fromByteArray(it)
+            }
         }
 
     /**
@@ -705,8 +700,8 @@ class ComplicationData : Parcelable, Serializable {
 
     /**
      * Returns either a boolean where: true means the color ramp colors should be smoothly
-     * interpolated; false means the color ramp should be rendered in equal sized blocks of
-     * solid color; null means this value wasn't set, i.e. the complication is not of type
+     * interpolated; false means the color ramp should be rendered in equal sized blocks of solid
+     * color; null means this value wasn't set, i.e. the complication is not of type
      * [TYPE_RANGED_VALUE] or [TYPE_GOAL_PROGRESS].
      *
      * Valid only if the type of this complication data is [TYPE_RANGED_VALUE] or
@@ -723,24 +718,24 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a short title. I.e. if [shortTitle]
-     * can succeed.
+     * Returns true if the ComplicationData contains a short title. I.e. if [shortTitle] can
+     * succeed.
      */
     fun hasShortTitle(): Boolean =
         isFieldValidForType(FIELD_SHORT_TITLE, type) && hasParcelableField(FIELD_SHORT_TITLE)
 
     /**
-     * Returns the *short title* field for this complication, or `null` if no value was
-     * provided for the field.
+     * Returns the *short title* field for this complication, or `null` if no value was provided for
+     * the field.
      *
-     * The value is provided as a [ComplicationText] object, from which the text to display
-     * can be obtained for a given point in time.
+     * The value is provided as a [ComplicationText] object, from which the text to display can be
+     * obtained for a given point in time.
      *
-     * The length of the text, including any time-dependent values at any valid time, is expected
-     * to not exceed seven characters. When using this text, the watch face should be able to
-     * display any string of up to seven characters (reducing the text size appropriately if the
-     * string is very wide). Although not expected, it is possible that strings of more than seven
-     * characters might be seen, in which case they may be truncated.
+     * The length of the text, including any time-dependent values at any valid time, is expected to
+     * not exceed seven characters. When using this text, the watch face should be able to display
+     * any string of up to seven characters (reducing the text size appropriately if the string is
+     * very wide). Although not expected, it is possible that strings of more than seven characters
+     * might be seen, in which case they may be truncated.
      *
      * Valid only if the type of this complication data is [TYPE_SHORT_TEXT], [TYPE_RANGED_VALUE],
      * or [TYPE_NO_PERMISSION], otherwise returns null.
@@ -758,17 +753,17 @@ class ComplicationData : Parcelable, Serializable {
         isFieldValidForType(FIELD_SHORT_TEXT, type) && hasParcelableField(FIELD_SHORT_TEXT)
 
     /**
-     * Returns the *short text* field for this complication, or `null` if no value was
-     * provided for the field.
+     * Returns the *short text* field for this complication, or `null` if no value was provided for
+     * the field.
      *
-     * The value is provided as a [ComplicationText] object, from which the text to display
-     * can be obtained for a given point in time.
+     * The value is provided as a [ComplicationText] object, from which the text to display can be
+     * obtained for a given point in time.
      *
-     * The length of the text, including any time-dependent values at any valid time, is expected
-     * to not exceed seven characters. When using this text, the watch face should be able to
-     * display any string of up to seven characters (reducing the text size appropriately if the
-     * string is very wide). Although not expected, it is possible that strings of more than seven
-     * characters might be seen, in which case they may be truncated.
+     * The length of the text, including any time-dependent values at any valid time, is expected to
+     * not exceed seven characters. When using this text, the watch face should be able to display
+     * any string of up to seven characters (reducing the text size appropriately if the string is
+     * very wide). Although not expected, it is possible that strings of more than seven characters
+     * might be seen, in which case they may be truncated.
      *
      * Valid only if the type of this complication data is [TYPE_SHORT_TEXT], [TYPE_RANGED_VALUE],
      * or [TYPE_NO_PERMISSION], otherwise returns null.
@@ -780,18 +775,17 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a long title. I.e. if [longTitle]
-     * can succeed.
+     * Returns true if the ComplicationData contains a long title. I.e. if [longTitle] can succeed.
      */
     fun hasLongTitle(): Boolean =
         isFieldValidForType(FIELD_LONG_TITLE, type) && hasParcelableField(FIELD_LONG_TITLE)
 
     /**
-     * Returns the *long title* field for this complication, or `null` if no value was
-     * provided for the field.
+     * Returns the *long title* field for this complication, or `null` if no value was provided for
+     * the field.
      *
-     * The value is provided as a [ComplicationText] object, from which the text to display
-     * can be obtained for a given point in time.
+     * The value is provided as a [ComplicationText] object, from which the text to display can be
+     * obtained for a given point in time.
      *
      * Valid only if the type of this complication data is [TYPE_LONG_TEXT], otherwise returns null.
      */
@@ -801,18 +795,15 @@ class ComplicationData : Parcelable, Serializable {
             return getParcelableFieldOrWarn<ComplicationText>(FIELD_LONG_TITLE)
         }
 
-    /**
-     * Returns true if the ComplicationData contains long text. I.e. if [longText] can
-     * succeed.
-     */
+    /** Returns true if the ComplicationData contains long text. I.e. if [longText] can succeed. */
     fun hasLongText(): Boolean =
         isFieldValidForType(FIELD_LONG_TEXT, type) && hasParcelableField(FIELD_LONG_TEXT)
 
     /**
      * Returns the *long text* field for this complication.
      *
-     * The value is provided as a [ComplicationText] object, from which the text to display
-     * can be obtained for a given point in time.
+     * The value is provided as a [ComplicationText] object, from which the text to display can be
+     * obtained for a given point in time.
      *
      * Valid only if the type of this complication data is [TYPE_LONG_TEXT], otherwise returns null.
      */
@@ -823,14 +814,13 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /** Returns true if the ComplicationData contains an Icon. I.e. if [icon] can succeed. */
-    fun hasIcon(): Boolean =
-        isFieldValidForType(FIELD_ICON, type) && hasParcelableField(FIELD_ICON)
+    fun hasIcon(): Boolean = isFieldValidForType(FIELD_ICON, type) && hasParcelableField(FIELD_ICON)
 
     /**
-     * Returns the *icon* field for this complication, or `null` if no value was provided
-     * for the field. The image returned is expected to be single-color and so may be tinted to
-     * whatever color the watch face requires (but note that
-     * [android.graphics.drawable.Drawable.mutate] should be called before drawables are tinted).
+     * Returns the *icon* field for this complication, or `null` if no value was provided for the
+     * field. The image returned is expected to be single-color and so may be tinted to whatever
+     * color the watch face requires (but note that [android.graphics.drawable.Drawable.mutate]
+     * should be called before drawables are tinted).
      *
      * If the device is in ambient mode, and utilises burn-in protection, then the result of
      * [burnInProtectionIcon] must be used instead of this.
@@ -853,13 +843,12 @@ class ComplicationData : Parcelable, Serializable {
             hasParcelableField(FIELD_ICON_BURN_IN_PROTECTION)
 
     /**
-     * Returns the burn-in protection version of the *icon* field for this complication, or
-     * `null` if no such icon was provided. The image returned is expected to be an outline
-     * image suitable for use in ambient mode on screens with burn-in protection. The image is also
-     * expected to be single-color and so may be tinted to whatever color the watch face requires
-     * (but note that [android.graphics.drawable.Drawable.mutate] should be called before drawables
-     * are tinted, and that the color used should be suitable for ambient mode with burn-in
-     * protection).
+     * Returns the burn-in protection version of the *icon* field for this complication, or `null`
+     * if no such icon was provided. The image returned is expected to be an outline image suitable
+     * for use in ambient mode on screens with burn-in protection. The image is also expected to be
+     * single-color and so may be tinted to whatever color the watch face requires (but note that
+     * [android.graphics.drawable.Drawable.mutate] should be called before drawables are tinted, and
+     * that the color used should be suitable for ambient mode with burn-in protection).
      *
      * If the device is in ambient mode, and utilises burn-in protection, then the result of this
      * method must be used instead of the result of [icon].
@@ -874,27 +863,25 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a small image. I.e. if [smallImage]
-     * can succeed.
+     * Returns true if the ComplicationData contains a small image. I.e. if [smallImage] can
+     * succeed.
      */
     fun hasSmallImage(): Boolean =
         isFieldValidForType(FIELD_SMALL_IMAGE, type) && hasParcelableField(FIELD_SMALL_IMAGE)
 
     /**
-     * Returns the *small image* field for this complication, or `null` if no value was
-     * provided for the field.
+     * Returns the *small image* field for this complication, or `null` if no value was provided for
+     * the field.
      *
-     * This may be either a [IMAGE_STYLE_PHOTO] image, which is expected to
-     * fill the space available, or an [IMAGE_STYLE_ICON] image, which should be
-     * drawn entirely within the space available. Use [smallImageStyle] to determine which
-     * of these applies.
+     * This may be either a [IMAGE_STYLE_PHOTO] image, which is expected to fill the space
+     * available, or an [IMAGE_STYLE_ICON] image, which should be drawn entirely within the space
+     * available. Use [smallImageStyle] to determine which of these applies.
      *
      * As this may be any image, it is unlikely to be suitable for display in ambient mode when
      * burn-in protection is enabled, or in low-bit ambient mode, and should not be rendered under
      * these circumstances.
      *
-     * Valid for the types [TYPE_LONG_TEXT] and [TYPE_SMALL_IMAGE].
-     * Otherwise returns null.
+     * Valid for the types [TYPE_LONG_TEXT] and [TYPE_SMALL_IMAGE]. Otherwise returns null.
      */
     val smallImage: Icon?
         get() {
@@ -913,9 +900,9 @@ class ComplicationData : Parcelable, Serializable {
             hasParcelableField(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION)
 
     /**
-     * Returns the burn-in protection version of the *small image* field for this complication,
-     * or `null` if no such icon was provided. The image returned is expected to be an outline
-     * image suitable for use in ambient mode on screens with burn-in protection. The image is also
+     * Returns the burn-in protection version of the *small image* field for this complication, or
+     * `null` if no such icon was provided. The image returned is expected to be an outline image
+     * suitable for use in ambient mode on screens with burn-in protection. The image is also
      * expected to be single-color and so may be tinted to whatever color the watch face requires
      * (but note that [android.graphics.drawable.Drawable.mutate] should be called before drawables
      * are tinted, and that the color used should be suitable for ambient mode with burn-in
@@ -924,8 +911,7 @@ class ComplicationData : Parcelable, Serializable {
      * If the device is in ambient mode, and utilises burn-in protection, then the result of this
      * method must be used instead of the result of [smallImage].
      *
-     * Valid for the types [TYPE_LONG_TEXT] and [TYPE_SMALL_IMAGE].
-     * Otherwise returns null.
+     * Valid for the types [TYPE_LONG_TEXT] and [TYPE_SMALL_IMAGE]. Otherwise returns null.
      */
     val burnInProtectionSmallImage: Icon?
         get() {
@@ -956,8 +942,8 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a large image. I.e. if [largeImage]
-     * can succeed.
+     * Returns true if the ComplicationData contains a large image. I.e. if [largeImage] can
+     * succeed.
      */
     fun hasLargeImage(): Boolean =
         isFieldValidForType(FIELD_LARGE_IMAGE, type) && hasParcelableField(FIELD_LARGE_IMAGE)
@@ -970,8 +956,8 @@ class ComplicationData : Parcelable, Serializable {
      * burn-in protection is enabled, or in low-bit ambient mode, and should not be rendered under
      * these circumstances.
      *
-     * Valid only if the type of this complication data is [TYPE_LARGE_IMAGE].
-     * Otherwise returns null.
+     * Valid only if the type of this complication data is [TYPE_LARGE_IMAGE]. Otherwise returns
+     * null.
      */
     val largeImage: Icon?
         get() {
@@ -980,8 +966,7 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a tap action. I.e. if [tapAction]
-     * can succeed.
+     * Returns true if the ComplicationData contains a tap action. I.e. if [tapAction] can succeed.
      */
     fun hasTapAction(): Boolean =
         isFieldValidForType(FIELD_TAP_ACTION, type) && hasParcelableField(FIELD_TAP_ACTION)
@@ -1022,8 +1007,8 @@ class ComplicationData : Parcelable, Serializable {
     /**
      * Returns the element weights for this complication.
      *
-     * Valid only if the type of this complication data is [TYPE_WEIGHTED_ELEMENTS].
-     * Otherwise returns null.
+     * Valid only if the type of this complication data is [TYPE_WEIGHTED_ELEMENTS]. Otherwise
+     * returns null.
      */
     val elementWeights: FloatArray?
         get() {
@@ -1034,8 +1019,8 @@ class ComplicationData : Parcelable, Serializable {
     /**
      * Returns the element colors for this complication.
      *
-     * Valid only if the type of this complication data is [TYPE_WEIGHTED_ELEMENTS].
-     * Otherwise returns null.
+     * Valid only if the type of this complication data is [TYPE_WEIGHTED_ELEMENTS]. Otherwise
+     * returns null.
      */
     val elementColors: IntArray?
         get() {
@@ -1046,8 +1031,8 @@ class ComplicationData : Parcelable, Serializable {
     /**
      * Returns the background color to use between elements for this complication.
      *
-     * Valid only if the type of this complication data is [TYPE_WEIGHTED_ELEMENTS].
-     * Otherwise returns 0.
+     * Valid only if the type of this complication data is [TYPE_WEIGHTED_ELEMENTS]. Otherwise
+     * returns 0.
      */
     @get:ColorInt
     val elementBackgroundColor: Int
@@ -1063,7 +1048,7 @@ class ComplicationData : Parcelable, Serializable {
             checkFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)
             return if (
                 !fields.containsKey(FIELD_PLACEHOLDER_FIELDS) ||
-                !fields.containsKey(FIELD_PLACEHOLDER_TYPE)
+                    !fields.containsKey(FIELD_PLACEHOLDER_TYPE)
             ) {
                 null
             } else {
@@ -1081,8 +1066,7 @@ class ComplicationData : Parcelable, Serializable {
     /**
      * Returns the list style hint.
      *
-     * Valid only if the type of this complication data is [EXP_TYPE_LIST]. Otherwise
-     * returns zero.
+     * Valid only if the type of this complication data is [EXP_TYPE_LIST]. Otherwise returns zero.
      */
     val listStyleHint: Int
         get() {
@@ -1104,7 +1088,8 @@ class ComplicationData : Parcelable, Serializable {
         get() {
             checkFieldValidForTypeWithoutThrowingException(FIELD_PERSISTENCE_POLICY, type)
             return fields.getInt(
-                FIELD_PERSISTENCE_POLICY, ComplicationPersistencePolicies.CACHING_ALLOWED
+                FIELD_PERSISTENCE_POLICY,
+                ComplicationPersistencePolicies.CACHING_ALLOWED
             )
         }
 
@@ -1117,8 +1102,8 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns the start time for this complication data (i.e. the first time at which it should
-     * be considered active and displayed), this may be 0. See also [isActiveAt].
+     * Returns the start time for this complication data (i.e. the first time at which it should be
+     * considered active and displayed), this may be 0. See also [isActiveAt].
      */
     val startDateTimeMillis: Long
         get() = fields.getLong(FIELD_START_TIME, 0)
@@ -1135,10 +1120,11 @@ class ComplicationData : Parcelable, Serializable {
      * change based on the current time.
      */
     val isTimeDependent: Boolean
-        get() = isTimeDependentField(FIELD_SHORT_TEXT) ||
-            isTimeDependentField(FIELD_SHORT_TITLE) ||
-            isTimeDependentField(FIELD_LONG_TEXT) ||
-            isTimeDependentField(FIELD_LONG_TITLE)
+        get() =
+            isTimeDependentField(FIELD_SHORT_TEXT) ||
+                isTimeDependentField(FIELD_SHORT_TITLE) ||
+                isTimeDependentField(FIELD_LONG_TEXT) ||
+                isTimeDependentField(FIELD_LONG_TITLE)
 
     private fun isTimeDependentField(field: String): Boolean {
         val text = getParcelableFieldOrWarn<ComplicationText>(field)
@@ -1147,8 +1133,7 @@ class ComplicationData : Parcelable, Serializable {
 
     private fun <T : Parcelable?> getParcelableField(field: String): T? =
         try {
-            @Suppress("deprecation")
-            fields.getParcelable<T>(field)
+            @Suppress("deprecation") fields.getParcelable<T>(field)
         } catch (e: BadParcelableException) {
             null
         }
@@ -1157,8 +1142,7 @@ class ComplicationData : Parcelable, Serializable {
 
     private fun <T : Parcelable?> getParcelableFieldOrWarn(field: String): T? =
         try {
-            @Suppress("deprecation")
-            fields.getParcelable<T>(field)
+            @Suppress("deprecation") fields.getParcelable<T>(field)
         } catch (e: BadParcelableException) {
             Log.w(
                 TAG,
@@ -1176,8 +1160,7 @@ class ComplicationData : Parcelable, Serializable {
             toStringNoRedaction()
         }
 
-    /** @hide
-     */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun toStringNoRedaction() = "ComplicationData{mType=$type, mFields=$fields}"
 
@@ -1187,7 +1170,7 @@ class ComplicationData : Parcelable, Serializable {
             (!isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue) &&
             (!isFieldValidForType(FIELD_VALUE_EXPRESSION, type) ||
                 rangedValueExpression?.toDynamicFloatByteArray() contentEquals
-                other.rangedValueExpression?.toDynamicFloatByteArray()) &&
+                    other.rangedValueExpression?.toDynamicFloatByteArray()) &&
             (!isFieldValidForType(FIELD_SHORT_TITLE, type) || shortTitle == other.shortTitle) &&
             (!isFieldValidForType(FIELD_SHORT_TEXT, type) || shortText == other.shortText) &&
             (!isFieldValidForType(FIELD_LONG_TITLE, type) || longTitle == other.longTitle) &&
@@ -1232,8 +1215,8 @@ class ComplicationData : Parcelable, Serializable {
     }
 
     private fun equalsWithoutExpressions(other: ComplicationData): Boolean =
-        this === other || (
-            type == other.type &&
+        this === other ||
+            (type == other.type &&
                 (!isFieldValidForType(FIELD_TAP_ACTION_LOST, type) ||
                     tapActionLostDueToSerialization == other.tapActionLostDueToSerialization) &&
                 (!isFieldValidForType(FIELD_TIMELINE_START_TIME, type) ||
@@ -1244,8 +1227,7 @@ class ComplicationData : Parcelable, Serializable {
                     timelineEntries == other.timelineEntries) &&
                 (!isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type) ||
                     listEntries == other.listEntries) &&
-                (!isFieldValidForType(FIELD_DATA_SOURCE, type) ||
-                    dataSource == other.dataSource) &&
+                (!isFieldValidForType(FIELD_DATA_SOURCE, type) || dataSource == other.dataSource) &&
                 (!isFieldValidForType(FIELD_VALUE_TYPE, type) ||
                     rangedValueType == other.rangedValueType) &&
                 (!isFieldValidForType(FIELD_MIN_VALUE, type) ||
@@ -1291,103 +1273,103 @@ class ComplicationData : Parcelable, Serializable {
                 (!isFieldValidForType(FIELD_START_TIME, type) ||
                     startDateTimeMillis == other.startDateTimeMillis) &&
                 (!isFieldValidForType(FIELD_END_TIME, type) ||
-                    endDateTimeMillis == other.endDateTimeMillis)
-            )
+                    endDateTimeMillis == other.endDateTimeMillis))
 
-    override fun hashCode(): Int = Objects.hash(
-        type,
-        if (isFieldValidForType(FIELD_TAP_ACTION_LOST, type)) {
-            tapActionLostDueToSerialization
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_TIMELINE_START_TIME, type)) {
-            timelineStartEpochSecond
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_TIMELINE_END_TIME, type)) timelineEndEpochSecond else null,
-        if (isFieldValidForType(FIELD_TIMELINE_ENTRIES, type)) timelineEntries else null,
-        if (isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type)) listEntries else null,
-        if (isFieldValidForType(FIELD_DATA_SOURCE, type)) dataSource else null,
-        if (isFieldValidForType(FIELD_VALUE, type)) rangedValue else null,
-        if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
-            Arrays.hashCode(rangedValueExpression?.toDynamicFloatByteArray())
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_VALUE_TYPE, type)) rangedValueType else null,
-        if (isFieldValidForType(FIELD_MIN_VALUE, type)) rangedMinValue else null,
-        if (isFieldValidForType(FIELD_MAX_VALUE, type)) rangedMaxValue else null,
-        if (isFieldValidForType(FIELD_TARGET_VALUE, type)) targetValue else null,
-        if (isFieldValidForType(FIELD_COLOR_RAMP, type)) colorRamp.contentHashCode() else null,
-        if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
-            isColorRampInterpolated
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_SHORT_TITLE, type)) shortTitle else null,
-        if (isFieldValidForType(FIELD_SHORT_TEXT, type)) shortText else null,
-        if (isFieldValidForType(FIELD_LONG_TITLE, type)) longTitle else null,
-        if (isFieldValidForType(FIELD_LONG_TEXT, type)) longText else null,
-        if (isFieldValidForType(FIELD_ICON, type)) icon?.iconHashCode() else null,
-        if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
-            burnInProtectionIcon?.iconHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) smallImage?.iconHashCode() else null,
-        if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
-            burnInProtectionSmallImage?.iconHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) smallImageStyle else null,
-        if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) largeImage?.iconHashCode() else null,
-        if (isFieldValidForType(FIELD_TAP_ACTION, type)) tapAction else null,
-        if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) contentDescription else null,
-        if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
-            elementWeights.contentHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
-            elementColors.contentHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
-            elementBackgroundColor
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) placeholder else null,
-        if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
-            interactiveLayout.contentHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, type)) listStyleHint else null,
-        if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type)) {
-            ambientLayout.contentHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type)) {
-            layoutResources.contentHashCode()
-        } else {
-            null
-        },
-        if (isFieldValidForType(FIELD_PERSISTENCE_POLICY, type)) persistencePolicy else null,
-        if (isFieldValidForType(FIELD_DISPLAY_POLICY, type)) displayPolicy else null,
-        if (isFieldValidForType(FIELD_START_TIME, type)) startDateTimeMillis else null,
-        if (isFieldValidForType(FIELD_END_TIME, type)) endDateTimeMillis else null,
-    )
+    override fun hashCode(): Int =
+        Objects.hash(
+            type,
+            if (isFieldValidForType(FIELD_TAP_ACTION_LOST, type)) {
+                tapActionLostDueToSerialization
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_TIMELINE_START_TIME, type)) {
+                timelineStartEpochSecond
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_TIMELINE_END_TIME, type)) timelineEndEpochSecond
+            else null,
+            if (isFieldValidForType(FIELD_TIMELINE_ENTRIES, type)) timelineEntries else null,
+            if (isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type)) listEntries else null,
+            if (isFieldValidForType(FIELD_DATA_SOURCE, type)) dataSource else null,
+            if (isFieldValidForType(FIELD_VALUE, type)) rangedValue else null,
+            if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
+                Arrays.hashCode(rangedValueExpression?.toDynamicFloatByteArray())
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_VALUE_TYPE, type)) rangedValueType else null,
+            if (isFieldValidForType(FIELD_MIN_VALUE, type)) rangedMinValue else null,
+            if (isFieldValidForType(FIELD_MAX_VALUE, type)) rangedMaxValue else null,
+            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) targetValue else null,
+            if (isFieldValidForType(FIELD_COLOR_RAMP, type)) colorRamp.contentHashCode() else null,
+            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
+                isColorRampInterpolated
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_SHORT_TITLE, type)) shortTitle else null,
+            if (isFieldValidForType(FIELD_SHORT_TEXT, type)) shortText else null,
+            if (isFieldValidForType(FIELD_LONG_TITLE, type)) longTitle else null,
+            if (isFieldValidForType(FIELD_LONG_TEXT, type)) longText else null,
+            if (isFieldValidForType(FIELD_ICON, type)) icon?.iconHashCode() else null,
+            if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
+                burnInProtectionIcon?.iconHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) smallImage?.iconHashCode() else null,
+            if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
+                burnInProtectionSmallImage?.iconHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) smallImageStyle else null,
+            if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) largeImage?.iconHashCode() else null,
+            if (isFieldValidForType(FIELD_TAP_ACTION, type)) tapAction else null,
+            if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) contentDescription else null,
+            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
+                elementWeights.contentHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
+                elementColors.contentHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
+                elementBackgroundColor
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) placeholder else null,
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
+                interactiveLayout.contentHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, type)) listStyleHint else null,
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type)) {
+                ambientLayout.contentHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type)) {
+                layoutResources.contentHashCode()
+            } else {
+                null
+            },
+            if (isFieldValidForType(FIELD_PERSISTENCE_POLICY, type)) persistencePolicy else null,
+            if (isFieldValidForType(FIELD_DISPLAY_POLICY, type)) displayPolicy else null,
+            if (isFieldValidForType(FIELD_START_TIME, type)) startDateTimeMillis else null,
+            if (isFieldValidForType(FIELD_END_TIME, type)) endDateTimeMillis else null,
+        )
 
     /** Builder class for [ComplicationData]. */
     class Builder {
-        @ComplicationType
-        internal val type: Int
+        @ComplicationType internal val type: Int
 
         internal val fields: Bundle
 
@@ -1406,25 +1388,27 @@ class ComplicationData : Parcelable, Serializable {
         }
 
         /** Sets the complication's [ComplicationPersistencePolicy]. */
-        fun setPersistencePolicy(@ComplicationPersistencePolicy cachePolicy: Int) =
-            apply { fields.putInt(FIELD_PERSISTENCE_POLICY, cachePolicy) }
+        fun setPersistencePolicy(@ComplicationPersistencePolicy cachePolicy: Int) = apply {
+            fields.putInt(FIELD_PERSISTENCE_POLICY, cachePolicy)
+        }
 
         /** Sets the complication's [ComplicationDisplayPolicy]. */
-        fun setDisplayPolicy(@ComplicationDisplayPolicy displayPolicy: Int) =
-            apply { fields.putInt(FIELD_DISPLAY_POLICY, displayPolicy) }
+        fun setDisplayPolicy(@ComplicationDisplayPolicy displayPolicy: Int) = apply {
+            fields.putInt(FIELD_DISPLAY_POLICY, displayPolicy)
+        }
 
         /**
          * Sets the start time for this complication data. This is optional for any type.
          *
-         * The complication data will be considered inactive (i.e. should not be displayed) if
-         * the current time is less than the start time. If not specified, the data is considered
-         * active for all time up to the end time (or always active if end time is also not
-         * specified).
+         * The complication data will be considered inactive (i.e. should not be displayed) if the
+         * current time is less than the start time. If not specified, the data is considered active
+         * for all time up to the end time (or always active if end time is also not specified).
          *
          * Returns this Builder to allow chaining.
          */
-        fun setStartDateTimeMillis(startDateTimeMillis: Long) =
-            apply { fields.putLong(FIELD_START_TIME, startDateTimeMillis) }
+        fun setStartDateTimeMillis(startDateTimeMillis: Long) = apply {
+            fields.putLong(FIELD_START_TIME, startDateTimeMillis)
+        }
 
         /**
          * Removes the start time for this complication data.
@@ -1436,15 +1420,16 @@ class ComplicationData : Parcelable, Serializable {
         /**
          * Sets the end time for this complication data. This is optional for any type.
          *
-         * The complication data will be considered inactive (i.e. should not be displayed) if
-         * the current time is greater than the end time. If not specified, the data is considered
+         * The complication data will be considered inactive (i.e. should not be displayed) if the
+         * current time is greater than the end time. If not specified, the data is considered
          * active for all time after the start time (or always active if start time is also not
          * specified).
          *
          * Returns this Builder to allow chaining.
          */
-        fun setEndDateTimeMillis(endDateTimeMillis: Long) =
-            apply { fields.putLong(FIELD_END_TIME, endDateTimeMillis) }
+        fun setEndDateTimeMillis(endDateTimeMillis: Long) = apply {
+            fields.putLong(FIELD_END_TIME, endDateTimeMillis)
+        }
 
         /**
          * Removes the end time for this complication data.
@@ -1454,14 +1439,14 @@ class ComplicationData : Parcelable, Serializable {
         fun clearEndDateTime() = apply { fields.remove(FIELD_END_TIME) }
 
         /**
-         * Sets the *value* field. This is required for the [TYPE_RANGED_VALUE] type,
-         * and the [TYPE_GOAL_PROGRESS] type. For [TYPE_RANGED_VALUE] value must
-         * be in the range [min .. max] for [TYPE_GOAL_PROGRESS] value must be >= and may
-         * be greater than target value.
+         * Sets the *value* field. This is required for the [TYPE_RANGED_VALUE] type, and the
+         * [TYPE_GOAL_PROGRESS] type. For [TYPE_RANGED_VALUE] value must be in the range
+         * [min .. max] for [TYPE_GOAL_PROGRESS] value must be >= and may be greater than target
+         * value.
          *
-         * Both the [TYPE_RANGED_VALUE] complication and the
-         * [TYPE_GOAL_PROGRESS] complication visually present a single value, which is
-         * usually a percentage. E.g. you have completed 70% of today's  target of 10000 steps.
+         * Both the [TYPE_RANGED_VALUE] complication and the [TYPE_GOAL_PROGRESS] complication
+         * visually present a single value, which is usually a percentage. E.g. you have completed
+         * 70% of today's target of 10000 steps.
          *
          * Returns this Builder to allow chaining.
          *
@@ -1477,20 +1462,21 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setRangedValueExpression(value: DynamicFloat?) =
-            apply { putOrRemoveField(FIELD_VALUE_EXPRESSION, value?.toDynamicFloatByteArray()) }
+        fun setRangedValueExpression(value: DynamicFloat?) = apply {
+            putOrRemoveField(FIELD_VALUE_EXPRESSION, value?.toDynamicFloatByteArray())
+        }
 
         /**
-         * Sets the *value type* field which provides meta data about the value. This is
-         * optional for the [TYPE_RANGED_VALUE] type.
+         * Sets the *value type* field which provides meta data about the value. This is optional
+         * for the [TYPE_RANGED_VALUE] type.
          */
         fun setRangedValueType(valueType: Int) = apply { putIntField(FIELD_VALUE_TYPE, valueType) }
 
         /**
-         * Sets the *min value* field. This is required for the [TYPE_RANGED_VALUE]
-         * type, and is not valid for any other type. A [TYPE_RANGED_VALUE] complication
-         * visually presents a single value, which is usually a percentage. E.g. you have
-         * completed 70% of today's target of 10000 steps.
+         * Sets the *min value* field. This is required for the [TYPE_RANGED_VALUE] type, and is not
+         * valid for any other type. A [TYPE_RANGED_VALUE] complication visually presents a single
+         * value, which is usually a percentage. E.g. you have completed 70% of today's target of
+         * 10000 steps.
          *
          * Returns this Builder to allow chaining.
          *
@@ -1499,10 +1485,10 @@ class ComplicationData : Parcelable, Serializable {
         fun setRangedMinValue(minValue: Float) = apply { putFloatField(FIELD_MIN_VALUE, minValue) }
 
         /**
-         * Sets the *max value* field. This is required for the [TYPE_RANGED_VALUE]
-         * type, and is not valid for any other type. A [TYPE_RANGED_VALUE] complication
-         * visually presents a single value, which is usually a percentage. E.g. you have
-         * completed 70% of today's target of 10000 steps.
+         * Sets the *max value* field. This is required for the [TYPE_RANGED_VALUE] type, and is not
+         * valid for any other type. A [TYPE_RANGED_VALUE] complication visually presents a single
+         * value, which is usually a percentage. E.g. you have completed 70% of today's target of
+         * 10000 steps.
          *
          * Returns this Builder to allow chaining.
          *
@@ -1511,52 +1497,55 @@ class ComplicationData : Parcelable, Serializable {
         fun setRangedMaxValue(maxValue: Float) = apply { putFloatField(FIELD_MAX_VALUE, maxValue) }
 
         /**
-         * Sets the *targetValue* field. This is required for the
-         * [TYPE_GOAL_PROGRESS] type, and is not valid for any other type. A
-         * [TYPE_GOAL_PROGRESS] complication visually presents a single value, which
-         * is usually a percentage. E.g. you have completed 70% of today's target of 10000 steps.
+         * Sets the *targetValue* field. This is required for the [TYPE_GOAL_PROGRESS] type, and is
+         * not valid for any other type. A [TYPE_GOAL_PROGRESS] complication visually presents a
+         * single value, which is usually a percentage. E.g. you have completed 70% of today's
+         * target of 10000 steps.
          *
          * Returns this Builder to allow chaining.
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setTargetValue(targetValue: Float) =
-            apply { putFloatField(FIELD_TARGET_VALUE, targetValue) }
+        fun setTargetValue(targetValue: Float) = apply {
+            putFloatField(FIELD_TARGET_VALUE, targetValue)
+        }
 
         /**
-         * Sets the *long title* field. This is optional for the [TYPE_LONG_TEXT] type,
-         * and is not valid for any other type.
+         * Sets the *long title* field. This is optional for the [TYPE_LONG_TEXT] type, and is not
+         * valid for any other type.
          *
-         * The value must be provided as a [ComplicationText] object, so that
-         * time-dependent values may be included.
+         * The value must be provided as a [ComplicationText] object, so that time-dependent values
+         * may be included.
          *
          * Returns this Builder to allow chaining.
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setLongTitle(longTitle: ComplicationText?) =
-            apply { putOrRemoveField(FIELD_LONG_TITLE, longTitle) }
+        fun setLongTitle(longTitle: ComplicationText?) = apply {
+            putOrRemoveField(FIELD_LONG_TITLE, longTitle)
+        }
 
         /**
-         * Sets the *long text* field. This is required for the [TYPE_LONG_TEXT] type,
-         * and is not valid for any other type.
+         * Sets the *long text* field. This is required for the [TYPE_LONG_TEXT] type, and is not
+         * valid for any other type.
          *
-         * The value must be provided as a [ComplicationText] object, so that
-         * time-dependent values may be included.
+         * The value must be provided as a [ComplicationText] object, so that time-dependent values
+         * may be included.
          *
          * Returns this Builder to allow chaining.
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setLongText(longText: ComplicationText?) =
-            apply { putOrRemoveField(FIELD_LONG_TEXT, longText) }
+        fun setLongText(longText: ComplicationText?) = apply {
+            putOrRemoveField(FIELD_LONG_TEXT, longText)
+        }
 
         /**
          * Sets the *short title* field. This is valid for the [TYPE_SHORT_TEXT],
          * [TYPE_RANGED_VALUE], and [TYPE_NO_PERMISSION] types, and is not valid for any other type.
          *
-         * The value must be provided as a [ComplicationText] object, so that
-         * time-dependent values may be included.
+         * The value must be provided as a [ComplicationText] object, so that time-dependent values
+         * may be included.
          *
          * The length of the text, including any time-dependent values, should not exceed seven
          * characters. If it does, the text may be truncated by the watch face or might not fit in
@@ -1566,16 +1555,17 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setShortTitle(shortTitle: ComplicationText?) =
-            apply { putOrRemoveField(FIELD_SHORT_TITLE, shortTitle) }
+        fun setShortTitle(shortTitle: ComplicationText?) = apply {
+            putOrRemoveField(FIELD_SHORT_TITLE, shortTitle)
+        }
 
         /**
-         * Sets the *short text* field. This is required for the [TYPE_SHORT_TEXT] type,
-         * is optional for the [TYPE_RANGED_VALUE] and [TYPE_NO_PERMISSION] types, and
-         * is not valid for any other type.
+         * Sets the *short text* field. This is required for the [TYPE_SHORT_TEXT] type, is optional
+         * for the [TYPE_RANGED_VALUE] and [TYPE_NO_PERMISSION] types, and is not valid for any
+         * other type.
          *
-         * The value must be provided as a [ComplicationText] object, so that
-         * time-dependent values may be included.
+         * The value must be provided as a [ComplicationText] object, so that time-dependent values
+         * may be included.
          *
          * The length of the text, including any time-dependent values, should not exceed seven
          * characters. If it does, the text may be truncated by the watch face or might not fit in
@@ -1585,13 +1575,13 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setShortText(shortText: ComplicationText?) =
-            apply { putOrRemoveField(FIELD_SHORT_TEXT, shortText) }
+        fun setShortText(shortText: ComplicationText?) = apply {
+            putOrRemoveField(FIELD_SHORT_TEXT, shortText)
+        }
 
         /**
-         * Sets the *icon* field. This is required for the [TYPE_ICON] type, and is
-         * optional for the [TYPE_SHORT_TEXT], [TYPE_LONG_TEXT], [TYPE_RANGED_VALUE], and
-         * [TYPE_NO_PERMISSION] types.
+         * Sets the *icon* field. This is required for the [TYPE_ICON] type, and is optional for the
+         * [TYPE_SHORT_TEXT], [TYPE_LONG_TEXT], [TYPE_RANGED_VALUE], and [TYPE_NO_PERMISSION] types.
          *
          * The provided image must be single-color, so that watch faces can tint it as required.
          *
@@ -1606,10 +1596,10 @@ class ComplicationData : Parcelable, Serializable {
         fun setIcon(icon: Icon?) = apply { putOrRemoveField(FIELD_ICON, icon) }
 
         /**
-         * Sets the burn-in protection version of the *icon* field. This should be provided if
-         * the *icon* field is provided, unless the main icon is already safe for use with
-         * burn-in protection.  This icon should have fewer lit pixels, and should use darker
-         * colors to prevent LCD burn in issues.
+         * Sets the burn-in protection version of the *icon* field. This should be provided if the
+         * *icon* field is provided, unless the main icon is already safe for use with burn-in
+         * protection. This icon should have fewer lit pixels, and should use darker colors to
+         * prevent LCD burn in issues.
          *
          * The provided image must be single-color, so that watch faces can tint it as required.
          *
@@ -1622,24 +1612,26 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setBurnInProtectionIcon(icon: Icon?) =
-            apply { putOrRemoveField(FIELD_ICON_BURN_IN_PROTECTION, icon) }
+        fun setBurnInProtectionIcon(icon: Icon?) = apply {
+            putOrRemoveField(FIELD_ICON_BURN_IN_PROTECTION, icon)
+        }
 
         /**
-         * Sets the *small image* field. This is required for the [TYPE_SMALL_IMAGE]
-         * type, and is optional for the [TYPE_LONG_TEXT] type.
+         * Sets the *small image* field. This is required for the [TYPE_SMALL_IMAGE] type, and is
+         * optional for the [TYPE_LONG_TEXT] type.
          *
          * Returns this Builder to allow chaining.
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setSmallImage(smallImage: Icon?) =
-            apply { putOrRemoveField(FIELD_SMALL_IMAGE, smallImage) }
+        fun setSmallImage(smallImage: Icon?) = apply {
+            putOrRemoveField(FIELD_SMALL_IMAGE, smallImage)
+        }
 
         /**
-         * Sets the burn-in protection version of the *small image* field. This should be
-         * provided if the *small image* field is provided, unless the main small image is
-         * already safe for use with burn-in protection.
+         * Sets the burn-in protection version of the *small image* field. This should be provided
+         * if the *small image* field is provided, unless the main small image is already safe for
+         * use with burn-in protection.
          *
          * The provided image must not contain solid blocks of pixels - it should instead be
          * composed of outlines or lines only.
@@ -1650,8 +1642,9 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setBurnInProtectionSmallImage(smallImage: Icon?) =
-            apply { putOrRemoveField(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, smallImage) }
+        fun setBurnInProtectionSmallImage(smallImage: Icon?) = apply {
+            putOrRemoveField(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, smallImage)
+        }
 
         /**
          * Sets the display style for this complication data. This is valid only for types that
@@ -1663,15 +1656,15 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          * @see .IMAGE_STYLE_PHOTO which can be cropped but not recolored.
-         *
          * @see .IMAGE_STYLE_ICON which can be recolored but not cropped.
          */
-        fun setSmallImageStyle(@ImageStyle imageStyle: Int) =
-            apply { putIntField(FIELD_IMAGE_STYLE, imageStyle) }
+        fun setSmallImageStyle(@ImageStyle imageStyle: Int) = apply {
+            putIntField(FIELD_IMAGE_STYLE, imageStyle)
+        }
 
         /**
-         * Sets the *large image* field. This is required for the [TYPE_LARGE_IMAGE]
-         * type, and is not valid for any other type.
+         * Sets the *large image* field. This is required for the [TYPE_LARGE_IMAGE] type, and is
+         * not valid for any other type.
          *
          * The provided image should be suitably sized to fill the screen of the watch.
          *
@@ -1679,38 +1672,40 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setLargeImage(largeImage: Icon?) =
-            apply { putOrRemoveField(FIELD_LARGE_IMAGE, largeImage) }
+        fun setLargeImage(largeImage: Icon?) = apply {
+            putOrRemoveField(FIELD_LARGE_IMAGE, largeImage)
+        }
 
         /**
          * Sets the list style hint
          *
-         * Valid only if the type of this complication data is [EXP_TYPE_LIST]. Otherwise
-         * returns
+         * Valid only if the type of this complication data is [EXP_TYPE_LIST]. Otherwise returns
          * zero.
          */
-        fun setListStyleHint(listStyleHint: Int) =
-            apply { putIntField(EXP_FIELD_LIST_STYLE_HINT, listStyleHint) }
+        fun setListStyleHint(listStyleHint: Int) = apply {
+            putIntField(EXP_FIELD_LIST_STYLE_HINT, listStyleHint)
+        }
 
         /**
          * Sets the *tap action* field. This is optional for any non-empty type.
          *
-         * The provided [PendingIntent] may be fired if the complication is tapped on. Note
-         * that some complications might not be tappable, in which case this field will be ignored.
+         * The provided [PendingIntent] may be fired if the complication is tapped on. Note that
+         * some complications might not be tappable, in which case this field will be ignored.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setTapAction(pendingIntent: PendingIntent?) =
-            apply { putOrRemoveField(FIELD_TAP_ACTION, pendingIntent) }
+        fun setTapAction(pendingIntent: PendingIntent?) = apply {
+            putOrRemoveField(FIELD_TAP_ACTION, pendingIntent)
+        }
 
         /**
          * Sets the *content description* field for accessibility. This is optional for any
-         * non-empty type. It is recommended to provide a content description whenever the
-         * data includes an image.
+         * non-empty type. It is recommended to provide a content description whenever the data
+         * includes an image.
          *
-         * The provided text will be read aloud by a Text-to-speech converter for users who may
-         * be vision-impaired. It will be read aloud in addition to any long, short, or range text
-         * in the complication.
+         * The provided text will be read aloud by a Text-to-speech converter for users who may be
+         * vision-impaired. It will be read aloud in addition to any long, short, or range text in
+         * the complication.
          *
          * If using to describe an image/icon that is purely stylistic and doesn't convey any
          * information to the user, you may set the image content description to an empty string
@@ -1718,8 +1713,9 @@ class ComplicationData : Parcelable, Serializable {
          *
          * Returns this Builder to allow chaining.
          */
-        fun setContentDescription(description: ComplicationText?) =
-            apply { putOrRemoveField(FIELD_CONTENT_DESCRIPTION, description) }
+        fun setContentDescription(description: ComplicationText?) = apply {
+            putOrRemoveField(FIELD_CONTENT_DESCRIPTION, description)
+        }
 
         /**
          * Sets whether or not this ComplicationData has been serialized.
@@ -1755,40 +1751,45 @@ class ComplicationData : Parcelable, Serializable {
          *
          * Returns this Builder to allow chaining.
          */
-        fun setDataSource(provider: ComponentName?) =
-            apply { putOrRemoveField(FIELD_DATA_SOURCE, provider) }
+        fun setDataSource(provider: ComponentName?) = apply {
+            putOrRemoveField(FIELD_DATA_SOURCE, provider)
+        }
 
         /**
          * Sets the ambient proto layout associated with this complication.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setAmbientLayout(ambientProtoLayout: ByteArray) =
-            apply { putByteArrayField(EXP_FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout) }
+        fun setAmbientLayout(ambientProtoLayout: ByteArray) = apply {
+            putByteArrayField(EXP_FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout)
+        }
 
         /**
          * Sets the proto layout associated with this complication.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setInteractiveLayout(protoLayout: ByteArray) =
-            apply { putByteArrayField(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout) }
+        fun setInteractiveLayout(protoLayout: ByteArray) = apply {
+            putByteArrayField(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout)
+        }
 
         /**
          * Sets the proto layout resources associated with this complication.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setLayoutResources(resources: ByteArray) =
-            apply { putByteArrayField(EXP_FIELD_PROTO_LAYOUT_RESOURCES, resources) }
+        fun setLayoutResources(resources: ByteArray) = apply {
+            putByteArrayField(EXP_FIELD_PROTO_LAYOUT_RESOURCES, resources)
+        }
 
         /**
          * Optional. Sets the color the color ramp should be drawn with.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setColorRamp(colorRamp: IntArray?) =
-            apply { putOrRemoveField(FIELD_COLOR_RAMP, colorRamp) }
+        fun setColorRamp(colorRamp: IntArray?) = apply {
+            putOrRemoveField(FIELD_COLOR_RAMP, colorRamp)
+        }
 
         /**
          * Optional. Sets whether or not the color ramp should be smoothly shaded or drawn with
@@ -1796,26 +1797,27 @@ class ComplicationData : Parcelable, Serializable {
          *
          * Returns this Builder to allow chaining.
          */
-        fun setColorRampIsSmoothShaded(isSmoothShaded: Boolean?) =
-            apply { putOrRemoveField(FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded) }
+        fun setColorRampIsSmoothShaded(isSmoothShaded: Boolean?) = apply {
+            putOrRemoveField(FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded)
+        }
 
         /**
          * Sets the list of [ComplicationData] timeline entries.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setListEntryCollection(
-            timelineEntries: Collection<ComplicationData>?
-        ) = apply {
+        fun setListEntryCollection(timelineEntries: Collection<ComplicationData>?) = apply {
             if (timelineEntries == null) {
                 fields.remove(EXP_FIELD_LIST_ENTRIES)
             } else {
                 fields.putParcelableArray(
                     EXP_FIELD_LIST_ENTRIES,
-                    timelineEntries.map { data ->
-                        data.fields.putInt(EXP_FIELD_LIST_ENTRY_TYPE, data.type)
-                        data.fields
-                    }.toTypedArray()
+                    timelineEntries
+                        .map { data ->
+                            data.fields.putInt(EXP_FIELD_LIST_ENTRY_TYPE, data.type)
+                            data.fields
+                        }
+                        .toTypedArray()
                 )
             }
         }
@@ -1825,28 +1827,31 @@ class ComplicationData : Parcelable, Serializable {
          *
          * Returns this Builder to allow chaining.
          */
-        fun setElementWeights(elementWeights: FloatArray?) =
-            apply { putOrRemoveField(FIELD_ELEMENT_WEIGHTS, elementWeights) }
+        fun setElementWeights(elementWeights: FloatArray?) = apply {
+            putOrRemoveField(FIELD_ELEMENT_WEIGHTS, elementWeights)
+        }
 
         /**
          * Sets the element colors for this complication.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setElementColors(elementColors: IntArray?) =
-            apply { putOrRemoveField(FIELD_ELEMENT_COLORS, elementColors) }
+        fun setElementColors(elementColors: IntArray?) = apply {
+            putOrRemoveField(FIELD_ELEMENT_COLORS, elementColors)
+        }
 
         /**
          * Sets the background color to use between elements for this complication.
          *
          * Returns this Builder to allow chaining.
          */
-        fun setElementBackgroundColor(@ColorInt elementBackgroundColor: Int) =
-            apply { putOrRemoveField(FIELD_ELEMENT_BACKGROUND_COLOR, elementBackgroundColor) }
+        fun setElementBackgroundColor(@ColorInt elementBackgroundColor: Int) = apply {
+            putOrRemoveField(FIELD_ELEMENT_BACKGROUND_COLOR, elementBackgroundColor)
+        }
 
         /**
-         * Constructs and returns [ComplicationData] with the provided fields. All required
-         * fields must be populated before this method is called.
+         * Constructs and returns [ComplicationData] with the provided fields. All required fields
+         * must be populated before this method is called.
          *
          * @throws IllegalStateException if the required fields have not been populated
          */
@@ -1952,12 +1957,11 @@ class ComplicationData : Parcelable, Serializable {
          * accompanied by an icon or a short title (or both, but if both are provided then a watch
          * face may choose to display only one).
          *
-         * The *short text* field is required for this type, and is expected to always be
-         * displayed.
+         * The *short text* field is required for this type, and is expected to always be displayed.
          *
-         * The *icon* (and *burnInProtectionIcon*) and *short title* fields are
-         * optional for this type. If only one of these is provided, it is expected that it will be
-         * displayed. If both are provided, it is expected that one of these will be displayed.
+         * The *icon* (and *burnInProtectionIcon*) and *short title* fields are optional for this
+         * type. If only one of these is provided, it is expected that it will be displayed. If both
+         * are provided, it is expected that one of these will be displayed.
          */
         const val TYPE_SHORT_TEXT = 3
 
@@ -1965,14 +1969,13 @@ class ComplicationData : Parcelable, Serializable {
          * Type used for complications where the primary piece of data is a piece of text. The text
          * may be accompanied by an icon and/or a title.
          *
-         * The *long text* field is required for this type, and is expected to always be
-         * displayed.
+         * The *long text* field is required for this type, and is expected to always be displayed.
          *
-         * The *long title* field is optional for this type. If provided, it is expected that
-         * this field will be displayed.
+         * The *long title* field is optional for this type. If provided, it is expected that this
+         * field will be displayed.
          *
-         * The *icon* (and *burnInProtectionIcon*) and *small image* fields are also
-         * optional for this type. If provided, at least one of these should be displayed.
+         * The *icon* (and *burnInProtectionIcon*) and *small image* fields are also optional for
+         * this type. If provided, at least one of these should be displayed.
          */
         const val TYPE_LONG_TEXT = 4
 
@@ -1980,12 +1983,12 @@ class ComplicationData : Parcelable, Serializable {
          * Type used for complications including a numerical value within a range, such as a
          * percentage. The value may be accompanied by an icon and/or short text and title.
          *
-         * The *value*, *min value*, and *max value* fields are required for this
-         * type, and the value within the range is expected to always be displayed.
+         * The *value*, *min value*, and *max value* fields are required for this type, and the
+         * value within the range is expected to always be displayed.
          *
-         * The *icon* (and *burnInProtectionIcon*), *short title*, and *short
-         * text* fields are optional for this type, but at least one must be defined. The watch face
-         * may choose which of these fields to display, if any.
+         * The *icon* (and *burnInProtectionIcon*), *short title*, and *short text* fields are
+         * optional for this type, but at least one must be defined. The watch face may choose which
+         * of these fields to display, if any.
          */
         const val TYPE_RANGED_VALUE = 5
 
@@ -2051,13 +2054,13 @@ class ComplicationData : Parcelable, Serializable {
          * Type used for complications which indicate progress towards a goal. The value may be
          * accompanied by an icon and/or short text and title.
          *
-         * The *value*, and *target value* fields are required for this type, and the
-         * value is expected to always be displayed. The value must be >= 0 and may be > target
-         * value. E.g. 15000 out of a target of 10000 steps.
+         * The *value*, and *target value* fields are required for this type, and the value is
+         * expected to always be displayed. The value must be >= 0 and may be > target value. E.g.
+         * 15000 out of a target of 10000 steps.
          *
-         * The *icon* (and *burnInProtectionIcon*), *short title*, and *short
-         * text* fields are optional for this type, but at least one must be defined. The watch face
-         * may choose which of these fields to display, if any.
+         * The *icon* (and *burnInProtectionIcon*), *short title*, and *short text* fields are
+         * optional for this type, but at least one must be defined. The watch face may choose which
+         * of these fields to display, if any.
          */
         const val TYPE_GOAL_PROGRESS = 13
 
@@ -2065,12 +2068,12 @@ class ComplicationData : Parcelable, Serializable {
          * Type used for complications to display a series of weighted values e.g. in a pie chart.
          * The weighted values may be accompanied by an icon and/or short text and title.
          *
-         * The *element weights* and *element colors* fields are required for this type,
-         * and the value within the range is expected to always be displayed.
+         * The *element weights* and *element colors* fields are required for this type, and the
+         * value within the range is expected to always be displayed.
          *
-         * The *icon* (and *burnInProtectionIcon*), *short title*, and *short
-         * text* fields are optional for this type, but at least one must be defined. The watch face
-         * may choose which of these fields to display, if any.
+         * The *icon* (and *burnInProtectionIcon*), *short title*, and *short text* fields are
+         * optional for this type, but at least one must be defined. The watch face may choose which
+         * of these fields to display, if any.
          */
         const val TYPE_WEIGHTED_ELEMENTS = 14
 
@@ -2144,212 +2147,232 @@ class ComplicationData : Parcelable, Serializable {
         private const val FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION"
 
         // The set of valid types.
-        private val VALID_TYPES: Set<Int> = setOf(
-            TYPE_NOT_CONFIGURED,
-            TYPE_EMPTY,
-            TYPE_SHORT_TEXT,
-            TYPE_LONG_TEXT,
-            TYPE_RANGED_VALUE,
-            TYPE_ICON,
-            TYPE_SMALL_IMAGE,
-            TYPE_LARGE_IMAGE,
-            TYPE_NO_PERMISSION,
-            TYPE_NO_DATA,
-            EXP_TYPE_PROTO_LAYOUT,
-            EXP_TYPE_LIST,
-            TYPE_GOAL_PROGRESS,
-            TYPE_WEIGHTED_ELEMENTS,
-        )
+        private val VALID_TYPES: Set<Int> =
+            setOf(
+                TYPE_NOT_CONFIGURED,
+                TYPE_EMPTY,
+                TYPE_SHORT_TEXT,
+                TYPE_LONG_TEXT,
+                TYPE_RANGED_VALUE,
+                TYPE_ICON,
+                TYPE_SMALL_IMAGE,
+                TYPE_LARGE_IMAGE,
+                TYPE_NO_PERMISSION,
+                TYPE_NO_DATA,
+                EXP_TYPE_PROTO_LAYOUT,
+                EXP_TYPE_LIST,
+                TYPE_GOAL_PROGRESS,
+                TYPE_WEIGHTED_ELEMENTS,
+            )
 
         // Used for validation. REQUIRED_FIELDS[i] is a list containing all the fields which must be
         // populated for @ComplicationType i.
-        private val REQUIRED_FIELDS: Map<Int, Set<String>> = mapOf(
-            TYPE_NOT_CONFIGURED to setOf(),
-            TYPE_EMPTY to setOf(),
-            TYPE_SHORT_TEXT to setOf(FIELD_SHORT_TEXT),
-            TYPE_LONG_TEXT to setOf(FIELD_LONG_TEXT),
-            TYPE_RANGED_VALUE to setOf(FIELD_MIN_VALUE, FIELD_MAX_VALUE),
-            TYPE_ICON to setOf(FIELD_ICON),
-            TYPE_SMALL_IMAGE to setOf(FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE),
-            TYPE_LARGE_IMAGE to setOf(FIELD_LARGE_IMAGE),
-            TYPE_NO_PERMISSION to setOf(),
-            TYPE_NO_DATA to setOf(),
-            EXP_TYPE_PROTO_LAYOUT to setOf(
-                EXP_FIELD_PROTO_LAYOUT_AMBIENT,
-                EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
-                EXP_FIELD_PROTO_LAYOUT_RESOURCES,
-            ),
-            EXP_TYPE_LIST to setOf(EXP_FIELD_LIST_ENTRIES),
-            TYPE_GOAL_PROGRESS to setOf(FIELD_TARGET_VALUE),
-            TYPE_WEIGHTED_ELEMENTS to setOf(
-                FIELD_ELEMENT_WEIGHTS,
-                FIELD_ELEMENT_COLORS,
-                FIELD_ELEMENT_BACKGROUND_COLOR,
-            ),
-        )
+        private val REQUIRED_FIELDS: Map<Int, Set<String>> =
+            mapOf(
+                TYPE_NOT_CONFIGURED to setOf(),
+                TYPE_EMPTY to setOf(),
+                TYPE_SHORT_TEXT to setOf(FIELD_SHORT_TEXT),
+                TYPE_LONG_TEXT to setOf(FIELD_LONG_TEXT),
+                TYPE_RANGED_VALUE to setOf(FIELD_MIN_VALUE, FIELD_MAX_VALUE),
+                TYPE_ICON to setOf(FIELD_ICON),
+                TYPE_SMALL_IMAGE to setOf(FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE),
+                TYPE_LARGE_IMAGE to setOf(FIELD_LARGE_IMAGE),
+                TYPE_NO_PERMISSION to setOf(),
+                TYPE_NO_DATA to setOf(),
+                EXP_TYPE_PROTO_LAYOUT to
+                    setOf(
+                        EXP_FIELD_PROTO_LAYOUT_AMBIENT,
+                        EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
+                        EXP_FIELD_PROTO_LAYOUT_RESOURCES,
+                    ),
+                EXP_TYPE_LIST to setOf(EXP_FIELD_LIST_ENTRIES),
+                TYPE_GOAL_PROGRESS to setOf(FIELD_TARGET_VALUE),
+                TYPE_WEIGHTED_ELEMENTS to
+                    setOf(
+                        FIELD_ELEMENT_WEIGHTS,
+                        FIELD_ELEMENT_COLORS,
+                        FIELD_ELEMENT_BACKGROUND_COLOR,
+                    ),
+            )
 
         // Used for validation. REQUIRED_ONE_OF_FIELDS[i] is a list of field groups of which at
         // least one field must be populated for @ComplicationType i.
         // If a field is also in REQUIRED_FIELDS[i], it is not required if another field in the one
         // of group is populated.
-        private val REQUIRED_ONE_OF_FIELDS: Map<Int, Set<Set<String>>> = mapOf(
-            TYPE_NOT_CONFIGURED to setOf(),
-            TYPE_EMPTY to setOf(),
-            TYPE_SHORT_TEXT to setOf(),
-            TYPE_LONG_TEXT to setOf(),
-            TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
-            TYPE_ICON to setOf(),
-            TYPE_SMALL_IMAGE to setOf(),
-            TYPE_LARGE_IMAGE to setOf(),
-            TYPE_NO_PERMISSION to setOf(),
-            TYPE_NO_DATA to setOf(),
-            EXP_TYPE_PROTO_LAYOUT to setOf(),
-            EXP_TYPE_LIST to setOf(),
-            TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
-            TYPE_WEIGHTED_ELEMENTS to setOf(),
-        )
+        private val REQUIRED_ONE_OF_FIELDS: Map<Int, Set<Set<String>>> =
+            mapOf(
+                TYPE_NOT_CONFIGURED to setOf(),
+                TYPE_EMPTY to setOf(),
+                TYPE_SHORT_TEXT to setOf(),
+                TYPE_LONG_TEXT to setOf(),
+                TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
+                TYPE_ICON to setOf(),
+                TYPE_SMALL_IMAGE to setOf(),
+                TYPE_LARGE_IMAGE to setOf(),
+                TYPE_NO_PERMISSION to setOf(),
+                TYPE_NO_DATA to setOf(),
+                EXP_TYPE_PROTO_LAYOUT to setOf(),
+                EXP_TYPE_LIST to setOf(),
+                TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
+                TYPE_WEIGHTED_ELEMENTS to setOf(),
+            )
 
-        private val COMMON_OPTIONAL_FIELDS: Array<String> = arrayOf(
-            FIELD_TAP_ACTION,
-            FIELD_CONTENT_DESCRIPTION,
-            FIELD_DATA_SOURCE,
-            FIELD_PERSISTENCE_POLICY,
-            FIELD_DISPLAY_POLICY,
-            FIELD_TIMELINE_START_TIME,
-            FIELD_TIMELINE_END_TIME,
-            FIELD_START_TIME,
-            FIELD_END_TIME,
-            FIELD_TIMELINE_ENTRIES,
-            FIELD_TIMELINE_ENTRY_TYPE,
-        )
+        private val COMMON_OPTIONAL_FIELDS: Array<String> =
+            arrayOf(
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY,
+                FIELD_TIMELINE_START_TIME,
+                FIELD_TIMELINE_END_TIME,
+                FIELD_START_TIME,
+                FIELD_END_TIME,
+                FIELD_TIMELINE_ENTRIES,
+                FIELD_TIMELINE_ENTRY_TYPE,
+            )
 
         // Used for validation. OPTIONAL_FIELDS[i] is a list containing all the fields which are
         // valid but not required for type i.
-        private val OPTIONAL_FIELDS: Map<Int, Set<String>> = mapOf(
-            TYPE_NOT_CONFIGURED to setOf(),
-            TYPE_EMPTY to setOf(),
-            TYPE_SHORT_TEXT to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_SHORT_TITLE,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-            ),
-            TYPE_LONG_TEXT to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_LONG_TITLE,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-            ),
-            TYPE_RANGED_VALUE to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_SHORT_TEXT,
-                FIELD_SHORT_TITLE,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-                FIELD_COLOR_RAMP,
-                FIELD_COLOR_RAMP_INTERPOLATED,
-                FIELD_VALUE_TYPE,
-            ),
-            TYPE_ICON to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_ICON_BURN_IN_PROTECTION,
-            ),
-            TYPE_SMALL_IMAGE to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-            ),
-            TYPE_LARGE_IMAGE to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-            ),
-            TYPE_NO_PERMISSION to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_SHORT_TEXT,
-                FIELD_SHORT_TITLE,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-            ),
-            TYPE_NO_DATA to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_COLOR_RAMP,
-                FIELD_COLOR_RAMP_INTERPOLATED,
-                FIELD_ELEMENT_BACKGROUND_COLOR,
-                FIELD_ELEMENT_COLORS,
-                FIELD_ELEMENT_WEIGHTS,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-                FIELD_LARGE_IMAGE,
-                FIELD_LONG_TITLE,
-                FIELD_LONG_TEXT,
-                FIELD_MAX_VALUE,
-                FIELD_MIN_VALUE,
-                FIELD_PLACEHOLDER_FIELDS,
-                FIELD_PLACEHOLDER_TYPE,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_SHORT_TITLE,
-                FIELD_SHORT_TEXT,
-                FIELD_TAP_ACTION_LOST,
-                FIELD_TARGET_VALUE,
-                FIELD_VALUE,
-                FIELD_VALUE_EXPRESSION,
-                FIELD_VALUE_TYPE,
-                EXP_FIELD_LIST_ENTRIES,
-                EXP_FIELD_LIST_ENTRY_TYPE,
-                EXP_FIELD_LIST_STYLE_HINT,
-                EXP_FIELD_PROTO_LAYOUT_AMBIENT,
-                EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
-                EXP_FIELD_PROTO_LAYOUT_RESOURCES,
-            ),
-            EXP_TYPE_PROTO_LAYOUT to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-            ),
-            EXP_TYPE_LIST to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                EXP_FIELD_LIST_STYLE_HINT,
-            ),
-            TYPE_GOAL_PROGRESS to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_SHORT_TEXT,
-                FIELD_SHORT_TITLE,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-                FIELD_COLOR_RAMP,
-                FIELD_COLOR_RAMP_INTERPOLATED,
-            ),
-            TYPE_WEIGHTED_ELEMENTS to setOf(
-                *COMMON_OPTIONAL_FIELDS,
-                FIELD_SHORT_TEXT,
-                FIELD_SHORT_TITLE,
-                FIELD_ICON,
-                FIELD_ICON_BURN_IN_PROTECTION,
-                FIELD_SMALL_IMAGE,
-                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                FIELD_IMAGE_STYLE,
-            ),
-        )
+        private val OPTIONAL_FIELDS: Map<Int, Set<String>> =
+            mapOf(
+                TYPE_NOT_CONFIGURED to setOf(),
+                TYPE_EMPTY to setOf(),
+                TYPE_SHORT_TEXT to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_SHORT_TITLE,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                    ),
+                TYPE_LONG_TEXT to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_LONG_TITLE,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                    ),
+                TYPE_RANGED_VALUE to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_SHORT_TEXT,
+                        FIELD_SHORT_TITLE,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                        FIELD_COLOR_RAMP,
+                        FIELD_COLOR_RAMP_INTERPOLATED,
+                        FIELD_VALUE_TYPE,
+                    ),
+                TYPE_ICON to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                    ),
+                TYPE_SMALL_IMAGE to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    ),
+                TYPE_LARGE_IMAGE to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                    ),
+                TYPE_NO_PERMISSION to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_SHORT_TEXT,
+                        FIELD_SHORT_TITLE,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                    ),
+                TYPE_NO_DATA to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_COLOR_RAMP,
+                        FIELD_COLOR_RAMP_INTERPOLATED,
+                        FIELD_ELEMENT_BACKGROUND_COLOR,
+                        FIELD_ELEMENT_COLORS,
+                        FIELD_ELEMENT_WEIGHTS,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                        FIELD_LARGE_IMAGE,
+                        FIELD_LONG_TITLE,
+                        FIELD_LONG_TEXT,
+                        FIELD_MAX_VALUE,
+                        FIELD_MIN_VALUE,
+                        FIELD_PLACEHOLDER_FIELDS,
+                        FIELD_PLACEHOLDER_TYPE,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_SHORT_TITLE,
+                        FIELD_SHORT_TEXT,
+                        FIELD_TAP_ACTION_LOST,
+                        FIELD_TARGET_VALUE,
+                        FIELD_VALUE,
+                        FIELD_VALUE_EXPRESSION,
+                        FIELD_VALUE_TYPE,
+                        EXP_FIELD_LIST_ENTRIES,
+                        EXP_FIELD_LIST_ENTRY_TYPE,
+                        EXP_FIELD_LIST_STYLE_HINT,
+                        EXP_FIELD_PROTO_LAYOUT_AMBIENT,
+                        EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
+                        EXP_FIELD_PROTO_LAYOUT_RESOURCES,
+                    ),
+                EXP_TYPE_PROTO_LAYOUT to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                    ),
+                EXP_TYPE_LIST to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        EXP_FIELD_LIST_STYLE_HINT,
+                    ),
+                TYPE_GOAL_PROGRESS to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_SHORT_TEXT,
+                        FIELD_SHORT_TITLE,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                        FIELD_COLOR_RAMP,
+                        FIELD_COLOR_RAMP_INTERPOLATED,
+                    ),
+                TYPE_WEIGHTED_ELEMENTS to
+                    setOf(
+                        *COMMON_OPTIONAL_FIELDS,
+                        FIELD_SHORT_TEXT,
+                        FIELD_SHORT_TITLE,
+                        FIELD_ICON,
+                        FIELD_ICON_BURN_IN_PROTECTION,
+                        FIELD_SMALL_IMAGE,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        FIELD_IMAGE_STYLE,
+                    ),
+            )
 
         @JvmField
-        val CREATOR = object : Parcelable.Creator<ComplicationData> {
-            override fun createFromParcel(source: Parcel) = ComplicationData(source)
+        val CREATOR =
+            object : Parcelable.Creator<ComplicationData> {
+                override fun createFromParcel(source: Parcel) = ComplicationData(source)
 
-            override fun newArray(size: Int): Array<ComplicationData?> = Array(size) { null }
-        }
+                override fun newArray(size: Int): Array<ComplicationData?> = Array(size) { null }
+            }
 
         fun isFieldValidForType(field: String, @ComplicationType type: Int): Boolean {
             return REQUIRED_FIELDS[type]!!.contains(field) ||
@@ -2360,9 +2383,8 @@ class ComplicationData : Parcelable, Serializable {
         private fun isTypeSupported(type: Int) = type in VALID_TYPES
 
         /**
-         * The unparceling logic needs to remain backward compatible.
-         * Validates that a value of the given field type can be assigned
-         * to the given complication type.
+         * The unparceling logic needs to remain backward compatible. Validates that a value of the
+         * given field type can be assigned to the given complication type.
          */
         internal fun checkFieldValidForTypeWithoutThrowingException(
             fieldType: String,
@@ -2385,18 +2407,15 @@ class ComplicationData : Parcelable, Serializable {
         }
 
         /** Returns whether or not we should redact complication data in toString(). */
-        @JvmStatic
-        fun shouldRedact() = !Log.isLoggable(TAG, Log.DEBUG)
+        @JvmStatic fun shouldRedact() = !Log.isLoggable(TAG, Log.DEBUG)
 
         @JvmStatic
         fun maybeRedact(unredacted: CharSequence?): String =
-            if (unredacted == null) "(null)"
-            else maybeRedact(unredacted.toString())
+            if (unredacted == null) "(null)" else maybeRedact(unredacted.toString())
 
         @JvmSynthetic
         private fun maybeRedact(unredacted: String): String =
-            if (!shouldRedact() || unredacted == PLACEHOLDER_STRING) unredacted
-            else "REDACTED"
+            if (!shouldRedact() || unredacted == PLACEHOLDER_STRING) unredacted else "REDACTED"
     }
 }
 
@@ -2416,9 +2435,8 @@ internal fun ObjectOutputStream.writeIntArray(value: IntArray) {
 }
 
 /** Reads an [IntArray] written with [writeIntArray]. */
-internal fun ObjectInputStream.readIntArray() = IntArray(readInt()).also {
-    for (i in it.indices) it[i] = readInt()
-}
+internal fun ObjectInputStream.readIntArray() =
+    IntArray(readInt()).also { for (i in it.indices) it[i] = readInt() }
 
 /** Writes a [FloatArray] by writing the size, then the bytes. To be used with [readFloatArray]. */
 internal fun ObjectOutputStream.writeFloatArray(value: FloatArray) {
@@ -2427,9 +2445,8 @@ internal fun ObjectOutputStream.writeFloatArray(value: FloatArray) {
 }
 
 /** Reads a [FloatArray] written with [writeFloatArray]. */
-internal fun ObjectInputStream.readFloatArray() = FloatArray(readInt()).also {
-    for (i in it.indices) it[i] = readFloat()
-}
+internal fun ObjectInputStream.readFloatArray() =
+    FloatArray(readInt()).also { for (i in it.indices) it[i] = readFloat() }
 
 /** Writes a generic [List] by writing the size, then the objects. To be used with [readList]. */
 internal fun <T> ObjectOutputStream.writeList(value: List<T>, writer: (T) -> Unit) {

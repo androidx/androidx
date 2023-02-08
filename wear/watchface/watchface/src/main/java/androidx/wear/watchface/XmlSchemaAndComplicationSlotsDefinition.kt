@@ -33,8 +33,8 @@ import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
-import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
+import org.xmlpull.v1.XmlPullParser
 
 /** @hide */
 @OptIn(ComplicationExperimental::class)
@@ -72,12 +72,13 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "UserStyleSchema" -> {
-                            schema = UserStyleSchema.inflate(
-                                resources,
-                                parser,
-                                complicationScaleX,
-                                complicationScaleY
-                            )
+                            schema =
+                                UserStyleSchema.inflate(
+                                    resources,
+                                    parser,
+                                    complicationScaleX,
+                                    complicationScaleY
+                                )
                         }
                         "ComplicationSlot" -> {
                             complicationSlots.add(
@@ -95,9 +96,10 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                             }
                             flavors = UserStyleFlavors.inflate(resources, parser, schema)
                         }
-                        else -> throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
+                        else ->
+                            throw IllegalArgumentException(
+                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                            )
                     }
                 }
                 type = parser.next()
@@ -124,18 +126,19 @@ public class XmlSchemaAndComplicationSlotsDefinition(
     ) {
         companion object {
             @Suppress("NewApi")
-            private val typesMap by lazy(LazyThreadSafetyMode.NONE) {
-                mapOf(
-                    "SHORT_TEXT" to ComplicationType.SHORT_TEXT,
-                    "LONG_TEXT" to ComplicationType.LONG_TEXT,
-                    "RANGED_VALUE" to ComplicationType.RANGED_VALUE,
-                    "MONOCHROMATIC_IMAGE" to ComplicationType.MONOCHROMATIC_IMAGE,
-                    "SMALL_IMAGE" to ComplicationType.SMALL_IMAGE,
-                    "PHOTO_IMAGE" to ComplicationType.PHOTO_IMAGE,
-                    "GOAL_PROGRESS" to ComplicationType.GOAL_PROGRESS,
-                    "WEIGHTED_ELEMENTS" to ComplicationType.WEIGHTED_ELEMENTS
-                )
-            }
+            private val typesMap by
+                lazy(LazyThreadSafetyMode.NONE) {
+                    mapOf(
+                        "SHORT_TEXT" to ComplicationType.SHORT_TEXT,
+                        "LONG_TEXT" to ComplicationType.LONG_TEXT,
+                        "RANGED_VALUE" to ComplicationType.RANGED_VALUE,
+                        "MONOCHROMATIC_IMAGE" to ComplicationType.MONOCHROMATIC_IMAGE,
+                        "SMALL_IMAGE" to ComplicationType.SMALL_IMAGE,
+                        "PHOTO_IMAGE" to ComplicationType.PHOTO_IMAGE,
+                        "GOAL_PROGRESS" to ComplicationType.GOAL_PROGRESS,
+                        "WEIGHTED_ELEMENTS" to ComplicationType.WEIGHTED_ELEMENTS
+                    )
+                }
 
             fun inflate(
                 resources: Resources,
@@ -143,63 +146,57 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 complicationScaleX: Float,
                 complicationScaleY: Float
             ): ComplicationSlotStaticData {
-                require(parser.name == "ComplicationSlot") {
-                    "Expected a UserStyleSchema node"
-                }
+                require(parser.name == "ComplicationSlot") { "Expected a UserStyleSchema node" }
                 val slotId = getIntRefAttribute(resources, parser, "slotId")
-                require(slotId != null) {
-                    "A ComplicationSlot must have a slotId attribute"
-                }
-                val accessibilityTraversalIndex = if (
-                    parser.hasValue("accessibilityTraversalIndex")
-                ) {
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "accessibilityTraversalIndex",
-                        0
-                    )
-                } else {
-                    null
-                }
+                require(slotId != null) { "A ComplicationSlot must have a slotId attribute" }
+                val accessibilityTraversalIndex =
+                    if (parser.hasValue("accessibilityTraversalIndex")) {
+                        parser.getAttributeIntValue(NAMESPACE_APP, "accessibilityTraversalIndex", 0)
+                    } else {
+                        null
+                    }
                 require(parser.hasValue("boundsType")) {
                     "A ComplicationSlot must have a boundsType attribute"
                 }
-                val boundsType = when (
-                    parser.getAttributeIntValue(NAMESPACE_APP, "boundsType", 0)
-                ) {
-                    0 -> ComplicationSlotBoundsType.ROUND_RECT
-                    1 -> ComplicationSlotBoundsType.BACKGROUND
-                    2 -> ComplicationSlotBoundsType.EDGE
-                    else -> throw IllegalArgumentException("Unknown boundsType")
-                }
+                val boundsType =
+                    when (parser.getAttributeIntValue(NAMESPACE_APP, "boundsType", 0)) {
+                        0 -> ComplicationSlotBoundsType.ROUND_RECT
+                        1 -> ComplicationSlotBoundsType.BACKGROUND
+                        2 -> ComplicationSlotBoundsType.EDGE
+                        else -> throw IllegalArgumentException("Unknown boundsType")
+                    }
 
                 require(parser.hasValue("supportedTypes")) {
                     "A ComplicationSlot must have a supportedTypes attribute"
                 }
                 val supportedTypes =
-                    getStringRefAttribute(resources, parser, "supportedTypes")
-                        ?.split('|') ?: throw IllegalArgumentException(
-                        "Unable to extract the supported type(s) for ComplicationSlot $slotId"
-                    )
-                val supportedTypesList = supportedTypes.map {
-                    typesMap[it] ?: throw IllegalArgumentException(
-                        "Unrecognised type $it for ComplicationSlot $slotId"
-                    )
-                }
+                    getStringRefAttribute(resources, parser, "supportedTypes")?.split('|')
+                        ?: throw IllegalArgumentException(
+                            "Unable to extract the supported type(s) for ComplicationSlot $slotId"
+                        )
+                val supportedTypesList =
+                    supportedTypes.map {
+                        typesMap[it]
+                            ?: throw IllegalArgumentException(
+                                "Unrecognised type $it for ComplicationSlot $slotId"
+                            )
+                    }
 
-                val defaultComplicationDataSourcePolicy = DefaultComplicationDataSourcePolicy
-                    .inflate(resources, parser, "ComplicationSlot")
+                val defaultComplicationDataSourcePolicy =
+                    DefaultComplicationDataSourcePolicy.inflate(
+                        resources,
+                        parser,
+                        "ComplicationSlot"
+                    )
 
-                val initiallyEnabled = parser.getAttributeBooleanValue(
-                    NAMESPACE_APP,
-                    "initiallyEnabled",
-                    true
-                )
-                val fixedComplicationDataSource = parser.getAttributeBooleanValue(
-                    NAMESPACE_APP,
-                    "fixedComplicationDataSource",
-                    false
-                )
+                val initiallyEnabled =
+                    parser.getAttributeBooleanValue(NAMESPACE_APP, "initiallyEnabled", true)
+                val fixedComplicationDataSource =
+                    parser.getAttributeBooleanValue(
+                        NAMESPACE_APP,
+                        "fixedComplicationDataSource",
+                        false
+                    )
                 val nameResourceId =
                     if (parser.hasValue("name")) {
                         parser.getAttributeResourceValue(NAMESPACE_APP, "name", 0)
@@ -212,21 +209,23 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     } else {
                         null
                     }
-                val boundingArc = if (parser.hasValue("startArcAngle")) {
-                    BoundingArc(
-                        parser.getAttributeFloatValue(NAMESPACE_APP, "startArcAngle", 0f),
-                        parser.getAttributeFloatValue(NAMESPACE_APP, "totalArcAngle", 0f),
-                        parser.getAttributeFloatValue(NAMESPACE_APP, "arcThickness", 0f)
+                val boundingArc =
+                    if (parser.hasValue("startArcAngle")) {
+                        BoundingArc(
+                            parser.getAttributeFloatValue(NAMESPACE_APP, "startArcAngle", 0f),
+                            parser.getAttributeFloatValue(NAMESPACE_APP, "totalArcAngle", 0f),
+                            parser.getAttributeFloatValue(NAMESPACE_APP, "arcThickness", 0f)
+                        )
+                    } else {
+                        null
+                    }
+                val bounds =
+                    ComplicationSlotBounds.inflate(
+                        resources,
+                        parser,
+                        complicationScaleX,
+                        complicationScaleY
                     )
-                } else {
-                    null
-                }
-                val bounds = ComplicationSlotBounds.inflate(
-                    resources,
-                    parser,
-                    complicationScaleX,
-                    complicationScaleY
-                )
                 require(bounds != null) {
                     "ComplicationSlot must have either one ComplicationSlotBounds child node or " +
                         "one per ComplicationType."
@@ -271,9 +270,10 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         ComplicationSlotBoundsType.BACKGROUND -> BackgroundComplicationTapFilter()
                         ComplicationSlotBoundsType.EDGE ->
                             complicationSlotInflationFactory.getEdgeComplicationTapFilter(it.slotId)
-                        else -> throw UnsupportedOperationException(
-                            "Unknown boundsType ${it.boundsType}"
-                        )
+                        else ->
+                            throw UnsupportedOperationException(
+                                "Unknown boundsType ${it.boundsType}"
+                            )
                     },
                     it.nameResourceId,
                     it.screenReaderNameResourceId,

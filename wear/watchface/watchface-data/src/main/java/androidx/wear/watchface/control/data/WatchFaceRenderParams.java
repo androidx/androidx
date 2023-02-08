@@ -60,8 +60,7 @@ public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
     UserStyleWireFormat mUserStyle;
 
     /**
-     * The complications to render with. If null then the current complication data is used
-     * instead.
+     * The complications to render with. If null then the current complication data is used instead.
      */
     @ParcelField(100)
     @Nullable

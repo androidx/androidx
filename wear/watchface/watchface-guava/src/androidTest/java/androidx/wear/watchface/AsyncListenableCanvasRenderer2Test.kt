@@ -30,17 +30,16 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
-import kotlinx.coroutines.async
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.async
+import org.junit.Test
+import org.junit.runner.RunWith
 
 public class TestSharedAssets : Renderer.SharedAssets {
-    override fun onDestroy() {
-    }
+    override fun onDestroy() {}
 }
 
 internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
@@ -69,107 +68,106 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        object : ListenableCanvasRenderer2<TestSharedAssets>(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun initFuture(): ListenableFuture<Unit> {
-                initFutureLatch.countDown()
-                return initFuture
-            }
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            object :
+                ListenableCanvasRenderer2<TestSharedAssets>(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun initFuture(): ListenableFuture<Unit> {
+                    initFutureLatch.countDown()
+                    return initFuture
+                }
 
-            override fun createSharedAssetsFuture(): ListenableFuture<TestSharedAssets> {
-                sharedAssetsFutureLatch.countDown()
-                return sharedAssetsFuture
-            }
+                override fun createSharedAssetsFuture(): ListenableFuture<TestSharedAssets> {
+                    sharedAssetsFutureLatch.countDown()
+                    return sharedAssetsFuture
+                }
 
-            override fun render(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime,
-                sharedAssets: TestSharedAssets
-            ) {
-                // Actually rendering something isn't required.
-                synchronized(lock) {
-                    hasRendered = true
-                    sharedAssetsPassedToRenderer = sharedAssets
+                override fun render(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: TestSharedAssets
+                ) {
+                    // Actually rendering something isn't required.
+                    synchronized(lock) {
+                        hasRendered = true
+                        sharedAssetsPassedToRenderer = sharedAssets
+                    }
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: TestSharedAssets
+                ) {
+                    // NOP
                 }
             }
+        )
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime,
-                sharedAssets: TestSharedAssets
-            ) {
-                // NOP
-            }
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
         }
-    )
-
-    override fun getSystemTimeProvider() = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = 123456789L
-
-        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    }
 }
 
 @MediumTest
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 @RunWith(AndroidJUnit4::class)
-public class AsyncListenableCanvasRenderer2Test :
-    WatchFaceControlClientServiceTest() {
+public class AsyncListenableCanvasRenderer2Test : WatchFaceControlClientServiceTest() {
     @Test
     public fun asyncTest() {
         val testSharedAssets = TestSharedAssets()
         val initFuture = SettableFuture.create<Unit>()
         val sharedAssetsFuture = SettableFuture.create<TestSharedAssets>()
-        val watchFaceService = TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
-            context,
-            surfaceHolder,
-            initFuture,
-            sharedAssetsFuture
-        )
-
-        val deferredClient = handlerCoroutineScope.async {
-            @Suppress("deprecation")
-            watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                null,
-                emptyMap()
+        val watchFaceService =
+            TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
+                context,
+                surfaceHolder,
+                initFuture,
+                sharedAssetsFuture
             )
-        }
 
-        handler.post {
-            watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
+        val deferredClient =
+            handlerCoroutineScope.async {
+                @Suppress("deprecation")
+                watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
+                    "testId",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    null,
+                    emptyMap()
+                )
+            }
+
+        handler.post { watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper }
 
         val client = awaitWithTimeout(deferredClient)
 
         try {
             assertThat(
-                watchFaceService.sharedAssetsFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
+                    watchFaceService.sharedAssetsFutureLatch.await(
+                        TIMEOUT_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             sharedAssetsFuture.set(testSharedAssets)
 
             assertThat(
-                watchFaceService.initFutureLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-            ).isTrue()
+                    watchFaceService.initFutureLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+                )
+                .isTrue()
 
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()

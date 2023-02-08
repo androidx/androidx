@@ -50,61 +50,69 @@ import java.time.Instant;
 public class ComplicationDataTimelineTest {
     private static final ComplicationDataTimeline TIMELINE_A =
             new ComplicationDataTimeline(
-                    new ShortTextComplicationData.Builder(new PlainComplicationText.Builder(
-                            "Hello").build(), ComplicationText.EMPTY).build(),
+                    new ShortTextComplicationData.Builder(
+                                    new PlainComplicationText.Builder("Hello").build(),
+                                    ComplicationText.EMPTY)
+                            .build(),
                     ImmutableList.of(
                             new TimelineEntry(
-                                    new TimeInterval(Instant.ofEpochMilli(100000000),
+                                    new TimeInterval(
+                                            Instant.ofEpochMilli(100000000),
                                             Instant.ofEpochMilli(200000000)),
                                     new ShortTextComplicationData.Builder(
-                                            new PlainComplicationText.Builder(
-                                                    "Updated").build(),
-                                            ComplicationText.EMPTY).build()
-                            )
-                    ));
+                                                    new PlainComplicationText.Builder("Updated")
+                                                            .build(),
+                                                    ComplicationText.EMPTY)
+                                            .build())));
     private static final ComplicationDataTimeline TIMELINE_A2 =
             new ComplicationDataTimeline(
-                    new ShortTextComplicationData.Builder(new PlainComplicationText.Builder(
-                            "Hello").build(), ComplicationText.EMPTY).build(),
+                    new ShortTextComplicationData.Builder(
+                                    new PlainComplicationText.Builder("Hello").build(),
+                                    ComplicationText.EMPTY)
+                            .build(),
                     ImmutableList.of(
                             new TimelineEntry(
-                                    new TimeInterval(Instant.ofEpochMilli(100000000),
+                                    new TimeInterval(
+                                            Instant.ofEpochMilli(100000000),
                                             Instant.ofEpochMilli(200000000)),
                                     new ShortTextComplicationData.Builder(
-                                            new PlainComplicationText.Builder(
-                                                    "Updated").build(),
-                                            ComplicationText.EMPTY).build()
-                            )
-                    ));
+                                                    new PlainComplicationText.Builder("Updated")
+                                                            .build(),
+                                                    ComplicationText.EMPTY)
+                                            .build())));
 
     private static final ComplicationDataTimeline TIMELINE_B =
             new ComplicationDataTimeline(
-                    new ShortTextComplicationData.Builder(new PlainComplicationText.Builder(
-                            "World").build(), ComplicationText.EMPTY).build(),
+                    new ShortTextComplicationData.Builder(
+                                    new PlainComplicationText.Builder("World").build(),
+                                    ComplicationText.EMPTY)
+                            .build(),
                     ImmutableList.of(
                             new TimelineEntry(
-                                    new TimeInterval(Instant.ofEpochMilli(120000000),
+                                    new TimeInterval(
+                                            Instant.ofEpochMilli(120000000),
                                             Instant.ofEpochMilli(220000000)),
                                     new ShortTextComplicationData.Builder(
-                                            new PlainComplicationText.Builder(
-                                                    "Updated").build(),
-                                            ComplicationText.EMPTY).build()
-                            )
-                    ));
+                                                    new PlainComplicationText.Builder("Updated")
+                                                            .build(),
+                                                    ComplicationText.EMPTY)
+                                            .build())));
     private static final ComplicationDataTimeline TIMELINE_B2 =
             new ComplicationDataTimeline(
-                    new ShortTextComplicationData.Builder(new PlainComplicationText.Builder(
-                            "World").build(), ComplicationText.EMPTY).build(),
+                    new ShortTextComplicationData.Builder(
+                                    new PlainComplicationText.Builder("World").build(),
+                                    ComplicationText.EMPTY)
+                            .build(),
                     ImmutableList.of(
                             new TimelineEntry(
-                                    new TimeInterval(Instant.ofEpochMilli(120000000),
+                                    new TimeInterval(
+                                            Instant.ofEpochMilli(120000000),
                                             Instant.ofEpochMilli(220000000)),
                                     new ShortTextComplicationData.Builder(
-                                            new PlainComplicationText.Builder(
-                                                    "Updated").build(),
-                                            ComplicationText.EMPTY).build()
-                            )
-                    ));
+                                                    new PlainComplicationText.Builder("Updated")
+                                                            .build(),
+                                                    ComplicationText.EMPTY)
+                                            .build())));
 
     @Before
     public void setup() {
@@ -129,50 +137,53 @@ public class ComplicationDataTimelineTest {
 
     @Test
     public void timeEntryToString() {
-        assertThat(TIMELINE_A.toString()).isEqualTo(
-                "ComplicationDataTimeline(defaultComplicationData=ShortTextComplicationData("
-                        + "text=ComplicationText{mSurroundingText=Hello, mTimeDependentText=null, "
-                        + "mExpression=null}, title=null, monochromaticImage=null, "
-                        + "smallImage=null, contentDescription=ComplicationText{"
-                        + "mSurroundingText=, mTimeDependentText=null, mExpression=null}, "
-                        + "tapActionLostDueToSerialization=false, tapAction=null, "
-                        + "validTimeRange=TimeRange(startDateTimeMillis="
-                        + "-1000000000-01-01T00:00:00Z, endDateTimeMillis="
-                        + "+1000000000-12-31T23:59:59.999999999Z), dataSource=null, "
-                        + "persistencePolicy=0, displayPolicy=0), timelineEntries=["
-                        + "TimelineEntry(validity=TimeInterval(start=1970-01-02T03:46:40Z, "
-                        + "end=1970-01-03T07:33:20Z), complicationData=ShortTextComplicationData("
-                        + "text=ComplicationText{mSurroundingText=Updated, "
-                        + "mTimeDependentText=null, mExpression=null}, title=null, "
-                        + "monochromaticImage=null, smallImage=null, "
-                        + "contentDescription=ComplicationText{mSurroundingText=, "
-                        + "mTimeDependentText=null, mExpression=null}, "
-                        + "tapActionLostDueToSerialization=false, tapAction=null, "
-                        + "validTimeRange=TimeRange(startDateTimeMillis="
-                        + "-1000000000-01-01T00:00:00Z, endDateTimeMillis="
-                        + "+1000000000-12-31T23:59:59.999999999Z), dataSource=null, "
-                        + "persistencePolicy=0, displayPolicy=0))])"
-        );
+        assertThat(TIMELINE_A.toString())
+                .isEqualTo(
+                        "ComplicationDataTimeline("
+                                + "defaultComplicationData=ShortTextComplicationData("
+                                + "text=ComplicationText{mSurroundingText=Hello,"
+                                + " mTimeDependentText=null, mExpression=null}, title=null,"
+                                + " monochromaticImage=null, smallImage=null,"
+                                + " contentDescription=ComplicationText{mSurroundingText=,"
+                                + " mTimeDependentText=null, mExpression=null},"
+                                + " tapActionLostDueToSerialization=false, tapAction=null, "
+                                + "validTimeRange=TimeRange("
+                                + "startDateTimeMillis=-1000000000-01-01T00:00:00Z,"
+                                + " endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z),"
+                                + " dataSource=null, persistencePolicy=0, displayPolicy=0),"
+                                + " timelineEntries=["
+                                + "TimelineEntry(validity=TimeInterval(start=1970-01-02T03:46:40Z,"
+                                + " end=1970-01-03T07:33:20Z),"
+                                + " complicationData=ShortTextComplicationData("
+                                + "text=ComplicationText{mSurroundingText=Updated,"
+                                + " mTimeDependentText=null, mExpression=null}, title=null,"
+                                + " monochromaticImage=null, smallImage=null,"
+                                + " contentDescription=ComplicationText{mSurroundingText=,"
+                                + " mTimeDependentText=null, mExpression=null},"
+                                + " tapActionLostDueToSerialization=false, tapAction=null, "
+                                + "validTimeRange=TimeRange("
+                                + "startDateTimeMillis=-1000000000-01-01T00:00:00Z,"
+                                + " endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z),"
+                                + " dataSource=null, persistencePolicy=0, displayPolicy=0))])");
     }
 
     @Test
     public void noDataTimelineEntryRoundTrip() {
         ComplicationDataTimeline timeline =
                 new ComplicationDataTimeline(
-                        new ShortTextComplicationData.Builder(new PlainComplicationText.Builder(
-                                "World").build(), ComplicationText.EMPTY).build(),
+                        new ShortTextComplicationData.Builder(
+                                        new PlainComplicationText.Builder("World").build(),
+                                        ComplicationText.EMPTY)
+                                .build(),
                         ImmutableList.of(
                                 new TimelineEntry(
-                                        new TimeInterval(Instant.ofEpochMilli(120000000),
+                                        new TimeInterval(
+                                                Instant.ofEpochMilli(120000000),
                                                 Instant.ofEpochMilli(220000000)),
-                                        new NoDataComplicationData()
-                                )
-                        ));
+                                        new NoDataComplicationData())));
 
-        @SuppressWarnings("KotlinInternal")
-        ComplicationData complicationData = DataKt.toApiComplicationData(
-                timeline.asWireComplicationData$watchface_complications_data_source_debug()
-        );
+        ComplicationData complicationData =
+                DataKt.toApiComplicationData(asWireComplicationData(timeline));
 
         assertThat(complicationData.asWireComplicationData().getTimelineEntries().get(0).getType())
                 .isEqualTo(ComplicationType.NO_DATA.toWireComplicationType());
@@ -182,24 +193,23 @@ public class ComplicationDataTimelineTest {
     public void cachedLongTextPlaceholder() throws IOException, ClassNotFoundException {
         ComplicationDataTimeline timeline =
                 new ComplicationDataTimeline(
-                        new LongTextComplicationData.Builder(new PlainComplicationText.Builder(
-                                "Hello").build(), ComplicationText.EMPTY).build(),
+                        new LongTextComplicationData.Builder(
+                                        new PlainComplicationText.Builder("Hello").build(),
+                                        ComplicationText.EMPTY)
+                                .build(),
                         ImmutableList.of(
                                 new TimelineEntry(
-                                        new TimeInterval(Instant.ofEpochMilli(100000000),
+                                        new TimeInterval(
+                                                Instant.ofEpochMilli(100000000),
                                                 Instant.ofEpochMilli(200000000)),
                                         new NoDataComplicationData(
                                                 new LongTextComplicationData.Builder(
-                                                        ComplicationText.PLACEHOLDER,
-                                                        ComplicationText.EMPTY).build()
-                                        )
-                                )
-                        ));
+                                                                ComplicationText.PLACEHOLDER,
+                                                                ComplicationText.EMPTY)
+                                                        .build()))));
 
-        @SuppressWarnings("KotlinInternal")
-        ComplicationData complicationData = DataKt.toApiComplicationData(
-                timeline.asWireComplicationData$watchface_complications_data_source_debug()
-        );
+        ComplicationData complicationData =
+                DataKt.toApiComplicationData(asWireComplicationData(timeline));
 
         // Simulate caching by a round trip conversion to byteArray.
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -224,7 +234,8 @@ public class ComplicationDataTimelineTest {
 
         ComplicationData timeLineEntry =
                 DataKt.toApiComplicationData(
-                        longText.asWireComplicationData().getTimelineEntries().stream().findFirst()
+                        longText.asWireComplicationData().getTimelineEntries().stream()
+                                .findFirst()
                                 .get());
 
         assertThat(timeLineEntry.getType()).isEqualTo(ComplicationType.NO_DATA);
@@ -235,5 +246,11 @@ public class ComplicationDataTimelineTest {
 
         LongTextComplicationData longTextPlaceholder = (LongTextComplicationData) placeholder;
         assertThat(longTextPlaceholder.getText().isPlaceholder()).isTrue();
+    }
+
+    @SuppressWarnings("KotlinInternal")
+    private android.support.wearable.complications.ComplicationData asWireComplicationData(
+            ComplicationDataTimeline timeline) {
+        return timeline.asWireComplicationData$watchface_complications_data_source_debug();
     }
 }

@@ -40,8 +40,7 @@ import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
 class ComplicationDataEqualityTest {
-    @get:Rule
-    val expect = Expect.create()
+    @get:Rule val expect = Expect.create()
 
     @Before
     fun setup() {
