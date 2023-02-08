@@ -1,9 +1,6 @@
 // Signature format: 4.0
 package androidx.tv.material3 {
 
-  public final class BringIntoViewIfChildrenAreFocusedKt {
-  }
-
   @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselDefaults {
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void IndicatorRow(int slideCount, int activeSlideIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
     method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransform();
@@ -22,9 +19,6 @@ package androidx.tv.material3 {
     property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformLeftToRight;
     property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformRightToLeft;
     field public static final androidx.tv.material3.CarouselItemDefaults INSTANCE;
-  }
-
-  public final class CarouselItemKt {
   }
 
   public final class CarouselKt {
@@ -142,9 +136,6 @@ package androidx.tv.material3 {
     method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
   }
 
-  public final class KeyEventUtilsKt {
-  }
-
   public final class MaterialTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ColorScheme getColorScheme();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Shapes getShapes();
@@ -190,9 +181,6 @@ package androidx.tv.material3 {
     property public final androidx.compose.foundation.shape.CornerBasedShape large;
     property public final androidx.compose.foundation.shape.CornerBasedShape medium;
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
-  }
-
-  public final class ShapesKt {
   }
 
   public final class SurfaceKt {
@@ -269,9 +257,6 @@ package androidx.tv.material3 {
     property public final androidx.compose.ui.text.TextStyle titleLarge;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
-  }
-
-  public final class TypographyKt {
   }
 
 }

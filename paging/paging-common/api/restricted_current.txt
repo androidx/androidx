@@ -466,12 +466,6 @@ package androidx.paging {
     field @Deprecated public final int startPosition;
   }
 
-  public final class RemoteMediatorAccessorKt {
-  }
-
-  public final class SeparatorsKt {
-  }
-
   public enum TerminalSeparatorType {
     method public static androidx.paging.TerminalSeparatorType valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.paging.TerminalSeparatorType[] values();

@@ -70,9 +70,6 @@ package androidx.room {
     method public java.util.List<java.lang.Long> upsertAndReturnIdsList(java.util.Collection<? extends T> entities);
   }
 
-  public final class EntityUpsertionAdapterKt {
-  }
-
   public class InvalidationTracker {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.util.Map<java.lang.String,java.lang.String> shadowTablesMap, java.util.Map<java.lang.String,java.util.Set<java.lang.String>> viewTables, java.lang.String... tableNames);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.lang.String... tableNames);
@@ -414,9 +411,6 @@ package androidx.room.util {
   }
 
   public static final class TableInfo.Index.Companion {
-  }
-
-  public final class TableInfoKt {
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class UUIDUtil {

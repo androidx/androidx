@@ -77,9 +77,6 @@ package androidx.navigation {
     property public Args value;
   }
 
-  public final class NavArgsLazyKt {
-  }
-
   public final class NavArgument {
     method public Object? getDefaultValue();
     method public androidx.navigation.NavType<java.lang.Object> getType();

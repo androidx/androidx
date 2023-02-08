@@ -1342,9 +1342,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Energy kilojoules(double value);
   }
 
-  public final class EnergyKt {
-  }
-
   public final class Length implements java.lang.Comparable<androidx.health.connect.client.units.Length> {
     method public int compareTo(androidx.health.connect.client.units.Length other);
     method public static androidx.health.connect.client.units.Length feet(double value);
@@ -1371,9 +1368,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Length kilometers(double value);
     method public androidx.health.connect.client.units.Length meters(double value);
     method public androidx.health.connect.client.units.Length miles(double value);
-  }
-
-  public final class LengthKt {
   }
 
   public final class Mass implements java.lang.Comparable<androidx.health.connect.client.units.Mass> {
@@ -1408,17 +1402,11 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Mass pounds(double value);
   }
 
-  public final class MassKt {
-  }
-
   public final class Percentage implements java.lang.Comparable<androidx.health.connect.client.units.Percentage> {
     ctor public Percentage(double value);
     method public int compareTo(androidx.health.connect.client.units.Percentage other);
     method public double getValue();
     property public final double value;
-  }
-
-  public final class PercentageKt {
   }
 
   public final class Power implements java.lang.Comparable<androidx.health.connect.client.units.Power> {
@@ -1437,9 +1425,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Power watts(double value);
   }
 
-  public final class PowerKt {
-  }
-
   public final class Pressure implements java.lang.Comparable<androidx.health.connect.client.units.Pressure> {
     method public int compareTo(androidx.health.connect.client.units.Pressure other);
     method public double getMillimetersOfMercury();
@@ -1450,9 +1435,6 @@ package androidx.health.connect.client.units {
 
   public static final class Pressure.Companion {
     method public androidx.health.connect.client.units.Pressure millimetersOfMercury(double value);
-  }
-
-  public final class PressureKt {
   }
 
   public final class Temperature implements java.lang.Comparable<androidx.health.connect.client.units.Temperature> {
@@ -1469,9 +1451,6 @@ package androidx.health.connect.client.units {
   public static final class Temperature.Companion {
     method public androidx.health.connect.client.units.Temperature celsius(double value);
     method public androidx.health.connect.client.units.Temperature fahrenheit(double value);
-  }
-
-  public final class TemperatureKt {
   }
 
   public final class Velocity implements java.lang.Comparable<androidx.health.connect.client.units.Velocity> {
@@ -1494,9 +1473,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Velocity milesPerHour(double value);
   }
 
-  public final class VelocityKt {
-  }
-
   public final class Volume implements java.lang.Comparable<androidx.health.connect.client.units.Volume> {
     method public int compareTo(androidx.health.connect.client.units.Volume other);
     method public static androidx.health.connect.client.units.Volume fluidOuncesUs(double value);
@@ -1515,9 +1491,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Volume fluidOuncesUs(double value);
     method public androidx.health.connect.client.units.Volume liters(double value);
     method public androidx.health.connect.client.units.Volume milliliters(double value);
-  }
-
-  public final class VolumeKt {
   }
 
 }

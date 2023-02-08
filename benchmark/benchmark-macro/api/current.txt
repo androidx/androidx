@@ -1,9 +1,6 @@
 // Signature format: 4.0
 package androidx.benchmark.macro {
 
-  @RequiresApi(29) public final class Api29Kt {
-  }
-
   public enum BaselineProfileMode {
     method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.benchmark.macro.BaselineProfileMode[] values();
@@ -48,12 +45,6 @@ package androidx.benchmark.macro {
     ctor public FrameTimingMetric();
   }
 
-  public final class IdeSummaryStringKt {
-  }
-
-  public final class IterationResultKt {
-  }
-
   public final class MacrobenchmarkKt {
   }
 
@@ -79,12 +70,6 @@ package androidx.benchmark.macro {
   public abstract sealed class Metric {
   }
 
-  public final class MetricKt {
-  }
-
-  public final class MetricResultExtensionsKt {
-  }
-
   public enum StartupMode {
     method public static androidx.benchmark.macro.StartupMode valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.benchmark.macro.StartupMode[] values();
@@ -95,25 +80,6 @@ package androidx.benchmark.macro {
 
   public final class StartupTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public StartupTimingMetric();
-  }
-
-  public final class TagKt {
-  }
-
-}
-
-package androidx.benchmark.macro.perfetto {
-
-  public final class ForceTracingKt {
-  }
-
-  public final class PerfettoTraceProcessorKt {
-  }
-
-  public final class SliceKt {
-  }
-
-  public final class StringHelperKt {
   }
 
 }

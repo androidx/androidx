@@ -415,17 +415,11 @@ package androidx.constraintlayout.compose {
     method public void itemsWithProperties(int count, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties>,kotlin.Unit> itemContent);
   }
 
-  public final class MotionDragHandlerKt {
-  }
-
   public interface MotionItemsProvider {
     method public int count();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent(int index);
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent(int index, androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties> properties);
     method public boolean hasItemsWithProperties();
-  }
-
-  public final class MotionKt {
   }
 
   public enum MotionLayoutDebugFlags {
@@ -537,13 +531,6 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.Wrap Aligned;
     property public final androidx.constraintlayout.compose.Wrap Chain;
     property public final androidx.constraintlayout.compose.Wrap None;
-  }
-
-}
-
-package androidx.constraintlayout.compose.carousel {
-
-  public final class CarouselSwipeableKt {
   }
 
 }
