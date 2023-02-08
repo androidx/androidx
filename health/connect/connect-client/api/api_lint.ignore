@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ActionValue: androidx.health.connect.client.HealthConnectClient#ACTION_HEALTH_CONNECT_SETTINGS:
+    Inconsistent action value; expected `androidx.health.connect.client.action.HEALTH_CONNECT_SETTINGS`, was `androidx.health.ACTION_HEALTH_CONNECT_SETTINGS`
+ActionValue: androidx.health.connect.client.HealthConnectClient.Companion#ACTION_HEALTH_CONNECT_SETTINGS:
+    Inconsistent action value; expected `androidx.health.connect.client.action.HEALTH_CONNECT_SETTINGS`, was `androidx.health.ACTION_HEALTH_CONNECT_SETTINGS`

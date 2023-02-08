@@ -363,8 +363,11 @@ interface HealthConnectClient {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 35000
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be released after testing
-        const val HEALTH_CONNECT_SETTING_INTENT_ACTION =
+        /**
+         * Intent action to open Health Connect settings on this phone. Developers should use this
+         * if they want to re-direct the user to Health Connect.
+         */
+        const val ACTION_HEALTH_CONNECT_SETTINGS =
             "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
