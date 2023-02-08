@@ -96,7 +96,7 @@ public final class CameraUseCaseAdapter implements Camera {
 
     // UseCases from the app. This does not include internal UseCases created by CameraX.
     @GuardedBy("mLock")
-    private final List<UseCase> mUseCases = new ArrayList<>();
+    private final List<UseCase> mAppUseCases = new ArrayList<>();
     // UseCases sent to the camera including internal UseCases created by CameraX.
     @GuardedBy("mLock")
     private final List<UseCase> mCameraUseCases = new ArrayList<>();
@@ -206,12 +206,12 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void addUseCases(@NonNull Collection<UseCase> appUseCasesToAdd) throws CameraException {
         synchronized (mLock) {
-            List<UseCase> appUseCasesAfter = new ArrayList<>(mUseCases);
+            List<UseCase> appUseCases = new ArrayList<>(mAppUseCases);
             // Removing new from existing to avoid duplicate UseCases.
-            appUseCasesAfter.removeAll(appUseCasesToAdd);
-            appUseCasesAfter.addAll(appUseCasesToAdd);
+            appUseCases.removeAll(appUseCasesToAdd);
+            appUseCases.addAll(appUseCasesToAdd);
             try {
-                updateUseCases(appUseCasesAfter);
+                updateUseCases(appUseCases);
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e.getMessage());
             }
@@ -223,9 +223,9 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void removeUseCases(@NonNull Collection<UseCase> useCasesToRemove) {
         synchronized (mLock) {
-            List<UseCase> appUseCasesAfter = new ArrayList<>(mUseCases);
-            appUseCasesAfter.removeAll(useCasesToRemove);
-            updateUseCases(appUseCasesAfter);
+            List<UseCase> appUseCases = new ArrayList<>(mAppUseCases);
+            appUseCases.removeAll(useCasesToRemove);
+            updateUseCases(appUseCases);
         }
     }
 
@@ -242,7 +242,7 @@ public final class CameraUseCaseAdapter implements Camera {
      *
      * <p> This method calculates the new camera UseCases based on the input and the current state,
      * attach/detach the camera UseCases, and save the updated state in following member variables:
-     * {@link #mCameraUseCases}, {@link #mUseCases} and {@link #mPlaceholderForExtensions}.
+     * {@link #mCameraUseCases}, {@link #mAppUseCases} and {@link #mPlaceholderForExtensions}.
      *
      * @throws IllegalArgumentException if the UseCase combination is not supported. In that case,
      *                                  it will not update the internal states.
@@ -318,8 +318,8 @@ public final class CameraUseCaseAdapter implements Camera {
             }
 
             // The changes are successful. Update the states of this class.
-            mUseCases.clear();
-            mUseCases.addAll(appUseCases);
+            mAppUseCases.clear();
+            mAppUseCases.addAll(appUseCases);
             mCameraUseCases.clear();
             mCameraUseCases.addAll(cameraUseCases);
             mPlaceholderForExtensions = placeholderForExtensions;
@@ -400,7 +400,7 @@ public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     public List<UseCase> getUseCases() {
         synchronized (mLock) {
-            return new ArrayList<>(mUseCases);
+            return new ArrayList<>(mAppUseCases);
         }
     }
 
@@ -423,12 +423,12 @@ public final class CameraUseCaseAdapter implements Camera {
     public void attachUseCases() {
         synchronized (mLock) {
             if (!mAttached) {
-                mCameraInternal.attachUseCases(mUseCases);
+                mCameraInternal.attachUseCases(mCameraUseCases);
                 restoreInteropConfig();
 
                 // Notify to update the use case's active state because it may be cleared if the
                 // use case was ever detached from a camera previously.
-                for (UseCase useCase : mUseCases) {
+                for (UseCase useCase : mCameraUseCases) {
                     useCase.notifyState();
                 }
 
@@ -459,7 +459,7 @@ public final class CameraUseCaseAdapter implements Camera {
     public void detachUseCases() {
         synchronized (mLock) {
             if (mAttached) {
-                mCameraInternal.detachUseCases(new ArrayList<>(mUseCases));
+                mCameraInternal.detachUseCases(new ArrayList<>(mCameraUseCases));
                 cacheInteropConfig();
                 mAttached = false;
             }
@@ -724,7 +724,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 cameraConfig = CameraConfigs.emptyConfig();
             }
 
-            if (!mUseCases.isEmpty() && !mCameraConfig.getCompatibilityId().equals(
+            if (!mAppUseCases.isEmpty() && !mCameraConfig.getCompatibilityId().equals(
                     cameraConfig.getCompatibilityId())) {
                 throw new IllegalStateException(
                         "Need to unbind all use cases before binding with extension enabled");

@@ -119,7 +119,22 @@ class CameraUseCaseAdapterTest {
         executor.shutdown()
     }
 
-    // TODO(b/264936606): test UseCases bind()/unbind() are called correctly.
+    @Test
+    fun attachAndDetachUseCases_cameraUseCasesAttachedAndDetached() {
+        // Arrange: bind UseCases that requires sharing.
+        adapter.setStreamSharingEnabled(true)
+        adapter.addUseCases(setOf(preview, video, image))
+        val streamSharing =
+            adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+        // Act: attach use cases.
+        adapter.attachUseCases()
+        // Assert: StreamSharing and image are attached.
+        assertThat(fakeCamera.attachedUseCases).containsExactly(image, streamSharing)
+        // Act: detach.
+        adapter.detachUseCases()
+        // Assert: use cases are detached.
+        assertThat(fakeCamera.attachedUseCases).isEmpty()
+    }
 
     @Test(expected = CameraException::class)
     fun addStreamSharing_throwsException() {
