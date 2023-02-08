@@ -64,6 +64,26 @@ class BaselineProfilesConsumerPluginTest {
             .withPluginClasspath()
     }
 
+    private fun writeDefaultProducerProject() {
+        producerProjectSetup.writeDefaultBuildGradle(
+            prefix = MockProducerBuildGrade()
+                .withConfiguration(flavor = "", buildType = "release")
+                .withProducedBaselineProfiles(
+                    listOf("a", "b", "c", "d"),
+                    flavor = "",
+                    buildType = "release"
+                )
+                .build(),
+            suffix = ""
+        )
+    }
+
+    private fun readBaselineProfileFileContent(variantName: String) =
+        File(
+            consumerProjectSetup.rootDir,
+            "src/$variantName/generatedBaselineProfiles/baseline-prof.txt"
+        ).readLines()
+
     @Test
     fun testGenerateBaselineProfilesTaskWithNoFlavors() {
         consumerProjectSetup.writeDefaultBuildGradle(
@@ -95,9 +115,7 @@ class BaselineProfilesConsumerPluginTest {
             .build()
 
         // The expected output should have each line sorted descending
-        assertThat(
-            File(consumerProjectSetup.rootDir, "src/main/baseline-prof.txt").readLines()
-        )
+        assertThat(readBaselineProfileFileContent("release"))
             .containsExactly("4", "3", "2", "1")
     }
 
@@ -145,18 +163,227 @@ class BaselineProfilesConsumerPluginTest {
             suffix = ""
         )
 
+        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
+        gradleRunner
+            .withArguments("tasks", "--stacktrace")
+            .build()
+            .output
+            .also {
+                assertThat(it).contains("generateBaselineProfiles - ")
+                assertThat(it).contains("generateFreeBaselineProfiles - ")
+                assertThat(it).contains("generatePaidBaselineProfiles - ")
+                assertThat(it).contains("generateReleaseBaselineProfiles - ")
+            }
+
         gradleRunner
             .withArguments("generateBaselineProfiles", "--stacktrace")
             .build()
 
         // The expected output should have each line sorted ascending
-        val baselineProf =
-            File(consumerProjectSetup.rootDir, "src/main/baseline-prof.txt").readLines()
-        assertThat(baselineProf).containsExactly("1", "2", "3", "4")
+        assertThat(readBaselineProfileFileContent("freeRelease"))
+            .containsExactly("2", "3")
+
+        assertThat(readBaselineProfileFileContent("paidRelease"))
+            .containsExactly("1", "4")
+    }
+
+    @Test
+    fun testPluginAppliedToApplicationModule() {
+
+        // For this test the producer is not important
+        writeDefaultProducerProject()
+
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .build()
+
+        // This should not fail.
+    }
+
+    @Test
+    fun testPluginAppliedToLibraryModule() {
+        // For this test the producer is not important
+        writeDefaultProducerProject()
+
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.library")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .build()
+
+        // This should not fail.
+    }
+
+    @Test
+    fun testPluginAppliedToNonApplicationAndNonLibraryModule() {
+        // For this test the producer is not important
+        writeDefaultProducerProject()
+
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.test")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .buildAndFail()
+    }
+
+    @Test
+    fun testExtendNonExistingBuildTypeWhenNotSyncing() {
+        // For this test the producer is not important
+        writeDefaultProducerProject()
+
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+                baselineProfilesProfileConsumer {
+                    buildTypeName = "nonExisting"
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .buildAndFail()
+    }
+
+    @Test
+    fun testExtendNonExistingBuildTypeWhenSyncing() {
+        // For this test the producer is not important
+        writeDefaultProducerProject()
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+                baselineProfilesProfileConsumer {
+                    buildTypeName = "nonExisting"
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+
+        // There is no sync task but any task will do since the check is on the injected property.
+        gradleRunner
+            .withArguments("tasks", "--stacktrace", "-Pandroid.injected.build.model.only=true")
+            .build()
+
+        // This test should not fail as we don't throw exceptions when syncing.
+    }
+
+    @Test
+    fun testBaselineProfilesSrcSetAreAddedToVariants() {
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                    productFlavors {
+                        flavorDimensions = ["version"]
+                        free { dimension "version" }
+                        paid { dimension "version" }
+                    }
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+                android.applicationVariants.all { variant ->
+                    tasks.register(variant.name + "Print") { t ->
+                        println(android.sourceSets[variant.name].baselineProfiles)
+                    }
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+        producerProjectSetup.writeDefaultBuildGradle(
+            prefix = MockProducerBuildGrade()
+                .withConfiguration(flavor = "free", buildType = "release")
+                .withConfiguration(flavor = "paid", buildType = "release")
+                .withProducedBaselineProfiles(
+                    listOf("3", "2"), flavor = "free", buildType = "release"
+                )
+                .withProducedBaselineProfiles(
+                    listOf("4", "1"), flavor = "paid", buildType = "release"
+                )
+                .build(),
+            suffix = ""
+        )
+        arrayOf("freeRelease", "paidRelease").forEach {
+            assertThat(
+                gradleRunner
+                    .withArguments("${it}Print", "--stacktrace")
+                    .build()
+                    .output
+                    .contains("source=[src/$it/baselineProfiles]")
+            )
+                .isTrue()
+        }
     }
 }
 
-private class MockProducerBuildGrade() {
+private class MockProducerBuildGrade {
 
     private var profileIndex = 0
     private var content = """
