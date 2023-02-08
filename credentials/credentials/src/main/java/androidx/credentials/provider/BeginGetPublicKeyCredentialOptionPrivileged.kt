@@ -50,6 +50,7 @@ class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
     val relyingParty: String,
     val clientDataHash: String,
 ) : BeginGetCredentialOption(
+    /*id=*/"",
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     candidateQueryData
 ) {

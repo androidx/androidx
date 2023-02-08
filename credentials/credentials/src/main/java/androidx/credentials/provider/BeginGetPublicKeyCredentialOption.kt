@@ -40,6 +40,7 @@ class BeginGetPublicKeyCredentialOption internal constructor(
     candidateQueryData: Bundle,
     val requestJson: String,
 ) : BeginGetCredentialOption(
+    /*id=*/"",
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     candidateQueryData
 ) {

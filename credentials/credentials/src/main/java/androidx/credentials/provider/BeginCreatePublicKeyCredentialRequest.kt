@@ -25,7 +25,6 @@ import android.service.credentials.BeginCreateCredentialRequest
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.toCandidateDataBundle
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.PublicKeyCredential
@@ -49,13 +48,15 @@ import androidx.credentials.internal.FrameworkClassParsingException
 @RequiresApi(34)
 class BeginCreatePublicKeyCredentialRequest internal constructor(
     val json: String,
-    callingAppInfo: CallingAppInfo,
+    callingAppInfo: CallingAppInfo?,
 ) : BeginCreateCredentialRequest(
-    callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     // TODO ("Use custom version of toCandidateData in this class")
-    toCandidateDataBundle(json,
-        /*preferImmediatelyAvailableCredentials=*/false)
+    toCandidateDataBundle(
+        json,
+        /*preferImmediatelyAvailableCredentials=*/false
+    ),
+    callingAppInfo
 ) {
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -71,10 +72,30 @@ class BeginCreatePublicKeyCredentialRequest internal constructor(
 
     @Suppress("AcronymName")
     companion object {
+        /** @hide */
+        @JvmStatic
+        internal fun toCandidateDataBundle(
+            requestJson: String,
+            preferImmediatelyAvailableCredentials: Boolean
+        ): Bundle {
+            val bundle = Bundle()
+            bundle.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                CreatePublicKeyCredentialRequest
+                    .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
+            )
+            bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putBoolean(
+                CreatePublicKeyCredentialRequest
+                    .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentials
+            )
+            return bundle
+        }
 
         /** @hide */
         @JvmStatic
-        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
+        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)

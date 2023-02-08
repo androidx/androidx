@@ -56,13 +56,12 @@ class BeginCreateCredentialUtil {
                         }
                     }
                     else -> {
-                        BeginCreateCredentialRequest(request.callingAppInfo,
-                            request.type, request.data)
+                        BeginCreateCredentialRequest(request.type, request.data,
+                            request.callingAppInfo)
                     }
                 }
             } catch (e: FrameworkClassParsingException) {
-                BeginCreateCredentialRequest(request.callingAppInfo,
-                    request.type, request.data)
+                BeginCreateCredentialRequest(request.type, request.data, request.callingAppInfo)
             }
         }
     }

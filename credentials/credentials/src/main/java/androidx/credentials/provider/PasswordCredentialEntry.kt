@@ -68,9 +68,10 @@ class PasswordCredentialEntry internal constructor(
     val pendingIntent: PendingIntent,
     val lastUsedTime: Instant?,
     val icon: Icon?,
-    val isAutoSelectAllowed: Boolean
-) : CredentialEntry(
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    val isAutoSelectAllowed: Boolean,
+    beginGetPasswordOption: BeginGetPasswordOption
+    ) : CredentialEntry(
+    beginGetPasswordOption,
     toSlice(
         PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
         username,
@@ -79,7 +80,8 @@ class PasswordCredentialEntry internal constructor(
         typeDisplayName,
         lastUsedTime,
         icon,
-        isAutoSelectAllowed
+        isAutoSelectAllowed,
+        beginGetPasswordOption
     )
 ) {
     init {
@@ -89,6 +91,7 @@ class PasswordCredentialEntry internal constructor(
         context: Context,
         username: CharSequence,
         pendingIntent: PendingIntent,
+        beginGetPasswordOption: BeginGetPasswordOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
         icon: Icon? = Icon.createWithResource(context, R.drawable.ic_password),
@@ -100,7 +103,8 @@ class PasswordCredentialEntry internal constructor(
         pendingIntent,
         lastUsedTime,
         icon,
-        isAutoSelectAllowed = false
+        isAutoSelectAllowed = false,
+        beginGetPasswordOption,
     )
 
     override fun describeContents(): Int {
@@ -140,6 +144,10 @@ class PasswordCredentialEntry internal constructor(
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_BUNDLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
 
@@ -159,7 +167,8 @@ class PasswordCredentialEntry internal constructor(
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
             icon: Icon?,
-            isAutoSelectAllowed: Boolean
+            isAutoSelectAllowed: Boolean,
+            beginGetPasswordCredentialOption: BeginGetPasswordOption
         ): Slice {
             // TODO("Put the right revision value")
             val autoSelectAllowed = if (isAutoSelectAllowed) {
@@ -187,6 +196,11 @@ class PasswordCredentialEntry internal constructor(
                 .addText(
                     autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED)
+                )
+                .addBundle(
+                    beginGetPasswordCredentialOption.candidateQueryData,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_BUNDLE)
                 )
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
@@ -228,6 +242,7 @@ class PasswordCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
+            var beginGetPasswordOption: BeginGetPasswordOption? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -240,6 +255,8 @@ class PasswordCredentialEntry internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
+                    beginGetPasswordOption = BeginGetPasswordOption.createFrom(it.bundle)
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -258,7 +275,8 @@ class PasswordCredentialEntry internal constructor(
                     pendingIntent!!,
                     lastUsedTime,
                     icon!!,
-                    autoSelectAllowed
+                    autoSelectAllowed,
+                    beginGetPasswordOption!!
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -283,7 +301,8 @@ class PasswordCredentialEntry internal constructor(
     class Builder(
         private val context: Context,
         private val username: CharSequence,
-        private val pendingIntent: PendingIntent
+        private val pendingIntent: PendingIntent,
+        private val beginGetPasswordOption: BeginGetPasswordOption
         ) {
         private var displayName: CharSequence? = null
         private var lastUsedTime: Instant? = null
@@ -325,7 +344,8 @@ class PasswordCredentialEntry internal constructor(
                 pendingIntent,
                 lastUsedTime,
                 icon!!,
-                autoSelectAllowed
+                autoSelectAllowed,
+                beginGetPasswordOption
             )
         }
     }

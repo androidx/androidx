@@ -41,14 +41,16 @@ import java.util.Collections
  * @property pendingIntent the [PendingIntent] to be invoked when the user selects
  * this entry
  *
- * See [android.service.credentials.CredentialsResponseContent] for usage details.
+ * See [android.service.credentials.BeginGetCredentialResponse] for usage details.
  */
 @RequiresApi(34)
 class RemoteCredentialEntry constructor(
     val pendingIntent: PendingIntent,
+    beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
     ) : android.service.credentials.CredentialEntry(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toSlice(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, pendingIntent)
+    beginGetPublicKeyCredentialOption,
+    toSlice(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, pendingIntent,
+    beginGetPublicKeyCredentialOption)
     ) {
 
     override fun describeContents(): Int {
@@ -65,16 +67,26 @@ class RemoteCredentialEntry constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_BUNDLE =
+            "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_BUNDLE"
 
         /** @hide */
         @JvmStatic
-        internal fun toSlice(type: String, pendingIntent: PendingIntent): Slice {
+        internal fun toSlice(
+            type: String,
+            pendingIntent: PendingIntent,
+            beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
+        ): Slice {
             // TODO("Put the right spec and version value")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(type, 1))
             sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(), /*subType=*/null)
+                .addBundle(beginGetPublicKeyCredentialOption.candidateQueryData,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_BUNDLE))
             return sliceBuilder.build()
         }
 
@@ -88,17 +100,22 @@ class RemoteCredentialEntry constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): RemoteCredentialEntry? {
+            var beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption? = null
+            var pendingIntent: PendingIntent? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
-                    return try {
-                        RemoteCredentialEntry(it.action)
-                    } catch (e: Exception) {
-                        Log.i(TAG, "fromSlice failed with: " + e.message)
-                        null
-                    }
+                    pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
+                    beginGetPublicKeyCredentialOption = BeginGetPublicKeyCredentialOption
+                        .createFrom(it.bundle)
                 }
             }
-            return null
+            return try {
+                RemoteCredentialEntry(pendingIntent!!, beginGetPublicKeyCredentialOption!!)
+            } catch (e: Exception) {
+                Log.i(TAG, "fromSlice failed with: " + e.message)
+                null
+            }
         }
 
         @JvmField val CREATOR: Parcelable.Creator<RemoteCredentialEntry> = object :

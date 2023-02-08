@@ -45,7 +45,8 @@ class BeginGetCredentialUtil {
                     it.candidateQueryData)
                 )
             }
-            return BeginGetCredentialRequest.Builder(request.callingAppInfo)
+            return BeginGetCredentialRequest.Builder()
+                .setCallingAppInfo(request.callingAppInfo)
                 .setBeginGetCredentialOptions(beginGetCredentialOptions)
                 .build()
         }
@@ -71,12 +72,12 @@ class BeginGetCredentialUtil {
                                 .createFrom(candidateQueryData)
                         }
                         else -> {
-                            BeginGetCredentialOption(type, candidateQueryData)
+                            BeginGetCredentialOption(/*id=*/"", type, candidateQueryData)
                         }
                     }
                 }
                 else -> {
-                    BeginGetCredentialOption(type, candidateQueryData)
+                    BeginGetCredentialOption(/*id=*/"", type, candidateQueryData)
                 }
             }
         }

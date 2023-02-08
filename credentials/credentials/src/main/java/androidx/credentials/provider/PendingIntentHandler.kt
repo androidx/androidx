@@ -22,7 +22,6 @@ import android.credentials.CreateCredentialResponse
 import android.service.credentials.BeginGetCredentialRequest
 import android.service.credentials.CreateCredentialRequest
 import android.service.credentials.CredentialProviderService
-import android.service.credentials.CredentialsResponseContent
 import android.util.Log
 import android.service.credentials.CredentialEntry
 import android.service.credentials.BeginGetCredentialResponse
@@ -167,7 +166,7 @@ class PendingIntentHandler {
         }
 
         /**
-         * Sets the [android.service.credentials.CredentialsResponseContent] on the result of the
+         * Sets the [android.service.credentials.BeginGetCredentialResponse] on the result of the
          * activity invoked by the [PendingIntent], set on an [AuthenticationAction].
          *
          * @param intent the intent to be set on the result of the [Activity] invoked through the
@@ -177,12 +176,12 @@ class PendingIntentHandler {
          * @throws NullPointerException If [intent], or [response] is null
          */
         @JvmStatic
-        fun setCredentialsResponseContent(
+        fun setBeginGetCredentialResponse(
             intent: Intent,
-            response: CredentialsResponseContent
+            response: BeginGetCredentialResponse
         ) {
             intent.putExtra(
-                CredentialProviderService.EXTRA_CREDENTIALS_RESPONSE_CONTENT,
+                CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE,
                 response
             )
         }
