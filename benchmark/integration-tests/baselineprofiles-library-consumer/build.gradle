@@ -26,11 +26,16 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinStdlib)
     baselineprofiles(project(":benchmark:integration-tests:baselineprofiles-library-producer"))
 }
 
-dependencies {
-    implementation(libs.kotlinStdlib)
+baselineProfilesProfileConsumer {
+    onDemandGeneration = false
+    filter {
+        include "androidx.benchmark.integration.baselineprofiles.library.consumer.**"
+        exclude "androidx.benchmark.integration.baselineprofiles.library.consumer.exclude.*"
+    }
 }
 
 apply(from: "../baselineprofiles-test-utils/utils.gradle")

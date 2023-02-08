@@ -55,6 +55,16 @@ dependencies {
 
 baselineProfilesProfileConsumer {
     buildTypeName = "release"
+    onDemandGeneration = false
+    filter {
+        include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.*"
+    }
+    filter("free") {
+        include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.free.*"
+    }
+    filter("paid") {
+        include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.paid.*"
+    }
 }
 
 apply(from: "../baselineprofiles-test-utils/utils.gradle")

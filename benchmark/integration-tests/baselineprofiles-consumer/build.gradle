@@ -39,4 +39,11 @@ dependencies {
     baselineprofiles(project(":benchmark:integration-tests:baselineprofiles-producer"))
 }
 
+baselineProfilesProfileConsumer {
+    onDemandGeneration = false
+    filter {
+        include "androidx.benchmark.integration.baselineprofiles.consumer.**"
+    }
+}
+
 apply(from: "../baselineprofiles-test-utils/utils.gradle")

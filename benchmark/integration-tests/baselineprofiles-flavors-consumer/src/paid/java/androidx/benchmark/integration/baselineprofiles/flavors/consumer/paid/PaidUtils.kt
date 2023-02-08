@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.baselineprofiles.flavors.consumer
+package androidx.benchmark.integration.baselineprofiles.flavors.consumer.paid
 
-import android.app.Activity
-import android.os.Bundle
-import android.widget.TextView
-
-class EmptyActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.txtNotice).text = callFlavorMethod()
-    }
-}
+fun paidFlavorMethod() = "paid flavor"

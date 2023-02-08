@@ -35,9 +35,6 @@ android {
             systemImageSource = "aosp"
         }
     }
-    buildTypes {
-        release { }
-    }
     productFlavors {
         flavorDimensions = ["version"]
         free { dimension "version" }
@@ -60,6 +57,7 @@ dependencies {
 
 baselineProfilesProfileProducer {
     managedDevices += "pixel6Api31"
+    enableEmulatorDisplay = true
     useConnectedDevices = false
 }
 
