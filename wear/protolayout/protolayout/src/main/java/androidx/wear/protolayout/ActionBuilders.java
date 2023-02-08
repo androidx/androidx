@@ -19,6 +19,8 @@ package androidx.wear.protolayout;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+
+import android.content.ComponentName;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -65,6 +67,36 @@ public final class ActionBuilders {
   @NonNull
   public static AndroidBooleanExtra booleanExtra(boolean value) {
     return new AndroidBooleanExtra.Builder().setValue(value).build();
+  }
+
+  /** Shortcut for building a {@link LaunchAction}. */
+  @NonNull
+  public static LaunchAction launchAction(@NonNull ComponentName activityComponentName) {
+    return new LaunchAction.Builder()
+        .setAndroidActivity(
+            new AndroidActivity.Builder()
+                .setClassName(activityComponentName.getClassName())
+                .setPackageName(activityComponentName.getPackageName())
+                .build())
+        .build();
+  }
+
+  /** Shortcut for building a {@link LaunchAction} with extras in the launch intent. */
+  @NonNull
+  public static LaunchAction launchAction(
+          @NonNull ComponentName activityComponentName,
+          @NonNull Map<String, AndroidExtra> intentExtras) {
+    AndroidActivity.Builder builder = new AndroidActivity.Builder();
+    for (Map.Entry<String, AndroidExtra> intentExtra : intentExtras.entrySet()) {
+      builder.addKeyToExtraMapping(intentExtra.getKey(), intentExtra.getValue());
+    }
+    return new LaunchAction.Builder()
+            .setAndroidActivity(
+                    builder
+                            .setClassName(activityComponentName.getClassName())
+                            .setPackageName(activityComponentName.getPackageName())
+                            .build())
+            .build();
   }
 
   /**
