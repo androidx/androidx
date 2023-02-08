@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.core.util.Pair;
@@ -57,6 +58,9 @@ public final class FakeCameraFactory implements CameraFactory {
 
     @Nullable
     private Object mCameraManager = null;
+
+    @Nullable
+    private CameraCoordinator mCameraCoordinator = null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
@@ -168,6 +172,16 @@ public final class FakeCameraFactory implements CameraFactory {
             }
         }
         return filteredCameraIds;
+    }
+
+    @Nullable
+    @Override
+    public CameraCoordinator getCameraCoordinator() {
+        return mCameraCoordinator;
+    }
+
+    public void setCameraCoordinator(@Nullable CameraCoordinator cameraCoordinator) {
+        mCameraCoordinator = cameraCoordinator;
     }
 
     public void setCameraManager(@Nullable Object cameraManager) {

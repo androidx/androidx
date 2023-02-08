@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
 import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
@@ -87,6 +88,11 @@ class CameraFactoryAdapter(
     override fun getAvailableCameraIds(): Set<String> =
         // Use a LinkedHashSet to preserve order
         LinkedHashSet(mAvailableCameraIds)
+
+    override fun getCameraCoordinator(): CameraCoordinator? {
+        // TODO(b/262772650): camera-pipe support for concurrent camera.
+        return null
+    }
 
     override fun getCameraManager(): Any? = appComponent
 }
