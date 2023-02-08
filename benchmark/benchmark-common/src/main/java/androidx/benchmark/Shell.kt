@@ -301,6 +301,18 @@ object Shell {
     }
 
     /**
+     * Direct execution of executeShellCommand which doesn't account for scripting functionality,
+     * and doesn't capture stderr.
+     *
+     * Only use this function if you do not care about failure / errors.
+     */
+    @RequiresApi(21)
+    @CheckResult
+    fun executeCommandCaptureStdoutOnly(command: String): String {
+        return ShellImpl.executeCommandUnsafe(command)
+    }
+
+    /**
      * Creates a executable shell script that can be started. Similar to [executeScriptCaptureStdoutStderr]
      * but allows deferring and caching script execution.
      *
