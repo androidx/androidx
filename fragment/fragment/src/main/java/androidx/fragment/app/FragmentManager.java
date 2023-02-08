@@ -223,7 +223,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
         void onBackStackChanged();
 
         /**
-         * Called whenever the contents of the back stack are starting to be changed.
+         * Called whenever the contents of the back stack are starting to be changed, before
+         * fragments being to move to their target states.
          *
          * @param fragment that is affected by the starting back stack change
          * @param pop whether this back stack change is a pop
@@ -1893,6 +1894,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // The last operation determines the overall direction, this ensures that operations
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
+
+        if (mBackStackChangeListeners != null) {
+            // we dispatch callbacks based on each record
+            for (BackStackRecord record : records) {
+                for (Fragment fragment : fragmentsFromRecord(record)) {
+                    // We give all fragment the back stack changed started signal first
+                    for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                        listener.onBackStackChangeStarted(fragment, isPop);
+                    }
+                }
+            }
+        }
         // Ensure that Fragments directly affected by operations
         // are moved to their expected state in operation order
         for (int index = startIndex; index < endIndex; index++) {
@@ -1944,15 +1957,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 // we dispatch callbacks based on each record
                 for (BackStackRecord record : records) {
                     for (Fragment fragment : fragmentsFromRecord(record)) {
-                        // We give all fragment the back stack changed started signal first
-                        for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
-                            mBackStackChangeListeners.get(i).onBackStackChangeStarted(fragment,
-                                    isPop);
-                        }
                         // Then we give them all the committed signal
-                        for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
-                            mBackStackChangeListeners.get(i).onBackStackChangeCommitted(fragment,
-                                    isPop);
+                        for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                            listener.onBackStackChangeCommitted(fragment, isPop);
                         }
                     }
                 }
