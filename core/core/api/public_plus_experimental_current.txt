@@ -467,6 +467,7 @@ package androidx.core.app {
     ctor public NotificationCompat.BigPictureStyle();
     ctor public NotificationCompat.BigPictureStyle(androidx.core.app.NotificationCompat.Builder?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.Bitmap?);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);

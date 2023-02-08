@@ -1411,7 +1411,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setSmallIcon(1)
                 .setStyle(new NotificationCompat.BigPictureStyle()
                         .bigPicture(bitmap)
-                        .bigLargeIcon(null)
+                        .bigLargeIcon((Bitmap) null)
                         .setBigContentTitle("Big Content Title")
                         .setSummaryText("Summary Text"))
                 .build();
@@ -1421,6 +1421,52 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertNotNull(extras);
             assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
             assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBigPictureStyle_withIconNullBigLargeIcon() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon((Icon) null)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBigPictureStyle_withIconBigLargeIcon() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        IconCompat iconCompat = IconCompat.createWithResource(mContext, R.drawable.ic_call_decline);
+        Icon icon = iconCompat.toIcon(mContext);
+
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(icon)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        assertNotNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+
+        Icon recoveredIcon = extras.getParcelable(NotificationCompat.EXTRA_LARGE_ICON_BIG);
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(icon.getResId(), recoveredIcon.getResId());
         }
     }
 
@@ -2546,9 +2592,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         NotificationCompat.Builder originalBuilder =
                 new NotificationCompat.Builder(mContext, "test id")
-                .setSmallIcon(1)
-                .setContentTitle("test title")
-                .setStyle(callStyle);
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setStyle(callStyle);
 
         Notification notification = originalBuilder.build();
 

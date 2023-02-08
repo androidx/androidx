@@ -2497,7 +2497,7 @@ public class NotificationCompat {
          * this method to explicitly request deferred display.</p>
          *
          * This method has no effect when running on versions prior to
-          * {@link android.os.Build.VERSION_CODES#S}.
+         * {@link android.os.Build.VERSION_CODES#S}.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder") // no underlying getter in platform API
         @NonNull
@@ -3358,6 +3358,16 @@ public class NotificationCompat {
          */
         public @NonNull BigPictureStyle bigLargeIcon(@Nullable Bitmap b) {
             mBigLargeIcon = b == null ? null : IconCompat.createWithBitmap(b);
+            mBigLargeIconSet = true;
+            return this;
+        }
+
+        /**
+         * Override the large icon when the big notification is shown.
+         */
+        @RequiresApi(23)
+        public @NonNull BigPictureStyle bigLargeIcon(@Nullable Icon i) {
+            mBigLargeIcon = i == null ? null : IconCompat.createFromIcon(i);
             mBigLargeIconSet = true;
             return this;
         }
@@ -4954,7 +4964,7 @@ public class NotificationCompat {
                     && extras.containsKey(EXTRA_CALL_PERSON)) {
                 mPerson = Person.fromAndroidPerson(
                         (android.app.Person)
-                        extras.getParcelable(EXTRA_CALL_PERSON));
+                                extras.getParcelable(EXTRA_CALL_PERSON));
             } else if (extras.containsKey(EXTRA_CALL_PERSON_COMPAT)) {
                 mPerson = Person.fromBundle(extras.getBundle(EXTRA_CALL_PERSON_COMPAT));
             }
@@ -5286,7 +5296,7 @@ public class NotificationCompat {
                 }
                 actionBuilder =
                         Api20Impl.createActionBuilder(iconResId, actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
+                                actionCompat.getActionIntent());
             }
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
