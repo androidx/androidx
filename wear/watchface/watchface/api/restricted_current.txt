@@ -341,9 +341,6 @@ package androidx.wear.watchface {
     method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
-  public final class WatchFaceColorsKt {
-  }
-
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
@@ -360,9 +357,6 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFaceService.Companion {
-  }
-
-  public final class WatchFaceServiceKt {
   }
 
   public final class WatchState {

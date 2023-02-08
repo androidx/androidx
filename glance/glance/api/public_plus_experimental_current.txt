@@ -79,9 +79,6 @@ package androidx.glance {
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
   }
 
-  @androidx.glance.GlanceComposable public final class GlanceNodeKt {
-  }
-
   public final class GlanceTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders getColors();
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public final androidx.glance.color.ColorProviders colors;
@@ -100,9 +97,6 @@ package androidx.glance {
   }
 
   public interface ImageProvider {
-  }
-
-  public final class UtilsKt {
   }
 
   public enum Visibility {

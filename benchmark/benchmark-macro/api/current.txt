@@ -9,9 +9,6 @@ package androidx.benchmark.macro {
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode UseIfAvailable;
   }
 
-  public final class BaselineProfilesKt {
-  }
-
   public abstract sealed class CompilationMode {
     field public static final androidx.benchmark.macro.CompilationMode.Companion Companion;
     field public static final androidx.benchmark.macro.CompilationMode DEFAULT;
@@ -38,14 +35,8 @@ package androidx.benchmark.macro {
     property public final int warmupIterations;
   }
 
-  public final class CompilationModeKt {
-  }
-
   public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingMetric();
-  }
-
-  public final class MacrobenchmarkKt {
   }
 
   public final class MacrobenchmarkScope {

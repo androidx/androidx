@@ -19,9 +19,6 @@ package androidx.work {
     method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
-  public final class ListenableFutureKt {
-  }
-
   public final class OperationKt {
     method public static suspend inline Object? await(androidx.work.Operation, kotlin.coroutines.Continuation<? super androidx.work.Operation.State.SUCCESS>);
   }
