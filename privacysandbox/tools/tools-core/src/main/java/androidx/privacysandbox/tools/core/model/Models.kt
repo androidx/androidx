@@ -30,6 +30,10 @@ fun ParsedApi.hasSuspendFunctions(): Boolean {
         .any(Method::isSuspend)
 }
 
+fun ParsedApi.hasUiInterfaces(): Boolean {
+    return interfaces.any { it.inheritsSandboxedUiAdapter }
+}
+
 object Types {
     val unit = Type(packageName = "kotlin", simpleName = "Unit")
     val boolean = Type(packageName = "kotlin", simpleName = "Boolean")
