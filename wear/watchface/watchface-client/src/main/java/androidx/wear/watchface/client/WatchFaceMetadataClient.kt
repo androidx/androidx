@@ -29,26 +29,26 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.BoundingArc
-import androidx.wear.watchface.complications.ComplicationSlotBounds
-import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
-import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.utility.AsyncTraceEvent
-import androidx.wear.watchface.utility.TraceEvent
-import androidx.wear.watchface.client.WatchFaceControlClient.Companion.createWatchFaceControlClient
-import androidx.wear.watchface.control.IWatchFaceControlService
-import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
-import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
-import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
+import androidx.wear.watchface.client.WatchFaceControlClient.Companion.createWatchFaceControlClient
+import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationExperimental
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.control.IWatchFaceControlService
+import androidx.wear.watchface.control.WatchFaceControlService
+import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
 import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams
+import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
+import androidx.wear.watchface.utility.AsyncTraceEvent
+import androidx.wear.watchface.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
 
 /**
@@ -69,10 +69,10 @@ public interface WatchFaceMetadataClient : AutoCloseable {
          * @param watchFaceName The [ComponentName] of the watch face to fetch meta data from.
          * @return The [WatchFaceMetadataClient] if there is one.
          * @throws [ServiceNotBoundException] if the underlying watch face control service can not
-         * be bound or a [ServiceStartFailureException] if the watch face dies during startup. If
-         * the service's manifest contains an
-         * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data node then
-         * [PackageManager.NameNotFoundException] is thrown if [watchFaceName] is invalid.
+         *   be bound or a [ServiceStartFailureException] if the watch face dies during startup. If
+         *   the service's manifest contains an
+         *   androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data node then
+         *   [PackageManager.NameNotFoundException] is thrown if [watchFaceName] is invalid.
          */
         @Throws(
             ServiceNotBoundException::class,
@@ -108,26 +108,32 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             controlServicePackage: String,
             controlServiceName: String = ANDROIDX_WATCHFACE_CONTROL_SERVICE
         ): Boolean {
-            val controlServiceComponentName = ComponentName(
-                controlServicePackage,
-                controlServiceName)
-            val version = try {
-                context.packageManager.getServiceInfo(
-                    controlServiceComponentName,
-                    PackageManager.GET_META_DATA or PackageManager.MATCH_DISABLED_COMPONENTS
-                ).metaData.getInt(ANDROIDX_WATCHFACE_XML_VERSION, 0)
-            } catch (exception: PackageManager.NameNotFoundException) {
-                // WatchFaceControlService may be missing in case WF is built with
-                // pre-androidx watchface library.
-                return false
-            }
+            val controlServiceComponentName =
+                ComponentName(controlServicePackage, controlServiceName)
+            val version =
+                try {
+                    context.packageManager
+                        .getServiceInfo(
+                            controlServiceComponentName,
+                            PackageManager.GET_META_DATA or PackageManager.MATCH_DISABLED_COMPONENTS
+                        )
+                        .metaData
+                        .getInt(ANDROIDX_WATCHFACE_XML_VERSION, 0)
+                } catch (exception: PackageManager.NameNotFoundException) {
+                    // WatchFaceControlService may be missing in case WF is built with
+                    // pre-androidx watchface library.
+                    return false
+                }
 
-            val ourVersion = resources.getInteger(
-                androidx.wear.watchface.R.integer.watch_face_xml_version)
+            val ourVersion =
+                resources.getInteger(androidx.wear.watchface.R.integer.watch_face_xml_version)
 
             if (version > ourVersion) {
-                Log.w(TAG, "WatchFaceControlService version ($version) " +
-                    "of $controlServiceComponentName is higher than $ourVersion")
+                Log.w(
+                    TAG,
+                    "WatchFaceControlService version ($version) " +
+                        "of $controlServiceComponentName is higher than $ourVersion"
+                )
                 return false
             }
 
@@ -143,13 +149,12 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                 if (!isXmlVersionCompatible(context, context.resources, watchFaceName.packageName))
                     return null
 
-                return context.packageManager.getServiceInfo(
-                    watchFaceName,
-                    PackageManager.GET_META_DATA
-                ).loadXmlMetaData(
-                    context.packageManager,
-                    WatchFaceService.XML_WATCH_FACE_METADATA
-                )
+                return context.packageManager
+                    .getServiceInfo(watchFaceName, PackageManager.GET_META_DATA)
+                    .loadXmlMetaData(
+                        context.packageManager,
+                        WatchFaceService.XML_WATCH_FACE_METADATA
+                    )
             }
         }
 
@@ -177,19 +182,20 @@ public interface WatchFaceMetadataClient : AutoCloseable {
 
             val deferredService = CompletableDeferred<IWatchFaceControlService>()
             val traceEvent = AsyncTraceEvent("WatchFaceMetadataClientImpl.bindService")
-            val serviceConnection = object : ServiceConnection {
-                override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-                    traceEvent.close()
-                    deferredService.complete(IWatchFaceControlService.Stub.asInterface(binder))
-                }
+            val serviceConnection =
+                object : ServiceConnection {
+                    override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                        traceEvent.close()
+                        deferredService.complete(IWatchFaceControlService.Stub.asInterface(binder))
+                    }
 
-                override fun onServiceDisconnected(name: ComponentName?) {
-                    // Note if onServiceConnected is called first completeExceptionally will do
-                    // nothing because the CompletableDeferred is already completed.
-                    traceEvent.close()
-                    deferredService.completeExceptionally(ServiceStartFailureException())
+                    override fun onServiceDisconnected(name: ComponentName?) {
+                        // Note if onServiceConnected is called first completeExceptionally will do
+                        // nothing because the CompletableDeferred is already completed.
+                        traceEvent.close()
+                        deferredService.completeExceptionally(ServiceStartFailureException())
+                    }
                 }
-            }
             if (!BindHelper.bindService(context, intent, serviceConnection)) {
                 traceEvent.close()
                 throw ServiceNotBoundException()
@@ -203,9 +209,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         }
     }
 
-    /**
-     * Exception thrown by [createWatchFaceControlClient] if the remote service can't be bound.
-     */
+    /** Exception thrown by [createWatchFaceControlClient] if the remote service can't be bound. */
     public class ServiceNotBoundException : Exception()
 
     /** Exception thrown by [WatchFaceControlClient] methods if the service dies during start up. */
@@ -215,7 +219,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
      * Returns the watch face's [UserStyleSchema].
      *
      * @throws [RuntimeException] if the watch face threw an exception while trying to service the
-     * request or there was a communication problem with watch face process.
+     *   request or there was a communication problem with watch face process.
      */
     public fun getUserStyleSchema(): UserStyleSchema
 
@@ -231,7 +235,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
      *
      * @throws [RuntimeException] if the watch face threw an exception while trying to service the
-     * request or there was a communication problem with watch face process.
+     *   request or there was a communication problem with watch face process.
      */
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
 
@@ -239,7 +243,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
      * Returns the watch face's [UserStyleFlavors].
      *
      * @throws [RuntimeException] if the watch face threw an exception while trying to service the
-     * request or there was a communication problem with watch face process.
+     *   request or there was a communication problem with watch face process.
      */
     public fun getUserStyleFlavors(): UserStyleFlavors
 }
@@ -248,63 +252,58 @@ public interface WatchFaceMetadataClient : AutoCloseable {
  * Static metadata for a [androidx.wear.watchface.ComplicationSlot].
  *
  * @property bounds The complication slot's [ComplicationSlotBounds]. Only non `null` for watch
- * faces with a new enough [androidx.wear.watchface.control.WatchFaceControlService].
+ *   faces with a new enough [androidx.wear.watchface.control.WatchFaceControlService].
  * @property boundsType The [ComplicationSlotBoundsType] of the complication slot.
  * @property supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
- * during complication data source selection, this list should be non-empty.
+ *   during complication data source selection, this list should be non-empty.
  * @property defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] which controls the
- * initial complication data source when the watch face is first installed.
+ *   initial complication data source when the watch face is first installed.
  * @property isInitiallyEnabled At creation a complication slot is either enabled or disabled. This
- * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
- * [ComplicationSlotOverlay.enabled]).
- * Editors need to know the initial state of a complication slot to predict the effects of making a
- * style change.
- * @property fixedComplicationDataSource  Whether or not the complication slot's complication data
- * source is fixed (i.e. can't be changed by the user). This is useful for watch faces built
- * around specific complication  complication data sources.
+ *   can be overridden by a [ComplicationSlotsUserStyleSetting] (see
+ *   [ComplicationSlotOverlay.enabled]). Editors need to know the initial state of a complication
+ *   slot to predict the effects of making a style change.
+ * @property fixedComplicationDataSource Whether or not the complication slot's complication data
+ *   source is fixed (i.e. can't be changed by the user). This is useful for watch faces built
+ *   around specific complication complication data sources.
  * @property complicationConfigExtras Extras to be merged into the Intent sent when invoking the
- * complication data source chooser activity.
+ *   complication data source chooser activity.
  */
 public class ComplicationSlotMetadata
-@ComplicationExperimental constructor(
+@ComplicationExperimental
+constructor(
     public val bounds: ComplicationSlotBounds?,
     @ComplicationSlotBoundsType public val boundsType: Int,
     public val supportedTypes: List<ComplicationType>,
     public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-    @get:JvmName("isInitiallyEnabled")
-    public val isInitiallyEnabled: Boolean,
+    @get:JvmName("isInitiallyEnabled") public val isInitiallyEnabled: Boolean,
     public val fixedComplicationDataSource: Boolean,
     public val complicationConfigExtras: Bundle,
     private val boundingArc: BoundingArc?
 ) {
-    /**
-     * The optional [BoundingArc] for an edge complication if specified, or `null` otherwise.
-     */
+    /** The optional [BoundingArc] for an edge complication if specified, or `null` otherwise. */
     // TODO(b/230364881): Make this a normal primary constructor property when BoundingArc is no
     // longer experimental.
-    @ComplicationExperimental
-    public fun getBoundingArc(): BoundingArc? = boundingArc
+    @ComplicationExperimental public fun getBoundingArc(): BoundingArc? = boundingArc
 
     /**
      * Constructs a [ComplicationSlotMetadata].
      *
-     * @param bounds The complication slot's [ComplicationSlotBounds]. Only non `null` for watch faces
-     * with a new enough [androidx.wear.watchface.control.WatchFaceControlService].
+     * @param bounds The complication slot's [ComplicationSlotBounds]. Only non `null` for watch
+     *   faces with a new enough [androidx.wear.watchface.control.WatchFaceControlService].
      * @param boundsType The [ComplicationSlotBoundsType] of the complication slot.
-     * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
-     * during complication data source selection, this list should be non-empty.
+     * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot.
+     *   Used during complication data source selection, this list should be non-empty.
      * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] which controls the
-     * initial complication data source when the watch face is first installed.
+     *   initial complication data source when the watch face is first installed.
      * @param isInitiallyEnabled At creation a complication slot is either enabled or disabled. This
-     * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
-     * [ComplicationSlotOverlay.enabled]).
-     * Editors need to know the initial state of a complication slot to predict the effects of making a
-     * style change.
-     * @param fixedComplicationDataSource  Whether or not the complication slot's complication data
-     * source is fixed (i.e. can't be changed by the user). This is useful for watch faces built
-     * around specific complication  complication data sources.
+     *   can be overridden by a [ComplicationSlotsUserStyleSetting] (see
+     *   [ComplicationSlotOverlay.enabled]). Editors need to know the initial state of a
+     *   complication slot to predict the effects of making a style change.
+     * @param fixedComplicationDataSource Whether or not the complication slot's complication data
+     *   source is fixed (i.e. can't be changed by the user). This is useful for watch faces built
+     *   around specific complication complication data sources.
      * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
-     * complication data source chooser activity.
+     *   complication data source chooser activity.
      */
     // TODO(b/230364881): Deprecate when BoundingArc is no longer experimental.
     @OptIn(ComplicationExperimental::class)
@@ -328,7 +327,8 @@ public class ComplicationSlotMetadata
     )
 }
 
-internal class WatchFaceMetadataClientImpl internal constructor(
+internal class WatchFaceMetadataClientImpl
+internal constructor(
     private val context: Context,
     private val service: IWatchFaceControlService,
     private val serviceConnection: ServiceConnection,
@@ -336,47 +336,42 @@ internal class WatchFaceMetadataClientImpl internal constructor(
 ) : WatchFaceMetadataClient {
     private var closed = false
     private val headlessClientDelegate = lazy {
-        createHeadlessWatchFaceClient(
-            watchFaceName
-        ) ?: throw WatchFaceMetadataClient.ServiceStartFailureException(
-            "Could not open headless client for ${watchFaceName.flattenToString()}"
-        )
+        createHeadlessWatchFaceClient(watchFaceName)
+            ?: throw WatchFaceMetadataClient.ServiceStartFailureException(
+                "Could not open headless client for ${watchFaceName.flattenToString()}"
+            )
     }
     private val headlessClient by headlessClientDelegate
 
     private fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName
-    ): HeadlessWatchFaceClient? = TraceEvent(
-        "WatchFaceMetadataClientImpl.createHeadlessWatchFaceClient"
-    ).use {
-        requireNotClosed()
-        return service.createHeadlessWatchFaceInstance(
-            HeadlessWatchFaceInstanceParams(
-                watchFaceName,
-                androidx.wear.watchface.data.DeviceConfig(false, false, 0, 0),
-                1,
-                1,
-                null
-            )
-        )?.let {
-            HeadlessWatchFaceClientImpl(it)
+    ): HeadlessWatchFaceClient? =
+        TraceEvent("WatchFaceMetadataClientImpl.createHeadlessWatchFaceClient").use {
+            requireNotClosed()
+            return service
+                .createHeadlessWatchFaceInstance(
+                    HeadlessWatchFaceInstanceParams(
+                        watchFaceName,
+                        androidx.wear.watchface.data.DeviceConfig(false, false, 0, 0),
+                        1,
+                        1,
+                        null
+                    )
+                )
+                ?.let { HeadlessWatchFaceClientImpl(it) }
         }
-    }
 
     private fun requireNotClosed() {
-        require(!closed) {
-            "WatchFaceMetadataClient method called after close"
-        }
+        require(!closed) { "WatchFaceMetadataClient method called after close" }
     }
 
-    override fun getUserStyleSchema(): UserStyleSchema =
-        callRemote {
-            if (service.apiVersion >= 3) {
-                UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
-            } else {
-                headlessClient.userStyleSchema
-            }
+    override fun getUserStyleSchema(): UserStyleSchema = callRemote {
+        if (service.apiVersion >= 3) {
+            UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
+        } else {
+            headlessClient.userStyleSchema
         }
+    }
 
     override val isUserStyleSchemaStatic: Boolean
         get() = false
@@ -386,9 +381,10 @@ internal class WatchFaceMetadataClientImpl internal constructor(
         requireNotClosed()
         return callRemote {
             if (service.apiVersion >= 3) {
-                val wireFormat = service.getComplicationSlotMetadata(
-                    GetComplicationSlotMetadataParams(watchFaceName)
-                )
+                val wireFormat =
+                    service.getComplicationSlotMetadata(
+                        GetComplicationSlotMetadataParams(watchFaceName)
+                    )
                 wireFormat.associateBy(
                     { it.id },
                     {
@@ -409,12 +405,8 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                             DefaultComplicationDataSourcePolicy(
                                 it.defaultDataSourcesToTry ?: emptyList(),
                                 it.fallbackSystemDataSource,
-                                ComplicationType.fromWireType(
-                                    it.primaryDataSourceDefaultType
-                                ),
-                                ComplicationType.fromWireType(
-                                    it.secondaryDataSourceDefaultType
-                                ),
+                                ComplicationType.fromWireType(it.primaryDataSourceDefaultType),
+                                ComplicationType.fromWireType(it.secondaryDataSourceDefaultType),
                                 ComplicationType.fromWireType(it.defaultDataSourceType)
                             ),
                             it.isInitiallyEnabled,
@@ -445,23 +437,20 @@ internal class WatchFaceMetadataClientImpl internal constructor(
 
     override fun getUserStyleFlavors(): UserStyleFlavors = callRemote {
         if (service.apiVersion >= 5) {
-            UserStyleFlavors(
-                service.getUserStyleFlavors(
-                    GetUserStyleFlavorsParams(watchFaceName)
-                )
-            )
+            UserStyleFlavors(service.getUserStyleFlavors(GetUserStyleFlavorsParams(watchFaceName)))
         } else {
             UserStyleFlavors()
         }
     }
 
-    override fun close() = TraceEvent("WatchFaceMetadataClientImpl.close").use {
-        closed = true
-        if (headlessClientDelegate.isInitialized()) {
-            headlessClient.close()
+    override fun close() =
+        TraceEvent("WatchFaceMetadataClientImpl.close").use {
+            closed = true
+            if (headlessClientDelegate.isInitialized()) {
+                headlessClient.close()
+            }
+            context.unbindService(serviceConnection)
         }
-        context.unbindService(serviceConnection)
-    }
 }
 
 internal class XmlWatchFaceMetadataClientImpl(

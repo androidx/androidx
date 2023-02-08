@@ -26,12 +26,12 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth
-import org.junit.Assert
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.GregorianCalendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
+import org.junit.Assert
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationTextTest {
@@ -67,15 +67,11 @@ public class ComplicationTextTest {
     @Test
     public fun testPlainText() {
         // GIVEN ComplicationText of the plain string type
-        val complicationText =
-            ComplicationText.plainText("hello")
+        val complicationText = ComplicationText.plainText("hello")
 
         // WHEN getText is called
         // THEN the plain string is returned.
-        Assert.assertEquals(
-            "hello",
-            complicationText.getTextAt(mResources, 132456789).toString()
-        )
+        Assert.assertEquals("hello", complicationText.getTextAt(mResources, 132456789).toString())
     }
 
     @Test
@@ -91,109 +87,61 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "2h 35m" should be rounded to "3h".
-        var testTime = refTime +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.HOURS.toMillis(2)
-        Assert.assertEquals(
-            "3h",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        var testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.HOURS.toMillis(2)
+        Assert.assertEquals("3h", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 59m 10s" should be rounded to "1d".
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(59) +
-            TimeUnit.HOURS.toMillis(23)
-        Assert.assertEquals(
-            "1d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime =
+            refTime +
+                TimeUnit.SECONDS.toMillis(10) +
+                TimeUnit.MINUTES.toMillis(59) +
+                TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("1d", complicationText.getTextAt(mResources, testTime).toString())
 
         // THEN the time difference text is returned, and "10m 10s" should be rounded to "11m".
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(10)
-        Assert.assertEquals(
-            "11m",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.SECONDS.toMillis(10) + TimeUnit.MINUTES.toMillis(10)
+        Assert.assertEquals("11m", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 15m" should be rounded to "1d".
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(15) +
-            TimeUnit.HOURS.toMillis(23)
-        Assert.assertEquals(
-            "1d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.MINUTES.toMillis(15) + TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("1d", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 0m" should be round to "23h".
         testTime = refTime + TimeUnit.HOURS.toMillis(23)
-        Assert.assertEquals(
-            "23h",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        Assert.assertEquals("23h", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 10m" should be round to "1d".
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(10) +
-            TimeUnit.HOURS.toMillis(23)
-        Assert.assertEquals(
-            "1d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.MINUTES.toMillis(10) + TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("1d", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "22h 10m" should be round to "23h".
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(10) +
-            TimeUnit.HOURS.toMillis(22)
-        Assert.assertEquals(
-            "23h",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.MINUTES.toMillis(10) + TimeUnit.HOURS.toMillis(22)
+        Assert.assertEquals("23h", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "1d 10h" should be round to "2d".
-        testTime = refTime +
-            TimeUnit.HOURS.toMillis(10) +
-            TimeUnit.DAYS.toMillis(1)
-        Assert.assertEquals(
-            "2d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.HOURS.toMillis(10) + TimeUnit.DAYS.toMillis(1)
+        Assert.assertEquals("2d", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "22h 10m" should be round to "23h".
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(10) +
-            TimeUnit.HOURS.toMillis(22)
-        Assert.assertEquals(
-            "23h",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.MINUTES.toMillis(10) + TimeUnit.HOURS.toMillis(22)
+        Assert.assertEquals("23h", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "59m 30s" should be round to "1h".
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(30) +
-            TimeUnit.MINUTES.toMillis(59)
-        Assert.assertEquals(
-            "1h",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.SECONDS.toMillis(30) + TimeUnit.MINUTES.toMillis(59)
+        Assert.assertEquals("1h", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "59m 00s" should be displayed as "59m".
         testTime = refTime + TimeUnit.MINUTES.toMillis(59)
-        Assert.assertEquals(
-            "59m",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        Assert.assertEquals("59m", complicationText.getTextAt(mResources, testTime).toString())
     }
 
     @Test
@@ -209,64 +157,45 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "2h 35m 10s" should be rounded to "2h 36m".
-        var testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.HOURS.toMillis(
-                2
-            )
-        Assert.assertEquals(
-            "2h 36m",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        var testTime =
+            refTime +
+                TimeUnit.SECONDS.toMillis(10) +
+                TimeUnit.MINUTES.toMillis(35) +
+                TimeUnit.HOURS.toMillis(2)
+        Assert.assertEquals("2h 36m", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "2h 35m" should be rounded to "2h 35m".
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.HOURS.toMillis(2)
-        Assert.assertEquals(
-            "2h 35m",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.HOURS.toMillis(2)
+        Assert.assertEquals("2h 35m", complicationText.getTextAt(mResources, testTime).toString())
 
         // THEN the time difference text is returned
         // and "9d 23h 58m 10s" should be rounded to "10d".
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(58) +
-            TimeUnit.HOURS.toMillis(23) +
-            TimeUnit.DAYS.toMillis(9)
-        Assert.assertEquals(
-            "10d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime =
+            refTime +
+                TimeUnit.SECONDS.toMillis(10) +
+                TimeUnit.MINUTES.toMillis(58) +
+                TimeUnit.HOURS.toMillis(23) +
+                TimeUnit.DAYS.toMillis(9)
+        Assert.assertEquals("10d", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 59m 10s" should be rounded to "1d".
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(59) +
-            TimeUnit.HOURS.toMillis(
-                23
-            )
-        Assert.assertEquals(
-            "1d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime =
+            refTime +
+                TimeUnit.SECONDS.toMillis(10) +
+                TimeUnit.MINUTES.toMillis(59) +
+                TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("1d", complicationText.getTextAt(mResources, testTime).toString())
 
         // THEN the time difference text is returned
         // and "23h 58m 10s" should be rounded to "23h 59m".
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(58) +
-            TimeUnit.HOURS.toMillis(
-                23
-            )
-        Assert.assertEquals(
-            "23h 59m",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime =
+            refTime +
+                TimeUnit.SECONDS.toMillis(10) +
+                TimeUnit.MINUTES.toMillis(58) +
+                TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("23h 59m", complicationText.getTextAt(mResources, testTime).toString())
     }
 
     @Test
@@ -282,36 +211,22 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 59m 10s" should be rounded to "1d".
-        var testTime = refTime +
-            TimeUnit.SECONDS.toMillis(10) +
-            TimeUnit.MINUTES.toMillis(59) +
-            TimeUnit.HOURS.toMillis(
-                23
-            )
-        Assert.assertEquals(
-            "1d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        var testTime =
+            refTime +
+                TimeUnit.SECONDS.toMillis(10) +
+                TimeUnit.MINUTES.toMillis(59) +
+                TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("1d", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned in stopwatch style with no rounding.
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(59) +
-            TimeUnit.HOURS.toMillis(23)
-        Assert.assertEquals(
-            "23:59",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.MINUTES.toMillis(59) + TimeUnit.HOURS.toMillis(23)
+        Assert.assertEquals("23:59", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for another time after the ref period
         // THEN the time difference text is returned in stopwatch style with no rounding.
-        testTime = refTime +
-            TimeUnit.SECONDS.toMillis(59) +
-            TimeUnit.MINUTES.toMillis(1)
-        Assert.assertEquals(
-            "01:59",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.SECONDS.toMillis(59) + TimeUnit.MINUTES.toMillis(1)
+        Assert.assertEquals("01:59", complicationText.getTextAt(mResources, testTime).toString())
     }
 
     @Test
@@ -328,12 +243,11 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 59m 10s" should be rounded to one day.
-        var testTime = refTime +
-            TimeUnit.HOURS.toMillis(23) +
-            TimeUnit.MINUTES.toMillis(59) +
-            TimeUnit.SECONDS.toMillis(
-                10
-            )
+        var testTime =
+            refTime +
+                TimeUnit.HOURS.toMillis(23) +
+                TimeUnit.MINUTES.toMillis(59) +
+                TimeUnit.SECONDS.toMillis(10)
         Assert.assertEquals(
             "just 1 day left",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -342,9 +256,7 @@ public class ComplicationTextTest {
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned in words, showing the bigger unit only, and
         // rounding up.
-        testTime = refTime +
-            TimeUnit.HOURS.toMillis(12) +
-            TimeUnit.MINUTES.toMillis(35)
+        testTime = refTime + TimeUnit.HOURS.toMillis(12) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals(
             "just 13 hours left",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -353,9 +265,7 @@ public class ComplicationTextTest {
         // WHEN getText is called for another time after the ref period
         // THEN the time difference text is returned in words, showing the bigger unit only, and
         // rounding up.
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.SECONDS.toMillis(59)
+        testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.SECONDS.toMillis(59)
         Assert.assertEquals(
             "just 36 mins left",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -396,10 +306,11 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned with the time rounded up to the next day.
-        var testTime = refTime +
-            TimeUnit.DAYS.toMillis(7) +
-            TimeUnit.HOURS.toMillis(23) +
-            TimeUnit.MINUTES.toMillis(59)
+        var testTime =
+            refTime +
+                TimeUnit.DAYS.toMillis(7) +
+                TimeUnit.HOURS.toMillis(23) +
+                TimeUnit.MINUTES.toMillis(59)
         Assert.assertEquals(
             "just 8 days left",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -408,9 +319,7 @@ public class ComplicationTextTest {
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned in words with the time rounded up to the next
         // day.
-        testTime = refTime +
-            TimeUnit.HOURS.toMillis(12) +
-            TimeUnit.MINUTES.toMillis(35)
+        testTime = refTime + TimeUnit.HOURS.toMillis(12) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals(
             "just 1 day left",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -419,9 +328,7 @@ public class ComplicationTextTest {
         // WHEN getText is called for another time after the ref period
         // THEN the time difference text is returned in words with the time rounded up to the next
         // day.
-        testTime = refTime +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.SECONDS.toMillis(59)
+        testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.SECONDS.toMillis(59)
         Assert.assertEquals(
             "just 1 day left",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -441,44 +348,29 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and "23h 59m 10s" should be rounded to one day.
-        var testTime = refTime +
-            TimeUnit.HOURS.toMillis(23) +
-            TimeUnit.MINUTES.toMillis(59) +
-            TimeUnit.SECONDS.toMillis(10)
-        Assert.assertEquals(
-            "1 day",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        var testTime =
+            refTime +
+                TimeUnit.HOURS.toMillis(23) +
+                TimeUnit.MINUTES.toMillis(59) +
+                TimeUnit.SECONDS.toMillis(10)
+        Assert.assertEquals("1 day", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned in words, showing the bigger unit only, and
         // rounding up.
-        testTime = refTime +
-            TimeUnit.HOURS.toMillis(1) +
-            TimeUnit.MINUTES.toMillis(35)
-        Assert.assertEquals(
-            "2 hours",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.HOURS.toMillis(1) + TimeUnit.MINUTES.toMillis(35)
+        Assert.assertEquals("2 hours", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for a double-digit number of hours after the ref period
         // THEN the time difference text is returned using the short style.
-        testTime = refTime +
-            TimeUnit.HOURS.toMillis(12) +
-            TimeUnit.MINUTES.toMillis(35)
-        Assert.assertEquals(
-            "13h",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        testTime = refTime + TimeUnit.HOURS.toMillis(12) + TimeUnit.MINUTES.toMillis(35)
+        Assert.assertEquals("13h", complicationText.getTextAt(mResources, testTime).toString())
 
         // WHEN getText is called for another time many days the ref period, such that more than 7
         // characters would be used if the unit was shown as a word
         // THEN the time difference text is returned using the short style.
         testTime = refTime + TimeUnit.DAYS.toMillis(120)
-        Assert.assertEquals(
-            "120d",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        Assert.assertEquals("120d", complicationText.getTextAt(mResources, testTime).toString())
     }
 
     @Test
@@ -495,19 +387,13 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN the time difference text is returned and "Now" is shown.
-        Assert.assertEquals(
-            "Now",
-            complicationText.getTextAt(mResources, refTime - 100).toString()
-        )
+        Assert.assertEquals("Now", complicationText.getTextAt(mResources, refTime - 100).toString())
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned and the time difference is shown in stopwatch
         // style.
         val testTime = refTime + TimeUnit.SECONDS.toMillis(35)
-        Assert.assertEquals(
-            "00:35",
-            complicationText.getTextAt(mResources, testTime).toString()
-        )
+        Assert.assertEquals("00:35", complicationText.getTextAt(mResources, testTime).toString())
     }
 
     @Test
@@ -524,10 +410,7 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN the time difference text is returned and "0m" is shown.
-        Assert.assertEquals(
-            "0m",
-            complicationText.getTextAt(mResources, refTime).toString()
-        )
+        Assert.assertEquals("0m", complicationText.getTextAt(mResources, refTime).toString())
     }
 
     @Test
@@ -544,9 +427,7 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned within the format string
-        val testTime = refTime +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.HOURS.toMillis(2)
+        val testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.HOURS.toMillis(2)
         Assert.assertEquals(
             "hello 3h time",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -567,9 +448,7 @@ public class ComplicationTextTest {
 
         // WHEN getText is called for a time after the ref period
         // THEN the time difference text is returned within the format string
-        val testTime = refTime +
-            TimeUnit.MINUTES.toMillis(35) +
-            TimeUnit.HOURS.toMillis(2)
+        val testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.HOURS.toMillis(2)
         Assert.assertEquals(
             "sometext2h 35msomemoretext",
             complicationText.getTextAt(mResources, testTime).toString()
@@ -583,9 +462,8 @@ public class ComplicationTextTest {
                 .setFormat("EEE 'the' d LLL")
                 .setStyle(ComplicationText.FORMAT_STYLE_UPPER_CASE)
                 .build()
-        val result = complicationText.getTextAt(
-            mResources, GregorianCalendar(2016, 2, 4).timeInMillis
-        )
+        val result =
+            complicationText.getTextAt(mResources, GregorianCalendar(2016, 2, 4).timeInMillis)
         Assert.assertEquals("FRI THE 4 MAR", result.toString())
     }
 
@@ -596,19 +474,16 @@ public class ComplicationTextTest {
                 .setFormat("EEE 'the' d LLL")
                 .setStyle(ComplicationText.FORMAT_STYLE_LOWER_CASE)
                 .build()
-        val result = complicationText.getTextAt(
-            mResources, GregorianCalendar(2016, 2, 4).timeInMillis
-        )
+        val result =
+            complicationText.getTextAt(mResources, GregorianCalendar(2016, 2, 4).timeInMillis)
         Assert.assertEquals("fri the 4 mar", result.toString())
     }
 
     @Test
     public fun testTimeFormatNoStyle() {
-        val complicationText =
-            TimeFormatBuilder().setFormat("EEE 'the' d LLL").build()
-        val result = complicationText.getTextAt(
-            mResources, GregorianCalendar(2016, 2, 4).timeInMillis
-        )
+        val complicationText = TimeFormatBuilder().setFormat("EEE 'the' d LLL").build()
+        val result =
+            complicationText.getTextAt(mResources, GregorianCalendar(2016, 2, 4).timeInMillis)
         Assert.assertEquals("Fri the 4 Mar", result.toString())
     }
 
@@ -620,9 +495,8 @@ public class ComplicationTextTest {
                 .setStyle(ComplicationText.FORMAT_STYLE_UPPER_CASE)
                 .setSurroundingText("sometext^1somemoretext")
                 .build()
-        val result = complicationText.getTextAt(
-            mResources, GregorianCalendar(2016, 2, 4).timeInMillis
-        )
+        val result =
+            complicationText.getTextAt(mResources, GregorianCalendar(2016, 2, 4).timeInMillis)
         Assert.assertEquals("sometextFRI THE 4 MARsomemoretext", result.toString())
     }
 
@@ -633,28 +507,22 @@ public class ComplicationTextTest {
                 .setFormat("HH:mm")
                 .setTimeZone(TimeZone.getTimeZone("Asia/Seoul"))
                 .build()
-        val calendar =
-            GregorianCalendar(TimeZone.getTimeZone("GMT+0"))
+        val calendar = GregorianCalendar(TimeZone.getTimeZone("GMT+0"))
         calendar[2016, 2, 4, 18, 52] = 58
-        val result =
-            complicationText.getTextAt(mResources, calendar.timeInMillis)
+        val result = complicationText.getTextAt(mResources, calendar.timeInMillis)
         Assert.assertEquals("03:52", result.toString())
     }
 
     @Test
     public fun testParcelPlainText() {
         // GIVEN ComplicationText containing plain text
-        val originalText =
-            ComplicationText.plainText("hello how are you")
+        val originalText = ComplicationText.plainText("hello how are you")
 
         // WHEN the object is parcelled and unparcelled
         val newText = originalText.roundTripParcelable()!!
 
         // THEN the object behaves as expected.
-        Assert.assertEquals(
-            "hello how are you",
-            newText.getTextAt(mResources, 100000).toString()
-        )
+        Assert.assertEquals("hello how are you", newText.getTextAt(mResources, 100000).toString())
     }
 
     @Test
@@ -674,17 +542,9 @@ public class ComplicationTextTest {
         val newText = originalText.roundTripParcelable()!!
 
         // THEN the object behaves as expected.
-        val testTime = refTime +
-            TimeUnit.HOURS.toMillis(2) +
-            TimeUnit.MINUTES.toMillis(35)
-        Assert.assertEquals(
-            "hello 3h time",
-            newText.getTextAt(mResources, testTime).toString()
-        )
-        Assert.assertEquals(
-            "hello 0m time",
-            newText.getTextAt(mResources, refTime).toString()
-        )
+        val testTime = refTime + TimeUnit.HOURS.toMillis(2) + TimeUnit.MINUTES.toMillis(35)
+        Assert.assertEquals("hello 3h time", newText.getTextAt(mResources, testTime).toString())
+        Assert.assertEquals("hello 0m time", newText.getTextAt(mResources, refTime).toString())
     }
 
     @Test
@@ -703,9 +563,7 @@ public class ComplicationTextTest {
         val newText = originalText.roundTripParcelable()!!
 
         // THEN the object behaves as expected.
-        val testTime = refTime +
-            TimeUnit.HOURS.toMillis(2) +
-            TimeUnit.MINUTES.toMillis(35)
+        val testTime = refTime + TimeUnit.HOURS.toMillis(2) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals("3h", newText.getTextAt(mResources, testTime).toString())
     }
 
@@ -730,15 +588,10 @@ public class ComplicationTextTest {
         parcelWithBadMinUnit.setDataPosition(0)
 
         // WHEN the object is unparcelled
-        val newText =
-            ComplicationText.CREATOR.createFromParcel(
-                parcelWithBadMinUnit
-            )
+        val newText = ComplicationText.CREATOR.createFromParcel(parcelWithBadMinUnit)
 
         // THEN the object is unparcelled successfully, and behaves as if no min unit was specified.
-        val testTime = refTime +
-            TimeUnit.HOURS.toMillis(2) +
-            TimeUnit.MINUTES.toMillis(35)
+        val testTime = refTime + TimeUnit.HOURS.toMillis(2) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals("2h 35m", newText.getTextAt(mResources, testTime).toString())
     }
 
@@ -755,8 +608,7 @@ public class ComplicationTextTest {
         val newText = originalText.roundTripParcelable()!!
 
         // THEN the object behaves as expected.
-        val result =
-            newText.getTextAt(mResources, GregorianCalendar(2016, 2, 4).timeInMillis)
+        val result = newText.getTextAt(mResources, GregorianCalendar(2016, 2, 4).timeInMillis)
         Assert.assertEquals("fri the 4 mar", result.toString())
     }
 
@@ -774,8 +626,7 @@ public class ComplicationTextTest {
         val newText = originalText.roundTripParcelable()!!
 
         // THEN the object behaves as expected.
-        val calendar =
-            GregorianCalendar(TimeZone.getTimeZone("GMT+0"))
+        val calendar = GregorianCalendar(TimeZone.getTimeZone("GMT+0"))
         calendar[2016, 2, 4, 18, 52] = 58
         val result = newText.getTextAt(mResources, calendar.timeInMillis)
         Assert.assertEquals("fri the 4 mar 23:52", result.toString())
@@ -799,35 +650,33 @@ public class ComplicationTextTest {
 
     @Test
     public fun nextChangeTimeNotTimeDependent() {
-        val text =
-            ComplicationText.plainText("hello")
-        Truth.assertThat(text.getNextChangeTime(1000000))
-            .isEqualTo(Long.MAX_VALUE)
+        val text = ComplicationText.plainText("hello")
+        Truth.assertThat(text.getNextChangeTime(1000000)).isEqualTo(Long.MAX_VALUE)
     }
 
     @Test
     public fun nextChangeTimeTimeDifference() {
-        val text = TimeDifferenceBuilder()
-            .setReferencePeriodStartMillis(0)
-            .setReferencePeriodEndMillis(0)
-            .setStyle(ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT)
-            .build()
+        val text =
+            TimeDifferenceBuilder()
+                .setReferencePeriodStartMillis(0)
+                .setReferencePeriodEndMillis(0)
+                .setStyle(ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT)
+                .build()
 
         // Time difference rounds up, so the next change is 1ms after the next minute boundary.
-        Truth.assertThat(text.getNextChangeTime(600000123))
-            .isEqualTo(600060001)
+        Truth.assertThat(text.getNextChangeTime(600000123)).isEqualTo(600060001)
     }
 
     @Test
     public fun nextChangeTimeTimeFormat() {
-        val text = TimeFormatBuilder()
-            .setFormat("EEE 'the' d LLL HH:mm")
-            .setStyle(ComplicationText.FORMAT_STYLE_LOWER_CASE)
-            .build()
+        val text =
+            TimeFormatBuilder()
+                .setFormat("EEE 'the' d LLL HH:mm")
+                .setStyle(ComplicationText.FORMAT_STYLE_LOWER_CASE)
+                .build()
 
         // Time format rounds down, so the next change is at the next minute boundary.
-        Truth.assertThat(text.getNextChangeTime(600000123))
-            .isEqualTo(600060000)
+        Truth.assertThat(text.getNextChangeTime(600000123)).isEqualTo(600060000)
     }
 
     @Test
@@ -839,19 +688,15 @@ public class ComplicationTextTest {
 
     @Test
     public fun getTextAt_ignoresStringExpressionIfSurroundingStringPresent() {
-        val text = ComplicationText(
-            "hello" as CharSequence,
-            DynamicString.constant("world")
-        )
+        val text = ComplicationText("hello" as CharSequence, DynamicString.constant("world"))
 
-        Truth.assertThat(text.getTextAt(mResources, 132456789).toString())
-            .isEqualTo("hello")
+        Truth.assertThat(text.getTextAt(mResources, 132456789).toString()).isEqualTo("hello")
     }
 }
 
 fun ComplicationText.toParcelRoundTrip(): ComplicationText {
     val parcel = Parcel.obtain()
-    writeToParcel(parcel, /* flags = */ 0)
+    writeToParcel(parcel, /* flags= */ 0)
     parcel.setDataPosition(0)
     return ComplicationText.CREATOR.createFromParcel(parcel)
 }

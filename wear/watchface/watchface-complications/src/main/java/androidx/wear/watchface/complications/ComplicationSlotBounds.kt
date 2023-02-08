@@ -45,9 +45,9 @@ const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
  * lowest id that intersects the coordinates, if any, is selected.
  *
  * @param perComplicationTypeBounds Per [ComplicationType] fractional unit-square screen space
- * complication bounds.
+ *   complication bounds.
  * @param perComplicationTypeMargins Per [ComplicationType] fractional unit-square screen space
- * complication margins for tap detection (doesn't affect rendering).
+ *   complication margins for tap detection (doesn't affect rendering).
  */
 public class ComplicationSlotBounds(
     public val perComplicationTypeBounds: Map<ComplicationType, RectF>,
@@ -59,10 +59,9 @@ public class ComplicationSlotBounds(
             "ComplicationSlotBounds(Map<ComplicationType, RectF>, Map<ComplicationType, RectF>)"
         )
     )
-    constructor(perComplicationTypeBounds: Map<ComplicationType, RectF>) : this(
-        perComplicationTypeBounds,
-        perComplicationTypeBounds.mapValues { RectF() }
-    )
+    constructor(
+        perComplicationTypeBounds: Map<ComplicationType, RectF>
+    ) : this(perComplicationTypeBounds, perComplicationTypeBounds.mapValues { RectF() })
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -116,12 +115,8 @@ public class ComplicationSlotBounds(
             "perComplicationTypeMargins must contain entries for each ComplicationType"
         }
         for (type in ComplicationType.values()) {
-            require(perComplicationTypeBounds.containsKey(type)) {
-                "Missing bounds for $type"
-            }
-            require(perComplicationTypeMargins.containsKey(type)) {
-                "Missing margins for $type"
-            }
+            require(perComplicationTypeBounds.containsKey(type)) { "Missing bounds for $type" }
+            require(perComplicationTypeMargins.containsKey(type)) { "Missing margins for $type" }
         }
     }
 
@@ -131,11 +126,11 @@ public class ComplicationSlotBounds(
         internal const val NODE_NAME = "ComplicationSlotBounds"
 
         /**
-         * Constructs a [ComplicationSlotBounds] from a potentially incomplete
-         * Map<ComplicationType, RectF>, backfilling with empty [RectF]s. This method is necessary
-         * because there can be a skew between the version of the library between the watch face and
-         * the system which would otherwise be problematic if new complication types have been
-         * introduced.
+         * Constructs a [ComplicationSlotBounds] from a potentially incomplete Map<ComplicationType,
+         * RectF>, backfilling with empty [RectF]s. This method is necessary because there can be a
+         * skew between the version of the library between the watch face and the system which would
+         * otherwise be problematic if new complication types have been introduced.
+         *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -169,65 +164,62 @@ public class ComplicationSlotBounds(
             parser.iterate {
                 when (parser.name) {
                     NODE_NAME -> {
-                        val rect = if (parser.hasValue("left"))
-                            RectF(
-                                parser.requireAndGet("left", resources, complicationScaleX),
-                                parser.requireAndGet("top", resources, complicationScaleY),
-                                parser.requireAndGet("right", resources, complicationScaleX),
-                                parser.requireAndGet("bottom", resources, complicationScaleY)
-                            )
-                        else if (parser.hasValue("center_x")) {
-                            val halfWidth =
-                                parser.requireAndGet("size_x", resources, complicationScaleX) / 2.0f
-                            val halfHeight =
-                                parser.requireAndGet("size_y", resources, complicationScaleY) / 2.0f
-                            val centerX =
-                                parser.requireAndGet("center_x", resources, complicationScaleX)
-                            val centerY =
-                                parser.requireAndGet("center_y", resources, complicationScaleY)
-                            RectF(
-                                centerX - halfWidth,
-                                centerY - halfHeight,
-                                centerX + halfWidth,
-                                centerY + halfHeight
-                            )
-                        } else {
-                            throw IllegalArgumentException("$NODE_NAME must " +
-                                "either define top, bottom, left, right" +
-                                "or center_x, center_y, size_x, size_y should be specified")
-                        }
-                        val margin = RectF(
-                            parser.get("marginLeft", resources, complicationScaleX) ?: 0f,
-                            parser.get("marginTop", resources, complicationScaleY) ?: 0f,
-                            parser.get("marginRight", resources, complicationScaleX) ?: 0f,
-                            parser.get("marginBottom", resources, complicationScaleY) ?: 0f
-                        )
-                        if (null != parser.getAttributeValue(
-                                NAMESPACE_APP,
-                                "complicationType"
-                            )
-                        ) {
-                            val complicationType = ComplicationType.fromWireType(
-                                parser.getAttributeIntValue(
-                                    NAMESPACE_APP,
-                                    "complicationType",
-                                    0
+                        val rect =
+                            if (parser.hasValue("left"))
+                                RectF(
+                                    parser.requireAndGet("left", resources, complicationScaleX),
+                                    parser.requireAndGet("top", resources, complicationScaleY),
+                                    parser.requireAndGet("right", resources, complicationScaleX),
+                                    parser.requireAndGet("bottom", resources, complicationScaleY)
                                 )
+                            else if (parser.hasValue("center_x")) {
+                                val halfWidth =
+                                    parser.requireAndGet("size_x", resources, complicationScaleX) /
+                                        2.0f
+                                val halfHeight =
+                                    parser.requireAndGet("size_y", resources, complicationScaleY) /
+                                        2.0f
+                                val centerX =
+                                    parser.requireAndGet("center_x", resources, complicationScaleX)
+                                val centerY =
+                                    parser.requireAndGet("center_y", resources, complicationScaleY)
+                                RectF(
+                                    centerX - halfWidth,
+                                    centerY - halfHeight,
+                                    centerX + halfWidth,
+                                    centerY + halfHeight
+                                )
+                            } else {
+                                throw IllegalArgumentException(
+                                    "$NODE_NAME must " +
+                                        "either define top, bottom, left, right" +
+                                        "or center_x, center_y, size_x, size_y should be specified"
+                                )
+                            }
+                        val margin =
+                            RectF(
+                                parser.get("marginLeft", resources, complicationScaleX) ?: 0f,
+                                parser.get("marginTop", resources, complicationScaleY) ?: 0f,
+                                parser.get("marginRight", resources, complicationScaleX) ?: 0f,
+                                parser.get("marginBottom", resources, complicationScaleY) ?: 0f
                             )
-                            require(
-                                !perComplicationTypeBounds.contains(complicationType)
-                            ) {
+                        if (null != parser.getAttributeValue(NAMESPACE_APP, "complicationType")) {
+                            val complicationType =
+                                ComplicationType.fromWireType(
+                                    parser.getAttributeIntValue(
+                                        NAMESPACE_APP,
+                                        "complicationType",
+                                        0
+                                    )
+                                )
+                            require(!perComplicationTypeBounds.contains(complicationType)) {
                                 "Duplicate $complicationType"
                             }
                             perComplicationTypeBounds[complicationType] = rect
                             perComplicationTypeMargins[complicationType] = margin
                         } else {
                             for (complicationType in ComplicationType.values()) {
-                                require(
-                                    !perComplicationTypeBounds.contains(
-                                        complicationType
-                                    )
-                                ) {
+                                require(!perComplicationTypeBounds.contains(complicationType)) {
                                     "Duplicate $complicationType"
                                 }
                                 perComplicationTypeBounds[complicationType] = rect
@@ -254,17 +246,11 @@ internal fun XmlResourceParser.requireAndGet(
     scale: Float
 ): Float {
     val value = get(id, resources, scale)
-    require(value != null) {
-        "${ComplicationSlotBounds.NODE_NAME} must define '$id'"
-    }
+    require(value != null) { "${ComplicationSlotBounds.NODE_NAME} must define '$id'" }
     return value
 }
 
-internal fun XmlResourceParser.get(
-    id: String,
-    resources: Resources,
-    scale: Float
-): Float? {
+internal fun XmlResourceParser.get(id: String, resources: Resources, scale: Float): Float? {
     val stringValue = getAttributeValue(NAMESPACE_APP, id) ?: return null
     val resId = getAttributeResourceValue(NAMESPACE_APP, id, 0)
     if (resId != 0) {

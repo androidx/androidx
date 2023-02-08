@@ -36,28 +36,24 @@ import java.time.Instant;
 public class TimelineEntryTest {
     private static final TimelineEntry TIMELINE_ENTRY_A =
             new TimelineEntry(
-                    new TimeInterval(Instant.ofEpochMilli(100000000),
-                            Instant.ofEpochMilli(200000000)),
-                    new NoDataComplicationData()
-            );
+                    new TimeInterval(
+                            Instant.ofEpochMilli(100000000), Instant.ofEpochMilli(200000000)),
+                    new NoDataComplicationData());
     private static final TimelineEntry TIMELINE_ENTRY_A2 =
             new TimelineEntry(
-                    new TimeInterval(Instant.ofEpochMilli(100000000),
-                            Instant.ofEpochMilli(200000000)),
-                    new NoDataComplicationData()
-            );
+                    new TimeInterval(
+                            Instant.ofEpochMilli(100000000), Instant.ofEpochMilli(200000000)),
+                    new NoDataComplicationData());
     private static final TimelineEntry TIMELINE_ENTRY_B =
             new TimelineEntry(
-                    new TimeInterval(Instant.ofEpochMilli(110000000),
-                            Instant.ofEpochMilli(210000000)),
-                    new NoDataComplicationData()
-            );
+                    new TimeInterval(
+                            Instant.ofEpochMilli(110000000), Instant.ofEpochMilli(210000000)),
+                    new NoDataComplicationData());
     private static final TimelineEntry TIMELINE_ENTRY_B2 =
             new TimelineEntry(
-                    new TimeInterval(Instant.ofEpochMilli(110000000),
-                            Instant.ofEpochMilli(210000000)),
-                    new NoDataComplicationData()
-            );
+                    new TimeInterval(
+                            Instant.ofEpochMilli(110000000), Instant.ofEpochMilli(210000000)),
+                    new NoDataComplicationData());
 
     @Before
     public void setup() {
@@ -82,14 +78,15 @@ public class TimelineEntryTest {
 
     @Test
     public void timeEntryToString() {
-        assertThat(TIMELINE_ENTRY_A.toString()).isEqualTo(
-                "TimelineEntry(validity=TimeInterval(start=1970-01-02T03:46:40Z, "
-                        + "end=1970-01-03T07:33:20Z), complicationData=NoDataComplicationData("
-                        + "placeholder=null, "
-                        + "tapActionLostDueToSerialization=false, tapAction=null, "
-                        + "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00"
-                        + ":00Z, endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), "
-                        + "persistencePolicy=0, displayPolicy=0))"
-        );
+        assertThat(TIMELINE_ENTRY_A.toString())
+                .isEqualTo(
+                        "TimelineEntry(validity=TimeInterval(start=1970-01-02T03:46:40Z,"
+                                + " end=1970-01-03T07:33:20Z),"
+                                + " complicationData=NoDataComplicationData(placeholder=null,"
+                                + " tapActionLostDueToSerialization=false, tapAction=null, "
+                                + "validTimeRange=TimeRange("
+                                + "startDateTimeMillis=-1000000000-01-01T00:00:00Z,"
+                                + " endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z),"
+                                + " persistencePolicy=0, displayPolicy=0))");
     }
 }

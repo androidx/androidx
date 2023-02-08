@@ -37,11 +37,12 @@ public class EditorServiceClientTest {
     @Test
     public fun registerObserver() {
         lateinit var observedEditorState: EditorState
-        val observer = object : EditorListener {
-            override fun onEditorStateChanged(editorState: EditorState) {
-                observedEditorState = editorState
+        val observer =
+            object : EditorListener {
+                override fun onEditorStateChanged(editorState: EditorState) {
+                    observedEditorState = editorState
+                }
             }
-        }
         editorServiceClient.addListener(observer) { runnable -> runnable.run() }
 
         val watchFaceInstanceId = "id-1"

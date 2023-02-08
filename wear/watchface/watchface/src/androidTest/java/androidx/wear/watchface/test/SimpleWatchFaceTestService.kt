@@ -25,14 +25,13 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 
 /**
- * A simple WatchFaceService that does not get initialized (because it is PreAndroidR) if there
- * is no pendingWallpaperInstance. Use it to unit test methods of the EngineWrapper or to spy on it.
+ * A simple WatchFaceService that does not get initialized (because it is PreAndroidR) if there is
+ * no pendingWallpaperInstance. Use it to unit test methods of the EngineWrapper or to spy on it.
  */
 open class SimpleWatchFaceTestService : WatchFaceService() {
 
     init {
-        @Suppress("LeakingThis")
-        attachBaseContext(ApplicationProvider.getApplicationContext())
+        @Suppress("LeakingThis") attachBaseContext(ApplicationProvider.getApplicationContext())
     }
 
     override suspend fun createWatchFace(

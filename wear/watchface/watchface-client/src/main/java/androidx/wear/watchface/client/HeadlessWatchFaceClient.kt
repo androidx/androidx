@@ -23,11 +23,10 @@ import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
-import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -36,12 +35,13 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.utility.TraceEvent
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.concurrent.Executor
 
 /**
- * Controls a stateless remote headless watch face.  This is mostly intended for use by watch face
+ * Controls a stateless remote headless watch face. This is mostly intended for use by watch face
  * editor UIs which need to generate screenshots for various styling configurations without
  * affecting the current watchface.
  *
@@ -59,12 +59,10 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     }
 
     /** The [Instant] to use when rendering previews. */
-    @get:Throws(RemoteException::class)
-    public val previewReferenceInstant: Instant
+    @get:Throws(RemoteException::class) public val previewReferenceInstant: Instant
 
     /** The watch face's [UserStyleSchema]. */
-    @get:Throws(RemoteException::class)
-    public val userStyleSchema: UserStyleSchema
+    @get:Throws(RemoteException::class) public val userStyleSchema: UserStyleSchema
 
     /**
      * A SHA-1 [MessageDigest] hash of the [UserStyleSchema]. Note that for performance reasons
@@ -82,7 +80,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * Returns the watch face's [UserStyleFlavors] if any.
      *
      * @throws [RuntimeException] if the watch face threw an exception while trying to service the
-     * request or there was a communication problem with watch face process.
+     *   request or there was a communication problem with watch face process.
      */
     public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 
@@ -104,10 +102,10 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @param instant The [Instant] to render with
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used.
      * @param slotIdToComplicationData Map of [androidx.wear.watchface.ComplicationSlot] ids to
-     * [ComplicationData] to render with, or if `null` [androidx.wear.watchface.ComplicationSlot]
-     * are not rendered.
+     *   [ComplicationData] to render with, or if `null` [androidx.wear.watchface.ComplicationSlot]
+     *   are not rendered.
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     * given settings.
+     *   given settings.
      */
     @RequiresApi(27)
     @Throws(RemoteException::class)
@@ -128,7 +126,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @param complicationData the [ComplicationData] to render with
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     * given settings, or `null` if [complicationSlotId] is unrecognized.
+     *   given settings, or `null` if [complicationSlotId] is unrecognized.
      */
     @RequiresApi(27)
     @Throws(RemoteException::class)
@@ -156,42 +154,37 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     /**
      * Removes a [ClientDisconnectListener] previously registered by [addClientDisconnectListener].
      */
-    @AnyThread
-    public fun removeClientDisconnectListener(listener: ClientDisconnectListener)
+    @AnyThread public fun removeClientDisconnectListener(listener: ClientDisconnectListener)
 
     /** Returns true if the connection to the server side is alive. */
-    @AnyThread
-    public fun isConnectionAlive(): Boolean
+    @AnyThread public fun isConnectionAlive(): Boolean
 
     /** Stores the underlying connection in a [Bundle]. */
     public fun toBundle(): Bundle
 }
 
-internal class HeadlessWatchFaceClientImpl internal constructor(
-    private val iHeadlessWatchFace: IHeadlessWatchFace
-) : HeadlessWatchFaceClient {
+internal class HeadlessWatchFaceClientImpl
+internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : HeadlessWatchFaceClient {
 
     private val lock = Any()
     private val listeners = HashMap<HeadlessWatchFaceClient.ClientDisconnectListener, Executor>()
 
     init {
-        iHeadlessWatchFace.asBinder().linkToDeath(
-            {
-                var listenerCopy:
-                    HashMap<HeadlessWatchFaceClient.ClientDisconnectListener, Executor>
+        iHeadlessWatchFace
+            .asBinder()
+            .linkToDeath(
+                {
+                    var listenerCopy:
+                        HashMap<HeadlessWatchFaceClient.ClientDisconnectListener, Executor>
 
-                synchronized(lock) {
-                    listenerCopy = HashMap(listeners)
-                }
+                    synchronized(lock) { listenerCopy = HashMap(listeners) }
 
-                for ((listener, executor) in listenerCopy) {
-                    executor.execute {
-                        listener.onClientDisconnected()
+                    for ((listener, executor) in listenerCopy) {
+                        executor.execute { listener.onClientDisconnected() }
                     }
-                }
-            },
-            0
-        )
+                },
+                0
+            )
     }
 
     override val previewReferenceInstant: Instant
@@ -207,20 +200,20 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
             userStyleSchema.getDigestHash()
         }
 
-    override fun getUserStyleFlavors(): UserStyleFlavors =
-        callRemote {
-            if (iHeadlessWatchFace.apiVersion >= 3) {
-                UserStyleFlavors(iHeadlessWatchFace.userStyleFlavors)
-            } else {
-                UserStyleFlavors()
-            }
+    override fun getUserStyleFlavors(): UserStyleFlavors = callRemote {
+        if (iHeadlessWatchFace.apiVersion >= 3) {
+            UserStyleFlavors(iHeadlessWatchFace.userStyleFlavors)
+        } else {
+            UserStyleFlavors()
         }
+    }
 
     override val complicationSlotsState: Map<Int, ComplicationSlotState>
-        get() = iHeadlessWatchFace.complicationState.associateBy(
-            { it.id },
-            { ComplicationSlotState(it.complicationState) }
-        )
+        get() =
+            iHeadlessWatchFace.complicationState.associateBy(
+                { it.id },
+                { ComplicationSlotState(it.complicationState) }
+            )
 
     @RequiresApi(27)
     override fun renderWatchFaceToBitmap(
@@ -228,23 +221,24 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         instant: Instant,
         userStyle: UserStyle?,
         slotIdToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = TraceEvent("HeadlessWatchFaceClientImpl.renderWatchFaceToBitmap").use {
-        SharedMemoryImage.ashmemReadImageBundle(
-            iHeadlessWatchFace.renderWatchFaceToBitmap(
-                WatchFaceRenderParams(
-                    renderParameters.toWireFormat(),
-                    instant.toEpochMilli(),
-                    userStyle?.toWireFormat(),
-                    slotIdToComplicationData?.map {
-                        IdAndComplicationDataWireFormat(
-                            it.key,
-                            it.value.asWireComplicationData()
-                        )
-                    }
+    ): Bitmap =
+        TraceEvent("HeadlessWatchFaceClientImpl.renderWatchFaceToBitmap").use {
+            SharedMemoryImage.ashmemReadImageBundle(
+                iHeadlessWatchFace.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        renderParameters.toWireFormat(),
+                        instant.toEpochMilli(),
+                        userStyle?.toWireFormat(),
+                        slotIdToComplicationData?.map {
+                            IdAndComplicationDataWireFormat(
+                                it.key,
+                                it.value.asWireComplicationData()
+                            )
+                        }
+                    )
                 )
             )
-        )
-    }
+        }
 
     @RequiresApi(27)
     override fun renderComplicationToBitmap(
@@ -253,19 +247,20 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         instant: Instant,
         complicationData: ComplicationData,
         userStyle: UserStyle?,
-    ): Bitmap? = TraceEvent("HeadlessWatchFaceClientImpl.renderComplicationToBitmap").use {
-        iHeadlessWatchFace.renderComplicationToBitmap(
-            ComplicationRenderParams(
-                complicationSlotId,
-                renderParameters.toWireFormat(),
-                instant.toEpochMilli(),
-                complicationData.asWireComplicationData(),
-                userStyle?.toWireFormat(),
-            )
-        )?.let {
-            SharedMemoryImage.ashmemReadImageBundle(it)
+    ): Bitmap? =
+        TraceEvent("HeadlessWatchFaceClientImpl.renderComplicationToBitmap").use {
+            iHeadlessWatchFace
+                .renderComplicationToBitmap(
+                    ComplicationRenderParams(
+                        complicationSlotId,
+                        renderParameters.toWireFormat(),
+                        instant.toEpochMilli(),
+                        complicationData.asWireComplicationData(),
+                        userStyle?.toWireFormat(),
+                    )
+                )
+                ?.let { SharedMemoryImage.ashmemReadImageBundle(it) }
         }
-    }
 
     override fun addClientDisconnectListener(
         listener: HeadlessWatchFaceClient.ClientDisconnectListener,
@@ -282,18 +277,16 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     override fun removeClientDisconnectListener(
         listener: HeadlessWatchFaceClient.ClientDisconnectListener
     ) {
-        synchronized(lock) {
-            listeners.remove(listener)
-        }
+        synchronized(lock) { listeners.remove(listener) }
     }
 
     override fun isConnectionAlive() = iHeadlessWatchFace.asBinder().isBinderAlive
 
-    override fun toBundle() = Bundle().apply {
-        this.putBinder(HeadlessWatchFaceClient.BINDER_KEY, iHeadlessWatchFace.asBinder())
-    }
+    override fun toBundle() =
+        Bundle().apply {
+            this.putBinder(HeadlessWatchFaceClient.BINDER_KEY, iHeadlessWatchFace.asBinder())
+        }
 
-    override fun close() = TraceEvent("HeadlessWatchFaceClientImpl.close").use {
-        iHeadlessWatchFace.release()
-    }
+    override fun close() =
+        TraceEvent("HeadlessWatchFaceClientImpl.close").use { iHeadlessWatchFace.release() }
 }

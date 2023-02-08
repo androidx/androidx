@@ -45,8 +45,8 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     public int mComplicationSlotId;
 
     /**
-     * VersionedParcelable doesn't support boxed Boolean so we set this to one of
-     * ENABLED_UNKNOWN, ENABLED_YES, ENABLED_NO.
+     * VersionedParcelable doesn't support boxed Boolean so we set this to one of ENABLED_UNKNOWN,
+     * ENABLED_YES, ENABLED_NO.
      */
     @ParcelField(2)
     public int mEnabled;
@@ -62,15 +62,13 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     // IMPORTANT: DO NOT EXTEND THIS FILE! IT WILL NOT BE BACKWARDS COMPATIBLE :(
     // Instead extend ComplicationsOptionWireFormat.
 
-    ComplicationOverlayWireFormat() {
-    }
+    ComplicationOverlayWireFormat() {}
 
     public ComplicationOverlayWireFormat(
             int complicationSlotId,
             @Nullable Boolean enabled,
             @Nullable Map<Integer, RectF> perComplicationTypeBounds,
-            @Nullable Integer accessibilityTraversalIndex
-    ) {
+            @Nullable Integer accessibilityTraversalIndex) {
         mComplicationSlotId = complicationSlotId;
         if (enabled != null) {
             mEnabled = enabled ? ENABLED_YES : ENABLED_NO;

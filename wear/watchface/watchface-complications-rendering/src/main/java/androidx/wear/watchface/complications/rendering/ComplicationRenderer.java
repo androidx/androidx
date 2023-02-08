@@ -85,12 +85,10 @@ class ComplicationRenderer {
      * padding and gravity. Testing this class with DEBUG_MODE set to true causes a test to fail so
      * it's only meant to be true on local builds.
      */
-    @VisibleForTesting
-    static final boolean DEBUG_MODE = false;
+    @VisibleForTesting static final boolean DEBUG_MODE = false;
 
     /** The gap between the in progress stroke and the remain stroke. */
-    @VisibleForTesting
-    static final int STROKE_GAP_IN_DEGREES = 4;
+    @VisibleForTesting static final int STROKE_GAP_IN_DEGREES = 4;
 
     /** The gap between in progress stroke for scores. */
     static final int STROKE_GAP_IN_DEGREES_FOR_SCORE = 15;
@@ -99,8 +97,7 @@ class ComplicationRenderer {
      * Starting angle for ranged value, i.e. in progress part will start from this angle. As it's
      * drawn clockwise, -90 corresponds to 12 o'clock on a watch.
      */
-    @VisibleForTesting
-    static final int RANGED_VALUE_START_ANGLE = -90;
+    @VisibleForTesting static final int RANGED_VALUE_START_ANGLE = -90;
 
     /** Size fraction used for drawing icons. 1.0 here means no padding is applied. */
     private static final float ICON_SIZE_FRACTION = 1.0f;
@@ -118,8 +115,7 @@ class ComplicationRenderer {
     private static final float TEXT_PADDING_HEIGHT_FRACTION = 0.1f;
 
     /** Used to apply a grey color to a placeholder. */
-    @VisibleForTesting
-    static final Paint PLACEHOLDER_PAINT = createPlaceHolderPaint();
+    @VisibleForTesting static final Paint PLACEHOLDER_PAINT = createPlaceHolderPaint();
 
     /** Defines the placeholder shape for WeightedElementsComplicationData. */
     private static final float[] PLACEHOLDER_WEIGHTS = {3.0f, 2.0f, 1.0f};
@@ -153,8 +149,8 @@ class ComplicationRenderer {
 
     /** Used to apply a grey tint to a placeholder icon. */
     @VisibleForTesting
-    static final ColorFilter PLACEHOLDER_COLOR_FILTER = new PorterDuffColorFilter(
-            Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+    static final ColorFilter PLACEHOLDER_COLOR_FILTER =
+            new PorterDuffColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
 
     /** Context is required for localization. */
     private final Context mContext;
@@ -170,31 +166,19 @@ class ComplicationRenderer {
     private boolean mHasNoData;
 
     // Below drawables will be null until they are fully loaded.
-    @Nullable
-    Drawable mIcon;
-    @Nullable
-    Drawable mBurnInProtectionIcon;
-    @Nullable
-    Drawable mSmallImage;
-    @Nullable
-    Drawable mBurnInProtectionSmallImage;
-    @Nullable
-    Drawable mLargeImage;
+    @Nullable Drawable mIcon;
+    @Nullable Drawable mBurnInProtectionIcon;
+    @Nullable Drawable mSmallImage;
+    @Nullable Drawable mBurnInProtectionSmallImage;
+    @Nullable Drawable mLargeImage;
 
-    @VisibleForTesting
-    boolean mIsPlaceholderIcon;
-    @VisibleForTesting
-    boolean mIsPlaceholderSmallImage;
-    @VisibleForTesting
-    boolean mIsPlaceholderLargeImage;
-    @VisibleForTesting
-    boolean mIsPlaceholderRangedValue;
-    @VisibleForTesting
-    boolean mIsPlaceholderWeightedElements;
-    @VisibleForTesting
-    boolean mIsPlaceholderTitle;
-    @VisibleForTesting
-    boolean mIsPlaceholderText;
+    @VisibleForTesting boolean mIsPlaceholderIcon;
+    @VisibleForTesting boolean mIsPlaceholderSmallImage;
+    @VisibleForTesting boolean mIsPlaceholderLargeImage;
+    @VisibleForTesting boolean mIsPlaceholderRangedValue;
+    @VisibleForTesting boolean mIsPlaceholderWeightedElements;
+    @VisibleForTesting boolean mIsPlaceholderTitle;
+    @VisibleForTesting boolean mIsPlaceholderText;
     boolean mIsPlaceholder;
 
     // Drawables for rendering rounded images
@@ -203,11 +187,9 @@ class ComplicationRenderer {
     private RoundedDrawable mRoundedSmallImage = null;
 
     // Text renderers
-    @VisibleForTesting
-    TextRenderer mMainTextRenderer = new TextRenderer();
+    @VisibleForTesting TextRenderer mMainTextRenderer = new TextRenderer();
 
-    @VisibleForTesting
-    TextRenderer mSubTextRenderer = new TextRenderer();
+    @VisibleForTesting TextRenderer mSubTextRenderer = new TextRenderer();
 
     // Bounds for components. NB we want to avoid allocations in watch face rendering code to
     // reduce GC pressure.
@@ -222,34 +204,28 @@ class ComplicationRenderer {
     private final RectF mRangedValueBoundsF = new RectF();
 
     // Paint sets for active and ambient modes.
-    @VisibleForTesting
-    PaintSet mActivePaintSet = null;
+    @VisibleForTesting PaintSet mActivePaintSet = null;
     PaintSet mActivePaintSetLostTapAction = null;
-    @VisibleForTesting
-    PaintSet mAmbientPaintSet = null;
+    @VisibleForTesting PaintSet mAmbientPaintSet = null;
     PaintSet mAmbientPaintSetLostTapAction = null;
 
     // Paints for texts
-    @Nullable
-    private TextPaint mMainTextPaint = null;
-    @Nullable
-    private TextPaint mSubTextPaint = null;
+    @Nullable private TextPaint mMainTextPaint = null;
+    @Nullable private TextPaint mSubTextPaint = null;
 
     // Styles for active and ambient modes.
     private ComplicationStyle mActiveStyle;
     private ComplicationStyle mAmbientStyle;
 
-    @Nullable
-    private Paint mDebugPaint;
+    @Nullable private Paint mDebugPaint;
 
-    @Nullable
-    private OnInvalidateListener mInvalidateListener;
+    @Nullable private OnInvalidateListener mInvalidateListener;
 
     /**
      * Initializes complication renderer.
      *
-     * @param context      Current [Context].
-     * @param activeStyle  ComplicationSlot style to be used when in active mode.
+     * @param context Current [Context].
+     * @param activeStyle ComplicationSlot style to be used when in active mode.
      * @param ambientStyle ComplicationSlot style to be used when in ambient mode.
      */
     ComplicationRenderer(
@@ -266,7 +242,7 @@ class ComplicationRenderer {
     /**
      * Updates the complication styles in active and ambient modes
      *
-     * @param activeStyle  complication style in active mode
+     * @param activeStyle complication style in active mode
      * @param ambientStyle complication style in ambient mode
      */
     public void updateStyle(
@@ -286,10 +262,9 @@ class ComplicationRenderer {
     /**
      * Sets the complication data to be rendered.
      *
-     * @param data               ComplicationSlot data to be rendered. If this is null, nothing
-     *                           is drawn.
-     * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise
-     *                           they will be loaded synchronously.
+     * @param data ComplicationSlot data to be rendered. If this is null, nothing is drawn.
+     * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise they
+     *     will be loaded synchronously.
      */
     public void setComplicationData(@Nullable ComplicationData data, boolean loadDrawablesAsync) {
         if (Objects.equals(mComplicationData, data)) {
@@ -322,20 +297,19 @@ class ComplicationRenderer {
                         data.hasSmallImage() && ImageKt.isPlaceholder(data.getSmallImage());
                 mIsPlaceholderLargeImage =
                         data.hasLargeImage() && ImageKt.isPlaceholder(data.getLargeImage());
-                mIsPlaceholderRangedValue = data.hasRangedValue()
-                        && data.getRangedValue() == RangedValueComplicationData.PLACEHOLDER;
-                mIsPlaceholderWeightedElements = data.getElementWeights() != null
-                        && data.getElementWeights().length == 0;
+                mIsPlaceholderRangedValue =
+                        data.hasRangedValue()
+                                && data.getRangedValue() == RangedValueComplicationData.PLACEHOLDER;
+                mIsPlaceholderWeightedElements =
+                        data.getElementWeights() != null && data.getElementWeights().length == 0;
                 if (data.getType() == ComplicationData.TYPE_LONG_TEXT) {
                     mIsPlaceholderTitle =
                             data.hasLongTitle() && data.getLongTitle().isPlaceholder();
-                    mIsPlaceholderText =
-                            data.hasLongText() && data.getLongText().isPlaceholder();
+                    mIsPlaceholderText = data.hasLongText() && data.getLongText().isPlaceholder();
                 } else {
                     mIsPlaceholderTitle =
                             data.hasShortTitle() && data.getShortTitle().isPlaceholder();
-                    mIsPlaceholderText =
-                            data.hasShortText() && data.getShortText().isPlaceholder();
+                    mIsPlaceholderText = data.hasShortText() && data.getShortText().isPlaceholder();
                 }
                 mComplicationData = data;
                 mHasNoData = false;
@@ -431,14 +405,13 @@ class ComplicationRenderer {
      * Renders complication data on a canvas. Does nothing if the current data is null, has type
      * 'empty' or 'not configured', or is not active.
      *
-     * @param canvas           canvas to be drawn on.
-     * @param currentTime      current time as an {@link Instant}
-     * @param inAmbientMode    true if the device is in ambient mode.
-     * @param lowBitAmbient    true if the screen supports fewer bits for each color in ambient
-     *                         mode.
+     * @param canvas canvas to be drawn on.
+     * @param currentTime current time as an {@link Instant}
+     * @param inAmbientMode true if the device is in ambient mode.
+     * @param lowBitAmbient true if the screen supports fewer bits for each color in ambient mode.
      * @param burnInProtection true if burn-in protection is required.
      * @param showTapHighlight true if the complication should be drawn with a highlighted effect,
-     *                         to provide visual feedback after a tap.
+     *     to provide visual feedback after a tap.
      */
     public void draw(
             @NonNull Canvas canvas,
@@ -459,13 +432,16 @@ class ComplicationRenderer {
         // reinitialize.
         if (inAmbientMode
                 && (mAmbientPaintSet.mLowBitAmbient != lowBitAmbient
-                || mAmbientPaintSet.mBurnInProtection != burnInProtection)) {
+                        || mAmbientPaintSet.mBurnInProtection != burnInProtection)) {
             mAmbientPaintSet = new PaintSet(mAmbientStyle, true, lowBitAmbient, burnInProtection);
         }
         // Choose the correct paint set to use
-        PaintSet currentPaintSet = mComplicationData.getTapActionLostDueToSerialization()
-                ? (inAmbientMode ? mAmbientPaintSetLostTapAction : mActivePaintSetLostTapAction) :
-                (inAmbientMode ? mAmbientPaintSet : mActivePaintSet);
+        PaintSet currentPaintSet =
+                mComplicationData.getTapActionLostDueToSerialization()
+                        ? (inAmbientMode
+                                ? mAmbientPaintSetLostTapAction
+                                : mActivePaintSetLostTapAction)
+                        : (inAmbientMode ? mAmbientPaintSet : mActivePaintSet);
         // Update complication texts
         updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();
@@ -503,24 +479,28 @@ class ComplicationRenderer {
         if (mComplicationData.hasShortText()) {
             mMainTextRenderer.setMaxLines(1);
             mMainTextRenderer.setText(
-                    mComplicationData.getShortText().getTextAt(
-                            mContext.getResources(), currentTimeMillis));
+                    mComplicationData
+                            .getShortText()
+                            .getTextAt(mContext.getResources(), currentTimeMillis));
             if (mComplicationData.getShortTitle() != null) {
                 mSubTextRenderer.setText(
-                        mComplicationData.getShortTitle().getTextAt(
-                                mContext.getResources(), currentTimeMillis));
+                        mComplicationData
+                                .getShortTitle()
+                                .getTextAt(mContext.getResources(), currentTimeMillis));
             } else {
                 mSubTextRenderer.setText("");
             }
         }
         if (mComplicationData.hasLongText()) {
             mMainTextRenderer.setText(
-                    mComplicationData.getLongText().getTextAt(
-                            mContext.getResources(), currentTimeMillis));
+                    mComplicationData
+                            .getLongText()
+                            .getTextAt(mContext.getResources(), currentTimeMillis));
             if (mComplicationData.getLongTitle() != null) {
                 mSubTextRenderer.setText(
-                        mComplicationData.getLongTitle().getTextAt(
-                                mContext.getResources(), currentTimeMillis));
+                        mComplicationData
+                                .getLongTitle()
+                                .getTextAt(mContext.getResources(), currentTimeMillis));
                 // If long text has title, only show one line from each
                 mMainTextRenderer.setMaxLines(1);
             } else {
@@ -581,19 +561,21 @@ class ComplicationRenderer {
             // Avoid drawing two placeholder text fields of the same length.
             if (!mSubTextBounds.isEmpty()
                     && (mComplicationData.getType() == ComplicationData.TYPE_SHORT_TEXT
-                    || mComplicationData.getType() == ComplicationData.TYPE_LONG_TEXT)) {
+                            || mComplicationData.getType() == ComplicationData.TYPE_LONG_TEXT)) {
                 width = mMainTextBounds.width() * 0.4f;
                 height = mMainTextBounds.height() * 0.9f;
             } else {
                 width = mMainTextBounds.width();
                 height = mMainTextBounds.height() * 0.75f;
             }
-            canvas.drawRoundRect(mMainTextBounds.left,
+            canvas.drawRoundRect(
+                    mMainTextBounds.left,
                     mMainTextBounds.top + height * 0.1f,
                     mMainTextBounds.left + width,
                     mMainTextBounds.top + height,
                     mMainTextBounds.width() * 0.05f,
-                    mMainTextBounds.height() * 0.1f, PLACEHOLDER_PAINT);
+                    mMainTextBounds.height() * 0.1f,
+                    PLACEHOLDER_PAINT);
         } else {
             mMainTextRenderer.draw(canvas, mMainTextBounds);
         }
@@ -613,10 +595,14 @@ class ComplicationRenderer {
         }
 
         if (isPlaceholder) {
-            canvas.drawRoundRect(mSubTextBounds.left,
+            canvas.drawRoundRect(
+                    mSubTextBounds.left,
                     mSubTextBounds.bottom - mSubTextBounds.height() * 0.9f,
-                    mSubTextBounds.right, mSubTextBounds.bottom, mSubTextBounds.width() * 0.05f,
-                    mSubTextBounds.height() * 0.1f, PLACEHOLDER_PAINT);
+                    mSubTextBounds.right,
+                    mSubTextBounds.bottom,
+                    mSubTextBounds.width() * 0.05f,
+                    mSubTextBounds.height() * 0.1f,
+                    PLACEHOLDER_PAINT);
         } else {
             mSubTextRenderer.draw(canvas, mSubTextBounds);
         }
@@ -672,22 +658,30 @@ class ComplicationRenderer {
 
         float startAngle = RANGED_VALUE_START_ANGLE + gap / 2.0f;
         switch (valueType) {
-            case RangedValueComplicationData.TYPE_RATING: {
-                float sweepAngle = 360.0f - gap / 2;
-                drawProgressBarArc(canvas, isPlaceholder, paintSet, startAngle, sweepAngle);
+            case RangedValueComplicationData.TYPE_RATING:
+                {
+                    float sweepAngle = 360.0f - gap / 2;
+                    drawProgressBarArc(canvas, isPlaceholder, paintSet, startAngle, sweepAngle);
 
-                // Draw the progress indicator.
-                float strokeWidth = paintSet.mInProgressPaint.getStrokeWidth();
-                float radiusX = mRangedValueBoundsF.width() * 0.5f;
-                float radiusY = mRangedValueBoundsF.height() * 0.5f;
-                float x = mRangedValueBoundsF.centerX()
-                        + radiusX * (float) cos(toRadians(startAngle + inProgressAngle));
-                float y = mRangedValueBoundsF.centerY()
-                        + radiusY * (float) sin(toRadians(startAngle + inProgressAngle));
-                canvas.drawCircle(x, y, strokeWidth,
-                        isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
-                break;
-            }
+                    // Draw the progress indicator.
+                    float strokeWidth = paintSet.mInProgressPaint.getStrokeWidth();
+                    float radiusX = mRangedValueBoundsF.width() * 0.5f;
+                    float radiusY = mRangedValueBoundsF.height() * 0.5f;
+                    float x =
+                            mRangedValueBoundsF.centerX()
+                                    + radiusX
+                                            * (float) cos(toRadians(startAngle + inProgressAngle));
+                    float y =
+                            mRangedValueBoundsF.centerY()
+                                    + radiusY
+                                            * (float) sin(toRadians(startAngle + inProgressAngle));
+                    canvas.drawCircle(
+                            x,
+                            y,
+                            strokeWidth,
+                            isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
+                    break;
+                }
 
             default:
             case RangedValueComplicationData.TYPE_UNDEFINED:
@@ -700,7 +694,7 @@ class ComplicationRenderer {
                             mRangedValueBoundsF,
                             startAngle + inProgressAngle + gap,
                             remainderAngle,
-                            /* useCenter = */ false,
+                            /* useCenter= */ false,
                             paintSet.mRemainingPaint);
                 }
                 break;
@@ -722,7 +716,7 @@ class ComplicationRenderer {
             rangedValue = 75.0f;
         }
 
-        float value =  Math.min(rangedMaxValue, Math.max(0f, rangedValue));
+        float value = Math.min(rangedMaxValue, Math.max(0f, rangedValue));
         float interval = rangedMaxValue;
         float progress = interval > 0 ? value / interval : 0;
         float gap = STROKE_GAP_IN_DEGREES_FOR_SCORE;
@@ -739,7 +733,11 @@ class ComplicationRenderer {
         float sweepAngle = 360.0f - gap / 2;
 
         // Draw the fixed length progress arc.
-        drawProgressBarArc(canvas, isPlaceholder, paintSet, startAngle,
+        drawProgressBarArc(
+                canvas,
+                isPlaceholder,
+                paintSet,
+                startAngle,
                 sweepAngle - OVER_ACHIEVEMENT_ARC_LENGTH);
 
         // Draw the fixed length over-achievement achievement arc, resenting progress past the
@@ -750,7 +748,7 @@ class ComplicationRenderer {
                 mRangedValueBoundsF,
                 startAngle + sweepAngle - OVER_ACHIEVEMENT_ARC_LENGTH,
                 OVER_ACHIEVEMENT_ARC_LENGTH,
-                /* useCenter = */ false,
+                /* useCenter= */ false,
                 paintSet.mInProgressPaint);
 
         paintSet.mInProgressPaint.setColor(prevColor);
@@ -759,18 +757,27 @@ class ComplicationRenderer {
         float strokeWidth = paintSet.mInProgressPaint.getStrokeWidth();
         float radiusX = mRangedValueBoundsF.width() * 0.5f;
         float radiusY = mRangedValueBoundsF.height() * 0.5f;
-        float x = mRangedValueBoundsF.centerX()
-                + radiusX * (float) cos(toRadians(startAngle + inProgressAngle));
-        float y = mRangedValueBoundsF.centerY()
-                + radiusY * (float) sin(toRadians(startAngle + inProgressAngle));
-        canvas.drawCircle(x, y, strokeWidth,
+        float x =
+                mRangedValueBoundsF.centerX()
+                        + radiusX * (float) cos(toRadians(startAngle + inProgressAngle));
+        float y =
+                mRangedValueBoundsF.centerY()
+                        + radiusY * (float) sin(toRadians(startAngle + inProgressAngle));
+        canvas.drawCircle(
+                x,
+                y,
+                strokeWidth,
                 isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
 
         mRangedValueBoundsF.inset(-insetAmount, -insetAmount);
     }
 
-    private void drawProgressBarArc(Canvas canvas, boolean isPlaceholder, PaintSet paintSet,
-            float startAngle, float sweepAngle) {
+    private void drawProgressBarArc(
+            Canvas canvas,
+            boolean isPlaceholder,
+            PaintSet paintSet,
+            float startAngle,
+            float sweepAngle) {
         int[] colorRamp = mComplicationData.getColorRamp();
         if (colorRamp != null) {
             if (!checkNotNull(mComplicationData.isColorRampInterpolated())) {
@@ -781,11 +788,14 @@ class ComplicationRenderer {
 
             // Set up the SweepGradient shader, rotated so the start is at the top (12 o'clock).
             SweepGradient gradient =
-                    new SweepGradient(mRangedValueBoundsF.centerX(), mRangedValueBoundsF.centerY(),
-                            colorRamp, /* positions= */ null);
+                    new SweepGradient(
+                            mRangedValueBoundsF.centerX(),
+                            mRangedValueBoundsF.centerY(),
+                            colorRamp,
+                            /* positions= */ null);
             Matrix matrix = new Matrix();
-            matrix.postRotate(startAngle,
-                    mRangedValueBoundsF.centerX(), mRangedValueBoundsF.centerY());
+            matrix.postRotate(
+                    startAngle, mRangedValueBoundsF.centerX(), mRangedValueBoundsF.centerY());
             gradient.setLocalMatrix(matrix);
             paintSet.mInProgressPaint.setShader(gradient);
         }
@@ -799,8 +809,12 @@ class ComplicationRenderer {
     }
 
     private void drawNonInterpolatedColorRampArc(
-            Canvas canvas, boolean isPlaceholder, PaintSet paintSet,
-            float startAngle, float sweepAngle, int[] colorRamp) {
+            Canvas canvas,
+            boolean isPlaceholder,
+            PaintSet paintSet,
+            float startAngle,
+            float sweepAngle,
+            int[] colorRamp) {
         // We need to draw the arc in segments of equal color.
         float segmentSweepAngle = sweepAngle / (float) colorRamp.length;
         int prevColor = paintSet.mInProgressPaint.getColor();
@@ -835,14 +849,14 @@ class ComplicationRenderer {
             paintSet.mInProgressPaint.setColor(mComplicationData.getElementBackgroundColor());
             canvas.drawArc(
                     mRangedValueBoundsF,
-                    /* startAngle = */ 0f,
-                    /* sweepAngle = */ 360.0f,
-                    /* useCenter = */ false,
+                    /* startAngle= */ 0f,
+                    /* sweepAngle= */ 360.0f,
+                    /* useCenter= */ false,
                     paintSet.mInProgressPaint);
         }
 
-        float[] weights = isPlaceholder ? PLACEHOLDER_WEIGHTS :
-                mComplicationData.getElementWeights();
+        float[] weights =
+                isPlaceholder ? PLACEHOLDER_WEIGHTS : mComplicationData.getElementWeights();
         int[] colors = mComplicationData.getElementColors();
         float sum = 0;
         for (float weight : weights) {
@@ -862,7 +876,7 @@ class ComplicationRenderer {
                     mRangedValueBoundsF,
                     angle,
                     sweepLength,
-                    /* useCenter = */ false,
+                    /* useCenter= */ false,
                     isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
             angle += sweepLength + WEIGHTED_ANGLE_GAP;
         }
@@ -882,8 +896,8 @@ class ComplicationRenderer {
             if (paintSet.isInBurnInProtectionMode() && mBurnInProtectionIcon != null) {
                 icon = mBurnInProtectionIcon;
             }
-            icon.setColorFilter(mIsPlaceholder ? PLACEHOLDER_COLOR_FILTER :
-                    paintSet.mIconColorFilter);
+            icon.setColorFilter(
+                    mIsPlaceholder ? PLACEHOLDER_COLOR_FILTER : paintSet.mIconColorFilter);
             drawIconOnCanvas(canvas, mIconBounds, icon);
         } else if (isPlaceholder) {
             canvas.drawRect(mIconBounds, PLACEHOLDER_PAINT);
@@ -975,10 +989,10 @@ class ComplicationRenderer {
             return Math.max(
                     getBorderRadius(currentStyle)
                             - Math.min(
-                            Math.min(imageBounds.left, mBounds.width() - imageBounds.right),
-                            Math.min(
-                                    imageBounds.top,
-                                    mBounds.height() - imageBounds.bottom)),
+                                    Math.min(imageBounds.left, mBounds.width() - imageBounds.right),
+                                    Math.min(
+                                            imageBounds.top,
+                                            mBounds.height() - imageBounds.bottom)),
                     0);
         }
     }
@@ -1113,11 +1127,14 @@ class ComplicationRenderer {
         mBurnInProtectionIcon = null;
         if (mComplicationData != null) {
             icon = mComplicationData.hasIcon() ? mComplicationData.getIcon() : null;
-            burnInProtectionIcon = mComplicationData.hasBurnInProtectionIcon()
-                    ? mComplicationData.getBurnInProtectionIcon() : null;
+            burnInProtectionIcon =
+                    mComplicationData.hasBurnInProtectionIcon()
+                            ? mComplicationData.getBurnInProtectionIcon()
+                            : null;
             burnInProtectionSmallImage =
                     mComplicationData.hasBurnInProtectionSmallImage()
-                            ? mComplicationData.getBurnInProtectionSmallImage() : null;
+                            ? mComplicationData.getBurnInProtectionSmallImage()
+                            : null;
             smallImage =
                     mComplicationData.hasSmallImage() ? mComplicationData.getSmallImage() : null;
             largeImage =
@@ -1234,11 +1251,14 @@ class ComplicationRenderer {
         mBurnInProtectionIcon = null;
         if (mComplicationData != null) {
             icon = mComplicationData.hasIcon() ? mComplicationData.getIcon() : null;
-            burnInProtectionIcon = mComplicationData.hasBurnInProtectionIcon()
-                    ? mComplicationData.getBurnInProtectionIcon() : null;
+            burnInProtectionIcon =
+                    mComplicationData.hasBurnInProtectionIcon()
+                            ? mComplicationData.getBurnInProtectionIcon()
+                            : null;
             burnInProtectionSmallImage =
                     mComplicationData.hasBurnInProtectionSmallImage()
-                            ? mComplicationData.getBurnInProtectionSmallImage() : null;
+                            ? mComplicationData.getBurnInProtectionSmallImage()
+                            : null;
             smallImage =
                     mComplicationData.hasSmallImage() ? mComplicationData.getSmallImage() : null;
             largeImage =
@@ -1333,7 +1353,7 @@ class ComplicationRenderer {
             mIconColorFilter =
                     antiAlias
                             ? new PorterDuffColorFilter(
-                            style.getIconColor(), PorterDuff.Mode.SRC_IN)
+                                    style.getIconColor(), PorterDuff.Mode.SRC_IN)
                             : new ColorMatrixColorFilter(
                                     createSingleColorMatrix(style.getIconColor()));
 
@@ -1362,7 +1382,7 @@ class ComplicationRenderer {
             if (style.getBorderStyle() == ComplicationStyle.BORDER_STYLE_DASHED) {
                 mBorderPaint.setPathEffect(
                         new DashPathEffect(
-                                new float[]{style.getBorderDashWidth(), style.getBorderDashGap()},
+                                new float[] {style.getBorderDashWidth(), style.getBorderDashGap()},
                                 0));
             }
             if (style.getBorderStyle() == ComplicationStyle.BORDER_STYLE_NONE) {
@@ -1392,11 +1412,11 @@ class ComplicationRenderer {
         @VisibleForTesting
         static ColorMatrix createSingleColorMatrix(int color) {
             return new ColorMatrix(
-                    new float[]{
-                            0, 0, 0, 0, Color.red(color),
-                            0, 0, 0, 0, Color.green(color),
-                            0, 0, 0, 0, Color.blue(color),
-                            0, 0, 0, 255, SINGLE_COLOR_FILTER_ALPHA_CUTOFF * -255
+                    new float[] {
+                        0, 0, 0, 0, Color.red(color),
+                        0, 0, 0, 0, Color.green(color),
+                        0, 0, 0, 0, Color.blue(color),
+                        0, 0, 0, 255, SINGLE_COLOR_FILTER_ALPHA_CUTOFF * -255
                     });
         }
     }
@@ -1455,7 +1475,9 @@ class ComplicationRenderer {
         return mSubTextBounds;
     }
 
-    /** @param outRect Object that receives the computation of the complication's inner bounds */
+    /**
+     * @param outRect Object that receives the computation of the complication's inner bounds
+     */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     public void getComplicationInnerBounds(@NonNull Rect outRect) {
         LayoutUtils.getInnerBounds(

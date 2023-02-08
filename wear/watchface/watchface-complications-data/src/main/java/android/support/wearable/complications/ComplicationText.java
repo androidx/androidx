@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
  * <p>Instances of this class should be obtained either by calling {@link #plainText}, or by using
  * one of the provided builders: {@link TimeDifferenceBuilder} or {@link TimeFormatBuilder}.
  *
- * <p>Note this class is not thread safe.</p>
+ * <p>Note this class is not thread safe.
  *
  * @hide
  */
@@ -83,10 +83,9 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         } else {
             if (that.mExpression == null) {
                 return false;
-            } else if (
-                    !Arrays.equals(mExpression.toDynamicStringByteArray(),
-                            that.mExpression.toDynamicStringByteArray())
-            ) {
+            } else if (!Arrays.equals(
+                    mExpression.toDynamicStringByteArray(),
+                    that.mExpression.toDynamicStringByteArray())) {
                 return false;
             }
         }
@@ -112,31 +111,35 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         return Objects.hash(
                 mSurroundingText,
                 mTimeDependentText,
-                mExpression == null ?
-                        null : Arrays.hashCode(mExpression.toDynamicStringByteArray()));
+                mExpression == null
+                        ? null
+                        : Arrays.hashCode(mExpression.toDynamicStringByteArray()));
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ComplicationText{"
-                + "mSurroundingText=" + ComplicationData.maybeRedact(mSurroundingText)
-                + ", mTimeDependentText=" + mTimeDependentText
-                + ", mExpression=" + mExpression + "}";
+                + "mSurroundingText="
+                + ComplicationData.maybeRedact(mSurroundingText)
+                + ", mTimeDependentText="
+                + mTimeDependentText
+                + ", mExpression="
+                + mExpression
+                + "}";
     }
 
     /** @hide */
     @IntDef({
-            DIFFERENCE_STYLE_STOPWATCH,
-            DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
-            DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
-            DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
-            DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT
+        DIFFERENCE_STYLE_STOPWATCH,
+        DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
+        DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
+        DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
+        DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
-    public @interface TimeDifferenceStyle {
-    }
+    public @interface TimeDifferenceStyle {}
 
     /**
      * Style for time differences shown in a numeric fashion like a timer.
@@ -235,8 +238,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     @IntDef({FORMAT_STYLE_DEFAULT, FORMAT_STYLE_UPPER_CASE, FORMAT_STYLE_LOWER_CASE})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
-    public @interface TimeFormatStyle {
-    }
+    public @interface TimeFormatStyle {}
 
     /** Style where the formatted date/time should be shown unchanged. */
     public static final int FORMAT_STYLE_DEFAULT = 1;
@@ -282,24 +284,21 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    @Nullable
-    private final CharSequence mSurroundingText;
+    @Nullable private final CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
      * must be not null and {@link #getTextAt} will return just the time-dependent value relative to
      * the given time.
      */
-    @Nullable
-    private final TimeDependentText mTimeDependentText;
+    @Nullable private final TimeDependentText mTimeDependentText;
 
     /** A {@link DynamicString} which will be evaluated by the system on the WatchFace's behalf. */
-    @Nullable
-    private final DynamicString mExpression;
+    @Nullable private final DynamicString mExpression;
 
     /** Used to replace occurrences of ^1 with time dependent text and ignore ^[2-9]. */
     private final CharSequence[] mTemplateValues =
-            new CharSequence[]{"", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9"};
+            new CharSequence[] {"", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9"};
 
     /** The timestamp of the stored TimeDependentText in the cache. */
     private long mDependentTextCacheTime;
@@ -317,21 +316,21 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     }
 
     public ComplicationText(@NonNull CharSequence surroundingText) {
-        this(surroundingText, /* timeDependentText = */ null, /* expression = */ null);
+        this(surroundingText, /* timeDependentText= */ null, /* expression= */ null);
     }
 
     public ComplicationText(
             @NonNull CharSequence surroundingText, @NonNull TimeDependentText timeDependentText) {
-        this(surroundingText, timeDependentText, /* expression = */ null);
+        this(surroundingText, timeDependentText, /* expression= */ null);
     }
 
     public ComplicationText(
             @NonNull CharSequence surroundingText, @NonNull DynamicString expression) {
-        this(surroundingText, /* timeDependentText = */ null, expression);
+        this(surroundingText, /* timeDependentText= */ null, expression);
     }
 
     public ComplicationText(@NonNull DynamicString expression) {
-        this(/* surroundingText = */ null, /* timeDependentText = */ null, expression);
+        this(/* surroundingText= */ null, /* timeDependentText= */ null, expression);
     }
 
     private ComplicationText(@NonNull Parcel in) {
@@ -376,7 +375,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         TimeDependentText mTimeDependentText;
         DynamicString mExpression;
 
-        SerializedForm(@Nullable CharSequence surroundingText,
+        SerializedForm(
+                @Nullable CharSequence surroundingText,
                 @Nullable TimeDependentText timeDependentText,
                 @Nullable DynamicString expression) {
             mSurroundingText = surroundingText;
@@ -449,7 +449,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     /**
      * Writes this {@link ComplicationProviderInfo} to a {@link Parcel}.
      *
-     * @param out   The {@link Parcel} to write to
+     * @param out The {@link Parcel} to write to
      * @param flags Flags for writing the {@link Parcel}
      */
     @Override
@@ -469,8 +469,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
                 bundle.putInt(KEY_DIFFERENCE_STYLE, timeDiffText.getStyle());
                 bundle.putBoolean(KEY_DIFFERENCE_SHOW_NOW_TEXT, timeDiffText.shouldShowNowText());
                 if (timeDiffText.getMinimumUnit() != null) {
-                    bundle.putString(KEY_DIFFERENCE_MINIMUM_UNIT,
-                            timeDiffText.getMinimumUnit().name());
+                    bundle.putString(
+                            KEY_DIFFERENCE_MINIMUM_UNIT, timeDiffText.getMinimumUnit().name());
                 }
             } else if (mTimeDependentText instanceof TimeFormatText) {
                 TimeFormatText timeFormatText = (TimeFormatText) mTimeDependentText;
@@ -495,8 +495,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TimeDependentText getTimeDependentText() {
         if (mExpression != null) {
-            throw new UnsupportedOperationException("getTimeDependentText not supported for "
-                    + "StringExpressions");
+            throw new UnsupportedOperationException(
+                    "getTimeDependentText not supported for " + "StringExpressions");
         }
         assert mTimeDependentText != null;
         return mTimeDependentText;
@@ -505,13 +505,13 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     /**
      * Note if this ComplicationText contains a TimeDifference text and the {@code dateTimeMillis}
      * is between {@code referencePeriodStart} and {@code referencePeriodEnd}, then the text
-     * returned will be "now" (localised to the default locale).  If the time is before
-     * {@code referencePeriodStart} then the text returned will represent the time difference
-     * between {@code referencePeriodStart} and {@code dateTimeMillis}. If the time is after
-     * {@code referencePeriodEnd} then the text returned will represent the time difference
-     * between {@code referencePeriodStart} and {@code dateTimeMillis}.
+     * returned will be "now" (localised to the default locale). If the time is before {@code
+     * referencePeriodStart} then the text returned will represent the time difference between
+     * {@code referencePeriodStart} and {@code dateTimeMillis}. If the time is after {@code
+     * referencePeriodEnd} then the text returned will represent the time difference between {@code
+     * referencePeriodStart} and {@code dateTimeMillis}.
      *
-     * @param resources      {@link Resources} from the current {@link Context}
+     * @param resources {@link Resources} from the current {@link Context}
      * @param dateTimeMillis milliseconds since epoch, e.g. from {@link System#currentTimeMillis}
      * @return Text appropriate for the given date time.
      */
@@ -519,8 +519,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     @Override
     public CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis) {
         if (mExpression != null && mTimeDependentText == null && mSurroundingText == null) {
-            throw new UnsupportedOperationException("getTextAt not supported for "
-                    + "StringExpressions");
+            throw new UnsupportedOperationException(
+                    "getTextAt not supported for " + "StringExpressions");
         }
 
         if (mTimeDependentText == null) {
@@ -609,9 +609,9 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      * Returns a ComplicationText object that will display the given {@code text} for any input
      * time.
      *
-     * <p>If the text contains spans, some of them may not be rendered by
-     * {@link androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported spans
-     * are {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
+     * <p>If the text contains spans, some of them may not be rendered by {@link
+     * androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported spans are
+     * {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
      * SuperscriptSpan}, {@link StyleSpan}, {@link StrikethroughSpan}, {@link TypefaceSpan} and
      * {@link UnderlineSpan}.
      *
@@ -649,27 +649,21 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
         private long mReferencePeriodStartMillis = NO_PERIOD_START;
         private long mReferencePeriodEndMillis = NO_PERIOD_END;
-        @TimeDifferenceStyle
-        private int mStyle = ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT;
+        @TimeDifferenceStyle private int mStyle = ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT;
         private CharSequence mSurroundingText;
         private Boolean mShowNowText;
         private TimeUnit mMinimumUnit;
 
-        public TimeDifferenceBuilder() {
-        }
+        public TimeDifferenceBuilder() {}
 
         /**
          * @param referencePeriodStartMillis The start of the reference period (in milliseconds
-         *                                   since the epoch) from which the time difference will
-         *                                   be calculated.
-         * @param referencePeriodEndMillis   The end of the reference period (in milliseconds since
-         *                                   the epoch) from which the time difference will be
-         *                                   calculated.
+         *     since the epoch) from which the time difference will be calculated.
+         * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
+         *     the epoch) from which the time difference will be calculated.
          */
         public TimeDifferenceBuilder(
-                long referencePeriodStartMillis,
-                long referencePeriodEndMillis
-        ) {
+                long referencePeriodStartMillis, long referencePeriodEndMillis) {
             mReferencePeriodStartMillis = referencePeriodStartMillis;
             mReferencePeriodEndMillis = referencePeriodEndMillis;
         }
@@ -679,7 +673,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
          * Defaults to 0, effectively making the period unbounded at the start.
          *
          * @param refPeriodStartMillis the end of the reference period, given as UTC milliseconds
-         *                             since the epoch.
+         *     since the epoch.
          * @return this builder for chaining.
          */
         @NonNull
@@ -696,7 +690,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
          * Defaults to {@code Long.MAX_VALUE}, effectively making the period unbounded at the end.
          *
          * @param refPeriodEndMillis the end of the reference period, given as UTC milliseconds
-         *                           since the epoch.
+         *     since the epoch.
          * @return this builder for chaining.
          */
         @NonNull
@@ -740,7 +734,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
          * {@link UnderlineSpan}.
          *
          * @param surroundingText text within which the time difference value will be displayed,
-         *                        with {@code ^1} in place of the time difference.
+         *     with {@code ^1} in place of the time difference.
          * @return this builder for chaining.
          */
         @NonNull
@@ -815,8 +809,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      */
     public static final class TimeFormatBuilder {
         private String mFormat;
-        @TimeFormatStyle
-        private int mStyle = ComplicationText.FORMAT_STYLE_DEFAULT;
+        @TimeFormatStyle private int mStyle = ComplicationText.FORMAT_STYLE_DEFAULT;
         private CharSequence mSurroundingText;
         private TimeZone mTimeZone;
 
@@ -848,20 +841,20 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         /**
          * Sets the string within which the time difference will be displayed. This is optional.
          *
-         * <p>Within the text, {@code ^1} will be replaced with the time format, so for example
-         * to show a result like {@code "10:00: meeting"} the surrounding text would be {@code "^1:
+         * <p>Within the text, {@code ^1} will be replaced with the time format, so for example to
+         * show a result like {@code "10:00: meeting"} the surrounding text would be {@code "^1:
          * meeting"}.
          *
          * <p>To use the {@code ^} character within the text, escape it as {@code ^^}.
          *
-         * <p>If the text contains spans, some of them may not be rendered by
-         * {@link androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported
-         * spans are {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
+         * <p>If the text contains spans, some of them may not be rendered by {@link
+         * androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported spans
+         * are {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
          * SuperscriptSpan}, {@link StyleSpan}, {@link StrikethroughSpan}, {@link TypefaceSpan} and
          * {@link UnderlineSpan}.
          *
          * @param surroundingText string within which the time difference value will be displayed,
-         *                        with {@code ^1} in place of the time difference.
+         *     with {@code ^1} in place of the time difference.
          * @return this builder for chaining.
          */
         @NonNull

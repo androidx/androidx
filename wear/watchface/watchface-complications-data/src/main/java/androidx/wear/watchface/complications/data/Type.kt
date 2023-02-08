@@ -16,8 +16,8 @@
 
 package androidx.wear.watchface.complications.data
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.os.Build
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
@@ -25,8 +25,8 @@ import androidx.annotation.RestrictTo
  * The possible complication data types.
  *
  * See also wear/watchface/watchface-complications-data/src/main/res/values/attrs.xml for the XML
- * definition. And supportedTypes in wear/watchface/watchface/src/main/res/values/attrs.xml.
- * And wear/watchface/watchface/src/main/res/values/attrs.xml which defines a subset.
+ * definition. And supportedTypes in wear/watchface/watchface/src/main/res/values/attrs.xml. And
+ * wear/watchface/watchface/src/main/res/values/attrs.xml which defines a subset.
  */
 public enum class ComplicationType(private val wireType: Int) {
     NO_DATA(WireComplicationData.TYPE_NO_DATA),
@@ -51,8 +51,7 @@ public enum class ComplicationType(private val wireType: Int) {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun toWireComplicationType(): Int = wireType
+    @RestrictTo(RestrictTo.Scope.LIBRARY) public fun toWireComplicationType(): Int = wireType
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -115,8 +114,8 @@ public enum class ComplicationType(private val wireType: Int) {
             types.toApiComplicationTypes()
 
         /**
-         * Converts an array of integer values used for serialization into the corresponding list
-         * of [ComplicationType].
+         * Converts an array of integer values used for serialization into the corresponding list of
+         * [ComplicationType].
          *
          * @hide
          */
@@ -128,8 +127,8 @@ public enum class ComplicationType(private val wireType: Int) {
 }
 
 /**
- * Converts an array of [ComplicationType] to an array of integers with the corresponding
- * wire types.
+ * Converts an array of [ComplicationType] to an array of integers with the corresponding wire
+ * types.
  *
  * This is only needed internally to convert to the underlying communication protocol.
  *
@@ -140,8 +139,8 @@ public fun Collection<ComplicationType>.toWireTypes(): IntArray =
     this.map { it.toWireComplicationType() }.toIntArray()
 
 /**
- * Converts an array of integer values uses for serialization into the corresponding array
- * of [ComplicationType] to .
+ * Converts an array of integer values uses for serialization into the corresponding array of
+ * [ComplicationType] to .
  *
  * This is only needed internally to convert to the underlying communication protocol.
  *

@@ -58,7 +58,6 @@ private object IconP {
                 when (icon.type) {
                     Icon.TYPE_RESOURCE ->
                         icon.resId == other.resId && icon.resPackage == other.resPackage
-
                     Icon.TYPE_URI -> icon.uri == other.uri
                     else -> icon == other
                 })

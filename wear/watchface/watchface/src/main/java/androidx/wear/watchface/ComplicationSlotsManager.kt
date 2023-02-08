@@ -33,21 +33,19 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.utility.TraceEvent
+import java.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.Instant
 
-private fun getComponentName(context: Context) = ComponentName(
-    context.packageName,
-    context.javaClass.name
-)
+private fun getComponentName(context: Context) =
+    ComponentName(context.packageName, context.javaClass.name)
 
 /**
  * The [ComplicationSlot]s associated with the [WatchFace]. Dynamic creation of ComplicationSlots
@@ -55,9 +53,9 @@ private fun getComponentName(context: Context) = ComponentName(
  * [ComplicationSlotsUserStyleSetting].
  *
  * @param complicationSlotCollection The [ComplicationSlot]s associated with the watch face, may be
- * empty.
+ *   empty.
  * @param currentUserStyleRepository The [CurrentUserStyleRepository] used to listen for
- * [ComplicationSlotsUserStyleSetting] changes and apply them.
+ *   [ComplicationSlotsUserStyleSetting] changes and apply them.
  */
 public class ComplicationSlotsManager(
     complicationSlotCollection: Collection<ComplicationSlot>,
@@ -172,9 +170,7 @@ public class ComplicationSlotsManager(
             )
 
         // Apply the initial settings on the worker thread.
-        previousOption?.let {
-            applyComplicationSlotsStyleCategoryOption(it)
-        }
+        previousOption?.let { applyComplicationSlotsStyleCategoryOption(it) }
 
         // Add a listener so we can track changes and automatically apply them on the UIThread
         coroutineScope.launch {
@@ -201,26 +197,30 @@ public class ComplicationSlotsManager(
     internal fun init(
         renderer: Renderer,
         complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
-    ) = TraceEvent("ComplicationSlotsManager.init").use {
-        this.renderer = renderer
+    ) =
+        TraceEvent("ComplicationSlotsManager.init").use {
+            this.renderer = renderer
 
-        for ((_, complication) in complicationSlots) {
-            complication.init(complicationSlotInvalidateListener, renderer.watchState.isHeadless)
+            for ((_, complication) in complicationSlots) {
+                complication.init(
+                    complicationSlotInvalidateListener,
+                    renderer.watchState.isHeadless
+                )
 
-            // Force lazy construction of renderers.
-            complication.renderer.onRendererCreated(renderer)
+                // Force lazy construction of renderers.
+                complication.renderer.onRendererCreated(renderer)
+            }
+
+            require(
+                complicationSlots.values.distinctBy { it.renderer }.size ==
+                    complicationSlots.values.size
+            ) {
+                "Complication renderer instances are not sharable."
+            }
+
+            // Activate complicationSlots.
+            onComplicationsUpdated()
         }
-
-        require(
-            complicationSlots.values.distinctBy { it.renderer }.size ==
-                complicationSlots.values.size
-        ) {
-            "Complication renderer instances are not sharable."
-        }
-
-        // Activate complicationSlots.
-        onComplicationsUpdated()
-    }
 
     internal fun applyComplicationSlotsStyleCategoryOption(styleOption: ComplicationSlotsOption) {
         for ((id, complication) in complicationSlots) {
@@ -229,8 +229,7 @@ public class ComplicationSlotsManager(
             // Apply styleOption overrides.
             complication.complicationSlotBounds =
                 override?.complicationSlotBounds ?: initialConfig.complicationSlotBounds
-            complication.enabled =
-                override?.enabled ?: initialConfig.enabled
+            complication.enabled = override?.enabled ?: initialConfig.enabled
             complication.accessibilityTraversalIndex =
                 override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
             complication.nameResourceId = override?.nameResourceId ?: initialConfig.nameResourceId
@@ -244,71 +243,73 @@ public class ComplicationSlotsManager(
     public operator fun get(id: Int): ComplicationSlot? = complicationSlots[id]
 
     @UiThread
-    internal fun onComplicationsUpdated() = TraceEvent(
-        "ComplicationSlotsManager.updateComplications"
-    ).use {
-        if (!this::watchFaceHostApi.isInitialized) {
-            return
-        }
-        val activeKeys = mutableListOf<Int>()
+    internal fun onComplicationsUpdated() =
+        TraceEvent("ComplicationSlotsManager.updateComplications").use {
+            if (!this::watchFaceHostApi.isInitialized) {
+                return
+            }
+            val activeKeys = mutableListOf<Int>()
 
-        // Work out what's changed using the dirty flags and issue appropriate watchFaceHostApi
-        // calls.
-        var enabledDirty = false
-        var labelsDirty = false
-        for ((id, complication) in complicationSlots) {
-            enabledDirty = enabledDirty || complication.enabledDirty
-            labelsDirty = labelsDirty || complication.enabledDirty
+            // Work out what's changed using the dirty flags and issue appropriate watchFaceHostApi
+            // calls.
+            var enabledDirty = false
+            var labelsDirty = false
+            for ((id, complication) in complicationSlots) {
+                enabledDirty = enabledDirty || complication.enabledDirty
+                labelsDirty = labelsDirty || complication.enabledDirty
 
-            if (complication.enabled) {
-                activeKeys.add(id)
+                if (complication.enabled) {
+                    activeKeys.add(id)
 
-                labelsDirty =
-                    labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
-                        complication.accessibilityTraversalIndexDirty ||
-                        complication.nameResourceIdDirty ||
-                        complication.screenReaderNameResourceIdDirty
+                    labelsDirty =
+                        labelsDirty ||
+                            complication.dataDirty ||
+                            complication.complicationBoundsDirty ||
+                            complication.accessibilityTraversalIndexDirty ||
+                            complication.nameResourceIdDirty ||
+                            complication.screenReaderNameResourceIdDirty
 
-                if (complication.defaultDataSourcePolicyDirty ||
-                    complication.defaultDataSourceTypeDirty
-                ) {
-                    // Note this is a NOP in the androidx flow.
-                    watchFaceHostApi.setDefaultComplicationDataSourceWithFallbacks(
-                        complication.id,
-                        complication.defaultDataSourcePolicy.dataSourcesAsList(),
-                        complication.defaultDataSourcePolicy.systemDataSourceFallback,
-                        complication.defaultDataSourcePolicy
-                            .systemDataSourceFallbackDefaultType.toWireComplicationType()
-                    )
+                    if (
+                        complication.defaultDataSourcePolicyDirty ||
+                            complication.defaultDataSourceTypeDirty
+                    ) {
+                        // Note this is a NOP in the androidx flow.
+                        watchFaceHostApi.setDefaultComplicationDataSourceWithFallbacks(
+                            complication.id,
+                            complication.defaultDataSourcePolicy.dataSourcesAsList(),
+                            complication.defaultDataSourcePolicy.systemDataSourceFallback,
+                            complication.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                                .toWireComplicationType()
+                        )
+                    }
+
+                    complication.dataDirty = false
+                    complication.complicationBoundsDirty = false
+                    complication.defaultDataSourcePolicyDirty = false
+                    complication.defaultDataSourceTypeDirty = false
+                    complication.accessibilityTraversalIndexDirty = false
+                    complication.nameResourceIdDirty = false
+                    complication.screenReaderNameResourceIdDirty = false
                 }
 
-                complication.dataDirty = false
-                complication.complicationBoundsDirty = false
-                complication.defaultDataSourcePolicyDirty = false
-                complication.defaultDataSourceTypeDirty = false
-                complication.accessibilityTraversalIndexDirty = false
-                complication.nameResourceIdDirty = false
-                complication.screenReaderNameResourceIdDirty = false
+                complication.enabledDirty = false
             }
 
-            complication.enabledDirty = false
-        }
+            if (enabledDirty) {
+                watchFaceHostApi.setActiveComplicationSlots(activeKeys.toIntArray())
+            }
 
-        if (enabledDirty) {
-            watchFaceHostApi.setActiveComplicationSlots(activeKeys.toIntArray())
+            if (labelsDirty) {
+                watchFaceHostApi.updateContentDescriptionLabels()
+            }
         }
-
-        if (labelsDirty) {
-            watchFaceHostApi.updateContentDescriptionLabels()
-        }
-    }
 
     /**
      * Called when new complication data is received.
      *
-     * @param complicationSlotId The id of the complication that the data relates to. If this
-     * id is unrecognized the call will be a NOP, the only circumstance when that happens is if the
-     * watch face changes it's complication config between runs e.g. during development.
+     * @param complicationSlotId The id of the complication that the data relates to. If this id is
+     *   unrecognized the call will be a NOP, the only circumstance when that happens is if the
+     *   watch face changes it's complication config between runs e.g. during development.
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
@@ -326,8 +327,7 @@ public class ComplicationSlotsManager(
             )
             return
         }
-        complication.dataDirty = complication.dataDirty ||
-            (complication.renderer.getData() != data)
+        complication.dataDirty = complication.dataDirty || (complication.renderer.getData() != data)
         complication.setComplicationData(data, true, instant)
     }
 
@@ -378,22 +378,25 @@ public class ComplicationSlotsManager(
      */
     public fun getComplicationSlotAt(@Px x: Int, @Px y: Int): ComplicationSlot? =
         findLowestIdMatchingComplicationOrNull { complication ->
-            complication.enabled && complication.tapFilter.hitTest(
-                complication,
-                renderer.screenBounds,
-                x,
-                y,
-                includeMargins = false
-            )
-        } ?: findLowestIdMatchingComplicationOrNull { complication ->
-            complication.enabled && complication.tapFilter.hitTest(
-                complication,
-                renderer.screenBounds,
-                x,
-                y,
-                includeMargins = true
-            )
+            complication.enabled &&
+                complication.tapFilter.hitTest(
+                    complication,
+                    renderer.screenBounds,
+                    x,
+                    y,
+                    includeMargins = false
+                )
         }
+            ?: findLowestIdMatchingComplicationOrNull { complication ->
+                complication.enabled &&
+                    complication.tapFilter.hitTest(
+                        complication,
+                        renderer.screenBounds,
+                        x,
+                        y,
+                        includeMargins = true
+                    )
+            }
 
     /**
      * Finds the [ComplicationSlot] with the lowest id for which [predicate] returns true, returns
@@ -419,9 +422,9 @@ public class ComplicationSlotsManager(
      * @return The background [ComplicationSlot] if there is one or `null` otherwise
      */
     public fun getBackgroundComplicationSlot(): ComplicationSlot? =
-        complicationSlots.entries.firstOrNull {
-            it.value.boundsType == ComplicationSlotBoundsType.BACKGROUND
-        }?.value
+        complicationSlots.entries
+            .firstOrNull { it.value.boundsType == ComplicationSlotBoundsType.BACKGROUND }
+            ?.value
 
     /**
      * Called when the user single taps on a [ComplicationSlot], invokes the permission request
@@ -435,14 +438,17 @@ public class ComplicationSlotsManager(
         // Check if the complication is missing permissions.
         val data = complicationSlots[complicationSlotId]?.renderer?.getData() ?: return
         if (data.type == ComplicationType.NO_PERMISSION) {
-            watchFaceHostApi.getContext().startActivity(
-                ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                    watchFaceHostApi.getContext(),
-                    getComponentName(watchFaceHostApi.getContext()),
-                    watchFaceHostApi.getComplicationDeniedIntent(),
-                    watchFaceHostApi.getComplicationRationaleIntent()
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+            watchFaceHostApi
+                .getContext()
+                .startActivity(
+                    ComplicationHelperActivity.createPermissionRequestHelperIntent(
+                            watchFaceHostApi.getContext(),
+                            getComponentName(watchFaceHostApi.getContext()),
+                            watchFaceHostApi.getComplicationDeniedIntent(),
+                            watchFaceHostApi.getComplicationRationaleIntent()
+                        )
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             return
         }
 
@@ -463,35 +469,38 @@ public class ComplicationSlotsManager(
      */
     @OptIn(ComplicationExperimental::class)
     @UiThread
-    internal fun getComplicationsState(screenBounds: Rect) = complicationSlots.map {
-        val systemDataSourceFallbackDefaultType =
-            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
-                .toWireComplicationType()
-        IdAndComplicationStateWireFormat(
-            it.key,
-            ComplicationStateWireFormat(
-                it.value.computeBounds(screenBounds, applyMargins = false),
-                it.value.computeBounds(screenBounds, applyMargins = true),
-                it.value.boundsType,
-                ComplicationType.toWireTypes(it.value.supportedTypes),
-                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
-                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.enabled,
-                it.value.initiallyEnabled,
-                it.value.renderer.getData().type.toWireComplicationType(),
-                it.value.fixedComplicationDataSource,
-                it.value.configExtras,
-                it.value.nameResourceId,
-                it.value.screenReaderNameResourceId,
-                it.value.boundingArc?.toWireFormat()
+    internal fun getComplicationsState(screenBounds: Rect) =
+        complicationSlots.map {
+            val systemDataSourceFallbackDefaultType =
+                it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                    .toWireComplicationType()
+            IdAndComplicationStateWireFormat(
+                it.key,
+                ComplicationStateWireFormat(
+                    it.value.computeBounds(screenBounds, applyMargins = false),
+                    it.value.computeBounds(screenBounds, applyMargins = true),
+                    it.value.boundsType,
+                    ComplicationType.toWireTypes(it.value.supportedTypes),
+                    it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                    it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                    systemDataSourceFallbackDefaultType,
+                    it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
+                        ?.toWireComplicationType()
+                        ?: systemDataSourceFallbackDefaultType,
+                    it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                        ?.toWireComplicationType()
+                        ?: systemDataSourceFallbackDefaultType,
+                    it.value.enabled,
+                    it.value.initiallyEnabled,
+                    it.value.renderer.getData().type.toWireComplicationType(),
+                    it.value.fixedComplicationDataSource,
+                    it.value.configExtras,
+                    it.value.nameResourceId,
+                    it.value.screenReaderNameResourceId,
+                    it.value.boundingArc?.toWireFormat()
+                )
             )
-        )
-    }
+        }
 
     @UiThread
     internal fun onTapDown(complicationSlotId: Int, tapEvent: TapEvent) {
@@ -507,9 +516,7 @@ public class ComplicationSlotsManager(
         complicationListeners.add(tapCallback)
     }
 
-    /**
-     * Removes a [TapCallback] previously added by [addTapListener].
-     */
+    /** Removes a [TapCallback] previously added by [addTapListener]. */
     @UiThread
     public fun removeTapListener(tapCallback: TapCallback) {
         complicationListeners.remove(tapCallback)
@@ -519,9 +526,10 @@ public class ComplicationSlotsManager(
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("ComplicationSlotsManager:")
         writer.println(
-            "lastComplicationTapDownEvents=" + lastComplicationTapDownEvents.map {
-                it.key.toString() + "->" + it.value
-            }.joinToString(", ")
+            "lastComplicationTapDownEvents=" +
+                lastComplicationTapDownEvents
+                    .map { it.key.toString() + "->" + it.value }
+                    .joinToString(", ")
         )
         writer.increaseIndent()
         for ((_, complication) in complicationSlots) {
@@ -537,15 +545,17 @@ public class ComplicationSlotsManager(
      */
     @WorkerThread
     internal fun getDefaultProviderPolicies(): Array<IdTypeAndDefaultProviderPolicyWireFormat> =
-        complicationSlots.map {
-            IdTypeAndDefaultProviderPolicyWireFormat(
-                it.key,
-                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
-                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                it.value.defaultDataSourcePolicy
-                    .systemDataSourceFallbackDefaultType.toWireComplicationType()
-            )
-        }.toTypedArray()
+        complicationSlots
+            .map {
+                IdTypeAndDefaultProviderPolicyWireFormat(
+                    it.key,
+                    it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                    it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                    it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                        .toWireComplicationType()
+                )
+            }
+            .toTypedArray()
 
     /**
      * Returns the earliest [Instant] after [afterInstant] at which any complication field in any

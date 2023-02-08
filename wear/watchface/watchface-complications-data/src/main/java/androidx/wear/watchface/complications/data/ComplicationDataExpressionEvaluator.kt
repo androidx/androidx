@@ -16,9 +16,9 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
-import android.icu.util.ULocale
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
@@ -120,7 +120,8 @@ class ComplicationDataExpressionEvaluator(
         val receivers = mutableSetOf<ComplicationEvaluationResultReceiver<out Any>>()
 
         if (unevaluatedData.hasRangedValueExpression()) {
-            unevaluatedData.rangedValueExpression?.buildReceiver { setRangedValue(it) }
+            unevaluatedData.rangedValueExpression
+                ?.buildReceiver { setRangedValue(it) }
                 ?.let { receivers += it }
         }
         if (unevaluatedData.hasLongText()) {
@@ -136,7 +137,8 @@ class ComplicationDataExpressionEvaluator(
             unevaluatedData.shortTitle?.buildReceiver { setShortTitle(it) }?.let { receivers += it }
         }
         if (unevaluatedData.hasContentDescription()) {
-            unevaluatedData.contentDescription?.buildReceiver { setContentDescription(it) }
+            unevaluatedData.contentDescription
+                ?.buildReceiver { setContentDescription(it) }
                 ?.let { receivers += it }
         }
 
@@ -145,40 +147,45 @@ class ComplicationDataExpressionEvaluator(
 
     private fun DynamicFloat.buildReceiver(
         setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder
-    ) = ComplicationEvaluationResultReceiver(
-        setter,
-        binder = { receiver -> evaluator.bind(this@buildReceiver, receiver) },
-    )
+    ) =
+        ComplicationEvaluationResultReceiver(
+            setter,
+            binder = { receiver -> evaluator.bind(this@buildReceiver, receiver) },
+        )
 
     private fun WireComplicationText.buildReceiver(
         setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder
-    ) = stringExpression?.let { stringExpression ->
-        ComplicationEvaluationResultReceiver<String>(
-            setter = { setter(WireComplicationText(it, stringExpression)) },
-            binder = { receiver ->
-                evaluator.bind(stringExpression, ULocale.getDefault(), receiver)
-            },
-        )
-    }
+    ) =
+        stringExpression?.let { stringExpression ->
+            ComplicationEvaluationResultReceiver<String>(
+                setter = { setter(WireComplicationText(it, stringExpression)) },
+                binder = { receiver ->
+                    evaluator.bind(stringExpression, ULocale.getDefault(), receiver)
+                },
+            )
+        }
 
     /** Initializes the internal [DynamicTypeEvaluator] if there are pending receivers. */
     private fun initEvaluator() {
         if (state.value.pending.isEmpty()) return
-        evaluator = DynamicTypeEvaluator(
-            /* platformDataSourcesInitiallyEnabled = */ true,
-            sensorGateway,
-            stateStore,
-        )
+        evaluator =
+            DynamicTypeEvaluator(
+                /* platformDataSourcesInitiallyEnabled = */ true,
+                sensorGateway,
+                stateStore,
+            )
         for (receiver in state.value.pending) receiver.bind()
         evaluator.enablePlatformDataSources()
     }
 
     /** Monitors [state] changes and updates [data]. */
     private fun monitorState() {
-        state.onEach {
-            if (it.invalid.isNotEmpty()) _data.value = INVALID_DATA
-            else if (it.pending.isEmpty()) _data.value = it.data
-        }.launchIn(CoroutineScope(Dispatchers.Main))
+        state
+            .onEach {
+                if (it.invalid.isNotEmpty()) _data.value = INVALID_DATA
+                else if (it.pending.isEmpty()) _data.value = it.data
+            }
+            .launchIn(CoroutineScope(Dispatchers.Main))
     }
 
     /**
@@ -222,7 +229,8 @@ class ComplicationDataExpressionEvaluator(
         override fun onData(newData: T) {
             state.update {
                 it.withComplete(
-                    setter(WireComplicationData.Builder(it.data), newData).build(), this
+                    setter(WireComplicationData.Builder(it.data), newData).build(),
+                    this
                 )
             }
         }
@@ -235,13 +243,14 @@ class ComplicationDataExpressionEvaluator(
     companion object {
         val INVALID_DATA: WireComplicationData = NoDataComplicationData().asWireComplicationData()
 
-        fun hasExpression(data: WireComplicationData): Boolean = data.run {
-            (hasRangedValueExpression() && rangedValueExpression != null) ||
-                (hasLongText() && longText?.stringExpression != null) ||
-                (hasLongTitle() && longTitle?.stringExpression != null) ||
-                (hasShortText() && shortText?.stringExpression != null) ||
-                (hasShortTitle() && shortTitle?.stringExpression != null) ||
-                (hasContentDescription() && contentDescription?.stringExpression != null)
-        }
+        fun hasExpression(data: WireComplicationData): Boolean =
+            data.run {
+                (hasRangedValueExpression() && rangedValueExpression != null) ||
+                    (hasLongText() && longText?.stringExpression != null) ||
+                    (hasLongTitle() && longTitle?.stringExpression != null) ||
+                    (hasShortText() && shortText?.stringExpression != null) ||
+                    (hasShortTitle() && shortTitle?.stringExpression != null) ||
+                    (hasContentDescription() && contentDescription?.stringExpression != null)
+            }
     }
 }

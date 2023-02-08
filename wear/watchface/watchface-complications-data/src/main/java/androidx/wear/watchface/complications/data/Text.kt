@@ -16,13 +16,13 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.content.res.Resources
+import android.icu.util.TimeZone
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireComplicationTextTimeFormatBuilder
 import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
-import android.content.res.Resources
-import android.icu.util.TimeZone
 import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.complications.TimeDifferenceText
 import android.text.style.ForegroundColorSpan
@@ -42,8 +42,8 @@ import java.util.concurrent.TimeUnit
  * The text within a complication.
  *
  * This text may change over time and this interface provides both a way to determine the current
- * text to show with [getTextAt] but also a way to know whether the text needs to be
- * re-rendered, by means of [returnsSameText], [getNextChangeTime], and [isAlwaysEmpty].
+ * text to show with [getTextAt] but also a way to know whether the text needs to be re-rendered, by
+ * means of [returnsSameText], [getNextChangeTime], and [isAlwaysEmpty].
  */
 @JvmDefaultWithCompatibility
 public interface ComplicationText {
@@ -53,10 +53,7 @@ public interface ComplicationText {
      * @param resources [Resources] from the current context
      * @param instant The [Instant] at which to sample the text
      */
-    public fun getTextAt(
-        resources: Resources,
-        instant: Instant
-    ): CharSequence
+    public fun getTextAt(resources: Resources, instant: Instant): CharSequence
 
     /**
      * Returns true if the result of [getTextAt] will be the same for both [firstInstant] and
@@ -64,22 +61,16 @@ public interface ComplicationText {
      */
     public fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean
 
-    /** Returns the next time after [afterInstant] at which the text may change.  */
+    /** Returns the next time after [afterInstant] at which the text may change. */
     public fun getNextChangeTime(afterInstant: Instant): Instant
 
     public fun isAlwaysEmpty(): Boolean
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun isPlaceholder(): Boolean = false
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun isPlaceholder(): Boolean = false
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
-    public fun getTimeDependentText(): TimeDependentText
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES) public fun getTimeDependentText(): TimeDependentText
 
     /**
      * Converts this value to [WireComplicationText] object used for serialization.
@@ -90,8 +81,7 @@ public interface ComplicationText {
     public fun toWireComplicationText(): WireComplicationText
 
     public companion object {
-        @JvmField
-        public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
+        @JvmField public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
 
         /**
          * For use when the real data isn't available yet, this [ComplicationText] should be
@@ -108,9 +98,8 @@ public interface ComplicationText {
 }
 
 /** A [ComplicationText] that contains plain text. */
-public class PlainComplicationText internal constructor(
-    delegate: WireComplicationText
-) : ComplicationText {
+public class PlainComplicationText internal constructor(delegate: WireComplicationText) :
+    ComplicationText {
     private val delegate = DelegatingComplicationText(delegate)
 
     override fun getTextAt(resources: Resources, instant: Instant) =
@@ -175,11 +164,11 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
      * If `t < 1 hour`, the value will be shown as minutes and seconds, such as `02:35` for 2
      * minutes and 35 seconds.
      *
-     * If `1 hour <= t < 1 day`, the value will be shown as hours and minutes, such as
-     * `4:02` for 4 hours and 2 minutes, or as `12:02` for 12 hours and 2 minutes.
+     * If `1 hour <= t < 1 day`, the value will be shown as hours and minutes, such as `4:02` for 4
+     * hours and 2 minutes, or as `12:02` for 12 hours and 2 minutes.
      *
-     * If `1 day <= t < 10 days`, the value will be shown as days and hours, such as `3d 4h` for
-     * 3 days 4 hours.
+     * If `1 day <= t < 10 days`, the value will be shown as days and hours, such as `3d 4h` for 3
+     * days 4 hours.
      *
      * If `10 days <= t`, the value will be shown as just days, such as `13d` for 13 days.
      *
@@ -193,8 +182,8 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
      *
      * For time difference `t`:
      *
-     * If `t < 1 hour`, the value will be shown as a number of minutes, such as `2m` for 2 minutes
-     * . Seconds are not displayed.
+     * If `t < 1 hour`, the value will be shown as a number of minutes, such as `2m` for 2 minutes .
+     * Seconds are not displayed.
      *
      * If `1 hour <= t < 1 day`, the value will be shown as a number of hours, such as `4h` for 4
      * hours.
@@ -211,20 +200,19 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
      *
      * For time difference `t`:
      *
-     * If `t < 1 hour`, the value will be shown as a number of minutes, such as `2m`
-     * for 2 minutes. Seconds are not displayed.
+     * If `t < 1 hour`, the value will be shown as a number of minutes, such as `2m` for 2 minutes.
+     * Seconds are not displayed.
      *
-     * If `1 hour <= t < 1 day`, the value will be shown as hours and minutes, such as
-     * `4h 2m` for 4 hours and 2 minutes.
+     * If `1 hour <= t < 1 day`, the value will be shown as hours and minutes, such as `4h 2m` for 4
+     * hours and 2 minutes.
      *
-     * If `1 day <= t < 10 days`, the value will be shown as days and hours, such as `3d 4h` for
-     * 3 days 4 hours.
+     * If `1 day <= t < 10 days`, the value will be shown as days and hours, such as `3d 4h` for 3
+     * days 4 hours.
      *
-     * If `10 days <= t`, the value will be shown as a number of days, such as `13d`
-     * for 13 days.
+     * If `10 days <= t`, the value will be shown as a number of days, such as `13d` for 13 days.
      *
-     * The characters used will be localised to match the default locale. If the representation
-     * of the time difference with two units would be too long in the default locale, just a single
+     * The characters used will be localised to match the default locale. If the representation of
+     * the time difference with two units would be too long in the default locale, just a single
      * unit may be shown instead.
      */
     SHORT_DUAL_UNIT(WireComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT),
@@ -235,14 +223,14 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
      *
      * For time difference `t`:
      *
-     * If `t < 1 hour`, the value will be shown as a number of minutes, such as `1 min` for 1
-     * minute or `2 mins` for 2 minutes. Seconds are not displayed.
+     * If `t < 1 hour`, the value will be shown as a number of minutes, such as `1 min` for 1 minute
+     * or `2 mins` for 2 minutes. Seconds are not displayed.
      *
-     * If `1 hour <= t < 1 day`, the value will be shown as a number of hours, such as
-     * `1 hour` for 1 hour or `4 hours` for 4 hours.
+     * If `1 hour <= t < 1 day`, the value will be shown as a number of hours, such as `1 hour` for
+     * 1 hour or `4 hours` for 4 hours.
      *
-     * If `1 days <= t`, the value will be shown as a number of days, such as `1 day`
-     * for 1 day or `13 days` for 13 days.
+     * If `1 days <= t`, the value will be shown as a number of days, such as `1 day` for 1 day or
+     * `13 days` for 13 days.
      *
      * The words used will be localised to match the default locale.
      */
@@ -252,17 +240,16 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
      * Style for time differences shown using (possibly abbreviated) words, with only the most
      * significant unit included, that should fit within the character limit for a short text field.
      *
-     * The output will be the same as for [WORDS_SINGLE_UNIT], except that if the text does not
-     * fit into the seven character limit then a shorter form will be used instead, e.g. `1356d`
-     * instead of `1356 days`.
+     * The output will be the same as for [WORDS_SINGLE_UNIT], except that if the text does not fit
+     * into the seven character limit then a shorter form will be used instead, e.g. `1356d` instead
+     * of `1356 days`.
      */
-    SHORT_WORDS_SINGLE_UNIT(WireComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT);
+    SHORT_WORDS_SINGLE_UNIT(WireComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT)
 }
 
 /** A [ComplicationText] that represents a time difference. */
-public class TimeDifferenceComplicationText internal constructor(
-    delegate: WireComplicationText
-) : ComplicationText by DelegatingComplicationText(delegate) {
+public class TimeDifferenceComplicationText internal constructor(delegate: WireComplicationText) :
+    ComplicationText by DelegatingComplicationText(delegate) {
     private val delegate = DelegatingComplicationText(delegate)
 
     /**
@@ -315,7 +302,8 @@ public class TimeDifferenceComplicationText internal constructor(
      *
      * Requires setting a [TimeDifferenceStyle].
      */
-    public class Builder private constructor(
+    public class Builder
+    private constructor(
         private val style: TimeDifferenceStyle,
         private val startInstant: Instant?,
         private val endInstant: Instant?
@@ -351,13 +339,13 @@ public class TimeDifferenceComplicationText internal constructor(
         /**
          * Sets the text within which the time difference will be displayed.
          *
-         * Within the text, `^1` will be replaced with the time difference, so for example
-         * to show a result like `"2 mins: meeting"` the text would be `"^1: meeting"`
+         * Within the text, `^1` will be replaced with the time difference, so for example to show a
+         * result like `"2 mins: meeting"` the text would be `"^1: meeting"`
          *
          * To use the `^` character within the text, escape it as `^^`.
          *
-         * The text may contain spans, but the watch face is not required to respect them. The
-         * watch face is allowed to treat [ForegroundColorSpan] as a hint that it should render the
+         * The text may contain spans, but the watch face is not required to respect them. The watch
+         * face is allowed to treat [ForegroundColorSpan] as a hint that it should render the
          * affected text with an alternative color of its choosing.
          *
          * The allowed spans are [ForegroundColorSpan], [LocaleSpan], [SubscriptSpan],
@@ -366,48 +354,49 @@ public class TimeDifferenceComplicationText internal constructor(
         public fun setText(text: CharSequence?): Builder = apply { this.text = text }
 
         /**
-         * Sets whether time difference should be displayed as "now" (appropriately localized)
-         * when the given time is within the reference period. If false, then text representing zero
+         * Sets whether time difference should be displayed as "now" (appropriately localized) when
+         * the given time is within the reference period. If false, then text representing zero
          * (e.g. `0 mins` or `00:00`) will be shown instead.
          *
          * The default is true for all styles except for [TimeDifferenceStyle.STOPWATCH].
          */
-        public fun setDisplayAsNow(displayAsNow: Boolean): Builder =
-            apply { this.displayAsNow = displayAsNow }
+        public fun setDisplayAsNow(displayAsNow: Boolean): Builder = apply {
+            this.displayAsNow = displayAsNow
+        }
 
         /**
          * Sets the smallest unit that may be shown in the time difference text. If specified, units
          * smaller than this minimum will not be included.
          *
          * For example, if this is set to [TimeUnit.HOURS], and the style is
-         * [TimeDifferenceStyle.SHORT_SINGLE_UNIT] then `12d` or `5h` would be shown as normal,
-         * but `35m` would be shown as `1h`.
+         * [TimeDifferenceStyle.SHORT_SINGLE_UNIT] then `12d` or `5h` would be shown as normal, but
+         * `35m` would be shown as `1h`.
          *
          * If not specified the style will determine the smallest unit that will be shown.
          *
-         * If the specified minimum is smaller than the smallest unit supported by the style,
-         * then the minimum will be ignored. For example, if the style is
+         * If the specified minimum is smaller than the smallest unit supported by the style, then
+         * the minimum will be ignored. For example, if the style is
          * [TimeDifferenceStyle.SHORT_SINGLE_UNIT], then a minimum unit of [TimeUnit.SECONDS] will
          * have no effect.
          */
-        public fun setMinimumTimeUnit(minimumUnit: TimeUnit?): Builder =
-            apply { this.minimumUnit = minimumUnit }
+        public fun setMinimumTimeUnit(minimumUnit: TimeUnit?): Builder = apply {
+            this.minimumUnit = minimumUnit
+        }
 
         /** Builds a [TimeDifferenceComplicationText]. */
-        public fun build(): TimeDifferenceComplicationText = TimeDifferenceComplicationText(
-            WireComplicationTextTimeDifferenceBuilder().apply {
-                setStyle(style.wireStyle)
-                setSurroundingText(text)
-                startInstant?.let {
-                    setReferencePeriodStartMillis(it.toEpochMilli())
-                }
-                endInstant?.let {
-                    setReferencePeriodEndMillis(it.toEpochMilli())
-                }
-                displayAsNow?.let { setShowNowText(it) }
-                setMinimumUnit(minimumUnit)
-            }.build()
-        )
+        public fun build(): TimeDifferenceComplicationText =
+            TimeDifferenceComplicationText(
+                WireComplicationTextTimeDifferenceBuilder()
+                    .apply {
+                        setStyle(style.wireStyle)
+                        setSurroundingText(text)
+                        startInstant?.let { setReferencePeriodStartMillis(it.toEpochMilli()) }
+                        endInstant?.let { setReferencePeriodEndMillis(it.toEpochMilli()) }
+                        displayAsNow?.let { setShowNowText(it) }
+                        setMinimumUnit(minimumUnit)
+                    }
+                    .build()
+            )
     }
 }
 
@@ -415,13 +404,12 @@ public class TimeDifferenceComplicationText internal constructor(
 public enum class TimeFormatStyle(internal val wireStyle: Int) {
     DEFAULT(WireComplicationText.FORMAT_STYLE_DEFAULT),
     UPPER_CASE(WireComplicationText.FORMAT_STYLE_UPPER_CASE),
-    LOWER_CASE(WireComplicationText.FORMAT_STYLE_LOWER_CASE);
+    LOWER_CASE(WireComplicationText.FORMAT_STYLE_LOWER_CASE)
 }
 
 /** A [ComplicationText] that shows a formatted time. */
-public class TimeFormatComplicationText internal constructor(
-    delegate: WireComplicationText
-) : ComplicationText by DelegatingComplicationText(delegate) {
+public class TimeFormatComplicationText internal constructor(delegate: WireComplicationText) :
+    ComplicationText by DelegatingComplicationText(delegate) {
     private val delegate = DelegatingComplicationText(delegate)
 
     override fun getTextAt(resources: Resources, instant: Instant) =
@@ -463,8 +451,8 @@ public class TimeFormatComplicationText internal constructor(
     /**
      * A builder for [TimeFormatComplicationText].
      *
-     * @param[format] the format in which the time should be displayed. This should be a pattern
-     * as used by [java.text.SimpleDateFormat].
+     * @param[format] the format in which the time should be displayed. This should be a pattern as
+     *   used by [java.text.SimpleDateFormat].
      */
     public class Builder(private var format: String) {
         private var style: TimeFormatStyle? = null
@@ -482,8 +470,8 @@ public class TimeFormatComplicationText internal constructor(
         /**
          * Sets the text within which the time difference will be displayed.
          *
-         * Within the text, `^1` will be replaced with the time difference, so for example
-         * to show a result like `"2 mins: meeting"` the text would be `"^1: meeting"`
+         * Within the text, `^1` will be replaced with the time difference, so for example to show a
+         * result like `"2 mins: meeting"` the text would be `"^1: meeting"`
          *
          * To use the `^` character within the text, escape it as `^^`.
          *
@@ -501,21 +489,23 @@ public class TimeFormatComplicationText internal constructor(
         public fun setTimeZone(timeZone: TimeZone): Builder = apply { this.timeZone = timeZone }
 
         /** Builds a [TimeFormatComplicationText]. */
-        public fun build(): TimeFormatComplicationText = TimeFormatComplicationText(
-            WireComplicationTextTimeFormatBuilder().apply {
-                setFormat(format)
-                setStyle(style?.wireStyle ?: WireComplicationText.FORMAT_STYLE_DEFAULT)
-                setSurroundingText(text)
-                setTimeZone(timeZone?.asJavaTimeZone())
-            }.build()
-        )
+        public fun build(): TimeFormatComplicationText =
+            TimeFormatComplicationText(
+                WireComplicationTextTimeFormatBuilder()
+                    .apply {
+                        setFormat(format)
+                        setStyle(style?.wireStyle ?: WireComplicationText.FORMAT_STYLE_DEFAULT)
+                        setSurroundingText(text)
+                        setTimeZone(timeZone?.asJavaTimeZone())
+                    }
+                    .build()
+            )
     }
 }
 
 /** [ComplicationText] implementation that delegates to a [WireComplicationText] instance. */
-private class DelegatingComplicationText(
-    private val delegate: WireComplicationText
-) : ComplicationText {
+private class DelegatingComplicationText(private val delegate: WireComplicationText) :
+    ComplicationText {
     override fun getTextAt(resources: Resources, instant: Instant) =
         delegate.getTextAt(resources, instant.toEpochMilli())
 
@@ -525,7 +515,7 @@ private class DelegatingComplicationText(
     override fun getNextChangeTime(afterInstant: Instant): Instant {
         val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
         return if (nextChangeTime == Long.MAX_VALUE) {
-             Instant.MAX
+            Instant.MAX
         } else {
             Instant.ofEpochMilli(nextChangeTime)
         }
@@ -539,8 +529,7 @@ private class DelegatingComplicationText(
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toWireComplicationText() = delegate
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toWireComplicationText() = delegate
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -572,16 +561,18 @@ internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
 internal fun WireComplicationText.toApiComplicationTextPlaceholderAware(): ComplicationText =
-    if (isPlaceholder) { ComplicationText.PLACEHOLDER } else { DelegatingComplicationText(this) }
+    if (isPlaceholder) {
+        ComplicationText.PLACEHOLDER
+    } else {
+        DelegatingComplicationText(this)
+    }
 
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
-internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone =
-    java.util.TimeZone.getTimeZone(this.id)
+internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone = java.util.TimeZone.getTimeZone(this.id)
 
 /** [ComplicationText] implementation that delegates to a [WireTimeDependentText] instance. */
-private class DelegatingTimeDependentText(
-    private val delegate: WireTimeDependentText
-) : ComplicationText {
+private class DelegatingTimeDependentText(private val delegate: WireTimeDependentText) :
+    ComplicationText {
     override fun getTextAt(resources: Resources, instant: Instant) =
         delegate.getTextAt(resources, instant.toEpochMilli())
 
@@ -631,16 +622,14 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
     DelegatingTimeDependentText(this)
 
 /**
- * A [ComplicationText] where the system evaluates a [DynamicString] on behalf of the watch face.
- * By the time this reaches the watch face's Renderer, it'll have been converted to a plain
+ * A [ComplicationText] where the system evaluates a [DynamicString] on behalf of the watch face. By
+ * the time this reaches the watch face's Renderer, it'll have been converted to a plain
  * ComplicationText.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ComplicationTextExpression(
-    public val expression: DynamicString
-) : ComplicationText {
+public class ComplicationTextExpression(public val expression: DynamicString) : ComplicationText {
     private val delegate = DelegatingComplicationText(WireComplicationText(expression))
 
     override fun getTextAt(resources: Resources, instant: Instant) =

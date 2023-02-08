@@ -49,8 +49,7 @@ import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
 
 @RunWith(SharedRobolectricTestRunner::class)
 class ComplicationDataExpressionEvaluatorTest {
-    @get:Rule
-    val expect = Expect.create()
+    @get:Rule val expect = Expect.create()
 
     private val listener = mock<Consumer<WireComplicationData>>()
 
@@ -88,128 +87,172 @@ class ComplicationDataExpressionEvaluatorTest {
         val evaluated: List<WireComplicationData>,
     ) {
         SET_IMMEDIATELY_WHEN_ALL_DATA_AVAILABLE(
-            expressed = WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setRangedValueExpression(DynamicFloat.constant(1f))
-                .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
-                .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
-                .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
-                .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
-                .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
-                .build(),
-            states = listOf(),
-            evaluated = listOf(
+            expressed =
                 WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                    .setRangedValue(1f)
                     .setRangedValueExpression(DynamicFloat.constant(1f))
-                    .setLongText(
-                        WireComplicationText("Long Text", DynamicString.constant("Long Text"))
-                    )
-                    .setLongTitle(
-                        WireComplicationText("Long Title", DynamicString.constant("Long Title"))
-                    )
-                    .setShortText(
-                        WireComplicationText("Short Text", DynamicString.constant("Short Text"))
-                    )
-                    .setShortTitle(
-                        WireComplicationText("Short Title", DynamicString.constant("Short Title"))
-                    )
+                    .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
+                    .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
+                    .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
+                    .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
                     .setContentDescription(
-                        WireComplicationText("Description", DynamicString.constant("Description"))
+                        WireComplicationText(DynamicString.constant("Description"))
                     )
-                    .build()
-            ),
+                    .build(),
+            states = listOf(),
+            evaluated =
+                listOf(
+                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                        .setRangedValue(1f)
+                        .setRangedValueExpression(DynamicFloat.constant(1f))
+                        .setLongText(
+                            WireComplicationText("Long Text", DynamicString.constant("Long Text"))
+                        )
+                        .setLongTitle(
+                            WireComplicationText("Long Title", DynamicString.constant("Long Title"))
+                        )
+                        .setShortText(
+                            WireComplicationText("Short Text", DynamicString.constant("Short Text"))
+                        )
+                        .setShortTitle(
+                            WireComplicationText(
+                                "Short Title",
+                                DynamicString.constant("Short Title")
+                            )
+                        )
+                        .setContentDescription(
+                            WireComplicationText(
+                                "Description",
+                                DynamicString.constant("Description")
+                            )
+                        )
+                        .build()
+                ),
         ),
         SET_ONLY_AFTER_ALL_FIELDS_EVALUATED(
-            expressed = WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setRangedValueExpression(DynamicFloat.fromState("ranged_value"))
-                .setLongText(WireComplicationText(DynamicString.fromState("long_text")))
-                .setLongTitle(WireComplicationText(DynamicString.fromState("long_title")))
-                .setShortText(WireComplicationText(DynamicString.fromState("short_text")))
-                .setShortTitle(WireComplicationText(DynamicString.fromState("short_title")))
-                .setContentDescription(WireComplicationText(DynamicString.fromState("description")))
-                .build(),
-            states = aggregate(
-                // Each map piles on top of the previous ones.
-                mapOf("ranged_value" to StateEntryValue.fromFloat(1f)),
-                mapOf("long_text" to StateEntryValue.fromString("Long Text")),
-                mapOf("long_title" to StateEntryValue.fromString("Long Title")),
-                mapOf("short_text" to StateEntryValue.fromString("Short Text")),
-                mapOf("short_title" to StateEntryValue.fromString("Short Title")),
-                // Only the last one will trigger an evaluated data.
-                mapOf("description" to StateEntryValue.fromString("Description")),
-            ),
-            evaluated = listOf(
-                INVALID_DATA, // Before state is available.
+            expressed =
                 WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                    .setRangedValue(1f)
                     .setRangedValueExpression(DynamicFloat.fromState("ranged_value"))
-                    .setLongText(
-                        WireComplicationText("Long Text", DynamicString.fromState("long_text"))
-                    )
-                    .setLongTitle(
-                        WireComplicationText("Long Title", DynamicString.fromState("long_title"))
-                    )
-                    .setShortText(
-                        WireComplicationText("Short Text", DynamicString.fromState("short_text"))
-                    )
-                    .setShortTitle(
-                        WireComplicationText("Short Title", DynamicString.fromState("short_title"))
-                    )
+                    .setLongText(WireComplicationText(DynamicString.fromState("long_text")))
+                    .setLongTitle(WireComplicationText(DynamicString.fromState("long_title")))
+                    .setShortText(WireComplicationText(DynamicString.fromState("short_text")))
+                    .setShortTitle(WireComplicationText(DynamicString.fromState("short_title")))
                     .setContentDescription(
-                        WireComplicationText("Description", DynamicString.fromState("description"))
+                        WireComplicationText(DynamicString.fromState("description"))
                     )
-                    .build()
-            ),
+                    .build(),
+            states =
+                aggregate(
+                    // Each map piles on top of the previous ones.
+                    mapOf("ranged_value" to StateEntryValue.fromFloat(1f)),
+                    mapOf("long_text" to StateEntryValue.fromString("Long Text")),
+                    mapOf("long_title" to StateEntryValue.fromString("Long Title")),
+                    mapOf("short_text" to StateEntryValue.fromString("Short Text")),
+                    mapOf("short_title" to StateEntryValue.fromString("Short Title")),
+                    // Only the last one will trigger an evaluated data.
+                    mapOf("description" to StateEntryValue.fromString("Description")),
+                ),
+            evaluated =
+                listOf(
+                    INVALID_DATA, // Before state is available.
+                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                        .setRangedValue(1f)
+                        .setRangedValueExpression(DynamicFloat.fromState("ranged_value"))
+                        .setLongText(
+                            WireComplicationText("Long Text", DynamicString.fromState("long_text"))
+                        )
+                        .setLongTitle(
+                            WireComplicationText(
+                                "Long Title",
+                                DynamicString.fromState("long_title")
+                            )
+                        )
+                        .setShortText(
+                            WireComplicationText(
+                                "Short Text",
+                                DynamicString.fromState("short_text")
+                            )
+                        )
+                        .setShortTitle(
+                            WireComplicationText(
+                                "Short Title",
+                                DynamicString.fromState("short_title")
+                            )
+                        )
+                        .setContentDescription(
+                            WireComplicationText(
+                                "Description",
+                                DynamicString.fromState("description")
+                            )
+                        )
+                        .build()
+                ),
         ),
         SET_TO_EVALUATED_IF_ALL_FIELDS_VALID(
-            expressed = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
-                .setShortText(WireComplicationText(DynamicString.fromState("valid")))
-                .build(),
-            states = listOf(
-                mapOf("valid" to StateEntryValue.fromString("Valid")),
-            ),
-            evaluated = listOf(
-                INVALID_DATA, // Before state is available.
+            expressed =
                 WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(WireComplicationText("Valid", DynamicString.fromState("valid")))
-                    .setShortText(WireComplicationText("Valid", DynamicString.fromState("valid")))
+                    .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
+                    .setShortText(WireComplicationText(DynamicString.fromState("valid")))
                     .build(),
-            ),
+            states =
+                listOf(
+                    mapOf("valid" to StateEntryValue.fromString("Valid")),
+                ),
+            evaluated =
+                listOf(
+                    INVALID_DATA, // Before state is available.
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortTitle(
+                            WireComplicationText("Valid", DynamicString.fromState("valid"))
+                        )
+                        .setShortText(
+                            WireComplicationText("Valid", DynamicString.fromState("valid"))
+                        )
+                        .build(),
+                ),
         ),
         SET_TO_NO_DATA_IF_FIRST_STATE_IS_INVALID(
-            expressed = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
-                .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
-                .build(),
-            states = listOf(
-                mapOf(),
-                mapOf("valid" to StateEntryValue.fromString("Valid")),
-            ),
-            evaluated = listOf(
-                INVALID_DATA, // States invalid after one field changed to valid.
-            ),
+            expressed =
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
+                    .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
+                    .build(),
+            states =
+                listOf(
+                    mapOf(),
+                    mapOf("valid" to StateEntryValue.fromString("Valid")),
+                ),
+            evaluated =
+                listOf(
+                    INVALID_DATA, // States invalid after one field changed to valid.
+                ),
         ),
         SET_TO_NO_DATA_IF_LAST_STATE_IS_INVALID(
-            expressed = WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
-                .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
-                .build(),
-            states = listOf(
-                mapOf(
-                    "valid" to StateEntryValue.fromString("Valid"),
-                    "invalid" to StateEntryValue.fromString("Valid"),
-                ),
-                mapOf("valid" to StateEntryValue.fromString("Valid")),
-            ),
-            evaluated = listOf(
-                INVALID_DATA, // Before state is available.
+            expressed =
                 WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(WireComplicationText("Valid", DynamicString.fromState("valid")))
-                    .setShortText(WireComplicationText("Valid", DynamicString.fromState("invalid")))
+                    .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
+                    .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
                     .build(),
-                INVALID_DATA, // After it was invalidated.
-            ),
+            states =
+                listOf(
+                    mapOf(
+                        "valid" to StateEntryValue.fromString("Valid"),
+                        "invalid" to StateEntryValue.fromString("Valid"),
+                    ),
+                    mapOf("valid" to StateEntryValue.fromString("Valid")),
+                ),
+            evaluated =
+                listOf(
+                    INVALID_DATA, // Before state is available.
+                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setShortTitle(
+                            WireComplicationText("Valid", DynamicString.fromState("valid"))
+                        )
+                        .setShortText(
+                            WireComplicationText("Valid", DynamicString.fromState("invalid"))
+                        )
+                        .build(),
+                    INVALID_DATA, // After it was invalidated.
+                ),
         ),
     }
 
@@ -220,27 +263,31 @@ class ComplicationDataExpressionEvaluatorTest {
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
             ComplicationDataExpressionEvaluator(
-                expressed,
-                stateStore = stateStore,
-            ).use { evaluator ->
-                val allEvaluations = evaluator.data.filterNotNull().shareIn(
-                    CoroutineScope(Dispatchers.Main),
-                    SharingStarted.Eagerly,
-                    replay = 10,
+                    expressed,
+                    stateStore = stateStore,
                 )
-                evaluator.init()
-                runUiThreadTasks() // Ensures data sharing started.
+                .use { evaluator ->
+                    val allEvaluations =
+                        evaluator.data
+                            .filterNotNull()
+                            .shareIn(
+                                CoroutineScope(Dispatchers.Main),
+                                SharingStarted.Eagerly,
+                                replay = 10,
+                            )
+                    evaluator.init()
+                    runUiThreadTasks() // Ensures data sharing started.
 
-                for (state in scenario.states) {
-                    stateStore.setStateEntryValues(state)
-                    runUiThreadTasks() // Ensures data sharing ended.
+                    for (state in scenario.states) {
+                        stateStore.setStateEntryValues(state)
+                        runUiThreadTasks() // Ensures data sharing ended.
+                    }
+
+                    expect
+                        .withMessage(scenario.name)
+                        .that(allEvaluations.replayCache)
+                        .isEqualTo(scenario.evaluated)
                 }
-
-                expect
-                    .withMessage(scenario.name)
-                    .that(allEvaluations.replayCache)
-                    .isEqualTo(scenario.evaluated)
-            }
         }
     }
 
@@ -292,28 +339,30 @@ class ComplicationDataExpressionEvaluatorTest {
     @Test
     fun compat_notInitialized_listenerNotInvoked() {
         ComplicationDataExpressionEvaluator.Compat(
-            DATA_WITH_NO_EXPRESSION,
-            ContextCompat.getMainExecutor(getApplicationContext()),
-            listener,
-        ).use {
-            runUiThreadTasks()
+                DATA_WITH_NO_EXPRESSION,
+                ContextCompat.getMainExecutor(getApplicationContext()),
+                listener,
+            )
+            .use {
+                runUiThreadTasks()
 
-            verify(listener, never()).accept(any())
-        }
+                verify(listener, never()).accept(any())
+            }
     }
 
     @Test
     fun compat_noExpression_listenerInvokedWithData() {
         ComplicationDataExpressionEvaluator.Compat(
-            DATA_WITH_NO_EXPRESSION,
-            ContextCompat.getMainExecutor(getApplicationContext()),
-            listener,
-        ).use { evaluator ->
-            evaluator.init()
-            runUiThreadTasks()
+                DATA_WITH_NO_EXPRESSION,
+                ContextCompat.getMainExecutor(getApplicationContext()),
+                listener,
+            )
+            .use { evaluator ->
+                evaluator.init()
+                runUiThreadTasks()
 
-            verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
-        }
+                verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
+            }
     }
 
     private companion object {
