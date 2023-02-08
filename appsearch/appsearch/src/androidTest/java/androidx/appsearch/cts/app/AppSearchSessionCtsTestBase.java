@@ -3718,6 +3718,72 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_verbatimSearch() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.VERBATIM_SEARCH));
+        AppSearchSchema verbatimSchema = new AppSearchSchema.Builder("VerbatimSchema")
+                .addProperty(new StringPropertyConfig.Builder("verbatimProp")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setForceOverride(true).addSchemas(verbatimSchema).build()).get();
+
+        GenericDocument email = new GenericDocument.Builder<>(
+                "namespace1", "id1", "VerbatimSchema")
+                .setPropertyString("verbatimProp", "Hello, world!")
+                .build();
+        mDb1.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+
+        SearchResults sr = mDb1.search("\"Hello, world!\"",
+                new SearchSpec.Builder().setVerbatimSearchEnabled(true).build());
+        List<SearchResult> page = sr.getNextPageAsync().get();
+
+        // Verbatim tokenization would produce one token 'Hello, world!'.
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id1");
+    }
+
+    @Test
+    public void testQuery_verbatimSearchWithoutEnablingFeatureFails() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.VERBATIM_SEARCH));
+        AppSearchSchema verbatimSchema = new AppSearchSchema.Builder("VerbatimSchema")
+                .addProperty(new StringPropertyConfig.Builder("verbatimProp")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setForceOverride(true).addSchemas(verbatimSchema).build()).get();
+
+        GenericDocument email = new GenericDocument.Builder<>(
+                "namespace1", "id1", "VerbatimSchema")
+                .setPropertyString("verbatimProp", "Hello, world!")
+                .build();
+        mDb1.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+
+        // TODO(b/208654892) Disable ListFilterQueryLanguage once EXPERIMENTAL_ICING_ADVANCED_QUERY
+        //  is fully supported.
+        // ListFilterQueryLanguage is enabled so that EXPERIMENTAL_ICING_ADVANCED_QUERY gets enabled
+        // in IcingLib.
+        // Disable VERBATIM_SEARCH in the SearchSpec.
+        SearchResults searchResults = mDb1.search("\"Hello, world!\"",
+                new SearchSpec.Builder()
+                        .setListFilterQueryLanguageEnabled(true)
+                        .setVerbatimSearchEnabled(false)
+                        .build());
+        Throwable throwable = assertThrows(ExecutionException.class,
+                () -> searchResults.getNextPageAsync().get()).getCause();
+        assertThat(throwable).isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) throwable;
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().contains("Attempted use of unenabled feature");
+        assertThat(exception).hasMessageThat().contains(Features.VERBATIM_SEARCH);
+    }
+
+    @Test
     public void testQuery_propertyWeights() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
 
