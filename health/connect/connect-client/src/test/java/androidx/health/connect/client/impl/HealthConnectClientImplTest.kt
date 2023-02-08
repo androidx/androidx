@@ -25,7 +25,6 @@ import android.os.Looper
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.toDataType
-import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermissionLegacy
 import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -88,7 +87,6 @@ private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissionsLegacy(setOf()) },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -187,36 +185,6 @@ class HealthConnectClientImplTest {
                 response.await()
             }
         }
-    }
-
-    @Test
-    fun getGrantedPermissionsLegacy_none() = runTest {
-        val response = testBlocking {
-            healthConnectClient.getGrantedPermissionsLegacy(
-                setOf(createReadPermissionLegacy(StepsRecord::class))
-            )
-        }
-
-        assertThat(response).isEmpty()
-    }
-
-    @Test
-    fun getGrantedPermissionsLegacy_steps() = runTest {
-        fakeAhpServiceStub.addGrantedPermission(
-            androidx.health.platform.client.permission.Permission(
-                PermissionProto.Permission.newBuilder()
-                    .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
-                    .setAccessType(PermissionProto.AccessType.ACCESS_TYPE_READ)
-                    .build()
-            )
-        )
-        val response = testBlocking {
-            healthConnectClient.getGrantedPermissionsLegacy(
-                setOf(createReadPermissionLegacy(StepsRecord::class))
-            )
-        }
-
-        assertThat(response).containsExactly(createReadPermissionLegacy(StepsRecord::class))
     }
 
     @Test
