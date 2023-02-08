@@ -396,7 +396,13 @@ function runGradle() {
 
   RETURN_VALUE=0
   PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
-  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
+  # Disabled in Studio until these errors become shown (b/268380971) or computed more quickly (https://github.com/gradle/gradle/issues/23272)
+  if [[ " ${@} " =~ " --dependency-verification=" ]]; then
+    VERIFICATION_ARGUMENT="" # already specified by caller
+  else
+    VERIFICATION_ARGUMENT=--dependency-verification=strict
+  fi
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT $VERIFICATION_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     RETURN_VALUE=0
   else
     # Print AndroidX-specific help message if build fails
