@@ -143,7 +143,8 @@ public class SearchSuggestionSpec {
     }
 
     /** Returns the ranking strategy. */
-    public @SuggestionRankingStrategy int getRankingStrategy() {
+    @SuggestionRankingStrategy
+    public int getRankingStrategy() {
         return mBundle.getInt(RANKING_STRATEGY_FIELD);
     }
 
@@ -222,7 +223,7 @@ public class SearchSuggestionSpec {
         private Bundle mTypePropertyFilters = new Bundle();
         private Bundle mDocumentIds = new Bundle();
         private final int mTotalResultCount;
-        private @SuggestionRankingStrategy int mRankingStrategy =
+        @SuggestionRankingStrategy private int mRankingStrategy =
                 SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT;
         private boolean mBuilt = false;
 

@@ -225,7 +225,8 @@ public final class SearchSpec {
     }
 
     /** Returns how the query terms should match terms in the index. */
-    public @TermMatch int getTermMatch() {
+    @TermMatch
+    public int getTermMatch() {
         return mBundle.getInt(TERM_MATCH_TYPE_FIELD, -1);
     }
 
@@ -279,12 +280,14 @@ public final class SearchSpec {
     }
 
     /** Returns the ranking strategy. */
-    public @RankingStrategy int getRankingStrategy() {
+    @RankingStrategy
+    public int getRankingStrategy() {
         return mBundle.getInt(RANKING_STRATEGY_FIELD);
     }
 
     /** Returns the order of returned search results (descending or ascending). */
-    public @Order int getOrder() {
+    @Order
+    public int getOrder() {
         return mBundle.getInt(ORDER_FIELD);
     }
 
@@ -413,7 +416,8 @@ public final class SearchSpec {
      * Get the type of grouping limit to apply, or 0 if {@link Builder#setResultGrouping} was not
      * called.
      */
-    public @GroupingType int getResultGroupingTypeFlags() {
+    @GroupingType
+    public int getResultGroupingTypeFlags() {
         return mBundle.getInt(RESULT_GROUPING_TYPE_FLAGS);
     }
 
@@ -457,13 +461,13 @@ public final class SearchSpec {
         private Bundle mTypePropertyWeights = new Bundle();
 
         private int mResultCountPerPage = DEFAULT_NUM_PER_PAGE;
-        private @TermMatch int mTermMatchType = TERM_MATCH_PREFIX;
+        @TermMatch private int mTermMatchType = TERM_MATCH_PREFIX;
         private int mSnippetCount = 0;
         private int mSnippetCountPerProperty = MAX_SNIPPET_PER_PROPERTY_COUNT;
         private int mMaxSnippetSize = 0;
-        private @RankingStrategy int mRankingStrategy = RANKING_STRATEGY_NONE;
-        private @Order int mOrder = ORDER_DESCENDING;
-        private @GroupingType int mGroupingTypeFlags = 0;
+        @RankingStrategy private int mRankingStrategy = RANKING_STRATEGY_NONE;
+        @Order private int mOrder = ORDER_DESCENDING;
+        @GroupingType private int mGroupingTypeFlags = 0;
         private int mGroupingLimit = 0;
         private JoinSpec mJoinSpec;
         private String mAdvancedRankingExpression = "";

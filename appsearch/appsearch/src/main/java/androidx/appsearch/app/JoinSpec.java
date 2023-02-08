@@ -204,7 +204,8 @@ public final class JoinSpec {
      *
      * @see SearchSpec#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE
      */
-    public @AggregationScoringStrategy int getAggregationScoringStrategy() {
+    @AggregationScoringStrategy
+    public int getAggregationScoringStrategy() {
         return mBundle.getInt(AGGREGATION_SCORING_STRATEGY);
     }
 
@@ -218,7 +219,7 @@ public final class JoinSpec {
         private SearchSpec mNestedSearchSpec = EMPTY_SEARCH_SPEC;
         private final String mChildPropertyExpression;
         private int mMaxJoinedResultCount = DEFAULT_MAX_JOINED_RESULT_COUNT;
-        private @AggregationScoringStrategy int mAggregationScoringStrategy =
+        @AggregationScoringStrategy private int mAggregationScoringStrategy =
                 AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL;
 
         /**
