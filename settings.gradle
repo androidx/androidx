@@ -1013,6 +1013,14 @@ includeProject(":work:work-testing", [BuildType.MAIN])
 
 /////////////////////////////
 //
+// Plugins
+//
+/////////////////////////////
+
+includeProject(":stableaidl:stableaidl-gradle-plugin", [BuildType.MAIN])
+
+/////////////////////////////
+//
 // Samples
 //
 /////////////////////////////
