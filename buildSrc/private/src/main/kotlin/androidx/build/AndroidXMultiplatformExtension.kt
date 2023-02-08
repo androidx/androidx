@@ -80,7 +80,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         block: Action<KotlinAndroidTarget>? = null
     ): KotlinAndroidTarget? {
         return if (project.enableJvm()) {
-            kotlinExtension.android {
+            kotlinExtension.androidTarget {
                 block?.execute(this)
             }
         } else { null }

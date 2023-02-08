@@ -87,6 +87,7 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.repositories
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
@@ -392,7 +393,14 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
     }
 
-    fun Project.configureKotlinStdlibVersion() {
+    private fun Project.configureKotlinStdlibVersion() {
+        if (KOTLIN_VERSION.endsWith("SNAPSHOT")) {
+            repositories {
+                mavenLocal().content {
+                    it.includeGroup("org.jetbrains.kotlin")
+                }
+            }
+        }
         project.configurations.all { configuration ->
             configuration.resolutionStrategy { strategy ->
                 strategy.eachDependency { details ->

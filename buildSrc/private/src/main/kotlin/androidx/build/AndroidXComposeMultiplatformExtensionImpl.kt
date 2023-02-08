@@ -29,7 +29,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     override fun android(): Unit = multiplatformExtension.run {
-        android()
+        androidTarget()
 
         val androidMain = sourceSets.getByName("androidMain")
         val jvmMain = getOrCreateJvmMain()
