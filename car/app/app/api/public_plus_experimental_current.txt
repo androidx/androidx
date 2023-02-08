@@ -991,6 +991,16 @@ package androidx.car.app.model {
     method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class Badge {
+    method public boolean hasDot();
+  }
+
+  public static final class Badge.Builder {
+    ctor public Badge.Builder();
+    method public androidx.car.app.model.Badge build();
+    method public androidx.car.app.model.Badge.Builder setHasDot(boolean);
+  }
+
   @androidx.car.app.annotations.CarProtocol public final class CarColor {
     method public static androidx.car.app.model.CarColor createCustom(@ColorInt int, @ColorInt int);
     method @ColorInt public int getColor();
