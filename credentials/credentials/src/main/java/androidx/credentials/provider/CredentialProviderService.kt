@@ -230,7 +230,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
      * [BeginGetCredentialResponse]. The [PendingIntent] set on this entry must lead the user
      * to an >unlock activity. Once unlocked, the provider must retrieve all credentials,
      * and set the list of [CredentialEntry] and the list of optional [Action] as a result
-     * of the >unlock activity through [PendingIntentHandler.setCredentialsResponseContent].
+     * of the >unlock activity through [PendingIntentHandler.setBeginGetCredentialResponse].
      *
      * @see CredentialEntry for how an entry representing a credential must be built
      * @see Action for how a non-credential related action should be built

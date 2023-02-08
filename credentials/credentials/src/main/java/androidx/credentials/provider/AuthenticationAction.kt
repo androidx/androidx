@@ -37,7 +37,7 @@ import java.util.Collections
  * selects this entry, the corresponding [PendingIntent] is fired and the unlock activity is
  * invoked. Once the provider authentication flow is complete, providers must set
  * the [android.service.credentials.CredentialsResponseContent] containing the unlocked credential
- * entries, through the [PendingIntentHandler.setCredentialsResponseContent] method, before
+ * entries, through the [PendingIntentHandler.setBeginGetCredentialResponse] method, before
  * finishing the activity.
  * If providers fail to set the [android.service.credentials.CredentialsResponseContent], the
  * system will assume that there are no credentials available and the this entry will be removed
@@ -46,7 +46,7 @@ import java.util.Collections
  * @property pendingIntent the [PendingIntent] to be invoked if the user selects
  * this authentication entry on the UI.
  *
- * @see android.service.credentials.BeginGetCredentialResponse.createWithAuthentication
+ * @see android.service.credentials.BeginGetCredentialResponse
  * for usage details.
  *
  * @throws NullPointerException If the [pendingIntent] is null

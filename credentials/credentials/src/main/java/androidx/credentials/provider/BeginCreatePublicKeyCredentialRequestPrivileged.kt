@@ -53,12 +53,12 @@ class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
     val json: String,
     val relyingParty: String,
     val clientDataHash: String,
-    callingAppInfo: CallingAppInfo,
+    callingAppInfo: CallingAppInfo?,
 ) : BeginCreateCredentialRequest(
-    callingAppInfo,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     toCredentialDataBundle(json, relyingParty, clientDataHash,
-        /*preferImmediatelyAvailableCredentials=*/ false)
+        /*preferImmediatelyAvailableCredentials=*/ false),
+    callingAppInfo
 ) {
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -77,7 +77,7 @@ class BeginCreatePublicKeyCredentialRequestPrivileged internal constructor(
 
         /** @hide */
         @JvmStatic
-        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
+        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePublicKeyCredentialRequestPrivileged {
             try {
                 val requestJson = data.getString(CreatePublicKeyCredentialRequestPrivileged

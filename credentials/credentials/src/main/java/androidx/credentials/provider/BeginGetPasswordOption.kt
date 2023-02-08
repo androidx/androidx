@@ -30,12 +30,13 @@ import androidx.credentials.PasswordCredential
  *
  * Providers must use the parameters in this option to retrieve the corresponding credentials'
  * metadata, and then return them in the form of a list of [PasswordCredentialEntry]
- * set on the [BeginGetCredentialResponse.createWithResponseContent].
+ * set on the [BeginGetCredentialResponse].
  */
 @RequiresApi(34)
 class BeginGetPasswordOption internal constructor(
     candidateQueryData: Bundle
 ) : BeginGetCredentialOption(
+    /*id=*/"",
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     candidateQueryData
 ) {

@@ -24,6 +24,7 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import android.service.credentials.BeginGetCredentialOption
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
@@ -63,8 +64,9 @@ class CustomCredentialEntry internal constructor(
     val typeDisplayName: CharSequence?,
     val icon: Icon?,
     val lastUsedTime: Instant?,
+    beginGetCredentialOption: BeginGetCredentialOption
     ) : android.service.credentials.CredentialEntry(
-    type,
+    beginGetCredentialOption,
     toSlice(
         type,
         title,
@@ -73,7 +75,8 @@ class CustomCredentialEntry internal constructor(
         typeDisplayName,
         lastUsedTime,
         icon,
-        isAutoSelectAllowed
+        isAutoSelectAllowed,
+        beginGetCredentialOption
     )
 ) {
     init {
@@ -82,9 +85,9 @@ class CustomCredentialEntry internal constructor(
     }
     constructor(
         context: Context,
-        type: String,
         title: CharSequence,
         pendingIntent: PendingIntent,
+        beginGetCredentialOption: BeginGetCredentialOption,
         subtitle: CharSequence? = null,
         typeDisplayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
@@ -92,14 +95,15 @@ class CustomCredentialEntry internal constructor(
         @Suppress("AutoBoxing")
         isAutoSelectAllowed: Boolean = false
     ) : this(
-        type,
+        beginGetCredentialOption.type,
         title,
         pendingIntent,
         isAutoSelectAllowed,
         subtitle,
         typeDisplayName,
         icon,
-        lastUsedTime
+        lastUsedTime,
+        beginGetCredentialOption
     )
 
     override fun describeContents(): Int {
@@ -136,6 +140,9 @@ class CustomCredentialEntry internal constructor(
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_BUNDLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
@@ -150,7 +157,8 @@ class CustomCredentialEntry internal constructor(
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
             icon: Icon?,
-            isAutoSelectAllowed: Boolean?
+            isAutoSelectAllowed: Boolean?,
+            beginGetCredentialOption: BeginGetCredentialOption
         ): Slice {
             // TODO("Put the right revision value")
             val autoSelectAllowed = if (isAutoSelectAllowed == true) {
@@ -168,6 +176,9 @@ class CustomCredentialEntry internal constructor(
                     listOf(SLICE_HINT_SUBTITLE))
                 .addText(autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED))
+                .addBundle(beginGetCredentialOption.candidateQueryData,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_BUNDLE))
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
@@ -195,6 +206,7 @@ class CustomCredentialEntry internal constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): CustomCredentialEntry? {
+            val type: String = slice.spec!!.type
             var typeDisplayName: CharSequence? = null
             var title: CharSequence? = null
             var subtitle: CharSequence? = null
@@ -202,6 +214,7 @@ class CustomCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
+            var beginGetCredentialOption: BeginGetCredentialOption? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -214,6 +227,9 @@ class CustomCredentialEntry internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
+                    beginGetCredentialOption = BeginGetCredentialOption(
+                        /*id=*/"", type, it.bundle)
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -225,13 +241,17 @@ class CustomCredentialEntry internal constructor(
             }
 
             return try {
-                CustomCredentialEntry(slice.spec!!.type, title!!,
+                CustomCredentialEntry(
+                    type,
+                    title!!,
                     pendingIntent!!,
                     autoSelectAllowed,
                     subtitle,
                     typeDisplayName,
                     icon!!,
-                    lastUsedTime)
+                    lastUsedTime,
+                    beginGetCredentialOption!!
+                )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
@@ -258,7 +278,8 @@ class CustomCredentialEntry internal constructor(
         private val context: Context,
         private val type: String,
         private val title: CharSequence,
-        private val pendingIntent: PendingIntent
+        private val pendingIntent: PendingIntent,
+        private val beginGetCredentialOption: BeginGetCredentialOption
     ) {
         private var subtitle: CharSequence? = null
         private var lastUsedTime: Instant? = null
@@ -320,6 +341,7 @@ class CustomCredentialEntry internal constructor(
                 typeDisplayName,
                 icon!!,
                 lastUsedTime,
+                beginGetCredentialOption
             )
         }
     }

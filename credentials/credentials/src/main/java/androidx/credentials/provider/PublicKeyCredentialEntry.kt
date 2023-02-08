@@ -66,9 +66,10 @@ class PublicKeyCredentialEntry internal constructor(
     val pendingIntent: PendingIntent,
     val icon: Icon?,
     val lastUsedTime: Instant?,
-    val isAutoSelectAllowed: Boolean
-) : CredentialEntry(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    val isAutoSelectAllowed: Boolean,
+    beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
+    ) : CredentialEntry(
+    beginGetPublicKeyCredentialOption,
     toSlice(
         PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
         username,
@@ -77,7 +78,8 @@ class PublicKeyCredentialEntry internal constructor(
         typeDisplayName,
         lastUsedTime,
         icon,
-        isAutoSelectAllowed
+        isAutoSelectAllowed,
+        beginGetPublicKeyCredentialOption
     )
 ) {
 
@@ -90,6 +92,7 @@ class PublicKeyCredentialEntry internal constructor(
         context: Context,
         username: CharSequence,
         pendingIntent: PendingIntent,
+        beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
         icon: Icon? = Icon.createWithResource(context, R.drawable.ic_passkey),
@@ -102,7 +105,8 @@ class PublicKeyCredentialEntry internal constructor(
         pendingIntent,
         icon,
         lastUsedTime,
-        isAutoSelectAllowed
+        isAutoSelectAllowed,
+        beginGetPublicKeyCredentialOption
     )
 
     override fun describeContents(): Int {
@@ -139,6 +143,9 @@ class PublicKeyCredentialEntry internal constructor(
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_BUNDLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
@@ -153,7 +160,8 @@ class PublicKeyCredentialEntry internal constructor(
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
             icon: Icon?,
-            isAutoSelectAllowed: Boolean
+            isAutoSelectAllowed: Boolean,
+            beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
         ): Slice {
             // TODO("Put the right revision value")
             val autoSelectAllowed = if (isAutoSelectAllowed) {
@@ -173,6 +181,9 @@ class PublicKeyCredentialEntry internal constructor(
                     listOf(SLICE_HINT_SUBTITLE))
                 .addText(autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED))
+                .addBundle(beginGetPublicKeyCredentialOption.candidateQueryData,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_BUNDLE))
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
@@ -207,6 +218,7 @@ class PublicKeyCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
+            var beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -219,6 +231,9 @@ class PublicKeyCredentialEntry internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
+                    beginGetPublicKeyCredentialOption = BeginGetPublicKeyCredentialOption
+                        .createFrom(it.bundle)
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -237,7 +252,9 @@ class PublicKeyCredentialEntry internal constructor(
                     pendingIntent!!,
                     icon!!,
                     lastUsedTime,
-                    autoSelectAllowed)
+                    autoSelectAllowed,
+                    beginGetPublicKeyCredentialOption!!
+                )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
@@ -264,7 +281,8 @@ class PublicKeyCredentialEntry internal constructor(
     class Builder(
         private val context: Context,
         private val username: CharSequence,
-        private val pendingIntent: PendingIntent
+        private val pendingIntent: PendingIntent,
+        private val beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
         ) {
         private var displayName: CharSequence? = null
         private var lastUsedTime: Instant? = null
@@ -311,8 +329,15 @@ class PublicKeyCredentialEntry internal constructor(
             val typeDisplayName = context.getString(
                 R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL)
             return PublicKeyCredentialEntry(
-                username, displayName, typeDisplayName, pendingIntent, icon!!,
-                lastUsedTime, autoSelectAllowed)
+                username,
+                displayName,
+                typeDisplayName,
+                pendingIntent,
+                icon!!,
+                lastUsedTime,
+                autoSelectAllowed,
+                beginGetPublicKeyCredentialOption
+            )
         }
     }
 }

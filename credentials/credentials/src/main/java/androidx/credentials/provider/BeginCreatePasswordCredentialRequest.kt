@@ -26,7 +26,6 @@ import android.service.credentials.CallingAppInfo
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePasswordRequest
-import androidx.credentials.CreatePasswordRequest.Companion.toCandidateDataBundle
 import androidx.credentials.PasswordCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -46,11 +45,11 @@ import androidx.credentials.internal.FrameworkClassParsingException
  */
 @RequiresApi(34)
 class BeginCreatePasswordCredentialRequest internal constructor(
-    callingAppInfo: CallingAppInfo
+    callingAppInfo: CallingAppInfo?
 ) : BeginCreateCredentialRequest(
-    callingAppInfo,
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    toCandidateDataBundle()
+    toCandidateDataBundle(),
+    callingAppInfo,
     ) {
     override fun describeContents(): Int {
         return 0
@@ -63,10 +62,17 @@ class BeginCreatePasswordCredentialRequest internal constructor(
     @Suppress("AcronymName")
     companion object {
 
+        // No credential data should be sent during the query phase.
+        /** @hide **/
+        @JvmStatic
+        internal fun toCandidateDataBundle(): Bundle {
+            return Bundle()
+        }
+
         /** @hide **/
         @JvmStatic
 	    @Suppress("UNUSED_PARAMETER")
-        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
+        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePasswordCredentialRequest {
             try {
                 return BeginCreatePasswordCredentialRequest(
