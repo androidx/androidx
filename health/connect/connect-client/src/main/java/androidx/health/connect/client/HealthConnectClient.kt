@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.ChecksSdkIntAtLeast
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.health.connect.client.aggregate.AggregateMetric
@@ -367,6 +368,67 @@ interface HealthConnectClient {
             "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
+         * The Health Connect SDK is not unavailable on this device at the time. This can be due to
+         * the device running a lower than required Android Version.
+         *
+         * Apps should hide any integration points to Health Connect in this case.
+         */
+        const val SDK_UNAVAILABLE = 1
+        /**
+         * The Health Connect SDK APIs are currently unavailable, the provider is either not
+         * installed or needs to be updated.
+         *
+         * Apps may choose to redirect to package installers to find a suitable APK.
+         */
+        const val SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2
+        /**
+         * The Health Connect SDK APIs are available.
+         *
+         * Apps can subsequently call [getOrCreate] to get an instance of [HealthConnectClient].
+         */
+        const val SDK_AVAILABLE = 3
+
+        /** Availability Status. */
+        @Retention(AnnotationRetention.SOURCE)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @IntDef(
+            value =
+            [
+                SDK_UNAVAILABLE,
+                SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
+                SDK_AVAILABLE,
+            ]
+        )
+        annotation class AvailabilityStatus
+
+        /**
+         * Determines whether the Health Connect SDK is available on this device at the moment.
+         *
+         * @param context the context
+         * @param providerPackageName optional package provider to choose for backend implementation
+         * @return One of [SDK_UNAVAILABLE], [SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED]
+         * or [SDK_AVAILABLE]
+         * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
+         */
+        @JvmOverloads
+        @JvmStatic
+        @AvailabilityStatus
+        fun sdkStatus(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Int {
+            @Suppress("Deprecation")
+            if (!isApiSupported()) {
+                return SDK_UNAVAILABLE
+            }
+            @Suppress("Deprecation")
+            if (!isProviderAvailable(context, providerPackageName)) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            return SDK_AVAILABLE
+        }
+
+        /**
          * Determines whether the current Health Connect SDK is supported on this device. If it is
          * not supported, then installing any provider will not help - instead disable the
          * integration.
@@ -374,6 +436,7 @@ interface HealthConnectClient {
          * @return whether the api is supported on the device.
          */
         @JvmStatic
+        @Deprecated("use sdkStatus()", ReplaceWith("sdkStatus(context)"))
         public fun isApiSupported(): Boolean {
             return isSdkVersionSufficient()
         }
@@ -383,18 +446,18 @@ interface HealthConnectClient {
          * at the moment. If none is available, apps may choose to redirect to package installers to
          * find suitable providers.
          *
-         * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
-         *
          * @param context the context
          * @param providerPackageName optional package provider to choose for backend implementation
          * @return whether the api is available
          */
         @JvmOverloads
         @JvmStatic
+        @Deprecated("use sdkStatus()", ReplaceWith("sdkStatus(context)"))
         public fun isProviderAvailable(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Boolean {
+            @Suppress("Deprecation")
             if (!isApiSupported()) {
                 return false
             }
@@ -420,9 +483,11 @@ interface HealthConnectClient {
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): HealthConnectClient {
+            @Suppress("Deprecation")
             if (!isApiSupported()) {
                 throw UnsupportedOperationException("SDK version too low")
             }
+            @Suppress("Deprecation")
             if (!isProviderAvailable(context, providerPackageName)) {
                 throw IllegalStateException("Service not available")
             }
