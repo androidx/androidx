@@ -14,21 +14,5 @@ package androidx.benchmark {
   public static final class BenchmarkState.Companion {
   }
 
-  public final class ConfigurationErrorKt {
-  }
-
-  public final class UserspaceTracingKt {
-  }
-
-}
-
-package androidx.benchmark.perfetto {
-
-  public final class PerfettoConfigKt {
-  }
-
-  public final class UiStateKt {
-  }
-
 }
 

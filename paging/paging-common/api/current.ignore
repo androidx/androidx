@@ -11,6 +11,8 @@ RemovedClass: androidx.paging.HintHandlerKt:
     Removed class androidx.paging.HintHandlerKt
 RemovedClass: androidx.paging.PageFetcherSnapshotKt:
     Removed class androidx.paging.PageFetcherSnapshotKt
+RemovedClass: androidx.paging.PagingSourceKt:
+    Removed class androidx.paging.PagingSourceKt
 RemovedClass: androidx.paging.RemoteMediatorAccessorKt:
     Removed class androidx.paging.RemoteMediatorAccessorKt
 RemovedClass: androidx.paging.SeparatorsKt:

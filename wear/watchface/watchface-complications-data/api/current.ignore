@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+RemovedClass: androidx.wear.watchface.complications.data.DataKt:
+    Removed class androidx.wear.watchface.complications.data.DataKt
+RemovedClass: androidx.wear.watchface.complications.data.ImageKt:
+    Removed class androidx.wear.watchface.complications.data.ImageKt
+RemovedClass: androidx.wear.watchface.complications.data.TextKt:
+    Removed class androidx.wear.watchface.complications.data.TextKt
+RemovedClass: androidx.wear.watchface.complications.data.TypeKt:
+    Removed class androidx.wear.watchface.complications.data.TypeKt
+
+
+RemovedPackage: androidx.wear.watchface.utility:
+    Removed package androidx.wear.watchface.utility

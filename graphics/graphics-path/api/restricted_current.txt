@@ -29,8 +29,5 @@ package androidx.graphics.path {
     property public static final androidx.graphics.path.PathSegment DoneSegment;
   }
 
-  public final class PathUtilities {
-  }
-
 }
 

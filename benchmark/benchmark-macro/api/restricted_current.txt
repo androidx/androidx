@@ -56,9 +56,6 @@ package androidx.benchmark.macro {
     ctor public FrameTimingMetric();
   }
 
-  public final class MacrobenchmarkKt {
-  }
-
   public final class MacrobenchmarkScope {
     ctor public MacrobenchmarkScope(String packageName, boolean launchWithClearTask);
     method public void dropKernelPageCache();

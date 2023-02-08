@@ -509,10 +509,6 @@ package androidx.constraintlayout.compose {
     method public void itemsWithProperties(int count, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties>,kotlin.Unit> itemContent);
   }
 
-  public final class MotionDragHandlerKt {
-    method @kotlin.PublishedApi internal static inline androidx.compose.ui.Modifier motionPointerInput(androidx.compose.ui.Modifier, Object key, androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.MotionMeasurer measurer);
-  }
-
   @kotlin.PublishedApi internal final class MotionDragState {
     ctor public MotionDragState(boolean isDragging, long dragAmount, long velocity);
     method public boolean component1();
@@ -581,9 +577,6 @@ package androidx.constraintlayout.compose {
     field @kotlin.PublishedApi internal final androidx.constraintlayout.compose.MotionProgress motionProgress;
   }
 
-  public final class MotionLayoutStateKt {
-  }
-
   @kotlin.PublishedApi internal final class MotionMeasurer extends androidx.constraintlayout.compose.Measurer {
     ctor public MotionMeasurer(androidx.compose.ui.unit.Density density);
     method public void clearConstraintSets();
@@ -607,12 +600,6 @@ package androidx.constraintlayout.compose {
   public static final class MotionProgress.Companion {
     method public androidx.constraintlayout.compose.MotionProgress fromMutableState(androidx.compose.runtime.MutableState<java.lang.Float> mutableProgress);
     method public androidx.constraintlayout.compose.MotionProgress fromState(androidx.compose.runtime.State<java.lang.Float> progressState, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onUpdate);
-  }
-
-  public final class MotionSceneKt {
-  }
-
-  public final class MotionSceneScopeKt {
   }
 
   public final class State extends androidx.constraintlayout.core.state.State {
@@ -651,12 +638,6 @@ package androidx.constraintlayout.compose {
   }
 
   @kotlin.PublishedApi internal static final class TransitionImpl.Companion {
-  }
-
-  public final class TransitionKt {
-  }
-
-  public final class TransitionScopeKt {
   }
 
   @androidx.compose.runtime.Immutable public final class VerticalAlign {

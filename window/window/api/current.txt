@@ -31,9 +31,6 @@ package androidx.window.embedding {
     property public final String? intentAction;
   }
 
-  public final class ActivityOptionsCompat {
-  }
-
   public final class ActivityRule extends androidx.window.embedding.EmbeddingRule {
     method public boolean getAlwaysExpand();
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
