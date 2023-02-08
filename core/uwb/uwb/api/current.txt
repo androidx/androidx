@@ -157,10 +157,3 @@ package androidx.core.uwb.exceptions {
 
 }
 
-package androidx.core.uwb.helper {
-
-  public final class UwbHelperKt {
-  }
-
-}
-

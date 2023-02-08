@@ -124,9 +124,6 @@ package androidx.wear.watchface {
     method public default void onComplicationSlotTapped(int complicationSlotId);
   }
 
-  public final class ComplicationSlotsManagerKt {
-  }
-
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ComplicationTapFilter {
     method public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y, boolean includeMargins);
     method @Deprecated public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
@@ -150,9 +147,6 @@ package androidx.wear.watchface {
     enum_constant public static final androidx.wear.watchface.DrawMode INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode LOW_BATTERY_INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode MUTE;
-  }
-
-  public final class RenderBufferTextureKt {
   }
 
   public final class RenderParameters {
@@ -299,9 +293,6 @@ package androidx.wear.watchface {
     method @UiThread public void onDestroy();
   }
 
-  public final class RendererKt {
-  }
-
   public final class RoundRectComplicationTapFilter implements androidx.wear.watchface.ComplicationTapFilter {
     ctor public RoundRectComplicationTapFilter();
   }
@@ -383,9 +374,6 @@ package androidx.wear.watchface {
   }
 
   @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceExperimental {
-  }
-
-  public final class WatchFaceKt {
   }
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {

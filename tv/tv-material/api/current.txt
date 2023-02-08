@@ -1,12 +1,6 @@
 // Signature format: 4.0
 package androidx.tv.material3 {
 
-  public final class BringIntoViewIfChildrenAreFocusedKt {
-  }
-
-  public final class CarouselItemKt {
-  }
-
   public final class CarouselKt {
   }
 
@@ -19,9 +13,6 @@ package androidx.tv.material3 {
   }
 
   public final class ImmersiveListKt {
-  }
-
-  public final class KeyEventUtilsKt {
   }
 
   public final class MaterialTheme {
@@ -63,9 +54,6 @@ package androidx.tv.material3 {
     property public final androidx.compose.foundation.shape.CornerBasedShape large;
     property public final androidx.compose.foundation.shape.CornerBasedShape medium;
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
-  }
-
-  public final class ShapesKt {
   }
 
   public final class SurfaceKt {
@@ -120,9 +108,6 @@ package androidx.tv.material3 {
     property public final androidx.compose.ui.text.TextStyle titleLarge;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
-  }
-
-  public final class TypographyKt {
   }
 
 }

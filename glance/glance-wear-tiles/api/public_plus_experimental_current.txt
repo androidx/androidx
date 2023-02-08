@@ -15,9 +15,6 @@ package androidx.glance.wear.tiles {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> LocalTimeInterval;
   }
 
-  public final class ErrorUiLayoutKt {
-  }
-
   @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearTilesApi {
   }
 
@@ -37,9 +34,6 @@ package androidx.glance.wear.tiles {
 
   public final class GlanceWearTilesKt {
     method @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public static suspend Object? compose(android.content.Context context, long size, optional Object? state, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.glance.wear.tiles.WearTilesCompositionResult>);
-  }
-
-  public final class NormalizeCompositionTreeKt {
   }
 
   public final class TimeInterval {
@@ -64,9 +58,6 @@ package androidx.glance.wear.tiles {
     ctor public TimelineMode.TimeBoundEntries(java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals);
     method public java.util.Set<androidx.glance.wear.tiles.TimeInterval> getTimeIntervals();
     property public final java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals;
-  }
-
-  public final class WearCompositionTranslatorKt {
   }
 
   @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public final class WearTilesCompositionResult {

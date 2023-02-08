@@ -29,26 +29,8 @@ package androidx.tv.foundation.lazy.grid {
     method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.grid.TvLazyGridScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super java.lang.Integer,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
-  public final class LazyGridItemPlacementAnimatorKt {
-  }
-
-  public final class LazyGridItemProviderKt {
-  }
-
-  public final class LazyGridKt {
-  }
-
-  public final class LazyGridMeasureKt {
-  }
-
-  public final class LazyGridScrollPositionKt {
-  }
-
   public final class LazyGridSpanKt {
     method public static long TvGridItemSpan(int currentLineSpan);
-  }
-
-  public final class LazySemanticsKt {
   }
 
   @androidx.compose.runtime.Stable public interface TvGridCells {
@@ -167,20 +149,7 @@ package androidx.tv.foundation.lazy.grid {
 
 }
 
-package androidx.tv.foundation.lazy.layout {
-
-  public final class LazyAnimateScrollKt {
-  }
-
-  public final class LazyLayoutSemanticsKt {
-  }
-
-}
-
 package androidx.tv.foundation.lazy.list {
-
-  public final class LazyBeyondBoundsModifierKt {
-  }
 
   public final class LazyDslKt {
     method @androidx.compose.runtime.Composable public static void TvLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.list.TvLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.list.TvLazyListScope,kotlin.Unit> content);
@@ -191,32 +160,8 @@ package androidx.tv.foundation.lazy.list {
     method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.list.TvLazyListScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
-  public final class LazyListHeadersKt {
-  }
-
-  public final class LazyListItemPlacementAnimatorKt {
-  }
-
-  public final class LazyListItemProviderKt {
-  }
-
-  public final class LazyListKt {
-  }
-
-  public final class LazyListMeasureKt {
-  }
-
-  public final class LazyListPinnableContainerProviderKt {
-  }
-
-  public final class LazyListScrollPositionKt {
-  }
-
   public final class LazyListStateKt {
     method @androidx.compose.runtime.Composable public static androidx.tv.foundation.lazy.list.TvLazyListState rememberTvLazyListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
-  }
-
-  public final class LazySemanticsKt {
   }
 
   public interface TvLazyListItemInfo {
