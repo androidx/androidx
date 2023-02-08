@@ -332,7 +332,6 @@ class FocusMeteringControlTest {
         }
     }
 
-    @Ignore("b/266123157")
     @Test
     fun startFocusAndMetering_multiplePoints_3ARectsAreCorrect() = runBlocking {
         // Camera 0 i.e. Max AF count = 3, Max AE count = 3, Max AWB count = 1
@@ -815,7 +814,6 @@ class FocusMeteringControlTest {
         assertThat(focusMeteringControl.isFocusMeteringSupported(action)).isTrue()
     }
 
-    @Ignore("b/266123157")
     @Test
     fun isFocusMeteringSupported_noSupport3ARegion_shouldReturnFalse() {
         val action = FocusMeteringAction.Builder(point1).build()
