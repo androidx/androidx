@@ -17,12 +17,16 @@
 package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.content.Context
+import androidx.annotation.Keep
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.controller.impl.NoOpImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformImpl
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Compat version of [android.app.sdksandbox.sdkprovider.SdkSandboxController].
@@ -52,11 +56,16 @@ class SdkSandboxControllerCompat internal constructor(
     fun getSandboxedSdks(): List<SandboxedSdkCompat> =
         controllerImpl.getSandboxedSdks()
 
-    internal interface SandboxControllerImpl {
+    /** @suppress */
+    @RestrictTo(LIBRARY_GROUP)
+    interface SandboxControllerImpl {
         fun getSandboxedSdks(): List<SandboxedSdkCompat>
     }
 
     companion object {
+
+        private var localImpl: SandboxControllerImpl? = null
+
         /**
          *  Creates [SdkSandboxControllerCompat].
          *
@@ -68,6 +77,10 @@ class SdkSandboxControllerCompat internal constructor(
         fun from(context: Context): SdkSandboxControllerCompat {
             val loadedLocally = Versions.CLIENT_VERSION != null
             if (loadedLocally) {
+                val implFromClient = localImpl
+                if (implFromClient != null) {
+                    return SdkSandboxControllerCompat(implFromClient)
+                }
                 return SdkSandboxControllerCompat(NoOpImpl())
             }
 
@@ -76,6 +89,26 @@ class SdkSandboxControllerCompat internal constructor(
             }
 
             return SdkSandboxControllerCompat(NoOpImpl())
+        }
+
+        /**
+         * Inject implementation from client library.
+         * Implementation will be used only if loaded locally.
+         * This method will be called from client side via reflection during loading SDK.
+         *
+         * @suppress
+         */
+        @JvmStatic
+        @Keep
+        @RestrictTo(LIBRARY_GROUP)
+        fun injectLocalImpl(impl: SandboxControllerImpl) {
+            check(localImpl == null) { "Local implementation already injected" }
+            localImpl = impl
+        }
+
+        @TestOnly
+        internal fun resetLocalImpl() {
+            localImpl = null
         }
     }
 }

@@ -17,6 +17,8 @@
 package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.content.Context
+import android.os.Binder
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,26 +33,47 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SdkSandboxControllerCompatLocalTest {
 
-    private lateinit var controllerCompat: SdkSandboxControllerCompat
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
         // Emulate loading via client lib
         Versions.handShake(Versions.API_VERSION)
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        controllerCompat = SdkSandboxControllerCompat.from(context)
+        context = ApplicationProvider.getApplicationContext()
     }
 
     @After
     fun tearDown() {
         // Reset version back to avoid failing non-compat tests
         Versions.resetClientVersion()
+        SdkSandboxControllerCompat.resetLocalImpl()
     }
 
     @Test
-    fun getSandboxedSdks_returnsEmptyList() {
+    fun getSandboxedSdks_withoutLocalImpl_returnsEmptyList() {
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
         val sandboxedSdks = controllerCompat.getSandboxedSdks()
         assertThat(sandboxedSdks).isEmpty()
+    }
+
+    @Test
+    fun getSandboxedSdks_withLocalImpl_returnsListFromLocalImpl() {
+        val expectedResult = listOf(SandboxedSdkCompat(Binder()))
+        SdkSandboxControllerCompat.injectLocalImpl(
+            StubImpl(
+                sandboxedSdks = expectedResult
+            )
+        )
+
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+        val sandboxedSdks = controllerCompat.getSandboxedSdks()
+        assertThat(sandboxedSdks).isEqualTo(expectedResult)
+    }
+
+    private class StubImpl(
+        private val sandboxedSdks: List<SandboxedSdkCompat> = emptyList()
+    ) : SdkSandboxControllerCompat.SandboxControllerImpl {
+        override fun getSandboxedSdks() = sandboxedSdks
     }
 }
