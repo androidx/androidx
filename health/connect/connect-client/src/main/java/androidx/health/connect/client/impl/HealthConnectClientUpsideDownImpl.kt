@@ -286,7 +286,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         return ChangesResponse(
             buildList {
                 response.upsertedRecords.forEach { add(UpsertionChange(it.toSdkRecord())) }
-                response.deletedRecordIds.forEach { add(DeletionChange(it)) }
+                response.deletedLogs.forEach { add(DeletionChange(it.deletedRecordId)) }
             },
             response.nextChangesToken,
             response.hasMorePages(),
