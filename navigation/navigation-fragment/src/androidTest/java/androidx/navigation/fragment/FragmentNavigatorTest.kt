@@ -563,10 +563,10 @@ class FragmentNavigatorTest {
 
         val options = navOptions {
             anim {
-                enter = androidx.fragment.R.animator.fragment_fade_enter
-                exit = androidx.fragment.R.animator.fragment_fade_exit
-                popEnter = androidx.fragment.R.animator.fragment_fade_enter
-                popExit = androidx.fragment.R.animator.fragment_fade_exit
+                enter = R.animator.fade_enter
+                exit = R.animator.fade_exit
+                popEnter = R.animator.fade_enter
+                popExit = R.animator.fade_exit
             }
         }
 
@@ -639,10 +639,10 @@ class FragmentNavigatorTest {
 
         val options = navOptions {
             anim {
-                enter = androidx.fragment.R.animator.fragment_fade_enter
-                exit = androidx.fragment.R.animator.fragment_fade_exit
-                popEnter = androidx.fragment.R.animator.fragment_fade_enter
-                popExit = androidx.fragment.R.animator.fragment_fade_exit
+                enter = R.animator.fade_enter
+                exit = R.animator.fade_exit
+                popEnter = R.animator.fade_enter
+                popExit = R.animator.fade_exit
             }
         }
 
@@ -706,10 +706,10 @@ class FragmentNavigatorTest {
 
         val options = navOptions {
             anim {
-                enter = androidx.fragment.R.animator.fragment_fade_enter
-                exit = androidx.fragment.R.animator.fragment_fade_exit
-                popEnter = androidx.fragment.R.animator.fragment_fade_enter
-                popExit = androidx.fragment.R.animator.fragment_fade_exit
+                enter = R.animator.fade_enter
+                exit = R.animator.fade_exit
+                popEnter = R.animator.fade_enter
+                popExit = R.animator.fade_exit
             }
         }
         activityRule.runOnUiThread {
