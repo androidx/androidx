@@ -122,7 +122,6 @@ class CameraUseCaseAdapterTest {
     @Test
     fun attachAndDetachUseCases_cameraUseCasesAttachedAndDetached() {
         // Arrange: bind UseCases that requires sharing.
-        adapter.setStreamSharingEnabled(true)
         adapter.addUseCases(setOf(preview, video, image))
         val streamSharing =
             adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
@@ -138,8 +137,6 @@ class CameraUseCaseAdapterTest {
 
     @Test(expected = CameraException::class)
     fun addStreamSharing_throwsException() {
-        // Arrange.
-        adapter.setStreamSharingEnabled(true)
         val streamSharing = StreamSharing(fakeCamera, setOf(preview, video), useCaseConfigFactory)
         // Act: add use cases that can only be supported with StreamSharing
         adapter.addUseCases(setOf(streamSharing, video, image))
@@ -147,8 +144,6 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun invalidUseCaseCombo_streamSharingOn() {
-        // Arrange.
-        adapter.setStreamSharingEnabled(true)
         // Act: add use cases that can only be supported with StreamSharing
         adapter.addUseCases(setOf(preview, video, image))
         // Assert: StreamSharing is connected to camera.
@@ -168,8 +163,6 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun validUseCaseCombo_streamSharingOff() {
-        // Arrange.
-        adapter.setStreamSharingEnabled(true)
         // Act: add use cases that do not need StreamSharing
         adapter.addUseCases(setOf(preview, video))
         // Assert: the app UseCase are connected to camera.
@@ -184,7 +177,6 @@ class CameraUseCaseAdapterTest {
     @Test(expected = CameraException::class)
     fun invalidUseCaseComboCantBeFixedByStreamSharing_throwsException() {
         // Arrange: create a camera that only support one JPEG stream.
-        adapter.setStreamSharingEnabled(true)
         fakeCameraDeviceSurfaceManager.setValidSurfaceCombos(setOf(listOf(JPEG)))
         // Act: add PRIV and JPEG streams.
         adapter.addUseCases(setOf(preview, image))
@@ -192,8 +184,6 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun addChildThatRequiresStreamSharing_streamSharingOn() {
-        // Arrange.
-        adapter.setStreamSharingEnabled(true)
         // Act: add UseCase that do not need StreamSharing
         adapter.addUseCases(setOf(video, image))
         // Assert.
@@ -223,8 +213,6 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun removeChildThatRequiresStreamSharing_streamSharingOff() {
-        // Arrange.
-        adapter.setStreamSharingEnabled(true)
         // Act: add UseCases that need StreamSharing.
         adapter.addUseCases(setOf(preview, video, image))
         // Assert: StreamSharing exists and bound.
@@ -257,15 +245,12 @@ class CameraUseCaseAdapterTest {
     fun extensionEnabled_streamSharingOffAndThrowsException() {
         // Arrange: enable extensions
         adapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig())
-        adapter.setStreamSharingEnabled(true)
         // Act: add UseCases that require StreamSharing
         adapter.addUseCases(setOf(preview, video, image))
     }
 
     @Test
     fun addAdditionalUseCase_streamSharingReused() {
-        // Arrange.
-        adapter.setStreamSharingEnabled(true)
         // Act: add UseCases that require StreamSharing
         adapter.addUseCases(setOf(preview, video, image))
         // Assert: StreamSharing is used.
