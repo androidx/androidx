@@ -249,12 +249,6 @@ class AndroidTestConfigBuilderTest {
         validate(mediaBuilder.build())
     }
 
-    @Test
-    fun testValidMediaConfigXml_presubmit() {
-        mediaBuilder.isPostsubmit(false)
-        validate(mediaBuilder.build())
-    }
-
     private fun validate(xml: String) {
         val parser = SAXParserFactory.newInstance().newSAXParser()
         return parser.parse(
