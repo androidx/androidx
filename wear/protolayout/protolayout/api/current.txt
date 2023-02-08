@@ -177,9 +177,7 @@ package androidx.wear.protolayout {
     method public static androidx.wear.protolayout.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
     method public static androidx.wear.protolayout.DimensionBuilders.EmProp em(int);
     method public static androidx.wear.protolayout.DimensionBuilders.EmProp em(float);
-    method public static androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp expand();
     method public static androidx.wear.protolayout.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
-    method public static androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp wrap();
   }
 
   public static interface DimensionBuilders.ContainerDimension {
@@ -219,14 +217,6 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.EmProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension {
-  }
-
-  public static final class DimensionBuilders.ExpandedDimensionProp.Builder implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension.Builder androidx.wear.protolayout.DimensionBuilders.ImageDimension.Builder {
-    ctor public DimensionBuilders.ExpandedDimensionProp.Builder();
-    method public androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp build();
-  }
-
   public static interface DimensionBuilders.ImageDimension {
   }
 
@@ -261,14 +251,6 @@ package androidx.wear.protolayout {
 
   public static interface DimensionBuilders.SpacerDimension.Builder {
     method public androidx.wear.protolayout.DimensionBuilders.SpacerDimension build();
-  }
-
-  public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension {
-  }
-
-  public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension.Builder {
-    ctor public DimensionBuilders.WrappedDimensionProp.Builder();
-    method public androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp build();
   }
 
   public final class LayoutElementBuilders {
