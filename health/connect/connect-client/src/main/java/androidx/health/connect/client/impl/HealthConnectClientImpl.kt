@@ -26,8 +26,6 @@ import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataR
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
 import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeIdPairProtoList
-import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
-import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.impl.converters.records.toProto
 import androidx.health.connect.client.impl.converters.records.toRecord
 import androidx.health.connect.client.impl.converters.request.toDeleteDataRangeRequestProto
@@ -73,22 +71,6 @@ internal constructor(
             )
         },
 ) : HealthConnectClient, PermissionController {
-
-    override suspend fun getGrantedPermissionsLegacy(
-        permissions: Set<HealthPermission>
-    ): Set<HealthPermission> {
-        val grantedPermissions =
-            delegate
-                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-                .await()
-                .map { it.toJetpackPermission() }
-                .toSet()
-        Logger.debug(
-            HEALTH_CONNECT_CLIENT_TAG,
-            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
-        )
-        return grantedPermissions
-    }
 
     override suspend fun getGrantedPermissions(): Set<String> {
         val grantedPermissions =

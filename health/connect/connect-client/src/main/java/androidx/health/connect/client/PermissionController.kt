@@ -18,9 +18,7 @@ package androidx.health.connect.client
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
-import androidx.health.connect.client.permission.HealthDataRequestPermissions
 import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.platform.HealthDataRequestPermissionsUpsideDownCake
@@ -28,21 +26,6 @@ import androidx.health.connect.client.permission.platform.HealthDataRequestPermi
 @JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */
 interface PermissionController {
-
-    /**
-     * Returns a set of [HealthPermission] granted by the user to the calling app, out of the input
-     * [permissions] set.
-     *
-     * @param permissions set of permissions interested to check if granted or not
-     * @return set of granted permissions.
-     * @throws android.os.RemoteException For any IPC transportation failures.
-     * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // To be deleted once internal clients have migrated.
-    suspend fun getGrantedPermissionsLegacy(
-        permissions: Set<HealthPermission>
-    ): Set<HealthPermission>
 
     /**
      * Returns a set of all health permissions granted by the user to the calling app.
@@ -70,22 +53,6 @@ interface PermissionController {
          *
          * @param providerPackageName Optional provider package name to request health permissions
          *   from.
-         * @see androidx.activity.ComponentActivity.registerForActivityResult
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // To be deleted once internal clients have migrated.
-        @JvmStatic
-        @JvmOverloads
-        fun createRequestPermissionResultContractLegacy(
-            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
-        ): ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> {
-            return HealthDataRequestPermissions(providerPackageName = providerPackageName)
-        }
-
-        /**
-         * Creates an [ActivityResultContract] to request Health permissions.
-         *
-         * @param providerPackageName Optional provider package name to request health permissions
-         *   from.
          * @sample androidx.health.connect.client.samples.RequestPermission
          * @see androidx.activity.ComponentActivity.registerForActivityResult
          */
@@ -96,7 +63,8 @@ interface PermissionController {
         ): ActivityResultContract<Set<String>, Set<String>> {
             if (VERSION.SDK_INT < VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return HealthDataRequestPermissionsInternal(
-                    providerPackageName = providerPackageName)
+                    providerPackageName = providerPackageName
+                )
             }
             return HealthDataRequestPermissionsUpsideDownCake()
         }
