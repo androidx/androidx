@@ -26,6 +26,7 @@ import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
 import android.health.connect.datatypes.units.Energy as PlatformEnergy
 import android.health.connect.datatypes.units.Mass as PlatformMass
 import android.os.Build
+import androidx.health.connect.client.RECORD_CLASSES
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -51,6 +52,13 @@ import org.junit.runner.RunWith
 // Comment the SDK suppress to run on emulators lower than U.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class RecordsConvertersTest {
+
+    @Test
+    fun toPlatformRecordClass_supportsAllRecordTypes() {
+        RECORD_CLASSES.forEach {
+            assertThat(it.toPlatformRecordClass()).isNotNull()
+        }
+    }
 
     @Test
     fun stepsRecordClass_convertToPlatform() {
