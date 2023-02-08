@@ -47,11 +47,12 @@ internal class TestCanvasAnalogWatchFaceService(
 
     // We can't subclass ExampleCanvasAnalogWatchFaceService because we want to override internal
     // methods, so instead we use composition.
-    private val delegate = object : ExampleCanvasAnalogWatchFaceService() {
-        init {
-            attachBaseContext(testContext)
+    private val delegate =
+        object : ExampleCanvasAnalogWatchFaceService() {
+            init {
+                attachBaseContext(testContext)
+            }
         }
-    }
 
     init {
         attachBaseContext(testContext)
@@ -88,15 +89,13 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override val wearSdkVersion = when (preRInitFlow) {
-        true -> Build.VERSION_CODES.O_MR1
-        false -> Build.VERSION_CODES.R
-    }
+    override val wearSdkVersion =
+        when (preRInitFlow) {
+            true -> Build.VERSION_CODES.O_MR1
+            false -> Build.VERSION_CODES.R
+        }
 
-    override fun readDirectBootPrefs(
-        context: Context,
-        fileName: String
-    ) = directBootParams
+    override fun readDirectBootPrefs(context: Context, fileName: String) = directBootParams
 
     override fun writeDirectBootPrefs(
         context: Context,
@@ -119,9 +118,10 @@ internal class TestCanvasAnalogWatchFaceService(
         onInvalidateCountDownLatch?.countDown()
     }
 
-    override fun getSystemTimeProvider() = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = mockSystemTimeMillis
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = mockSystemTimeMillis
 
-        override fun getSystemTimeZoneId() = mockZoneId
-    }
+            override fun getSystemTimeZoneId() = mockZoneId
+        }
 }

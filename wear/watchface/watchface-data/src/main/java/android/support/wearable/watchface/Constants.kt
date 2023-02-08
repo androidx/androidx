@@ -34,8 +34,7 @@ public class Constants {
         public const val KEY_BOUNDS: String = "KEY_BOUNDS"
         public const val KEY_TEXT: String = "KEY_TEXT"
 
-        @SuppressWarnings("IntentName")
-        public const val KEY_TAP_ACTION: String = "KEY_TAP_ACTION"
+        @SuppressWarnings("IntentName") public const val KEY_TAP_ACTION: String = "KEY_TAP_ACTION"
 
         // Keys for [WatchFaceStyle].
         public const val KEY_COMPONENT: String = "component"
@@ -98,8 +97,7 @@ public class Constants {
         public const val COMMAND_TOUCH_CANCEL: String = "android.wallpaper.touch_cancel"
 
         // Various binder extras.
-        @SuppressWarnings("ActionValue")
-        public const val EXTRA_BINDER: String = "binder"
+        @SuppressWarnings("ActionValue") public const val EXTRA_BINDER: String = "binder"
 
         @SuppressWarnings("ActionValue")
         public const val EXTRA_AMBIENT_MODE: String = "ambient_mode"
@@ -139,17 +137,17 @@ public class Constants {
          * Property in bundle passed to [Engine.onPropertiesChanged] to indicate whether burn-in
          * protection is required. When this property is set to true, views are shifted around
          * periodically in ambient mode. To ensure that content isn't shifted off the screen, watch
-         * faces should avoid placing content within 10 pixels of the edge of the screen. Watch faces
-         * should also avoid solid white areas to prevent pixel burn-in. Both of these requirements only
-         * apply in ambient mode, and only when this property is set to true.
+         * faces should avoid placing content within 10 pixels of the edge of the screen. Watch
+         * faces should also avoid solid white areas to prevent pixel burn-in. Both of these
+         * requirements only apply in ambient mode, and only when this property is set to true.
          */
         public const val PROPERTY_BURN_IN_PROTECTION: String = "burn_in_protection"
 
         /**
-         * Property in bundle passed to [Engine.onPropertiesChanged] to indicate whether the
-         * device has low-bit ambient mode. When this property is set to true, the screen supports fewer
-         * bits for each color in ambient mode. In this case, watch faces should disable anti-aliasing
-         * in ambient mode.
+         * Property in bundle passed to [Engine.onPropertiesChanged] to indicate whether the device
+         * has low-bit ambient mode. When this property is set to true, the screen supports fewer
+         * bits for each color in ambient mode. In this case, watch faces should disable
+         * anti-aliasing in ambient mode.
          */
         public const val PROPERTY_LOW_BIT_AMBIENT: String = "low_bit_ambient"
 
@@ -168,8 +166,8 @@ public class Constants {
             "androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
 
         /**
-         * Metadata flag indicating the watch face service exposes flavors. The system will
-         * access them only if this flag is present in manifest.
+         * Metadata flag indicating the watch face service exposes flavors. The system will access
+         * them only if this flag is present in manifest.
          */
         public const val META_DATA_FLAVORS_SUPPORTED: String =
             "androidx.wear.watchface.FLAVORS_SUPPORTED"

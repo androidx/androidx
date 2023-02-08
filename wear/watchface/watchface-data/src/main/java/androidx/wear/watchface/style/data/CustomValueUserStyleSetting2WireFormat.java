@@ -35,10 +35,11 @@ import java.util.List;
 @VersionedParcelize
 public class CustomValueUserStyleSetting2WireFormat extends UserStyleSettingWireFormat {
 
-    CustomValueUserStyleSetting2WireFormat() {
-    }
+    CustomValueUserStyleSetting2WireFormat() {}
 
-    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    /**
+     * @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles.
+     */
     @Deprecated
     public CustomValueUserStyleSetting2WireFormat(
             @NonNull String id,
@@ -59,7 +60,15 @@ public class CustomValueUserStyleSetting2WireFormat extends UserStyleSettingWire
             @NonNull List<Integer> affectsLayers,
             @Nullable Bundle onWatchFaceEditorBundle,
             @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
-        super(id, displayName, description, icon, options, 0, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                0,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
     }
 }

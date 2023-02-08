@@ -32,10 +32,10 @@ import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
 import com.google.common.truth.Truth
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.MainScope
+import org.junit.Test
+import org.junit.runner.RunWith
 
 private const val TIMEOUT_MS = 500L
 
@@ -45,11 +45,12 @@ private const val TIMEOUT_MS = 500L
  */
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceControlTestService : WatchFaceControlService() {
-    private val realService = object : WatchFaceControlService() {
-        @SuppressLint("NewApi")
-        override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope())
-    }
+    private val realService =
+        object : WatchFaceControlService() {
+            @SuppressLint("NewApi")
+            override fun createServiceStub(): IWatchFaceInstanceServiceStub =
+                IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope())
+        }
 
     @SuppressLint("NewApi")
     override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)
@@ -59,10 +60,11 @@ public class WatchFaceControlTestService : WatchFaceControlService() {
 @MediumTest
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 public class ListenableWatchFaceMetadataClientTest {
-    private val exampleWatchFaceComponentName = ComponentName(
-        "androidx.wear.watchface.samples.test",
-        "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
-    )
+    private val exampleWatchFaceComponentName =
+        ComponentName(
+            "androidx.wear.watchface.samples.test",
+            "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -88,20 +90,14 @@ public class ListenableWatchFaceMetadataClientTest {
         val schema = watchFaceMetadataClient.getUserStyleSchema()
 
         Truth.assertThat(schema.userStyleSettings.size).isEqualTo(5)
-        Truth.assertThat(schema.userStyleSettings[0].id.value).isEqualTo(
-            "color_style_setting"
-        )
-        Truth.assertThat(schema.userStyleSettings[1].id.value).isEqualTo(
-            "draw_hour_pips_style_setting"
-        )
-        Truth.assertThat(schema.userStyleSettings[2].id.value).isEqualTo(
-            "watch_hand_length_style_setting"
-        )
-        Truth.assertThat(schema.userStyleSettings[3].id.value).isEqualTo(
-            "complications_style_setting"
-        )
-        Truth.assertThat(schema.userStyleSettings[4].id.value).isEqualTo(
-            "hours_draw_freq_style_setting"
-        )
+        Truth.assertThat(schema.userStyleSettings[0].id.value).isEqualTo("color_style_setting")
+        Truth.assertThat(schema.userStyleSettings[1].id.value)
+            .isEqualTo("draw_hour_pips_style_setting")
+        Truth.assertThat(schema.userStyleSettings[2].id.value)
+            .isEqualTo("watch_hand_length_style_setting")
+        Truth.assertThat(schema.userStyleSettings[3].id.value)
+            .isEqualTo("complications_style_setting")
+        Truth.assertThat(schema.userStyleSettings[4].id.value)
+            .isEqualTo("hours_draw_freq_style_setting")
     }
 }

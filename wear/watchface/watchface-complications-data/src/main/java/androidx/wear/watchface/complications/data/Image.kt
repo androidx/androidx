@@ -16,9 +16,9 @@
 
 package androidx.wear.watchface.complications.data
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.utility.iconEquals
@@ -37,17 +37,15 @@ internal fun createPlaceholderIcon(): Icon =
  * with the provider / brand with the expectation that the watch face may recolor it (typically
  * using a SRC_IN filter).
  *
- * An ambient alternative is provided that may be shown instead of the regular image while the
- * watch is not active.
+ * An ambient alternative is provided that may be shown instead of the regular image while the watch
+ * is not active.
  *
  * @property [image] The image itself
  * @property [ambientImage] The image to be shown when the device is in ambient mode to save power
- * or avoid burn in
+ *   or avoid burn in
  */
-public class MonochromaticImage internal constructor(
-    public val image: Icon,
-    public val ambientImage: Icon?
-) {
+public class MonochromaticImage
+internal constructor(public val image: Icon, public val ambientImage: Icon?) {
     /**
      * Builder for [MonochromaticImage].
      *
@@ -57,9 +55,9 @@ public class MonochromaticImage internal constructor(
         private var ambientImage: Icon? = null
 
         /**
-         * Sets a different image for when the device is ambient mode to save power and prevent
-         * burn in. If no ambient variant is provided, the watch face may not show anything while
-         * in ambient mode.
+         * Sets a different image for when the device is ambient mode to save power and prevent burn
+         * in. If no ambient variant is provided, the watch face may not show anything while in
+         * ambient mode.
          */
         public fun setAmbientImage(ambientImage: Icon?): Builder = apply {
             this.ambientImage = ambientImage
@@ -70,10 +68,11 @@ public class MonochromaticImage internal constructor(
     }
 
     /** Adds a [MonochromaticImage] to a builder for [WireComplicationData]. */
-    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) = builder.apply {
-        setIcon(image)
-        setBurnInProtectionIcon(ambientImage)
-    }
+    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) =
+        builder.apply {
+            setIcon(image)
+            setBurnInProtectionIcon(ambientImage)
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -94,8 +93,7 @@ public class MonochromaticImage internal constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun isPlaceholder() = image.isPlaceholder()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun isPlaceholder() = image.isPlaceholder()
 
     /** @hide */
     public companion object {
@@ -120,16 +118,16 @@ public class MonochromaticImage internal constructor(
  */
 public enum class SmallImageType {
     /**
-     * Type for images that have a transparent background and are expected to be drawn
-     * entirely within the space available, such as a launcher image. Watch faces may add padding
-     * when drawing these images, but should never crop these images. Icons must not be recolored.
+     * Type for images that have a transparent background and are expected to be drawn entirely
+     * within the space available, such as a launcher image. Watch faces may add padding when
+     * drawing these images, but should never crop these images. Icons must not be recolored.
      */
     ICON,
 
     /**
-     * Type for images which are photos that are expected to fill the space available. Images
-     * of this style may be cropped to fit the shape of the complication - in particular, the image
-     * may be cropped to a circle. Photos must not be recolored.
+     * Type for images which are photos that are expected to fill the space available. Images of
+     * this style may be cropped to fit the shape of the complication - in particular, the image may
+     * be cropped to a circle. Photos must not be recolored.
      */
     PHOTO
 }
@@ -138,15 +136,16 @@ public enum class SmallImageType {
  * An image that is expected to cover a small fraction of a watch face occupied by a single
  * complication. A SmallImage must not be tinted.
  *
- * An ambient alternative is provided that may be shown instead of the regular image while the
- * watch is not active.
+ * An ambient alternative is provided that may be shown instead of the regular image while the watch
+ * is not active.
  *
  * @property [image] The image itself
  * @property [type] The style of the image provided, to guide how it should be displayed
  * @property [ambientImage] The image to be shown when the device is in ambient mode to save power
- * or avoid burn in
+ *   or avoid burn in
  */
-public class SmallImage internal constructor(
+public class SmallImage
+internal constructor(
     public val image: Icon,
     public val type: SmallImageType,
     public val ambientImage: Icon?
@@ -161,9 +160,9 @@ public class SmallImage internal constructor(
         private var ambientImage: Icon? = null
 
         /**
-         * Sets a different image for when the device is ambient mode to save power and prevent
-         * burn in. If no ambient variant is provided, the watch face may not show anything while
-         * in ambient mode.
+         * Sets a different image for when the device is ambient mode to save power and prevent burn
+         * in. If no ambient variant is provided, the watch face may not show anything while in
+         * ambient mode.
          */
         public fun setAmbientImage(ambientImage: Icon?): Builder = apply {
             this.ambientImage = ambientImage
@@ -174,16 +173,17 @@ public class SmallImage internal constructor(
     }
 
     /** Adds a [SmallImage] to a builder for [WireComplicationData]. */
-    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) = builder.apply {
-        setSmallImage(image)
-        setSmallImageStyle(
-            when (this@SmallImage.type) {
-                SmallImageType.ICON -> WireComplicationData.IMAGE_STYLE_ICON
-                SmallImageType.PHOTO -> WireComplicationData.IMAGE_STYLE_PHOTO
-            }
-        )
-        setBurnInProtectionSmallImage(ambientImage)
-    }
+    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) =
+        builder.apply {
+            setSmallImage(image)
+            setSmallImageStyle(
+                when (this@SmallImage.type) {
+                    SmallImageType.ICON -> WireComplicationData.IMAGE_STYLE_ICON
+                    SmallImageType.PHOTO -> WireComplicationData.IMAGE_STYLE_PHOTO
+                }
+            )
+            setBurnInProtectionSmallImage(ambientImage)
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -208,8 +208,8 @@ public class SmallImage internal constructor(
     /** @hide */
     public companion object {
         /**
-         * For use when the real data isn't available yet, this [SmallImage] should be rendered
-         * as a placeholder. It is suggested that it should be rendered with a light grey box.
+         * For use when the real data isn't available yet, this [SmallImage] should be rendered as a
+         * placeholder. It is suggested that it should be rendered with a light grey box.
          *
          * Note a placeholder may only be used in the context of
          * [NoDataComplicationData.placeholder].
@@ -220,17 +220,17 @@ public class SmallImage internal constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun isPlaceholder() = image.isPlaceholder()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun isPlaceholder() = image.isPlaceholder()
 }
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Icon.isPlaceholder() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-    IconP.isPlaceholder(this)
-} else {
-    false
-}
+fun Icon.isPlaceholder() =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        IconP.isPlaceholder(this)
+    } else {
+        false
+    }
 
 @RequiresApi(Build.VERSION_CODES.P)
 private object IconP {

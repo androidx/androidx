@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 
 /**
  * The API [WatchFaceImpl] uses to communicate with the system.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -67,13 +68,12 @@ public interface WatchFaceHostApi {
      * Creates/updates ContentDescriptionLabels for text-to-speech screen readers to make your
      * [ComplicationSlot]s, buttons, and any other text on your watchface accessible.
      *
-     * Each label is a region of the screen in absolute pixel coordinates, along with
-     * time-dependent text, the labels are generated from data in [ComplicationSlotsManager],
+     * Each label is a region of the screen in absolute pixel coordinates, along with time-dependent
+     * text, the labels are generated from data in [ComplicationSlotsManager],
      * [Renderer.additionalContentDescriptionLabels], [Renderer.screenBounds] and
      * [Renderer.getMainClockElementBounds].
      *
-     * This is a fairly expensive operation so use it sparingly (e.g. do not call it in
-     * `onDraw()`).
+     * This is a fairly expensive operation so use it sparingly (e.g. do not call it in `onDraw()`).
      */
     public fun updateContentDescriptionLabels()
 
@@ -87,8 +87,7 @@ public interface WatchFaceHostApi {
      * received will match the type chosen by the user. If no complication data source has been
      * configured, data of type [ComplicationData.TYPE_NOT_CONFIGURED] will be received.
      *
-     * Ids here are chosen by the watch face to represent each complication and can be any
-     * integer.
+     * Ids here are chosen by the watch face to represent each complication and can be any integer.
      */
     public fun setActiveComplicationSlots(complicationSlotIds: IntArray)
 
@@ -97,9 +96,9 @@ public interface WatchFaceHostApi {
      *
      * Accepts a list of custom complication data sources to attempt to set as the default
      * complication data source for the specified watch face [ComplicationSlot] id. The custom
-     * complication data sources are tried in turn, if the first doesn't exist then the next one
-     * is tried and so on. If none of them exist then the specified system complication data
-     * source is set as the default instead.
+     * complication data sources are tried in turn, if the first doesn't exist then the next one is
+     * tried and so on. If none of them exist then the specified system complication data source is
+     * set as the default instead.
      *
      * This will do nothing if the complication data sources are not installed, or if the specified
      * type is not supported by the complication data sources, or if the user has already selected a
@@ -118,12 +117,11 @@ public interface WatchFaceHostApi {
      *
      * @param complicationSlotId The [ComplicationSlot] id.
      * @param dataSources data sources The list of non-system complication data sources to try in
-     * order before falling back to
-     * fallbackSystemProvider. This list may be null.
+     *   order before falling back to fallbackSystemProvider. This list may be null.
      * @param fallbackSystemProvider The system complication data source to use if none of the
-     * complication data sources could be used.
+     *   complication data sources could be used.
      * @param type The type of complication data that should be provided. Must be one of the types
-     * defined in [ComplicationData].
+     *   defined in [ComplicationData].
      */
     public fun setDefaultComplicationDataSourceWithFallbacks(
         complicationSlotId: Int,
@@ -133,8 +131,7 @@ public interface WatchFaceHostApi {
     )
 
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
-    @UiThread
-    public fun invalidate()
+    @UiThread public fun invalidate()
 
     public fun postInvalidate(delay: Duration = Duration.ZERO)
 
@@ -148,8 +145,7 @@ public interface WatchFaceHostApi {
      * Sent by the system at the top of the minute. This may trigger rendering if SysUI hasn't sent
      * called setWatchUiState.
      */
-    @UiThread
-    public fun onActionTimeTick() {}
+    @UiThread public fun onActionTimeTick() {}
 
     /** The engine must notify the system that the watch face's colors have changed. */
     @OptIn(WatchFaceExperimental::class)

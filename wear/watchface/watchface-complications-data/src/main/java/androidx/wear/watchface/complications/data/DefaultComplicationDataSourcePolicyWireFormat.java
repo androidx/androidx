@@ -57,8 +57,7 @@ public final class DefaultComplicationDataSourcePolicyWireFormat
     @ComplicationData.ComplicationType
     public int mSecondaryDataSourceDefaultType;
 
-    DefaultComplicationDataSourcePolicyWireFormat() {
-    }
+    DefaultComplicationDataSourcePolicyWireFormat() {}
 
     public DefaultComplicationDataSourcePolicyWireFormat(
             @NonNull List<ComponentName> defaultDataSourcesToTry,

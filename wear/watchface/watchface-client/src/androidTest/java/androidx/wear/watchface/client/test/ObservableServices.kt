@@ -48,6 +48,7 @@ class ObservableServiceA : ObservableService(latch) {
 
         /**
          * Awaits for up to [maxDurationMillis] milliseconds the service to be bound.
+         *
          * @return True if the service is bound before the time runs out, or false otherwise.
          */
         fun awaitForServiceToBeBound(maxDurationMillis: Long): Boolean =
@@ -57,12 +58,13 @@ class ObservableServiceA : ObservableService(latch) {
             latch = CountDownLatch(1)
         }
 
-        fun createPendingIntent(context: Context) = PendingIntent.getService(
-            context,
-            101,
-            Intent(context, ObservableServiceA::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        fun createPendingIntent(context: Context) =
+            PendingIntent.getService(
+                context,
+                101,
+                Intent(context, ObservableServiceA::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
     }
 }
 
@@ -72,6 +74,7 @@ class ObservableServiceB : ObservableService(latch) {
 
         /**
          * Awaits for up to [maxDurationMillis] milliseconds the service to be bound.
+         *
          * @return True if the service is bound before the time runs out, or false otherwise.
          */
         fun awaitForServiceToBeBound(maxDurationMillis: Long): Boolean =
@@ -81,12 +84,13 @@ class ObservableServiceB : ObservableService(latch) {
             latch = CountDownLatch(1)
         }
 
-        fun createPendingIntent(context: Context) = PendingIntent.getService(
-            context,
-            101,
-            Intent(context, ObservableServiceB::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        fun createPendingIntent(context: Context) =
+            PendingIntent.getService(
+                context,
+                101,
+                Intent(context, ObservableServiceB::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
     }
 }
 
@@ -96,6 +100,7 @@ class ObservableServiceC : ObservableService(latch) {
 
         /**
          * Awaits for up to [maxDurationMillis] milliseconds the service to be bound.
+         *
          * @return True if the service is bound before the time runs out, or false otherwise.
          */
         fun awaitForServiceToBeBound(maxDurationMillis: Long): Boolean =
@@ -105,11 +110,12 @@ class ObservableServiceC : ObservableService(latch) {
             latch = CountDownLatch(1)
         }
 
-        fun createPendingIntent(context: Context) = PendingIntent.getService(
-            context,
-            101,
-            Intent(context, ObservableServiceC::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        fun createPendingIntent(context: Context) =
+            PendingIntent.getService(
+                context,
+                101,
+                Intent(context, ObservableServiceC::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
     }
 }

@@ -51,15 +51,11 @@ public class BroadcastsObserver(
     }
 
     override fun onActionTimeZoneChanged() {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onActionTimeZoneChanged()
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onActionTimeZoneChanged() }
     }
 
     override fun onActionTimeChanged() {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onActionTimeChanged()
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onActionTimeChanged() }
     }
 
     override fun onActionBatteryLow() {
@@ -87,14 +83,11 @@ public class BroadcastsObserver(
     }
 
     override fun onMockTime(intent: Intent) {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onMockTime(intent)
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onMockTime(intent) }
     }
 
     private fun updateBatteryLowAndNotChargingStatus(value: Boolean) {
-        val isBatteryLowAndNotCharging =
-            watchState.isBatteryLowAndNotCharging as MutableStateFlow
+        val isBatteryLowAndNotCharging = watchState.isBatteryLowAndNotCharging as MutableStateFlow
         if (!isBatteryLowAndNotCharging.hasValue() || value != isBatteryLowAndNotCharging.value) {
             isBatteryLowAndNotCharging.value = value
             watchFaceHostApi.invalidate()
@@ -123,12 +116,13 @@ public class BroadcastsObserver(
         // This is a backup signal for when SysUI is unable to deliver the ambient state (e.g. in
         // direct boot mode). We need to distinguish between ACTION_SCREEN_OFF for entering ambient
         // and the screen turning off. This is only possible from R.
-        isAmbient.value = if (ambientSettingAvailable) {
-            Settings.Global.getInt(contentResolver, AMBIENT_ENABLED_PATH, 0) == 1
-        } else {
-            // On P and below we just have to assume we're not ambient.
-            false
-        }
+        isAmbient.value =
+            if (ambientSettingAvailable) {
+                Settings.Global.getInt(contentResolver, AMBIENT_ENABLED_PATH, 0) == 1
+            } else {
+                // On P and below we just have to assume we're not ambient.
+                false
+            }
     }
 
     override fun onActionScreenOn() {

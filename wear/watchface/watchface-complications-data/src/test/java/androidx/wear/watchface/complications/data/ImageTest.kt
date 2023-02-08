@@ -27,9 +27,7 @@ public class ImageTest {
     public fun monochromaticImage() {
         val icon = Icon.createWithContentUri("icon")
         val ambientIcon = Icon.createWithContentUri("icon")
-        val image = MonochromaticImage.Builder(icon)
-            .setAmbientImage(ambientIcon)
-            .build()
+        val image = MonochromaticImage.Builder(icon).setAmbientImage(ambientIcon).build()
         assertThat(image.image).isEqualTo(icon)
         assertThat(image.ambientImage).isEqualTo(ambientIcon)
     }
@@ -38,9 +36,8 @@ public class ImageTest {
     public fun smallImage() {
         val icon = Icon.createWithContentUri("icon")
         val ambientIcon = Icon.createWithContentUri("icon")
-        val image = SmallImage.Builder(icon, SmallImageType.PHOTO)
-            .setAmbientImage(ambientIcon)
-            .build()
+        val image =
+            SmallImage.Builder(icon, SmallImageType.PHOTO).setAmbientImage(ambientIcon).build()
         assertThat(image.image).isEqualTo(icon)
         assertThat(image.type).isEqualTo(SmallImageType.PHOTO)
         assertThat(image.ambientImage).isEqualTo(ambientIcon)

@@ -38,12 +38,12 @@ public class WatchFaceService extends ListenableWatchFaceService {
     @NotNull
     @Override
     protected ListenableFuture<WatchFace> createWatchFaceFuture(
-            @NotNull SurfaceHolder surfaceHolder, @NotNull WatchState watchState,
+            @NotNull SurfaceHolder surfaceHolder,
+            @NotNull WatchState watchState,
             @NonNull ComplicationSlotsManager complicationSlotsManager,
             @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         Renderer renderer =
                 new WatchFaceRenderer(surfaceHolder, currentUserStyleRepository, watchState);
-        return Futures.immediateFuture(
-                new WatchFace(WatchFaceType.DIGITAL, renderer));
+        return Futures.immediateFuture(new WatchFace(WatchFaceType.DIGITAL, renderer));
     }
 }

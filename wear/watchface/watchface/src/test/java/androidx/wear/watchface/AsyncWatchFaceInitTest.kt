@@ -31,14 +31,16 @@ import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.WatchUiState
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
+import java.util.ArrayDeque
+import java.util.PriorityQueue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
+import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.fail
@@ -47,10 +49,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
 import org.robolectric.annotation.Config
-import java.util.ArrayDeque
-import java.util.PriorityQueue
-import org.junit.After
 
 internal class TestAsyncWatchFaceService(
     private val handler: Handler,
@@ -88,12 +88,15 @@ internal class TestAsyncWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = factory.createWatchFaceAsync(
-        surfaceHolder,
-        watchState,
-        complicationSlotsManager,
-        currentUserStyleRepository
-    ).await()
+    ) =
+        factory
+            .createWatchFaceAsync(
+                surfaceHolder,
+                watchState,
+                complicationSlotsManager,
+                currentUserStyleRepository
+            )
+            .await()
 
     override fun getUiThreadHandlerImpl() = handler
 
@@ -101,17 +104,13 @@ internal class TestAsyncWatchFaceService(
 
     override fun getMutableWatchState() = watchState
 
-    override fun readDirectBootPrefs(
-        context: Context,
-        fileName: String
-    ) = directBootParams
+    override fun readDirectBootPrefs(context: Context, fileName: String) = directBootParams
 
     override fun writeDirectBootPrefs(
         context: Context,
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
-    ) {
-    }
+    ) {}
 }
 
 @Config(manifest = Config.NONE, sdk = [Build.VERSION_CODES.R])
@@ -122,20 +121,16 @@ public class AsyncWatchFaceInitTest {
     private val surfaceHolder = mock<SurfaceHolder>()
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
-    private val initParams = WallpaperInteractiveWatchFaceInstanceParams(
-        "instanceId",
-        DeviceConfig(
-            false,
-            false,
-            0,
-            0
-        ),
-        WatchUiState(false, 0),
-        UserStyle(emptyMap()).toWireFormat(),
-        null,
-        null,
-        null
-    )
+    private val initParams =
+        WallpaperInteractiveWatchFaceInstanceParams(
+            "instanceId",
+            DeviceConfig(false, false, 0, 0),
+            WatchUiState(false, 0),
+            UserStyle(emptyMap()).toWireFormat(),
+            null,
+            null,
+            null
+        )
 
     private class Task(val runTimeMillis: Long, val runnable: Runnable) : Comparable<Task> {
         override fun compareTo(other: Task) = runTimeMillis.compareTo(other.runTimeMillis)
@@ -143,8 +138,8 @@ public class AsyncWatchFaceInitTest {
 
     private fun runPostedTasksFor(durationMillis: Long) {
         looperTimeMillis += durationMillis
-        while (pendingTasks.isNotEmpty() &&
-            pendingTasks.peek()!!.runTimeMillis <= looperTimeMillis
+        while (
+            pendingTasks.isNotEmpty() && pendingTasks.peek()!!.runTimeMillis <= looperTimeMillis
         ) {
             pendingTasks.remove().runnable.run()
         }
@@ -155,39 +150,35 @@ public class AsyncWatchFaceInitTest {
         Mockito.`when`(handler.getLooper()).thenReturn(Looper.myLooper())
 
         // Capture tasks posted to mHandler and insert in mPendingTasks which is under our control.
-        Mockito.doAnswer {
-            pendingTasks.add(
-                Task(
-                    looperTimeMillis,
-                    it.arguments[0] as Runnable
-                )
-            )
-        }.`when`(handler).post(ArgumentMatchers.any())
+        Mockito.doAnswer { pendingTasks.add(Task(looperTimeMillis, it.arguments[0] as Runnable)) }
+            .`when`(handler)
+            .post(ArgumentMatchers.any())
 
         Mockito.doAnswer {
-            pendingTasks.add(
-                Task(
-                    looperTimeMillis + it.arguments[1] as Long,
-                    it.arguments[0] as Runnable
+                pendingTasks.add(
+                    Task(looperTimeMillis + it.arguments[1] as Long, it.arguments[0] as Runnable)
                 )
-            )
-        }.`when`(handler).postDelayed(ArgumentMatchers.any(), ArgumentMatchers.anyLong())
+            }
+            .`when`(handler)
+            .postDelayed(ArgumentMatchers.any(), ArgumentMatchers.anyLong())
 
         Mockito.doAnswer {
-            // Remove task from the priority queue.  There's no good way of doing this quickly.
-            val queue = ArrayDeque<Task>()
-            while (pendingTasks.isNotEmpty()) {
-                val task = pendingTasks.remove()
-                if (task.runnable != it.arguments[0]) {
-                    queue.add(task)
+                // Remove task from the priority queue.  There's no good way of doing this quickly.
+                val queue = ArrayDeque<Task>()
+                while (pendingTasks.isNotEmpty()) {
+                    val task = pendingTasks.remove()
+                    if (task.runnable != it.arguments[0]) {
+                        queue.add(task)
+                    }
+                }
+
+                // Push filtered tasks back on the queue.
+                while (queue.isNotEmpty()) {
+                    pendingTasks.add(queue.remove())
                 }
             }
-
-            // Push filtered tasks back on the queue.
-            while (queue.isNotEmpty()) {
-                pendingTasks.add(queue.remove())
-            }
-        }.`when`(handler).removeCallbacks(ArgumentMatchers.any())
+            .`when`(handler)
+            .removeCallbacks(ArgumentMatchers.any())
     }
 
     @After
@@ -199,25 +190,26 @@ public class AsyncWatchFaceInitTest {
     @Test
     public fun createInteractiveInstanceFailsIfDirectBootWatchFaceCreationIsInProgress() {
         val completableWatchFace = CompletableDeferred<WatchFace>()
-        val service = TestAsyncWatchFaceService(
-            handler,
-            object : TestAsyncWatchFaceService.AsyncWatchFaceFactory() {
-                override fun createUserStyleSchema() = UserStyleSchema(emptyList())
+        val service =
+            TestAsyncWatchFaceService(
+                handler,
+                object : TestAsyncWatchFaceService.AsyncWatchFaceFactory() {
+                    override fun createUserStyleSchema() = UserStyleSchema(emptyList())
 
-                override fun createComplicationsManager(
-                    currentUserStyleRepository: CurrentUserStyleRepository
-                ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+                    override fun createComplicationsManager(
+                        currentUserStyleRepository: CurrentUserStyleRepository
+                    ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
-                override fun createWatchFaceAsync(
-                    surfaceHolder: SurfaceHolder,
-                    watchState: WatchState,
-                    complicationSlotsManager: ComplicationSlotsManager,
-                    currentUserStyleRepository: CurrentUserStyleRepository
-                ) = completableWatchFace
-            },
-            MutableWatchState(),
-            initParams
-        )
+                    override fun createWatchFaceAsync(
+                        surfaceHolder: SurfaceHolder,
+                        watchState: WatchState,
+                        complicationSlotsManager: ComplicationSlotsManager,
+                        currentUserStyleRepository: CurrentUserStyleRepository
+                    ) = completableWatchFace
+                },
+                MutableWatchState(),
+                initParams
+            )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
 
@@ -253,8 +245,7 @@ public class AsyncWatchFaceInitTest {
                     InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                         initParams,
                         object : IPendingInteractiveWatchFace.Stub() {
-                            override fun getApiVersion() =
-                                IPendingInteractiveWatchFace.API_VERSION
+                            override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
 
                             override fun onInteractiveWatchFaceCreated(
                                 iInteractiveWatchFaceWcs: IInteractiveWatchFace?
@@ -272,30 +263,31 @@ public class AsyncWatchFaceInitTest {
                 )
         )
 
-        val service = TestAsyncWatchFaceService(
-            handler,
-            object : TestAsyncWatchFaceService.AsyncWatchFaceFactory() {
-                override fun createUserStyleSchema() = UserStyleSchema(emptyList())
+        val service =
+            TestAsyncWatchFaceService(
+                handler,
+                object : TestAsyncWatchFaceService.AsyncWatchFaceFactory() {
+                    override fun createUserStyleSchema() = UserStyleSchema(emptyList())
 
-                override fun createComplicationsManager(
-                    currentUserStyleRepository: CurrentUserStyleRepository
-                ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+                    override fun createComplicationsManager(
+                        currentUserStyleRepository: CurrentUserStyleRepository
+                    ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
-                override fun createWatchFaceAsync(
-                    surfaceHolder: SurfaceHolder,
-                    watchState: WatchState,
-                    complicationSlotsManager: ComplicationSlotsManager,
-                    currentUserStyleRepository: CurrentUserStyleRepository
-                ): Deferred<WatchFace> {
-                    pendingSurfaceHolder = surfaceHolder
-                    pendingWatchState = watchState
-                    pendingCurrentUserStyleRepository = currentUserStyleRepository
-                    return completableDirectBootWatchFace
-                }
-            },
-            MutableWatchState(),
-            initParams
-        )
+                    override fun createWatchFaceAsync(
+                        surfaceHolder: SurfaceHolder,
+                        watchState: WatchState,
+                        complicationSlotsManager: ComplicationSlotsManager,
+                        currentUserStyleRepository: CurrentUserStyleRepository
+                    ): Deferred<WatchFace> {
+                        pendingSurfaceHolder = surfaceHolder
+                        pendingWatchState = watchState
+                        pendingCurrentUserStyleRepository = currentUserStyleRepository
+                        return completableDirectBootWatchFace
+                    }
+                },
+                MutableWatchState(),
+                initParams
+            )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         Mockito.`when`(surfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 100, 100))
