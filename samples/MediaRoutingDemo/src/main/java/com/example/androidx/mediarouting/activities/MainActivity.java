@@ -685,7 +685,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Controller Dialog Fragment for the media router dialog.
      */
-    private static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
+    public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
         private MainActivity mMainActivity;
         private MediaRouteControllerDialog mControllerDialog;
         private CheckBox mUseDefaultControlCheckBox;
