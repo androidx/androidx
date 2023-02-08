@@ -24,10 +24,16 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.ActionsConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -57,6 +63,8 @@ public final class GridTemplate implements Template {
     private final ItemList mSingleList;
     @Nullable
     private final ActionStrip mActionStrip;
+
+    private final List<Action> mActions;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -109,6 +117,18 @@ public final class GridTemplate implements Template {
         return mSingleList;
     }
 
+    /**
+     * Returns the list of additional actions.
+     *
+     * @see GridTemplate.Builder#addAction(Action)
+     */
+    @ExperimentalCarApi
+    @NonNull
+    @RequiresCarApi(6)
+    public List<Action> getActions() {
+        return mActions;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -134,7 +154,8 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
+                && Objects.equals(mActions, otherTemplate.mActions);
     }
 
     GridTemplate(Builder builder) {
@@ -143,6 +164,7 @@ public final class GridTemplate implements Template {
         mHeaderAction = builder.mHeaderAction;
         mSingleList = builder.mSingleList;
         mActionStrip = builder.mActionStrip;
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -152,6 +174,7 @@ public final class GridTemplate implements Template {
         mHeaderAction = null;
         mSingleList = null;
         mActionStrip = null;
+        mActions = Collections.emptyList();
     }
 
     /** A builder of {@link GridTemplate}. */
@@ -165,6 +188,7 @@ public final class GridTemplate implements Template {
         Action mHeaderAction;
         @Nullable
         ActionStrip mActionStrip;
+        final List<Action> mActions = new ArrayList<>();
 
         /**
          * Sets whether the template is in a loading state.
@@ -249,6 +273,26 @@ public final class GridTemplate implements Template {
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
+            return this;
+        }
+
+        /**
+         * Adds a template scoped action outside of the grid items. This action will be displayed
+         * as a floating action button.
+         *
+         * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
+         *                                  exceeds the maximum number of allowed actions or does
+         *                                  not contain a valid {@link CarIcon} and background
+         *                                  {@link CarColor}.
+         */
+        @ExperimentalCarApi
+        @NonNull
+        @RequiresCarApi(6)
+        public Builder addAction(@NonNull Action action) {
+            List<Action> mActionsCopy = new ArrayList<>(mActions);
+            mActionsCopy.add(requireNonNull(action));
+            ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(mActionsCopy);
+            mActions.add(action);
             return this;
         }
 
