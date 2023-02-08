@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build.VERSION_CODES
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.StepsRecord
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -42,24 +41,14 @@ class PermissionControllerTest {
     }
 
     @Test
-    fun createIntent_legacy() {
-        val requestPermissionContract =
-            PermissionController.createRequestPermissionResultContractLegacy(PROVIDER_PACKAGE_NAME)
-        val intent =
-            requestPermissionContract.createIntent(
-                context, setOf(HealthPermission.createReadPermissionLegacy(StepsRecord::class)))
-
-        assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
-        assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
-    }
-
-    @Test
     fun createIntent_permissionStrings() {
         val requestPermissionContract =
             PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
         val intent =
             requestPermissionContract.createIntent(
-                context, setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED))
+                context,
+                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
+            )
 
         assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
         assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
@@ -72,7 +61,9 @@ class PermissionControllerTest {
             PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
         val intent =
             requestPermissionContract.createIntent(
-                context, setOf(HealthPermission.WRITE_STEPS, HealthPermission.READ_DISTANCE))
+                context,
+                setOf(HealthPermission.WRITE_STEPS, HealthPermission.READ_DISTANCE)
+            )
 
         assertThat(intent.action).isEqualTo(RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS)
         assertThat(intent.getStringArrayExtra(RequestMultiplePermissions.EXTRA_PERMISSIONS))
