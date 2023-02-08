@@ -31,7 +31,6 @@ dependencies {
     implementation(libs.espressoIdlingNet)
     implementation(libs.espressoIdlingResource)
 
-    androidTestImplementation(libs.espressoRemote)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

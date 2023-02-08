@@ -16,11 +16,6 @@
 
 package com.example.androidx.webkit;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
 import static org.junit.Assert.assertTrue;
 
 import androidx.core.content.ContextCompat;
@@ -71,8 +66,8 @@ public class ProcessGlobalConfigActivityTestAppTest {
         }
         WebkitTestHelpers.clickMenuListItemWithString(
                 R.string.data_directory_suffix_activity_title);
-        onView(withId(R.id.data_directory_config_textview))
-                .check(matches(withText("WebView Loaded!")));
+        // We need to wait for the WebView to finish loading on a different process.
+        Thread.sleep(5000);
 
         assertTrue(file.exists());
     }
