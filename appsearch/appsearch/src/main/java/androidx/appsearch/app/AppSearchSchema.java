@@ -215,10 +215,12 @@ public final class AppSearchSchema {
 
         /**
          * Physical data-types of the contents of the property.
+         *
+         * <p>NOTE: The integer values of these constants must match the proto enum constants in
+         * com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
+         *
          * @hide
          */
-        // NOTE: The integer values of these constants must match the proto enum constants in
-        // com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
         @IntDef(value = {
                 DATA_TYPE_STRING,
                 DATA_TYPE_LONG,
@@ -262,10 +264,12 @@ public final class AppSearchSchema {
 
         /**
          * The cardinality of the property (whether it is required, optional or repeated).
+         *
+         * <p>NOTE: The integer values of these constants must match the proto enum constants in
+         * com.google.android.icing.proto.PropertyConfigProto.Cardinality.Code.
+         *
          * @hide
          */
-        // NOTE: The integer values of these constants must match the proto enum constants in
-        // com.google.android.icing.proto.PropertyConfigProto.Cardinality.Code.
         @IntDef(value = {
                 CARDINALITY_REPEATED,
                 CARDINALITY_OPTIONAL,
@@ -375,14 +379,16 @@ public final class AppSearchSchema {
          *
          * @hide
          */
-        public @DataType int getDataType() {
+        @DataType
+        public int getDataType() {
             return mBundle.getInt(DATA_TYPE_FIELD, -1);
         }
 
         /**
          * Returns the cardinality of the property (whether it is optional, required or repeated).
          */
-        public @Cardinality int getCardinality() {
+        @Cardinality
+        public int getCardinality() {
             return mBundle.getInt(CARDINALITY_FIELD, CARDINALITY_OPTIONAL);
         }
 
@@ -480,10 +486,12 @@ public final class AppSearchSchema {
 
         /**
          * Configures how tokens should be extracted from this property.
+         *
+         * <p>NOTE: The integer values of these constants must match the proto enum constants in
+         * com.google.android.icing.proto.IndexingConfig.TokenizerType.Code.
+         *
          * @hide
          */
-        // NOTE: The integer values of these constants must match the proto enum constants in
-        // com.google.android.icing.proto.IndexingConfig.TokenizerType.Code.
         @IntDef(value = {
                 TOKENIZER_TYPE_NONE,
                 TOKENIZER_TYPE_PLAIN,
@@ -592,29 +600,32 @@ public final class AppSearchSchema {
         }
 
         /** Returns how the property is indexed. */
-        public @IndexingType int getIndexingType() {
+        @IndexingType
+        public int getIndexingType() {
             return mBundle.getInt(INDEXING_TYPE_FIELD);
         }
 
         /** Returns how this property is tokenized (split into words). */
-        public @TokenizerType int getTokenizerType() {
+        @TokenizerType
+        public int getTokenizerType() {
             return mBundle.getInt(TOKENIZER_TYPE_FIELD);
         }
 
         /**
          * Returns how this property is going to be used to join documents from other schema types.
          */
-        public @JoinableValueType int getJoinableValueType() {
+        @JoinableValueType
+        public int getJoinableValueType() {
             return mBundle.getInt(JOINABLE_VALUE_TYPE_FIELD, JOINABLE_VALUE_TYPE_NONE);
         }
 
         /** Builder for {@link StringPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
-            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
-            private @IndexingType int mIndexingType = INDEXING_TYPE_NONE;
-            private @TokenizerType int mTokenizerType = TOKENIZER_TYPE_NONE;
-            private @JoinableValueType int mJoinableValueType = JOINABLE_VALUE_TYPE_NONE;
+            @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
+            @IndexingType private int mIndexingType = INDEXING_TYPE_NONE;
+            @TokenizerType private int mTokenizerType = TOKENIZER_TYPE_NONE;
+            @JoinableValueType private int mJoinableValueType = JOINABLE_VALUE_TYPE_NONE;
 
             /** Creates a new {@link StringPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -807,15 +818,16 @@ public final class AppSearchSchema {
         }
 
         /** Returns how the property is indexed. */
-        public @IndexingType int getIndexingType() {
+        @IndexingType
+        public int getIndexingType() {
             return mBundle.getInt(INDEXING_TYPE_FIELD, INDEXING_TYPE_NONE);
         }
 
         /** Builder for {@link LongPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
-            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
-            private @IndexingType int mIndexingType = INDEXING_TYPE_NONE;
+            @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
+            @IndexingType private int mIndexingType = INDEXING_TYPE_NONE;
 
             /** Creates a new {@link LongPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -895,7 +907,7 @@ public final class AppSearchSchema {
         /** Builder for {@link DoublePropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
-            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
+            @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link DoublePropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -938,7 +950,7 @@ public final class AppSearchSchema {
         /** Builder for {@link BooleanPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
-            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
+            @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link BooleanPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -981,7 +993,7 @@ public final class AppSearchSchema {
         /** Builder for {@link BytesPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
-            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
+            @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link BytesPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -1047,7 +1059,7 @@ public final class AppSearchSchema {
         public static final class Builder {
             private final String mPropertyName;
             private final String mSchemaType;
-            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
+            @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
             private boolean mShouldIndexNestedProperties = false;
 
             /**

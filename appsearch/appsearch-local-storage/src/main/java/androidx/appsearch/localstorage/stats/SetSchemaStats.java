@@ -224,7 +224,8 @@ public final class SetSchemaStats {
     }
 
     /** Gets the type indicate how this set schema call relative to schema migration cases */
-    public @SchemaMigrationStats.SchemaMigrationCallType int getSchemaMigrationCallType() {
+    @SchemaMigrationStats.SchemaMigrationCallType
+    public int getSchemaMigrationCallType() {
         return mSchemaMigrationCallType;
     }
 

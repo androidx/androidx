@@ -20,9 +20,12 @@ import androidx.annotation.RestrictTo;
 
 /**
  * @deprecated use {@link ObserverCallback} instead.
+ *
+ * <p>TODO(b/209734214): Remove this after dogfooders and devices have migrated away from this
+ * class.
+ *
  * @hide
  */
-// TODO(b/209734214): Remove this after dogfooders and devices have migrated away from this class.
 @Deprecated
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchObserverCallback extends ObserverCallback {}
