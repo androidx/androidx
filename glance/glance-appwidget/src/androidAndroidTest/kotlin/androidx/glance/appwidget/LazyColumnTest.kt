@@ -31,6 +31,7 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
@@ -38,6 +39,13 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
@@ -338,6 +346,41 @@ class LazyColumnTest {
             assertIs<FrameLayout>(rowItem1)
             assertThat(rowItem0.hasOnClickListeners()).isTrue()
             assertThat(rowItem1.hasOnClickListeners()).isTrue()
+        }
+    }
+
+    @OptIn(FlowPreview::class)
+    @Test
+    fun clickTriggersOnlyOneLambda() = runBlocking {
+        val received = MutableStateFlow(-1)
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                items((0..4).toList()) {
+                    Button(
+                        "$it",
+                        onClick = {
+                            launch { received.emit(it) }
+                        }
+                    )
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        val buttons = arrayOfNulls<FrameLayout>(5)
+        waitForListViewChildren { list ->
+            for (it in 0..4) {
+                val button = list.getUnboxedListItem<FrameLayout>(it)
+                buttons[it] = assertIs<FrameLayout>(button)
+            }
+        }
+        (0..4).shuffled().forEach { index ->
+            mHostRule.onHostActivity {
+                buttons[index]!!.performClick()
+            }
+            val lastClicked = received.debounce(500.milliseconds).first()
+            assertThat(lastClicked).isEqualTo(index)
         }
     }
 
