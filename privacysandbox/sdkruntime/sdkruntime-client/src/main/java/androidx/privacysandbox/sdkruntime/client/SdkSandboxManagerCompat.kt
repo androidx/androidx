@@ -187,6 +187,7 @@ class SdkSandboxManagerCompat private constructor(
 
     // TODO(b/265295473): Replace @RequiresApi with correct @RequiresExtension
     @RequiresApi(34)
+    @SuppressLint("NewApi") // b/24998154
     private class ApiAdServicesV5Impl(
         context: Context
     ) : ApiAdServicesV4Impl(context) {
@@ -236,6 +237,7 @@ class SdkSandboxManagerCompat private constructor(
     }
 
     private object PlatformApiFactory {
+        @SuppressLint("NewApi") // b/24998154
         fun create(context: Context): PlatformApi {
             return if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(context)
