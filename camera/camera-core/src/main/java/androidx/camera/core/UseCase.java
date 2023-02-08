@@ -147,6 +147,9 @@ public abstract class UseCase {
     @GuardedBy("mCameraLock")
     private CameraInternal mCamera;
 
+    @Nullable
+    private CameraEffect mEffect;
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -788,6 +791,27 @@ public abstract class UseCase {
     @CallSuper
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         mViewPortCropRect = viewPortCropRect;
+    }
+
+    /**
+     * Sets the {@link CameraEffect} associated with this use case.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setEffect(@Nullable CameraEffect effect) {
+        mEffect = effect;
+    }
+
+    /**
+     * Gets the {@link CameraEffect} associated with this use case.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraEffect getEffect() {
+        return mEffect;
     }
 
     /**

@@ -58,7 +58,6 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 
@@ -545,18 +544,9 @@ public final class CameraUseCaseAdapter implements Camera {
         // Set effects on the UseCases. This also removes existing effects if necessary.
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                Preview preview = ((Preview) useCase);
-                CameraEffect effect = effectsByTargets.get(CameraEffect.PREVIEW);
-                if (effect == null) {
-                    preview.setProcessor(null);
-                    continue;
-                }
-                preview.setProcessor(new SurfaceProcessorWithExecutor(
-                        requireNonNull(effect.getSurfaceProcessor()),
-                        effect.getExecutor()));
+                useCase.setEffect(effectsByTargets.get(CameraEffect.PREVIEW));
             } else if (useCase instanceof ImageCapture) {
-                ImageCapture imageCapture = ((ImageCapture) useCase);
-                imageCapture.setEffect(effectsByTargets.get(CameraEffect.IMAGE_CAPTURE));
+                useCase.setEffect(effectsByTargets.get(CameraEffect.IMAGE_CAPTURE));
             }
         }
     }

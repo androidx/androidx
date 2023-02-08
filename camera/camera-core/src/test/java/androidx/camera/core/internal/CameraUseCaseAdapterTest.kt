@@ -41,11 +41,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
 import androidx.camera.core.processing.DefaultSurfaceProcessor
-import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
-import androidx.camera.testing.fakes.FakePreviewEffect
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
@@ -88,6 +87,7 @@ class CameraUseCaseAdapterTest {
     private lateinit var fakeCameraDeviceSurfaceManager: FakeCameraDeviceSurfaceManager
     private lateinit var fakeCamera: FakeCamera
     private lateinit var useCaseConfigFactory: UseCaseConfigFactory
+    private lateinit var previewEffect: FakeSurfaceEffect
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
     private val imageEffect = GrayscaleImageEffect()
     private val preview = Preview.Builder().build()
@@ -104,7 +104,11 @@ class CameraUseCaseAdapterTest {
         fakeCameraSet.add(fakeCamera)
         surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         executor = Executors.newSingleThreadExecutor()
-        effects = listOf(FakePreviewEffect(executor, surfaceProcessor), imageEffect)
+        previewEffect = FakeSurfaceEffect(
+            executor,
+            surfaceProcessor
+        )
+        effects = listOf(previewEffect, imageEffect)
         adapter = CameraUseCaseAdapter(
             fakeCameraSet,
             fakeCameraDeviceSurfaceManager,
@@ -824,17 +828,14 @@ class CameraUseCaseAdapterTest {
 
         // Act: update use cases with effects.
         CameraUseCaseAdapter.updateEffects(effects, useCases)
-        // Assert: preview has processor wrapped with the right executor.
-        val previewProcessor = preview.processor as SurfaceProcessorWithExecutor
-        assertThat(previewProcessor.processor).isEqualTo(surfaceProcessor)
-        assertThat(previewProcessor.executor).isEqualTo(executor)
-        // Assert: imageCapture has the effect set.
+        // Assert: UseCase have effects
+        assertThat(preview.effect).isEqualTo(previewEffect)
         assertThat(imageCapture.effect).isEqualTo(imageEffect)
 
         // Act: update again with no effects.
         CameraUseCaseAdapter.updateEffects(listOf(), useCases)
         // Assert: use cases no longer has effects.
-        assertThat(preview.processor).isNull()
+        assertThat(preview.effect).isNull()
         assertThat(imageCapture.effect).isNull()
     }
 

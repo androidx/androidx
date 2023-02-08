@@ -82,12 +82,10 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SurfaceEdge;
-import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
@@ -191,9 +189,6 @@ public final class Preview extends UseCase {
     private Size mSurfaceSize;
 
     @Nullable
-    private SurfaceProcessorInternal mSurfaceProcessor;
-
-    @Nullable
     private SurfaceProcessorNode mNode;
 
     /**
@@ -213,7 +208,7 @@ public final class Preview extends UseCase {
             @NonNull StreamSpec streamSpec) {
         // Build pipeline with node if processor is set. Eventually we will move all the code to
         // createPipelineWithNode.
-        if (mSurfaceProcessor != null) {
+        if (getEffect() != null) {
             return createPipelineWithNode(cameraId, config, streamSpec);
         }
 
@@ -251,14 +246,13 @@ public final class Preview extends UseCase {
             @NonNull StreamSpec streamSpec) {
         // Check arguments
         checkMainThread();
-        checkNotNull(mSurfaceProcessor);
-        CameraInternal camera = getCamera();
-        checkNotNull(camera);
+        CameraEffect effect = requireNonNull(getEffect());
+        CameraInternal camera = requireNonNull(getCamera());
 
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceProcessorNode(camera, mSurfaceProcessor);
+        mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
         mCameraEdge = new SurfaceEdge(
@@ -308,31 +302,6 @@ public final class Preview extends UseCase {
         // copy. If there has been a buffer copy, it means it's already mirrored. Otherwise,
         // mirror it for the front camera.
         return getHasCameraTransform() && isFrontCamera;
-    }
-
-    /**
-     * Sets a {@link SurfaceProcessorInternal}.
-     *
-     * <p>Internal API invoked by {@link CameraUseCaseAdapter}. {@link #createPipeline} uses the
-     * value to setup post-processing pipeline.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setProcessor(@Nullable SurfaceProcessorInternal surfaceProcessor) {
-        mSurfaceProcessor = surfaceProcessor;
-    }
-
-    /**
-     * Gets the {@link SurfaceProcessorInternal} for testing.
-     *
-     * @hide
-     */
-    @Nullable
-    @VisibleForTesting
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public SurfaceProcessorInternal getProcessor() {
-        return mSurfaceProcessor;
     }
 
     /**
