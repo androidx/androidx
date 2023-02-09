@@ -22,6 +22,7 @@ import android.app.slice.SliceSpec
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.service.credentials.BeginGetCredentialOption
@@ -143,6 +144,10 @@ class CustomCredentialEntry internal constructor(
         internal const val SLICE_HINT_OPTION_BUNDLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
@@ -179,6 +184,12 @@ class CustomCredentialEntry internal constructor(
                 .addBundle(beginGetCredentialOption.candidateQueryData,
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_BUNDLE))
+                .addText(
+                    beginGetCredentialOption.id,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_ID)
+                )
+
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
@@ -214,7 +225,8 @@ class CustomCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetCredentialOption: BeginGetCredentialOption? = null
+            var beginGetCredentialOptionBundle: Bundle? = null
+            var beginGetCredentialOptionId: CharSequence? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -228,8 +240,9 @@ class CustomCredentialEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetCredentialOption = BeginGetCredentialOption(
-                        /*id=*/"", type, it.bundle)
+                    beginGetCredentialOptionBundle = it.bundle
+                } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
+                    beginGetCredentialOptionId = it.text
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -250,7 +263,11 @@ class CustomCredentialEntry internal constructor(
                     typeDisplayName,
                     icon!!,
                     lastUsedTime,
-                    beginGetCredentialOption!!
+                    BeginGetCredentialOption(
+                        beginGetCredentialOptionId!!.toString(),
+                        type,
+                        beginGetCredentialOptionBundle!!
+                    )
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

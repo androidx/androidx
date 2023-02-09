@@ -42,7 +42,7 @@ class BeginGetCredentialUtil {
             request.beginGetCredentialOptions.forEach {
                 beginGetCredentialOptions.add(convertRequestOption(
                     it.type,
-                    it.candidateQueryData)
+                    it.candidateQueryData, it.id)
                 )
             }
             return BeginGetCredentialRequest.Builder()
@@ -51,11 +51,15 @@ class BeginGetCredentialUtil {
                 .build()
         }
         @JvmStatic
-        internal fun convertRequestOption(type: String, candidateQueryData: Bundle):
+        internal fun convertRequestOption(
+            type: String,
+            candidateQueryData: Bundle,
+            id: String
+        ):
             BeginGetCredentialOption {
             return when (type) {
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
-                    BeginGetPasswordOption(candidateQueryData)
+                    BeginGetPasswordOption(candidateQueryData, id)
                 }
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
                     when (candidateQueryData.getString(
@@ -63,21 +67,21 @@ class BeginGetCredentialUtil {
                     )) {
                         GetPublicKeyCredentialOption
                             .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION -> {
-                            BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData)
+                            BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData, id)
                         }
                         GetPublicKeyCredentialOptionPrivileged
                             .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED
                         -> {
                             BeginGetPublicKeyCredentialOptionPrivileged
-                                .createFrom(candidateQueryData)
+                                .createFrom(candidateQueryData, id)
                         }
                         else -> {
-                            BeginGetCredentialOption(/*id=*/"", type, candidateQueryData)
+                            BeginGetCredentialOption(id, type, candidateQueryData)
                         }
                     }
                 }
                 else -> {
-                    BeginGetCredentialOption(/*id=*/"", type, candidateQueryData)
+                    BeginGetCredentialOption(id, type, candidateQueryData)
                 }
             }
         }

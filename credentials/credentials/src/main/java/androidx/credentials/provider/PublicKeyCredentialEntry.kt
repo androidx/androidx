@@ -23,6 +23,7 @@ import android.app.slice.SliceSpec
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.service.credentials.CredentialEntry
@@ -146,6 +147,9 @@ class PublicKeyCredentialEntry internal constructor(
         internal const val SLICE_HINT_OPTION_BUNDLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
@@ -184,6 +188,11 @@ class PublicKeyCredentialEntry internal constructor(
                 .addBundle(beginGetPublicKeyCredentialOption.candidateQueryData,
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_BUNDLE))
+                .addText(
+                    beginGetPublicKeyCredentialOption.id,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_ID)
+                )
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
@@ -218,7 +227,8 @@ class PublicKeyCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption? = null
+            var beginGetPublicKeyCredentialOptionBundle: Bundle? = null
+            var beginGetPublicKeyCredentialOptionId: CharSequence? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -232,8 +242,9 @@ class PublicKeyCredentialEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetPublicKeyCredentialOption = BeginGetPublicKeyCredentialOption
-                        .createFrom(it.bundle)
+                    beginGetPublicKeyCredentialOptionBundle = it.bundle
+                } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
+                    beginGetPublicKeyCredentialOptionId = it.text
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -253,7 +264,10 @@ class PublicKeyCredentialEntry internal constructor(
                     icon!!,
                     lastUsedTime,
                     autoSelectAllowed,
-                    beginGetPublicKeyCredentialOption!!
+                    BeginGetPublicKeyCredentialOption.createFrom(
+                        beginGetPublicKeyCredentialOptionBundle!!,
+                        beginGetPublicKeyCredentialOptionId!!.toString()
+                    )
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
