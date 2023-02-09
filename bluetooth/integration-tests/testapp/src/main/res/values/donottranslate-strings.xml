@@ -23,6 +23,7 @@
     <string name="scan_using_fwk">Scan using Framework Bluetooth APIs</string>
     <string name="scan_using_btx">Scan using BluetoothX APIs</string>
     <string name="scan_start_message">Scan started. Results are in Logcat</string>
+    <string name="stop_scanning">Stop scanning</string>
 
     <string name="advertise_using_fwk">Advertise using Framework Bluetooth APIs</string>
     <string name="advertise_using_btx">Advertise using BluetoothX APIs</string>

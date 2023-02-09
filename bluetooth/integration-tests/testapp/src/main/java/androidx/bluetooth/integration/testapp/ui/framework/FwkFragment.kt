@@ -74,6 +74,8 @@ class FwkFragment : Fragment() {
         }
     }
 
+    private var isScanning = false
+
     private lateinit var fwkViewModel: FwkViewModel
 
     private var _binding: FragmentFwkBinding? = null
@@ -100,7 +102,8 @@ class FwkFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonScan.setOnClickListener {
-            scan()
+            if (isScanning) stopScan()
+            else startScan()
         }
 
         binding.switchAdvertise.setOnCheckedChangeListener { _, isChecked ->
@@ -119,13 +122,14 @@ class FwkFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        stopScan()
         bluetoothGattServer?.close()
     }
 
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
-    private fun scan() {
-        Log.d(TAG, "scan() called")
+    private fun startScan() {
+        Log.d(TAG, "startScan() called")
 
         val bluetoothManager =
             context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
@@ -140,8 +144,29 @@ class FwkFragment : Fragment() {
 
         bleScanner?.startScan(null, scanSettings, scanCallback)
 
-        Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
+        isScanning = true
+        binding.buttonScan.text = getString(R.string.stop_scanning)
+
+        Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_SHORT)
             .show()
+    }
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    private fun stopScan() {
+        Log.d(TAG, "stopScan() called")
+
+        val bluetoothManager =
+            context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+
+        val bluetoothAdapter = bluetoothManager?.adapter
+
+        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
+
+        bleScanner?.stopScan(scanCallback)
+
+        isScanning = false
+        _binding?.buttonScan?.text = getString(R.string.scan_using_fwk)
     }
 
     // Permissions are handled by MainActivity requestBluetoothPermissions
