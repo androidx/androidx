@@ -45,7 +45,9 @@ internal data class PlaceholderText(val text: String) : ItemViewData(ItemType.PL
  */
 internal data class EmojiViewData(
     var emoji: String,
-    val updateToSticky: Boolean = true
+    val updateToSticky: Boolean = true,
+    // Needed to ensure uniqueness since we enabled stable Id.
+    val dataIndex: Int = 0
 ) : ItemViewData(ItemType.EMOJI)
 
 internal object PlaceholderEmoji : ItemViewData(ItemType.PLACEHOLDER_EMOJI)
