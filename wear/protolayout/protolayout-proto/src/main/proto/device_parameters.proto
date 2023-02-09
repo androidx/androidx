@@ -54,7 +54,7 @@ message DeviceParameters {
   ScreenShape screen_shape = 5;
 
   // The maximum schema version supported by the current renderer.
-  VersionInfo renderer_schema_version = 6;
+  androidx.wear.protolayout.expression.proto.VersionInfo renderer_schema_version = 6;
 
   // Renderer supported capabilities
   Capabilities capabilities = 8;
