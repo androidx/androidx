@@ -110,8 +110,8 @@ internal class GoldenVerifier(
             )
             is AnalysisResult.MissingGolden -> throw AssertionError(
                 "Expected golden image for test \"${snapshot.testName.methodName}\" does not " +
-                    "exist. Run ${updateGoldenGradleTask()} to create it and update all golden " +
-                    "images for this test module."
+                    "exist. Run ${updateGoldenGradleTask()} -Pandroidx.ignoreTestFailures=true " +
+                    "to create it and update all golden images for this test module."
             )
         }
     }
