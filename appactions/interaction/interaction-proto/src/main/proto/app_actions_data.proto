@@ -23,7 +23,6 @@ option java_package = "androidx.appactions.interaction.proto";
 option java_outer_classname = "AppActionsDataProto";
 option java_multiple_files = true;
 
-
 message ParamValue {
   // If this parameter matched an Entity, `identifier` of that Entity.
   optional string identifier = 1;
@@ -86,16 +85,16 @@ message CurrentValue {
 }
 
 // Represents the data to describe app actions.
-// Next ID: 3
+// Next ID: 5
 message AppActionsContext {
-  repeated AppAction actions = 1;
 
   message AppAction {
     // Name of the intent. For example: actions.intent.UPDATE_FORM_FIELD
     string name = 1;
 
     // One intent can be registered multiple times. Use this field to identify
-    // the intents.
+    // the intents. Developers can set this field via `fulfillmentId` in both shortcuts.xml and the
+    // Capability library of the AppInteractionSDK.
     string identifier = 2;
 
     repeated IntentParameter params = 4;
@@ -114,6 +113,11 @@ message AppActionsContext {
     // has optional confirmation and the developer has provided a confirmation
     // callback.
     bool needs_confirmation = 7;
+
+    // Describes the restrictions needed to execute this action.
+    // It would be set by the app and checked by the assistant to ensure the
+    // restrictions can be supported.
+    repeated Restriction restrictions = 8;
   }
 
   // Next ID: 9
@@ -122,7 +126,7 @@ message AppActionsContext {
     string name = 1;
 
     // Current values of the associated parameter.
-    repeated CurrentValue current_value = 7;
+    repeated CurrentValue current_value = 7 [deprecated = true];
 
     // List of possible values for this parameter.
     repeated Entity possible_entities = 3;
@@ -150,10 +154,48 @@ message AppActionsContext {
     // Whether or not this parameter field is focused right now.
     // If yes, it usually suggests that Assistant will prompt the value for this
     // argument.
-    bool is_focused = 8;
+    bool is_focused = 8 [deprecated = true];
 
     reserved 2;
   }
+
+  message AppDialogState {
+    // Each App capability can be associated with multiple dialogs. Use this
+    // field to identify the dialog instance.
+    string dialog_identifier = 1;
+
+    // Identifier of the corresponding capability that this dialog state maps
+    // to. This field maps to AppActionsContext.AppAction.identifier.
+    string identifier = 2;
+
+    // List of BII intent parameters of this dialog.
+    repeated DialogParameter params = 3;
+  }
+
+  message DialogParameter {
+    // The built-in-intent parameter name. For example: "textField.name".
+    string name = 1;
+
+    // Current values of the associated parameter.
+    repeated CurrentValue current_value = 2;
+
+    bool is_focused = 3;
+  }
+
+  // Current version of the protocol. Populated with values from the artifact version of the
+  // interaction-proto Jetpack library.
+  optional Version version = 4;
+
+  // Represents the dynamic capabilities declared by an App. Capabilities
+  // declare the types of actions a developer can take to launch an app and jump
+  // directly to performing a specific task. Dynamic capabilities are not
+  // declared in shortcuts.xml, but are added during runtime.
+  repeated AppAction actions = 1;
+
+  // Represents the current dialog state, which is a list of built-in-intent
+  // parameters and corresponding values from users. App
+  // Dialog is a transaction session of intent and intent parameters.
+  repeated AppDialogState dialog_states = 3;
 
   // This field contains the info for current focused text input.
   TextInputState text_input_state = 2;
@@ -204,18 +246,44 @@ message FulfillmentRequest {
 
     enum Type {
       UNKNOWN_TYPE = 0;
-      // Assistant is asking to sync the current state with the app.
+      // Assistant is asking to sync the current state with the app. The intent
+      // will be executed if:
+      // - App-side checks have passed:
+      //     - no validation failures
+      //     - no intent (value) suggestions
+      //     - no confirmation suggestions or user has confirmed intent
+      // - Assistant-side checks have passed
       SYNC = 1;
       // Assistant confirms an ongoing task with the app.
-      CONFIRM = 2;
+      // Deprecated: set SyncStatus = INTENT_CONFIRMED instead.
+      CONFIRM = 2 [deprecated = true];
       // Assistant cancels an ongoing task of the app.
       CANCEL = 3;
       // Assistant terminates an ongoing task of the app.
       TERMINATE = 4;
     }
 
+    enum SyncStatus {
+      UNKNOWN_SYNC_STATUS = 0;
+      // Assistant-side checks have not passed and the App should not execute
+      // yet even if App-side checks pass.
+      SLOTS_INCOMPLETE = 1;
+      // Assistant-side checks have passed. The App may execute or suggest
+      // confirmation if App-side validation succeeds.
+      SLOTS_COMPLETE = 2;
+      // User confirmed the intent and the App should execute. This indicates
+      // that the App has requested confirmation so it should not request
+      // confirmation again.
+      INTENT_CONFIRMED = 3;
+    }
+
     // The current progress of handling the dialog.
-    optional Type type = 4;
+    optional Type type = 5;
+
+    // The status of the SYNC request. Only set when fulfillment type == SYNC.
+    optional SyncStatus sync_status = 6;
+
+    reserved 4;
   }
 
   // This field should be treated as an optional field. Only the first
@@ -290,5 +358,29 @@ message TextInputState {
     NO_CONTENT = 1;
     // Current input has content
     HAS_CONTENT = 2;
+  }
+}
+
+// Versioning to maintain compatibility
+message Version {
+  // The major version.
+  optional uint64 major = 1;
+
+  // The minor version.
+  optional uint64 minor = 2;
+
+  // The patch version.
+  optional uint64 patch = 3;
+
+  // The prerelease version: a series of dot-separated identifiers.
+  optional string prerelease_id = 4;
+}
+
+// Restrictions to run a specific AppAction.
+message Restriction {
+  oneof requirement {
+    // If true, the corresponding AppAction requires assistant to
+    // start dictation.
+    bool text_input = 1;
   }
 }
