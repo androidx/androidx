@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ class EncoderProfilesProxyCompatApi31Impl {
     @NonNull
     public static EncoderProfilesProxy from(
             @NonNull EncoderProfiles encoderProfiles) {
-        return EncoderProfilesProxy.create(
+        return ImmutableEncoderProfilesProxy.create(
                 encoderProfiles.getDefaultDurationSeconds(),
                 encoderProfiles.getRecommendedFileFormat(),
                 fromAudioProfiles(encoderProfiles.getAudioProfiles()),

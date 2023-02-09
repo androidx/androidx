@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ class EncoderProfilesProxyCompatBaseImpl {
     @NonNull
     public static EncoderProfilesProxy from(
             @NonNull CamcorderProfile camcorderProfile) {
-        return EncoderProfilesProxy.create(
+        return ImmutableEncoderProfilesProxy.create(
                 camcorderProfile.duration,
                 camcorderProfile.fileFormat,
                 toAudioProfiles(camcorderProfile),

@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.quirk.ProfileResolutionQuirk;
 
@@ -114,7 +115,7 @@ public class EncoderProfilesResolutionValidator {
             }
         }
 
-        return validVideoProfiles.isEmpty() ? null : EncoderProfilesProxy.create(
+        return validVideoProfiles.isEmpty() ? null : ImmutableEncoderProfilesProxy.create(
                 profiles.getDefaultDurationSeconds(),
                 profiles.getRecommendedFileFormat(),
                 profiles.getAudioProfiles(),

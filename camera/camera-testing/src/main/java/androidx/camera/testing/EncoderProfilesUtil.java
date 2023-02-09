@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 
 import java.util.Collections;
@@ -175,7 +176,7 @@ public final class EncoderProfilesUtil {
                 DEFAULT_AUDIO_PROFILE
         );
 
-        return EncoderProfilesProxy.create(
+        return ImmutableEncoderProfilesProxy.create(
                 DEFAULT_DURATION,
                 DEFAULT_OUTPUT_FORMAT,
                 Collections.singletonList(audioProfile),
