@@ -36,17 +36,17 @@ public class SplitAttributesTest {
         final SplitAttributes layout1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackgroundColor(0)
+                .setAnimationBackgroundColor(SplitAttributes.DEFAULT_ANIMATION_BACKGROUND_COLOR)
                 .build();
         final SplitAttributes layout2 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackgroundColor(0)
+                .setAnimationBackgroundColor(SplitAttributes.DEFAULT_ANIMATION_BACKGROUND_COLOR)
                 .build();
         final SplitAttributes layout3 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(0)
+                .setAnimationBackgroundColor(SplitAttributes.DEFAULT_ANIMATION_BACKGROUND_COLOR)
                 .build();
         final SplitAttributes layout4 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
