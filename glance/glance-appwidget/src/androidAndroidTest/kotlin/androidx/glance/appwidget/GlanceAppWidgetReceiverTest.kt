@@ -28,6 +28,7 @@ import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -696,7 +697,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         CallbackTest.received.set(emptyList())
         CallbackTest.latch = CountDownLatch(2)
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(
                 root.findChild<TextView> { it.text.toString() == "text1" }?.parent as? View
             )
@@ -731,7 +732,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         CallbackTest.received.set(emptyList())
         CallbackTest.latch = CountDownLatch(1)
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(
                 root.findChild<TextView> { it.text.toString() == "text1" }?.parent as? View
             )
@@ -804,7 +805,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         CompoundButtonActionTest.received.set(emptyList())
         CompoundButtonActionTest.latch = CountDownLatch(2)
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == checkbox })
                 .performCompoundButtonClick()
             checkNotNull(root.findChild<TextView> { it.text.toString() == switch })
@@ -872,7 +873,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         CallbackTest.received.set(emptyList())
         CallbackTest.latch = CountDownLatch(1)
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<View> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == "text1" })
                 .performCompoundButtonClick()
         }
@@ -895,7 +896,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         mHostRule.startHost()
         var button: View? = null
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             val text = checkNotNull(root.findChild<TextView> { it.text.toString() == "initial" })
             button = text.parent as View
         }
@@ -903,7 +904,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
             button!!.performClick()
         }
 
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == "clicked" })
         }
     }
@@ -926,7 +927,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
 
         mHostRule.startHost()
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<View> { root ->
             val view =
                 checkNotNull(
                     root.findChild<TextView> { it.text.toString() == "text1" }?.parent as? View
@@ -941,7 +942,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
             TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
         }
 
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<TextView> { root ->
             val view =
                 checkNotNull(
                     root.findChild<TextView> { it.text.toString() == "text1" }?.parent as? View
@@ -969,7 +970,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         CompoundButtonActionTest.received.set(emptyList())
         CompoundButtonActionTest.latch = CountDownLatch(1)
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == "checkbox" })
                 .performCompoundButtonClick()
         }
@@ -987,7 +988,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         CompoundButtonActionTest.received.set(emptyList())
         CompoundButtonActionTest.latch = CountDownLatch(1)
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == "checkbox" })
                 .performCompoundButtonClick()
         }
@@ -1015,7 +1016,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { root ->
+        mHostRule.onUnboxedHostView<ViewGroup> { root ->
             val checkbox =
                 checkNotNull(root.findChild<CompoundButton> { it.text.toString() == "checkbox" })
             assertThat(checkbox.hasOnClickListeners()).isFalse()
