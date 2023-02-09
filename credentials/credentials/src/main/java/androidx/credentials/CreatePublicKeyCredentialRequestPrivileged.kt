@@ -25,7 +25,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * the caller can modify the rp. Only callers with privileged permission, e.g. user’s default
  * browser, caBLE, can use this. These permissions will be introduced in an upcoming release.
  *
- * @property requestJson the privileged request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+ * @property requestJson the request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
  * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
  * immediately when there is no available passkey registration offering instead of falling back to
  * discovering remote options, and false (default) otherwise
