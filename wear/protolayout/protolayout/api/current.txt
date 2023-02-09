@@ -5,6 +5,8 @@ package androidx.wear.protolayout {
     method public static androidx.wear.protolayout.ActionBuilders.AndroidBooleanExtra booleanExtra(boolean);
     method public static androidx.wear.protolayout.ActionBuilders.AndroidDoubleExtra doubleExtra(double);
     method public static androidx.wear.protolayout.ActionBuilders.AndroidIntExtra intExtra(int);
+    method public static androidx.wear.protolayout.ActionBuilders.LaunchAction launchAction(android.content.ComponentName);
+    method public static androidx.wear.protolayout.ActionBuilders.LaunchAction launchAction(android.content.ComponentName, java.util.Map<java.lang.String!,androidx.wear.protolayout.ActionBuilders.AndroidExtra!>);
     method public static androidx.wear.protolayout.ActionBuilders.AndroidLongExtra longExtra(long);
     method public static androidx.wear.protolayout.ActionBuilders.AndroidStringExtra stringExtra(String);
   }
