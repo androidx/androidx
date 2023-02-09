@@ -703,6 +703,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createRow(
      *          a, b, c, d, e,
+     *          spans = "1:2"
+     *          skips = "1:1,3:2",
      *          horizontalGap = 10.dp,
      *          columnWeights = weights,
      *          padding = 10.dp,
@@ -725,12 +727,16 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *    }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param spans specify area(s) in a Row to be spanned - format: positionxsize
+     * @param skips specify area(s) in a Row to be skipped - format: positionxsize
      * @param horizontalGap defines the gap between views in the x axis
      * @param columnWeights defines the weight of each column
      * @param padding sets padding around the content
      */
     fun createRow(
         vararg elements: LayoutReference,
+        spans: String = "",
+        skips: String = "",
         horizontalGap: Dp = 0.dp,
         columnWeights: IntArray = intArrayOf(),
         padding: Dp = 0.dp,
@@ -738,6 +744,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             rows = 1,
+            spans = spans,
+            skips = skips,
             horizontalGap = horizontalGap,
             columnWeights = columnWeights,
             paddingLeft = padding,
@@ -760,6 +768,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createRow(
      *          a, b, c, d, e,
+     *          spans = "1:2"
+     *          skips = "1:1,3:2",
      *          horizontalGap = 10.dp,
      *          columnWeights = weights,
      *          paddingHorizontal = 10.dp,
@@ -783,6 +793,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *   }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param spans specify area(s) in a Row to be spanned - format: positionxsize
+     * @param skips specify area(s) in a Row to be skipped - format: positionxsize
      * @param horizontalGap defines the gap between views in the y axis
      * @param columnWeights defines the weight of each column
      * @param paddingHorizontal sets paddingLeft and paddingRight of the content
@@ -790,6 +802,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      */
     fun createRow(
         vararg elements: LayoutReference,
+        spans: String = "",
+        skips: String = "",
         horizontalGap: Dp = 0.dp,
         columnWeights: IntArray = intArrayOf(),
         paddingHorizontal: Dp = 0.dp,
@@ -798,6 +812,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             rows = 1,
+            spans = spans,
+            skips = skips,
             horizontalGap = horizontalGap,
             columnWeights = columnWeights,
             paddingLeft = paddingHorizontal,
@@ -820,6 +836,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createColumn(
      *          a, b, c, d, e,
+     *          spans = "1:2"
+     *          skips = "1:1,3:2",
      *          verticalGap = 10.dp,
      *          rowWeights = weights,
      *          padding = 10.dp,
@@ -842,12 +860,16 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *    }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param spans specify area(s) in a Column to be spanned - format: positionxsize
+     * @param skips specify area(s) in a Column to be skipped - format: positionxsize
      * @param verticalGap defines the gap between views in the y axis
      * @param rowWeights defines the weight of each row
      * @param padding sets padding around the content
      */
     fun createColumn(
         vararg elements: LayoutReference,
+        spans: String = "",
+        skips: String = "",
         rowWeights: IntArray = intArrayOf(),
         verticalGap: Dp = 0.dp,
         padding: Dp = 0.dp,
@@ -855,6 +877,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             columns = 1,
+            spans = spans,
+            skips = skips,
             verticalGap = verticalGap,
             rowWeights = rowWeights,
             paddingLeft = padding,
@@ -877,6 +901,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createColumn(
      *          a, b, c, d, e,
+     *          spans = "1:2"
+     *          skips = "1:1,3:2",
      *          verticalGap = 10.dp,
      *          rowWeights = weights,
      *          padding = 10.dp,
@@ -899,6 +925,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *    }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param spans specify area(s) in a Column to be spanned - format: positionxsize
+     * @param skips specify area(s) in a Column to be skipped - format: positionxsize
      * @param verticalGap defines the gap between views in the y axis
      * @param rowWeights defines the weight of each row
      * @param paddingHorizontal sets paddingLeft and paddingRight of the content
@@ -906,6 +934,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      */
     fun createColumn(
         vararg elements: LayoutReference,
+        spans: String = "",
+        skips: String = "",
         verticalGap: Dp = 0.dp,
         rowWeights: IntArray = intArrayOf(),
         paddingHorizontal: Dp = 0.dp,
@@ -914,6 +944,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             columns = 1,
+            spans = spans,
+            skips = skips,
             verticalGap = verticalGap,
             rowWeights = rowWeights,
             paddingLeft = paddingHorizontal,

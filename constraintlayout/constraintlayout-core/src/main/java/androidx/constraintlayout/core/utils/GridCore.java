@@ -51,6 +51,11 @@ public class GridCore extends VirtualLayout {
     private ConstraintWidget[] mBoxWidgets;
 
     /**
+     * Check if skips/spans of a Row or a Columns is handled
+     */
+    private boolean mExtraSpaceHandled = false;
+
+    /**
      * number of rows of the grid
      */
     private int mRows;
@@ -176,7 +181,7 @@ public class GridCore extends VirtualLayout {
         if (mSpans != null && mSpans.equals(spans.toString())) {
             return;
         }
-
+        mExtraSpaceHandled = false;
         mSpans = spans.toString();
     }
 
@@ -189,7 +194,7 @@ public class GridCore extends VirtualLayout {
         if (mSkips != null && mSkips.equals(skips)) {
             return;
         }
-
+        mExtraSpaceHandled = false;
         mSkips = skips;
 
     }
@@ -420,20 +425,25 @@ public class GridCore extends VirtualLayout {
         }
 
         mNextAvailableIndex = 0;
-        createBoxes();
 
         if (mSkips != null && !mSkips.trim().isEmpty()) {
-            int[][] mSkips = parseSpans(this.mSkips);
+            int[][] mSkips = parseSpans(this.mSkips, false);
             if (mSkips != null) {
                 handleSkips(mSkips);
             }
         }
 
+        int[][] parsedSpans = null;
         if (mSpans != null && !mSpans.trim().isEmpty()) {
-            int[][] mSpans = parseSpans(this.mSpans);
-            if (mSpans != null) {
-                handleSpans(mSpans);
-            }
+            parsedSpans = parseSpans(this.mSpans, true);
+        }
+
+        // Need to create boxes before handleSpans since the spanned widgets would be
+        // constrained in this step.
+        createBoxes();
+
+        if (parsedSpans != null) {
+            handleSpans(parsedSpans);
         }
     }
 
@@ -788,21 +798,55 @@ public class GridCore extends VirtualLayout {
      * col_span- the number of columns to span
      *
      * @param str string format of skips or spans
+     * @param isSpans whether is spans to be parsed (it is skips if not)
      * @return a int matrix that contains skip information.
      */
-    private int[][] parseSpans(String str) {
+    private int[][] parseSpans(String str, boolean isSpans) {
         try {
+            int extraRows = 0;
+            int extraColumns = 0;
             String[] spans = str.split(",");
             int[][] spanMatrix = new int[spans.length][3];
-
             String[] indexAndSpan;
-            String[] rowAndCol;
-            for (int i = 0; i < spans.length; i++) {
-                indexAndSpan = spans[i].trim().split(":");
-                rowAndCol = indexAndSpan[1].split("x");
-                spanMatrix[i][0] = Integer.parseInt(indexAndSpan[0]);
-                spanMatrix[i][1] = Integer.parseInt(rowAndCol[0]);
-                spanMatrix[i][2] = Integer.parseInt(rowAndCol[1]);
+            if (mRows == 1 || mColumns == 1) {
+                for (int i = 0; i < spans.length; i++) {
+                    indexAndSpan = spans[i].trim().split(":");
+                    spanMatrix[i][0] = Integer.parseInt(indexAndSpan[0]);
+                    spanMatrix[i][1] = 1;
+                    spanMatrix[i][2] = 1;
+
+                    if (mColumns == 1) {
+                        spanMatrix[i][1] = Integer.parseInt(indexAndSpan[1]);
+                        extraRows += spanMatrix[i][1];
+                        if (isSpans) {
+                            extraRows--;
+                        }
+                    }
+                    if (mRows == 1) {
+                        spanMatrix[i][2] = Integer.parseInt(indexAndSpan[1]);
+                        extraColumns += spanMatrix[i][2];
+                        if (isSpans) {
+                            extraColumns--;
+                        }
+                    }
+                }
+
+                if (extraRows != 0 && !mExtraSpaceHandled) {
+                    this.setRows(mRows + extraRows);
+                }
+                if (extraColumns != 0 && !mExtraSpaceHandled) {
+                    this.setColumns(mColumns + extraColumns);
+                }
+                mExtraSpaceHandled = true;
+            } else {
+                String[] rowAndCol;
+                for (int i = 0; i < spans.length; i++) {
+                    indexAndSpan = spans[i].trim().split(":");
+                    rowAndCol = indexAndSpan[1].split("x");
+                    spanMatrix[i][0] = Integer.parseInt(indexAndSpan[0]);
+                    spanMatrix[i][1] = Integer.parseInt(rowAndCol[0]);
+                    spanMatrix[i][2] = Integer.parseInt(rowAndCol[1]);
+                }
             }
             return spanMatrix;
         } catch (Exception e) {
@@ -834,14 +878,14 @@ public class GridCore extends VirtualLayout {
         mNextAvailableIndex = 0;
 
         if (mSkips != null && !mSkips.trim().isEmpty()) {
-            int[][] mSkips = parseSpans(this.mSkips);
+            int[][] mSkips = parseSpans(this.mSkips, false);
             if (mSkips != null) {
                 handleSkips(mSkips);
             }
         }
 
         if (mSpans != null && !mSpans.trim().isEmpty()) {
-            int[][] mSpans = parseSpans(this.mSpans);
+            int[][] mSpans = parseSpans(this.mSpans, true);
             if (mSpans != null) {
                 handleSpans(mSpans);
             }

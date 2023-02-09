@@ -57,12 +57,14 @@ class RowColumnDslTest {
     }
 
     @Test
-    fun testColumns() {
+    fun testColumn() {
         val rootSize = 200.dp
         val boxesCount = 4
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
+                gridSkips = "",
+                gridSpans = "",
                 boxesCount = boxesCount,
                 vGap = 0,
                 gridRowWeights = intArrayOf(),
@@ -87,12 +89,80 @@ class RowColumnDslTest {
     }
 
     @Test
-    fun testRows() {
+    fun testColumnSkips() {
+        val rootSize = 200.dp
+        val boxesCount = 4
+        rule.setContent {
+            ColumnComposableTest(
+                modifier = Modifier.size(rootSize),
+                gridSkips = "1:2",
+                gridSpans = "",
+                boxesCount = boxesCount,
+                vGap = 0,
+                gridRowWeights = intArrayOf(),
+            )
+        }
+        var expectedX = 0.dp
+        var expectedY = 0.dp
+
+        // 10.dp is the size of a singular box
+        val hGapSize = (rootSize - 10.dp) / 2f
+        val vGapSize = (rootSize - (10.dp * 6f)) / ((boxesCount + 2) * 2f)
+        rule.waitForIdle()
+        expectedX += hGapSize
+        expectedY += vGapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedY += vGapSize + vGapSize + 10.dp
+        expectedY += vGapSize + vGapSize + 10.dp
+        expectedY += vGapSize + vGapSize + 10.dp
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedY += vGapSize + vGapSize + 10.dp
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedY += vGapSize + vGapSize + 10.dp
+        rule.onNodeWithTag("box3").assertPositionInRootIsEqualTo(expectedX, expectedY)
+    }
+
+    @Test
+    fun testColumnSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 4
+        rule.setContent {
+            ColumnComposableTest(
+                modifier = Modifier.size(rootSize),
+                gridSkips = "",
+                gridSpans = "0:2",
+                boxesCount = boxesCount,
+                vGap = 0,
+                gridRowWeights = intArrayOf(),
+            )
+        }
+
+        // 10.dp is the size of a singular box
+        val hGapSize = (rootSize - 10.dp) / 2f
+        val vGapSize = (rootSize - (10.dp * 5f)) / ((boxesCount + 1) * 2f)
+        val rowSize = 10.dp + vGapSize * 2
+        var expectedX = 0.dp
+        var expectedY = rowSize - 5.dp
+
+        expectedX += hGapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedY += expectedY + vGapSize + 10.dp
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedY += vGapSize + vGapSize + 10.dp
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedY += vGapSize + vGapSize + 10.dp
+        rule.onNodeWithTag("box3").assertPositionInRootIsEqualTo(expectedX, expectedY)
+    }
+
+    @Test
+    fun testRow() {
         val rootSize = 200.dp
         val boxesCount = 4
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
+                gridSkips = "",
+                gridSpans = "",
                 boxesCount = boxesCount,
                 hGap = 0,
                 gridColumnWeights = intArrayOf()
@@ -116,9 +186,78 @@ class RowColumnDslTest {
         rule.onNodeWithTag("box3").assertPositionInRootIsEqualTo(expectedX, expectedY)
     }
 
+    @Test
+    fun testRowSkips() {
+        val rootSize = 200.dp
+        val boxesCount = 4
+        rule.setContent {
+            RowComposableTest(
+                modifier = Modifier.size(rootSize),
+                gridSkips = "1:2",
+                gridSpans = "",
+                boxesCount = boxesCount,
+                hGap = 0,
+                gridColumnWeights = intArrayOf()
+            )
+        }
+        var expectedX = 0.dp
+        var expectedY = 0.dp
+
+        // 10.dp is the size of a singular box
+        val hGapSize = (rootSize - (10.dp * 6f)) / ((boxesCount + 2) * 2f)
+        val vGapSize = (rootSize - 10.dp) / 2f
+        rule.waitForIdle()
+        expectedX += hGapSize
+        expectedY += vGapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedX += hGapSize + hGapSize + 10.dp
+        expectedX += hGapSize + hGapSize + 10.dp
+        expectedX += hGapSize + hGapSize + 10.dp
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedX += hGapSize + hGapSize + 10.dp
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedX += hGapSize + hGapSize + 10.dp
+        rule.onNodeWithTag("box3").assertPositionInRootIsEqualTo(expectedX, expectedY)
+    }
+
+    @Test
+    fun testRowSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 4
+        rule.setContent {
+            RowComposableTest(
+                modifier = Modifier.size(rootSize),
+                gridSkips = "",
+                gridSpans = "0:2",
+                boxesCount = boxesCount,
+                hGap = 0,
+                gridColumnWeights = intArrayOf()
+            )
+        }
+
+        // 10.dp is the size of a singular box
+        val hGapSize = (rootSize - (10.dp * 5f)) / ((boxesCount + 1) * 2f)
+        val vGapSize = (rootSize - 10.dp) / 2f
+        val columnSize = 10.dp + hGapSize * 2
+        var expectedX = columnSize - 5.dp
+        var expectedY = 0.dp
+
+        expectedY += vGapSize
+
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedX += expectedX + hGapSize + 10.dp
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedX += hGapSize + hGapSize + 10.dp
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(expectedX, expectedY)
+        expectedX += hGapSize + hGapSize + 10.dp
+        rule.onNodeWithTag("box3").assertPositionInRootIsEqualTo(expectedX, expectedY)
+    }
+
     @Composable
     private fun ColumnComposableTest(
         modifier: Modifier = Modifier,
+        gridSkips: String,
+        gridSpans: String,
         gridRowWeights: IntArray,
         boxesCount: Int,
         vGap: Int,
@@ -133,6 +272,8 @@ class RowColumnDslTest {
 
                 val g1 = createColumn(
                     elements = elem.toTypedArray(),
+                    skips = gridSkips,
+                    spans = gridSpans,
                     verticalGap = vGap.dp,
                     rowWeights = gridRowWeights,
                 )
@@ -159,6 +300,8 @@ class RowColumnDslTest {
     @Composable
     private fun RowComposableTest(
         modifier: Modifier = Modifier,
+        gridSkips: String,
+        gridSpans: String,
         gridColumnWeights: IntArray,
         boxesCount: Int,
         hGap: Int,
@@ -174,6 +317,8 @@ class RowColumnDslTest {
                 val g1 = createRow(
                     elements = elem.toTypedArray(),
                     horizontalGap = hGap.dp,
+                    skips = gridSkips,
+                    spans = gridSpans,
                     columnWeights = gridColumnWeights,
                 )
                 constrain(g1) {
