@@ -262,32 +262,28 @@ class ComplicationDataExpressionEvaluatorTest {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
-            ComplicationDataExpressionEvaluator(
-                    expressed,
-                    stateStore = stateStore,
-                )
-                .use { evaluator ->
-                    val allEvaluations =
-                        evaluator.data
-                            .filterNotNull()
-                            .shareIn(
-                                CoroutineScope(Dispatchers.Main),
-                                SharingStarted.Eagerly,
-                                replay = 10,
-                            )
-                    evaluator.init()
-                    runUiThreadTasks() // Ensures data sharing started.
+            ComplicationDataExpressionEvaluator(expressed, stateStore).use { evaluator ->
+                val allEvaluations =
+                    evaluator.data
+                        .filterNotNull()
+                        .shareIn(
+                            CoroutineScope(Dispatchers.Main),
+                            SharingStarted.Eagerly,
+                            replay = 10,
+                        )
+                evaluator.init()
+                runUiThreadTasks() // Ensures data sharing started.
 
-                    for (state in scenario.states) {
-                        stateStore.setStateEntryValues(state)
-                        runUiThreadTasks() // Ensures data sharing ended.
-                    }
-
-                    expect
-                        .withMessage(scenario.name)
-                        .that(allEvaluations.replayCache)
-                        .isEqualTo(scenario.evaluated)
+                for (state in scenario.states) {
+                    stateStore.setStateEntryValues(state)
+                    runUiThreadTasks() // Ensures data sharing ended.
                 }
+
+                expect
+                    .withMessage(scenario.name)
+                    .that(allEvaluations.replayCache)
+                    .isEqualTo(scenario.evaluated)
+            }
         }
     }
 

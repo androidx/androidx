@@ -50,20 +50,25 @@ import kotlinx.coroutines.flow.update
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
     val unevaluatedData: WireComplicationData,
-    private val sensorGateway: SensorGateway? = null,
     private val stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
+    private val sensorGateway: SensorGateway? = null,
 ) : AutoCloseable {
     /**
      * Java compatibility class for [ComplicationDataExpressionEvaluator].
      *
      * Unlike [data], [listener] is not invoked until there is a value (until [data] is non-null).
      */
-    class Compat(
+    class Compat
+    @JvmOverloads
+    constructor(
         val unevaluatedData: WireComplicationData,
         private val executor: Executor,
         private val listener: Consumer<WireComplicationData>,
+        stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
+        sensorGateway: SensorGateway? = null,
     ) : AutoCloseable {
-        private val evaluator = ComplicationDataExpressionEvaluator(unevaluatedData)
+        private val evaluator =
+            ComplicationDataExpressionEvaluator(unevaluatedData, stateStore, sensorGateway)
 
         /** @see ComplicationDataExpressionEvaluator.init */
         fun init() {
