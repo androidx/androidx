@@ -111,7 +111,8 @@ class GoldenVerifierTest {
     fun `asserts on failure`() {
         createGolden("star")
         val message = "Actual image differs from golden image: 17837 of 65536 pixels different. " +
-            "To update golden images for this test module, run :updateGolden."
+            "To update golden images for this test module, run ./gradlew :updateGolden " +
+            "-Pandroidx.ignoreTestFailures=true."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
@@ -165,7 +166,8 @@ class GoldenVerifierTest {
     fun `asserts on size mismatch`() {
         createGolden("horizontal_rectangle")
         val message = "Actual image has different dimensions than golden image. Actual: 72x128. " +
-            "Golden: 128x72. To update golden images for this test module, run :updateGolden."
+            "Golden: 128x72. To update golden images for this test module, run ./gradlew " +
+            ":updateGolden -Pandroidx.ignoreTestFailures=true."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("vertical_rectangle"))
@@ -219,8 +221,8 @@ class GoldenVerifierTest {
     @Test
     fun `asserts on missing golden`() {
         val message = "Expected golden image for test \"asserts on missing golden\" does not " +
-            "exist. Run :updateGolden -Pandroidx.ignoreTestFailures=true to create it and update " +
-            "all golden images for this test module."
+            "exist. Run ./gradlew :updateGolden -Pandroidx.ignoreTestFailures=true to create it " +
+            "and update all golden images for this test module."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
