@@ -24,6 +24,8 @@ plugins {
     id("kotlin")
 }
 
+androidx.configureAarAsJarForConfiguration("testImplementation")
+
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.asm)
@@ -37,6 +39,8 @@ dependencies {
     testImplementation(project(":privacysandbox:tools:tools-apipackager"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-client"))
     testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

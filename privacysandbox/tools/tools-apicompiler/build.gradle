@@ -23,6 +23,8 @@ plugins {
     id("kotlin")
 }
 
+androidx.configureAarAsJarForConfiguration("testImplementation")
+
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.kspApi)
@@ -32,6 +34,7 @@ dependencies {
 
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesCore)
