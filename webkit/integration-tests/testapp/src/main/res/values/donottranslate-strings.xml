@@ -100,6 +100,7 @@
 
     <!-- Process Global Config -->
     <string name="process_global_config_activity_title">Process Global Config</string>
+    <string name="data_directory_suffix_activity_title">Data Directory Suffix</string>
 
     <!-- Requested With Header -->
     <string name="requested_with_activity_title">X-Requested-With header allow-list</string>
