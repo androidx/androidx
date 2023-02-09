@@ -9,6 +9,7 @@ package androidx.health.connect.client {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
+    method public default static String getHealthConnectSettingsAction();
     method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public androidx.health.connect.client.PermissionController getPermissionController();
@@ -21,8 +22,8 @@ package androidx.health.connect.client {
     method public default static int sdkStatus(android.content.Context context, optional String providerPackageName);
     method public default static int sdkStatus(android.content.Context context);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public default static String ACTION_HEALTH_CONNECT_SETTINGS;
     property public abstract androidx.health.connect.client.PermissionController permissionController;
-    field public static final String ACTION_HEALTH_CONNECT_SETTINGS = "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS";
     field public static final androidx.health.connect.client.HealthConnectClient.Companion Companion;
     field public static final int SDK_AVAILABLE = 3; // 0x3
     field public static final int SDK_UNAVAILABLE = 1; // 0x1
@@ -30,6 +31,7 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectClient.Companion {
+    method public String getHealthConnectSettingsAction();
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method @Deprecated public boolean isApiSupported();
@@ -37,7 +39,7 @@ package androidx.health.connect.client {
     method @Deprecated public boolean isProviderAvailable(android.content.Context context);
     method public int sdkStatus(android.content.Context context, optional String providerPackageName);
     method public int sdkStatus(android.content.Context context);
-    field public static final String ACTION_HEALTH_CONNECT_SETTINGS = "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS";
+    property public final String ACTION_HEALTH_CONNECT_SETTINGS;
     field public static final int SDK_AVAILABLE = 3; // 0x3
     field public static final int SDK_UNAVAILABLE = 1; // 0x1
     field public static final int SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2; // 0x2
