@@ -23,6 +23,7 @@ import android.app.slice.SliceSpec
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.service.credentials.CredentialEntry
@@ -148,6 +149,10 @@ class PasswordCredentialEntry internal constructor(
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
 
@@ -202,6 +207,11 @@ class PasswordCredentialEntry internal constructor(
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_BUNDLE)
                 )
+                .addText(
+                    beginGetPasswordCredentialOption.id,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_ID)
+                )
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(),
@@ -242,7 +252,8 @@ class PasswordCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetPasswordOption: BeginGetPasswordOption? = null
+            var beginGetPasswordOptionBundle: Bundle? = null
+            var beginGetPasswordOptionId: CharSequence? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -255,8 +266,10 @@ class PasswordCredentialEntry internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
+                    beginGetPasswordOptionId = it.text
                 } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetPasswordOption = BeginGetPasswordOption.createFrom(it.bundle)
+                    beginGetPasswordOptionBundle = it.bundle
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -276,7 +289,10 @@ class PasswordCredentialEntry internal constructor(
                     lastUsedTime,
                     icon!!,
                     autoSelectAllowed,
-                    beginGetPasswordOption!!
+                    BeginGetPasswordOption.createFrom(
+                        beginGetPasswordOptionBundle!!,
+                        beginGetPasswordOptionId!!.toString()
+                    )
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

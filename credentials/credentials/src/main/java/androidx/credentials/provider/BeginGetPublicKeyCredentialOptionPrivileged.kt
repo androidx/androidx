@@ -46,11 +46,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
 @RequiresApi(34)
 class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
     candidateQueryData: Bundle,
+    id: String,
     val requestJson: String,
     val relyingParty: String,
     val clientDataHash: String,
 ) : BeginGetCredentialOption(
-    /*id=*/"",
+    id,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     candidateQueryData
 ) {
@@ -74,7 +75,8 @@ class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
 
         /** @hide */
         @JvmStatic
-        internal fun createFrom(data: Bundle): BeginGetPublicKeyCredentialOptionPrivileged {
+        internal fun createFrom(data: Bundle, id: String):
+            BeginGetPublicKeyCredentialOptionPrivileged {
             try {
                 val requestJson = data.getString(
                     GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_REQUEST_JSON)
@@ -84,6 +86,7 @@ class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
                     GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH)
                 return BeginGetPublicKeyCredentialOptionPrivileged(
                     data,
+                    id,
                     requestJson!!,
                     rp!!,
                     clientDataHash!!
@@ -98,7 +101,7 @@ class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
             override fun createFromParcel(p0: Parcel?):
                 BeginGetPublicKeyCredentialOptionPrivileged {
                 val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-                return createFrom(baseOption.candidateQueryData)
+                return createFrom(baseOption.candidateQueryData, baseOption.id)
             }
 
             @Suppress("ArrayReturn")

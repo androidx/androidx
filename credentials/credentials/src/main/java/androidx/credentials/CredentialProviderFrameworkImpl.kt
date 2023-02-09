@@ -172,7 +172,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     ): CreateCredentialException {
         return when (error.type) {
             // TODO ("Change to NoCred exception when ready")
-            android.credentials.CreateCredentialException.TYPE_NO_CREDENTIAL ->
+            android.credentials.CreateCredentialException.TYPE_NO_CREATE_OPTIONS ->
                 CreateCredentialUnknownException(error.message)
 
             android.credentials.CreateCredentialException.TYPE_USER_CANCELED ->

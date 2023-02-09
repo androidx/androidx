@@ -20,9 +20,9 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.service.credentials.BeginGetCredentialOption
-import androidx.annotation.RequiresApi
 import android.service.credentials.BeginGetCredentialResponse
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.credentials.PasswordCredential
 
 /**
@@ -34,9 +34,10 @@ import androidx.credentials.PasswordCredential
  */
 @RequiresApi(34)
 class BeginGetPasswordOption internal constructor(
-    candidateQueryData: Bundle
+    candidateQueryData: Bundle,
+    id: String
 ) : BeginGetCredentialOption(
-    /*id=*/"",
+    id,
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     candidateQueryData
 ) {
@@ -53,15 +54,15 @@ class BeginGetPasswordOption internal constructor(
     companion object {
         /** @hide */
         @JvmStatic
-        internal fun createFrom(data: Bundle): BeginGetPasswordOption {
-            return BeginGetPasswordOption(data)
+        internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
+            return BeginGetPasswordOption(data, id)
         }
 
         @JvmField val CREATOR: Parcelable.Creator<BeginGetPasswordOption> = object :
             Parcelable.Creator<BeginGetPasswordOption> {
             override fun createFromParcel(p0: Parcel?): BeginGetPasswordOption {
                 val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-                return createFrom(baseOption.candidateQueryData)
+                return createFrom(baseOption.candidateQueryData, baseOption.id)
             }
 
             @Suppress("ArrayReturn")

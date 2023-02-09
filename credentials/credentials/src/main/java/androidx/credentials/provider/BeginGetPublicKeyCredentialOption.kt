@@ -38,9 +38,10 @@ import androidx.credentials.internal.FrameworkClassParsingException
 @RequiresApi(34)
 class BeginGetPublicKeyCredentialOption internal constructor(
     candidateQueryData: Bundle,
+    id: String,
     val requestJson: String,
 ) : BeginGetCredentialOption(
-    /*id=*/"",
+    id,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     candidateQueryData
 ) {
@@ -60,11 +61,11 @@ class BeginGetPublicKeyCredentialOption internal constructor(
     companion object {
         /** @hide */
         @JvmStatic
-        internal fun createFrom(data: Bundle): BeginGetPublicKeyCredentialOption {
+        internal fun createFrom(data: Bundle, id: String): BeginGetPublicKeyCredentialOption {
             try {
                 val requestJson = data.getString(
                     GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON)
-                return BeginGetPublicKeyCredentialOption(data, requestJson!!)
+                return BeginGetPublicKeyCredentialOption(data, id, requestJson!!)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
@@ -74,7 +75,7 @@ class BeginGetPublicKeyCredentialOption internal constructor(
             Parcelable.Creator<BeginGetPublicKeyCredentialOption> {
             override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOption {
                 val baseOption = BeginGetCredentialOption.CREATOR.createFromParcel(p0)
-                return createFrom(baseOption.candidateQueryData)
+                return createFrom(baseOption.candidateQueryData, baseOption.id)
             }
 
             @Suppress("ArrayReturn")

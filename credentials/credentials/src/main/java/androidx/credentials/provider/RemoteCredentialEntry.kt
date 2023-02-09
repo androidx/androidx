@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
@@ -70,6 +71,9 @@ class RemoteCredentialEntry constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_BUNDLE =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_BUNDLE"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_ID"
 
         /** @hide */
         @JvmStatic
@@ -87,6 +91,9 @@ class RemoteCredentialEntry constructor(
                 .addBundle(beginGetPublicKeyCredentialOption.candidateQueryData,
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_BUNDLE))
+                .addText(beginGetPublicKeyCredentialOption.id,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_OPTION_ID))
             return sliceBuilder.build()
         }
 
@@ -100,18 +107,25 @@ class RemoteCredentialEntry constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): RemoteCredentialEntry? {
-            var beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption? = null
+            var beginGetPublicKeyCredentialOptionBundle: Bundle? = null
+            var beginGetPublicKeyCredentialOptionId: CharSequence? = null
             var pendingIntent: PendingIntent? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetPublicKeyCredentialOption = BeginGetPublicKeyCredentialOption
-                        .createFrom(it.bundle)
+                    beginGetPublicKeyCredentialOptionBundle = it.bundle
+                } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
+                    beginGetPublicKeyCredentialOptionId = it.text
                 }
             }
             return try {
-                RemoteCredentialEntry(pendingIntent!!, beginGetPublicKeyCredentialOption!!)
+                RemoteCredentialEntry(pendingIntent!!,
+                    BeginGetPublicKeyCredentialOption.createFrom(
+                        beginGetPublicKeyCredentialOptionBundle!!,
+                        beginGetPublicKeyCredentialOptionId!!.toString()
+                    )
+                )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
