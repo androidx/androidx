@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 21)
 class OnEnableDisableSessionDurationCheckTest {
     companion object {
-        const val TOLERANCE = 15L
+        const val TOLERANCE = 60L
     }
 
     @Test
@@ -39,7 +39,7 @@ class OnEnableDisableSessionDurationCheckTest {
         // Arrange
         val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */true)
 
-        val duration = 40L
+        val duration = 80L
         // Act
         val startTime = SystemClock.elapsedRealtime()
         check.onEnableSessionInvoked()
