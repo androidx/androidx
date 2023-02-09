@@ -92,7 +92,7 @@ internal class GoldenVerifier(
         val analysis = analyze(expected, actual)
 
         fun updateMessage() = "To update golden images for this test module, run " +
-            "${updateGoldenGradleTask()}."
+            "${updateGoldenGradleCommand()}."
 
         writeReport(snapshot, analysis)
 
@@ -110,7 +110,7 @@ internal class GoldenVerifier(
             )
             is AnalysisResult.MissingGolden -> throw AssertionError(
                 "Expected golden image for test \"${snapshot.testName.methodName}\" does not " +
-                    "exist. Run ${updateGoldenGradleTask()} -Pandroidx.ignoreTestFailures=true " +
+                    "exist. Run ${updateGoldenGradleCommand()} " +
                     "to create it and update all golden images for this test module."
             )
         }
@@ -248,8 +248,10 @@ internal class GoldenVerifier(
         const val ANDROIDX_GOLDEN_REPO_NAME = "platform/frameworks/support-golden"
 
         /** Name of the updateGolden Gradle command for this module, via system properties. */
-        fun updateGoldenGradleTask() =
-            System.getProperty("$PACKAGE_NAME.updateGoldenTask") ?: ":updateGolden"
+        fun updateGoldenGradleCommand() =
+            "./gradlew ${
+                (System.getProperty("$PACKAGE_NAME.updateGoldenTask") ?: ":updateGolden")
+            } -Pandroidx.ignoreTestFailures=true"
 
         /** Render test function name as a fully qualified string. */
         fun TestName.toQualifiedName(): String {
