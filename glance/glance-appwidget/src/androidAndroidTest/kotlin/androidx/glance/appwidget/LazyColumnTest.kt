@@ -37,9 +37,9 @@ import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertIs
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest

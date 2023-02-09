@@ -23,6 +23,7 @@ import androidx.glance.GlanceNode
 import androidx.glance.GlanceTheme
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.action
 import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
@@ -110,6 +111,48 @@ fun switchColors(): SwitchColors {
  */
 @Composable
 fun Switch(
+    checked: Boolean,
+    onCheckedChange: Action?,
+    modifier: GlanceModifier = GlanceModifier,
+    text: String = "",
+    style: TextStyle? = null,
+    colors: SwitchColors = switchColors(),
+    maxLines: Int = Int.MAX_VALUE,
+) = SwitchElement(checked, onCheckedChange, modifier, text, style, colors, maxLines)
+
+/**
+ * Adds a switch view to the glance view.
+ *
+ * @param checked whether the switch is checked
+ * @param onCheckedChange the action to be run when the switch is clicked
+ * @param modifier the modifier to apply to the switch
+ * @param text the text to display to the end of the switch
+ * @param style the style to apply to [text]
+ * @param colors the tint colors for the thumb and track of the switch
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
+ */
+@Composable
+fun Switch(
+    checked: Boolean,
+    onCheckedChange: () -> Unit,
+    modifier: GlanceModifier = GlanceModifier,
+    text: String = "",
+    style: TextStyle? = null,
+    colors: SwitchColors = switchColors(),
+    maxLines: Int = Int.MAX_VALUE,
+) = SwitchElement(
+    checked,
+    action(block = onCheckedChange),
+    modifier,
+    text,
+    style,
+    colors,
+    maxLines
+)
+
+@Composable
+private fun SwitchElement(
     checked: Boolean,
     onCheckedChange: Action?,
     modifier: GlanceModifier = GlanceModifier,

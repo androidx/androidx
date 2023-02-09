@@ -27,14 +27,13 @@ import androidx.glance.Button
 import androidx.glance.ButtonColors
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -68,8 +67,10 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN)
     )
 
-    @Composable
-    override fun Content() {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) = provideContent {
         // Content will be called for each of the provided sizes
         when (LocalSize.current) {
             COLUMN -> ResponsiveColumn(numItems = 3)
@@ -79,7 +80,8 @@ class ResponsiveAppWidget : GlanceAppWidget() {
             SMALL_BOX -> ResponsiveBox(numItems = 1)
             BIG_BOX -> ResponsiveBox(numItems = 3)
             VERY_BIG_BOX -> ResponsiveBox(numItems = 5)
-            else -> throw IllegalArgumentException("Invalid size not matching the provided ones")
+            else ->
+                throw IllegalArgumentException("Invalid size not matching the provided ones")
         }
     }
 }
@@ -151,6 +153,7 @@ private fun ContentItem(
     textStyle: TextStyle? = null
 ) {
     Box(modifier = modifier) {
+        val context = LocalContext.current
         Button(
             text = text,
             modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
@@ -159,28 +162,16 @@ private fun ContentItem(
                 contentColor = ColorProvider(Color.White)
             ),
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
-            onClick = actionRunCallback<ResponsiveAction>(
-                actionParametersOf(
-                    ItemClickedKey to text
-                )
-            )
+            onClick = {
+                Handler(context.mainLooper).post {
+                    Toast.makeText(
+                        context,
+                        "Item clicked: $text",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         )
-    }
-}
-
-class ResponsiveAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        Handler(context.mainLooper).post {
-            Toast.makeText(
-                context,
-                "Item clicked: ${parameters[ItemClickedKey]}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
     }
 }
 

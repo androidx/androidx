@@ -24,8 +24,6 @@ import androidx.glance.GlanceComposable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 
-typealias SetContentFn = suspend (@Composable @GlanceComposable () -> Unit) -> Unit
-
 /**
  * [Session] is implemented by Glance surfaces in order to provide content for the
  * composition and process the results of recomposition.
@@ -47,8 +45,7 @@ abstract class Session(val key: String) {
     abstract fun provideGlance(context: Context): @Composable @GlanceComposable () -> Unit
 
     /**
-     * Process the Emittable tree that results from the running the composable provided by
-     * [provideGlance].
+     * Process the Emittable tree that results from the running [provideGlance].
      *
      * This will also be called for the results of future recompositions.
      * @return true if the tree has been processed and the session is ready to handle events.
@@ -66,9 +63,10 @@ abstract class Session(val key: String) {
     /**
      * Enqueues an [event] to be processed by the session.
      *
-     * These requests may be processed by calling [receiveEvents].
+     * These requests may be processed by calling [receiveEvents]. Session implementations should
+     * wrap sendEvent with public methods to send the event types that their Session supports.
      */
-    suspend fun sendEvent(event: Any) {
+    protected suspend fun sendEvent(event: Any) {
         eventChannel.send(event)
     }
 
@@ -87,10 +85,7 @@ abstract class Session(val key: String) {
         }
     }
 
-    suspend fun close() {
+    fun close() {
         eventChannel.close()
-        onClose()
     }
-
-    open suspend fun onClose() {}
 }

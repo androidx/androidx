@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -35,7 +34,6 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
-import androidx.glance.GlanceId
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalState
@@ -43,14 +41,7 @@ import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 
 /**
  * A session that composes UI for a single app widget.
@@ -220,53 +211,4 @@ internal class AppWidgetSession(
     internal class UpdateAppWidgetOptions(val newOptions: Bundle)
     @VisibleForTesting
     internal class RunLambda(val key: String)
-
-    private val Context.appWidgetManager: AppWidgetManager
-        get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
 }
-
-internal fun interface ContentReceiver : CoroutineContext.Element {
-    /**
-     * Provide [content] to the Glance session, suspending until the session is
-     * shut down.
-     *
-     * If this function is called concurrently with itself, the previous call will throw
-     * [CancellationException] and the new content will replace it.
-     */
-    suspend fun provideContent(
-        content: @Composable @GlanceComposable () -> Unit
-    ): Nothing
-
-    override val key: CoroutineContext.Key<*> get() = Key
-
-    companion object Key : CoroutineContext.Key<ContentReceiver>
-}
-
-internal fun GlanceAppWidget.runGlance(
-    context: Context,
-    id: GlanceId,
-): Flow<(@GlanceComposable @Composable () -> Unit)?> = channelFlow {
-    val contentCoroutine: AtomicReference<CancellableContinuation<Nothing>?> =
-        AtomicReference(null)
-    val receiver = ContentReceiver { content ->
-        suspendCancellableCoroutine {
-            it.invokeOnCancellation { trySend(null) }
-            contentCoroutine.getAndSet(it)?.cancel()
-            trySend(content)
-        }
-    }
-    withContext(receiver) { provideGlance(context, id) }
-}
-
-internal val Context.appWidgetManager: AppWidgetManager
-    get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
-
-internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetId"
-
-internal fun AppWidgetId.toSessionKey() = createUniqueRemoteUiName(appWidgetId)
-
-/**
- * Maximum depth for a composition. Although there is no hard limit, this should avoid deep
- * recursions, which would create [RemoteViews] too large to be sent.
- */
-private const val MaxComposeTreeDepth = 50
