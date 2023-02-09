@@ -20,7 +20,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.widget.TextView
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -202,15 +201,6 @@ class AppWidgetSessionTest {
         session.receiveEvents(context) {}
         assertTrue(didRunFirst)
         assertTrue(didRunSecond)
-    }
-
-    private class SampleGlanceAppWidget(
-        val ui: @Composable () -> Unit,
-    ) : GlanceAppWidget() {
-        @Composable
-        override fun Content() {
-            ui()
-        }
     }
 
     private class TestGlanceState : ConfigManager {

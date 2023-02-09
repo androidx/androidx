@@ -106,7 +106,7 @@ internal fun ForEachSize(
         } else {
             val smallestSize = sizeMode.sizes.sortedBySize()[0]
             LocalAppWidgetOptions.current.extractOrientationSizes()
-                .mapNotNull { findBestSize(it, sizeMode.sizes) }
+                .map { findBestSize(it, sizeMode.sizes) ?: smallestSize }
                 .ifEmpty { listOf(smallestSize, smallestSize) }
         }
     }

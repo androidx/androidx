@@ -70,7 +70,6 @@ internal suspend fun runCompositionUntil(
         val applier = Applier(root)
         val recomposer = Recomposer(currentCoroutineContext())
         val composition = Composition(applier, recomposer)
-
         composition.setContent { content() }
 
         launch(TestFrameClock()) { recomposer.runRecomposeAndApplyChanges() }
@@ -176,15 +175,11 @@ internal class TestWidget(
 ) : GlanceAppWidget() {
     val provideGlanceCalled = AtomicBoolean(false)
     override suspend fun provideGlance(
-        context: android.content.Context,
-        id: androidx.glance.GlanceId
+        context: Context,
+        id: GlanceId
     ) {
         provideGlanceCalled.set(true)
-        provideContent { Content() }
-    }
-    @Composable
-    override fun Content() {
-        ui()
+        provideContent(ui)
     }
 }
 

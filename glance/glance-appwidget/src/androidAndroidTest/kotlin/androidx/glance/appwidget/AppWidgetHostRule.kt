@@ -29,7 +29,6 @@ import android.view.ViewTreeObserver
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.children
-import androidx.glance.session.GlanceSessionManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -54,7 +53,6 @@ import org.junit.runners.model.Statement
 class AppWidgetHostRule(
     private var mPortraitSize: DpSize = DpSize(200.dp, 300.dp),
     private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp),
-    private var useSessionManager: Boolean = false,
 ) : TestRule {
 
     val portraitSize: DpSize
@@ -102,8 +100,6 @@ class AppWidgetHostRule(
 
         override fun evaluate() {
             WorkManagerTestInitHelper.initializeTestWorkManager(mContext)
-            TestGlanceAppWidget.sessionManager =
-                if (useSessionManager) GlanceSessionManager else null
             mInnerRules.apply(base, description).evaluate()
             stopHost()
         }

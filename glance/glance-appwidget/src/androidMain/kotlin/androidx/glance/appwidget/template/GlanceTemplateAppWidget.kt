@@ -16,15 +16,18 @@
 
 package androidx.glance.appwidget.template
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
+import androidx.glance.GlanceId
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.provideContent
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.template.LocalTemplateMode
@@ -68,16 +71,14 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     /** Default widget state definition is [PreferencesGlanceStateDefinition] */
     override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
 
-    @Composable
-    final override fun Content() {
-        // TODO: Add other local values
-        val mode = mode()
-        CompositionLocalProvider(
-            LocalTemplateMode provides mode,
-        ) {
-            TemplateContent()
+    final override suspend fun provideGlance(context: Context, id: GlanceId) =
+        provideContent {
+            CompositionLocalProvider(
+                LocalTemplateMode provides mode(),
+            ) {
+                TemplateContent()
+            }
         }
-    }
 
     @Composable
     @GlanceComposable

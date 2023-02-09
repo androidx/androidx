@@ -37,8 +37,10 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -104,18 +106,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 /** Enable verbose logging for test failure investigation. Enable for b/267494219 */
 const val VERBOSE_LOG = true
@@ -125,26 +127,24 @@ const val RECEIVER_TEST_TAG = "GAWRT" // shorten to avoid long tag lint
 @OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
-@RunWith(Parameterized::class)
-class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
+class GlanceAppWidgetReceiverTest {
     @get:Rule
-    val mHostRule = AppWidgetHostRule(useSessionManager = useSessionManager)
+    val mHostRule = AppWidgetHostRule()
 
     @get:Rule
     val mViewDumpRule = ViewHierarchyFailureWatcher()
 
     val context = InstrumentationRegistry.getInstrumentation().targetContext!!
 
-    companion object {
-        @Parameterized.Parameters(name = "useGlanceSession={0}")
-        @JvmStatic
-        fun data() = mutableListOf(true, false)
-    }
-
     @Before
     fun setUp() {
         // Reset the size mode to the default
         TestGlanceAppWidget.sizeMode = SizeMode.Single
+    }
+
+    @After
+    fun cleanUp() {
+        TestGlanceAppWidget.resetOnDeleteBlock()
     }
 
     @Test
@@ -779,42 +779,37 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
     }
 
     @Test
-    fun compoundButtonAction() {
+    fun compoundButtonAction() = runTest {
         val checkbox = "checkbox"
         val switch = "switch"
+        val checkBoxClicked = MutableStateFlow(false)
+        val switchClicked = MutableStateFlow(false)
 
         TestGlanceAppWidget.uiDefinition = {
             Column {
                 CheckBox(
                     checked = false,
-                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
-                        actionParametersOf(CompoundButtonActionTest.key to checkbox)
-                    ),
+                    onCheckedChange = { assert(checkBoxClicked.tryEmit(true)) },
                     text = checkbox
                 )
                 Switch(
                     checked = true,
-                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
-                        actionParametersOf(CompoundButtonActionTest.key to switch)
-                    ), text = switch
+                    onCheckedChange = { assert(switchClicked.tryEmit(true)) },
+                    text = switch
                 )
             }
         }
 
         mHostRule.startHost()
 
-        CompoundButtonActionTest.received.set(emptyList())
-        CompoundButtonActionTest.latch = CountDownLatch(2)
         mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == checkbox })
                 .performCompoundButtonClick()
             checkNotNull(root.findChild<TextView> { it.text.toString() == switch })
                 .performCompoundButtonClick()
         }
-        CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)
-        assertThat(CompoundButtonActionTest.received.get()).containsExactly(
-            checkbox to true, switch to false
-        )
+        checkBoxClicked.first { it }
+        switchClicked.first { it }
     }
 
     @Test
@@ -883,7 +878,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
 
     @Test
     fun lambdaActionCallback() = runTest {
-        if (!useSessionManager) return@runTest
         TestGlanceAppWidget.uiDefinition = {
             val text = remember { mutableStateOf("initial") }
             Button(
@@ -909,20 +903,13 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @FlakyTest(bugId = 259938473)
     @Test
     fun unsetActionCallback() = runTest {
+        var enabled by mutableStateOf(true)
         TestGlanceAppWidget.uiDefinition = {
-            val enabled = currentState<Preferences>()[testBoolKey] ?: true
             Text(
                 "text1",
-                modifier = if (enabled) {
-                    GlanceModifier.clickable(
-                        actionRunCallback<CallbackTest>(
-                            actionParametersOf(CallbackTest.key to 1)
-                        )
-                    )
-                } else GlanceModifier
+                modifier = if (enabled) GlanceModifier.clickable {} else GlanceModifier
             )
         }
 
@@ -935,11 +922,8 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
             assertThat(view.hasOnClickListeners()).isTrue()
         }
 
-        updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
-            it[testBoolKey] = false
-        }
         mHostRule.runAndWaitForUpdate {
-            TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
+            enabled = false
         }
 
         mHostRule.onUnboxedHostView<TextView> { root ->
@@ -1077,8 +1061,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
     }
 
     @Test
-        fun cancellingContentCoroutineCausesContentToLeaveComposition() = runBlocking {
-            if (!useSessionManager) return@runBlocking
+    fun cancellingContentCoroutineCausesContentToLeaveComposition() = runBlocking {
         val currentEffectState = MutableStateFlow(EffectState.Initial)
         var contentJob: Job? = null
         TestGlanceAppWidget.onProvideGlance = {
