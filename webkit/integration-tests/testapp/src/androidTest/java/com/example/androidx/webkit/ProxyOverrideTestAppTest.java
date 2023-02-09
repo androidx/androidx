@@ -22,7 +22,6 @@ import androidx.test.filters.LargeTest;
 import androidx.webkit.WebViewFeature;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ public class ProxyOverrideTestAppTest {
         WebkitTestHelpers.assumeFeature(WebViewFeature.PROXY_OVERRIDE);
     }
 
-    @Ignore // b/267381688
     @Test
     public void testProxyOverride() {
         WebkitTestHelpers.clickMenuListItemWithString(R.string.proxy_override_activity_title);
@@ -58,7 +56,6 @@ public class ProxyOverrideTestAppTest {
                                 R.string.proxy_override_requests_served, 1);
     }
 
-    @Ignore // b/267381688
     @Test
     public void testReverseBypass() {
         WebkitTestHelpers.assumeFeature(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS);

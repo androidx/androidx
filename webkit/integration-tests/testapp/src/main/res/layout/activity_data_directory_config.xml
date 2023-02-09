@@ -24,13 +24,13 @@
     tools:ignore="Orientation">
 
     <TextView
-        android:id="@+id/process_global_textview"
+        android:id="@+id/data_directory_config_textview"
         android:layout_width="wrap_content"
         android:layout_height="105dp"
         android:text="TextView" />
 
     <WebView
-        android:id="@+id/process_global_config_webview"
+        android:id="@+id/data_directory_config_webview"
         android:layout_width="match_parent"
         android:layout_height="604dp"></WebView>
 </LinearLayout>
