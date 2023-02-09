@@ -43,7 +43,9 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedF
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.FixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.ArithmeticInt32Node;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FloatToInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.PlatformInt32SourceNode;
@@ -58,6 +60,7 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpN
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
+import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalFloatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalStringOp;
@@ -68,6 +71,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -340,7 +344,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicBuilders.DynamicInt32 int32Source,
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(int32Source.toDynamicInt32Proto(), consumer, resultBuilder);
+        bindRecursively(
+                int32Source.toDynamicInt32Proto(), consumer, resultBuilder, Optional.empty());
         mUiHandler.post(() -> processBindings(resultBuilder));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
@@ -365,7 +370,33 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicInt32 int32Source,
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(int32Source, consumer, resultBuilder);
+        bindRecursively(int32Source, consumer, resultBuilder, Optional.empty());
+        mDynamicTypeNodes.addAll(resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder);
+    }
+
+    /**
+     * Adds pending expression from the given {@link DynamicInt32} for future evaluation.
+     *
+     * <p>While the {@link BoundDynamicType} is not destroyed with{@link BoundDynamicType#close()}
+     * by caller, results of evaluation will be sent through the given {@link
+     * DynamicTypeValueReceiver}.
+     *
+     * @param int32Source The given integer dynamic type that should be evaluated.
+     * @param consumer The registered consumer for results of the evaluation. It will be called from
+     *     UI thread.
+     * @param animationFallbackValue The value used if the given {@link DynamicInt32} is animatable
+     *     and animations are disabled.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public BoundDynamicType bind(
+            @NonNull DynamicInt32 int32Source,
+            @NonNull DynamicTypeValueReceiver<Integer> consumer,
+            int animationFallbackValue) {
+        List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
+        bindRecursively(int32Source, consumer, resultBuilder, Optional.of(animationFallbackValue));
         mDynamicTypeNodes.addAll(resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
@@ -598,7 +629,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             stringSource.getInt32FormatOp().getInput(),
                             int32FormatNode.getIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     break;
                 }
             case FLOAT_FORMAT_OP:
@@ -677,7 +709,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     private void bindRecursively(
             @NonNull DynamicInt32 int32Source,
             @NonNull DynamicTypeValueReceiver<Integer> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @NonNull Optional<Integer> animationFallbackValue) {
         DynamicDataNode<Integer> node;
 
         switch (int32Source.getInnerCase()) {
@@ -685,8 +718,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedInt32Node(int32Source.getFixed(), consumer);
                 break;
             case PLATFORM_SOURCE:
-                node =
-                        new PlatformInt32SourceNode(
+                node = new PlatformInt32SourceNode(
                                 int32Source.getPlatformSource(),
                                 mTimeDataSource,
                                 mSensorGatewayDataSource,
@@ -701,11 +733,13 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             int32Source.getArithmeticOperation().getInputLhs(),
                             arithmeticNode.getLhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     bindRecursively(
                             int32Source.getArithmeticOperation().getInputRhs(),
                             arithmeticNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
 
                     break;
                 }
@@ -728,11 +762,13 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             op.getValueIfTrue(),
                             conditionalNode.getTrueValueIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     bindRecursively(
                             op.getValueIfFalse(),
                             conditionalNode.getFalseValueIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
 
                     node = conditionalNode;
                     break;
@@ -750,6 +786,53 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                             Optional.empty());
                     break;
                 }
+            case ANIMATABLE_FIXED:
+                if (!mEnableAnimations && animationFallbackValue.isPresent()) {
+                    // Just assign static value if animations are disabled.
+                    node =
+                            new FixedInt32Node(
+                                    FixedInt32.newBuilder().setValue(
+                                            animationFallbackValue.get()).build(), consumer);
+
+                } else {
+                    // We don't have to check if enableAnimations is true, because if it's false
+                    // and we didn't
+                    // have static value set, constructor has put QuotaManager that don't have
+                    // any quota, so
+                    // animations won't be played and they would jump to the end value.
+                    node =
+                            new AnimatableFixedInt32Node(
+                                    int32Source.getAnimatableFixed(), consumer,
+                                    mAnimationQuotaManager);
+                }
+                break;
+            case ANIMATABLE_DYNAMIC:
+                if (!mEnableAnimations && animationFallbackValue.isPresent()) {
+                    // Just assign static value if animations are disabled.
+                    node =
+                            new FixedInt32Node(
+                                    FixedInt32.newBuilder().setValue(
+                                            animationFallbackValue.get()).build(), consumer);
+
+                } else {
+                    // We don't have to check if enableAnimations is true, because if it's false
+                    // and we didn't
+                    // have static value set, constructor has put QuotaManager that don't have
+                    // any quota, so
+                    // animations won't be played and they would jump to the end value.
+                    AnimatableDynamicInt32 dynamicNode = int32Source.getAnimatableDynamic();
+                    DynamicAnimatedInt32Node animationNode =
+                            new DynamicAnimatedInt32Node(consumer, dynamicNode.getSpec(),
+                                    mAnimationQuotaManager);
+                    node = animationNode;
+
+                    bindRecursively(
+                            dynamicNode.getInput(),
+                            animationNode.getInputCallback(),
+                            resultBuilder,
+                            animationFallbackValue);
+                }
+                break;
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicInt32 has no inner source set");
             default:
@@ -807,7 +890,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             floatSource.getInt32ToFloatOperation().getInput(),
                             toFloatNode.getIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     break;
                 }
             case CONDITIONAL_OP:
@@ -999,11 +1083,13 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             boolSource.getInt32Comparison().getInputLhs(),
                             compNode.getLhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
                     bindRecursively(
                             boolSource.getInt32Comparison().getInputRhs(),
                             compNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                            resultBuilder,
+                            Optional.empty());
 
                     break;
                 }

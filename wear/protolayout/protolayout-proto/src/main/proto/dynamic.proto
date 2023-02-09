@@ -132,7 +132,55 @@ message FloatToInt32Op {
   FloatToInt32RoundMode round_mode = 2;
 }
 
+// A static interpolation node, between two fixed int32 values.
+message AnimatableFixedInt32 {
+  // The value to start animating from.
+  int32 from_value = 1;
+
+  // The value to animate to.
+  int32 to_value = 2;
+
+  // The animation parameters for duration, delay, etc.
+  AnimationSpec spec = 3;
+}
+
+// A dynamic interpolation node. This will watch the value of its input and,
+// when the first update arrives, immediately emit that value. On subsequent
+// updates, it will animate between the old and new values.
+//
+// If this node receives an invalid value (e.g. as a result of an upstream node
+// having no value), then it will emit a single invalid value, and forget its
+// "stored" value. The next valid value that arrives is then used as the
+// "first" value again.
+message AnimatableDynamicInt32 {
+  // The value to watch, and animate when it changes.
+  DynamicInt32 input = 1;
+
+  // The animation parameters for duration, delay, etc.
+  AnimationSpec spec = 2;
+}
+
 // A dynamic int32 type.
+//
+// It offers a set of helper methods for creating arithmetic and logical
+// expressions, e.g. {@link #plus(int)}, {@link #times(int)}, {@link #eq(int)},
+// etc. These helper methods produce expression trees based on the order in
+// which they were called in an expression. Thus, no operator precedence rules
+// are applied.
+//
+// <p>For example the following expression is equivalent to {@code result = ((a
+// + b)*c)/d }:
+//
+// ```
+//    a.plus(b).times(c).div(d);
+// ```
+//
+// More complex expressions can be created by nesting expressions. For example
+// the following expression is equivalent to {@code result = (a + b)*(c - d) }:
+//
+// ```
+//    (a.plus(b)).times(c.minus(d));
+// ```
 message DynamicInt32 {
   oneof inner {
     FixedInt32 fixed = 1;
@@ -141,6 +189,8 @@ message DynamicInt32 {
     StateInt32Source state_source = 4;
     ConditionalInt32Op conditional_op = 5;
     FloatToInt32Op float_to_int = 6;
+    AnimatableFixedInt32 animatable_fixed = 8;
+    AnimatableDynamicInt32 animatable_dynamic = 9;
   }
 }
 
@@ -260,7 +310,7 @@ message Int32ToFloatOp {
   DynamicInt32 input = 1;
 }
 
-// A static interpolation, between two fixed floating point values.
+// A static interpolation node, between two fixed floating point values.
 message AnimatableFixedFloat {
   // The number to start animating from.
   float from_value = 1;
@@ -289,6 +339,26 @@ message AnimatableDynamicFloat {
 }
 
 // A dynamic float type.
+//
+// It offers a set of helper methods for creating arithmetic and logical
+// expressions, e.g. {@link #plus(float)}, {@link #times(float)}, {@link
+// #eq(float)}, etc. These helper methods produce expression trees based on the
+// order in which they were called in an expression. Thus, no operator
+// precedence rules are applied.
+//
+// <p>For example the following expression is equivalent to {@code result = ((a
+// + b)*c)/d }:
+//
+// ```
+//    a.plus(b).times(c).div(d);
+// ```
+//
+// More complex expressions can be created by nesting expressions. For example
+// the following expression is equivalent to {@code result = (a + b)*(c - d) }:
+//
+// ```
+//    (a.plus(b)).times(c.minus(d));
+// ```
 message DynamicFloat {
   oneof inner {
     FixedFloat fixed = 1;
@@ -411,7 +481,7 @@ message StateColorSource {
   string source_key = 1;
 }
 
-// A static interpolation, between two fixed color values.
+// A static interpolation node, between two fixed color values.
 message AnimatableFixedColor {
   // The color value (in ARGB format) to start animating from.
   uint32 from_argb = 1;

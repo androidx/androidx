@@ -157,6 +157,12 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicInt32 extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(int, int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(int, int, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(String, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat asFloat();
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 constant(int);
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 div(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
