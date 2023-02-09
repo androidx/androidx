@@ -17,12 +17,12 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.TargetApi
+import android.health.connect.TimeInstantRangeFilter
 import android.health.connect.datatypes.DataOrigin as PlatformDataOrigin
 import android.health.connect.datatypes.HeartRateRecord as PlatformHeartRateRecord
 import android.health.connect.datatypes.NutritionRecord as PlatformNutritionRecord
 import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
 import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
-import android.health.connect.TimeInstantRangeFilter
 import android.os.Build
 import androidx.health.connect.client.impl.platform.time.FakeTimeSource
 import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
@@ -185,22 +185,10 @@ class RequestConvertersTest {
     }
 
     @Test
-    fun aggregateMetric_fromSdkToPlatformAggregationType() {
+    fun toAggregationType_convertFromSdkToPlatform() {
         assertThat(WheelchairPushesRecord.COUNT_TOTAL.toAggregationType())
             .isEqualTo(PlatformWheelchairPushesRecord.WHEEL_CHAIR_PUSHES_COUNT_TOTAL)
         assertThat(NutritionRecord.ENERGY_TOTAL.toAggregationType())
             .isEqualTo(PlatformNutritionRecord.ENERGY_TOTAL)
-    }
-
-    @Test
-    fun aggregateMetric_isLongAggregationType() {
-        assertThat(WheelchairPushesRecord.COUNT_TOTAL.isLongAggregationType()).isTrue()
-        assertThat(NutritionRecord.ENERGY_TOTAL.isLongAggregationType()).isFalse()
-    }
-
-    @Test
-    fun aggregateMetric_isDoubleAggregationType() {
-        assertThat(NutritionRecord.ENERGY_TOTAL.isDoubleAggregationType()).isTrue()
-        assertThat(WheelchairPushesRecord.COUNT_TOTAL.isDoubleAggregationType()).isFalse()
     }
 }
