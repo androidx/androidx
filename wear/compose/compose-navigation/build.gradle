@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(project(":wear:compose:compose-navigation-samples"))
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.5.1")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
 
     samples(project(":wear:compose:compose-navigation-samples"))
 }
