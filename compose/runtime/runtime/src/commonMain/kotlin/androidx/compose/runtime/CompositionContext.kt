@@ -38,7 +38,10 @@ private val EmptyPersistentCompositionLocalMap: PersistentCompositionLocalMap =
 abstract class CompositionContext internal constructor() {
     internal abstract val compoundHashKey: Int
     internal abstract val collectingParameterInformation: Boolean
-    internal abstract val effectCoroutineContext: CoroutineContext
+    /**
+     *  The [CoroutineContext] with which effects for the composition will be executed in.
+     **/
+    abstract val effectCoroutineContext: CoroutineContext
     internal abstract val recomposeCoroutineContext: CoroutineContext
     internal abstract fun composeInitial(
         composition: ControlledComposition,

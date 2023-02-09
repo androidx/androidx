@@ -276,9 +276,10 @@ class ComposeScene internal constructor(
         composition?.dispose()
         mainOwner?.dispose()
         val mainOwner = SkiaBasedOwner(
-            platformInputService,
-            component,
-            density,
+            platformInputService = platformInputService,
+            component = component,
+            density = density,
+            coroutineContext = recomposer.effectCoroutineContext,
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent
         )
