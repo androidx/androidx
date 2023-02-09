@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.log.RLog
 import androidx.room.processor.Context
+import androidx.room.processor.Context.BooleanProcessorOptions.GENERATE_KOTLIN
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.ProcessorErrors
 import androidx.room.util.SchemaFileResolver
@@ -45,9 +46,10 @@ class DatabaseProcessingStep : XProcessingStep {
         elementsByAnnotation: Map<String, Set<XElement>>,
         isLastRound: Boolean
     ): Set<XTypeElement> {
-        check(env.config == ENV_CONFIG) {
-            "Room Processor expected $ENV_CONFIG but was invoked with a different configuration:" +
-                "${env.config}"
+        check(env.config == getEnvConfig(env.options)) {
+            "Room Processor expected ${getEnvConfig(env.options)} " +
+                "but was invoked with a different " +
+                "configuration: ${env.config}"
         }
         val context = Context(env)
 
@@ -175,8 +177,9 @@ class DatabaseProcessingStep : XProcessingStep {
     }
 
     companion object {
-        internal val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(
-            excludeMethodsWithInvalidJvmSourceNames = true
-        )
+        internal fun getEnvConfig(options: Map<String, String>) =
+            XProcessingEnvConfig.DEFAULT.copy(
+                excludeMethodsWithInvalidJvmSourceNames = !GENERATE_KOTLIN.getValue(options)
+            )
     }
 }
