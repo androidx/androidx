@@ -20,12 +20,24 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("com.google.protobuf")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation(libs.protobufLite)
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.wear.tiles:tiles:1.1.0")
     implementation(project(":appactions:interaction:interaction-proto"))
+    implementation(libs.kotlinStdlib)
+
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
 }
 
 protobuf {
@@ -48,6 +60,17 @@ protobuf {
 
 android {
     namespace "androidx.appactions.interaction.service"
+    defaultConfig {
+        minSdkVersion 25
+    }
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 androidx {
