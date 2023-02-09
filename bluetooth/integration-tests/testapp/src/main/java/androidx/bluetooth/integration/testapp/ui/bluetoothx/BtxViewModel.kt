@@ -16,6 +16,7 @@
 
 package androidx.bluetooth.integration.testapp.ui.bluetoothx
 
+import android.bluetooth.le.ScanResult
 import android.util.Log
 import androidx.lifecycle.ViewModel
 
@@ -24,6 +25,8 @@ class BtxViewModel : ViewModel() {
     companion object {
         const val TAG = "BtxViewModel"
     }
+
+    val scanResults = mutableMapOf<String, ScanResult>()
 
     init {
         Log.d(TAG, "init called")
