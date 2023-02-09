@@ -231,5 +231,20 @@ package androidx.wear.protolayout.expression {
     method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromString(String);
   }
 
+  public final class VersionBuilders {
+  }
+
+  public static final class VersionBuilders.VersionInfo {
+    method public int getMajor();
+    method public int getMinor();
+  }
+
+  public static final class VersionBuilders.VersionInfo.Builder {
+    ctor public VersionBuilders.VersionInfo.Builder();
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo build();
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo.Builder setMajor(int);
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo.Builder setMinor(int);
+  }
+
 }
 
