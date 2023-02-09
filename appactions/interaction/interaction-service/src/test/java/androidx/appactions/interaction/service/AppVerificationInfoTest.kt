@@ -16,21 +16,23 @@
 
 package androidx.appactions.interaction.service
 
-import android.util.SizeF
-import android.widget.RemoteViews
-import android.widget.RemoteViewsService.RemoteViewsFactory
-import androidx.annotation.RestrictTo
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
 
-/** Holder for RemoteViews UI response. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-internal data class RemoteViewsInternal(
-    val remoteViews: RemoteViews,
-    val size: SizeF,
-    val changedViewIds: HashSet<Int> = HashSet<Int>(),
-    val remoteViewsFactories: HashMap<Int, RemoteViewsFactory> = HashMap<Int, RemoteViewsFactory>()
-) {
-    init {
-        this.changedViewIds.addAll(changedViewIds)
-        this.remoteViewsFactories.putAll(remoteViewsFactories)
+@RunWith(AndroidJUnit4::class)
+class AppVerificationInfoTest {
+
+    @Test
+    fun builderPattern() {
+        var verificationInfo: AppVerificationInfo =
+            AppVerificationInfo.Builder()
+                .setPackageName("packageName")
+                .addSignature(listOf(ByteArray(5)))
+                .build()
+
+        assertThat(verificationInfo.packageName).isEqualTo("packageName")
+        assertThat(verificationInfo.signatures).hasSize(1)
     }
 }
