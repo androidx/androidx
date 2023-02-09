@@ -1435,6 +1435,7 @@ public abstract class CameraController {
             return;
         }
         mVideoCaptureQuality = targetQuality;
+        unbindVideoAndRecreate();
         startCameraAndTrackStates();
     }
 
@@ -1448,6 +1449,16 @@ public abstract class CameraController {
     public Quality getVideoCaptureTargetQuality() {
         checkMainThread();
         return mVideoCaptureQuality;
+    }
+
+    /**
+     * Unbinds VideoCapture and recreate with the latest parameters.
+     */
+    private void unbindVideoAndRecreate() {
+        if (isCameraInitialized()) {
+            mCameraProvider.unbind(mVideoCapture);
+        }
+        mVideoCapture = createNewVideoCapture();
     }
 
     private VideoCapture<Recorder> createNewVideoCapture() {
@@ -2002,11 +2013,10 @@ public abstract class CameraController {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
-        // TODO: revert aosp/2280599 to reuse VideoCapture when VideoCapture supports reuse.
-        mCameraProvider.unbind(mVideoCapture);
         if (isVideoCaptureEnabled()) {
-            mVideoCapture = createNewVideoCapture();
             builder.addUseCase(mVideoCapture);
+        } else {
+            mCameraProvider.unbind(mVideoCapture);
         }
 
         builder.setViewPort(mViewPort);
