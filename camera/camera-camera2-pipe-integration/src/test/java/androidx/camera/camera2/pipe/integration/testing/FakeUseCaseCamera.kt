@@ -59,6 +59,12 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 
 // TODO: Further implement the methods in this class as needed
 open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
+
+    val addParameterCalls = mutableListOf<Map<CaptureRequest.Key<*>, Any>>()
+    var addParameterResult = CompletableDeferred(Unit)
+
+    var setTorchResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+
     override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
@@ -68,7 +74,8 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
+        addParameterCalls.add(values)
+        return addParameterResult
     }
 
     override fun setConfigAsync(
@@ -87,7 +94,7 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     }
 
     override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+        return setTorchResult
     }
 
     val focusMeteringCalls = mutableListOf<FocusMeteringParams>()
