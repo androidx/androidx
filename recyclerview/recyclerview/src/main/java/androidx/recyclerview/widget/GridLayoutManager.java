@@ -17,17 +17,22 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.Arrays;
 
@@ -42,6 +47,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     private static final boolean DEBUG = false;
     private static final String TAG = "GridLayoutManager";
     public static final int DEFAULT_SPAN_COUNT = -1;
+    private static final int INVALID_POSITION = -1;
 
     /**
      * Span size have been changed but we've not done a new layout calculation.
@@ -179,7 +185,45 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     boolean performAccessibilityAction(int action, @Nullable Bundle args) {
-        if (action == android.R.id.accessibilityActionScrollToPosition) {
+        // TODO (267511848): when U constants are finalized:
+        //  - convert if/else blocks to switch statement
+        //  - remove SDK check
+        //  - remove the -1 check (this check makes accessibilityActionScrollInDirection
+        //  no-op for < 34; see action definition in AccessibilityNodeInfoCompat.java).
+        if (action == AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION.getId()
+                && action != -1) {
+            final View viewWithAccessibilityFocus = findChildWithAccessibilityFocus();
+            if (viewWithAccessibilityFocus == null) {
+                // TODO(b/268487724#comment2): handle rare cases when the requesting service does
+                //  not place accessibility focus on a child. Consider scrolling forward/backward?
+                return false;
+            }
+
+            // Direction must be specified.
+            if (args == null) {
+                return false;
+            }
+            final int direction = args.getInt(
+                    AccessibilityNodeInfo.ACTION_ARGUMENT_DIRECTION_INT, INVALID_POSITION);
+
+            // CollectionItemInfo must be populated.
+            final AccessibilityNodeInfoCompat startingNodeInfoCompat =
+                    AccessibilityNodeInfoCompat.wrap(
+                            viewWithAccessibilityFocus.createAccessibilityNodeInfo());
+            if (startingNodeInfoCompat.getCollectionItemInfo() == null) {
+                return false;
+            }
+
+            switch (direction) {
+                case View.FOCUS_UP:
+                case View.FOCUS_DOWN:
+                case View.FOCUS_LEFT:
+                case View.FOCUS_RIGHT:
+                    return false; // TODO: add actual implement for each direction.
+                default:
+                    return super.performAccessibilityAction(action, null);
+            }
+        } else if (action == android.R.id.accessibilityActionScrollToPosition) {
             final int noRow = -1;
             final int noColumn = -1;
             if (args != null) {
@@ -226,6 +270,26 @@ public class GridLayoutManager extends LinearLayoutManager {
             }
         }
         return super.performAccessibilityAction(action, args);
+    }
+
+    @Nullable
+    private View findChildWithAccessibilityFocus() {
+        View child = null;
+        // SDK check needed for View#isAccessibilityFocused()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            boolean childFound = false;
+            int i;
+            for (i = 0; i < getChildCount(); i++) {
+                if (Api21Impl.isAccessibilityFocused(getChildAt(i))) {
+                    childFound = true;
+                    break;
+                }
+            }
+            if (childFound) {
+                child = getChildAt(i);
+            }
+        }
+        return child;
     }
 
     @Override
@@ -1504,6 +1568,19 @@ public class GridLayoutManager extends LinearLayoutManager {
          */
         public int getSpanSize() {
             return mSpanSize;
+        }
+    }
+
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isAccessibilityFocused(@NonNull View view) {
+            return view.isAccessibilityFocused();
         }
     }
 }

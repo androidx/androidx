@@ -19,9 +19,13 @@ package androidx.recyclerview.widget;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_ACCESSIBILITY_FOCUS;
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION;
 import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION;
 import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -31,6 +35,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import android.accessibilityservice.AccessibilityServiceInfo;
+import android.app.UiAutomation;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
@@ -40,19 +46,19 @@ import android.util.SparseIntArray;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-
-import com.google.common.truth.Truth;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -62,6 +68,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @LargeTest
@@ -69,6 +76,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     private static final int[] SPAN_SIZES = new int[]{1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 2};
+
+    private static final int DEFAULT_ACCESSIBILITY_EVENT_TIMEOUT_MILLIS = 5000;
+
     private final GridLayoutManager.SpanSizeLookup mSpanSizeLookupForSpanIndexTest =
             new GridLayoutManager.SpanSizeLookup() {
         @Override
@@ -1099,6 +1109,112 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         assertEquals(((TextView) mGlm.getChildAt(0)).getText(), "Item (6)");
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_withoutSpecifyingDirection()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+        setUpGridLayoutManagerAccessibilityTest();
+        runScrollInDirectionAndFail(null);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_withInvalidDirection()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+        setUpGridLayoutManagerAccessibilityTest();
+        runScrollInDirectionAndFail(bundleWithDirectionArg(-1));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_withoutSettingAccessibilityFocus()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        setUpRecyclerViewAndGridLayoutManager();
+        waitForFirstLayout(mRecyclerView);
+        runScrollInDirectionAndFail(bundleWithDirectionArg(View.FOCUS_RIGHT));
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private void setUpGridLayoutManagerAccessibilityTest() throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+        final UiAutomation uiAutomation = setUpAndReturnUiAutomation();
+        setUpRecyclerViewAndGridLayoutManager();
+        waitForFirstLayout(mRecyclerView);
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(0));
+    }
+
+    private Bundle bundleWithDirectionArg(int direction) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_DIRECTION_INT, direction);
+        return bundle;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private void runScrollInDirectionAndFail(Bundle bundle) {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final boolean[] returnValue = {false};
+
+        mActivityRule.runOnUiThread(
+                () -> {
+                    returnValue[0] = mRecyclerView.getLayoutManager().performAccessibilityAction(
+                            ACTION_SCROLL_IN_DIRECTION.getId(), bundle);
+                });
+
+        assertThat(returnValue[0]).isFalse();
+    }
+
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private UiAutomation setUpAndReturnUiAutomation() {
+        UiAutomation uiAutomation = getInstrumentation().getUiAutomation();
+        final AccessibilityServiceInfo info = uiAutomation.getServiceInfo();
+        info.flags |= AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
+        uiAutomation.setServiceInfo(info);
+        return uiAutomation;
+    }
+
+    private void setAccessibilityFocus(UiAutomation uiAutomation, View source)
+            throws TimeoutException {
+        AccessibilityEvent awaitedEvent = null;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            awaitedEvent = uiAutomation.executeAndWaitForEvent(
+                    () -> {
+                        try {
+                            mActivityRule.runOnUiThread(() -> source.performAccessibilityAction(
+                                    ACTION_ACCESSIBILITY_FOCUS.getId(), null));
+                        } catch (Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+                    },
+                    event -> event.getEventType()
+                            == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED,
+                    DEFAULT_ACCESSIBILITY_EVENT_TIMEOUT_MILLIS);
+            assertThat(awaitedEvent.getSource().isAccessibilityFocused()).isTrue();
+        }
+    }
+
+    private void setUpRecyclerViewAndGridLayoutManager()
+            throws Throwable {
+        /*
+        Sets up a RecyclerView with 9 items:
+        1   4   7
+        2   5   8
+        3   6   9
+        */
+        mRecyclerView = setupBasic(new Config(3, 9));
+        mGlm.setOrientation(LinearLayoutManager.HORIZONTAL);
+    }
+
     public GridLayoutManager.LayoutParams ensureGridLp(View view) {
         ViewGroup.LayoutParams lp = view.getLayoutParams();
         GridLayoutManager.LayoutParams glp;
@@ -1635,7 +1751,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         rv.setLayoutParams(new ViewGroup.LayoutParams(500, 500));
         mAdapter.setFullSpan(0);
         waitForFirstLayout(rv);
-        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+        assertThat(getPositionToSpanIndexMapping()).containsExactly(
                 0, 0,
                 1, 0,
                 2, 1,
@@ -1653,7 +1769,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         });
         waitForAnimations(10);
-        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+        assertThat(getPositionToSpanIndexMapping()).containsExactly(
                 0, 0,
                 1, 0,
                 2, 1,
@@ -1666,7 +1782,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         // 3 4
         // 5 6
         // 7
-        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+        assertThat(getPositionToSpanIndexMapping()).containsExactly(
                 3, 0,
                 4, 1,
                 5, 0,
