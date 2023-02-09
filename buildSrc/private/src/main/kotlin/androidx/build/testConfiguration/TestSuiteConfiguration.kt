@@ -130,25 +130,6 @@ fun Project.createTestConfigurationGenerationTask(
  */
 fun Project.addAppApkToTestConfigGeneration(overrideProject: Project = this) {
     if (project.isMacrobenchmarkTarget()) {
-        if (path == ":benchmark:integration-tests:macrobenchmark-target") {
-            // Really ugly workaround for b/178776319 and b/181810492 where we hardcode that
-            // :benchmark:integration-tests:macrobenchmark-target needs to be installed
-            // for :benchmark:benchmark-macro tests to work.
-            extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
-                onVariants(selector().withBuildType("release")) { appVariant ->
-                    project(":benchmark:benchmark-macro").tasks.withType(
-                        GenerateTestConfigurationTask::class.java
-                    ).named(
-                        "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}debugAndroidTest"
-                    ).configure { configTask ->
-                        configTask as GenerateTestConfigurationTask
-                        configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
-                        configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                        configTask.appProjectPath.set(overrideProject.path)
-                    }
-                }
-            }
-        }
         return
     }
 
@@ -354,7 +335,7 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
 
 private fun Project.getOrCreateMacrobenchmarkConfigTask(variantName: String):
     TaskProvider<GenerateTestConfigurationTask> {
-    val parentProject = this.parent!!
+        val parentProject = this.parent!!
     return try {
         parentProject.tasks.withType(GenerateTestConfigurationTask::class.java)
             .named("${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName")
