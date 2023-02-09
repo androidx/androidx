@@ -979,13 +979,13 @@ public class ConstraintSetParser {
                     break;
                 case "spans":
                     String spans = element.get(param).content();
-                    if (spans != null && spans.contains("x") && spans.contains(":")) {
+                    if (spans != null && spans.contains(":")) {
                         grid.setSpans(spans);
                     }
                     break;
                 case "skips":
                     String skips = element.get(param).content();
-                    if (skips != null && skips.contains("x") && skips.contains(":")) {
+                    if (skips != null && skips.contains(":")) {
                         grid.setSkips(skips);
                     }
                     break;
