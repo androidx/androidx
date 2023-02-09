@@ -2148,6 +2148,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given route is invalid
      */
+    @MainThread
     public fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
@@ -2162,6 +2163,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given route is invalid
      */
+    @MainThread
     @JvmOverloads
     public fun navigate(
         route: String,
