@@ -77,6 +77,11 @@ public class MainActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     public static final String PREVIEW_TEST_CASE = "preview_test_case";
 
+    // Launch the activity with the specified scale type.
+    public static final String INTENT_EXTRA_SCALE_TYPE = "scale_type";
+    // The default scale type is FILL_CENTER.
+    public static final int DEFAULT_SCALE_TYPE_ID = 1;
+
     /** Intent extra representing type of camera implementation. */
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
 

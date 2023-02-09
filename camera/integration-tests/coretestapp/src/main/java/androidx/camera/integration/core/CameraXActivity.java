@@ -37,6 +37,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
@@ -50,6 +51,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Range;
 import android.util.Rational;
@@ -59,6 +61,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -83,6 +86,7 @@ import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailWithAutoFla
 import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFlashNotFireQuirk;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraFilter;
@@ -104,6 +108,7 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileOutputOptions;
@@ -192,6 +197,15 @@ public class CameraXActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY =
             "camera_implementation_no_history";
+
+    // Launch the activity with the specified target aspect ratio.
+    public static final String INTENT_EXTRA_TARGET_ASPECT_RATIO = "target_aspect_ratio";
+
+    // Launch the activity with the specified scale type. The default value is FILL_CENTER.
+    public static final String INTENT_EXTRA_SCALE_TYPE = "scale_type";
+    public static final int INTENT_EXTRA_FILL_CENTER = 1;
+    public static final int INTENT_EXTRA_FIT_CENTER = 4;
+
     // Launch the activity with the specified camera id.
     @VisibleForTesting
     public static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
@@ -228,6 +242,10 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
     private static final String DESCRIPTION_FLASH_MODE_NOT_SUPPORTED = "FLASH_MODE_NOT_SUPPORTED";
     private static final Quality QUALITY_AUTO = null;
+
+    // The target aspect ratio of Preview and ImageCapture. It can be adjusted by setting
+    // INTENT_EXTRA_TARGET_ASPECT_RATIO for the e2e testing.
+    private int mTargetAspectRatio = AspectRatio.RATIO_DEFAULT;
 
     private Recording mActiveRecording;
     /** The camera to use */
@@ -987,6 +1005,34 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    private void updatePreviewRatioAndScaleTypeByIntent(ViewStub viewFinderStub) {
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            mTargetAspectRatio = bundle.getInt(INTENT_EXTRA_TARGET_ASPECT_RATIO,
+                    AspectRatio.RATIO_4_3);
+            int scaleType = bundle.getInt(INTENT_EXTRA_SCALE_TYPE, INTENT_EXTRA_FILL_CENTER);
+            if (scaleType == INTENT_EXTRA_FIT_CENTER) {
+                // Scale the view according to the target aspect ratio, display size and device
+                // orientation, so preview can be entirely contained within the view.
+                DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                Rational ratio = (mTargetAspectRatio == AspectRatio.RATIO_16_9)
+                        ? AspectRatioUtil.ASPECT_RATIO_16_9 : AspectRatioUtil.ASPECT_RATIO_4_3;
+                int orientation = getResources().getConfiguration().orientation;
+                ViewGroup.LayoutParams lp = viewFinderStub.getLayoutParams();
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    lp.width = displayMetrics.widthPixels;
+                    lp.height = (int) (displayMetrics.widthPixels / ratio.getDenominator()
+                            * ratio.getNumerator());
+                } else {
+                    lp.height = displayMetrics.heightPixels;
+                    lp.width = (int) (displayMetrics.heightPixels / ratio.getDenominator()
+                            * ratio.getNumerator());
+                }
+                viewFinderStub.setLayoutParams(lp);
+            }
+        }
+    }
+
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
@@ -1098,6 +1144,8 @@ public class CameraXActivity extends AppCompatActivity {
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
+        updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
+
         mViewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 previewRenderer);
         mViewFinder.addOnLayoutChangeListener(
@@ -1407,6 +1455,7 @@ public class CameraXActivity extends AppCompatActivity {
         if (mPreviewToggle.isChecked()) {
             Preview preview = new Preview.Builder()
                     .setTargetName("Preview")
+                    .setTargetAspectRatio(mTargetAspectRatio)
                     .build();
             resetViewIdlingResource();
             // Use the listener of the future to make sure the Preview setup the new surface.
@@ -1423,6 +1472,7 @@ public class CameraXActivity extends AppCompatActivity {
         if (mPhotoToggle.isChecked()) {
             ImageCapture imageCapture = new ImageCapture.Builder()
                     .setCaptureMode(getCaptureMode())
+                    .setTargetAspectRatio(mTargetAspectRatio)
                     .setTargetName("ImageCapture")
                     .build();
             useCases.add(imageCapture);
