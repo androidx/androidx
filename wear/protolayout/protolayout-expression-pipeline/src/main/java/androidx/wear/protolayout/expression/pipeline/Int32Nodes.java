@@ -16,13 +16,19 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static androidx.wear.protolayout.expression.pipeline.AnimationsHelper.applyAnimationSpecToAnimator;
+
+import android.animation.ValueAnimator;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.EpochTimePlatformDataSource;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.PlatformDataSource;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.SensorGatewayPlatformDataSource;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32Source;
@@ -201,6 +207,127 @@ class Int32Nodes {
                                 throw new IllegalArgumentException("Unknown rounding mode");
                         }
                     });
+        }
+    }
+
+    /** Dynamic int32 node that gets animatable value from fixed source. */
+    static class AnimatableFixedInt32Node extends AnimatableNode
+            implements DynamicDataSourceNode<Integer> {
+
+        private final AnimatableFixedInt32 mProtoNode;
+        private final DynamicTypeValueReceiver<Integer> mDownstream;
+
+        AnimatableFixedInt32Node(
+                AnimatableFixedInt32 protoNode,
+                DynamicTypeValueReceiver<Integer> downstream,
+                QuotaManager quotaManager) {
+            super(quotaManager);
+            this.mProtoNode = protoNode;
+            this.mDownstream = downstream;
+        }
+
+        @Override
+        @UiThread
+        public void preInit() {
+            mDownstream.onPreUpdate();
+        }
+
+        @Override
+        @UiThread
+        public void init() {
+            ValueAnimator animator =
+                    ValueAnimator.ofInt(mProtoNode.getFromValue(), mProtoNode.getToValue());
+            applyAnimationSpecToAnimator(animator, mProtoNode.getSpec());
+            animator.addUpdateListener(a -> mDownstream.onData((Integer) a.getAnimatedValue()));
+            mQuotaAwareAnimator.updateAnimator(animator);
+            startOrSkipAnimator();
+        }
+
+        @Override
+        @UiThread
+        public void destroy() {
+            mQuotaAwareAnimator.stopAnimator();
+        }
+    }
+
+    /** Dynamic int32 node that gets animatable value from dynamic source. */
+    static class DynamicAnimatedInt32Node extends AnimatableNode implements
+            DynamicDataNode<Integer> {
+
+        final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiver<Integer> mInputCallback;
+
+        @Nullable
+        Integer mCurrentValue = null;
+        int mPendingCalls = 0;
+
+        // Static analysis complains about calling methods of parent class AnimatableNode under
+        // initialization but mInputCallback is only used after the constructor is finished.
+        @SuppressWarnings("method.invocation.invalid")
+        DynamicAnimatedInt32Node(
+                DynamicTypeValueReceiver<Integer> downstream,
+                @NonNull AnimationSpec spec,
+                QuotaManager quotaManager) {
+            super(quotaManager);
+            this.mDownstream = downstream;
+            this.mInputCallback =
+                    new DynamicTypeValueReceiver<Integer>() {
+                        @Override
+                        public void onPreUpdate() {
+                            mPendingCalls++;
+
+                            if (mPendingCalls == 1) {
+                                mDownstream.onPreUpdate();
+
+                                mQuotaAwareAnimator.resetAnimator();
+                            }
+                        }
+
+                        @Override
+                        public void onData(Integer newData) {
+                            if (mPendingCalls > 0) {
+                                mPendingCalls--;
+                            }
+
+                            if (mPendingCalls == 0) {
+                                if (mCurrentValue == null) {
+                                    mCurrentValue = newData;
+                                    mDownstream.onData(mCurrentValue);
+                                } else {
+                                    ValueAnimator animator = ValueAnimator.ofInt(mCurrentValue,
+                                            newData);
+
+                                    applyAnimationSpecToAnimator(animator, spec);
+                                    animator.addUpdateListener(
+                                            a -> {
+                                                if (mPendingCalls == 0) {
+                                                    mCurrentValue = (Integer) a.getAnimatedValue();
+                                                    mDownstream.onData(mCurrentValue);
+                                                }
+                                            });
+
+                                    mQuotaAwareAnimator.updateAnimator(animator);
+                                    startOrSkipAnimator();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onInvalidated() {
+                            if (mPendingCalls > 0) {
+                                mPendingCalls--;
+                            }
+
+                            if (mPendingCalls == 0) {
+                                mCurrentValue = null;
+                                mDownstream.onInvalidated();
+                            }
+                        }
+                    };
+        }
+
+        public DynamicTypeValueReceiver<Integer> getInputCallback() {
+            return mInputCallback;
         }
     }
 }
