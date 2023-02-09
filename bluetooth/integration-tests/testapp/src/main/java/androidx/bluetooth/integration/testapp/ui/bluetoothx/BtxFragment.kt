@@ -46,7 +46,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class BtxFragment : Fragment() {
@@ -85,7 +84,12 @@ class BtxFragment : Fragment() {
         bluetoothLe = BluetoothLe(requireContext())
 
         binding.buttonScan.setOnClickListener {
-            startScan()
+            if (scanJob?.isActive == true) {
+                scanJob?.cancel()
+                binding.buttonScan.text = getString(R.string.scan_using_btx)
+            } else {
+                startScan()
+            }
         }
 
         binding.switchAdvertise.setOnCheckedChangeListener { _, isChecked ->
@@ -119,7 +123,7 @@ class BtxFragment : Fragment() {
             }
 
             override fun onScanFailed(errorCode: Int) {
-                Log.d(TAG, "scan failed")
+                Log.d(TAG, "onScanFailed() called with: errorCode = $errorCode")
             }
         }
 
@@ -144,10 +148,13 @@ class BtxFragment : Fragment() {
             .build()
 
         scanJob = scanScope.launch {
-            Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
+            Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_SHORT)
                 .show()
-            scan(scanSettings).take(1).collect {
-                Log.d(TAG, "ScanResult collected")
+
+            binding.buttonScan.text = getString(R.string.stop_scanning)
+
+            scan(scanSettings).collect {
+                Log.d(TAG, "ScanResult collected: $it")
             }
         }
     }
