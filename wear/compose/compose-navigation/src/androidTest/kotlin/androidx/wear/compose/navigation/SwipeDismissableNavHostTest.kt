@@ -34,6 +34,7 @@ import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -49,6 +50,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.testing.TestNavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
@@ -388,6 +390,35 @@ class SwipeDismissableNavHostTest {
             assertThat(backStackEntry.value?.destination?.route)
                 .isEqualTo(NEXT)
         }
+    }
+
+    @Test
+    fun testNavHostController_starts_at_default_destination() {
+        lateinit var navController: TestNavHostController
+
+        rule.setContentWithTheme {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(WearNavigator())
+
+            SwipeDismissWithNavigation(navController)
+        }
+
+        rule.onNodeWithText(START).assertExists()
+    }
+
+    @Test
+    fun testNavHostController_sets_current_destination() {
+        lateinit var navController: TestNavHostController
+
+        rule.setContentWithTheme {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(WearNavigator())
+
+            SwipeDismissWithNavigation(navController)
+            navController.setCurrentDestination(NEXT)
+        }
+
+        rule.onNodeWithText(NEXT).assertExists()
     }
 
     @Composable
