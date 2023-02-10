@@ -82,7 +82,7 @@ public final class ActionCapabilityImplTest {
                         .build();
 
         ExecutionResult<Output> executionResult =
-                ExecutionResult.<Output>newBuilderWithOutput()
+                new ExecutionResult.Builder<Output>()
                         .setOutput(
                                 Output.builder()
                                         .setOptionalStringField("test2")
