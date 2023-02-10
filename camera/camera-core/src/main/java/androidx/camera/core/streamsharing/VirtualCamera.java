@@ -165,7 +165,7 @@ class VirtualCamera implements CameraInternal {
             //  stream without changing it. Later we will update it to allow
             //  cropping/down-sampling to better match children UseCase config.
             int target = useCase instanceof Preview ? PREVIEW : VIDEO_CAPTURE;
-            boolean mirroring = useCase instanceof Preview;
+            boolean mirroring = useCase instanceof Preview && isFrontFacing();
             outConfigs.put(useCase, OutConfig.of(
                     target,
                     cameraEdge.getCropRect(),
