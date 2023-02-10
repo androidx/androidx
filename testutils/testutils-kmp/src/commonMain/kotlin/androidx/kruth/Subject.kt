@@ -18,6 +18,7 @@ package androidx.kruth
 
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 // As opposed to Truth, which limits visibility on `actual` and the generic type, we purposely make
 // them visible in Kruth to allow for an easier time extending in Kotlin.
@@ -68,6 +69,30 @@ open class Subject<out T>(val actual: T?) {
      * Fails if the subject is not an instance of the given class.
      */
     inline fun <reified V> isInstanceOf() = assertIs<V>(actual)
+
+    /** Fails unless the subject is equal to any element in the given [iterable]. */
+    open fun isIn(iterable: Iterable<*>?) {
+        if (actual !in requireNonNull(iterable)) {
+            fail("Expected $actual to be in $iterable, but was not")
+        }
+    }
+
+    /** Fails unless the subject is equal to any of the given elements. */
+    open fun isAnyOf(first: Any?, second: Any?, vararg rest: Any?) {
+        isIn(listOf(first, second, *rest))
+    }
+
+    /** Fails if the subject is equal to any element in the given [iterable]. */
+    open fun isNotIn(iterable: Iterable<*>?) {
+        if (actual in requireNonNull(iterable)) {
+            fail("Expected $actual not to be in $iterable, but it was")
+        }
+    }
+
+    /** Fails if the subject is equal to any of the given elements.  */
+    open fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
+        isNotIn(listOf(first, second, *rest))
+    }
 }
 
 private fun Any?.standardIsEqualTo(expected: Any?) {

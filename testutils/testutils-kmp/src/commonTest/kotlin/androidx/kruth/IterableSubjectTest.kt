@@ -1000,70 +1000,52 @@ class IterableSubjectTest {
         }
     }
 
-//
-//    private class Foo private constructor(val x: Int)
-//
-//    private class Bar(x: Int) : Foo(x)
-//
-//    private val FOO_COMPARATOR: Comparator<Foo> = object : Comparator<Foo?>() {
-//        fun compare(a: Foo, b: Foo): Int {
-//            return if (a.x < b.x) -1 else if (a.x > b.x) 1 else 0
-//        }
-//    }
-//
-//    @Test
-//    fun iterableOrderedByBaseClassComparator() {
-//        val targetList: Iterable<Bar> = listOf(Bar(1), Bar(2), Bar(3))
-//        assertThat(targetList).isInOrder(FOO_COMPARATOR)
-//        assertThat(targetList).isInStrictOrder(FOO_COMPARATOR)
-//    }
-//
-//    @Test
-//    fun isIn() {
-//        val actual: ImmutableList<String> = listOf("a")
-//        val expectedA: ImmutableList<String> = listOf("a")
-//        val expectedB: ImmutableList<String> = listOf("b")
-//        val expected: ImmutableList<ImmutableList<String>> = listOf(expectedA, expectedB)
-//        assertThat(actual).isIn(expected)
-//    }
-//
-//    @Test
-//    fun isNotIn() {
-//        val actual: ImmutableList<String> = listOf("a")
-//        assertThat(actual).isNotIn(listOf(listOf("b"), listOf("c")))
-//        expectFailureWhenTestingThat(actual).isNotIn(listOf("a", "b"))
-//        assertThat(expectFailure.getFailure())
-//            .hasMessageThat()
-//            .isEqualTo(
-//                "The actual value is an Iterable, and you've written a test that compares it to some "
-//                    + "objects that are not Iterables. Did you instead mean to check whether its "
-//                    + "*contents* match any of the *contents* of the given values? If so, call "
-//                    + "containsNoneOf(...)/containsNoneIn(...) instead. Non-iterables: [a, b]"
-//            )
-//    }
-//
-//    @Test
-//    fun isAnyOf() {
-//        val actual: ImmutableList<String> = listOf("a")
-//        val expectedA: ImmutableList<String> = listOf("a")
-//        val expectedB: ImmutableList<String> = listOf("b")
-//        assertThat(actual).isAnyOf(expectedA, expectedB)
-//    }
-//
-//    @Test
-//    fun isNoneOf() {
-//        val actual: ImmutableList<String> = listOf("a")
-//        assertThat(actual).isNoneOf(listOf("b"), listOf("c"))
-//        expectFailureWhenTestingThat(actual).isNoneOf("a", "b")
-//        assertThat(expectFailure.getFailure())
-//            .hasMessageThat()
-//            .isEqualTo(
-//                ("The actual value is an Iterable, and you've written a test that compares it to some "
-//                    + "objects that are not Iterables. Did you instead mean to check whether its "
-//                    + "*contents* match any of the *contents* of the given values? If so, call "
-//                    + "containsNoneOf(...)/containsNoneIn(...) instead. Non-iterables: [a, b]")
-//            )
-//    }
+    @Test
+    fun iterableOrderedByBaseClassComparator() {
+        val comparator = compareBy<Foo> { it.x }
+        val targetList: Iterable<Bar> = listOf(Bar(1), Bar(2), Bar(3))
+        assertThat(targetList).isInOrder(comparator)
+        assertThat(targetList).isInStrictOrder(comparator)
+    }
+
+    @Test
+    fun isIn() {
+        val actual = listOf("a")
+        val expectedA = listOf("a")
+        val expectedB = listOf("b")
+        val expected = listOf(expectedA, expectedB)
+        assertThat(actual).isIn(expected)
+    }
+
+    @Suppress("DEPRECATION") // Testing a deprecated method
+    @Test
+    fun isNotIn() {
+        val actual = listOf("a")
+        assertThat(actual).isNotIn(listOf(listOf("b"), listOf("c")))
+
+        assertFailsWith<AssertionError> {
+            assertThat(actual).isNotIn(listOf("a", "b"))
+        }
+    }
+
+    @Test
+    fun isAnyOf() {
+        val actual = listOf("a")
+        val expectedA = listOf("a")
+        val expectedB = listOf("b")
+        assertThat(actual).isAnyOf(expectedA, expectedB)
+    }
+
+    @Suppress("DEPRECATION") // Testing a deprecated method
+    @Test
+    fun isNoneOf() {
+        val actual = listOf("a")
+        assertThat(actual).isNoneOf(listOf("b"), listOf("c"))
+
+        assertFailsWith<AssertionError> {
+            assertThat(actual).isNoneOf("a", "b")
+        }
+    }
 
     private companion object {
         private val COMPARE_AS_DECIMAL: Comparator<String?> =
@@ -1088,4 +1070,8 @@ class IterableSubjectTest {
 
         override fun toString(): String = "HCT"
     }
+
+    private open class Foo(val x: Int)
+
+    private class Bar(x: Int) : Foo(x)
 }
