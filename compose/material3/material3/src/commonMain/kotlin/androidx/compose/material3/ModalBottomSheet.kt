@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SheetValue.Expanded
-import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.SheetValue.Hidden
+import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -298,9 +298,8 @@ private fun Modifier.modalBottomSheetSwipeable(
                 PartiallyExpanded -> when {
                     sheetSize.height < screenHeight / 2 -> null
                     sheetState.skipPartiallyExpanded -> null
-                    else -> sheetSize.height / 2f
+                    else -> screenHeight / 2f
                 }
-
                 Expanded -> if (sheetSize.height != 0) {
                     max(0f, screenHeight - sheetSize.height)
                 } else null
