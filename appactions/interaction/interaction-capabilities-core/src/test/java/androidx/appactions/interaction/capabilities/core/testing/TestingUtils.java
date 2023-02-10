@@ -124,7 +124,7 @@ public final class TestingUtils {
                     SettableFutureWrapper<ArgumentT> future) {
         return (finalArgs) -> {
             future.set(finalArgs);
-            return Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstanceWithOutput());
+            return Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
         };
     }
 
@@ -205,6 +205,6 @@ public final class TestingUtils {
     public static <ArgumentT, OutputT>
             ActionExecutor<ArgumentT, OutputT> createFakeActionExecutor() {
         return (args) ->
-                Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstanceWithOutput());
+                Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
     }
 }

@@ -179,7 +179,7 @@ public final class TaskCapabilityImplTest {
             EMPTY_CONFIRM_LISTENER = Optional.empty();
     private static final OnDialogFinishListener<Argument, Output> EMPTY_FINISH_LISTENER =
             (finalArgs) ->
-                    Futures.immediateFuture(ExecutionResult.<Output>getDefaultInstanceWithOutput());
+                    Futures.immediateFuture(ExecutionResult.<Output>getDefaultInstance());
 
     private static boolean groundingPredicate(ParamValue paramValue) {
         return !paramValue.hasIdentifier();
@@ -845,7 +845,7 @@ public final class TaskCapabilityImplTest {
         OnDialogFinishListener<Argument, Output> finishListener =
                 (argument) ->
                         Futures.immediateFuture(
-                                ExecutionResult.<Output>newBuilderWithOutput()
+                                new ExecutionResult.Builder<Output>()
                                         .setOutput(
                                                 Output.builder()
                                                         .setOptionalStringField("bar")
@@ -1132,7 +1132,7 @@ public final class TaskCapabilityImplTest {
         OnDialogFinishListener<Argument, Output> finishListener =
                 (argument) ->
                         Futures.immediateFuture(
-                                ExecutionResult.<Output>newBuilderWithOutput()
+                                new ExecutionResult.Builder<Output>()
                                         .setOutput(
                                                 Output.builder()
                                                         .setOptionalStringField("baz")
@@ -1193,7 +1193,7 @@ public final class TaskCapabilityImplTest {
         OnDialogFinishListener<Argument, Output> finishListener =
                 (argument) ->
                         Futures.immediateFuture(
-                                ExecutionResult.<Output>newBuilderWithOutput()
+                                new ExecutionResult.Builder<Output>()
                                         .setOutput(
                                                 Output.builder()
                                                         .setOptionalStringField("baz")
