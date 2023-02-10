@@ -16,15 +16,25 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import java.util.Objects
 /**
  * Class that represents the response after an ActionCapability fulfills an action.
  *
  * @param <OutputT>
  */
-data class ExecutionResult<OutputT> private constructor(
+class ExecutionResult<OutputT> internal constructor(
     val startDictation: Boolean,
     val output: OutputT?,
 ) {
+    override fun toString() =
+        "ExecutionResult(startDictation=$startDictation,output=$output)"
+
+    override fun equals(other: Any?): Boolean {
+        return other is ExecutionResult<*> && output == other.output
+    }
+
+    override fun hashCode() = Objects.hash(startDictation, output)
+
     /**
      * Builder for ExecutionResult.
      *
@@ -32,6 +42,7 @@ data class ExecutionResult<OutputT> private constructor(
      */
     class Builder<OutputT> {
         private var startDictation: Boolean = false
+
         private var output: OutputT? = null
 
         /** Sets whether or not this fulfillment should start dictation. */

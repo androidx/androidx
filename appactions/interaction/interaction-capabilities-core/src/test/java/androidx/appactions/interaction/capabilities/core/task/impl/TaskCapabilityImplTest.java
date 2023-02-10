@@ -1094,7 +1094,7 @@ public final class TaskCapabilityImplTest {
         OnReadyToConfirmListenerInternal<Confirmation> onReadyToConfirmListener =
                 (args) ->
                         Futures.immediateFuture(
-                                ConfirmationOutput.<Confirmation>newBuilderWithConfirmation()
+                                new ConfirmationOutput.Builder<Confirmation>()
                                         .setConfirmation(
                                                 Confirmation.builder()
                                                         .setOptionalStringField("bar")
@@ -1123,7 +1123,7 @@ public final class TaskCapabilityImplTest {
         OnReadyToConfirmListenerInternal<Confirmation> onReadyToConfirmListener =
                 (args) ->
                         Futures.immediateFuture(
-                                ConfirmationOutput.<Confirmation>newBuilderWithConfirmation()
+                                new ConfirmationOutput.Builder<Confirmation>()
                                         .setConfirmation(
                                                 Confirmation.builder()
                                                         .setOptionalStringField("bar")
@@ -1184,7 +1184,7 @@ public final class TaskCapabilityImplTest {
         OnReadyToConfirmListenerInternal<Confirmation> onReadyToConfirmListener =
                 (args) ->
                         Futures.immediateFuture(
-                                ConfirmationOutput.<Confirmation>newBuilderWithConfirmation()
+                                new ConfirmationOutput.Builder<Confirmation>()
                                         .setConfirmation(
                                                 Confirmation.builder()
                                                         .setOptionalStringField("bar")
