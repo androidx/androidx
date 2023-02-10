@@ -25,7 +25,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * can use this. These permissions will be introduced in an upcoming release.
  * TODO("Add specific permission info/annotation")
  *
- * @property requestJson the privileged request in JSON format in the standard webauthn web json
+ * @property requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
  * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
  * immediately when there is no available credential instead of falling back to discovering remote

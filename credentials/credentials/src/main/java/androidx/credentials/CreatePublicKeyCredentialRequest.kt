@@ -25,7 +25,7 @@ import org.json.JSONObject
 /**
  * A request to register a passkey from the user's public key credential provider.
  *
- * @property requestJson the privileged request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+ * @property requestJson the request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
  * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
  * immediately when there is no available passkey registration offering instead of falling back to
  * discovering remote options, and false (default) otherwise
