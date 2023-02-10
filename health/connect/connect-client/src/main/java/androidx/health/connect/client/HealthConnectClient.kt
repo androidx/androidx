@@ -367,8 +367,9 @@ interface HealthConnectClient {
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
          */
-        const val ACTION_HEALTH_CONNECT_SETTINGS =
-            "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+        @get:JvmName("getHealthConnectSettingsAction")
+        @JvmStatic val ACTION_HEALTH_CONNECT_SETTINGS =
+                "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
          * The Health Connect SDK is not unavailable on this device at the time. This can be due to
