@@ -16,6 +16,7 @@
 
 package androidx.bluetooth.integration.testapp.ui.framework
 
+import android.bluetooth.le.ScanResult
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +32,8 @@ class FwkViewModel(
     companion object {
         const val TAG = "FwkViewModel"
     }
+
+    val scanResults = mutableMapOf<String, ScanResult>()
 
     init {
         Log.d(TAG, "init called")

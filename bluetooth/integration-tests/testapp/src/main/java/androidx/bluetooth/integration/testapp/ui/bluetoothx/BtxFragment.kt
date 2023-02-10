@@ -36,6 +36,7 @@ import androidx.bluetooth.integration.testapp.databinding.FragmentBtxBinding
 import androidx.bluetooth.integration.testapp.experimental.AdvertiseResult
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.experimental.GattServerCallback
+import androidx.bluetooth.integration.testapp.ui.common.ScanResultAdapter
 import androidx.bluetooth.integration.testapp.ui.framework.FwkFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -53,6 +54,8 @@ class BtxFragment : Fragment() {
     companion object {
         const val TAG = "BtxFragment"
     }
+
+    private var scanResultAdapter: ScanResultAdapter? = null
 
     private lateinit var bluetoothLe: BluetoothLe
 
@@ -82,6 +85,9 @@ class BtxFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         bluetoothLe = BluetoothLe(requireContext())
+
+        scanResultAdapter = ScanResultAdapter { scanResult -> scanResultOnClick(scanResult) }
+        binding.recyclerView.adapter = scanResultAdapter
 
         binding.buttonScan.setOnClickListener {
             if (scanJob?.isActive == true) {
@@ -153,10 +159,19 @@ class BtxFragment : Fragment() {
 
             binding.buttonScan.text = getString(R.string.stop_scanning)
 
-            scan(scanSettings).collect {
-                Log.d(TAG, "ScanResult collected: $it")
-            }
+            scan(scanSettings)
+                .collect {
+                    Log.d(TAG, "ScanResult collected: $it")
+
+                    btxViewModel.scanResults[it.device.address] = it
+                    scanResultAdapter?.submitList(btxViewModel.scanResults.values.toMutableList())
+                    scanResultAdapter?.notifyItemInserted(btxViewModel.scanResults.size)
+                }
         }
+    }
+
+    private fun scanResultOnClick(scanResult: ScanResult) {
+        Log.d(TAG, "scanResultOnClick() called with: scanResult = $scanResult")
     }
 
     private val advertiseScope = CoroutineScope(Dispatchers.Main + Job())

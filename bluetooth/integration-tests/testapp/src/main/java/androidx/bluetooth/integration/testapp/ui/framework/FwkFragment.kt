@@ -40,6 +40,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentFwkBinding
+import androidx.bluetooth.integration.testapp.ui.common.ScanResultAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
@@ -50,12 +51,18 @@ class FwkFragment : Fragment() {
         val ServiceUUID: ParcelUuid = ParcelUuid.fromString("0000b81d-0000-1000-8000-00805f9b34fb")
     }
 
+    private var scanResultAdapter: ScanResultAdapter? = null
+
     private val scanCallback = object : ScanCallback() {
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
             Log.d(TAG, "onScanResult() called with: callbackType = $callbackType, result = $result")
+
+            fwkViewModel.scanResults[result.device.address] = result
+            scanResultAdapter?.submitList(fwkViewModel.scanResults.values.toMutableList())
+            scanResultAdapter?.notifyItemInserted(fwkViewModel.scanResults.size)
         }
 
-        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
+        override fun onBatchScanResults(results: MutableList<ScanResult>) {
             Log.d(TAG, "onBatchScanResults() called with: results = $results")
         }
 
@@ -100,6 +107,9 @@ class FwkFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        scanResultAdapter = ScanResultAdapter { scanResult -> scanResultOnClick(scanResult) }
+        binding.recyclerView.adapter = scanResultAdapter
 
         binding.buttonScan.setOnClickListener {
             if (isScanning) stopScan()
@@ -167,6 +177,10 @@ class FwkFragment : Fragment() {
 
         isScanning = false
         _binding?.buttonScan?.text = getString(R.string.scan_using_fwk)
+    }
+
+    private fun scanResultOnClick(scanResult: ScanResult) {
+        Log.d(TAG, "scanResultOnClick() called with: scanResult = $scanResult")
     }
 
     // Permissions are handled by MainActivity requestBluetoothPermissions
