@@ -20,10 +20,11 @@ import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.embedding.MatcherUtils.areComponentsMatching
+import androidx.window.embedding.MatcherUtils.isActivityMatching
 import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
+import androidx.window.embedding.MatcherUtils.validateComponentName
 
 /**
  * Filter for [SplitPairRule] and used to find if a pair of activities should be put in a split.
@@ -79,6 +80,14 @@ class SplitPairFilter(
     val secondaryActivityIntentAction: String?
 ) {
 
+    init {
+        validateComponentName(primaryActivityName.packageName, primaryActivityName.className)
+        validateComponentName(secondaryActivityName.packageName, secondaryActivityName.className)
+    }
+
+    private val primaryActivityInfo: ActivityComponentInfo
+        get() = ActivityComponentInfo(primaryActivityName)
+
     private val secondaryActivityInfo: ActivityComponentInfo
         get() = ActivityComponentInfo(secondaryActivityName)
 
@@ -92,11 +101,13 @@ class SplitPairFilter(
      */
     fun matchesActivityPair(primaryActivity: Activity, secondaryActivity: Activity): Boolean {
         // Check if the activity component names match
-        var match = areComponentsMatching(primaryActivity.componentName, primaryActivityName) &&
-            areComponentsMatching(secondaryActivity.componentName, secondaryActivityName)
-        // If the intent is not empty - check that the rest of the filter fields match
-        if (secondaryActivity.intent != null) {
-            match = match && matchesActivityIntentPair(primaryActivity, secondaryActivity.intent)
+        val match = if (!isActivityMatching(primaryActivity, primaryActivityInfo)) {
+            false
+        } else if (!isActivityMatching(secondaryActivity, secondaryActivityInfo)) {
+            false
+        } else {
+            secondaryActivityIntentAction == null ||
+                secondaryActivityIntentAction == secondaryActivity.intent?.action
         }
 
         if (sDebugMatchers) {
@@ -123,14 +134,9 @@ class SplitPairFilter(
         primaryActivity: Activity,
         secondaryActivityIntent: Intent
     ): Boolean {
-        val inPrimaryActivityName = primaryActivity.componentName
-        val match = if (
-            !areComponentsMatching(inPrimaryActivityName, primaryActivityName)
-        ) {
+        val match = if (!isActivityMatching(primaryActivity, primaryActivityInfo)) {
             false
-        } else if (
-            !isIntentMatching(secondaryActivityIntent, secondaryActivityInfo)
-        ) {
+        } else if (!isIntentMatching(secondaryActivityIntent, secondaryActivityInfo)) {
             false
         } else {
             secondaryActivityIntentAction == null ||
@@ -145,43 +151,6 @@ class SplitPairFilter(
             )
         }
         return match
-    }
-
-    init {
-        val primaryPackageName = primaryActivityName.packageName
-        val primaryClassName = primaryActivityName.className
-        val secondaryPackageName = secondaryActivityName.packageName
-        val secondaryClassName = secondaryActivityName.className
-        require(
-            !(primaryPackageName.isEmpty() || secondaryPackageName.isEmpty())
-        ) { "Package name must not be empty" }
-        require(
-            !(primaryClassName.isEmpty() || secondaryClassName.isEmpty())
-        ) { "Activity class name must not be empty." }
-        require(
-            !(
-                primaryPackageName.contains("*") &&
-                    primaryPackageName.indexOf("*") != primaryPackageName.length - 1
-                )
-        ) { "Wildcard in package name is only allowed at the end." }
-        require(
-            !(
-                primaryClassName.contains("*") &&
-                    primaryClassName.indexOf("*") != primaryClassName.length - 1
-                )
-        ) { "Wildcard in class name is only allowed at the end." }
-        require(
-            !(
-                secondaryPackageName.contains("*") &&
-                    secondaryPackageName.indexOf("*") != secondaryPackageName.length - 1
-                )
-        ) { "Wildcard in package name is only allowed at the end." }
-        require(
-            !(
-                secondaryClassName.contains("*") &&
-                    secondaryClassName.indexOf("*") != secondaryClassName.length - 1
-                )
-        ) { "Wildcard in class name is only allowed at the end." }
     }
 
     override fun equals(other: Any?): Boolean {
