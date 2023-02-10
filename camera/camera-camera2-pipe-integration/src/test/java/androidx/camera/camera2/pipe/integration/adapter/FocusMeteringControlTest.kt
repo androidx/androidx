@@ -29,6 +29,7 @@ import android.util.Rational
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
@@ -37,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.core.CameraControl
@@ -409,6 +411,82 @@ class FocusMeteringControlTest {
     }
 
     @Test
+    fun cropRegionIsSet_resultBasedOnCropRegion() {
+        val cropWidth = 480
+        val cropHeight = 360
+        val cropRect = Rect(
+            SENSOR_WIDTH / 2 - cropWidth / 2,
+            SENSOR_HEIGHT / 2 - cropHeight / 2,
+            SENSOR_WIDTH / 2 + cropWidth / 2, SENSOR_HEIGHT / 2 + cropHeight / 2
+        )
+
+        focusMeteringControl = initFocusMeteringControl(
+            cameraId = CAMERA_ID_0,
+            zoomCompat = FakeZoomCompat(croppedSensorArea = cropRect),
+        )
+
+        val centerPt = pointFactory.createPoint(0.5f, 0.5f)
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(centerPt).build()
+        )
+
+        val areaWidth = (MeteringPointFactory.getDefaultPointSize() * cropRect.width()).toInt()
+        val areaHeight = (MeteringPointFactory.getDefaultPointSize() * cropRect.height()).toInt()
+        val adjustedRect = Rect(
+            cropRect.centerX() - areaWidth / 2,
+            cropRect.centerY() - areaHeight / 2,
+            cropRect.centerX() + areaWidth / 2,
+            cropRect.centerY() + areaHeight / 2
+        )
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong AF region")
+                .that(afRegions[0].rect).isEqualTo(adjustedRect)
+        }
+    }
+
+    @Test
+    fun cropRegionIsSetTwice_resultAlwaysBasedOnCurrentCropRegion() {
+        val cropWidth = 480
+        val cropHeight = 360
+        val cropRect = Rect(
+            SENSOR_WIDTH / 2 - cropWidth / 2,
+            SENSOR_HEIGHT / 2 - cropHeight / 2,
+            SENSOR_WIDTH / 2 + cropWidth / 2, SENSOR_HEIGHT / 2 + cropHeight / 2
+        )
+
+        val zoomCompat = FakeZoomCompat(croppedSensorArea = Rect(0, 0, 640, 480))
+        focusMeteringControl = initFocusMeteringControl(
+            cameraId = CAMERA_ID_0,
+            zoomCompat = zoomCompat,
+        )
+
+        val centerPt = pointFactory.createPoint(0.5f, 0.5f)
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(centerPt).build()
+        )
+
+        zoomCompat.croppedSensorArea = cropRect
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(centerPt).build()
+        )
+
+        val areaWidth = (MeteringPointFactory.getDefaultPointSize() * cropRect.width()).toInt()
+        val areaHeight = (MeteringPointFactory.getDefaultPointSize() * cropRect.height()).toInt()
+        val adjustedRect = Rect(
+            cropRect.centerX() - areaWidth / 2,
+            cropRect.centerY() - areaHeight / 2,
+            cropRect.centerX() + areaWidth / 2,
+            cropRect.centerY() + areaHeight / 2
+        )
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong AF region")
+                .that(afRegions[0].rect).isEqualTo(adjustedRect)
+        }
+    }
+
+    @Test
     fun previewFovAdjusted_16by9_to_4by3() {
         // use 16:9 preview aspect ratio with sensor region of 4:3 (camera 0)
         focusMeteringControl = initFocusMeteringControl(
@@ -431,8 +509,9 @@ class FocusMeteringControlTest {
     fun previewFovAdjusted_4by3_to_16by9() {
         // use 4:3 preview aspect ratio with sensor region of 16:9 (camera 1)
         focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_1,
-            setOf(createPreview(Size(640, 480))),
+            cameraId = CAMERA_ID_1,
+            useCases = setOf(createPreview(Size(640, 480))),
+            zoomCompat = FakeZoomCompat(croppedSensorArea = Rect(0, 0, 1920, 1080))
         )
 
         startFocusMeteringAndAwait(
@@ -1031,7 +1110,6 @@ class FocusMeteringControlTest {
     //  - [b/255679866] triggerAfWithTemplate, triggerAePrecaptureWithTemplate,
     //          cancelAfAeTriggerWithTemplate
     //  - startFocusAndMetering_AfRegionCorrectedByQuirk
-    //  - [b/262225455] cropRegionIsSet_resultBasedOnCropRegion
 
     private fun assertFutureFocusCompleted(
         future: ListenableFuture<FocusMeteringResult>,
@@ -1126,10 +1204,12 @@ class FocusMeteringControlTest {
         useCases: Set<UseCase> = emptySet(),
         useCaseThreads: UseCaseThreads = fakeUseCaseThreads,
         state3AControl: State3AControl = createState3AControl(cameraId),
+        zoomCompat: ZoomCompat = FakeZoomCompat()
     ) = FocusMeteringControl(
             cameraPropertiesMap[cameraId]!!,
             state3AControl,
-            useCaseThreads
+            useCaseThreads,
+            zoomCompat
         ).apply {
             fakeUseCaseCamera.runningUseCases = useCases
             useCaseCamera = fakeUseCaseCamera

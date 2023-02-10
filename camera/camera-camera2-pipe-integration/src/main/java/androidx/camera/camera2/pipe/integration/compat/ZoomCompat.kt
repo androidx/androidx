@@ -38,6 +38,13 @@ interface ZoomCompat {
         camera: UseCaseCamera
     )
 
+    /**
+     * Returns the current crop sensor region which should be used for converting
+     * [androidx.camera.core.MeteringPoint] to sensor coordinates. Returns the sensor
+     * rect if there is no crop region being set.
+     */
+    fun getCropSensorRegion(): Rect
+
     @Module
     abstract class Bindings {
         companion object {
@@ -47,7 +54,7 @@ interface ZoomCompat {
                     val range =
                         cameraProperties.metadata[CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE]
                     if (range != null) {
-                        AndroidRZoomCompat(range)
+                        AndroidRZoomCompat(cameraProperties, range)
                     } else {
                         CropRegionZoomCompat(cameraProperties)
                     }
@@ -67,15 +74,20 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
             CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM, minZoomRatio
         )
 
+    private var currentCropRect: Rect? = null
+
     override fun apply(
         zoomRatio: Float,
         camera: UseCaseCamera
     ) {
         val sensorRect =
             cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
-        val cropRect = computeCropRect(sensorRect, zoomRatio)
-        camera.setParameterAsync(CaptureRequest.SCALER_CROP_REGION, cropRect)
+        currentCropRect = computeCropRect(sensorRect, zoomRatio)
+        camera.setParameterAsync(CaptureRequest.SCALER_CROP_REGION, currentCropRect)
     }
+
+    override fun getCropSensorRegion() = currentCropRect
+        ?: cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 
     private fun computeCropRect(sensorRect: Rect, zoomRatio: Float): Rect {
         val cropWidth: Float = sensorRect.width() / zoomRatio
@@ -92,7 +104,10 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
-class AndroidRZoomCompat(private val range: Range<Float>) : ZoomCompat {
+class AndroidRZoomCompat(
+    private val cameraProperties: CameraProperties,
+    private val range: Range<Float>,
+) : ZoomCompat {
     override val minZoomRatio: Float
         get() = range.lower
     override val maxZoomRatio: Float
@@ -105,4 +120,7 @@ class AndroidRZoomCompat(private val range: Range<Float>) : ZoomCompat {
         require(zoomRatio in minZoomRatio..maxZoomRatio)
         camera.setParameterAsync(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
     }
+
+    override fun getCropSensorRegion(): Rect =
+        cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 }
