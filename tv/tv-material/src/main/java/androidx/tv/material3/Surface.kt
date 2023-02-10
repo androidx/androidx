@@ -19,11 +19,12 @@ package androidx.tv.material3
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -55,68 +56,32 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 /**
- * Material surface is the central metaphor in material design. Each surface exists at a given
- * elevation, which influences how that piece of surface visually relates to other surfaces and how
- * that surface is modified by tonal variance.
+ * The [Surface] is a building block component that will be used for any focusable
+ * element on TV such as buttons, cards, navigation, etc. This clickable Surface is similar to
+ * Compose Material's Surface composable but will have more functionality that will make focus
+ * management easier. [Surface] will automatically apply the relevant modifier(s) based on
+ * the current interaction state.
  *
- * This version of Surface is responsible for a click handling as well as everything else that a
- * regular Surface does:
- *
- * This clickable Surface is responsible for:
- *
- * 1) Clipping: Surface clips its children to the shape specified by [shape]
- *
- * 2) Borders: If [shape] has a border, then it will also be drawn.
- *
- * 3) Background: Surface fills the shape specified by [shape] with the [color]. If [color] is
- * [ColorScheme.surface] a color overlay may be applied. The color of the overlay depends on the
- * [tonalElevation] of this Surface, and the [LocalAbsoluteTonalElevation] set by any
- * parent surfaces. This ensures that a Surface never appears to have a lower elevation overlay than
- * its ancestors, by summing the elevation of all previous Surfaces.
- *
- * 4) Content color: Surface uses [contentColor] to specify a preferred color for the content of
- * this surface - this is used by the [Text] and Icon components as a default color. If no
- * [contentColor] is set, this surface will try and match its background color to a color defined in
- * the theme [ColorScheme], and return the corresponding content color. For example, if the [color]
- * of this surface is [ColorScheme.surface], [contentColor] will be set to [ColorScheme.onSurface].
- * If [color] is not part of the theme palette, [contentColor] will keep the same value set above
- * this Surface.
- *
- * 5) Click handling. This version of surface will react to the clicks, calling [onClick] lambda,
- * updating the [interactionSource] when [PressInteraction] occurs, and showing ripple indication in
- * response to press events. If you don't need click handling, consider using the Surface function
- * that doesn't require [onClick] param. If you need to set a custom label for the [onClick], apply
- * a `Modifier.semantics { onClick(label = "YOUR_LABEL", action = null) }` to the Surface.
- *
- * 6) Semantics for clicks. Just like with [Modifier.clickable], clickable version of Surface will
- * produce semantics to indicate that it is clicked. Also, by default, accessibility services will
- * describe the element as [Role.Button]. You may change this by passing a desired [Role] with a
- * [Modifier.semantics].
- *
- * To manually retrieve the content color inside a surface, use [LocalContentColor].
- *
- * @param onClick callback to be called when the surface is clicked
+ * @param onClick callback to be called when the surface is clicked. Note: DPad Enter button won't
+ * work if this value is null
  * @param modifier Modifier to be applied to the layout corresponding to the surface
- * @param enabled Controls the enabled state of the surface. When `false`, this surface will not be
- * clickable
- * @param shape Defines the surface's shape as well its shadow. A shadow is only displayed if the
- * [tonalElevation] is greater than zero.
- * @param color The background color. Use [Color.Transparent] to have no color.
- * @param contentColor The preferred content color provided by this Surface to its children.
- * Defaults to either the matching content color for [color], or if [color] is not a color from the
- * theme, this will keep the same value set above this Surface.
- * @param border Optional border to draw on top of the surface
+ * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
+ * clickable or focusable.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
- * @param role The type of user interface element. Accessibility services might use this
- * to describe the element or do customizations
  * @param shadowElevation The size of the shadow below the surface. Note that It will not affect z
  * index of the Surface. If you want to change the drawing order you can use `Modifier.zIndex`.
+ * @param role The type of user interface element. Accessibility services might use this to describe
+ * the element or do customizations.
+ * @param shape Defines the surface's shape.
+ * @param color Color to be used on background of the Surface
+ * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param border Optional border to draw on top of the surface
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
  * different [Interaction]s.
- * @param content The content inside this Surface
+ * @param content defines the [Composable] content inside the surface
  */
 @ExperimentalTvMaterial3Api
 @NonRestartableComposable
@@ -125,9 +90,9 @@ fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RectangleShape,
-    color: Color = MaterialTheme.colorScheme.surface,
-    contentColor: Color = contentColorFor(color),
+    shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
+    color: ClickableSurfaceColor = ClickableSurfaceDefaults.color(),
+    contentColor: ClickableSurfaceColor = ClickableSurfaceDefaults.contentColor(),
     border: BorderStroke? = null,
     tonalElevation: Dp = 0.dp,
     role: Role? = null,
@@ -135,6 +100,8 @@ fun Surface(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
+    val focused by interactionSource.collectIsFocusedAsState()
+    val pressed by interactionSource.collectIsPressedAsState()
     SurfaceImpl(
         modifier = modifier.tvClickable(
             enabled = enabled,
@@ -142,9 +109,24 @@ fun Surface(
             interactionSource = interactionSource,
             role = role
         ),
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
+        shape = ClickableSurfaceDefaults.shape(
+            enabled = enabled,
+            focused = focused,
+            pressed = pressed,
+            shape = shape
+        ),
+        color = ClickableSurfaceDefaults.color(
+            enabled = enabled,
+            focused = focused,
+            pressed = pressed,
+            color = color
+        ),
+        contentColor = ClickableSurfaceDefaults.color(
+            enabled = enabled,
+            focused = focused,
+            pressed = pressed,
+            color = contentColor
+        ),
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         border = border,
