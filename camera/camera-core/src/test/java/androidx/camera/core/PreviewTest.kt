@@ -355,11 +355,38 @@ class PreviewTest {
     }
 
     @Test
+    fun hasCameraTransform_rotationDegreesNotFlipped() {
+        // Act: create preview with hasCameraTransform == true
+        val preview = createPreview(
+            FakeSurfaceProcessorInternal(mainThreadExecutor()),
+            frontCamera,
+            targetRotation = Surface.ROTATION_90
+        )
+        assertThat(preview.cameraEdge.hasCameraTransform()).isTrue()
+        // Assert: rotationDegrees is not flipped.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(90)
+    }
+
+    @Test
+    fun noCameraTransform_rotationDegreesFlipped() {
+        // Act: create preview with hasCameraTransform == false
+        val preview = createPreview(
+            FakeSurfaceProcessorInternal(mainThreadExecutor()),
+            frontCamera,
+            hasCameraTransform = false,
+            targetRotation = Surface.ROTATION_90
+        )
+        // Assert: rotationDegrees is flipped
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(270)
+    }
+
+    @Test
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Act: create preview with hasCameraTransform == false
         val preview = createPreview(
             FakeSurfaceProcessorInternal(mainThreadExecutor()),
-            hasCameraTransform = false
+            hasCameraTransform = false,
+            targetRotation = Surface.ROTATION_90
         )
         // Assert
         assertThat(preview.cameraEdge.hasCameraTransform()).isFalse()
@@ -372,7 +399,8 @@ class PreviewTest {
         val preview = createPreview(
             FakeSurfaceProcessorInternal(mainThreadExecutor()),
             frontCamera,
-            hasCameraTransform = false
+            hasCameraTransform = false,
+            targetRotation = Surface.ROTATION_90
         )
         // Assert
         assertThat(preview.cameraEdge.mirroring).isFalse()
@@ -640,10 +668,11 @@ class PreviewTest {
     private fun createPreview(
         surfaceProcessor: SurfaceProcessorInternal? = null,
         camera: FakeCamera = backCamera,
-        hasCameraTransform: Boolean = true
+        hasCameraTransform: Boolean = true,
+        targetRotation: Int = Surface.ROTATION_0
     ): Preview {
         previewToDetach = Preview.Builder()
-            .setTargetRotation(Surface.ROTATION_0)
+            .setTargetRotation(targetRotation)
             .build()
         previewToDetach.hasCameraTransform = hasCameraTransform
         previewToDetach.processor = surfaceProcessor

@@ -267,7 +267,7 @@ public final class Preview extends UseCase {
                 new Matrix(),
                 getHasCameraTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
-                getRelativeRotation(camera),
+                getRelativeRotation(camera, camera.isFrontFacing()),
                 shouldMirror());
         mCameraEdge.addOnInvalidatedListener(this::notifyReset);
         SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
@@ -427,11 +427,12 @@ public final class Preview extends UseCase {
             if (mNode == null) {
                 surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
                         cropRect,
-                        getRelativeRotation(cameraInternal),
+                        getRelativeRotation(cameraInternal, cameraInternal.isFrontFacing()),
                         getAppTargetRotation(),
                         getHasCameraTransform()));
             } else {
-                mCameraEdge.setRotationDegrees(getRelativeRotation(cameraInternal));
+                mCameraEdge.setRotationDegrees(
+                        getRelativeRotation(cameraInternal, cameraInternal.isFrontFacing()));
             }
         }
     }
