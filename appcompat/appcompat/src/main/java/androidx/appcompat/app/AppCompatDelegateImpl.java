@@ -378,6 +378,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 mBackCallback = Api33Impl.registerOnBackPressedCallback(mDispatcher, this);
             } else if (!shouldRegister && mBackCallback != null) {
                 Api33Impl.unregisterOnBackInvokedCallback(mDispatcher, mBackCallback);
+                mBackCallback = null;
             }
         }
     }
