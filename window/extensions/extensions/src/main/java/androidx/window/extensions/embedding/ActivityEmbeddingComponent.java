@@ -41,7 +41,7 @@ public interface ActivityEmbeddingComponent {
 
     /**
      * Updates the rules of embedding activities that are started in the client process.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     void setEmbeddingRules(@NonNull Set<EmbeddingRule> splitRules);
 
@@ -50,7 +50,7 @@ public interface ActivityEmbeddingComponent {
      * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
      * {@link #setSplitInfoCallback(Consumer)} can't be called on
      * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
@@ -63,7 +63,7 @@ public interface ActivityEmbeddingComponent {
      * re-posted to the executors provided by developers.
      *
      * @param consumer the callback to notify {@link SplitInfo} list changes
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
     default void setSplitInfoCallback(@NonNull Consumer<List<SplitInfo>> consumer) {
@@ -76,14 +76,14 @@ public interface ActivityEmbeddingComponent {
      * {@link ActivityEmbeddingComponent#setSplitInfoCallback(Consumer)}.
      * Added in {@link WindowExtensions#getVendorApiLevel()} 2, calling an earlier version will
      * throw {@link java.lang.NoSuchMethodError}.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitInfoCallback();
 
     /**
      * Checks if an activity's' presentation is customized by its or any other process and only
      * occupies a portion of Task bounds.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     boolean isActivityEmbedded(@NonNull Activity activity);
 
@@ -115,7 +115,7 @@ public interface ActivityEmbeddingComponent {
      *
      * @param calculator the callback to set. It will replace the previously set callback if it
      *                  exists.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void setSplitAttributesCalculator(
             @NonNull Function<SplitAttributesCalculatorParams, SplitAttributes> calculator);
@@ -125,7 +125,7 @@ public interface ActivityEmbeddingComponent {
     /**
      * @deprecated Use {@link #setSplitAttributesCalculator(Function)}.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      * @hide
      */
     @Deprecated
@@ -151,7 +151,7 @@ public interface ActivityEmbeddingComponent {
      * Clears the previously callback set in {@link #setSplitAttributesCalculator(Function)}.
      *
      * @see #setSplitAttributesCalculator(Function)
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitAttributesCalculator();
 
@@ -160,7 +160,7 @@ public interface ActivityEmbeddingComponent {
      *
      * @param options The {@link ActivityOptions} to be updated.
      * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @NonNull
     ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
@@ -173,7 +173,7 @@ public interface ActivityEmbeddingComponent {
      *
      * @param activityStackTokens The set of tokens of {@link ActivityStack}-s that is going to be
      *                            finished.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens);
 
@@ -184,7 +184,7 @@ public interface ActivityEmbeddingComponent {
      * than driven by parent window changes or new activity starts. The call will be ignored if
      * there is no visible split.
      * @see #setSplitAttributesCalculator(Function)
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void invalidateTopVisibleSplitAttributes();
 
@@ -194,7 +194,7 @@ public interface ActivityEmbeddingComponent {
      * splits in a few cases but rely on the default split attributes otherwise.
      * @param splitInfoToken The identifier of the split pair to update.
      * @param splitAttributes The {@link SplitAttributes} to apply to the split pair.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void updateSplitAttributes(@NonNull IBinder splitInfoToken,
             @NonNull SplitAttributes splitAttributes);

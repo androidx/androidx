@@ -137,7 +137,7 @@ public interface WindowAreaComponent {
      * correspond to the [WindowAreaStatus] value that aligns with the current status
      * of the rear display.
      * @param consumer interested in receiving updates to WindowAreaStatus.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void addRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
 
@@ -146,7 +146,7 @@ public interface WindowAreaComponent {
     /**
      * @deprecated Use {@link #addRearDisplayStatusListener(Consumer)}.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      * @hide
      */
     @Deprecated
@@ -166,7 +166,7 @@ public interface WindowAreaComponent {
     /**
      * Removes a listener no longer interested in receiving updates.
      * @param consumer no longer interested in receiving updates to WindowAreaStatus
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void removeRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
 
@@ -175,7 +175,7 @@ public interface WindowAreaComponent {
     /**
      * @deprecated Use {@link #removeRearDisplayStatusListener(Consumer)}.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      * @hide
      */
     @Deprecated
@@ -208,7 +208,7 @@ public interface WindowAreaComponent {
      * @throws UnsupportedOperationException if this method is called when RearDisplay
      * mode is not available. This could be to an incompatible device state or when
      * another process is currently in this mode.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
     void startRearDisplaySession(@NonNull Activity activity,
@@ -219,7 +219,7 @@ public interface WindowAreaComponent {
     /**
      * @deprecated Use {@link #startRearDisplaySession(Activity, Consumer)}.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      * @hide
      */
     @Deprecated
@@ -236,7 +236,7 @@ public interface WindowAreaComponent {
      * Ends a RearDisplaySession and sends [STATE_INACTIVE] to the consumer
      * provided in the {@code startRearDisplaySession} method. This method is only
      * called through the {@code RearDisplaySession} provided to the developer.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void endRearDisplaySession();
 
@@ -250,7 +250,7 @@ public interface WindowAreaComponent {
      * correspond to the current status of the feature.
      *
      * @param consumer interested in receiving updates to {@link ExtensionWindowAreaStatus}.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void addRearDisplayPresentationStatusListener(
             @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
@@ -259,7 +259,7 @@ public interface WindowAreaComponent {
      * Removes a listener no longer interested in receiving updates.
      *
      * @param consumer no longer interested in receiving updates to WindowAreaStatus
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void removeRearDisplayPresentationStatusListener(
             @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
@@ -286,7 +286,7 @@ public interface WindowAreaComponent {
      * @throws UnsupportedOperationException if this method is called when rear display presentation
      * mode is not available. This could be to an incompatible device state or when
      * another process is currently in this mode.
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void startRearDisplayPresentationSession(@NonNull Activity activity,
             @NonNull Consumer<@WindowAreaSessionState Integer> consumer);
@@ -298,7 +298,7 @@ public interface WindowAreaComponent {
      * Because this is being called from the OEM provided extensions, the result of the listener
      * will be posted on the executor provided by the developer at the initial call site.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     void endRearDisplayPresentationSession();
 
@@ -307,7 +307,7 @@ public interface WindowAreaComponent {
      * rear display presentation session. If there is no session currently active, then it will
      * return null.
      *
-     * @since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @Nullable
     ExtensionWindowAreaPresentation getRearDisplayPresentation();

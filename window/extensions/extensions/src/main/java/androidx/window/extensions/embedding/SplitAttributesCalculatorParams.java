@@ -32,7 +32,7 @@ import androidx.window.extensions.layout.WindowLayoutInfo;
  * {@link SplitRule} by {@link #getSplitRuleTag()} if {@link SplitRule#getTag()} is specified.
  *
  * @see ActivityEmbeddingComponent#clearSplitAttributesCalculator()
- * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+ * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
 public class SplitAttributesCalculatorParams {
     @NonNull

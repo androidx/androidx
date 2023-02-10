@@ -165,7 +165,7 @@ public class SplitPairRule extends SplitRule {
          * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the matched split
          *                               pair is allowed to show adjacent to each other with the
          *                               given parent {@link WindowMetrics}
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
                 @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
@@ -209,7 +209,7 @@ public class SplitPairRule extends SplitRule {
          * Overrides values if set in {@link #setSplitRatio(float)} and
          * {@link #setLayoutDirection(int)}
          *
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         @NonNull
         public Builder setDefaultSplitAttributes(@NonNull SplitAttributes attrs) {
@@ -255,7 +255,7 @@ public class SplitPairRule extends SplitRule {
 
         /**
          * @see SplitPairRule#getTag()
-         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         @NonNull
         public Builder setTag(@NonNull String tag) {

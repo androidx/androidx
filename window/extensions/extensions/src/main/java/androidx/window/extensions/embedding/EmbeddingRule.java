@@ -41,7 +41,7 @@ public abstract class EmbeddingRule {
      * {@link SplitRule} in the {@link Function} set with
      * {@link ActivityEmbeddingComponent#setSplitAttributesCalculator(Function)}.
      *
-     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @Nullable
     public String getTag() {
