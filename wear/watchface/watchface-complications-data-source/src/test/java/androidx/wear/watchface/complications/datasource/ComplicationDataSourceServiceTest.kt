@@ -15,13 +15,13 @@
  */
 package androidx.wear.watchface.complications.datasource
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
@@ -169,6 +169,25 @@ class ComplicationDataSourceServiceTest {
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.firstValue.longText!!.getTextAt(Resources.getSystem(), 0))
             .isEqualTo("hello")
+    }
+
+    @Test
+    fun testOnComplicationRequest_isForSafeWatchFace() {
+        mService.responseData = LongTextComplicationData.Builder(
+            PlainComplicationText.Builder("hello").build(),
+            ComplicationText.EMPTY
+        ).build()
+        val id = 123
+
+        @Suppress("NewApi") // onUpdate2
+        mProvider.onUpdate2(
+            id, ComplicationType.LONG_TEXT.toWireComplicationType(),
+            /* isForSafeWatchFace= */ true, mLocalManager
+        )
+
+        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        @Suppress("NewApi") // isForSafeWatchFace
+        assertThat(mService.lastRequest!!.isForSafeWatchFace).isTrue()
     }
 
     @Test
@@ -448,6 +467,45 @@ class ComplicationDataSourceServiceTest {
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(response.get().longText!!.getTextAt(Resources.getSystem(), 0))
                 .isEqualTo("hello")
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    @Suppress("NewApi") // onSynchronousComplicationRequest2
+    fun testImmediateRequest_isForSafeWatchFace() {
+        val id = 123
+        mService.responseData = LongTextComplicationData.Builder(
+            PlainComplicationText.Builder("hello").build(),
+            ComplicationText.EMPTY
+        ).build()
+        val thread = HandlerThread("testThread")
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response =
+                AtomicReference<android.support.wearable.complications.ComplicationData>()
+            val doneLatch = CountDownLatch(1)
+            threadHandler.post {
+                try {
+                    @Suppress("NewApi") // onSynchronousComplicationRequest2
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest2(
+                            id,
+                            /* isForSafeWatchFace= */ true,
+                            ComplicationType.LONG_TEXT.toWireComplicationType()
+                        )
+                    )
+                    doneLatch.countDown()
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            @Suppress("NewApi") // isForSafeWatchFace
+            assertThat(mService.lastRequest!!.isForSafeWatchFace).isTrue()
         } finally {
             thread.quitSafely()
         }

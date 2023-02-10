@@ -31,6 +31,7 @@ import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator
@@ -60,12 +61,34 @@ import kotlinx.coroutines.launch
  *   deadline). This will only be `true` within a
  *   [ComplicationDataSourceService.onStartImmediateComplicationRequests]
  *   [ComplicationDataSourceService.onStopImmediateComplicationRequests] pair.
+ * @param isForSafeWatchFace Whether this request is on behalf of a 'safe' watch face as defined by
+ *   the [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data in the data
+ *   source's manifest. The data source may choose to serve different results for a 'safe' watch
+ *   face. If the data source does not have the privileged permission
+ *   `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`, then this must be null.
  */
-public class ComplicationRequest(
+public class ComplicationRequest
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+constructor(
     complicationInstanceId: Int,
     complicationType: ComplicationType,
-    immediateResponseRequired: Boolean
+    immediateResponseRequired: Boolean,
+    @Suppress("AutoBoxing")
+    isForSafeWatchFace: Boolean?
 ) {
+    /** Constructs a [ComplicationRequest] without setting [isForSafeWatchFace]. */
+    @Suppress("NewApi")
+    constructor(
+        complicationInstanceId: Int,
+        complicationType: ComplicationType,
+        immediateResponseRequired: Boolean,
+    ) : this(
+        complicationInstanceId,
+        complicationType,
+        immediateResponseRequired,
+        isForSafeWatchFace = false
+    )
+
     /**
      * The system's id for the requested complication which is a unique value for the tuple
      * [Watch face ComponentName, complication slot ID].
@@ -85,6 +108,23 @@ public class ComplicationRequest(
      */
     @get:JvmName("isImmediateResponseRequired")
     public val immediateResponseRequired = immediateResponseRequired
+
+    /**
+     * Intended for OEM use, returns whether this request is on behalf of a 'safe' watch face as
+     * defined by the [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data in the
+     * data source's manifest. The data source may choose to serve different results for a 'safe'
+     * watch face.
+     *
+     * If the [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data is not defined
+     * then this will be false.
+     *
+     * If the DataSourceService does not have the privileged permission
+     * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`, then this will be null.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @get:JvmName("isForSafeWatchFace")
+    @get:Suppress("AutoBoxing")
+    public val isForSafeWatchFace: Boolean? = isForSafeWatchFace
 
     @Deprecated("Use a constructor that specifies responseNeededSoon.")
     constructor(
@@ -140,7 +180,7 @@ public class ComplicationRequest(
  * also register a separate [METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS] meta data tag which
  * supports sampling at up to 1Hz when the watch face is visible and non-ambient, however this also
  * requires the DataSourceService to have the privileged permission
- * com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE.
+ * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`.
  *
  * ```
  *   <meta-data android:name=
@@ -251,7 +291,7 @@ public abstract class ComplicationDataSourceService : Service() {
      * deadline is 20 seconds. [ComplicationRequest.immediateResponseRequired] will only ever be
      * `true` if [METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS] is present in the manifest, and
      * the provider has the privileged permission
-     * com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE, and the
+     * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`, and the
      * complication is visible and non-ambient.
      *
      * @param request The details about the complication that has been requested.
@@ -350,14 +390,26 @@ public abstract class ComplicationDataSourceService : Service() {
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
+            onUpdate2(complicationInstanceId, type, isForSafeWatchFace = false, manager)
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        override fun onUpdate2(
+            complicationInstanceId: Int,
+            type: Int,
+            isForSafeWatchFace: Boolean,
+            manager: IBinder
+        ) {
             val expectedDataType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
                 onComplicationRequest(
+                    @Suppress("NewApi")
                     ComplicationRequest(
                         complicationInstanceId,
                         expectedDataType,
-                        immediateResponseRequired = false
+                        immediateResponseRequired = false,
+                        isForSafeWatchFace = isForSafeWatchFace
                     ),
                     object : ComplicationRequestListener {
                         override fun onComplicationData(complicationData: ComplicationData?) {
@@ -553,6 +605,16 @@ public abstract class ComplicationDataSourceService : Service() {
         override fun onSynchronousComplicationRequest(
             complicationInstanceId: Int,
             type: Int
+        ) = onSynchronousComplicationRequest2(
+            complicationInstanceId,
+            isForSafeWatchFace = false,
+            type
+        )
+
+        override fun onSynchronousComplicationRequest2(
+            complicationInstanceId: Int,
+            isForSafeWatchFace: Boolean,
+            type: Int
         ): android.support.wearable.complications.ComplicationData? {
             val expectedDataType = fromWireType(type)
             val complicationType = fromWireType(type)
@@ -561,10 +623,12 @@ public abstract class ComplicationDataSourceService : Service() {
                 null
             mainThreadHandler.post {
                 this@ComplicationDataSourceService.onComplicationRequest(
+                    @Suppress("NewApi")
                     ComplicationRequest(
                         complicationInstanceId,
                         complicationType,
-                        immediateResponseRequired = true
+                        immediateResponseRequired = true,
+                        isForSafeWatchFace = isForSafeWatchFace
                     ),
                     object : ComplicationRequestListener {
                         override fun onComplicationData(complicationData: ComplicationData?) {
@@ -717,6 +781,11 @@ public abstract class ComplicationDataSourceService : Service() {
          * called, to declare a specific watch face as safe. An entry can also be a package name, as
          * if [ComponentName.getPackageName] had been called, in which case any watch face under the
          * app with that package name will be considered safe for this complication data source.
+         *
+         * From Android T, if this provider has the privileged permission
+         * com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACEl, then
+         * [ComplicationRequest.isForSafeWatchFace] will be true if the request is on behalf of a
+         * watch face in this list.
          */
         // TODO(b/192233205): Migrate value to androidx.
         public const val METADATA_KEY_SAFE_WATCH_FACES: String =
