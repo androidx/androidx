@@ -20,6 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.core.util.Preconditions;
 
@@ -195,6 +196,7 @@ public class CallStats {
         int mNumOperationsFailed;
 
         /** Sets the PackageName used by the session. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setPackageName(@NonNull String packageName) {
             mPackageName = Preconditions.checkNotNull(packageName);
@@ -202,6 +204,7 @@ public class CallStats {
         }
 
         /** Sets the database used by the session. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDatabase(@NonNull String database) {
             mDatabase = Preconditions.checkNotNull(database);
@@ -209,6 +212,7 @@ public class CallStats {
         }
 
         /** Sets the status code. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setStatusCode(@AppSearchResult.ResultCode int statusCode) {
             mStatusCode = statusCode;
@@ -216,6 +220,7 @@ public class CallStats {
         }
 
         /** Sets total latency in millis. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTotalLatencyMillis(int totalLatencyMillis) {
             mTotalLatencyMillis = totalLatencyMillis;
@@ -223,6 +228,7 @@ public class CallStats {
         }
 
         /** Sets type of the call. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setCallType(@CallType int callType) {
             mCallType = callType;
@@ -230,6 +236,7 @@ public class CallStats {
         }
 
         /** Sets estimated binder latency, in milliseconds. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setEstimatedBinderLatencyMillis(int estimatedBinderLatencyMillis) {
             mEstimatedBinderLatencyMillis = estimatedBinderLatencyMillis;
@@ -250,6 +257,7 @@ public class CallStats {
          * {@link CallStats#getNumOperationsFailed()} is always 1 since there is only one
          * operation.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNumOperationsSucceeded(int numOperationsSucceeded) {
             mNumOperationsSucceeded = numOperationsSucceeded;
@@ -269,6 +277,7 @@ public class CallStats {
          * {@link CallStats#getNumOperationsFailed()} is always 1 since there is only one
          * operation.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNumOperationsFailed(int numOperationsFailed) {
             mNumOperationsFailed = numOperationsFailed;

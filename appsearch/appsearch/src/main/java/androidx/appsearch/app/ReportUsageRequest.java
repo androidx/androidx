@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.core.util.Preconditions;
 
 /**
@@ -89,6 +90,7 @@ public final class ReportUsageRequest {
          * <p>If unset, this defaults to the current timestamp at the time that the
          * {@link ReportUsageRequest} is constructed.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public ReportUsageRequest.Builder setUsageTimestampMillis(
                 /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {

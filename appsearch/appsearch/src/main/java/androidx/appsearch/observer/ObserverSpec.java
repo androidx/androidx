@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.DocumentClassFactoryRegistry;
@@ -96,6 +97,7 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemas) {
             Preconditions.checkNotNull(schemas);
@@ -109,6 +111,7 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemas) {
             Preconditions.checkNotNull(schemas);
@@ -128,6 +131,7 @@ public final class ObserverSpec {
          */
         // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
@@ -146,6 +150,7 @@ public final class ObserverSpec {
          */
         // Merged list available from getFilterSchemas
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(
                 @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {

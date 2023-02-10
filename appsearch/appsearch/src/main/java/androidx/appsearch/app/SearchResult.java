@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -244,6 +245,7 @@ public final class SearchResult {
          * @throws AppSearchException if an error occurs converting a document class into a
          *                            {@link GenericDocument}.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDocument(@NonNull Object document) throws AppSearchException {
             Preconditions.checkNotNull(document);
@@ -253,6 +255,7 @@ public final class SearchResult {
 // @exportToFramework:endStrip()
 
         /** Sets the document which matched. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setGenericDocument(@NonNull GenericDocument document) {
             Preconditions.checkNotNull(document);
@@ -262,6 +265,7 @@ public final class SearchResult {
         }
 
         /** Adds another match to this SearchResult. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addMatchInfo(@NonNull MatchInfo matchInfo) {
             Preconditions.checkState(
@@ -274,6 +278,7 @@ public final class SearchResult {
         }
 
         /** Sets the ranking signal of the matched document in this SearchResult. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingSignal(double rankingSignal) {
             resetIfBuilt();
@@ -285,6 +290,7 @@ public final class SearchResult {
          * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
          * @param joinedResult The joined SearchResult to add.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addJoinedResult(@NonNull SearchResult joinedResult) {
             resetIfBuilt();
@@ -645,6 +651,7 @@ public final class SearchResult {
             }
 
             /** Sets the exact {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setExactMatchRange(@NonNull MatchRange matchRange) {
                 mExactMatchRange = Preconditions.checkNotNull(matchRange);
@@ -653,6 +660,7 @@ public final class SearchResult {
 
 
             /** Sets the submatch {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setSubmatchRange(@NonNull MatchRange matchRange) {
                 mSubmatchRange = Preconditions.checkNotNull(matchRange);
@@ -660,6 +668,7 @@ public final class SearchResult {
             }
 
             /** Sets the snippet {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setSnippetRange(@NonNull MatchRange matchRange) {
                 mSnippetRange = Preconditions.checkNotNull(matchRange);

@@ -20,6 +20,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -162,6 +163,7 @@ public class VisibilityDocument extends GenericDocument {
         }
 
         /** Sets whether this schema has opted out of platform surfacing. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNotDisplayedBySystem(boolean notDisplayedBySystem) {
             return setPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY,
@@ -169,6 +171,7 @@ public class VisibilityDocument extends GenericDocument {
         }
 
         /** Add {@link PackageIdentifier} of packages which has access to this schema. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addVisibleToPackages(@NonNull Set<PackageIdentifier> packageIdentifiers) {
             Preconditions.checkNotNull(packageIdentifiers);
@@ -177,6 +180,7 @@ public class VisibilityDocument extends GenericDocument {
         }
 
         /** Add {@link PackageIdentifier} of packages which has access to this schema. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addVisibleToPackage(@NonNull PackageIdentifier packageIdentifier) {
             Preconditions.checkNotNull(packageIdentifier);
@@ -191,6 +195,7 @@ public class VisibilityDocument extends GenericDocument {
          * <p> The querier could have access if they holds ALL required permissions of ANY of the
          * individual value sets.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setVisibleToPermissions(@NonNull Set<Set<Integer>> visibleToPermissions) {
             Preconditions.checkNotNull(visibleToPermissions);

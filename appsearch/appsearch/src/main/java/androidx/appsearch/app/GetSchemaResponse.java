@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -276,6 +277,7 @@ public final class GetSchemaResponse {
          *
          * <p>Default version is 0
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setVersion(@IntRange(from = 0) int version) {
             resetIfBuilt();
@@ -284,6 +286,7 @@ public final class GetSchemaResponse {
         }
 
         /**  Adds one {@link AppSearchSchema} to the schema list.  */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addSchema(@NonNull AppSearchSchema schema) {
             Preconditions.checkNotNull(schema);
@@ -300,6 +303,7 @@ public final class GetSchemaResponse {
          *                   {@link GetSchemaResponse}, which won't be displayed by system.
          */
         // Getter getSchemaTypesNotDisplayedBySystem returns plural objects.
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addSchemaTypeNotDisplayedBySystem(@NonNull String schemaType) {
@@ -331,6 +335,7 @@ public final class GetSchemaResponse {
          *                                 schema type.
          */
         // Getter getSchemaTypesVisibleToPackages returns a map contains all schema types.
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSchemaTypeVisibleToPackages(
@@ -378,6 +383,7 @@ public final class GetSchemaResponse {
          *                               the given schema.
          */
         // Getter getRequiredPermissionsForSchemaTypeVisibility returns a map for all schemaTypes.
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setRequiredPermissionsForSchemaTypeVisibility(
