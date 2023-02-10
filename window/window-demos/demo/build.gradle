@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -79,4 +80,11 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
+}
+
+androidx {
+    name = "WM Jetpack Samples"
+    type = LibraryType.SAMPLES
+    inceptionYear = "2023"
+    description = "Samples for the WM Jetpack Library"
 }
