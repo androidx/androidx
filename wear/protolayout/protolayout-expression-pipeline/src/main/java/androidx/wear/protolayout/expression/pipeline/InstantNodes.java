@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.Nullable;
@@ -24,6 +25,7 @@ import java.time.Instant;
 /** Dynamic data nodes which yield instants. */
 class InstantNodes {
     private InstantNodes() {}
+
     /** Dynamic instant node that has a fixed value. */
     static class FixedInstantNode implements DynamicDataSourceNode<Integer> {
         private final Instant mValue;
@@ -49,6 +51,7 @@ class InstantNodes {
         @Override
         public void destroy() {}
     }
+
     /** Dynamic Instant node that gets value from the platform source. */
     static class PlatformTimeSourceNode implements DynamicDataSourceNode<Integer> {
         @Nullable private final EpochTimePlatformDataSource mEpochTimePlatformDataSource;
