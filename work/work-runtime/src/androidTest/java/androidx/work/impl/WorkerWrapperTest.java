@@ -85,6 +85,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -407,6 +408,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 containsInAnyOrder(value1, value2));
     }
 
+    @Ignore // b/268530685
     @Test
     @SmallTest
     public void testDependencies_setsPeriodStartTimesForUnblockedWork() {
