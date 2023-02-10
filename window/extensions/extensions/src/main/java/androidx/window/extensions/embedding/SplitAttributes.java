@@ -23,6 +23,7 @@ import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirecti
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
@@ -66,6 +67,19 @@ import java.lang.annotation.RetentionPolicy;
  * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
 public class SplitAttributes {
+
+    /**
+     * The default value for animation background color, which means to use the current theme window
+     * background color.
+     *
+     * Only opaque color is supported, so {@code 0} is used as the default. Any other non-opaque
+     * color will be treated as the default.
+     *
+     * @see Builder#setAnimationBackgroundColor(int)
+     */
+    @ColorInt
+    public static final int DEFAULT_ANIMATION_BACKGROUND_COLOR = 0;
+
     /**
      * The type of window split, which defines the proportion of the parent
      * window occupied by the primary and secondary activity containers.
@@ -413,6 +427,9 @@ public class SplitAttributes {
      * Gets the {@link ColorInt} to use for the background color during the
      * animation of the split involving this {@code SplitAttributes} object.
      *
+     * The default is {@link #DEFAULT_ANIMATION_BACKGROUND_COLOR}, which means
+     * to use the current theme window background color.
+     *
      * @return The animation background {@code ColorInt}.
      */
     @ColorInt
@@ -423,10 +440,9 @@ public class SplitAttributes {
     /**
      * Builder for creating an instance of {@link SplitAttributes}.
      *
-     * The default split type is an equal split between primary and secondary
-     * containers. The default layout direction is based on locale. The default
-     * animation background color is 0, which specifies the theme window
-     * background color.
+     * - The default split type is an equal split between primary and secondary containers.
+     * - The default layout direction is based on locale.
+     * - The default animation background color is to use the current theme window background color.
      */
     public static final class Builder {
         @NonNull
@@ -481,16 +497,23 @@ public class SplitAttributes {
          * animation of the split involving this {@code SplitAttributes} object
          * if the animation requires a background.
          *
-         * The default value is 0, which specifies the theme window background
-         * color.
+         * Only opaque color is supported.
+         *
+         * The default value is {@link #DEFAULT_ANIMATION_BACKGROUND_COLOR}, which
+         * means to use the current theme window background color. Any non-opaque
+         * animation color will be treated as
+         * {@link #DEFAULT_ANIMATION_BACKGROUND_COLOR}.
          *
          * @param color A packed color int of the form {@code AARRGGBB} for the
-         *     animation background color.
+         *              animation background color.
          * @return This {@code Builder}.
          */
         @NonNull
         public Builder setAnimationBackgroundColor(@ColorInt int color) {
-            mAnimationBackgroundColor = color;
+            // Any non-opaque color will be treated as the default.
+            mAnimationBackgroundColor = Color.alpha(color) != 255
+                    ? DEFAULT_ANIMATION_BACKGROUND_COLOR
+                    : color;
             return this;
         }
 

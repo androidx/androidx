@@ -17,14 +17,14 @@
 package androidx.window.embedding
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
-import androidx.window.embedding.SplitAttributes.LayoutDirection
+import androidx.window.embedding.SplitAttributes.BackgroundColor
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
-import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
 
 /**
@@ -48,15 +48,16 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEquall
  *   - Setting `splitRatio`, `splitLayoutDirection`, and
  *     `animationBackgroundColor` attributes in `<SplitPairRule>` or
  *     `<SplitPlaceholderRule>` tags in an XML configuration file. The
- *     attributes are parsed as [SplitType], [LayoutDirection], and [ColorInt],
- *     respectively. Note that [SplitType.HingeSplitType] is not supported XML
- *     format.
+ *     attributes are parsed as [SplitType], [LayoutDirection], and
+ *     [BackgroundColor], respectively. Note that [SplitType.HingeSplitType]
+ *     is not supported XML format.
  *   - Using
  *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
  *     the `SplitAttributes` for a given device and window state.
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
+ * @see SplitAttributes.BackgroundColor
  */
 class SplitAttributes internal constructor(
 
@@ -73,14 +74,16 @@ class SplitAttributes internal constructor(
     val layoutDirection: LayoutDirection = LOCALE,
 
     /**
-     * The [ColorInt] to use for the background color during the animation of
+     * The color to use for the background color during the animation of
      * the split involving this `SplitAttributes` object if the animation
      * requires a background.
      *
-     * The default is 0, which specifies the theme window background color.
+     * The default is to use the current theme window background color.
+     *
+     * @see BackgroundColor.color
+     * @see BackgroundColor.DEFAULT
      */
-    @ColorInt
-    val animationBackgroundColor: Int = 0
+    val animationBackgroundColor: BackgroundColor = BackgroundColor.DEFAULT
 ) {
 
     /**
@@ -422,6 +425,85 @@ class SplitAttributes internal constructor(
     }
 
     /**
+     * Background color to be used for window transition animations in a split if the animation
+     * requires a background.
+     *
+     * @see SplitAttributes.animationBackgroundColor
+     */
+    class BackgroundColor private constructor(
+
+        /**
+         * The description of this `BackgroundColor`.
+         */
+        private val description: String,
+
+        /**
+         * [ColorInt] to represent the color to use as the background color.
+         */
+        @ColorInt
+        internal val value: Int,
+    ) {
+        override fun toString() = "BackgroundColor($description)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other === this) return true
+            if (other !is BackgroundColor) return false
+            return value == other.value && description == other.description
+        }
+
+        override fun hashCode() = description.hashCode() + 31 * value.hashCode()
+
+        /**
+         * Methods that create various [BackgroundColor].
+         */
+        companion object {
+
+            /**
+             * Creates a [BackgroundColor] to represent the given [color].
+             *
+             * Only opaque color is supported.
+             *
+             * @param color [ColorInt] of an opaque color.
+             * @return the [BackgroundColor] representing the [color].
+             *
+             * @see [DEFAULT] for the default value, which means to use the
+             * current theme window background color.
+             */
+            @JvmStatic
+            fun color(
+                @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong())
+                @ColorInt
+                color: Int
+            ):
+                BackgroundColor {
+                require(Color.BLACK <= color && color <= Color.WHITE) {
+                    "Background color must be opaque"
+                }
+                return BackgroundColor("color:${Integer.toHexString(color)}", color)
+            }
+
+            /**
+             * The special [BackgroundColor] to represent the default value,
+             * which means to use the current theme window background color.
+             */
+            @JvmField
+            val DEFAULT = BackgroundColor("DEFAULT", 0)
+
+            /**
+             * Returns a [BackgroundColor] with the given [value]
+             */
+            internal fun buildFromValue(@ColorInt value: Int): BackgroundColor {
+                return if (Color.alpha(value) != 255) {
+                    // Treat any non-opaque color as the default.
+                    DEFAULT
+                } else {
+                    color(value)
+                }
+            }
+        }
+    }
+
+    /**
      * Non-public properties and methods.
      */
     companion object {
@@ -464,21 +546,21 @@ class SplitAttributes internal constructor(
     override fun toString(): String =
         "${SplitAttributes::class.java.simpleName}:" +
             "{splitType=$splitType, layoutDir=$layoutDirection," +
-            " animationBackgroundColor=${Integer.toHexString(animationBackgroundColor)}"
+            " animationBackgroundColor=$animationBackgroundColor"
 
     /**
      * Builder for creating an instance of [SplitAttributes].
      *
-     * The default split type is an equal split between primary and secondary
-     * containers. The default layout direction is based on locale. The default
-     * animation background color is 0, which specifies the theme window
-     * background color.
+     *  - The default split type is an equal split between primary and secondary
+     *    containers.
+     *  - The default layout direction is based on locale.
+     *  - The default animation background color is to use the current theme
+     *    window background color.
      */
     class Builder {
         private var splitType: SplitType = splitEqually()
         private var layoutDirection = LOCALE
-        @ColorInt
-        private var animationBackgroundColor = 0
+        private var animationBackgroundColor = BackgroundColor.DEFAULT
 
         /**
          * Sets the split type attribute.
@@ -507,20 +589,23 @@ class SplitAttributes internal constructor(
             apply { this.layoutDirection = layoutDirection }
 
         /**
-         * Sets the [ColorInt] to use for the background color during animation
+         * Sets the color to use for the background color during animation
          * of the split involving this `SplitAttributes` object if the animation
-         * requires a background.
+         * requires a background. Only opaque color is supported.
          *
-         * The default is 0, which specifies the theme window background color.
+         * The default is [BackgroundColor.DEFAULT], which means to use the
+         * current theme window background color.
          *
-         * @param color A packed color int of the form `AARRGGBB`, for the
-         * animation background color.
+         * @param color The animation background color.
          * @return This `Builder`.
          *
-         * @see SplitAttributes.animationBackgroundColor
+         * @see BackgroundColor.color
+         * @see BackgroundColor.DEFAULT
          */
-        fun setAnimationBackgroundColor(@ColorInt color: Int): Builder =
-            apply { this.animationBackgroundColor = color }
+        fun setAnimationBackgroundColor(color: BackgroundColor): Builder =
+            apply {
+                animationBackgroundColor = color
+            }
 
         /**
          * Builds a `SplitAttributes` instance with the attributes specified by

@@ -40,10 +40,11 @@ import androidx.window.extensions.core.util.function.Consumer;
  */
 public interface WindowLayoutComponent {
     /**
-     * @deprecated Use {@link #addWindowLayoutInfoListener(Context,Consumer)}
+     * @deprecated Use {@link #addWindowLayoutInfoListener(Context, Consumer)}
      * starting with {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
      * {@link #addWindowLayoutInfoListener(Context, Consumer)} can't be
      * called on {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     void addWindowLayoutInfoListener(@NonNull Activity activity,
@@ -54,6 +55,7 @@ public interface WindowLayoutComponent {
      * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
      * {@link #removeWindowLayoutInfoListener(Consumer)} can't be called on
      * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     void removeWindowLayoutInfoListener(
@@ -61,7 +63,11 @@ public interface WindowLayoutComponent {
 
     // TODO(b/264546746): Remove addWindowLayoutInfoListener(Context, java.util.function.Consumer)
     //  after apps update to the latest WM Jetpack library.
-    /** @deprecated Use {@link #addWindowLayoutInfoListener(Context, Consumer)} instead */
+
+    /**
+     * @deprecated Use {@link #addWindowLayoutInfoListener(Context, Consumer)} instead
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     */
     @SuppressWarnings("PairedRegistration")
     // The paired method for unregistering is also removeWindowLayoutInfoListener.
     @Deprecated

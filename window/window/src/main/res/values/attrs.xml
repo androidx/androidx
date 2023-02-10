@@ -47,8 +47,9 @@
     <attr name="tag" format="string" />
     <!-- An attribute for Activity Embedding rules.
          Background color of Activity Embedding window animation if the animation requires a
-         background.
-         The default is to use the theme's windowBackground. -->
+         background. Only opaque color is supported.
+         The default is to use the current theme's windowBackground. Any non-opaque color will be
+         treated the same as default. -->
     <attr name="animationBackgroundColor" format="color" />
 
     <!-- An attribute for Activity Embedding rules.

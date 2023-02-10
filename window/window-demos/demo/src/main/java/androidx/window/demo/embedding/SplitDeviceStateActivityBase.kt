@@ -410,12 +410,12 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         const val SUFFIX_REVERSED = "_reversed"
         const val SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP = "_and_horizontal_layout_in_tabletop"
         const val SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE = "_and_fullscreen_in_book_mode"
-        val ANIMATION_BACKGROUND_COLORS_TEXT = arrayOf("BLACK", "BLUE", "GREEN", "YELLOW")
+        val ANIMATION_BACKGROUND_COLORS_TEXT = arrayOf("DEFAULT", "BLUE", "GREEN", "YELLOW")
         val ANIMATION_BACKGROUND_COLORS_VALUE = arrayOf(
-            Color.BLACK,
-            Color.BLUE,
-            Color.GREEN,
-            Color.YELLOW
+            SplitAttributes.BackgroundColor.DEFAULT,
+            SplitAttributes.BackgroundColor.color(Color.BLUE),
+            SplitAttributes.BackgroundColor.color(Color.GREEN),
+            SplitAttributes.BackgroundColor.color(Color.YELLOW)
         )
 
         /**

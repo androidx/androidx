@@ -38,7 +38,7 @@ class ActivityStack internal constructor(
      * process(es), [activitiesInProcess] will return an empty list, but this method will return
      * `false`.
      */
-    val isEmpty: Boolean = false
+    val isEmpty: Boolean
 ) {
 
     operator fun contains(activity: Activity): Boolean {
