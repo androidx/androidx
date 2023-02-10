@@ -169,13 +169,13 @@ class EmojiPickerView @JvmOverloads constructor(
             )
         ).also { recentItemGroup = it })
 
-        for ((headerIconId, name, emojis) in BundledEmojiListLoader.getCategorizedEmojiData()) {
+        for ((i, category) in BundledEmojiListLoader.getCategorizedEmojiData().withIndex()) {
             add(
                 ItemGroup(
-                    headerIconId,
-                    CategoryTitle(name),
-                    emojis.map {
-                        EmojiViewData(stickyVariantProvider[it.emoji])
+                    category.headerIconId,
+                    CategoryTitle(category.categoryName),
+                    category.emojiDataList.mapIndexed { j, emojiData ->
+                        EmojiViewData(stickyVariantProvider[emojiData.emoji], dataIndex = i + j)
                     },
                 )
             )
