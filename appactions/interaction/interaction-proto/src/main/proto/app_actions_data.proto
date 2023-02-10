@@ -166,7 +166,7 @@ message AppActionsContext {
 
     // Identifier of the corresponding capability that this dialog state maps
     // to. This field maps to AppActionsContext.AppAction.identifier.
-    string identifier = 2;
+    string fulfillment_identifier = 2;
 
     // List of BII intent parameters of this dialog.
     repeated DialogParameter params = 3;

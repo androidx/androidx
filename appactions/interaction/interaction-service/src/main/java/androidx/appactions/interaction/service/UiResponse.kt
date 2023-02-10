@@ -22,12 +22,10 @@ import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.IdRes
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
-import java.util.HashMap
-import java.util.HashSet
 
 /**
- * A class representing the UI response being returned to the host. A `UiResponse` cannot be
- * built directly, it must be built from a [UiResponse] Builder.
+ * A class representing the UI response being returned to the host. A `UiResponse` cannot be built
+ * directly, it must be built from a [UiResponse] Builder.
  */
 class UiResponse {
     internal val remoteViewsInternal: RemoteViewsInternal?
@@ -43,7 +41,7 @@ class UiResponse {
         this.tileLayoutInternal = tileLayout
     }
 
-    /** Builder for TileLayouts, used in Wear OS.  */
+    /** Builder for TileLayouts, used in Wear OS. */
     class TileLayoutBuilder {
         private var layout: LayoutElementBuilders.Layout? = null
         private var resources: ResourceBuilders.Resources? = null
@@ -65,13 +63,11 @@ class UiResponse {
             return this
         }
 
-        /** Builds the UiResponse.  */
-        fun build(): UiResponse {
-            return UiResponse(TileLayoutInternal(layout!!, resources!!))
-        }
+        /** Builds the UiResponse. */
+        fun build() = UiResponse(TileLayoutInternal(layout!!, resources!!))
     }
 
-    /** Builder for RemoteViews UI response.  */
+    /** Builder for RemoteViews UI response. */
     class RemoteViewsUiBuilder {
         private var remoteViews: RemoteViews? = null
         private var size: SizeF? = null
@@ -84,10 +80,7 @@ class UiResponse {
          * @param remoteViews the `RemoteViews` to be displayed
          * @param size the size, in dp, of the RemoteViews being displayed
          */
-        fun setRemoteViews(
-            remoteViews: RemoteViews,
-            size: SizeF?
-        ): RemoteViewsUiBuilder {
+        fun setRemoteViews(remoteViews: RemoteViews, size: SizeF?): RemoteViewsUiBuilder {
             this.remoteViews = remoteViews
             this.size = size
             return this
@@ -96,8 +89,8 @@ class UiResponse {
         /**
          * Add the specified view ID to the list of changed views for RemoteViews collection update.
          *
-         * Any errors resulting from the provided view IDs will contain
-         * "RemoteViewsCollection error: " errors with some message from the host.
+         * Any errors resulting from the provided view IDs will contain "RemoteViewsCollection
+         * error: " errors with some message from the host.
          */
         fun addViewIdForCollectionUpdate(@IdRes viewId: Int): RemoteViewsUiBuilder {
             changedViewIds.add(viewId)
@@ -120,16 +113,10 @@ class UiResponse {
             return this
         }
 
-        /** Builds the UiResponse.  */
-        fun build(): UiResponse {
-            return UiResponse(
-                RemoteViewsInternal(
-                    remoteViews!!,
-                    size!!,
-                    changedViewIds,
-                    remoteViewsFactories
-                )
+        /** Builds the UiResponse. */
+        fun build() =
+            UiResponse(
+                RemoteViewsInternal(remoteViews!!, size!!, changedViewIds, remoteViewsFactories)
             )
-        }
     }
 }
