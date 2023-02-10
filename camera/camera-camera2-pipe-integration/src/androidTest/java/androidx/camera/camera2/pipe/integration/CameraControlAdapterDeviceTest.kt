@@ -401,6 +401,7 @@ class CameraControlAdapterDeviceTest {
     ) = get(option_max_regions) ?: 0
 
     private suspend fun arrangeRequestOptions() {
+        cameraControl.setExposureCompensationIndex(1)
         cameraControl.setZoomRatio(1.0f)
         cameraControl.camera2cameraControl.setCaptureRequestOptions(
             CaptureRequestOptions.Builder().setCaptureRequestOption(
@@ -408,7 +409,6 @@ class CameraControlAdapterDeviceTest {
                 CONTROL_CAPTURE_INTENT_CUSTOM
             ).build()
         ).await()
-        cameraControl.setExposureCompensationIndex(1)[5, TimeUnit.SECONDS]
 
         // Ensure the requests are already set to the CaptureRequest.
         waitForResult().verify(
