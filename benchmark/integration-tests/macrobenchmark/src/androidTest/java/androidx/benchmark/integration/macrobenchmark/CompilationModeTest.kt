@@ -17,6 +17,7 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMacrobenchmarkApi
@@ -28,6 +29,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.testutils.getStartupMetrics
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -51,8 +53,29 @@ class CompilationModeTest {
         assertThat(getCompilationMode()).isEqualTo("speed")
     }
 
+    /**
+     * Validate that compilation can be reset.
+     *
+     * Note, this test is skipped on rooted API 29/30, since "cmd package dump" result fails to
+     * update compilation state correctly. Repro:
+     * ```
+     * adb shell cmd package compile -m speed androidx.benchmark.integration.macrobenchmark.target
+     * adb shell cmd package compile --reset androidx.benchmark.integration.macrobenchmark.target
+     * adb shell cmd package dump androidx.benchmark.integration.macrobenchmark.target | grep -A3 Dexopt
+     * ```
+     *
+     * Which prints speed, though it should be 'verify':
+     * ```
+     * Dexopt state:
+     *   [androidx.benchmark.integration.macrobenchmark.target]
+     *     path: /data/app/~~Jn8HSPcIEU6RRXJknWt2ZA==/androidx.benchmark.integration.macrobenchmark.target-CM7MqDZo6wGLb-7Auxqv8g==/base.apk
+     *       arm64: [status=speed] [reason=unknown]
+     * ```
+    */
     @Test
     fun compilationModeNone_shouldSetProfileVerified() {
+        assumeTrue(Build.VERSION.SDK_INT >= 31 || !Shell.isSessionRooted())
+
         // Perform a compilation profile reset and then compile to `speed`.
         runWithCompilationMode(CompilationMode.Full())
 
