@@ -107,7 +107,7 @@ public class ActivityRule extends EmbeddingRule {
          *                         matches the rule
          * @param intentPredicate the {@link Predicate} to verify if a given {@link Intent}
          *                         matches the rule
-         * since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         public Builder(@NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate) {
@@ -124,7 +124,7 @@ public class ActivityRule extends EmbeddingRule {
 
         /**
          * @see ActivityRule#getTag()
-         * since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+         * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
          */
         @NonNull
         public Builder setTag(@NonNull String tag) {

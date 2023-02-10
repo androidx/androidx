@@ -25,7 +25,6 @@ import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_ALWAYS_
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
-import androidx.window.extensions.WindowExtensions
 
 /**
  * Configuration rules for split placeholders.
@@ -65,6 +64,8 @@ class SplitPlaceholderRule : SplitRule {
     /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated placeholder container.
+     *
+     * **Note** that it is not valid to set [SplitRule.FinishBehavior.NEVER]
      *
      * @see SplitRule.FinishBehavior.ALWAYS
      * @see SplitRule.FinishBehavior.ADJACENT
@@ -202,6 +203,8 @@ class SplitPlaceholderRule : SplitRule {
          * Sets the behavior of the primary container when all activities are finished in the
          * associated placeholder container.
          *
+         * **Note** that it is not valid to set [SplitRule.FinishBehavior.NEVER]
+         *
          * @see SplitRule.FinishBehavior.ALWAYS
          * @see SplitRule.FinishBehavior.ADJACENT
          */
@@ -209,12 +212,6 @@ class SplitPlaceholderRule : SplitRule {
             apply {
                this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
             }
-
-        /**
-         * @see SplitPlaceholderRule#getTag
-         * since [WindowExtensions.VENDOR_API_LEVEL_2]
-         */
-        fun setTag(tag: String?): Builder = apply { this.tag = tag }
 
         /**
          * Sets whether the placeholder will show on top in a smaller window size after it first
@@ -230,6 +227,14 @@ class SplitPlaceholderRule : SplitRule {
          */
         fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
             apply { this.defaultSplitAttributes = defaultSplitAttributes }
+
+        /**
+         * Sets a unique string to identify this [SplitPlaceholderRule], which defaults to `null`.
+         * The suggested usage is to set the tag to be able to differentiate between different rules
+         * in the [SplitAttributesCalculatorParams.splitRuleTag].
+         */
+        fun setTag(tag: String?): Builder =
+            apply { this.tag = tag }
 
         fun build() = SplitPlaceholderRule(
             tag,

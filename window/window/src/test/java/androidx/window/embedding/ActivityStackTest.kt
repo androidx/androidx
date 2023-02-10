@@ -27,16 +27,16 @@ class ActivityStackTest {
     @Test
     fun testContainsActivity() {
         val activity = mock<Activity>()
-        val stack = ActivityStack(listOf(activity))
+        val stack = ActivityStack(listOf(activity), isEmpty = false)
 
-        assertTrue(stack.contains(activity))
+        assertTrue(activity in stack)
     }
 
     @Test
     fun testEqualsImpliesHashCode() {
         val activity = mock<Activity>()
-        val first = ActivityStack(listOf(activity))
-        val second = ActivityStack(listOf(activity))
+        val first = ActivityStack(listOf(activity), isEmpty = false)
+        val second = ActivityStack(listOf(activity), isEmpty = false)
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())

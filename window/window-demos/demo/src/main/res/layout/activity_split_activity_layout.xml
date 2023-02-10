@@ -111,6 +111,12 @@
             android:layout_height="wrap_content"
             android:text="Always launch E in fullscreen" />
 
+        <CheckBox
+            android:id="@+id/setLaunchingEInActivityStack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch in current container" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

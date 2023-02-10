@@ -38,6 +38,7 @@ public interface ActivityEmbeddingComponent {
 
     /**
      * Updates the rules of embedding activities that are started in the client process.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     void setEmbeddingRules(@NonNull Set<EmbeddingRule> splitRules);
 
@@ -46,6 +47,7 @@ public interface ActivityEmbeddingComponent {
      * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
      * {@link #setSplitInfoCallback(Consumer)} can't be called on
      * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     @Deprecated
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
@@ -58,7 +60,7 @@ public interface ActivityEmbeddingComponent {
      * re-posted to the executors provided by developers.
      *
      * @param consumer the callback to notify {@link SplitInfo} list changes
-     * since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
     default void setSplitInfoCallback(@NonNull Consumer<List<SplitInfo>> consumer) {
@@ -71,27 +73,46 @@ public interface ActivityEmbeddingComponent {
      * {@link ActivityEmbeddingComponent#setSplitInfoCallback(Consumer)}.
      * Added in {@link WindowExtensions#getVendorApiLevel()} 2, calling an earlier version will
      * throw {@link java.lang.NoSuchMethodError}.
-     * since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitInfoCallback();
 
     /**
      * Checks if an activity's' presentation is customized by its or any other process and only
      * occupies a portion of Task bounds.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
      */
     boolean isActivityEmbedded(@NonNull Activity activity);
 
     /**
-     * Sets a callback to compute the {@link SplitAttributes} for the {@link SplitRule} and current
-     * window state provided in {@link SplitAttributesCalculatorParams}. This method can be used
-     * to dynamically configure the split layout properties when new activities are launched or
-     * window properties change. If set, {@link SplitRule#getDefaultSplitAttributes() the default
-     * split properties} and {@link SplitRule#checkParentMetrics(WindowMetrics) restrictions}
-     * will be ignored, and the callback will be invoked for every change.
+     * Sets a function to compute the {@link SplitAttributes} for the {@link SplitRule} and current
+     * window state provided in {@link SplitAttributesCalculatorParams}.
+     * <p>
+     * This method can be used to dynamically configure the split layout properties when new
+     * activities are launched or window properties change.
+     * <p>
+     * If the {@link SplitAttributes} calculator function is not set or is cleared by
+     * {@link #clearSplitAttributesCalculator()}, apps will update its split layout with
+     * registered {@link SplitRule} configurations:
+     * <ul>
+     *     <li>Split with {@link SplitRule#getDefaultSplitAttributes()} if parent task
+     *     container size constraints defined by
+     *     {@link SplitRule#checkParentMetrics(WindowMetrics)} are satisfied</li>
+     *     <li>Occupy the whole parent task bounds if the constraints are not satisfied. </li>
+     * </ul>
+     * <p>
+     * If the function is set, {@link SplitRule#getDefaultSplitAttributes()} and
+     * {@link SplitRule#checkParentMetrics(WindowMetrics)} will be passed to
+     * {@link SplitAttributesCalculatorParams} as
+     * {@link SplitAttributesCalculatorParams#getDefaultSplitAttributes()} and
+     * {@link SplitAttributesCalculatorParams#areDefaultConstraintsSatisfied()} instead, and the
+     * function will be invoked for every device and window state change regardless of the size
+     * constraints. Users can determine to follow the {@link SplitRule} behavior or customize
+     * the {@link SplitAttributes} with the {@link SplitAttributes} calculator function.
      *
      * @param calculator the callback to set. It will replace the previously set callback if it
      *                  exists.
-     * since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void setSplitAttributesCalculator(
             @NonNull Function<SplitAttributesCalculatorParams, SplitAttributes> calculator);
@@ -100,7 +121,7 @@ public interface ActivityEmbeddingComponent {
      * Clears the previously callback set in {@link #setSplitAttributesCalculator(Function)}.
      *
      * @see #setSplitAttributesCalculator(Function)
-     * since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitAttributesCalculator();
 }

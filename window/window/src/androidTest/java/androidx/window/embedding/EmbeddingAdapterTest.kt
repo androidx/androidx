@@ -19,15 +19,14 @@ package androidx.window.embedding
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import android.app.Activity
 import android.graphics.Color
 import androidx.window.WindowTestUtils
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
-import androidx.window.extensions.embedding.SplitAttributes.SplitType.ExpandContainersSplitType
-import androidx.window.extensions.embedding.SplitAttributes.SplitType.HingeSplitType
-import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -49,22 +48,11 @@ class EmbeddingAdapterTest {
     fun testTranslateSplitInfoWithDefaultAttrs() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
-        val mockPrimaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSecondaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSplitAttributes = mock<OEMSplitAttributes>().apply {
-            whenever(splitType).thenReturn(RatioSplitType.splitEqually())
-        }
-        val oemSplitInfo = mock<OEMSplitInfo>().apply {
-            whenever(primaryActivityStack).thenReturn(mockPrimaryActivityStack)
-            whenever(secondaryActivityStack).thenReturn(mockSecondaryActivityStack)
-            whenever(splitAttributes).thenReturn(mockSplitAttributes)
-        }
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(ArrayList(), true),
+            createTestOEMActivityStack(ArrayList(), true),
+            OEMSplitAttributes.Builder().build(),
+        )
         val expectedSplitInfo = SplitInfo(
             ActivityStack(ArrayList(), isEmpty = true),
             ActivityStack(ArrayList(), isEmpty = true),
@@ -81,22 +69,13 @@ class EmbeddingAdapterTest {
     fun testTranslateSplitInfoWithExpandingContainers() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
-        val mockPrimaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSecondaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSplitAttributes = mock<OEMSplitAttributes>().apply {
-            whenever(splitType).thenReturn(ExpandContainersSplitType())
-        }
-        val oemSplitInfo = mock<OEMSplitInfo>().apply {
-            whenever(primaryActivityStack).thenReturn(mockPrimaryActivityStack)
-            whenever(secondaryActivityStack).thenReturn(mockSecondaryActivityStack)
-            whenever(splitAttributes).thenReturn(mockSplitAttributes)
-        }
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(ArrayList(), true),
+            createTestOEMActivityStack(ArrayList(), true),
+            OEMSplitAttributes.Builder()
+                .setSplitType(OEMSplitAttributes.SplitType.ExpandContainersSplitType())
+                .build(),
+        )
         val expectedSplitInfo = SplitInfo(
             ActivityStack(ArrayList(), isEmpty = true),
             ActivityStack(ArrayList(), isEmpty = true),
@@ -113,18 +92,11 @@ class EmbeddingAdapterTest {
     fun testTranslateSplitInfoWithApiLevel1() {
         WindowTestUtils.assumeBeforeVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
+        val activityStack = createTestOEMActivityStack(ArrayList(), true)
         val expectedSplitRatio = 0.3f
-        val mockPrimaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSecondaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
         val oemSplitInfo = mock<OEMSplitInfo>().apply {
-            whenever(primaryActivityStack).thenReturn(mockPrimaryActivityStack)
-            whenever(secondaryActivityStack).thenReturn(mockSecondaryActivityStack)
+            whenever(primaryActivityStack).thenReturn(activityStack)
+            whenever(secondaryActivityStack).thenReturn(activityStack)
             whenever(splitRatio).thenReturn(expectedSplitRatio)
         }
 
@@ -144,24 +116,18 @@ class EmbeddingAdapterTest {
     fun testTranslateSplitInfoWithApiLevel2() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
-        val mockPrimaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSecondaryActivityStack = mock<OEMActivityStack>().apply {
-            whenever(activities).thenReturn(emptyList())
-            whenever(isEmpty).thenReturn(true)
-        }
-        val mockSplitAttributes = mock<OEMSplitAttributes>().apply {
-            whenever(splitType).thenReturn(HingeSplitType(RatioSplitType(0.3f)))
-            whenever(layoutDirection).thenReturn(TOP_TO_BOTTOM)
-            whenever(animationBackgroundColor).thenReturn(Color.YELLOW)
-        }
-        val oemSplitInfo = mock<OEMSplitInfo>().apply {
-            whenever(primaryActivityStack).thenReturn(mockPrimaryActivityStack)
-            whenever(secondaryActivityStack).thenReturn(mockSecondaryActivityStack)
-            whenever(splitAttributes).thenReturn(mockSplitAttributes)
-        }
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(ArrayList(), true),
+            createTestOEMActivityStack(ArrayList(), true),
+            OEMSplitAttributes.Builder()
+                .setSplitType(
+                    OEMSplitAttributes.SplitType.HingeSplitType(
+                        OEMSplitAttributes.SplitType.RatioSplitType(0.3f)
+                    )
+                ).setLayoutDirection(TOP_TO_BOTTOM)
+                .setAnimationBackgroundColor(Color.YELLOW)
+                .build(),
+        )
         val expectedSplitInfo = SplitInfo(
             ActivityStack(ArrayList(), isEmpty = true),
             ActivityStack(ArrayList(), isEmpty = true),
@@ -172,5 +138,29 @@ class EmbeddingAdapterTest {
                 .build()
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    private fun createTestOEMSplitInfo(
+        testPrimaryActivityStack: OEMActivityStack,
+        testSecondaryActivityStack: OEMActivityStack,
+        testSplitAttributes: OEMSplitAttributes
+    ): OEMSplitInfo {
+        return mock<OEMSplitInfo>().apply {
+            whenever(primaryActivityStack).thenReturn(testPrimaryActivityStack)
+            whenever(secondaryActivityStack).thenReturn(testSecondaryActivityStack)
+            if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
+                whenever(splitAttributes).thenReturn(testSplitAttributes)
+            }
+        }
+    }
+
+    private fun createTestOEMActivityStack(
+        testActivities: List<Activity>,
+        testIsEmpty: Boolean
+    ): OEMActivityStack {
+        return mock<OEMActivityStack>().apply {
+            whenever(activities).thenReturn(testActivities)
+            whenever(isEmpty).thenReturn(testIsEmpty)
+        }
     }
 }

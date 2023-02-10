@@ -22,18 +22,29 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Description of a group of activities stacked on top of each other and shown as a single
  * container, all within the same task.
  */
 public class ActivityStack {
+
     @NonNull
     private final List<Activity> mActivities;
 
     private final boolean mIsEmpty;
 
+    /**
+     * The {@code ActivityStack} constructor
+     *
+     * @param activities {@link Activity Activities} in this application's process that
+     *                   belongs to this {@code ActivityStack}
+     * @param isEmpty Indicates whether there's any {@link Activity} running in this
+     *                {@code ActivityStack}
+     */
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
+        Objects.requireNonNull(activities);
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
     }
@@ -77,13 +88,15 @@ public class ActivityStack {
     @Override
     public int hashCode() {
         int result = (mIsEmpty ? 1 : 0);
-        return result * 31 + mActivities.hashCode();
+        result = result * 31 + mActivities.hashCode();
+        return result;
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ActivityStack{" + "mActivities=" + mActivities
-                + ", mIsEmpty=" + mIsEmpty + '}';
+                + ", mIsEmpty=" + mIsEmpty
+                + '}';
     }
 }

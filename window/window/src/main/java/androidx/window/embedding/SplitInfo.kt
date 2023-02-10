@@ -57,9 +57,10 @@ class SplitInfo internal constructor(
     override fun toString(): String {
         return buildString {
             append("SplitInfo:{")
-            append("primaryActivityStack=$primaryActivityStack,")
-            append("secondaryActivityStack=$secondaryActivityStack,")
-            append("splitAttributes=$splitAttributes}")
+            append("primaryActivityStack=$primaryActivityStack, ")
+            append("secondaryActivityStack=$secondaryActivityStack, ")
+            append("splitAttributes=$splitAttributes, ")
+            append("}")
         }
     }
 }
