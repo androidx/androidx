@@ -30,6 +30,22 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
     }
 
     /**
+     * Initializes evaluation.
+     *
+     * <p>See {@link BoundDynamicType#startEvaluation()}.
+     */
+    @Override
+    public void startEvaluation() {
+        mNodes.stream()
+                .filter(n -> n instanceof DynamicDataSourceNode)
+                .forEach(n -> ((DynamicDataSourceNode<?>) n).preInit());
+
+        mNodes.stream()
+                .filter(n -> n instanceof DynamicDataSourceNode)
+                .forEach(n -> ((DynamicDataSourceNode<?>) n).init());
+    }
+
+    /**
      * Sets visibility for all {@link AnimatableNode} in this dynamic type. For others, this is
      * no-op.
      */

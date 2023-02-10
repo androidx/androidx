@@ -21,10 +21,25 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 
 /**
- * An object representing a dynamic type that is being evaluated by {@link
+ * An object representing a dynamic type that is being prepared for evaluation by {@link
  * DynamicTypeEvaluator#bind}.
+ *
+ * <p>In order for evaluation and sending values to start, {@link #startEvaluation()} needs to be
+ * called.
+ *
+ * <p>To stop the evaluation, this object should be closed with {@link #close()}.
  */
 public interface BoundDynamicType extends AutoCloseable {
+    /**
+     * Starts evaluating this dynamic type that was previously bound with any of the {@link
+     * DynamicTypeEvaluator#bind} methods.
+     *
+     * <p>It's the callers responsibility to destroy those dynamic types after use, with {@link
+     * BoundDynamicType#close()}.
+     */
+    @UiThread
+    void startEvaluation();
+
     /**
      * Sets the visibility to all animations in this dynamic type. They can be triggered when
      * visible.

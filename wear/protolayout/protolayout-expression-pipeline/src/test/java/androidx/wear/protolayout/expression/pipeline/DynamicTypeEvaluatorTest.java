@@ -284,10 +284,8 @@ public class DynamicTypeEvaluatorTest {
             DynamicString bindUnderTest, String expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicStringProto().toString(),
-                (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, ULocale.getDefault(), cb);
-                    evaluator.processPendingBindings();
-                },
+                (evaluator, cb) ->
+                        evaluator.bind(bindUnderTest, ULocale.getDefault(), cb).startEvaluation(),
                 expectedValue);
     }
 
@@ -295,10 +293,7 @@ public class DynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest, Integer expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
-                (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, cb);
-                    evaluator.processPendingBindings();
-                },
+                (evaluator, cb) -> evaluator.bind(bindUnderTest, cb).startEvaluation(),
                 expectedValue);
     }
 
@@ -307,8 +302,7 @@ public class DynamicTypeEvaluatorTest {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInstantProto().toString(),
                 (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, cb);
-                    evaluator.processPendingBindings();
+                    evaluator.bind(bindUnderTest, cb).startEvaluation();
                 },
                 instant);
     }
@@ -317,10 +311,7 @@ public class DynamicTypeEvaluatorTest {
             DynamicFloat bindUnderTest, Float expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicFloatProto().toString(),
-                (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, cb);
-                    evaluator.processPendingBindings();
-                },
+                (evaluator, cb) -> evaluator.bind(bindUnderTest, cb).startEvaluation(),
                 expectedValue);
     }
 
@@ -328,10 +319,7 @@ public class DynamicTypeEvaluatorTest {
             DynamicBool bindUnderTest, Boolean expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicBoolProto().toString(),
-                (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, cb);
-                    evaluator.processPendingBindings();
-                },
+                (evaluator, cb) -> evaluator.bind(bindUnderTest, cb).startEvaluation(),
                 expectedValue);
     }
 
