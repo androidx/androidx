@@ -19,46 +19,6 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.health.connect.datatypes.ActiveCaloriesBurnedRecord as PlatformActiveCaloriesBurnedRecord
-import android.health.connect.datatypes.BasalBodyTemperatureRecord as PlatformBasalBodyTemperatureRecord
-import android.health.connect.datatypes.BasalMetabolicRateRecord as PlatformBasalMetabolicRateRecord
-import android.health.connect.datatypes.BloodGlucoseRecord as PlatformBloodGlucoseRecord
-import android.health.connect.datatypes.BloodPressureRecord as PlatformBloodPressureRecord
-import android.health.connect.datatypes.BodyFatRecord as PlatformBodyFatRecord
-import android.health.connect.datatypes.BodyTemperatureRecord as PlatformBodyTemperatureRecord
-import android.health.connect.datatypes.BodyWaterMassRecord as PlatformBodyWaterMassRecord
-import android.health.connect.datatypes.BoneMassRecord as PlatformBoneMassRecord
-import android.health.connect.datatypes.CervicalMucusRecord as PlatformCervicalMucusRecord
-import android.health.connect.datatypes.CyclingPedalingCadenceRecord as PlatformCyclingPedalingCadenceRecord
-import android.health.connect.datatypes.DistanceRecord as PlatformDistanceRecord
-import android.health.connect.datatypes.ElevationGainedRecord as PlatformElevationGainedRecord
-import android.health.connect.datatypes.ExerciseSessionRecord as PlatformExerciseSessionRecord
-import android.health.connect.datatypes.FloorsClimbedRecord as PlatformFloorsClimbedRecord
-import android.health.connect.datatypes.HeartRateRecord as PlatformHeartRateRecord
-import android.health.connect.datatypes.HeartRateVariabilityRmssdRecord as PlatformHeartRateVariabilityRmssdRecord
-import android.health.connect.datatypes.HeightRecord as PlatformHeightRecord
-import android.health.connect.datatypes.HydrationRecord as PlatformHydrationRecord
-import android.health.connect.datatypes.IntermenstrualBleedingRecord as PlatformIntermenstrualBleedingRecord
-import android.health.connect.datatypes.IntervalRecord as PlatformIntervalRecord
-import android.health.connect.datatypes.LeanBodyMassRecord as PlatformLeanBodyMassRecord
-import android.health.connect.datatypes.MenstruationFlowRecord as PlatformMenstruationFlowRecord
-import android.health.connect.datatypes.MenstruationPeriodRecord as PlatformMenstruationPeriodRecord
-import android.health.connect.datatypes.NutritionRecord as PlatformNutritionRecord
-import android.health.connect.datatypes.OvulationTestRecord as PlatformOvulationTestRecord
-import android.health.connect.datatypes.OxygenSaturationRecord as PlatformOxygenSaturationRecord
-import android.health.connect.datatypes.PowerRecord as PlatformPowerRecord
-import android.health.connect.datatypes.Record as PlatformRecord
-import android.health.connect.datatypes.RespiratoryRateRecord as PlatformRespiratoryRateRecord
-import android.health.connect.datatypes.RestingHeartRateRecord as PlatformRestingHeartRateRecord
-import android.health.connect.datatypes.SexualActivityRecord as PlatformSexualActivityRecord
-import android.health.connect.datatypes.SleepSessionRecord as PlatformSleepSessionRecord
-import android.health.connect.datatypes.SpeedRecord as PlatformSpeedRecord
-import android.health.connect.datatypes.StepsCadenceRecord as PlatformStepsCadenceRecord
-import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
-import android.health.connect.datatypes.TotalCaloriesBurnedRecord as PlatformTotalCaloriesBurnedRecord
-import android.health.connect.datatypes.Vo2MaxRecord as PlatformVo2MaxRecord
-import android.health.connect.datatypes.WeightRecord as PlatformWeightRecord
-import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -81,7 +41,6 @@ import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.IntermenstrualBleedingRecord
-import androidx.health.connect.client.records.IntervalRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.MenstruationPeriodRecord
@@ -126,7 +85,6 @@ internal val SDK_TO_PLATFORM_RECORD_CLASS: Map<KClass<out Record>, Class<out Pla
         HeightRecord::class to PlatformHeightRecord::class.java,
         HydrationRecord::class to PlatformHydrationRecord::class.java,
         IntermenstrualBleedingRecord::class to PlatformIntermenstrualBleedingRecord::class.java,
-        IntervalRecord::class to PlatformIntervalRecord::class.java,
         LeanBodyMassRecord::class to PlatformLeanBodyMassRecord::class.java,
         MenstruationFlowRecord::class to PlatformMenstruationFlowRecord::class.java,
         MenstruationPeriodRecord::class to PlatformMenstruationPeriodRecord::class.java,
