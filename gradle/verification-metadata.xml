@@ -65,6 +65,7 @@
          <trusted-key id="0f07d1201bddab67cfb84eb479752db6c966f0b8" group="com.google.android"/>
          <trusted-key id="10066a9707090cf9" group="org.javassist"/>
          <trusted-key id="10ae8966a146e8be" group="com.google.crypto.tink"/>
+         <trusted-key id="10f3c7a02eca55e502badcf3991efb94db91127d" group="org.ow2"/>
          <trusted-key id="1188b69f6d6259ca" group="com.google.accompanist"/>
          <trusted-key id="11b581967f079a30a3e93140d57506cd188fd842" group="com.google.api.grpc"/>
          <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382">
