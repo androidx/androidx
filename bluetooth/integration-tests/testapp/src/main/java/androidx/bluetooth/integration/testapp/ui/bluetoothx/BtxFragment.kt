@@ -17,13 +17,10 @@
 package androidx.bluetooth.integration.testapp.ui.bluetoothx
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
-import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -44,9 +41,6 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
 class BtxFragment : Fragment() {
@@ -120,32 +114,6 @@ class BtxFragment : Fragment() {
     private val scanScope = CoroutineScope(Dispatchers.Main + Job())
     private var scanJob: Job? = null
 
-    // Permissions are handled by MainActivity requestBluetoothPermissions
-    @SuppressLint("MissingPermission")
-    fun scan(settings: ScanSettings): Flow<ScanResult> = callbackFlow {
-        val callback = object : ScanCallback() {
-            override fun onScanResult(callbackType: Int, result: ScanResult) {
-                trySend(result)
-            }
-
-            override fun onScanFailed(errorCode: Int) {
-                Log.d(TAG, "onScanFailed() called with: errorCode = $errorCode")
-            }
-        }
-
-        val bluetoothManager =
-            context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-        val bluetoothAdapter = bluetoothManager?.adapter
-        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
-
-        bleScanner?.startScan(null, settings, callback)
-
-        awaitClose {
-            Log.d(TAG, "awaitClose() called")
-            bleScanner?.stopScan(callback)
-        }
-    }
-
     private fun startScan() {
         Log.d(TAG, "startScan() called")
 
@@ -159,7 +127,7 @@ class BtxFragment : Fragment() {
 
             binding.buttonScan.text = getString(R.string.stop_scanning)
 
-            scan(scanSettings)
+            bluetoothLe.scan(scanSettings)
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
