@@ -568,7 +568,6 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_singleReleaseCallback() {
         if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
             return // b/262909049: Do not run this test on pre-release Android U.
@@ -632,7 +631,6 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_multipleReleaseCallbacksAndOverwriteWithSingleSC() {
         if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
             return // b/262909049: Do not run this test on pre-release Android U.
