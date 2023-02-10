@@ -134,6 +134,12 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     /**
      * Opens an instance of encrypted SharedPreferences
      *
+     * <p>If the <code>masterKeyAlias</code> used here is for a key that is not yet created, this
+     * method will not be thread safe. Use the alternate signature that is not deprecated for
+     * multi-threaded contexts.
+     *
+     * @deprecated Use {@link #create(Context, String, MasterKey,
+     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
      * @param fileName                  The name of the file to open; can not contain path
      *                                  separators.
      * @param masterKeyAlias            The alias of the master key to use.
@@ -143,8 +149,6 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
      * @return The SharedPreferences instance that encrypts all data.
      * @throws GeneralSecurityException when a bad master key or keyset has been attempted
      * @throws IOException              when fileName can not be used
-     * @deprecated Use {@link #create(Context, String, MasterKey,
-     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
      */
     @Deprecated
     @NonNull
