@@ -150,8 +150,21 @@ package androidx.wear.protolayout {
     field public static final int SCREEN_SHAPE_UNDEFINED = 0; // 0x0
   }
 
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class DeviceParametersBuilders.Capabilities {
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public long getMinimumFreshnessLimitMillis();
+  }
+
+  public static final class DeviceParametersBuilders.Capabilities.Builder {
+    ctor public DeviceParametersBuilders.Capabilities.Builder();
+    method public androidx.wear.protolayout.DeviceParametersBuilders.Capabilities build();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder setMinimumFreshnessLimitMillis(long);
+  }
+
   public static final class DeviceParametersBuilders.DeviceParameters {
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.DeviceParametersBuilders.Capabilities? getCapabilities();
     method public int getDevicePlatform();
+    method @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) public float getFontScale();
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo getRendererSchemaVersion();
     method @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) public float getScreenDensity();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenHeightDp();
     method public int getScreenShape();
@@ -161,7 +174,10 @@ package androidx.wear.protolayout {
   public static final class DeviceParametersBuilders.DeviceParameters.Builder {
     ctor public DeviceParametersBuilders.DeviceParameters.Builder();
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters build();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setCapabilities(androidx.wear.protolayout.DeviceParametersBuilders.Capabilities);
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setDevicePlatform(int);
+    method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setFontScale(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
+    method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setRendererSchemaVersion(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo);
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setScreenDensity(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setScreenHeightDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setScreenShape(int);
