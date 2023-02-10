@@ -111,9 +111,6 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, float weight, optional boolean fill);
   }
 
-  public final class FlowLayoutKt {
-  }
-
   public final class IntrinsicKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier height(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.IntrinsicSize intrinsicSize);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeight(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.IntrinsicSize intrinsicSize);
@@ -164,9 +161,6 @@ package androidx.compose.foundation.layout {
     method public float calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public float calculateRightPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public float calculateTopPadding();
-  }
-
-  public final class RowColumnImplKt {
   }
 
   public final class RowKt {
@@ -220,9 +214,6 @@ package androidx.compose.foundation.layout {
   }
 
   public static final class WindowInsets.Companion {
-  }
-
-  public final class WindowInsetsConnection_androidKt {
   }
 
   public final class WindowInsetsKt {
@@ -304,13 +295,6 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getTappableElement(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getWaterfall(androidx.compose.foundation.layout.WindowInsets.Companion);
     method public static void setConsumeWindowInsets(androidx.compose.ui.platform.ComposeView, boolean);
-  }
-
-}
-
-package androidx.compose.foundation.layout.internal {
-
-  public final class JvmDefaultWithCompatibility_jvmKt {
   }
 
 }
