@@ -47,7 +47,11 @@ internal constructor(val packageName: String, val signatures: List<ByteArray>) {
         /** Set the packageName that will be part of the [AppVerificationInfo] */
         fun addSignature(signatures: List<ByteArray>) = apply { this.signatures = signatures }
 
-        /** Creates a new instance of [AppVerificationInfo] */
+        /**
+         * Creates a new instance of [AppVerificationInfo]
+         *
+         * @Throws IllegalArgumentException if packageName is null or signatures are empty.
+         */
         fun build(): AppVerificationInfo {
             if (packageName == null) {
                 throw IllegalArgumentException("App verification info packageName is missing.")
