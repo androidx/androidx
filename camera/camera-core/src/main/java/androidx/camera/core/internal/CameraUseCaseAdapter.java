@@ -90,7 +90,6 @@ public final class CameraUseCaseAdapter implements Camera {
     private final UseCaseConfigFactory mUseCaseConfigFactory;
 
     private static final String TAG = "CameraUseCaseAdapter";
-    private boolean mStreamSharingEnabled = false;
 
     private final CameraId mId;
 
@@ -279,7 +278,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 //  resolution. Throw exception here if (applyStreamSharing == false), both video
                 //  and preview are used and preview resolution is lower than user configuration.
             } catch (IllegalArgumentException exception) {
-                if (!applyStreamSharing && mStreamSharingEnabled && hasNoExtension()) {
+                if (!applyStreamSharing && hasNoExtension()) {
                     // Try again and see if StreamSharing resolves the issue.
                     updateUseCases(appUseCases, /*applyStreamSharing*/true);
                     return;
@@ -869,10 +868,5 @@ public final class CameraUseCaseAdapter implements Camera {
 
     private ImageCapture createExtraImageCapture() {
         return new ImageCapture.Builder().setTargetName("ImageCapture-Extra").build();
-    }
-
-    @VisibleForTesting
-    void setStreamSharingEnabled(boolean streamSharingEnabled) {
-        mStreamSharingEnabled = streamSharingEnabled;
     }
 }
