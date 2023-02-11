@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
  * the feature will be available forever on that AppSearch storage implementation, at that
  * Android API level, on that device.
  */
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/Features.java)
 public interface Features {
 
     /**
