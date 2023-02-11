@@ -22,17 +22,17 @@
     <string name="abc_slice_show_more" msgid="1112789899890391107">"Mostrar más"</string>
     <string name="abc_slice_updated" msgid="7932359091871934205">"Actualización: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
-      <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> min ago</item>
+      <item quantity="many">Hace <xliff:g id="ID_2">%d</xliff:g> min</item>
       <item quantity="other">Hace <xliff:g id="ID_2">%d</xliff:g> min</item>
       <item quantity="one">Hace <xliff:g id="ID_1">%d</xliff:g> min</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
-      <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> yr ago</item>
+      <item quantity="many">Hace <xliff:g id="ID_2">%d</xliff:g> años</item>
       <item quantity="other">Hace <xliff:g id="ID_2">%d</xliff:g> años</item>
       <item quantity="one">Hace <xliff:g id="ID_1">%d</xliff:g> año</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
-      <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> days ago</item>
+      <item quantity="many">Hace <xliff:g id="ID_2">%d</xliff:g> días</item>
       <item quantity="other">Hace <xliff:g id="ID_2">%d</xliff:g> días</item>
       <item quantity="one">Hace <xliff:g id="ID_1">%d</xliff:g> día</item>
     </plurals>
