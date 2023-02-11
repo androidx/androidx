@@ -115,7 +115,7 @@ public final class TestingUtils {
                 (finalArgs) -> {
                     future.set(finalArgs);
                     return Futures.immediateFuture(
-                            ConfirmationOutput.<ConfirmationT>getDefaultInstanceWithConfirmation());
+                            ConfirmationOutput.getDefaultInstance());
                 });
     }
 
