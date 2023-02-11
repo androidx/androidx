@@ -1286,9 +1286,11 @@ public final class SearchSpec {
          * TODO(b/259744228): add more documentation about the numeric search feature and when it
          *               needs to be enabled.
          */
+        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.NUMERIC_SEARCH)
+        // @exportToFramework:endStrip()
         @NonNull
         public Builder setNumericSearchEnabled(boolean enabled) {
             modifyEnabledFeature(Features.NUMERIC_SEARCH, enabled);
@@ -1304,9 +1306,11 @@ public final class SearchSpec {
          * TODO(b/204333391): add more documentation about the verbatim search feature and when
          *                it needs to be enabled.
          */
+        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.VERBATIM_SEARCH)
+        // @exportToFramework:endStrip()
         @NonNull
         public Builder setVerbatimSearchEnabled(boolean enabled) {
             modifyEnabledFeature(Features.VERBATIM_SEARCH, enabled);
@@ -1322,9 +1326,11 @@ public final class SearchSpec {
          * TODO(b/208654892): add more documentation about the list filter query language feature
          *               and when it needs to be enabled.
          */
+        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_QUERY_LANGUAGE)
+        // @exportToFramework:endStrip()
         @NonNull
         public Builder setListFilterQueryLanguageEnabled(boolean enabled) {
             modifyEnabledFeature(Features.LIST_FILTER_QUERY_LANGUAGE, enabled);
