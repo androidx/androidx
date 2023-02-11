@@ -327,6 +327,17 @@
   <string name="sign_in_complete_title">Sign in completed</string>
   <string name="sign_in_template_demo_title">Sign In Template Demo</string>
 
+  <!-- TabTemplateScreen -->
+  <string name="tab_template_layouts_demo_title">Tab Template Demos</string>
+  <string name="tab_template_demo_title">Tab Template Demo</string>
+  <string name="tab_title_message">Message Tab</string>
+  <string name="tab_title_pane">Pane Tab</string>
+  <string name="tab_title_list">List Tab</string>
+  <string name="tab_title_grid">Grid Tab with Long Tab Title</string>
+  <string name="tab_title_search">Search Tab</string>
+  <string name="tab_template_loading_demo_title">Tab Template Loading Demo</string>
+  <string name="tab_template_no_tabs_demo_title">Tab Template No Tabs Demo</string>
+
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
   <string name="icon_title_prefix">Icon</string>
