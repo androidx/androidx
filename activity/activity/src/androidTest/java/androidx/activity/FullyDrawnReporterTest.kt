@@ -92,12 +92,12 @@ class FullyDrawnReporterTest {
                     }
                 }
                 delay(1L)
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isFalse()
                 }
                 mutex.unlock()
                 delay(1L)
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isTrue()
                 }
             }
@@ -112,11 +112,11 @@ class FullyDrawnReporterTest {
             fullyDrawnReporter.addReporter()
             fullyDrawnReporter.removeReporter()
 
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReported).isFalse()
             }
             fullyDrawnReporter.removeReporter()
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReported).isTrue()
             }
         }
@@ -138,12 +138,12 @@ class FullyDrawnReporterTest {
                 delay(1L) // wait for launch
                 fullyDrawnReporter.removeReporter()
 
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isFalse()
                 }
                 mutex.unlock()
                 delay(1L) // allow launch to continue
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isTrue()
                 }
             }
@@ -166,12 +166,12 @@ class FullyDrawnReporterTest {
                 delay(1L) // wait for launch
                 mutex.unlock()
                 delay(1L) // allow launch to continue
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isFalse()
                 }
 
                 fullyDrawnReporter.removeReporter()
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isTrue()
                 }
             }
@@ -197,7 +197,7 @@ class FullyDrawnReporterTest {
             fullyDrawnReporter.addOnReportDrawnListener(reportListener2)
             fullyDrawnReporter.removeOnReportDrawnListener(reportListener2)
             fullyDrawnReporter.removeReporter()
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(report1).isTrue()
                 assertThat(report2).isFalse()
             }
@@ -223,13 +223,13 @@ class FullyDrawnReporterTest {
                 fullyDrawnReporter.removeReporter()
                 fullyDrawnReporter.addReporter()
             }
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReporter.isFullyDrawnReported).isFalse()
             }
             onActivity {
                 fullyDrawnReporter.removeReporter()
             }
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReporter.isFullyDrawnReported).isTrue()
             }
         }
@@ -254,35 +254,41 @@ class FullyDrawnReporterTest {
                 OneShotPreDrawListener.add(activity.window.decorView) {
                     fullyDrawnInOnPreDraw = fullyDrawnReporter.isFullyDrawnReported
                 }
-                val onDrawListener = OnDrawListener {
-                    fullyDrawnInOnDraw = fullyDrawnReporter.isFullyDrawnReported
+                val onDrawListener = object : OnDrawListener {
+                    override fun onDraw() {
+                        fullyDrawnInOnDraw = fullyDrawnReporter.isFullyDrawnReported
+                        activity.window.decorView.post {
+                            activity.window.decorView.viewTreeObserver.removeOnDrawListener(this)
+                        }
+                    }
                 }
                 activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
-                activity.window.decorView.post {
-                    activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
-                }
             }
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnInOnPreDraw).isFalse()
                 assertThat(fullyDrawnInOnDraw).isTrue()
             }
         }
     }
 
-    private fun ActivityScenario<FullyDrawnActivity>.waitForPostAnimation(
+    private fun ActivityScenario<FullyDrawnActivity>.waitForOnDrawComplete(
         block: FullyDrawnActivity.() -> Unit = {}
     ) {
         val countDownLatch = CountDownLatch(1)
+        val observer = OnDrawListener {
+            countDownLatch.countDown()
+        }
         withActivity {
             runOnUiThread {
-                window.decorView.postOnAnimation {
-                    countDownLatch.countDown()
-                }
+                window.decorView.viewTreeObserver.addOnDrawListener(observer)
                 window.decorView.invalidate()
             }
         }
         assertThat(countDownLatch.await(10, TimeUnit.SECONDS)).isTrue()
         withActivity {
+            runOnUiThread {
+                window.decorView.viewTreeObserver.removeOnDrawListener(observer)
+            }
             block()
         }
     }
