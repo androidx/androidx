@@ -67,7 +67,7 @@
     <string name="parked_toast_msg" msgid="2532422265890824446">"\"Aparkatutakoak\" ekintza"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"\"Gehiago\" sakatuta dago"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"Eguneroko joan-etorrien botoia sakatuta dago"</string>
-    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Eman kokapena atzitzeko baimena oraingo kokapena ikusteko"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Eman kokapena erabiltzeko baimena oraingo kokapena ikusteko"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Hemen hasten da Google-ko kontuarekin saioa hasteko prozesua"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Hautapena indizera aldatu da"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"\"Bai\" botoia sakatu da"</string>
@@ -327,9 +327,9 @@
     <string name="perm_group" msgid="3834918337351876270">"Baimenen taldea"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase aplikazioaren baimenen taldea"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Kokapen zehatzerako sarbidea"</string>
-    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Kokapen zehatza atzitzeko baimena"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Kokapen zehatza erabiltzeko baimena"</string>
     <string name="perm_coarse_location" msgid="6140337431619481015">"Gutxi gorabeherako kokapenerako sarbidea"</string>
-    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Gutxi gorabeherako kokapena atzitzeko baimena"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Gutxi gorabeherako kokapena erabiltzeko baimena"</string>
     <string name="perm_record_audio" msgid="2758340693260523493">"Audioa grabatzeko sarbidea"</string>
     <string name="perm_record_audio_desc" msgid="8038648467605928912">"Audioa grabatzeko baimena"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Baliabide-bektore tonuduna"</string>
