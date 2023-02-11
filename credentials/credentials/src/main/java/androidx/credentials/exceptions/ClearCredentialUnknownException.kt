@@ -28,6 +28,6 @@ class ClearCredentialUnknownException @JvmOverloads constructor(
     /** @hide */
     companion object {
         internal const val TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION =
-            "androidx.credentials.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION"
+            "android.credentials.ClearCredentialStateException.TYPE_UNKNOWN"
     }
 }
