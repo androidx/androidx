@@ -18,6 +18,7 @@ package androidx.camera.core.internal;
 
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
@@ -536,17 +537,14 @@ public final class CameraUseCaseAdapter implements Camera {
     @VisibleForTesting
     static void updateEffects(@NonNull List<CameraEffect> effects,
             @NonNull Collection<UseCase> useCases) {
-        Map<Integer, CameraEffect> effectsByTargets = new HashMap<>();
-        for (CameraEffect effect : effects) {
-            effectsByTargets.put(effect.getTargets(), effect);
-        }
-
-        // Set effects on the UseCases. This also removes existing effects if necessary.
         for (UseCase useCase : useCases) {
-            if (useCase instanceof Preview) {
-                useCase.setEffect(effectsByTargets.get(CameraEffect.PREVIEW));
-            } else if (useCase instanceof ImageCapture) {
-                useCase.setEffect(effectsByTargets.get(CameraEffect.IMAGE_CAPTURE));
+            useCase.setEffect(null);
+            for (CameraEffect effect : effects) {
+                if (useCase.getSupportedEffectTargets().contains(effect.getTargets())) {
+                    checkState(useCase.getEffect() == null,
+                            useCase + " already has effect " + effect);
+                    useCase.setEffect(effect);
+                }
             }
         }
     }

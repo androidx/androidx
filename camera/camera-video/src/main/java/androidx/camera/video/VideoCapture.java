@@ -1102,6 +1102,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
+     * @inheritDoc
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedEffectTargets() {
+        Set<Integer> targets = new HashSet<>();
+        targets.add(VIDEO_CAPTURE);
+        return targets;
+    }
+
+    /**
      * Builder for a {@link VideoCapture}.
      *
      * @param <T> the type of VideoOutput

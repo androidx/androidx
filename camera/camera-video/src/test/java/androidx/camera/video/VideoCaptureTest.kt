@@ -146,7 +146,8 @@ class VideoCaptureTest {
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Arrange.
         setupCamera()
-        val videoCapture = createVideoCapture(createVideoOutput(), effect = createFakeEffect())
+        val videoCapture = createVideoCapture(createVideoOutput())
+        videoCapture.effect = createFakeEffect()
         // Act: set no transform and create pipeline.
         videoCapture.hasCameraTransform = false
         videoCapture.bindToCamera(camera, null, null)
@@ -163,7 +164,8 @@ class VideoCaptureTest {
         // Arrange.
         setupCamera()
         createCameraUseCaseAdapter()
-        val videoCapture = createVideoCapture(createVideoOutput(), effect = createFakeEffect())
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
+        val videoCapture = createVideoCapture(createVideoOutput())
         // Act.
         addAndAttachUseCases(videoCapture)
         // Assert.
@@ -231,8 +233,8 @@ class VideoCaptureTest {
         // Arrange: create videoCapture with processing.
         setupCamera()
         createCameraUseCaseAdapter()
-        val videoCapture =
-            createVideoCapture(createVideoOutput(), effect = createFakeEffect())
+        val videoCapture = createVideoCapture(createVideoOutput())
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
         addAndAttachUseCases(videoCapture)
         // Act: invalidate.
         videoCapture.surfaceRequest.invalidate()
@@ -247,8 +249,9 @@ class VideoCaptureTest {
         setupCamera()
         createCameraUseCaseAdapter()
         val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
-        val effect = createFakeEffect(processor = processor)
-        val videoCapture = createVideoCapture(createVideoOutput(), effect = effect)
+        val effect = createFakeEffect(processor)
+        val videoCapture = createVideoCapture(createVideoOutput())
+        cameraUseCaseAdapter.setEffects(listOf(effect))
         addAndAttachUseCases(videoCapture)
         // Act: invalidate.
         processor.surfaceRequest!!.invalidate()
@@ -276,8 +279,8 @@ class VideoCaptureTest {
         // Arrange: create Preview with processing then detach.
         setupCamera()
         createCameraUseCaseAdapter()
-        val videoCapture =
-            createVideoCapture(createVideoOutput(), effect = createFakeEffect())
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
+        val videoCapture = createVideoCapture(createVideoOutput())
         addAndAttachUseCases(videoCapture)
         val surfaceRequest = videoCapture.surfaceRequest
         detachAndRemoveUseCases(videoCapture)
@@ -313,8 +316,9 @@ class VideoCaptureTest {
                 surfaceRequestListener = { request, _ ->
                     surfaceRequest = request
                 })
-            val videoCapture = createVideoCapture(videoOutput, effect = effect)
+            val videoCapture = createVideoCapture(videoOutput)
             videoCapture.targetRotation = targetRotation
+            effect?.apply { cameraUseCaseAdapter.setEffects(listOf(this)) }
 
             // Act.
             addAndAttachUseCases(videoCapture)
@@ -375,7 +379,8 @@ class VideoCaptureTest {
         val videoOutput = createVideoOutput(surfaceRequestListener = { _, tb ->
             timebase = tb
         })
-        val videoCapture = createVideoCapture(videoOutput, effect = effect)
+        effect?.apply { cameraUseCaseAdapter.setEffects(listOf(this)) }
+        val videoCapture = createVideoCapture(videoOutput)
 
         // Act.
         addAndAttachUseCases(videoCapture)
@@ -561,10 +566,10 @@ class VideoCaptureTest {
         val videoOutput = createVideoOutput()
         val videoCapture = createVideoCapture(
             videoOutput,
-            effect = createFakeEffect(),
             videoEncoderInfoFinder = {
                 createVideoEncoderInfo(widthAlignment = 16, heightAlignment = 16)
             })
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
 
         // Act.
         addAndAttachUseCases(videoCapture)
@@ -764,8 +769,10 @@ class VideoCaptureTest {
                 appSurfaceReadyToRelease = true
             }
         })
-        val effect = createFakeEffect(processor = processor)
-        val videoCapture = createVideoCapture(videoOutput, effect = effect)
+
+        val effect = createFakeEffect(processor)
+        cameraUseCaseAdapter.setEffects(listOf(effect))
+        val videoCapture = createVideoCapture(videoOutput)
 
         // Act: bind and provide Surface.
         addAndAttachUseCases(videoCapture)
@@ -899,9 +906,9 @@ class VideoCaptureTest {
         )
         val videoCapture = createVideoCapture(
             videoOutput,
-            effect = createFakeEffect(),
             videoEncoderInfoFinder = { videoEncoderInfo }
         )
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
         videoCapture.setViewPortCropRect(cropRect)
 
         // Act.
@@ -998,7 +1005,6 @@ class VideoCaptureTest {
         hasCameraTransform: Boolean = true,
         targetRotation: Int? = null,
         targetResolution: Size? = null,
-        effect: CameraEffect? = null,
         videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo> =
             Function { createVideoEncoderInfo() },
     ): VideoCapture<VideoOutput> = VideoCapture.Builder(videoOutput)
@@ -1008,7 +1014,6 @@ class VideoCaptureTest {
             targetResolution?.let { setTargetResolution(it) }
             setVideoEncoderInfoFinder(videoEncoderInfoFinder)
         }.build().apply {
-            setEffect(effect)
             setHasCameraTransform(hasCameraTransform)
         }
 
@@ -1018,6 +1023,7 @@ class VideoCaptureTest {
         )
     ) =
         FakeSurfaceEffect(
+            VIDEO_CAPTURE,
             processor
         )
 
