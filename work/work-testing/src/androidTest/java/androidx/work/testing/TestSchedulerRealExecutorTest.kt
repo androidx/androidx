@@ -29,8 +29,10 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
+import androidx.work.WorkInfo.State.ENQUEUED
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.testing.workers.CountingTestWorker
 import androidx.work.testing.workers.RetryWorker
 import androidx.work.testing.workers.TestWorker
@@ -81,13 +83,14 @@ class TestSchedulerRealExecutorTest {
         // TODO: specifically removing deduplication for periodic workers
         // so runs aren't dedupped. We need periodicity data in workinfo
         val workInfo = wm.workDatabase.workSpecDao().getWorkStatusPojoLiveDataForIds(
-            listOf("${request.id}"))
+            listOf("${request.id}")
+        )
         var expectedCounter = 1
         val maxCount = 5
         handler.post {
             workInfo.observeForever {
                 val info = it.first()
-                val isEnqueued = info.state == WorkInfo.State.ENQUEUED
+                val isEnqueued = info.state == ENQUEUED
                 val counter = CountingTestWorker.COUNT.get()
                 if (isEnqueued && counter == maxCount) {
                     periodicLatch.countDown()
@@ -160,6 +163,30 @@ class TestSchedulerRealExecutorTest {
     }
 
     @Test
+    fun testSetAllConstraintsDontTriggerSecondRun() {
+        val request = PeriodicWorkRequestBuilder<CountingTestWorker>(10, TimeUnit.DAYS)
+            .setConstraints(Constraints(requiresCharging = true)).build()
+        wm.enqueue(request).result.get()
+        val latch = CountDownLatch(1)
+        wm.workTaskExecutor.serialTaskExecutor.execute {
+            latch.await()
+        }
+        // double call to setAllConstraint. It shouldn't lead to double execution of worker.
+        // It should run once, but second time it shouldn't run because "setPeriodDelayMet" wasn't
+        // called.
+        driver.setAllConstraintsMet(request.id)
+        driver.setAllConstraintsMet(request.id)
+        latch.countDown()
+        awaitCondition(request.id) {
+            it.state == ENQUEUED && CountingTestWorker.COUNT.get() > 0
+        }
+
+        drainSerialExecutor()
+        assertThat(wm.getWorkInfoById(request.id).get().state).isEqualTo(ENQUEUED)
+        assertThat(CountingTestWorker.COUNT.get()).isEqualTo(1)
+    }
+
+    @Test
     fun testOneTimeWorkerRetry() {
         val request = OneTimeWorkRequest.from(RetryWorker::class.java)
         wm.enqueue(request).result.get()
@@ -176,11 +203,11 @@ class TestSchedulerRealExecutorTest {
     private fun awaitSuccess(id: UUID) = awaitCondition(id) { it.state == WorkInfo.State.SUCCEEDED }
 
     private fun awaitPeriodicRunOnce(id: UUID) = awaitCondition(id) {
-        it.state == WorkInfo.State.ENQUEUED && CountingTestWorker.COUNT.get() == 1
+        it.state == ENQUEUED && CountingTestWorker.COUNT.get() == 1
     }
 
     private fun awaitReenqueuedAfterRetry(id: UUID) = awaitCondition(id) {
-        it.state == WorkInfo.State.ENQUEUED && it.runAttemptCount == 1
+        it.state == ENQUEUED && it.runAttemptCount == 1
     }
 
     private fun awaitCondition(id: UUID, predicate: (WorkSpec.WorkInfoPojo) -> Boolean) {
@@ -197,5 +224,23 @@ class TestSchedulerRealExecutorTest {
             }
         }
         assertThat(latch.await(10, TimeUnit.SECONDS)).isTrue()
+    }
+
+    private fun drainSerialExecutor() {
+        val latch = CountDownLatch(1)
+
+        class DrainTask(val executor: SerialExecutor) : Runnable {
+            override fun run() {
+                if (executor.hasPendingTasks()) {
+                    executor.execute(this)
+                } else {
+                    latch.countDown()
+                }
+            }
+        }
+
+        val executor = wm.workTaskExecutor.serialTaskExecutor
+        executor.execute(DrainTask(executor))
+        latch.await()
     }
 }
