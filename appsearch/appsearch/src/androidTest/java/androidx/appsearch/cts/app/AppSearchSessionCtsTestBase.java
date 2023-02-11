@@ -1518,6 +1518,128 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQueryIndexableLongProperty_numericSearchEnabledSucceeds() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
+
+        // Schema registration
+        AppSearchSchema transactionSchema = new AppSearchSchema.Builder("transaction")
+                .addProperty(new LongPropertyConfig.Builder("price")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                        .build()
+                ).addProperty(new LongPropertyConfig.Builder("cost")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(transactionSchema).build()).get();
+
+        // Index some documents
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "transaction")
+                        .setPropertyLong("price", 10)
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        GenericDocument doc2 =
+                new GenericDocument.Builder<>("namespace", "id2", "transaction")
+                        .setPropertyLong("price", 25)
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        GenericDocument doc3 =
+                new GenericDocument.Builder<>("namespace", "id3", "transaction")
+                        .setPropertyLong("cost", 2)
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2, doc3).build()));
+
+        // Query for the document
+        SearchResults searchResults = mDb1.search("price < 20",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0)).isEqualTo(doc1);
+
+        searchResults = mDb1.search("price == 25",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0)).isEqualTo(doc2);
+
+        searchResults = mDb1.search("cost > 2",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
+
+        searchResults = mDb1.search("cost >= 2",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0)).isEqualTo(doc3);
+
+        searchResults = mDb1.search("price <= 25",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents.get(0)).isEqualTo(doc2);
+        assertThat(documents.get(1)).isEqualTo(doc1);
+    }
+
+    @Test
+    public void testQueryIndexableLongProperty_numericSearchNotEnabled() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
+
+        // Schema registration
+        AppSearchSchema transactionSchema = new AppSearchSchema.Builder("transaction")
+                .addProperty(new LongPropertyConfig.Builder("price")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(transactionSchema).build()).get();
+
+        // Index some documents
+        GenericDocument doc =
+                new GenericDocument.Builder<>("namespace", "id1", "transaction")
+                        .setPropertyLong("price", 10)
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+
+        // TODO(b/208654892); Remove setListFilterQueryLanguageEnabled once advanced query is fully
+        //  supported.
+        // Query for the document
+        // Use advanced query but disable NUMERIC_SEARCH in the SearchSpec.
+        SearchResults searchResults = mDb1.search("price < 20",
+                new SearchSpec.Builder()
+                        .setListFilterQueryLanguageEnabled(true)
+                        .setNumericSearchEnabled(false)
+                        .build());
+
+        Throwable failResult = assertThrows(
+                ExecutionException.class,
+                () -> searchResults.getNextPageAsync().get()).getCause();
+        assertThat(failResult).isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) failResult;
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().contains("Attempted use of unenabled feature");
+        assertThat(exception).hasMessageThat().contains(Features.NUMERIC_SEARCH);
+    }
+
+    @Test
     public void testQuery_relevanceScoring() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(
