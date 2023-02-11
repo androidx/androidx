@@ -29,8 +29,8 @@ import androidx.appactions.interaction.capabilities.core.values.executionstatus.
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.protobuf.Struct
-import com.google.protobuf.Value
+import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 import java.util.Optional
 
 /** StopSafetyCheck.kt in interaction-capabilities-safety */

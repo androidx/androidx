@@ -22,9 +22,8 @@ import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentParam;
 import androidx.appactions.interaction.proto.ParamValue;
-
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
+import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Value;
 
 import java.util.ArrayList;
 import java.util.Collections;
