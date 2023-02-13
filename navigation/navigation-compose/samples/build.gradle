@@ -30,6 +30,7 @@ dependencies {
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
     implementation("androidx.compose.foundation:foundation:1.0.1")
+    implementation projectOrArtifact(":compose:ui:ui-tooling")
     implementation(projectOrArtifact(":navigation:navigation-compose"))
     implementation("androidx.compose.material:material:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
