@@ -37,6 +37,7 @@ import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -47,6 +48,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -187,14 +189,14 @@ class SupportedQualitiesVerificationTest(
     fun qualityOptionCanRecordVideo_enableSurfaceProcessor() {
         assumeSuccessfulSurfaceProcessing()
 
-        testQualityOptionRecordVideo(surfaceProcessor = createSurfaceProcessor())
+        testQualityOptionRecordVideo(effect = createEffect())
     }
 
-    private fun testQualityOptionRecordVideo(surfaceProcessor: SurfaceProcessorInternal? = null) {
+    private fun testQualityOptionRecordVideo(effect: CameraEffect? = null) {
         // Arrange.
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.withOutput(recorder)
-        videoCapture.setProcessor(surfaceProcessor)
+        videoCapture.effect = effect
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val latchForRecordingStatus = CountDownLatch(5)
         val latchForRecordingFinalized = CountDownLatch(1)
@@ -239,8 +241,13 @@ class SupportedQualitiesVerificationTest(
         file.delete()
     }
 
-    private fun createSurfaceProcessor(): SurfaceProcessorInternal =
-        DefaultSurfaceProcessor.Factory.newInstance().apply { surfaceProcessorsToRelease.add(this) }
+    private fun createEffect(): CameraEffect {
+        val fakeSurfaceProcessor = DefaultSurfaceProcessor.Factory.newInstance()
+        surfaceProcessorsToRelease.add(fakeSurfaceProcessor)
+        return FakeSurfaceEffect(
+            fakeSurfaceProcessor
+        )
+    }
 
     /** Skips tests which will enable surface processing and encounter device specific issues. */
     private fun assumeSuccessfulSurfaceProcessing() {
