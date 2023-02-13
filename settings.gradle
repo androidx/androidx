@@ -1030,7 +1030,7 @@ File samplesRoot = new File(rootDir, "samples")
 // Note: don't add new samples/ apps. Instead, Create
 // <module>/integration-tests/testapp in the "Libraries" section above.
 includeProject(":androidx-demos", new File(samplesRoot, "AndroidXDemos"), [BuildType.MAIN])
-includeProject(":media-routing-demo", new File(samplesRoot, "MediaRoutingDemo"), [BuildType.MAIN])
+includeProject(":media-routing-demo", new File(samplesRoot, "MediaRoutingDemo"), [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"), [BuildType.MAIN])
 includeProject(":support-content-demos", new File(samplesRoot, "SupportContentDemos"), [BuildType.MAIN])
 includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"), [BuildType.MAIN])
