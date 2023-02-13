@@ -30,6 +30,7 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.HealthConnectClientImpl
+import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -367,7 +368,10 @@ interface HealthConnectClient {
          */
         @get:JvmName("getHealthConnectSettingsAction")
         @JvmStatic
-        val ACTION_HEALTH_CONNECT_SETTINGS = "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+        val ACTION_HEALTH_CONNECT_SETTINGS =
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+            else "android.health.connect.action.HEALTH_HOME_SETTINGS"
 
         /**
          * The Health Connect SDK is not unavailable on this device at the time. This can be due to
@@ -459,6 +463,9 @@ interface HealthConnectClient {
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Boolean {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return true
+            }
             @Suppress("Deprecation")
             if (!isApiSupported()) {
                 return false
@@ -491,6 +498,10 @@ interface HealthConnectClient {
             @Suppress("Deprecation")
             if (!isProviderAvailable(context, providerPackageName)) {
                 throw IllegalStateException("Service not available")
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return HealthConnectClientUpsideDownImpl(context)
             }
             return HealthConnectClientImpl(
                 HealthDataService.getClient(context, providerPackageName)

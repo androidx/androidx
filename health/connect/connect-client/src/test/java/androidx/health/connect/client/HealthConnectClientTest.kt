@@ -21,6 +21,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Build
+import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.platform.client.HealthDataService
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -97,15 +98,14 @@ class HealthConnectClientTest {
             context,
             HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
             versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE - 1,
-            enabled = true)
+            enabled = true
+        )
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
         assertThat(HealthConnectClient.isProviderAvailable(context)).isFalse()
         assertThat(HealthConnectClient.sdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
-        assertThrows(IllegalStateException::class.java) {
-            HealthConnectClient.getOrCreate(context)
-        }
+        assertThrows(IllegalStateException::class.java) { HealthConnectClient.getOrCreate(context) }
     }
 
     @Test
@@ -116,14 +116,20 @@ class HealthConnectClientTest {
             context,
             HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
             versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
-            enabled = true)
+            enabled = true
+        )
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
         assertThat(HealthConnectClient.isProviderAvailable(context)).isTrue()
-        assertThat(HealthConnectClient.sdkStatus(
-            context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME))
+        assertThat(
+                HealthConnectClient.sdkStatus(
+                    context,
+                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+                )
+            )
             .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
-        HealthConnectClient.getOrCreate(context)
+        assertThat(HealthConnectClient.getOrCreate(context))
+            .isInstanceOf(HealthConnectClientImpl::class.java)
     }
 
     @Test
