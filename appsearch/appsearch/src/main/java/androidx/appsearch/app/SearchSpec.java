@@ -452,9 +452,6 @@ public final class SearchSpec {
 
     /**
      * Returns whether the {@link Features#NUMERIC_SEARCH} feature is enabled.
-     *
-     * TODO(b/259744228): add more documentation about the numeric search feature and when it
-     * needs to be enabled.
      */
     public boolean isNumericSearchEnabled() {
         return getEnabledFeatures().contains(Features.NUMERIC_SEARCH);
@@ -462,9 +459,6 @@ public final class SearchSpec {
 
     /**
      * Returns whether the {@link Features#VERBATIM_SEARCH} feature is enabled.
-     *
-     * TODO(b/204333391): add more documentation about the verbatim search feature and when it
-     * needs to be enabled.
      */
     public boolean isVerbatimSearchEnabled() {
         return getEnabledFeatures().contains(Features.VERBATIM_SEARCH);
@@ -472,9 +466,6 @@ public final class SearchSpec {
 
     /**
      * Returns whether the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature is enabled.
-     *
-     * TODO(b/208654892): add more documentation about the list filter query language feature and
-     * when it needs to be enabled.
      */
     public boolean isListFilterQueryLanguageEnabled() {
         return getEnabledFeatures().contains(Features.LIST_FILTER_QUERY_LANGUAGE);
@@ -1283,8 +1274,9 @@ public final class SearchSpec {
          *
          * @param enabled Enables the feature if true, otherwise disables it.
          *
-         * TODO(b/259744228): add more documentation about the numeric search feature and when it
-         *               needs to be enabled.
+         * <p>If disabled, disallows use of
+         * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric
+         * querying features.
          */
         // @exportToFramework:startStrip()
         @RequiresFeature(
@@ -1303,8 +1295,13 @@ public final class SearchSpec {
          *
          * @param enabled Enables the feature if true, otherwise disables it
          *
-         * TODO(b/204333391): add more documentation about the verbatim search feature and when
-         *                it needs to be enabled.
+         * <p>If disabled, disallows use of
+         * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_VERBATIM} and all other
+         * verbatim search features within the query language that allows clients to search
+         * using the verbatim string operator.
+         *
+         * <p>Ex. The verbatim string operator '"foo/bar" OR baz' will ensure that 'foo/bar' is
+         * treated as a single 'verbatim' token.
          */
         // @exportToFramework:startStrip()
         @RequiresFeature(
@@ -1323,8 +1320,28 @@ public final class SearchSpec {
          *
          * @param enabled Enables the feature if true, otherwise disables it.
          *
-         * TODO(b/208654892): add more documentation about the list filter query language feature
-         *               and when it needs to be enabled.
+         * This feature covers the expansion of the query language to conform to the definition
+         * of the list filters language (https://aip.dev/160). This includes:
+         * <ul>
+         * <li>addition of explicit 'AND' and 'NOT' operators</li>
+         * <li>property restricts are allowed with grouping (ex. "prop:(a OR b)")</li>
+         * <li>addition of custom functions to control matching</li>
+         * </ul>
+         *
+         * <p>The newly added custom functions covered by this feature are:
+         * <ul>
+         * <li>createList(String...)</li>
+         * <li>termSearch(String, List<String>)</li>
+         * </ul>
+         *
+         * <p>createList takes a variable number of strings and returns a list of strings.
+         * It is for use with termSearch.
+         *
+         * <p>termSearch takes a query string that will be parsed according to the supported
+         * query language and an optional list of strings that specify the properties to be
+         * restricted to. This exists as a convenience for multiple property restricts. So,
+         * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
+         * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
          */
         // @exportToFramework:startStrip()
         @RequiresFeature(
