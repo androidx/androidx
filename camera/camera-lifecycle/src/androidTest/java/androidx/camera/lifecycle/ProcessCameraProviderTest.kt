@@ -30,14 +30,13 @@ import androidx.camera.core.concurrent.ConcurrentCameraConfig
 import androidx.camera.core.concurrent.SingleCameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakePreviewEffect
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
@@ -81,7 +80,10 @@ class ProcessCameraProviderTest {
         // Arrange.
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         val surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
-        val effect = FakePreviewEffect(mainThreadExecutor(), surfaceProcessor)
+        val effect = FakeSurfaceEffect(
+            mainThreadExecutor(),
+            surfaceProcessor
+        )
         val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
         val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview).addEffect(effect).build()
 
@@ -94,8 +96,7 @@ class ProcessCameraProviderTest {
             )
 
             // Assert.
-            val useCaseProcessor = (preview.processor as SurfaceProcessorWithExecutor).processor
-            assertThat(useCaseProcessor).isEqualTo(surfaceProcessor)
+            assertThat(preview.effect).isEqualTo(effect)
         }
     }
 

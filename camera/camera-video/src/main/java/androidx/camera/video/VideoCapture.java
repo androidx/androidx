@@ -101,7 +101,6 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SurfaceEdge;
-import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
@@ -193,8 +192,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private SurfaceRequest mSurfaceRequest;
     @SuppressWarnings("WeakerAccess") // Synthetic access
     VideoOutput.SourceState mSourceState = VideoOutput.SourceState.INACTIVE;
-    @Nullable
-    private SurfaceProcessorInternal mSurfaceProcessor;
     @Nullable
     private SurfaceProcessorNode mNode;
     @Nullable
@@ -308,21 +305,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);
         sendTransformationInfoIfReady();
-    }
-
-    /**
-     * Sets a {@link SurfaceProcessorInternal}.
-     *
-     * <p>The processor is used to setup post-processing pipeline.
-     *
-     * <p>Note: the value will only be used when VideoCapture is bound. Calling this method after
-     * VideoCapture is bound takes no effect until VideoCapture is rebound.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setProcessor(@Nullable SurfaceProcessorInternal surfaceProcessor) {
-        mSurfaceProcessor = surfaceProcessor;
     }
 
     /**
@@ -719,10 +701,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @Nullable
     private SurfaceProcessorNode createNodeIfNeeded(boolean isCropNeeded) {
-        if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded) {
+        if (getEffect() != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
-                    mSurfaceProcessor != null ? mSurfaceProcessor :
+                    getEffect() != null ? getEffect().createSurfaceProcessorInternal() :
                             DefaultSurfaceProcessor.Factory.newInstance());
         }
         return null;

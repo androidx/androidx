@@ -17,11 +17,15 @@ package androidx.camera.core;
 
 import static androidx.core.util.Preconditions.checkArgument;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -194,5 +198,22 @@ public abstract class CameraEffect {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ImageProcessor getImageProcessor() {
         return mImageProcessor;
+    }
+
+    // --- Internal methods ---
+
+    /**
+     * Creates a {@link SurfaceProcessorInternal} instance.
+     *
+     * <p>Throws {@link IllegalArgumentException} if the effect does not contain a
+     * {@link SurfaceProcessor}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public SurfaceProcessorInternal createSurfaceProcessorInternal() {
+        return new SurfaceProcessorWithExecutor(requireNonNull(getSurfaceProcessor()),
+                getExecutor());
     }
 }

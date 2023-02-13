@@ -340,9 +340,6 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
 
-    @Nullable
-    private CameraEffect mCameraEffect;
-
     /**
      * Creates a new image capture use case from the given configuration.
      *
@@ -1664,7 +1661,7 @@ public final class ImageCapture extends UseCase {
         Size resolution = streamSpec.getResolution();
 
         checkState(mImagePipeline == null);
-        mImagePipeline = new ImagePipeline(config, resolution, mCameraEffect);
+        mImagePipeline = new ImagePipeline(config, resolution, getEffect());
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
@@ -1803,27 +1800,6 @@ public final class ImageCapture extends UseCase {
     @VisibleForTesting
     boolean isProcessingPipelineEnabled() {
         return mImagePipeline != null && mTakePictureManager != null;
-    }
-
-    /**
-     * @hide
-     */
-    @MainThread
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setEffect(@Nullable CameraEffect cameraEffect) {
-        checkMainThread();
-        mCameraEffect = cameraEffect;
-    }
-
-    /**
-     * @hide
-     */
-    @MainThread
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public CameraEffect getEffect() {
-        checkMainThread();
-        return mCameraEffect;
     }
 
     @VisibleForTesting

@@ -16,12 +16,15 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.SurfaceProcessor;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
 
 import java.util.concurrent.Executor;
 
@@ -29,10 +32,35 @@ import java.util.concurrent.Executor;
  * A fake {@link CameraEffect} with {@link SurfaceProcessor}.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class FakePreviewEffect extends CameraEffect {
-    public FakePreviewEffect(
+public class FakeSurfaceEffect extends CameraEffect {
+
+    private SurfaceProcessorInternal mSurfaceProcessorInternal;
+
+    public FakeSurfaceEffect(
             @NonNull Executor processorExecutor,
             @NonNull SurfaceProcessor surfaceProcessor) {
         super(PREVIEW, processorExecutor, surfaceProcessor);
+    }
+
+    /**
+     * Create a fake {@link CameraEffect} the {@link #createSurfaceProcessorInternal} value
+     * overridden.
+     *
+     * <p> This is helpful when we want to make sure the {@link SurfaceProcessorInternal} is
+     * released properly.
+     */
+    public FakeSurfaceEffect(@NonNull SurfaceProcessorInternal surfaceProcessorInternal) {
+        super(PREVIEW, mainThreadExecutor(), surfaceProcessorInternal);
+        mSurfaceProcessorInternal = surfaceProcessorInternal;
+    }
+
+    @NonNull
+    @Override
+    public SurfaceProcessorInternal createSurfaceProcessorInternal() {
+        if (mSurfaceProcessorInternal != null) {
+            return mSurfaceProcessorInternal;
+        } else {
+            return super.createSurfaceProcessorInternal();
+        }
     }
 }
