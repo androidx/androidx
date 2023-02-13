@@ -17,10 +17,12 @@
 package androidx.wear.protolayout.expression.pipeline.sensor;
 
 import android.Manifest;
+import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -54,6 +56,7 @@ public interface SensorGateway extends Closeable {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
+    @RequiresApi(VERSION_CODES.Q)
     @IntDef({
         SENSOR_DATA_TYPE_INVALID,
         SENSOR_DATA_TYPE_HEART_RATE,
@@ -77,6 +80,7 @@ public interface SensorGateway extends Closeable {
      * each day, and any subscriptions to this data type will log the number of steps the user has
      * done since 12:00AM local time.
      */
+    @RequiresApi(VERSION_CODES.Q)
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     int SENSOR_DATA_TYPE_DAILY_STEP_COUNT = 1;
 
