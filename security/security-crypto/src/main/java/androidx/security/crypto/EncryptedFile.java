@@ -143,6 +143,10 @@ public final class EncryptedFile {
         /**
          * Builder for an EncryptedFile.
          *
+         * <p>If the <code>masterKeyAlias</code> used here is for a key that is not yet
+         * created, this method will not be thread safe. Use the alternate signature that is not
+         * deprecated for multi-threaded contexts.
+         *
          * @deprecated Use {@link #Builder(Context, File, MasterKey, FileEncryptionScheme)} instead.
          */
         @Deprecated
