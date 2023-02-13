@@ -19,15 +19,12 @@ package androidx.appactions.interaction.capabilities.core.impl.spec;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.ActionCapability;
-import androidx.appactions.interaction.capabilities.core.ActionExecutor;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
 import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
 import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
@@ -92,11 +89,6 @@ public final class ActionSpecTest {
                             TypeConverters::toParamValue)
                     .build();
 
-    private static ActionCapability createCapability(
-            String id, Property property, ActionExecutor<Argument, Output> executor) {
-        return new ActionCapabilityImpl<>(ACTION_SPEC, Optional.of(id), property, executor);
-    }
-
     @Test
     public void getAppAction_onlyRequiredProperty() {
         Property property =
@@ -112,13 +104,9 @@ public final class ActionSpecTest {
                                 .build(),
                         StringProperty.EMPTY);
 
-        ActionCapability capability =
-                        createCapability("id", property, TestingUtils.createFakeActionExecutor());
-
-        assertThat(capability.getAppAction())
+        assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
                         AppAction.newBuilder()
-                                .setIdentifier("id")
                                 .setName("actions.intent.TEST")
                                 .addParams(
                                         IntentParameter.newBuilder()
@@ -185,13 +173,9 @@ public final class ActionSpecTest {
                                         .build()),
                         Optional.of(StringProperty.PROHIBITED));
 
-        ActionCapability capability =
-                        createCapability("id", property, TestingUtils.createFakeActionExecutor());
-
-        assertThat(capability.getAppAction())
+        assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
                         AppAction.newBuilder()
-                                .setIdentifier("id")
                                 .setName("actions.intent.TEST")
                                 .addParams(
                                         IntentParameter.newBuilder()

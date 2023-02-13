@@ -19,6 +19,7 @@ package androidx.appactions.interaction.capabilities.core.task.impl;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.capabilities.core.ActionCapability;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
@@ -47,7 +48,9 @@ import java.util.function.Supplier;
  * @param <OutputT>
  * @param <ConfirmationT>
  * @param <TaskUpdaterT>
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class TaskCapabilityImpl<
                 PropertyT,
                 ArgumentT,
@@ -104,8 +107,13 @@ public final class TaskCapabilityImpl<
 
     @NonNull
     @Override
-    public Optional<String> getId() {
-        return Optional.of(mIdentifier);
+    public String getId() {
+        return mIdentifier;
+    }
+
+    @Override
+    public boolean getSupportsMultiTurnTask() {
+        return true;
     }
 
     public void setTaskUpdaterSupplier(@NonNull Supplier<TaskUpdaterT> taskUpdaterSupplier) {

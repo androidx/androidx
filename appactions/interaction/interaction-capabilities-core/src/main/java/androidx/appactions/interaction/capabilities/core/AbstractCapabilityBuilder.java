@@ -18,13 +18,14 @@ package androidx.appactions.interaction.capabilities.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appactions.interaction.capabilities.core.impl.spec.ActionCapabilityImpl;
+import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater;
 import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * An abstract Builder class for ActionCapability.
@@ -39,7 +40,12 @@ import java.util.Optional;
 public abstract class AbstractCapabilityBuilder<
         BuilderT extends
                 AbstractCapabilityBuilder<
-                        BuilderT, PropertyT, ArgumentT, OutputT, ConfirmationT, TaskUpdaterT>,
+                                BuilderT,
+                                PropertyT,
+                                ArgumentT,
+                                OutputT,
+                                ConfirmationT,
+                                TaskUpdaterT>,
         PropertyT,
         ArgumentT,
         OutputT,
@@ -47,14 +53,10 @@ public abstract class AbstractCapabilityBuilder<
         TaskUpdaterT extends AbstractTaskUpdater> {
 
     private final ActionSpec<PropertyT, ArgumentT, OutputT> mActionSpec;
-    @Nullable
-    private String mId;
-    @Nullable
-    private PropertyT mProperty;
-    @Nullable
-    private ActionExecutor<ArgumentT, OutputT> mActionExecutor;
-    @Nullable
-    private TaskHandler<ArgumentT, OutputT, ConfirmationT, TaskUpdaterT> mTaskHandler;
+    @Nullable private String mId;
+    @Nullable private PropertyT mProperty;
+    @Nullable private ActionExecutor<ArgumentT, OutputT> mActionExecutor;
+    @Nullable private TaskHandler<ArgumentT, OutputT, ConfirmationT, TaskUpdaterT> mTaskHandler;
 
     /**
      * @param actionSpec
@@ -90,10 +92,9 @@ public abstract class AbstractCapabilityBuilder<
 
     /**
      * Sets the TaskHandler for this capability. The individual capability factory classes can
-     * decide
-     * to expose their own public {@code setTaskHandler} method and invoke this parent method.
-     * Setting
-     * the TaskHandler should build a capability instance that supports multi-turn tasks.
+     * decide to expose their own public {@code setTaskHandler} method and invoke this parent
+     * method. Setting the TaskHandler should build a capability instance that supports multi-turn
+     * tasks.
      */
     protected final BuilderT setTaskHandler(
             @NonNull TaskHandler<ArgumentT, OutputT, ConfirmationT, TaskUpdaterT> taskHandler) {
@@ -115,22 +116,31 @@ public abstract class AbstractCapabilityBuilder<
         Objects.requireNonNull(mProperty, "property must not be null.");
         if (mTaskHandler == null) {
             Objects.requireNonNull(mActionExecutor, "actionExecutor must not be null.");
-            return new ActionCapabilityImpl<>(
-                    mActionSpec, Optional.ofNullable(mId), mProperty, mActionExecutor);
+            return new SingleTurnCapabilityImpl<PropertyT, ArgumentT, OutputT>(
+                    mId,
+                    mActionSpec,
+                    mProperty,
+                    (hostProperties)->new BaseSession<ArgumentT, OutputT>() {
+                        @Override
+                        public ListenableFuture<ExecutionResult<OutputT>> onFinishAsync(
+                                ArgumentT argument) {
+                            return mActionExecutor.execute(argument);
+                        }
+                    });
         }
         TaskCapabilityImpl<PropertyT, ArgumentT, OutputT, ConfirmationT, TaskUpdaterT>
                 taskCapability =
-                new TaskCapabilityImpl<>(
-                        Objects.requireNonNull(mId, "id field must not be null."),
-                        mActionSpec,
-                        mProperty,
-                        mTaskHandler.getParamsRegistry(),
-                        mTaskHandler.getOnInitListener(),
-                        mTaskHandler.getOnReadyToConfirmListener(),
-                        mTaskHandler.getOnFinishListener(),
-                        mTaskHandler.getConfirmationDataBindings(),
-                        mTaskHandler.getExecutionOutputBindings(),
-                        Runnable::run);
+                        new TaskCapabilityImpl<>(
+                                Objects.requireNonNull(mId, "id field must not be null."),
+                                mActionSpec,
+                                mProperty,
+                                mTaskHandler.getParamsRegistry(),
+                                mTaskHandler.getOnInitListener(),
+                                mTaskHandler.getOnReadyToConfirmListener(),
+                                mTaskHandler.getOnFinishListener(),
+                                mTaskHandler.getConfirmationDataBindings(),
+                                mTaskHandler.getExecutionOutputBindings(),
+                                Runnable::run);
         taskCapability.setTaskUpdaterSupplier(mTaskHandler.getTaskUpdaterSupplier());
         return taskCapability;
     }
