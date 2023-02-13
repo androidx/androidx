@@ -88,6 +88,7 @@ class EmojiPickerView @JvmOverloads constructor(
     private val scope = CoroutineScope(EmptyCoroutineContext)
 
     private var recentEmojiProvider: RecentEmojiProvider = DefaultRecentEmojiProvider(context)
+    private var recentNeedsRefreshing: Boolean = true
     private val recentItems: MutableList<EmojiViewData> = mutableListOf()
     private lateinit var recentItemGroup: ItemGroup
 
@@ -150,10 +151,8 @@ class EmojiPickerView @JvmOverloads constructor(
             emojiPickerItemsProvider = { emojiPickerItems },
             onEmojiPickedListener = { emojiViewItem ->
                 onEmojiPickedListener?.accept(emojiViewItem)
-
-                scope.launch {
-                    recentEmojiProvider.recordSelection(emojiViewItem.emoji)
-                }
+                recentEmojiProvider.recordSelection(emojiViewItem.emoji)
+                recentNeedsRefreshing = true
             }
         )
     }
@@ -163,7 +162,7 @@ class EmojiPickerView @JvmOverloads constructor(
             R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
             CategoryTitle(context.getString(R.string.emoji_category_recent)),
             recentItems,
-            forceContentSize = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
+            maxContentItemCount = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
             emptyPlaceholderItem = PlaceholderText(
                 context.getString(R.string.emoji_empty_recent_category)
             )
@@ -194,7 +193,6 @@ class EmojiPickerView @JvmOverloads constructor(
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return when (emojiPickerItems.getBodyItem(position).itemType) {
-                        ItemType.PLACEHOLDER_EMOJI -> 0
                         ItemType.CATEGORY_TITLE, ItemType.PLACEHOLDER_TEXT -> emojiGridColumns
                         else -> 1
                     }
@@ -243,11 +241,14 @@ class EmojiPickerView @JvmOverloads constructor(
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
-                        val position =
-                            bodyLayoutManager.findFirstCompletelyVisibleItemPosition()
                         headerAdapter.selectedGroupIndex =
-                            emojiPickerItems.groupIndexByItemPosition(position)
-                        if (position !in emojiPickerItems.groupRange(recentItemGroup)) {
+                            emojiPickerItems.groupIndexByItemPosition(
+                                bodyLayoutManager.findFirstCompletelyVisibleItemPosition()
+                            )
+                        if (recentNeedsRefreshing &&
+                            bodyLayoutManager.findFirstVisibleItemPosition() !in
+                            emojiPickerItems.groupRange(recentItemGroup)
+                        ) {
                             scope.launch {
                                 refreshRecent()
                             }
@@ -268,18 +269,37 @@ class EmojiPickerView @JvmOverloads constructor(
     }
 
     internal suspend fun refreshRecent() {
+        if (!recentNeedsRefreshing) {
+            return
+        }
+        val oldGroupSize = if (::recentItemGroup.isInitialized) recentItemGroup.size else 0
         val recent = recentEmojiProvider.getRecentEmojiList()
-        recentItems.clear()
-        recentItems.addAll(recent.map {
-            EmojiViewData(
-                it,
-                updateToSticky = false,
-            )
-        })
-        if (isLaidOut) {
-            val range = emojiPickerItems.groupRange(recentItemGroup)
-            withContext(Dispatchers.Main) {
-                bodyAdapter.notifyItemRangeChanged(range.first, range.last + 1)
+        withContext(Dispatchers.Main) {
+            recentItems.clear()
+            recentItems.addAll(recent.map {
+                EmojiViewData(
+                    it,
+                    updateToSticky = false,
+                )
+            })
+            if (::emojiPickerItems.isInitialized) {
+                val range = emojiPickerItems.groupRange(recentItemGroup)
+                if (recentItemGroup.size > oldGroupSize) {
+                    bodyAdapter.notifyItemRangeInserted(
+                        range.first + oldGroupSize,
+                        recentItemGroup.size - oldGroupSize
+                    )
+                } else if (recentItemGroup.size < oldGroupSize) {
+                    bodyAdapter.notifyItemRangeRemoved(
+                        range.first + recentItemGroup.size,
+                        oldGroupSize - recentItemGroup.size
+                    )
+                }
+                bodyAdapter.notifyItemRangeChanged(
+                    range.first,
+                    minOf(oldGroupSize, recentItemGroup.size)
+                )
+                recentNeedsRefreshing = false
             }
         }
     }
@@ -295,6 +315,7 @@ class EmojiPickerView @JvmOverloads constructor(
     fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
         this.recentEmojiProvider = recentEmojiProvider
         scope.launch {
+            recentNeedsRefreshing = true
             refreshRecent()
         }
     }
