@@ -35,7 +35,7 @@ public final class DynamicFloatTest {
   private static final float CONSTANT_VALUE = 42.42f;
   private static final AnimationSpec SPEC =
       new AnimationSpec.Builder()
-          .setDelayMillis(1)
+          .setStartDelayMillis(1)
           .setDurationMillis(2)
           .setRepeatable(
               new AnimationParameterBuilders.Repeatable.Builder()
@@ -169,11 +169,11 @@ public final class DynamicFloatTest {
             DynamicFloat.animate(
                     /* start= */ 1f,
                     /* end= */ 2f,
-                    new AnimationSpec.Builder().setDelayMillis(0).build())
+                    new AnimationSpec.Builder().setStartDelayMillis(0).build())
                 .toString())
         .isEqualTo(
             "AnimatableFixedFloat{fromValue=1.0, toValue=2.0, animationSpec=AnimationSpec{"
-                + "durationMillis=0, delayMillis=0, easing=null, repeatable=null}}");
+                + "durationMillis=0, startDelayMillis=0, easing=null, repeatable=null}}");
   }
 
   @Test
@@ -198,12 +198,13 @@ public final class DynamicFloatTest {
   public void stateAnimatedToString() {
     assertThat(
             DynamicFloat.animate(
-                    /* stateKey= */ "key", new AnimationSpec.Builder().setDelayMillis(1).build())
+                    /* stateKey= */ "key",
+                    new AnimationSpec.Builder().setStartDelayMillis(1).build())
                 .toString())
         .isEqualTo(
             "AnimatableDynamicFloat{"
                 + "input=StateFloatSource{sourceKey=key}, animationSpec=AnimationSpec{"
-                + "durationMillis=0, delayMillis=1, easing=null, repeatable=null}}");
+                + "durationMillis=0, startDelayMillis=1, easing=null, repeatable=null}}");
   }
 
   @Test

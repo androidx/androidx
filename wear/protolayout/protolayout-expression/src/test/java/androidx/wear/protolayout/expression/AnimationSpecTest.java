@@ -34,15 +34,16 @@ public class AnimationSpecTest {
     assertThat(
             new AnimationSpec.Builder()
                 .setDurationMillis(1)
-                .setDelayMillis(2)
+                .setStartDelayMillis(2)
                 .setEasing(new CubicBezierEasing.Builder().setX1(3f).build())
                 .setRepeatable(new Repeatable.Builder().setIterations(4).build())
                 .build()
                 .toString())
         .isEqualTo(
-            "AnimationSpec{durationMillis=1, delayMillis=2, "
+            "AnimationSpec{durationMillis=1, startDelayMillis=2, "
                 + "easing=CubicBezierEasing{x1=3.0, y1=0.0, x2=0.0, y2=0.0}, "
-                + "repeatable=Repeatable{iterations=4, repeatMode=0}}");
+                + "repeatable=Repeatable{iterations=4, repeatMode=0, "
+                + "forwardRepeatDelayMillis=0, reverseRepeatDelayMillis=0}}");
   }
 
   @Test
@@ -64,8 +65,11 @@ public class AnimationSpecTest {
             new Repeatable.Builder()
                 .setIterations(10)
                 .setRepeatMode(REPEAT_MODE_RESTART)
+                .setForwardRepeatDelayMillis(200)
+                .setReverseRepeatDelayMillis(100)
                 .build()
                 .toString())
-        .isEqualTo("Repeatable{iterations=10, repeatMode=1}");
+        .isEqualTo("Repeatable{iterations=10, repeatMode=1, "
+                + "forwardRepeatDelayMillis=200, reverseRepeatDelayMillis=100}");
   }
 }
