@@ -922,9 +922,9 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @Nullable
-    public AnimationSpec getSpec() {
-      if (mImpl.hasSpec()) {
-        return AnimationSpec.fromProto(mImpl.getSpec());
+    public AnimationSpec getAnimationSpec() {
+      if (mImpl.hasAnimationSpec()) {
+        return AnimationSpec.fromProto(mImpl.getAnimationSpec());
       } else {
         return null;
       }
@@ -981,8 +981,8 @@ public final class DynamicBuilders {
               + getFromValue()
               + ", toValue="
               + getToValue()
-              + ", spec="
-              + getSpec()
+              + ", animationSpec="
+              + getAnimationSpec()
               + "}";
     }
 
@@ -1024,10 +1024,10 @@ public final class DynamicBuilders {
        * @since 1.2
        */
       @NonNull
-      public AnimatableFixedInt32.Builder setSpec(@NonNull AnimationSpec spec) {
-        mImpl.setSpec(spec.toProto());
+      public Builder setAnimationSpec(@NonNull AnimationSpec animationSpec) {
+        mImpl.setAnimationSpec(animationSpec.toProto());
         mFingerprint.recordPropertyUpdate(
-                3, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+            3, checkNotNull(animationSpec.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -1080,9 +1080,9 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @Nullable
-    public AnimationSpec getSpec() {
-      if (mImpl.hasSpec()) {
-        return AnimationSpec.fromProto(mImpl.getSpec());
+    public AnimationSpec getAnimationSpec() {
+      if (mImpl.hasAnimationSpec()) {
+        return AnimationSpec.fromProto(mImpl.getAnimationSpec());
       } else {
         return null;
       }
@@ -1134,7 +1134,12 @@ public final class DynamicBuilders {
     @Override
     @NonNull
     public String toString() {
-      return "AnimatableDynamicInt32{" + "input=" + getInput() + ", spec=" + getSpec() + "}";
+      return "AnimatableDynamicInt32{"
+          + "input="
+          + getInput()
+          + ", animationSpec="
+          + getAnimationSpec()
+          + "}";
     }
 
     /** Builder for {@link AnimatableDynamicInt32}. */
@@ -1164,10 +1169,10 @@ public final class DynamicBuilders {
        * @since 1.2
        */
       @NonNull
-      public AnimatableDynamicInt32.Builder setSpec(@NonNull AnimationSpec spec) {
-        mImpl.setSpec(spec.toProto());
+      public Builder setAnimationSpec(@NonNull AnimationSpec animationSpec) {
+        mImpl.setAnimationSpec(animationSpec.toProto());
         mFingerprint.recordPropertyUpdate(
-                2, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+            2, checkNotNull(animationSpec.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -1189,18 +1194,16 @@ public final class DynamicBuilders {
    *
    * <p>For example the following expression is equivalent to {@code result = ((a + b)*c)/d }:
    *
-   * <pre>
+   * <pre>{@code
    * a.plus(b).times(c).div(d);
-   * </pre>
+   * }</pre>
    *
    * More complex expressions can be created by nesting expressions. For example the following
    * expression is equivalent to {@code result = (a + b)*(c - d) }:
    *
-   * <pre>
+   * <pre>{@code
    * (a.plus(b)).times(c.minus(d));
-   * </pre>
-   *
-   * .
+   * }</pre>
    *
    * @since 1.2
    */
@@ -1269,15 +1272,15 @@ public final class DynamicBuilders {
      *
      * @param start The start value of the range.
      * @param end The end value of the range.
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    static DynamicInt32 animate(int start, int end, @NonNull AnimationSpec spec) {
+    static DynamicInt32 animate(int start, int end, @NonNull AnimationSpec animationSpec) {
       return new AnimatableFixedInt32.Builder()
-              .setFromValue(start)
-              .setToValue(end)
-              .setSpec(spec)
-              .build();
+          .setFromValue(start)
+          .setToValue(end)
+          .setAnimationSpec(animationSpec)
+          .build();
     }
 
     /**
@@ -1300,25 +1303,28 @@ public final class DynamicBuilders {
      *
      * @param stateKey The key to a {@link StateEntryValue} with an int value from the provider's
      *     state.
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    static DynamicInt32 animate(@NonNull String stateKey, @NonNull AnimationSpec spec) {
+    static DynamicInt32 animate(@NonNull String stateKey, @NonNull AnimationSpec animationSpec) {
       return new AnimatableDynamicInt32.Builder()
-              .setInput(fromState(stateKey))
-              .setSpec(spec)
-              .build();
+          .setInput(fromState(stateKey))
+          .setAnimationSpec(animationSpec)
+          .build();
     }
 
     /**
      * Returns a {@link DynamicInt32} that is bound to the value of this {@link DynamicInt32} and
      * every time its value is changing, it animates from its current value to the new value.
      *
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    default DynamicInt32 animate(@NonNull AnimationSpec spec) {
-      return new AnimatableDynamicInt32.Builder().setInput(this).setSpec(spec).build();
+    default DynamicInt32 animate(@NonNull AnimationSpec animationSpec) {
+      return new AnimatableDynamicInt32.Builder()
+          .setInput(this)
+          .setAnimationSpec(animationSpec)
+          .build();
     }
 
     /**
@@ -1838,7 +1844,7 @@ public final class DynamicBuilders {
     @NonNull
     default DynamicFloat rem(float other) {
       return new ArithmeticFloatOp.Builder()
-          .setInputLhs( this.asFloat())
+          .setInputLhs(this.asFloat())
           .setInputRhs(DynamicFloat.constant(other))
           .setOperationType(DynamicBuilders.ARITHMETIC_OP_TYPE_MODULO)
           .build();
@@ -3325,9 +3331,9 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @Nullable
-    public AnimationSpec getSpec() {
-      if (mImpl.hasSpec()) {
-        return AnimationSpec.fromProto(mImpl.getSpec());
+    public AnimationSpec getAnimationSpec() {
+      if (mImpl.hasAnimationSpec()) {
+        return AnimationSpec.fromProto(mImpl.getAnimationSpec());
       } else {
         return null;
       }
@@ -3367,8 +3373,8 @@ public final class DynamicBuilders {
           + getFromValue()
           + ", toValue="
           + getToValue()
-          + ", spec="
-          + getSpec()
+          + ", animationSpec="
+          + getAnimationSpec()
           + "}";
     }
 
@@ -3410,10 +3416,10 @@ public final class DynamicBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setSpec(@NonNull AnimationSpec spec) {
-        mImpl.setSpec(spec.toProto());
+      public Builder setAnimationSpec(@NonNull AnimationSpec animationSpec) {
+        mImpl.setAnimationSpec(animationSpec.toProto());
         mFingerprint.recordPropertyUpdate(
-            3, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+            3, checkNotNull(animationSpec.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -3466,9 +3472,9 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @Nullable
-    public AnimationSpec getSpec() {
-      if (mImpl.hasSpec()) {
-        return AnimationSpec.fromProto(mImpl.getSpec());
+    public AnimationSpec getAnimationSpec() {
+      if (mImpl.hasAnimationSpec()) {
+        return AnimationSpec.fromProto(mImpl.getAnimationSpec());
       } else {
         return null;
       }
@@ -3503,7 +3509,12 @@ public final class DynamicBuilders {
     @Override
     @NonNull
     public String toString() {
-      return "AnimatableDynamicFloat{" + "input=" + getInput() + ", spec=" + getSpec() + "}";
+      return "AnimatableDynamicFloat{"
+          + "input="
+          + getInput()
+          + ", animationSpec="
+          + getAnimationSpec()
+          + "}";
     }
 
     /** Builder for {@link AnimatableDynamicFloat}. */
@@ -3533,10 +3544,10 @@ public final class DynamicBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setSpec(@NonNull AnimationSpec spec) {
-        mImpl.setSpec(spec.toProto());
+      public Builder setAnimationSpec(@NonNull AnimationSpec animationSpec) {
+        mImpl.setAnimationSpec(animationSpec.toProto());
         mFingerprint.recordPropertyUpdate(
-            3, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+            3, checkNotNull(animationSpec.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -3558,18 +3569,16 @@ public final class DynamicBuilders {
    *
    * <p>For example the following expression is equivalent to {@code result = ((a + b)*c)/d }:
    *
-   * <pre>
+   * <pre>{@code
    * a.plus(b).times(c).div(d);
-   * </pre>
+   * }</pre>
    *
    * More complex expressions can be created by nesting expressions. For example the following
    * expression is equivalent to {@code result = (a + b)*(c - d) }:
    *
-   * <pre>
+   * <pre>{@code
    * (a.plus(b)).times(c.minus(d));
-   * </pre>
-   *
-   * .
+   * }</pre>
    *
    * @since 1.2
    */
@@ -3639,14 +3648,14 @@ public final class DynamicBuilders {
      *
      * @param start The start value of the range.
      * @param end The end value of the range.
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    static DynamicFloat animate(float start, float end, @NonNull AnimationSpec spec) {
+    static DynamicFloat animate(float start, float end, @NonNull AnimationSpec animationSpec) {
       return new AnimatableFixedFloat.Builder()
           .setFromValue(start)
           .setToValue(end)
-          .setSpec(spec)
+          .setAnimationSpec(animationSpec)
           .build();
     }
 
@@ -3670,13 +3679,13 @@ public final class DynamicBuilders {
      *
      * @param stateKey The key to a {@link StateEntryValue} with a float value from the providers
      *     state.
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    static DynamicFloat animate(@NonNull String stateKey, @NonNull AnimationSpec spec) {
+    static DynamicFloat animate(@NonNull String stateKey, @NonNull AnimationSpec animationSpec) {
       return new AnimatableDynamicFloat.Builder()
           .setInput(fromState(stateKey))
-          .setSpec(spec)
+          .setAnimationSpec(animationSpec)
           .build();
     }
 
@@ -3684,11 +3693,14 @@ public final class DynamicBuilders {
      * Returns a {@link DynamicFloat} that is bound to the value of this {@link DynamicFloat} and
      * every time its value is changing, it animates from its current value to the new value.
      *
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    default DynamicFloat animate(@NonNull AnimationSpec spec) {
-      return new AnimatableDynamicFloat.Builder().setInput(this).setSpec(spec).build();
+    default DynamicFloat animate(@NonNull AnimationSpec animationSpec) {
+      return new AnimatableDynamicFloat.Builder()
+          .setInput(this)
+          .setAnimationSpec(animationSpec)
+          .build();
     }
 
     /**
@@ -4036,7 +4048,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * reates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * Creates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
      * by a float; As an example, the following is equal to {@code DynamicFloat.constant(1.5f)}
      *
      * <pre>
@@ -4060,7 +4072,7 @@ public final class DynamicBuilders {
     }
 
     /**
-     * reates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
+     * Creates a {@link DynamicFloat} containing the reminder of dividing this {@link DynamicFloat}
      * by a {@link DynamicInt32}; As an example, the following is equal to {@code
      * DynamicFloat.constant(2f)}
      *
@@ -5286,9 +5298,9 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @Nullable
-    public AnimationSpec getSpec() {
-      if (mImpl.hasSpec()) {
-        return AnimationSpec.fromProto(mImpl.getSpec());
+    public AnimationSpec getAnimationSpec() {
+      if (mImpl.hasAnimationSpec()) {
+        return AnimationSpec.fromProto(mImpl.getAnimationSpec());
       } else {
         return null;
       }
@@ -5328,8 +5340,8 @@ public final class DynamicBuilders {
           + getFromArgb()
           + ", toArgb="
           + getToArgb()
-          + ", spec="
-          + getSpec()
+          + ", animationSpec="
+          + getAnimationSpec()
           + "}";
     }
 
@@ -5371,10 +5383,10 @@ public final class DynamicBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setSpec(@NonNull AnimationSpec spec) {
-        mImpl.setSpec(spec.toProto());
+      public Builder setAnimationSpec(@NonNull AnimationSpec animationSpec) {
+        mImpl.setAnimationSpec(animationSpec.toProto());
         mFingerprint.recordPropertyUpdate(
-            3, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+            3, checkNotNull(animationSpec.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -5427,9 +5439,9 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @Nullable
-    public AnimationSpec getSpec() {
-      if (mImpl.hasSpec()) {
-        return AnimationSpec.fromProto(mImpl.getSpec());
+    public AnimationSpec getAnimationSpec() {
+      if (mImpl.hasAnimationSpec()) {
+        return AnimationSpec.fromProto(mImpl.getAnimationSpec());
       } else {
         return null;
       }
@@ -5464,7 +5476,12 @@ public final class DynamicBuilders {
     @Override
     @NonNull
     public String toString() {
-      return "AnimatableDynamicColor{" + "input=" + getInput() + ", spec=" + getSpec() + "}";
+      return "AnimatableDynamicColor{"
+          + "input="
+          + getInput()
+          + ", animationSpec="
+          + getAnimationSpec()
+          + "}";
     }
 
     /** Builder for {@link AnimatableDynamicColor}. */
@@ -5494,10 +5511,10 @@ public final class DynamicBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setSpec(@NonNull AnimationSpec spec) {
-        mImpl.setSpec(spec.toProto());
+      public Builder setAnimationSpec(@NonNull AnimationSpec animationSpec) {
+        mImpl.setAnimationSpec(animationSpec.toProto());
         mFingerprint.recordPropertyUpdate(
-            3, checkNotNull(spec.getFingerprint()).aggregateValueAsInt());
+            3, checkNotNull(animationSpec.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -5580,15 +5597,15 @@ public final class DynamicBuilders {
      *
      * @param start The start value of the range.
      * @param end The end value of the range.
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
     static DynamicColor animate(
-        @ColorInt int start, @ColorInt int end, @NonNull AnimationSpec spec) {
+        @ColorInt int start, @ColorInt int end, @NonNull AnimationSpec animationSpec) {
       return new AnimatableFixedColor.Builder()
           .setFromArgb(start)
           .setToArgb(end)
-          .setSpec(spec)
+          .setAnimationSpec(animationSpec)
           .build();
     }
 
@@ -5597,7 +5614,7 @@ public final class DynamicBuilders {
      * the state value changes, this {@link DynamicColor} will animate from its current value to the
      * new value (from the state).
      *
-     * @param stateKey The key to a {@link StateEntryValue} with a color value from the providers
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the provider's
      *     state.
      */
     @NonNull
@@ -5610,15 +5627,15 @@ public final class DynamicBuilders {
      * the state value changes, this {@link DynamicColor} will animate from its current value to the
      * new value (from the state).
      *
-     * @param stateKey The key to a {@link StateEntryValue} with a color value from the providers
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the provider's
      *     state.
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    static DynamicColor animate(@NonNull String stateKey, @NonNull AnimationSpec spec) {
+    static DynamicColor animate(@NonNull String stateKey, @NonNull AnimationSpec animationSpec) {
       return new AnimatableDynamicColor.Builder()
           .setInput(fromState(stateKey))
-          .setSpec(spec)
+          .setAnimationSpec(animationSpec)
           .build();
     }
 
@@ -5626,11 +5643,14 @@ public final class DynamicBuilders {
      * Returns a {@link DynamicColor} that is bound to the value of this {@link DynamicColor} and
      * every time its value is changing, it animates from its current value to the new value.
      *
-     * @param spec The animation parameters.
+     * @param animationSpec The animation parameters.
      */
     @NonNull
-    default DynamicColor animate(@NonNull AnimationSpec spec) {
-      return new AnimatableDynamicColor.Builder().setInput(this).setSpec(spec).build();
+    default DynamicColor animate(@NonNull AnimationSpec animationSpec) {
+      return new AnimatableDynamicColor.Builder()
+          .setInput(this)
+          .setAnimationSpec(animationSpec)
+          .build();
     }
 
     /**

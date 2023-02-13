@@ -141,7 +141,7 @@ message AnimatableFixedInt32 {
   int32 to_value = 2;
 
   // The animation parameters for duration, delay, etc.
-  AnimationSpec spec = 3;
+  AnimationSpec animation_spec = 3;
 }
 
 // A dynamic interpolation node. This will watch the value of its input and,
@@ -157,7 +157,7 @@ message AnimatableDynamicInt32 {
   DynamicInt32 input = 1;
 
   // The animation parameters for duration, delay, etc.
-  AnimationSpec spec = 2;
+  AnimationSpec animation_spec = 2;
 }
 
 // A dynamic int32 type.
@@ -319,7 +319,7 @@ message AnimatableFixedFloat {
   float to_value = 2;
 
   // The animation parameters for duration, delay, etc.
-  AnimationSpec spec = 3;
+  AnimationSpec animation_spec = 3;
 }
 
 // A dynamic interpolation node. This will watch the value of its input and,
@@ -335,7 +335,7 @@ message AnimatableDynamicFloat {
   DynamicFloat input = 1;
 
   // The animation parameters for duration, delay, etc.
-  AnimationSpec spec = 3;
+  AnimationSpec animation_spec = 3;
 }
 
 // A dynamic float type.
@@ -490,7 +490,7 @@ message AnimatableFixedColor {
   uint32 to_argb = 2;
 
   // The animation parameters for duration, delay, etc.
-  AnimationSpec spec = 3;
+  AnimationSpec animation_spec = 3;
 }
 
 // A dynamic interpolation node. This will watch the value of its input and,
@@ -506,7 +506,7 @@ message AnimatableDynamicColor {
   DynamicColor input = 1;
 
   // The animation parameters for duration, delay, etc.
-  AnimationSpec spec = 3;
+  AnimationSpec animation_spec = 3;
 }
 
 // A dynamic color type.

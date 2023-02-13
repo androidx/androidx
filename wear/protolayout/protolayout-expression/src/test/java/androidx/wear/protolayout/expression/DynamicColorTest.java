@@ -74,12 +74,13 @@ public final class DynamicColorTest {
     DynamicColor animatedColor = DynamicColor.animate(startColor, endColor);
     DynamicColor animatedColorWithSpec = DynamicColor.animate(startColor, endColor, SPEC);
 
-    assertThat(animatedColor.toDynamicColorProto().getAnimatableFixed().hasSpec()).isFalse();
+    assertThat(animatedColor.toDynamicColorProto().getAnimatableFixed().hasAnimationSpec())
+         .isFalse();
     assertThat(animatedColorWithSpec.toDynamicColorProto().getAnimatableFixed().getFromArgb())
         .isEqualTo(startColor);
     assertThat(animatedColorWithSpec.toDynamicColorProto().getAnimatableFixed().getToArgb())
         .isEqualTo(endColor);
-    assertThat(animatedColorWithSpec.toDynamicColorProto().getAnimatableFixed().getSpec())
+    assertThat(animatedColorWithSpec.toDynamicColorProto().getAnimatableFixed().getAnimationSpec())
         .isEqualTo(SPEC.toProto());
   }
 
@@ -93,7 +94,7 @@ public final class DynamicColorTest {
                 .toString())
         .isEqualTo(
             "AnimatableFixedColor{"
-                + "fromArgb=1, toArgb=2, spec=AnimationSpec{"
+                + "fromArgb=1, toArgb=2, animationSpec=AnimationSpec{"
                 + "durationMillis=0, delayMillis=0, easing=null, repeatable=null}}");
   }
 
@@ -104,11 +105,13 @@ public final class DynamicColorTest {
     DynamicColor animatedColor = DynamicColor.animate(STATE_KEY);
     DynamicColor animatedColorWithSpec = DynamicColor.animate(STATE_KEY, SPEC);
 
-    assertThat(animatedColor.toDynamicColorProto().getAnimatableDynamic().hasSpec()).isFalse();
+    assertThat(animatedColor.toDynamicColorProto().getAnimatableDynamic().hasAnimationSpec())
+        .isFalse();
     assertThat(animatedColorWithSpec.toDynamicColorProto().getAnimatableDynamic().getInput())
         .isEqualTo(stateColor.toDynamicColorProto());
-    assertThat(animatedColorWithSpec.toDynamicColorProto().getAnimatableDynamic().getSpec())
-        .isEqualTo(SPEC.toProto());
+    assertThat(
+            animatedColorWithSpec.toDynamicColorProto().getAnimatableDynamic().getAnimationSpec()
+    ).isEqualTo(SPEC.toProto());
     assertThat(animatedColor.toDynamicColorProto())
         .isEqualTo(stateColor.animate().toDynamicColorProto());
   }
@@ -121,7 +124,7 @@ public final class DynamicColorTest {
                 .toString())
         .isEqualTo(
             "AnimatableDynamicColor{"
-                + "input=StateColorSource{sourceKey=key}, spec=AnimationSpec{"
+                + "input=StateColorSource{sourceKey=key}, animationSpec=AnimationSpec{"
                 + "durationMillis=0, delayMillis=1, easing=null, repeatable=null}}");
   }
 
