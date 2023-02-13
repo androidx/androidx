@@ -519,4 +519,36 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
                 }
             }
     }
+
+    /**
+     * @deprecated You probably meant to call [containsNoneOf] instead.
+     */
+    @Deprecated(
+        message = "You probably meant to call containsNoneOf instead.",
+        replaceWith = ReplaceWith(expression = "containsNoneOf"),
+    )
+    override fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
+        super.isNoneOf(first, second, *rest)
+    }
+
+    @Deprecated(
+        message = "You probably meant to call containsNoneIn instead.",
+        replaceWith = ReplaceWith(expression = "containsNoneIn"),
+    )
+    override fun isNotIn(iterable: Iterable<*>?) {
+        super.isNotIn(iterable)
+
+        requireNonNull(iterable)
+
+        val nonIterables = iterable.filterNot { it is Iterable<*> }
+        if (nonIterables.isNotEmpty()) {
+            fail(
+                "The actual value is an Iterable, and you've written a test that compares it to " +
+                    "some objects that are not Iterables. Did you instead mean to check " +
+                    "whether its *contents* match any of the *contents* of the given values? " +
+                    "If so, call containsNoneOf(...)/containsNoneIn(...) instead. " +
+                    "Non-iterables: $nonIterables"
+            )
+        }
+    }
 }
