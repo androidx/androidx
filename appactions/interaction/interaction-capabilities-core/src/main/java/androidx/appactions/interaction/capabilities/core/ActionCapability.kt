@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core;
+package androidx.appactions.interaction.capabilities.core
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
-import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
-import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback;
-import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
-
-import java.util.Optional;
+import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
+import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
+import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 
 /**
  * <b>Do not implement this interface yourself.</b>
@@ -32,11 +30,15 @@ import java.util.Optional;
  *
  * <p>Use helper classes provided by the capability library to get instances of this interface.
  */
-public interface ActionCapability {
+interface ActionCapability {
 
     /** Returns the unique Id of this capability declaration. */
-    @NonNull
-    Optional<String> getId();
+    val id: String?
+
+    /**
+     * Returns whether or not this capability supports multi-turn task.
+     */
+    val supportsMultiTurnTask: Boolean
 
     /**
      * Returns an app action proto describing how to fulfill this capability.
@@ -44,18 +46,23 @@ public interface ActionCapability {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    AppAction getAppAction();
+    fun getAppAction(): AppAction
 
     /**
      * Executes the action and returns the result of execution.
      *
      * @param argumentsWrapper The arguments send from assistant to the activity.
      * @param callback The callback to receive app action result.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    void execute(@NonNull ArgumentsWrapper argumentsWrapper, @NonNull CallbackInternal callback);
+    fun execute(
+        argumentsWrapper: ArgumentsWrapper,
+        callback: CallbackInternal,
+    ) {
+        throw UnsupportedOperationException()
+    }
 
     /**
      * Support for manual input. This method should be invoked by AppInteraction SDKs
@@ -65,5 +72,16 @@ public interface ActionCapability {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    default void setTouchEventCallback(@NonNull TouchEventCallback callback) {}
+    fun setTouchEventCallback(callback: TouchEventCallback) {}
+
+    /**
+     * Create a new capability session. The capability library doesn't maintain registry of
+     * capabilities, so it's not going to assign any session id.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
+        throw UnsupportedOperationException()
+    }
 }
