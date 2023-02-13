@@ -30,6 +30,7 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
+import androidx.annotation.IntDef
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -73,8 +74,8 @@ constructor(
     complicationInstanceId: Int,
     complicationType: ComplicationType,
     immediateResponseRequired: Boolean,
-    @Suppress("AutoBoxing")
-    isForSafeWatchFace: Boolean?
+    @IsForSafeWatchFace
+    isForSafeWatchFace: Int
 ) {
     /** Constructs a [ComplicationRequest] without setting [isForSafeWatchFace]. */
     @Suppress("NewApi")
@@ -86,7 +87,7 @@ constructor(
         complicationInstanceId,
         complicationType,
         immediateResponseRequired,
-        isForSafeWatchFace = false
+        isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN
     )
 
     /**
@@ -116,15 +117,16 @@ constructor(
      * watch face.
      *
      * If the [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data is not defined
-     * then this will be false.
+     * then this will be [TargetWatchFaceSafety.UNKNOWN].
      *
-     * If the DataSourceService does not have the privileged permission
-     * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`, then this will be null.
+     * Note if the [ComplicationDataSourceService] does not have the privileged permission
+     * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`, then this will be
+     * [TargetWatchFaceSafety.UNKNOWN].
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @get:JvmName("isForSafeWatchFace")
-    @get:Suppress("AutoBoxing")
-    public val isForSafeWatchFace: Boolean? = isForSafeWatchFace
+    @IsForSafeWatchFace
+    public val isForSafeWatchFace: Int = isForSafeWatchFace
 
     @Deprecated("Use a constructor that specifies responseNeededSoon.")
     constructor(
@@ -132,6 +134,47 @@ constructor(
         complicationType: ComplicationType
     ) : this(complicationInstanceId, complicationType, false)
 }
+
+/**
+ * Defines constants that describe whether or not the watch face the complication is being
+ * requested for is deemed to be safe. I.e. if its in the list defined by the
+ * [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data in the
+ * [ComplicationDataSourceService]'s manifest.
+ */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+public object TargetWatchFaceSafety {
+    /**
+     * Prior to android T [ComplicationRequest.isForSafeWatchFace] is not supported and it will
+     * always be UNKNOWN. It will also be unknown if the [ComplicationDataSourceService]'s manifest
+     * doesn't define [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES], or if the
+     * [ComplicationDataSourceService] does not have the privileged permission
+     * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`.
+     */
+    public const val UNKNOWN: Int = 0
+
+    /**
+     * The watch face is a member of the list defined by the [ComplicationDataSourceService]'s
+     * [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data in its manifest.
+     **/
+    public const val SAFE: Int = 1
+
+    /**
+     * The watch face is NOT a member of the list defined by the [ComplicationDataSourceService]'s
+     * [ComplicationDataSourceService.METADATA_KEY_SAFE_WATCH_FACES] meta data in its manifest.
+     */
+    public const val UNSAFE: Int = 2
+}
+
+/** @hide */
+@IntDef(
+    flag = true, // This is a flag to allow for future expansion.
+    value = [
+        TargetWatchFaceSafety.UNKNOWN,
+        TargetWatchFaceSafety.SAFE,
+        TargetWatchFaceSafety.UNSAFE
+    ]
+)
+public annotation class IsForSafeWatchFace
 
 /**
  * Class for sources of complication data.
@@ -390,14 +433,19 @@ public abstract class ComplicationDataSourceService : Service() {
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
-            onUpdate2(complicationInstanceId, type, isForSafeWatchFace = false, manager)
+            onUpdate2(
+                complicationInstanceId,
+                type,
+                isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
+                manager
+            )
         }
 
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate2(
             complicationInstanceId: Int,
             type: Int,
-            isForSafeWatchFace: Boolean,
+            @IsForSafeWatchFace isForSafeWatchFace: Int,
             manager: IBinder
         ) {
             val expectedDataType = fromWireType(type)
@@ -607,13 +655,13 @@ public abstract class ComplicationDataSourceService : Service() {
             type: Int
         ) = onSynchronousComplicationRequest2(
             complicationInstanceId,
-            isForSafeWatchFace = false,
+            isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
             type
         )
 
         override fun onSynchronousComplicationRequest2(
             complicationInstanceId: Int,
-            isForSafeWatchFace: Boolean,
+            @IsForSafeWatchFace isForSafeWatchFace: Int,
             type: Int
         ): android.support.wearable.complications.ComplicationData? {
             val expectedDataType = fromWireType(type)
@@ -774,7 +822,7 @@ public abstract class ComplicationDataSourceService : Service() {
          * be included in this list.
          *
          * Note that if a watch face is in the same app package as the complication data source, it
-         * does not need o be added to this list.
+         * does not need to be added to this list.
          *
          * The value of this tag should be a comma separated list of watch faces or packages. An
          * entry can be a flattened component, as if [ComponentName.flattenToString] had been
@@ -783,9 +831,8 @@ public abstract class ComplicationDataSourceService : Service() {
          * app with that package name will be considered safe for this complication data source.
          *
          * From Android T, if this provider has the privileged permission
-         * com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACEl, then
-         * [ComplicationRequest.isForSafeWatchFace] will be true if the request is on behalf of a
-         * watch face in this list.
+         * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`, then
+         * [ComplicationRequest.isForSafeWatchFace] will be populated.
          */
         // TODO(b/192233205): Migrate value to androidx.
         public const val METADATA_KEY_SAFE_WATCH_FACES: String =
