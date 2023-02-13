@@ -37,6 +37,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
@@ -64,6 +65,7 @@ import kotlinx.coroutines.coroutineScope
  * recommended to set this as true when all the pickers cannot be fit into the screen. Or provide a
  * mechanism to navigate to pickers which are not visible on screen. If false, the whole row
  * containing pickers would be centered.
+ * @param propagateMinConstraints Whether the incoming min constraints should be passed to content.
  * @param touchExplorationStateProvider A [TouchExplorationStateProvider] to provide the current
  * state of touch exploration service. This will be used to determine how the PickerGroup and
  * talkback focus behaves/reacts to click and scroll events.
@@ -78,18 +80,21 @@ public fun PickerGroup(
     pickerGroupState: PickerGroupState = rememberPickerGroupState(),
     onSelected: (selectedIndex: Int) -> Unit = {},
     autoCenter: Boolean = true,
+    propagateMinConstraints: Boolean = false,
     touchExplorationStateProvider: TouchExplorationStateProvider =
         DefaultTouchExplorationStateProvider(),
     separator: (@Composable (Int) -> Unit)? = null
 ) {
     val touchExplorationServicesEnabled by touchExplorationStateProvider.touchExplorationState()
+
     AutoCenteringRow(
         modifier = modifier
             .then(
                 // When touch exploration services are enabled, send the scroll events on the parent
                 // composable to selected picker
                 if (touchExplorationServicesEnabled &&
-                    pickerGroupState.selectedIndex in pickers.indices) {
+                    pickerGroupState.selectedIndex in pickers.indices
+                ) {
                     Modifier.scrollablePicker(
                         pickers[pickerGroupState.selectedIndex].pickerState
                     )
@@ -97,6 +102,7 @@ public fun PickerGroup(
                     Modifier
                 }
             ),
+        propagateMinConstraints = propagateMinConstraints
     ) {
         pickers.forEachIndexed { index, pickerData ->
             val pickerSelected = index == pickerGroupState.selectedIndex
@@ -235,17 +241,23 @@ public class PickerGroupItem(
 @Composable
 private fun AutoCenteringRow(
     modifier: Modifier = Modifier,
+    propagateMinConstraints: Boolean,
     content: @Composable () -> Unit
 ) {
-    Layout(modifier = modifier, content = content) { measurables, constraints ->
+    Layout(modifier = modifier, content = content) { measurables, parentConstraints ->
+        // Reset the min width and height of the constraints used to measure child composables
+        // if min constraints are not supposed to propagated.
+        val constraints = if (propagateMinConstraints) {
+            parentConstraints
+        } else {
+            parentConstraints.copy(minWidth = 0, minHeight = 0)
+        }
         val placeables = measurables.map { it.measure(constraints) }
         val centeringOffset = computeCenteringOffset(placeables)
         val rowWidth =
             if (constraints.hasBoundedWidth) constraints.maxWidth
             else constraints.minWidth
-        val rowHeight =
-            if (constraints.hasBoundedHeight) constraints.maxHeight
-            else constraints.minHeight
+        val rowHeight = calculateHeight(constraints, placeables)
         layout(width = rowWidth, height = rowHeight) {
             var x = rowWidth / 2f - centeringOffset
             placeables.forEach {
@@ -288,6 +300,16 @@ private fun computeCenteringOffset(placeables: List<Placeable>): Int {
 
     // No target, center the whole row.
     return sumWidth / 2
+}
+
+/**
+ * Calculates the height of the [AutoCenteringRow] from the given [Placeable]s and [Constraints]. It
+ * is calculated based on the max height of all the [Placeable]s and the height passed from the
+ * [Constraints].
+ */
+private fun calculateHeight(constraints: Constraints, placeables: List<Placeable>): Int {
+    val maxChildrenHeight = placeables.maxOf { it.height }
+    return maxChildrenHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
 }
 
 @Suppress("ModifierInspectorInfo")
