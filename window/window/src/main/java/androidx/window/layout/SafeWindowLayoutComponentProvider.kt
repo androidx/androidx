@@ -25,6 +25,7 @@ import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.layout.WindowLayoutComponent
+import androidx.window.reflection.ReflectionUtils.checkIsPresent
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
@@ -59,7 +60,7 @@ internal class SafeWindowLayoutComponentProvider(
         }
 
     private fun canUseWindowLayoutComponent(): Boolean {
-        if (!isWindowExtensionsValid() ||
+        if (!isWindowExtensionsPresent() || !isWindowExtensionsValid() ||
             !isWindowLayoutProviderValid() ||
             !isFoldingFeatureValid()
         ) {
@@ -72,6 +73,12 @@ internal class SafeWindowLayoutComponentProvider(
             in 2..Int.MAX_VALUE -> hasValidVendorApiLevel2()
             // TODO(b/267956499): add hasValidVendorApiLevel3
             else -> false
+        }
+    }
+
+    private fun isWindowExtensionsPresent(): Boolean {
+        return checkIsPresent {
+            loader.loadClass(WINDOW_EXTENSIONS_PROVIDER_CLASS)
         }
     }
 
