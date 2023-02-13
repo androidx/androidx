@@ -189,23 +189,33 @@ public final class SearchSpec {
      */
     @IntDef(flag = true, value = {
             GROUPING_TYPE_PER_PACKAGE,
-            GROUPING_TYPE_PER_NAMESPACE
+            GROUPING_TYPE_PER_NAMESPACE,
+            GROUPING_TYPE_PER_SCHEMA
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     public @interface GroupingType {
     }
-
     /**
      * Results should be grouped together by package for the purpose of enforcing a limit on the
      * number of results returned per package.
      */
-    public static final int GROUPING_TYPE_PER_PACKAGE = 0b01;
+    public static final int GROUPING_TYPE_PER_PACKAGE = 0b001;
     /**
      * Results should be grouped together by namespace for the purpose of enforcing a limit on the
      * number of results returned per namespace.
      */
-    public static final int GROUPING_TYPE_PER_NAMESPACE = 0b10;
+    public static final int GROUPING_TYPE_PER_NAMESPACE = 0b010;
+    /**
+     * Results should be grouped together by schema type for the purpose of enforcing a limit on the
+     * number of results returned per schema type.
+     */
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA)
+    // @exportToFramework:endStrip()
+    public static final int GROUPING_TYPE_PER_SCHEMA = 0b100;
 
     private final Bundle mBundle;
 

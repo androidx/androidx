@@ -1450,7 +1450,7 @@ public final class AppSearchImpl implements Closeable {
         long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
         SearchSpecProto finalSearchSpec = searchSpecToProtoConverter.toSearchSpecProto();
         ResultSpecProto finalResultSpec = searchSpecToProtoConverter.toResultSpecProto(
-                mNamespaceMapLocked);
+                mNamespaceMapLocked, mSchemaMapLocked);
         ScoringSpecProto scoringSpec = searchSpecToProtoConverter.toScoringSpecProto();
         if (sStatsBuilder != null) {
             sStatsBuilder.setRewriteSearchSpecLatencyMillis((int)

@@ -79,6 +79,15 @@ public final class SearchSpecToPlatformConverter {
         //TODO(b/262512396): add the enabledFeatures set from the SearchSpec once it is synced
         // across to platform.
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
+            // Feature SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA is only supported on Android U.
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+                if ((jetpackSearchSpec.getResultGroupingTypeFlags()
+                        & SearchSpec.GROUPING_TYPE_PER_SCHEMA) != 0) {
+                    throw new UnsupportedOperationException(
+                        Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA
+                            + " is not available on this AppSearch implementation.");
+                }
+            }
             platformBuilder.setResultGrouping(
                     jetpackSearchSpec.getResultGroupingTypeFlags(),
                     jetpackSearchSpec.getResultGroupingLimit());
