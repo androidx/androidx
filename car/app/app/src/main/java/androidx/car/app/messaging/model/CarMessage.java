@@ -143,7 +143,7 @@ public class CarMessage {
         return mReceivedTimeEpochMillis;
     }
 
-    /** Returns a {@link boolean}, indicating whether the message has been read */
+    /** Returns a {@code boolean}, indicating whether the message has been read */
     public boolean isRead() {
         return mIsRead;
     }
@@ -175,7 +175,7 @@ public class CarMessage {
             return this;
         }
 
-        /** Sets a {@link boolean}, indicating whether the message has been read */
+        /** Sets a {@code boolean}, indicating whether the message has been read */
         public @NonNull Builder setRead(boolean isRead) {
             mIsRead = isRead;
             return this;
