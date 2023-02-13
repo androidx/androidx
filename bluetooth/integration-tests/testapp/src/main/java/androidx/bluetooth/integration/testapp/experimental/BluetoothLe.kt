@@ -26,6 +26,9 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.channels.awaitClose
@@ -43,6 +46,33 @@ class BluetoothLe(private val context: Context) {
 
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    fun scan(
+        settings: ScanSettings
+    ): Flow<ScanResult> =
+        callbackFlow {
+            val callback = object : ScanCallback() {
+                override fun onScanResult(callbackType: Int, result: ScanResult) {
+                    trySend(result)
+                }
+
+                override fun onScanFailed(errorCode: Int) {
+                    Log.d(TAG, "onScanFailed() called with: errorCode = $errorCode")
+                }
+            }
+
+            val bluetoothAdapter = bluetoothManager?.adapter
+            val bleScanner = bluetoothAdapter?.bluetoothLeScanner
+
+            bleScanner?.startScan(null, settings, callback)
+
+            awaitClose {
+                Log.d(TAG, "awaitClose() called")
+                bleScanner?.stopScan(callback)
+            }
+        }
 
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
