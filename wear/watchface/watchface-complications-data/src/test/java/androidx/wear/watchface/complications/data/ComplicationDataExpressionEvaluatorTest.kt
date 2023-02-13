@@ -20,6 +20,7 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
@@ -29,7 +30,6 @@ import androidx.wear.watchface.complications.data.ComplicationDataExpressionEval
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
-import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted

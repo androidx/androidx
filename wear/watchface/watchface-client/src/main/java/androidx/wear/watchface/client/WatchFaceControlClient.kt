@@ -23,6 +23,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
+import androidx.core.util.Consumer
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.Renderer
@@ -44,7 +45,6 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.utility.AsyncTraceEvent
 import androidx.wear.watchface.utility.TraceEvent
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CompletableDeferred
