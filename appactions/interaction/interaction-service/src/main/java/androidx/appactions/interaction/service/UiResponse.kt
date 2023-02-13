@@ -16,6 +16,7 @@
 
 package androidx.appactions.interaction.service
 
+import android.annotation.SuppressLint
 import android.util.SizeF
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
@@ -54,6 +55,7 @@ class UiResponse {
          * @param layout the wear-tile [LayoutElementBuilders.Layout] to be displayed.
          * @param resources the resources associated with the layout.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         fun setTileLayout(
             layout: LayoutElementBuilders.Layout,
             resources: ResourceBuilders.Resources
@@ -80,6 +82,7 @@ class UiResponse {
          * @param remoteViews the `RemoteViews` to be displayed
          * @param size the size, in dp, of the RemoteViews being displayed
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         fun setRemoteViews(remoteViews: RemoteViews, size: SizeF?): RemoteViewsUiBuilder {
             this.remoteViews = remoteViews
             this.size = size
@@ -92,6 +95,7 @@ class UiResponse {
          * Any errors resulting from the provided view IDs will contain "RemoteViewsCollection
          * error: " errors with some message from the host.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         fun addViewIdForCollectionUpdate(@IdRes viewId: Int): RemoteViewsUiBuilder {
             changedViewIds.add(viewId)
             return this
@@ -105,6 +109,7 @@ class UiResponse {
          * @param viewId the id of the collection view
          * @param factory a RemoteViewsFactory associated with the collection view
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         fun addRemoteViewsFactory(
             @IdRes viewId: Int,
             factory: RemoteViewsFactory

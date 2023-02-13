@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appactions.interaction.capabilities.core.ActionCapability;
 import androidx.appactions.interaction.service.proto.AppActionsServiceGrpc;
 
@@ -135,7 +136,7 @@ public abstract class AppInteractionService extends Service {
 
     @Override
     @NonNull
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@Nullable Intent intent) {
         return mBinderSupplier.get();
     }
 
