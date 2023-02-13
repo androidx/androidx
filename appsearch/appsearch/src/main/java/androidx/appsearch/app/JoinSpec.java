@@ -21,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -263,6 +264,7 @@ public final class JoinSpec {
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // See getNestedQuery & getNestedSearchSpec
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNestedSearch(@NonNull String nestedQuery,
                 @NonNull SearchSpec nestedSearchSpec) {
@@ -278,6 +280,7 @@ public final class JoinSpec {
          * Sets the max amount of {@link SearchResults} to join to the parent document, with a
          * default of 10 SearchResults.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setMaxJoinedResultCount(int maxJoinedResultCount) {
             mMaxJoinedResultCount = maxJoinedResultCount;
@@ -293,6 +296,7 @@ public final class JoinSpec {
          *
          * @see SearchSpec#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setAggregationScoringStrategy(
                 @AggregationScoringStrategy int aggregationScoringStrategy) {

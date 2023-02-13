@@ -21,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.util.BundleUtil;
 import androidx.core.util.Preconditions;
 
@@ -92,6 +93,7 @@ public class SearchSuggestionResult {
          *
          * <p>The suggested result should only contain lowercase or special characters.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setSuggestedResult(@NonNull String suggestedResult) {
             Preconditions.checkNotNull(suggestedResult);

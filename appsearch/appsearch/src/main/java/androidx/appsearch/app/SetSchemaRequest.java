@@ -23,6 +23,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -318,6 +319,7 @@ public final class SetSchemaRequest {
          *
          * <p>Any documents of these types will be displayed on system UI surfaces by default.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addSchemas(@NonNull AppSearchSchema... schemas) {
             Preconditions.checkNotNull(schemas);
@@ -330,6 +332,7 @@ public final class SetSchemaRequest {
          *
          * <p>An {@link AppSearchSchema} object represents one type of structured data.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addSchemas(@NonNull Collection<AppSearchSchema> schemas) {
             Preconditions.checkNotNull(schemas);
@@ -348,6 +351,7 @@ public final class SetSchemaRequest {
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given document classes.
          */
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
         public Builder addDocumentClasses(@NonNull Class<?>... documentClasses)
@@ -366,6 +370,7 @@ public final class SetSchemaRequest {
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given document classes.
          */
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
         public Builder addDocumentClasses(@NonNull Collection<? extends Class<?>> documentClasses)
@@ -397,6 +402,7 @@ public final class SetSchemaRequest {
          * @param displayed  Whether documents of this type will be displayed on system UI surfaces.
          */
         // Merged list available from getSchemasNotDisplayedBySystem
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSchemaTypeDisplayedBySystem(
@@ -438,6 +444,7 @@ public final class SetSchemaRequest {
          * @throws IllegalArgumentException – if input unsupported permission.
          */
         // Merged list available from getRequiredPermissionsForSchemaTypeVisibility
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         // @exportToFramework:startStrip()
         @RequiresFeature(
@@ -465,6 +472,7 @@ public final class SetSchemaRequest {
 
         /**  Clears all required permissions combinations for the given schema type.  */
         // @exportToFramework:startStrip()
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
@@ -498,6 +506,7 @@ public final class SetSchemaRequest {
          * @param packageIdentifier Represents the package that will be granted visibility.
          */
         // Merged list available from getSchemasVisibleToPackages
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSchemaTypeVisibilityForPackage(
@@ -553,6 +562,7 @@ public final class SetSchemaRequest {
          * @see SetSchemaRequest.Builder#addSchemas
          * @see AppSearchSession#setSchemaAsync
          */
+        @CanIgnoreReturnValue
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")        // Getter return plural objects.
         public Builder setMigrator(@NonNull String schemaType, @NonNull Migrator migrator) {
@@ -588,6 +598,7 @@ public final class SetSchemaRequest {
          * @see SetSchemaRequest.Builder#addSchemas
          * @see AppSearchSession#setSchemaAsync
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setMigrators(@NonNull Map<String, Migrator> migrators) {
             Preconditions.checkNotNull(migrators);
@@ -619,6 +630,7 @@ public final class SetSchemaRequest {
          *                            has not generated a schema for the given document class.
          */
         // Merged list available from getSchemasNotDisplayedBySystem
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setDocumentClassDisplayedBySystem(@NonNull Class<?> documentClass,
@@ -655,6 +667,7 @@ public final class SetSchemaRequest {
          *                            has not generated a schema for the given document class.
          */
         // Merged list available from getSchemasVisibleToPackages
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setDocumentClassVisibilityForPackage(@NonNull Class<?> documentClass,
@@ -696,6 +709,7 @@ public final class SetSchemaRequest {
          * @throws IllegalArgumentException – if input unsupported permission.
          */
         // Merged map available from getRequiredPermissionsForSchemaTypeVisibility
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
@@ -714,6 +728,7 @@ public final class SetSchemaRequest {
         }
 
         /**  Clears all required permissions combinations for the given schema type.  */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
@@ -740,6 +755,7 @@ public final class SetSchemaRequest {
          *
          * <p>By default, this is {@code false}.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setForceOverride(boolean forceOverride) {
             resetIfBuilt();
@@ -775,6 +791,7 @@ public final class SetSchemaRequest {
          * @see Migrator
          * @see SetSchemaRequest.Builder#setMigrator
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setVersion(@IntRange(from = 1) int version) {
             Preconditions.checkArgument(version >= 1, "Version must be a positive number.");

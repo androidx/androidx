@@ -17,6 +17,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
@@ -138,6 +139,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          * @param value An optional value to associate with the successful result of the operation
          *              being performed.
          */
+        @CanIgnoreReturnValue
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getSuccesses
         @NonNull
         public Builder<KeyType, ValueType> setSuccess(
@@ -161,6 +163,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          *                     {@link AppSearchResult#getResultCode}.
          * @param errorMessage An optional string describing the reason or nature of the failure.
          */
+        @CanIgnoreReturnValue
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getFailures
         @NonNull
         public Builder<KeyType, ValueType> setFailure(
@@ -181,6 +184,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          *               identifier from the input like an ID or name.
          * @param result The result to associate with the key.
          */
+        @CanIgnoreReturnValue
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getAll
         @NonNull
         public Builder<KeyType, ValueType> setResult(

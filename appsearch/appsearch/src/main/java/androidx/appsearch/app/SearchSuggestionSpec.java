@@ -24,6 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
@@ -244,6 +245,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all namespaces.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterNamespaces(@NonNull String... namespaces) {
             Preconditions.checkNotNull(namespaces);
@@ -257,6 +259,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all namespaces.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterNamespaces(@NonNull Collection<String> namespaces) {
             Preconditions.checkNotNull(namespaces);
@@ -271,6 +274,7 @@ public class SearchSuggestionSpec {
          * <p>The default value {@link #SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT} will be used if
          * this method is never called.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingStrategy(@SuggestionRankingStrategy int rankingStrategy) {
             Preconditions.checkArgumentInRange(rankingStrategy,
@@ -287,6 +291,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemaTypes) {
             Preconditions.checkNotNull(schemaTypes);
@@ -300,6 +305,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemaTypes) {
             Preconditions.checkNotNull(schemaTypes);
@@ -320,6 +326,7 @@ public class SearchSuggestionSpec {
          */
         // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
@@ -342,6 +349,7 @@ public class SearchSuggestionSpec {
          */
         // Merged list available from getFilterSchemas
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(
                 @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
@@ -497,6 +505,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all documents.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentIds(@NonNull String namespace,
                 @NonNull String... documentIds) {
@@ -512,6 +521,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all documents.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentIds(@NonNull String namespace,
                 @NonNull Collection<String> documentIds) {

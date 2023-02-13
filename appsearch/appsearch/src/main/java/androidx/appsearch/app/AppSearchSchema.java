@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.appsearch.util.IndentingStringBuilder;
@@ -172,6 +173,7 @@ public final class AppSearchSchema {
         }
 
         /** Adds a property to the given type. */
+        @CanIgnoreReturnValue
         @NonNull
         public AppSearchSchema.Builder addProperty(@NonNull PropertyConfig propertyConfig) {
             Preconditions.checkNotNull(propertyConfig);
@@ -638,6 +640,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
              */
+            @CanIgnoreReturnValue
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
             public StringPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
@@ -654,6 +657,7 @@ public final class AppSearchSchema {
              * {@link StringPropertyConfig#INDEXING_TYPE_NONE}, so that it cannot be matched by
              * queries.
              */
+            @CanIgnoreReturnValue
             @NonNull
             public StringPropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
                 Preconditions.checkArgumentInRange(
@@ -673,6 +677,7 @@ public final class AppSearchSchema {
              * if {@link #setIndexingType} has been called with a value other than
              * {@link StringPropertyConfig#INDEXING_TYPE_NONE}).
              */
+            @CanIgnoreReturnValue
             @NonNull
             public StringPropertyConfig.Builder setTokenizerType(@TokenizerType int tokenizerType) {
                 Preconditions.checkArgumentInRange(
@@ -687,6 +692,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default joinable value type is
              * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_NONE}, so that it is not joinable.
              */
+            @CanIgnoreReturnValue
             @NonNull
             public StringPropertyConfig.Builder setJoinableValueType(
                     @JoinableValueType int joinableValueType) {
@@ -840,6 +846,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
              */
+            @CanIgnoreReturnValue
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
             public LongPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
@@ -856,6 +863,7 @@ public final class AppSearchSchema {
              * {@link LongPropertyConfig#INDEXING_TYPE_NONE}, so that it will not be indexed
              * and cannot be matched by queries.
              */
+            @CanIgnoreReturnValue
             @NonNull
             public LongPropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
                 Preconditions.checkArgumentInRange(
@@ -920,6 +928,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
              */
+            @CanIgnoreReturnValue
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
             public DoublePropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
@@ -963,6 +972,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
              */
+            @CanIgnoreReturnValue
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
             public BooleanPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
@@ -1006,6 +1016,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
              */
+            @CanIgnoreReturnValue
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
             public BytesPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
@@ -1083,6 +1094,7 @@ public final class AppSearchSchema {
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
              */
+            @CanIgnoreReturnValue
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
             public DocumentPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
@@ -1099,6 +1111,7 @@ public final class AppSearchSchema {
              * <p>If false, the nested document's properties are not indexed regardless of its own
              * schema.
              */
+            @CanIgnoreReturnValue
             @NonNull
             public DocumentPropertyConfig.Builder setShouldIndexNestedProperties(
                     boolean indexNestedProperties) {

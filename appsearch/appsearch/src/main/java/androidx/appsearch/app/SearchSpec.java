@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
@@ -515,6 +516,7 @@ public final class SearchSpec {
          * <p>If this method is not called, the default term match type is
          * {@link SearchSpec#TERM_MATCH_PREFIX}.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTermMatch(@TermMatch int termMatchType) {
             Preconditions.checkArgumentInRange(termMatchType, TERM_MATCH_EXACT_ONLY,
@@ -530,6 +532,7 @@ public final class SearchSpec {
          *
          * <p>If unset, the query will search over all schema types.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemas) {
             Preconditions.checkNotNull(schemas);
@@ -543,6 +546,7 @@ public final class SearchSpec {
          *
          * <p>If unset, the query will search over all schema types.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemas) {
             Preconditions.checkNotNull(schemas);
@@ -562,6 +566,7 @@ public final class SearchSpec {
          * @param documentClasses classes annotated with {@link Document}.
          */
         // Merged list available from getFilterSchemas
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addFilterDocumentClasses(
@@ -590,6 +595,7 @@ public final class SearchSpec {
          * @param documentClasses classes annotated with {@link Document}.
          */
         // Merged list available from getFilterSchemas()
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
@@ -605,6 +611,7 @@ public final class SearchSpec {
          * have the specified namespaces.
          * <p>If unset, the query will search over all namespaces.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterNamespaces(@NonNull String... namespaces) {
             Preconditions.checkNotNull(namespaces);
@@ -617,6 +624,7 @@ public final class SearchSpec {
          * have the specified namespaces.
          * <p>If unset, the query will search over all namespaces.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterNamespaces(@NonNull Collection<String> namespaces) {
             Preconditions.checkNotNull(namespaces);
@@ -633,6 +641,7 @@ public final class SearchSpec {
          * If package names are specified which caller doesn't have access to, then those package
          * names will be ignored.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterPackageNames(@NonNull String... packageNames) {
             Preconditions.checkNotNull(packageNames);
@@ -648,6 +657,7 @@ public final class SearchSpec {
          * If package names are specified which caller doesn't have access to, then those package
          * names will be ignored.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterPackageNames(@NonNull Collection<String> packageNames) {
             Preconditions.checkNotNull(packageNames);
@@ -661,6 +671,7 @@ public final class SearchSpec {
          *
          * <p>The default number of results per page is 10.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public SearchSpec.Builder setResultCountPerPage(
                 @IntRange(from = 0, to = MAX_NUM_PER_PAGE) int resultCountPerPage) {
@@ -672,6 +683,7 @@ public final class SearchSpec {
         }
 
         /** Sets ranking strategy for AppSearch results. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
@@ -779,6 +791,7 @@ public final class SearchSpec {
          *
          * @param advancedRankingExpression a non-empty string representing the ranking expression.
          */
+        @CanIgnoreReturnValue
         @NonNull
         // @exportToFramework:startStrip()
         @RequiresFeature(
@@ -799,6 +812,7 @@ public final class SearchSpec {
          *
          * <p>This order field will be ignored if RankingStrategy = {@code RANKING_STRATEGY_NONE}.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setOrder(@Order int order) {
             Preconditions.checkArgumentInRange(order, ORDER_DESCENDING, ORDER_ASCENDING,
@@ -818,6 +832,7 @@ public final class SearchSpec {
          * <p>If set to 0 (default), snippeting is disabled and the list returned from
          * {@link SearchResult#getMatchInfos} will be empty.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public SearchSpec.Builder setSnippetCount(
                 @IntRange(from = 0, to = MAX_SNIPPET_COUNT) int snippetCount) {
@@ -838,6 +853,7 @@ public final class SearchSpec {
          * <p>The default behavior is to snippet all matches a property contains, up to the maximum
          * value of 10,000.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public SearchSpec.Builder setSnippetCountPerProperty(
                 @IntRange(from = 0, to = MAX_SNIPPET_PER_PROPERTY_COUNT)
@@ -861,6 +877,7 @@ public final class SearchSpec {
          * <p>Ex. {@code maxSnippetSize} = 16. "foo bar baz bat rat" with a query of "baz" will
          * return a window of "bar baz bat" which is only 11 bytes long.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public SearchSpec.Builder setMaxSnippetSize(
                 @IntRange(from = 0, to = MAX_SNIPPET_SIZE_LIMIT) int maxSnippetSize) {
@@ -882,6 +899,7 @@ public final class SearchSpec {
          * @param schema a string corresponding to the schema to add projections to.
          * @param propertyPaths the projections to add.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public SearchSpec.Builder addProjection(
                 @NonNull String schema, @NonNull Collection<String> propertyPaths) {
@@ -960,6 +978,7 @@ public final class SearchSpec {
          * @param schema a string corresponding to the schema to add projections to.
          * @param propertyPaths the projections to add.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public SearchSpec.Builder addProjectionPaths(
                 @NonNull String schema, @NonNull Collection<PropertyPath> propertyPaths) {
@@ -985,6 +1004,7 @@ public final class SearchSpec {
          *                      add projections to.
          * @param propertyPaths the projections to add.
          */
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")  // Projections available from getProjections
         @NonNull
         public SearchSpec.Builder addProjectionsForDocumentClass(
@@ -1005,6 +1025,7 @@ public final class SearchSpec {
          *                      add projections to.
          * @param propertyPaths the projections to add.
          */
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")  // Projections available from getProjections
         @NonNull
         public SearchSpec.Builder addProjectionPathsForDocumentClass(
@@ -1038,6 +1059,7 @@ public final class SearchSpec {
          */
         // Individual parameters available from getResultGroupingTypeFlags and
         // getResultGroupingLimit
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setResultGrouping(@GroupingType int groupingTypeFlags, int limit) {
@@ -1080,6 +1102,7 @@ public final class SearchSpec {
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
         // @exportToFramework:startStrip()
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
@@ -1114,6 +1137,7 @@ public final class SearchSpec {
          * @param joinSpec a specification on how to perform the Join operation.
          */
         // @exportToFramework:startStrip()
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
@@ -1156,6 +1180,7 @@ public final class SearchSpec {
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
         // @exportToFramework:startStrip()
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
@@ -1210,6 +1235,7 @@ public final class SearchSpec {
          *                            classpath
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
@@ -1257,6 +1283,7 @@ public final class SearchSpec {
          *                            classpath
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
