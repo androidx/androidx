@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.boundsInParent
@@ -391,6 +392,105 @@ internal class MotionLayoutTest {
                     size = IntSize(rootWidthPx / 2 + offset, rootHeightPx)
                 ),
                 actual = bounds
+            )
+        }
+    }
+
+    @Test
+    fun testStartAndEndBoundsModifier() = with(rule.density) {
+        val rootSizePx = 100
+        val boxHeight = 10
+        val boxWidthStartPx = 10
+        val boxWidthEndPx = 70
+
+        val boxId = "box"
+
+        var startBoundsOfBox = Rect.Zero
+        var endBoundsOfBox = Rect.Zero
+        var globallyPositionedBounds = IntRect.Zero
+
+        var boundsProvidedCount = 0
+
+        val progress = mutableStateOf(0f)
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = MotionScene {
+                    val box = createRefFor(boxId)
+                    defaultTransition(
+                        from = constraintSet {
+                            constrain(box) {
+                                width = boxWidthStartPx.toDp().asDimension
+                                height = boxHeight.toDp().asDimension
+
+                                top.linkTo(parent.top)
+                                centerHorizontallyTo(parent)
+                            }
+                        },
+                        to = constraintSet {
+                            constrain(box) {
+                                width = boxWidthEndPx.toDp().asDimension
+                                height = boxHeight.toDp().asDimension
+
+                                centerHorizontallyTo(parent)
+                                bottom.linkTo(parent.bottom)
+                            }
+                        }
+                    )
+                },
+                progress = progress.value,
+                modifier = Modifier.size(rootSizePx.toDp())
+            ) {
+                Box(
+                    modifier = Modifier
+                        .layoutId(boxId)
+                        .background(Color.Red)
+                        .onStartEndBoundsChanged(boxId) { startBounds, endBounds ->
+                            boundsProvidedCount++
+                            startBoundsOfBox = startBounds
+                            endBoundsOfBox = endBounds
+                        }
+                        .onGloballyPositioned {
+                            globallyPositionedBounds = it
+                                .boundsInParent()
+                                .roundToIntRect()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            // Values should only be assigned once, to prove that they are stable
+            assertEquals(1, boundsProvidedCount)
+            assertEquals(
+                expected = IntRect(
+                    offset = IntOffset((rootSizePx - boxWidthStartPx) / 2, 0),
+                    size = IntSize(boxWidthStartPx, boxHeight)
+                ),
+                actual = globallyPositionedBounds
+            )
+            assertEquals(
+                globallyPositionedBounds,
+                startBoundsOfBox.roundToIntRect()
+            )
+        }
+
+        progress.value = 1f
+
+        rule.runOnIdle {
+            // Values should only be assigned once, to prove that they are stable
+            assertEquals(1, boundsProvidedCount)
+            assertEquals(
+                expected = IntRect(
+                    offset = IntOffset((rootSizePx - boxWidthEndPx) / 2, rootSizePx - boxHeight),
+                    size = IntSize(boxWidthEndPx, boxHeight)
+                ),
+                actual = globallyPositionedBounds
+            )
+            assertEquals(
+                globallyPositionedBounds,
+                endBoundsOfBox.roundToIntRect()
             )
         }
     }
