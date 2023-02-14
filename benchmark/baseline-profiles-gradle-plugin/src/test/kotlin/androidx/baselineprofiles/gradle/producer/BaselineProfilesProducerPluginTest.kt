@@ -84,12 +84,12 @@ class BaselineProfilesProducerPluginTest {
                     targetProjectPath = ":$buildProviderModuleName"
                     namespace 'com.example.namespace.test'
                 }
-                tasks.register("mergeNonMinifiedReleaseTestResultProtos") { println("Stub") }
+                tasks.register("mergeNonObfuscatedReleaseTestResultProtos") { println("Stub") }
             """.trimIndent(),
             suffix = ""
         )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build().output
-        assertTrue { output.contains("collectNonMinifiedReleaseBaselineProfiles - ") }
+        assertTrue { output.contains("collectNonObfuscatedReleaseBaselineProfiles - ") }
     }
 }

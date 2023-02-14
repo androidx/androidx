@@ -16,7 +16,6 @@
 
 package androidx.baselineprofiles.gradle.producer
 
-import org.gradle.api.Incubating
 import org.gradle.api.Project
 
 /**
@@ -57,14 +56,7 @@ open class BaselineProfilesProducerExtension {
     var managedDevices = mutableListOf<String>()
 
     /**
-     * Whether baseline profiles should be generated on connected devices. Note that in order to
-     * generate a baseline profile, the device is required to be rooted or api level >= 33.
+     * Whether baseline profiles should be generated on connected devices.
      */
-    var useConnectedDevices = true
-
-    /**
-     * Enables the emulator display for GMD devices. This is not a stable api.
-     */
-    @Incubating
-    var enableEmulatorDisplay = false
+    var useConnectedDevices: Boolean = true
 }

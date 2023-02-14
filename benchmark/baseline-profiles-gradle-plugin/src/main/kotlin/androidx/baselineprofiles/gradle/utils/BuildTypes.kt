@@ -27,14 +27,16 @@ internal inline fun <reified T : BuildType> createNonObfuscatedBuildTypes(
     crossinline configureBlock: T.() -> (Unit),
     extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String>
 ) {
-    extension.buildTypes.filter { buildType ->
+    extension.buildTypes
+        .filter { buildType ->
             if (buildType !is T) {
                 throw GradleException(
                     "Build type `${buildType.name}` is not of type ${T::class}"
                 )
             }
             filterBlock(buildType)
-        }.forEach { buildType ->
+        }
+        .forEach { buildType ->
 
             val newBuildTypeName = camelCase(BUILD_TYPE_BASELINE_PROFILE_PREFIX, buildType.name)
 
@@ -61,7 +63,7 @@ internal inline fun <reified T : BuildType> createBuildTypeIfNotExists(
     project: Project,
     extension: CommonExtension<*, T, *, *>,
     buildTypeName: String,
-    crossinline configureBlock: T.() -> (Unit),
+    configureBlock: BuildType.() -> Unit
 ) {
     // Check in case the build type was created manually (to allow full customization)
     if (extension.buildTypes.findByName(buildTypeName) != null) {
