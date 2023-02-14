@@ -792,7 +792,11 @@ class SemanticsTests {
 
     @Test
     fun testInspectorValue() {
-        val properties: SemanticsPropertyReceiver.() -> Unit = {}
+        val properties: SemanticsPropertyReceiver.() -> Unit = {
+            paneTitle = "testTitle"
+            focused = false
+            role = Role.Image
+        }
         rule.setContent {
             val modifier = Modifier.semantics(true, properties) as InspectableValue
 
@@ -800,7 +804,11 @@ class SemanticsTests {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.asIterable()).containsExactly(
                 ValueElement("mergeDescendants", true),
-                ValueElement("properties", properties)
+                ValueElement("properties", mapOf(
+                    "PaneTitle" to "testTitle",
+                    "Focused" to false,
+                    "Role" to Role.Image
+                ))
             )
         }
     }
