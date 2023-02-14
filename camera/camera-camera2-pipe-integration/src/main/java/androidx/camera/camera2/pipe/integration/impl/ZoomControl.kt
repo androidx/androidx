@@ -109,6 +109,14 @@ class ZoomControl @Inject constructor(
     }
 
     fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
+        if (linearZoom > 1.0f || linearZoom < 0f) {
+            val outOfRangeDesc =
+                "Requested linearZoom $linearZoom is not within valid range [0, 1]"
+            return Futures.immediateFailedFuture(
+                IllegalArgumentException(outOfRangeDesc)
+            )
+        }
+
         val zoomValue = ZoomValue(
             ZoomValue.LinearZoom(linearZoom),
             minZoomRatio,
@@ -118,6 +126,15 @@ class ZoomControl @Inject constructor(
     }
 
     fun setZoomRatio(zoomRatio: Float): ListenableFuture<Void> {
+        if (zoomRatio > maxZoomRatio || zoomRatio < minZoomRatio) {
+            val outOfRangeDesc =
+                "Requested zoomRatio $zoomRatio is not within valid range" +
+                    " [$minZoomRatio, $maxZoomRatio]"
+            return Futures.immediateFailedFuture(
+                IllegalArgumentException(outOfRangeDesc)
+            )
+        }
+
         val zoomValue = ZoomValue(
             zoomRatio,
             minZoomRatio,

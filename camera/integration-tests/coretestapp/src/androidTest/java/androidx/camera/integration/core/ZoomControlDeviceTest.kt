@@ -174,11 +174,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setZoomRatio_largerThanMax_zoomUnmodified() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         assumeTrue(2.0f <= cameraInfo.zoomState.value!!.maxZoomRatio + DELTA)
         cameraControl.setZoomRatio(2.0f)[5, TimeUnit.SECONDS]
 
@@ -198,11 +193,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setZoomRatio_largerThanMax_OutOfRangeException() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         val maxZoomRatio = cameraInfo.zoomState.value!!.maxZoomRatio
         val result = cameraControl.setZoomRatio(maxZoomRatio + 1.0f)
 
@@ -211,11 +201,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setZoomRatio_smallerThanMin_zoomUnmodified() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         assumeTrue(2.0f <= cameraInfo.zoomState.value!!.maxZoomRatio + DELTA)
         cameraControl.setZoomRatio(2.0f)[5, TimeUnit.SECONDS]
 
@@ -235,11 +220,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setZoomRatio_smallerThanMin_OutOfRangeException() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         val minZoomRatio = cameraInfo.zoomState.value!!.minZoomRatio
         val result = cameraControl.setZoomRatio(minZoomRatio - 1.0f)
 
@@ -436,11 +416,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setLinearZoom_largerThan1_zoomUnmodified() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         cameraControl.setLinearZoom(0.5f)[5, TimeUnit.SECONDS]
 
         /**
@@ -457,11 +432,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setLinearZoom_largerThan1_outOfRangeException() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         val result = cameraControl.setLinearZoom(1.1f)
 
         assertFutureThrowsIllegalArgumentException(result)
@@ -469,11 +439,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setLinearZoom_smallerThan0_zoomUnmodified() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         cameraControl.setLinearZoom(0.5f)[5, TimeUnit.SECONDS]
 
         /**
@@ -490,11 +455,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setLinearZoom_smallerThan0_outOfRangeException() = runBlocking {
-        assumeFalse(
-            "b/262225455: CameraPipe does not yet handle zoom value outside available range",
-            implName == "CameraPipeConfig"
-        )
-
         val result = cameraControl.setLinearZoom(-0.1f)
 
         assertFutureThrowsIllegalArgumentException(result)
