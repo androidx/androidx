@@ -37,7 +37,7 @@ import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
-import androidx.camera.video.internal.config.VideoEncoderConfigCamcorderProfileResolver
+import androidx.camera.video.internal.config.VideoEncoderConfigVideoProfileResolver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -144,7 +144,7 @@ class EncoderFinderTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    fun findEncoderForFormat_CamcorderProfile() {
+    fun findEncoderForFormat_EncoderProfiles() {
         // Arrange.
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
         val resolution = QualitySelector.getResolution(cameraInfo, quality)
@@ -153,18 +153,18 @@ class EncoderFinderTest(
             resolution != null
         )
 
-        val camcorderProfile = VideoCapabilities.from(cameraInfo).getProfile(quality)
-        val camcorderProfileVideoMime = camcorderProfile!!.videoCodecMimeType!!
+        val encoderProfiles = VideoCapabilities.from(cameraInfo).getProfiles(quality)
+        val videoProfile = encoderProfiles!!.defaultVideoProfile
 
         val videoSpec =
             VideoSpec.builder().setQualitySelector(QualitySelector.from(quality)).build()
 
-        val mediaFormat = VideoEncoderConfigCamcorderProfileResolver(
-            camcorderProfileVideoMime,
+        val mediaFormat = VideoEncoderConfigVideoProfileResolver(
+            videoProfile.mediaType,
             timebase,
             videoSpec,
             resolution!!,
-            camcorderProfile,
+            videoProfile,
             /*expectedFrameRateRange=*/null
         ).get().toMediaFormat()
 

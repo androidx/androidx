@@ -18,6 +18,12 @@ package androidx.camera.video
 
 import android.content.Context
 import android.graphics.Rect
+import android.media.CamcorderProfile.QUALITY_1080P
+import android.media.CamcorderProfile.QUALITY_2160P
+import android.media.CamcorderProfile.QUALITY_480P
+import android.media.CamcorderProfile.QUALITY_720P
+import android.media.CamcorderProfile.QUALITY_HIGH
+import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
 import android.os.Looper
 import android.util.Range
@@ -33,9 +39,9 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CamcorderProfileProxy
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.MutableStateObservable
@@ -48,26 +54,25 @@ import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CamcorderProfileUtil
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_1080P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_2160P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_480P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_720P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_1080P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_2160P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_480P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_720P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_QHD
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_QVGA
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_VGA
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_480P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_1080P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_480P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_QHD
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_QVGA
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_VGA
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
-import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.video.Quality.FHD
@@ -101,11 +106,11 @@ import org.robolectric.shadows.ShadowLog
 
 private val ANY_SIZE = Size(640, 480)
 private const val CAMERA_ID_0 = "0"
-private val CAMERA_0_PROFILES = arrayOf(
-    CamcorderProfileUtil.asHighQuality(PROFILE_2160P),
-    PROFILE_2160P,
-    PROFILE_720P,
-    CamcorderProfileUtil.asLowQuality(PROFILE_720P)
+private val CAMERA_0_PROFILES = mapOf(
+    QUALITY_HIGH to PROFILES_2160P,
+    QUALITY_2160P to PROFILES_2160P,
+    QUALITY_720P to PROFILES_720P,
+    QUALITY_LOW to PROFILES_720P,
 )
 
 @RunWith(RobolectricTestRunner::class)
@@ -433,13 +438,13 @@ class VideoCaptureTest {
     fun setQualitySelector_sameCustomOrderedResolutions() {
         // Arrange.
         setupCamera(
-            profiles = arrayOf(
-                CamcorderProfileUtil.asHighQuality(PROFILE_2160P),
-                PROFILE_2160P,
-                PROFILE_1080P,
-                PROFILE_720P,
-                PROFILE_480P,
-                CamcorderProfileUtil.asLowQuality(PROFILE_480P)
+            profiles = mapOf(
+                QUALITY_HIGH to PROFILES_2160P,
+                QUALITY_2160P to PROFILES_2160P,
+                QUALITY_1080P to PROFILES_1080P,
+                QUALITY_720P to PROFILES_720P,
+                QUALITY_480P to PROFILES_480P,
+                QUALITY_LOW to PROFILES_480P
             )
         )
         createCameraUseCaseAdapter()
@@ -475,13 +480,13 @@ class VideoCaptureTest {
     fun setAspectRatio_4by3() {
         // Arrange.
         setupCamera(
-            profiles = arrayOf(
-                CamcorderProfileUtil.asHighQuality(PROFILE_2160P),
-                PROFILE_2160P,
-                PROFILE_1080P,
-                PROFILE_720P,
-                PROFILE_480P,
-                CamcorderProfileUtil.asLowQuality(PROFILE_480P)
+            profiles = mapOf(
+                QUALITY_HIGH to PROFILES_2160P,
+                QUALITY_2160P to PROFILES_2160P,
+                QUALITY_1080P to PROFILES_1080P,
+                QUALITY_720P to PROFILES_720P,
+                QUALITY_480P to PROFILES_480P,
+                QUALITY_LOW to PROFILES_480P
             )
         )
         createCameraUseCaseAdapter()
@@ -515,13 +520,13 @@ class VideoCaptureTest {
     fun setAspectRatio_16by9() {
         // Arrange.
         setupCamera(
-            profiles = arrayOf(
-                CamcorderProfileUtil.asHighQuality(PROFILE_2160P),
-                PROFILE_2160P,
-                PROFILE_1080P,
-                PROFILE_720P,
-                PROFILE_480P,
-                CamcorderProfileUtil.asLowQuality(PROFILE_480P)
+            profiles = mapOf(
+                QUALITY_HIGH to PROFILES_2160P,
+                QUALITY_2160P to PROFILES_2160P,
+                QUALITY_1080P to PROFILES_1080P,
+                QUALITY_720P to PROFILES_720P,
+                QUALITY_480P to PROFILES_480P,
+                QUALITY_LOW to PROFILES_480P
             )
         )
         createCameraUseCaseAdapter()
@@ -597,7 +602,7 @@ class VideoCaptureTest {
     @Test
     fun noSupportedQuality_supportedResolutionsIsNotSet() {
         // Arrange.
-        setupCamera(profiles = emptyArray())
+        setupCamera(profiles = emptyMap())
         createCameraUseCaseAdapter()
 
         val videoOutput = createVideoOutput(
@@ -1037,15 +1042,14 @@ class VideoCaptureTest {
         cameraId: String = CAMERA_ID_0,
         sensorRotation: Int = 0,
         supportedResolutions: Map<Int, List<Size>> = CAMERA_0_SUPPORTED_RESOLUTION_MAP,
-        vararg profiles: CamcorderProfileProxy = CAMERA_0_PROFILES,
+        profiles: Map<Int, EncoderProfilesProxy> = CAMERA_0_PROFILES,
         timebase: Timebase = Timebase.UPTIME,
     ) {
         cameraInfo = FakeCameraInfoInternal(cameraId, sensorRotation, LENS_FACING_BACK).apply {
             supportedResolutions.forEach { (format, resolutions) ->
                 setSupportedResolutions(format, resolutions)
             }
-            camcorderProfileProvider =
-                FakeCamcorderProfileProvider.Builder().addProfile(*profiles).build()
+            encoderProfilesProvider = FakeEncoderProfilesProvider.Builder().addAll(profiles).build()
             setTimebase(timebase)
         }
         camera = FakeCamera(cameraId, null, cameraInfo)

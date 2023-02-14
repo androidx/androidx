@@ -54,9 +54,9 @@ import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.Timebase;
@@ -115,7 +115,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     private final Quirks mCameraQuirks;
     @NonNull
-    private final CamcorderProfileProvider mCamera2CamcorderProfileProvider;
+    private final EncoderProfilesProvider mCamera2EncoderProfilesProvider;
     @NonNull
     private final CameraManagerCompat mCameraManager;
 
@@ -131,8 +131,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraCharacteristicsCompat = cameraManager.getCameraCharacteristicsCompat(mCameraId);
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
-        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
-                mCameraCharacteristicsCompat);
+        mCamera2EncoderProfilesProvider = new Camera2EncoderProfilesProvider(cameraId);
         mCameraStateLiveData = new RedirectableLiveData<>(
                 CameraState.create(CameraState.Type.CLOSED));
     }
@@ -401,8 +400,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     /** {@inheritDoc} */
     @NonNull
     @Override
-    public CamcorderProfileProvider getCamcorderProfileProvider() {
-        return mCamera2CamcorderProfileProvider;
+    public EncoderProfilesProvider getEncoderProfilesProvider() {
+        return mCamera2EncoderProfilesProvider;
     }
 
     @NonNull

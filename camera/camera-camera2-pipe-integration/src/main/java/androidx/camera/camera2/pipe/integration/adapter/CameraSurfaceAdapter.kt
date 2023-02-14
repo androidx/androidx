@@ -65,7 +65,7 @@ class CameraSurfaceAdapter(
                 SupportedSurfaceCombination(
                     context,
                     checkNotNull(cameraMetadata),
-                    CamcorderProfileProviderAdapter(cameraId)
+                    EncoderProfilesProviderAdapter(cameraId)
                 )
         }
     }

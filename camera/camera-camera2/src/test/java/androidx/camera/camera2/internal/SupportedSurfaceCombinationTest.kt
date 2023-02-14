@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.camera2.internal
 
 import android.content.Context
@@ -21,6 +22,10 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import android.media.CamcorderProfile
+import android.media.CamcorderProfile.QUALITY_1080P
+import android.media.CamcorderProfile.QUALITY_2160P
+import android.media.CamcorderProfile.QUALITY_480P
+import android.media.CamcorderProfile.QUALITY_720P
 import android.os.Build
 import android.util.Pair
 import android.util.Range
@@ -62,16 +67,16 @@ import androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
-import androidx.camera.testing.CamcorderProfileUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.Configs
+import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.MediaSpec
@@ -145,18 +150,17 @@ class SupportedSurfaceCombinationTest {
         CamcorderProfile::class.java
     )
     private var cameraManagerCompat: CameraManagerCompat? = null
-    private val profileUhd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_2160P, RECORD_SIZE.width, RECORD_SIZE.height
+    private val profileUhd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        RECORD_SIZE.width, RECORD_SIZE.height
     )
-    private val profileFhd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_1080P, 1920, 1080
+    private val profileFhd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        1920, 1080
     )
-    private val profileHd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_720P, PREVIEW_SIZE.width, PREVIEW_SIZE.height
+    private val profileHd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        PREVIEW_SIZE.width, PREVIEW_SIZE.height
     )
-    private val profileSd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_480P, RESOLUTION_VGA.width,
-        RESOLUTION_VGA.height
+    private val profileSd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        RESOLUTION_VGA.width, RESOLUTION_VGA.height
     )
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private var cameraFactory: FakeCameraFactory? = null
@@ -3052,15 +3056,12 @@ class SupportedSurfaceCombinationTest {
             sensorOrientation,
             CameraCharacteristics.LENS_FACING_BACK
         ).apply {
-            camcorderProfileProvider = FakeCamcorderProfileProvider.Builder()
-                .addProfile(
-                    CamcorderProfileUtil.asHighQuality(profileUhd),
-                    profileUhd,
-                    profileFhd,
-                    profileHd,
-                    profileSd,
-                    CamcorderProfileUtil.asLowQuality(profileSd)
-                ).build()
+            encoderProfilesProvider = FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_2160P, profileUhd)
+                .add(QUALITY_1080P, profileFhd)
+                .add(QUALITY_720P, profileHd)
+                .add(QUALITY_480P, profileSd)
+                .build()
         }
 
         cameraFactory = FakeCameraFactory().apply {
