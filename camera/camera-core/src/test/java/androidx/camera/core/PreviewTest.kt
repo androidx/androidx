@@ -30,6 +30,8 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
@@ -198,6 +200,17 @@ class PreviewTest {
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
             )
         )
+    }
+
+    @Test
+    fun defaultMirrorModeIsOff() {
+        val preview = Preview.Builder().build()
+        assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun setMirrorMode_throwException() {
+        Preview.Builder().setMirrorMode(MIRROR_MODE_FRONT_ON)
     }
 
     @Test

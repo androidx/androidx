@@ -43,6 +43,8 @@ import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraFactory
@@ -729,6 +731,17 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun defaultMirrorModeIsOff() {
+        val videoCapture = createVideoCapture()
+        assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_OFF)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun setMirrorMode_throwException() {
+        createVideoCapture(mirrorMode = MIRROR_MODE_FRONT_ON)
+    }
+
+    @Test
     fun setTargetRotationInBuilder_rotationIsChanged() {
         // Act.
         val videoCapture = createVideoCapture(targetRotation = Surface.ROTATION_180)
@@ -1225,6 +1238,7 @@ class VideoCaptureTest {
     private fun createVideoCapture(
         videoOutput: VideoOutput = createVideoOutput(),
         targetRotation: Int? = null,
+        mirrorMode: Int? = null,
         targetResolution: Size? = null,
         videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo> =
             Function { createVideoEncoderInfo() },
@@ -1232,6 +1246,7 @@ class VideoCaptureTest {
         .setSessionOptionUnpacker { _, _ -> }
         .apply {
             targetRotation?.let { setTargetRotation(it) }
+            mirrorMode?.let { setMirrorMode(it) }
             targetResolution?.let { setTargetResolution(it) }
             setVideoEncoderInfoFinder(videoEncoderInfoFinder)
         }.build()

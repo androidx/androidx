@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.processing.TargetUtils.isSuperset;
 import static androidx.core.util.Preconditions.checkArgument;
@@ -322,6 +325,39 @@ public abstract class UseCase {
     @ImageOutputConfig.RotationValue
     protected int getTargetRotationInternal() {
         return ((ImageOutputConfig) mCurrentConfig).getTargetRotation(Surface.ROTATION_0);
+    }
+
+    /**
+     * Returns the mirror mode.
+     *
+     * <p>If mirror mode is not set, defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @MirrorMode.Mirror
+    protected int getMirrorModeInternal() {
+        return ((ImageOutputConfig) mCurrentConfig).getMirrorMode(MIRROR_MODE_OFF);
+    }
+
+    /**
+     * Returns if the mirroring is required with the associated camera.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isMirroringRequired(@NonNull CameraInternal camera) {
+        int mirrorMode = getMirrorModeInternal();
+        switch (mirrorMode) {
+            case MIRROR_MODE_OFF:
+                return false;
+            case MIRROR_MODE_ON:
+                return true;
+            case MIRROR_MODE_FRONT_ON:
+                return camera.isFrontFacing();
+            default:
+                throw new AssertionError("Unknown mirrorMode: " + mirrorMode);
+        }
     }
 
     /**

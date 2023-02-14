@@ -70,6 +70,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
@@ -267,6 +268,18 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (setTargetRotationInternal(rotation)) {
             sendTransformationInfoIfReady();
         }
+    }
+
+    // TODO: to public API
+    /**
+     * Returns mirror mode for testing.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.TESTS)
+    @MirrorMode.Mirror
+    public int getMirrorMode() {
+        return getMirrorModeInternal();
     }
 
     /**
@@ -1308,6 +1321,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         public Builder<T> setTargetRotation(@RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
             return this;
+        }
+
+        // TODO: to public API
+        /**
+         * setMirrorMode is not supported on VideoCapture.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder<T> setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
         }
 
         /**

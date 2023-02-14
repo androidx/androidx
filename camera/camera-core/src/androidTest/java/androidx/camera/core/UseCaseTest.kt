@@ -21,8 +21,11 @@ import android.util.LayoutDirection
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.concurrent.CameraCoordinator
-import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.SessionConfig
@@ -43,20 +46,18 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class UseCaseTest {
-    private var mockCameraInternal: CameraInternal? = null
+    private lateinit var fakeCamera: FakeCamera
+    private lateinit var fakeFrontCamera: FakeCamera
 
     @Before
     fun setup() {
-        mockCameraInternal = Mockito.mock(
-            CameraInternal::class.java
-        )
+        fakeCamera = FakeCamera()
+        fakeFrontCamera = FakeCamera(null, FakeCameraInfoInternal(0, LENS_FACING_FRONT))
     }
 
     @Test
@@ -92,46 +93,42 @@ class UseCaseTest {
     @Test
     fun removeListener() {
         val testUseCase = createFakeUseCase()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
-        testUseCase.unbindFromCamera(mockCameraInternal!!)
+        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.unbindFromCamera(fakeCamera)
         testUseCase.notifyActive()
-        Mockito.verify(mockCameraInternal, Mockito.never())!!.onUseCaseActive(
-            ArgumentMatchers.any(
-                UseCase::class.java
-            )
-        )
+        assertThat(fakeCamera.useCaseActiveHistory).isEmpty()
     }
 
     @Test
     fun notifyActiveState() {
         val testUseCase = createFakeUseCase()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null)
         testUseCase.notifyActive()
-        Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseActive(testUseCase)
+        assertThat(fakeCamera.useCaseActiveHistory[0]).isEqualTo(testUseCase)
     }
 
     @Test
     fun notifyInactiveState() {
         val testUseCase = createFakeUseCase()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null)
         testUseCase.notifyInactive()
-        Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseInactive(testUseCase)
+        assertThat(fakeCamera.useCaseInactiveHistory[0]).isEqualTo(testUseCase)
     }
 
     @Test
     fun notifyUpdatedSettings() {
         val testUseCase = FakeUseCase()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null)
         testUseCase.notifyUpdated()
-        Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseUpdated(testUseCase)
+        assertThat(fakeCamera.useCaseUpdateHistory[0]).isEqualTo(testUseCase)
     }
 
     @Test
     fun notifyResetUseCase() {
         val testUseCase = FakeUseCase()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null)
         testUseCase.notifyReset()
-        Mockito.verify(mockCameraInternal, Mockito.times(1))!!.onUseCaseReset(testUseCase)
+        assertThat(fakeCamera.useCaseResetHistory[0]).isEqualTo(testUseCase)
     }
 
     @Test
@@ -150,8 +147,8 @@ class UseCaseTest {
         val testUseCase = FakeUseCase()
         testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC)
         assertThat(testUseCase.attachedSurfaceResolution).isNotNull()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
-        testUseCase.unbindFromCamera(mockCameraInternal!!)
+        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.unbindFromCamera(fakeCamera)
         assertThat(testUseCase.attachedSurfaceResolution).isNull()
     }
 
@@ -160,8 +157,8 @@ class UseCaseTest {
         val testUseCase = FakeUseCase()
         testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC)
         assertThat(testUseCase.attachedStreamSpec).isNotNull()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
-        testUseCase.unbindFromCamera(mockCameraInternal!!)
+        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.unbindFromCamera(fakeCamera)
         assertThat(testUseCase.attachedStreamSpec).isNull()
     }
 
@@ -170,8 +167,8 @@ class UseCaseTest {
         val testUseCase = FakeUseCase()
         testUseCase.setViewPortCropRect(Rect(0, 0, 640, 480))
         assertThat(testUseCase.viewPortCropRect).isNotNull()
-        testUseCase.bindToCamera(mockCameraInternal!!, null, null)
-        testUseCase.unbindFromCamera(mockCameraInternal!!)
+        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.unbindFromCamera(fakeCamera)
         assertThat(testUseCase.viewPortCropRect).isNull()
     }
 
@@ -262,13 +259,50 @@ class UseCaseTest {
         assertThat(resolutionInfo!!.cropRect).isEqualTo(Rect(0, 60, 640, 420))
     }
 
+    @Test
+    fun defaultMirrorModeIsOff() {
+        val fakeUseCase = createFakeUseCase()
+        assertThat(fakeUseCase.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+    }
+
+    @Test
+    fun canGetSetMirrorMode() {
+        val fakeUseCase = createFakeUseCase(mirrorMode = MIRROR_MODE_ON)
+        assertThat(fakeUseCase.mirrorModeInternal).isEqualTo(MIRROR_MODE_ON)
+    }
+
+    @Test
+    fun setMirrorModeOff_isMirroringRequiredIsFalse() {
+        val fakeUseCase = createFakeUseCase(mirrorMode = MIRROR_MODE_OFF)
+        assertThat(fakeUseCase.isMirroringRequired(fakeCamera)).isFalse()
+        assertThat(fakeUseCase.isMirroringRequired(fakeFrontCamera)).isFalse()
+    }
+
+    @Test
+    fun setMirrorModeOn_isMirroringRequiredIsTrue() {
+        val fakeUseCase = createFakeUseCase(mirrorMode = MIRROR_MODE_ON)
+        assertThat(fakeUseCase.isMirroringRequired(fakeCamera)).isTrue()
+        assertThat(fakeUseCase.isMirroringRequired(fakeFrontCamera)).isTrue()
+    }
+
+    @Test
+    fun setMirrorModeFrontOn_isMirroringRequiredDependsOnCamera() {
+        val fakeUseCase = createFakeUseCase(mirrorMode = MIRROR_MODE_FRONT_ON)
+        assertThat(fakeUseCase.isMirroringRequired(fakeCamera)).isFalse()
+        assertThat(fakeUseCase.isMirroringRequired(fakeFrontCamera)).isTrue()
+    }
+
     private fun createFakeUseCase(
-        targetRotation: Int = Surface.ROTATION_0
+        targetRotation: Int = Surface.ROTATION_0,
+        mirrorMode: Int? = null,
     ): FakeUseCase {
         return FakeUseCase(
             FakeUseCaseConfig.Builder()
                 .setTargetName("UseCase")
                 .setTargetRotation(targetRotation)
+                .apply {
+                    mirrorMode?.let { setMirrorMode(it) }
+                }
                 .useCaseConfig
         )
     }
