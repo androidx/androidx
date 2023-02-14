@@ -204,7 +204,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 ?: return
 
             // Change: Removed SimpleDateFormat and Animator checks
-            var api = apiDatabase.getMethodVersions(owner, name, desc).min()
+            @Suppress("DEPRECATION") // b/262915628
+            var api = apiDatabase.getMethodVersion(owner, name, desc)
             if (api == -1) {
                 return
             }
@@ -261,9 +262,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             for (type in inheritanceChain) {
                                 val expressionOwner = evaluator.getQualifiedName(type)
                                 if (expressionOwner != null && expressionOwner != owner) {
-                                    val specificApi = apiDatabase.getMethodVersions(
+                                    @Suppress("DEPRECATION") // b/262915628
+                                    val specificApi = apiDatabase.getMethodVersion(
                                         expressionOwner, name, desc
-                                    ).min()
+                                    )
                                     if (specificApi == -1) {
                                         if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                             return
@@ -340,8 +342,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         ) {
                             break
                         }
+                        @Suppress("DEPRECATION") // b/262915628
                         val specificApi =
-                            apiDatabase.getMethodVersions(expressionOwner, name, desc).min()
+                            apiDatabase.getMethodVersion(expressionOwner, name, desc)
                         if (specificApi == -1) {
                             if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                 break
@@ -386,9 +389,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                 if (provider != null) {
                                     val methodOwner = evaluator.getQualifiedName(provider)
                                     if (methodOwner != null) {
-                                        val methodApi = apiDatabase.getMethodVersions(
+                                        @Suppress("DEPRECATION") // b/262915628
+                                        val methodApi = apiDatabase.getMethodVersion(
                                             methodOwner, name, desc
-                                        ).min()
+                                        )
                                         if (methodApi == -1 || methodApi <= minSdk) {
                                             // Yes, we found another call that doesn't have an API requirement
                                             return
@@ -894,7 +898,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         private fun classAvailableAtMinSdk(className: String): Boolean {
             val apiDatabase = apiDatabase ?: return false
             val minSdk = getMinSdk(context)
-            val version = apiDatabase.getClassVersions(className).min()
+            @Suppress("DEPRECATION") // b/262915628
+            val version = apiDatabase.getClassVersion(className)
             return version <= minSdk
         }
 
