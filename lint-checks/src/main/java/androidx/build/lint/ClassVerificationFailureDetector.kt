@@ -46,7 +46,6 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiCompiledElement
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiEllipsisType
 import com.intellij.psi.PsiExpressionList
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiMethodCallExpression
@@ -68,7 +67,6 @@ import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.isNullLiteral
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
 
@@ -534,8 +532,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 call.receiver,
                 call.valueArguments,
                 wrapperClassName,
-                wrapperMethodName,
-                wrapperMethodParams
+                wrapperMethodName
             )
 
             val fix = fix()
@@ -691,7 +688,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          * @param callValueArguments Arguments of the call to the platform method
          * @param wrapperClassName Name of the generated wrapper class
          * @param wrapperMethodName Name of the generated wrapper method
-         * @param wrapperMethodParams Param types of the wrapper method
          * @return Source code for a call to the static wrapper method
          */
         private fun generateWrapperCall(
@@ -700,7 +696,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             callValueArguments: List<UExpression>,
             wrapperClassName: String,
             wrapperMethodName: String,
-            wrapperMethodParams: List<PsiType>
         ): String {
             val callReceiverStr = when {
                 // Static method
@@ -713,34 +708,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 // it must be a call to an instance method using `this` implicitly.
                 callReceiver == null ->
                     "this"
-                // Use the original call receiver string (removing extra parens), casting if needed
+                // Otherwise, use the original call receiver string (removing extra parens)
                 else ->
-                    createArgumentString(unwrapExpression(callReceiver), wrapperMethodParams[0])
+                    unwrapExpression(callReceiver).asSourceString()
             }
 
             val callValues = if (callValueArguments.isNotEmpty()) {
-                // The first element in the wrapperMethodParams is the receiver, so drop that.
-                // Also drop the last parameter, because it is special-cased later.
-                val paramTypesWithoutReceiverAndFinal = wrapperMethodParams.drop(1).dropLast(1)
-                // For varargs methods, what we care about for the last type is the type of each
-                // vararg, not the containing type.
-                val finalParamType = if (method.isVarArgs) {
-                    (wrapperMethodParams.last() as PsiEllipsisType).componentType
-                } else {
-                    wrapperMethodParams.last()
+                callValueArguments.joinToString(separator = ", ") { argument ->
+                    argument.asSourceString()
                 }
-
-                callValueArguments.mapIndexed { argIndex, arg ->
-                    // The number of args might be greater than the number of param types due to
-                    // varargs, repeat the final param type for all args after exhausting the
-                    // paramTypesWithoutReceiverAndFinal list.
-                    val expectedType = if (argIndex < paramTypesWithoutReceiverAndFinal.size) {
-                        paramTypesWithoutReceiverAndFinal[argIndex]
-                    } else {
-                        finalParamType
-                    }
-                    createArgumentString(arg, expectedType)
-                }.joinToString(separator = ", ")
             } else {
                 null
             }
@@ -748,24 +724,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val replacementArgs = listOfNotNull(callReceiverStr, callValues).joinToString(", ")
 
             return "$wrapperClassName.$wrapperMethodName($replacementArgs)"
-        }
-
-        /**
-         * Creates the string representation of an argument in the wrapper call. If the type of the
-         * arg is not identical to the parameter type of the wrapper method, casts to that type.
-         */
-        private fun createArgumentString(arg: UExpression, expectedType: PsiType): String {
-            val argType = arg.getExpressionType()
-            val expectedTypeText = expectedType.canonicalText
-            // If the arg is the expected type, use as normal, otherwise, cast to expected type.
-            // Uses text-base equality instead of directly comparing types because certain types
-            // (eq. java.lang.Class<T>) are not necessarily equal to instances of the same type.
-            // There isn't really a point in casting if the arg is null.
-            return if (argType?.equalsToText(expectedTypeText) == true || arg.isNullLiteral()) {
-                arg.asSourceString()
-            } else {
-                "($expectedTypeText) ${arg.asSourceString()}"
-            }
         }
 
         /**
