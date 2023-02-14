@@ -16,6 +16,7 @@
 
 package androidx.stableaidl
 
+import androidx.stableaidl.api.StableAidlExtension
 import com.android.build.api.dsl.SdkComponents
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.DslExtension
@@ -29,6 +30,8 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 
+private const val DEFAULT_VARIANT_NAME = "release"
+private const val EXTENSION_NAME = "stableaidl"
 private const val PLUGIN_DIRNAME = "stable_aidl"
 private const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
 private const val INTERMEDIATES_PATH = "intermediates/${PLUGIN_DIRNAME}_parcelable"
@@ -39,6 +42,11 @@ abstract class StableAidlPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
             ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
+
+        val extension = project.extensions.create(
+            EXTENSION_NAME,
+            StableAidlExtensionImpl::class.java
+        )
 
         // Obtain the AIDL executable and framework AIDL file paths using private APIs. See
         // b/268237729 for public API request, after which we can obtain them from SdkComponents.
@@ -130,7 +138,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 lastReleasedApiDir,
                 generateAidlApiTask
             )
-            registerCheckAidlApi(
+            val checkAidlApiTask = registerCheckAidlApi(
                 project,
                 variant,
                 aidlExecutable,
@@ -141,11 +149,28 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 generateAidlApiTask,
                 checkAidlApiReleaseTask
             )
-            registerUpdateAidlApi(
+            val updateAidlApiTask = registerUpdateAidlApi(
                 project,
                 variant,
                 lastCheckedInApiDir,
                 generateAidlApiTask
+            )
+
+            if (variant.name == DEFAULT_VARIANT_NAME) {
+                extension.updateTaskProvider = updateAidlApiTask
+                extension.checkTaskProvider = checkAidlApiTask
+            }
+
+            extension.importSourceDirs.add(
+                variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL_IMPORTS)
+            )
+
+            extension.allTasks[variant.name] = setOf(
+                compileAidlApiTask,
+                generateAidlApiTask,
+                checkAidlApiReleaseTask,
+                checkAidlApiTask,
+                updateAidlApiTask
             )
         }
     }
@@ -208,4 +233,20 @@ internal fun Project.getAidlArtifactsOnCompileClasspath(variant: Variant): List<
             config.attributes(ArtifactType.STABLE_AIDL)
         }?.artifacts?.artifactFiles
     return listOfNotNull(aidlFiles, stableAidlFiles)
+}
+
+/**
+ * When the Stable AIDL plugin is applies to the project, runs the specified [lambda] with access to
+ * the plugin's public APIs via [StableAidlExtension].
+ *
+ * If the project does not have the Stable AIDL plugin applied, this is a no-op.
+ */
+fun Project.withStableAidlPlugin(lambda: (StableAidlExtension) -> Unit) {
+    project.plugins.withId("androidx.stableaidl") { plugin ->
+        (plugin as? StableAidlPlugin)?.let {
+            project.extensions.findByType(StableAidlExtension::class.java)?.let { ext ->
+                lambda(ext)
+            } ?: throw GradleException("Failed to locate extension for StableAidlPlugin")
+        } ?: throw GradleException("Plugin with ID \"androidx.stableaidl\" is not StableAidlPlugin")
+    }
 }
