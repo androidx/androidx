@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.adapter.WindowBackend
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,7 @@ internal class WindowInfoTrackerImpl(
      * A [Flow] of window layout changes in the current visual [UiContext]. A context has to be
      * either an [Activity] or created with [Context#createWindowContext].
      */
+    @ExperimentalWindowApi
     override fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
         return callbackFlow {
             val listener = Consumer { info: WindowLayoutInfo -> trySend(info) }
