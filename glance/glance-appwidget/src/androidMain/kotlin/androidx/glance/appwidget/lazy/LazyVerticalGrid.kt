@@ -23,6 +23,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
 import androidx.glance.Emittable
 
@@ -105,14 +106,18 @@ private fun LazyVerticalGridItem(
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
-    GlanceNode(
-        factory = ::EmittableLazyVerticalGridListItem,
-        update = {
-            this.set(itemId) { this.itemId = it }
-            this.set(alignment) { this.alignment = it }
-        },
-        content = content
-    )
+    // We wrap LazyVerticalGridItem in the key composable to ensure that lambda actions declared
+    // within each item's scope will get a unique ID based on the currentCompositeKeyHash.
+    key(itemId) {
+        GlanceNode(
+            factory = ::EmittableLazyVerticalGridListItem,
+            update = {
+                this.set(itemId) { this.itemId = it }
+                this.set(alignment) { this.alignment = it }
+            },
+            content = content
+        )
+    }
 }
 
 @JvmDefaultWithCompatibility
