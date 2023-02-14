@@ -736,6 +736,26 @@ package androidx.wear.protolayout {
   }
 
   public final class ModifiersBuilders {
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_BOTTOM_TO_TOP = 4; // 0x4
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_LEFT_TO_RIGHT = 1; // 0x1
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_RIGHT_TO_LEFT = 2; // 0x2
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_TOP_TO_BOTTOM = 3; // 0x3
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_UNDEFINED = 0; // 0x0
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_PARENT_SNAP_TO_INSIDE = 1; // 0x1
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_PARENT_SNAP_TO_OUTSIDE = 2; // 0x2
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_PARENT_SNAP_UNDEFINED = 0; // 0x0
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.AnimatedVisibility {
+    method public androidx.wear.protolayout.ModifiersBuilders.EnterTransition? getEnterTransition();
+    method public androidx.wear.protolayout.ModifiersBuilders.ExitTransition? getExitTransition();
+  }
+
+  public static final class ModifiersBuilders.AnimatedVisibility.Builder {
+    ctor public ModifiersBuilders.AnimatedVisibility.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility build();
+    method public androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder setEnterTransition(androidx.wear.protolayout.ModifiersBuilders.EnterTransition);
+    method public androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder setExitTransition(androidx.wear.protolayout.ModifiersBuilders.ExitTransition);
   }
 
   public static final class ModifiersBuilders.ArcModifiers {
@@ -796,6 +816,15 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.protolayout.DimensionBuilders.DpProp);
   }
 
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.DefaultContentTransitions {
+    method public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition fadeIn();
+    method public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition fadeInSlideIn(int);
+    method public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition fadeOut();
+    method public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition fadeOutSlideOut(int);
+    method public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition slideIn(int);
+    method public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition slideOut(int);
+  }
+
   public static final class ModifiersBuilders.ElementMetadata {
     method public byte[] getTagData();
   }
@@ -806,10 +835,59 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.ElementMetadata.Builder setTagData(byte[]);
   }
 
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.EnterTransition {
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeInTransition? getFadeIn();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideInTransition? getSlideIn();
+  }
+
+  public static final class ModifiersBuilders.EnterTransition.Builder {
+    ctor public ModifiersBuilders.EnterTransition.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.EnterTransition build();
+    method public androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder setFadeIn(androidx.wear.protolayout.ModifiersBuilders.FadeInTransition);
+    method public androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder setSlideIn(androidx.wear.protolayout.ModifiersBuilders.SlideInTransition);
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.ExitTransition {
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition? getFadeOut();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition? getSlideOut();
+  }
+
+  public static final class ModifiersBuilders.ExitTransition.Builder {
+    ctor public ModifiersBuilders.ExitTransition.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.ExitTransition build();
+    method public androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder setFadeOut(androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition);
+    method public androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder setSlideOut(androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition);
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.FadeInTransition {
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec? getAnimationSpec();
+    method @FloatRange(from=0.0, to=1.0) public float getInitialAlpha();
+  }
+
+  public static final class ModifiersBuilders.FadeInTransition.Builder {
+    ctor public ModifiersBuilders.FadeInTransition.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeInTransition build();
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder setInitialAlpha(@FloatRange(from=0.0, to=1.0) float);
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.FadeOutTransition {
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec? getAnimationSpec();
+    method @FloatRange(from=0.0, to=1.0) public float getTargetAlpha();
+  }
+
+  public static final class ModifiersBuilders.FadeOutTransition.Builder {
+    ctor public ModifiersBuilders.FadeOutTransition.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition build();
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder setTargetAlpha(@FloatRange(from=0.0, to=1.0) float);
+  }
+
   public static final class ModifiersBuilders.Modifiers {
     method public androidx.wear.protolayout.ModifiersBuilders.Background? getBackground();
     method public androidx.wear.protolayout.ModifiersBuilders.Border? getBorder();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable? getClickable();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility? getContentUpdateAnimation();
     method public androidx.wear.protolayout.ModifiersBuilders.ElementMetadata? getMetadata();
     method public androidx.wear.protolayout.ModifiersBuilders.Padding? getPadding();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics? getSemantics();
@@ -821,6 +899,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.protolayout.ModifiersBuilders.Background);
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.protolayout.ModifiersBuilders.Border);
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.protolayout.ModifiersBuilders.Clickable);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility);
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setMetadata(androidx.wear.protolayout.ModifiersBuilders.ElementMetadata);
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.protolayout.ModifiersBuilders.Padding);
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.protolayout.ModifiersBuilders.Semantics);
@@ -854,6 +933,47 @@ package androidx.wear.protolayout {
     ctor public ModifiersBuilders.Semantics.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics build();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(String);
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static interface ModifiersBuilders.SlideBound {
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.SlideInTransition {
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec? getAnimationSpec();
+    method public int getDirection();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideBound? getInitialSlideBound();
+  }
+
+  public static final class ModifiersBuilders.SlideInTransition.Builder {
+    ctor public ModifiersBuilders.SlideInTransition.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideInTransition build();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder setDirection(int);
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder setInitialSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound);
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.SlideOutTransition {
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec? getAnimationSpec();
+    method public int getDirection();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideBound? getTargetSlideBound();
+  }
+
+  public static final class ModifiersBuilders.SlideOutTransition.Builder {
+    ctor public ModifiersBuilders.SlideOutTransition.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition build();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder setDirection(int);
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder setTargetSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound);
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.SlideParentBound implements androidx.wear.protolayout.ModifiersBuilders.SlideBound {
+    method public int getSnapTo();
+  }
+
+  public static final class ModifiersBuilders.SlideParentBound.Builder {
+    ctor public ModifiersBuilders.SlideParentBound.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideParentBound build();
+    method public androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder setSnapTo(int);
   }
 
   public static final class ModifiersBuilders.SpanModifiers {
