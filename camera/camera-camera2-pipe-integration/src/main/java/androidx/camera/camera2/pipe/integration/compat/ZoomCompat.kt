@@ -30,8 +30,8 @@ import dagger.Module
 import dagger.Provides
 
 interface ZoomCompat {
-    val minZoom: Float
-    val maxZoom: Float
+    val minZoomRatio: Float
+    val maxZoomRatio: Float
 
     fun apply(
         zoomRatio: Float,
@@ -60,11 +60,11 @@ interface ZoomCompat {
 }
 
 class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : ZoomCompat {
-    override val minZoom: Float
+    override val minZoomRatio: Float
         get() = 1.0f
-    override val maxZoom: Float
+    override val maxZoomRatio: Float
         get() = cameraProperties.metadata.getOrDefault(
-            CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM, minZoom
+            CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM, minZoomRatio
         )
 
     override fun apply(
@@ -93,16 +93,16 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
 
 @RequiresApi(Build.VERSION_CODES.R)
 class AndroidRZoomCompat(private val range: Range<Float>) : ZoomCompat {
-    override val minZoom: Float
+    override val minZoomRatio: Float
         get() = range.lower
-    override val maxZoom: Float
+    override val maxZoomRatio: Float
         get() = range.upper
 
     override fun apply(
         zoomRatio: Float,
         camera: UseCaseCamera
     ) {
-        require(zoomRatio in minZoom..maxZoom)
+        require(zoomRatio in minZoomRatio..maxZoomRatio)
         camera.setParameterAsync(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
     }
 }
