@@ -43,10 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -306,8 +308,7 @@ private fun Modifier.scroll(
             state = state,
             overscrollEffect = overscrollEffect
         )
-        val layout =
-            ScrollingLayoutModifier(state, reverseScrolling, isVertical)
+        val layout = ScrollingLayoutElement(state, reverseScrolling, isVertical)
         semantics
             .clipScrollableContainer(orientation)
             .overscroll(overscrollEffect)
@@ -324,11 +325,52 @@ private fun Modifier.scroll(
     }
 )
 
-private data class ScrollingLayoutModifier(
-    val scrollerState: ScrollState,
+private class ScrollingLayoutElement(
+    val scrollState: ScrollState,
     val isReversed: Boolean,
     val isVertical: Boolean
-) : LayoutModifier {
+) : ModifierNodeElement<ScrollingLayoutModifier>() {
+    override fun create(): ScrollingLayoutModifier {
+        return ScrollingLayoutModifier(
+            scrollerState = scrollState,
+            isReversed = isReversed,
+            isVertical = isVertical
+        )
+    }
+
+    override fun update(node: ScrollingLayoutModifier): ScrollingLayoutModifier = node.also {
+        it.scrollerState = scrollState
+        it.isReversed = isReversed
+        it.isVertical = isVertical
+    }
+
+    override fun hashCode(): Int {
+        var result = scrollState.hashCode()
+        result = 31 * result + isReversed.hashCode()
+        result = 31 * result + isVertical.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ScrollingLayoutElement) return false
+        return scrollState == other.scrollState &&
+            isReversed == other.isReversed &&
+            isVertical == other.isVertical
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "layoutInScroll"
+        properties["state"] = scrollState
+        properties["isReversed"] = isReversed
+        properties["isVertical"] = isVertical
+    }
+}
+
+private class ScrollingLayoutModifier(
+    var scrollerState: ScrollState,
+    var isReversed: Boolean,
+    var isVertical: Boolean
+) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
