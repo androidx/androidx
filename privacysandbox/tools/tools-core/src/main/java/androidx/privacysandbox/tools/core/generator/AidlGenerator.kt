@@ -124,18 +124,20 @@ class AidlGenerator private constructor(
 
         return buildList {
             if (annotatedInterface.inheritsSandboxedUiAdapter) {
-                val uiWrapper = aidlParcelable(annotatedInterface.uiAdapterAidlWrapper()) {
-                    addProperty(
-                        "coreLibInfo",
-                        AidlTypeSpec(bundleType(), kind = AidlTypeKind.PARCELABLE)
-                    )
-                    addProperty("binder", annotatedInterface.aidlType())
-                }
-                add(uiWrapper)
+                add(uiAidlWrapper(annotatedInterface))
             }
             add(interfaceFile)
         }
     }
+
+    private fun uiAidlWrapper(annotatedInterface: AnnotatedInterface) =
+        aidlParcelable(annotatedInterface.uiAdapterAidlWrapper()) {
+            addProperty(
+                "coreLibInfo",
+                AidlTypeSpec(bundleType(), kind = AidlTypeKind.PARCELABLE)
+            )
+            addProperty("binder", annotatedInterface.aidlType())
+        }
 
     private fun AidlInterfaceSpec.Builder.addMethod(method: Method) {
         addMethod(method.name) {
@@ -339,6 +341,9 @@ internal fun AnnotatedInterface.uiAdapterAidlWrapper(): Type {
     }
     return Type(type.packageName, "I${type.simpleName}CoreLibInfoAndBinderWrapper")
 }
+
+internal fun AnnotatedInterface.coreLibInfoConverterName() =
+    uiAdapterAidlWrapper().simpleName + "Converter"
 
 internal fun primitive(name: String, isList: Boolean = false) =
     AidlTypeSpec(Type("", name), isList = isList, kind = AidlTypeKind.PRIMITIVE)

@@ -1,6 +1,10 @@
 package com.mysdk
 
-public object InnerValueConverter {
+import android.content.Context
+
+public class InnerValueConverter(
+    public val context: Context,
+) {
     public fun fromParcelable(parcelable: ParcelableInnerValue): InnerValue {
         val annotatedValue = InnerValue(
                 numbers = parcelable.numbers.toList(),
