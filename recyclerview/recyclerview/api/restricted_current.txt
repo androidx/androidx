@@ -470,6 +470,7 @@ package androidx.recyclerview.widget {
     method public void setAccessibilityDelegateCompat(androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate?);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
     method public void setChildDrawingOrderCallback(androidx.recyclerview.widget.RecyclerView.ChildDrawingOrderCallback?);
+    method public static void setDebugAssertionsEnabled(boolean);
     method public void setEdgeEffectFactory(androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory);
     method public void setHasFixedSize(boolean);
     method public void setItemAnimator(androidx.recyclerview.widget.RecyclerView.ItemAnimator?);
@@ -483,6 +484,7 @@ package androidx.recyclerview.widget {
     method public void setRecycledViewPool(androidx.recyclerview.widget.RecyclerView.RecycledViewPool?);
     method @Deprecated public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener?);
     method public void setScrollingTouchSlop(int);
+    method public static void setVerboseLoggingEnabled(boolean);
     method public void setViewCacheExtension(androidx.recyclerview.widget.RecyclerView.ViewCacheExtension?);
     method public void smoothScrollBy(@Px int, @Px int);
     method public void smoothScrollBy(@Px int, @Px int, android.view.animation.Interpolator?);
