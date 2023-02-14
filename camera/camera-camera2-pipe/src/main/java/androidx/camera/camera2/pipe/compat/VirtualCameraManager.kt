@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.compat
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.WakeLock
@@ -206,6 +207,7 @@ constructor(
         //   causing the application process to restart.
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
+        Log.debug { "Opening $cameraId with retries..." }
         val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
         if (result.cameraState == null) {
             return OpenVirtualCameraResult(lastCameraError = result.errorCode)

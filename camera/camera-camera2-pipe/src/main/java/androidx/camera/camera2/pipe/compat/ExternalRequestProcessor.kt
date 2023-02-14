@@ -50,6 +50,9 @@ class ExternalCameraController(
         GraphRequestProcessor.from(sequenceProcessor)
     private var started = atomic(false)
 
+    override val cameraId: CameraId
+        get() = graphConfig.camera
+
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {
             graphListener.onGraphStarted(graphProcessor)
@@ -60,6 +63,11 @@ class ExternalCameraController(
         if (started.compareAndSet(expect = true, update = false)) {
             graphListener.onGraphStopped(graphProcessor)
         }
+    }
+
+    override fun tryRestart() {
+        // This is intentionally made a no-op for now as CameraPipe external doesn't support
+        // camera status monitoring and camera controller restart.
     }
 
     override fun close() {

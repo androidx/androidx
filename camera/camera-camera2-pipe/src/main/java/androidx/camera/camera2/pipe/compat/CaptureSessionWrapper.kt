@@ -18,6 +18,8 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraAccessException.CAMERA_ERROR
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.CaptureRequest
@@ -354,10 +356,23 @@ internal open class AndroidCameraCaptureSession(
                 "succeed."
         }
 
-        rethrowCamera2Exceptions {
+        var exceptionToThrow: Throwable? = null
+        try {
             Api26Compat.finalizeOutputConfigurations(
-                cameraCaptureSession, outputConfigs.map { it.unwrapAs(OutputConfiguration::class) })
+                cameraCaptureSession,
+                outputConfigs.map { it.unwrapAs(OutputConfiguration::class) })
+        } catch (e: CameraAccessException) {
+            // TODO(b/266734799): There is a possibility that we might finalize output
+            //  configurations on a camera that's been disconnected. In such cases, we'll receive
+            //  CameraAccessException.CAMERA_ERROR. Catch it for now, until we properly report and
+            //  handle capture session errors.
+            if (e.reason != CAMERA_ERROR) {
+                exceptionToThrow = e
+            }
+        } catch (e: Throwable) {
+            exceptionToThrow = e
         }
+        exceptionToThrow?.let { rethrowCamera2Exceptions { throw it } }
     }
 
     @Suppress("UNCHECKED_CAST")
