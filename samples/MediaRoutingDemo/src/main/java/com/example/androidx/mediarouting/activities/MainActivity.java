@@ -51,7 +51,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
@@ -74,10 +73,12 @@ import com.example.androidx.mediarouting.RoutesManager;
 import com.example.androidx.mediarouting.data.MediaItem;
 import com.example.androidx.mediarouting.data.PlaylistItem;
 import com.example.androidx.mediarouting.player.Player;
+import com.example.androidx.mediarouting.player.RemotePlayer;
 import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.session.SessionManager;
 import com.example.androidx.mediarouting.ui.LibraryAdapter;
 import com.example.androidx.mediarouting.ui.PlaylistAdapter;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             };
     private final SessionManager mSessionManager = new SessionManager("app");
     private final MediaRouter.OnPrepareTransferListener mOnPrepareTransferListener =
-            new TransferListener();
+            createTransferListener();
     private final MediaRouter.Callback mMediaRouterCB = new SampleMediaRouterCallback();
 
     private MediaRouter mMediaRouter;
@@ -276,6 +277,8 @@ public class MainActivity extends AppCompatActivity {
         mPlayer.release();
         mMediaSession.release();
         mMediaRouter.removeCallback(mMediaRouterCB);
+        mMediaRouter.setOnPrepareTransferListener(null);
+
         super.onDestroy();
     }
 
@@ -518,6 +521,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Returns a new {@link TransferListener} it the SDK level is at least R. Otherwise, returns
+     * null.
+     */
+    private MediaRouter.OnPrepareTransferListener createTransferListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return new TransferListener();
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Media route discovery fragment.
      */
     public static final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
@@ -617,17 +632,13 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
                     + ", route=" + selectedRoute + ", reason=" + reason);
 
-            mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
-            if (isPresentationApiSupported()) {
-                mPlayer.updatePresentation();
-            }
-            mSessionManager.setPlayer(mPlayer);
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                mSessionManager.stop();
-            } else {
-                mSessionManager.unsuspend();
+                mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
+                if (isPresentationApiSupported()) {
+                    mPlayer.updatePresentation();
+                }
+                mSessionManager.setPlayer(mPlayer);
             }
-
             updateUi();
         }
 
@@ -635,17 +646,16 @@ public class MainActivity extends AppCompatActivity {
         public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route,
                 int reason) {
             Log.d(TAG, "onRouteUnselected: route=" + route);
-            mMediaSession.setActive(false);
 
-            PlaylistItem item = getCheckedPlaylistItem();
-            if (item != null) {
-                long pos = getCurrentEstimatedPosition(item);
-                mSessionManager.suspend(pos);
+            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
+                mMediaSession.setActive(false);
+                mSessionManager.stop();
+
+                if (isPresentationApiSupported()) {
+                    mPlayer.updatePresentation();
+                }
+                mPlayer.release();
             }
-            if (isPresentationApiSupported()) {
-                mPlayer.updatePresentation();
-            }
-            mPlayer.release();
         }
 
         @Override
@@ -758,18 +768,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class TransferListener implements
-            MediaRouter.OnPrepareTransferListener {
+    @RequiresApi(30)
+    private class TransferListener implements MediaRouter.OnPrepareTransferListener {
         @Nullable
         @Override
         public ListenableFuture<Void> onPrepareTransfer(@NonNull RouteInfo fromRoute,
                 @NonNull RouteInfo toRoute) {
             Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
                     + ", to=" + toRoute.getId());
-            return CallbackToFutureAdapter.getFuture(completer -> {
-                mHandler.postDelayed(() -> completer.set(null), 3000);
-                return "onPrepareTransfer";
-            });
+            final PlaylistItem currentItem = getCheckedPlaylistItem();
+
+            if (currentItem != null) {
+                if (mPlayer.isRemotePlayback()) {
+                    RemotePlayer remotePlayer = (RemotePlayer) mPlayer;
+                    ListenableFuture<PlaylistItem> cacheRemoteState =
+                            remotePlayer.cacheRemoteState(currentItem);
+                    return Futures.transform(
+                            cacheRemoteState,
+                            (playlistItem) -> handleTransfer(playlistItem.getPosition(), toRoute),
+                            Runnable::run);
+                } else {
+                    long cachedPosition = getCurrentEstimatedPosition(currentItem);
+                    handleTransfer(cachedPosition, toRoute);
+                }
+            }
+            return Futures.immediateVoidFuture();
+        }
+
+        public Void handleTransfer(long currentPosition, RouteInfo destinationRoute) {
+            mSessionManager.suspend(currentPosition);
+            mMediaSession.setActive(false);
+            mPlayer.release();
+
+            mPlayer = Player.create(MainActivity.this, destinationRoute, mMediaSession);
+            mPlayer.updatePresentation();
+            mSessionManager.setPlayer(mPlayer);
+            mSessionManager.unsuspend();
+
+            return null;
         }
     }
 }
