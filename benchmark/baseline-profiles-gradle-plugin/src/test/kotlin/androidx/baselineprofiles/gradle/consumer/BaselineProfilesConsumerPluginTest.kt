@@ -115,12 +115,12 @@ class BaselineProfilesConsumerPluginTest {
             .build()
 
         // The expected output should have each line sorted descending
-        assertThat(readBaselineProfileFileContent("release"))
+        assertThat(readBaselineProfileFileContent("main"))
             .containsExactly("4", "3", "2", "1")
     }
 
     @Test
-    fun testGenerateBaselineProfilesTaskWithFlavors() {
+    fun testGenerateBaselineProfilesTaskWithFlavorsAndDefaultMerge() {
         consumerProjectSetup.writeDefaultBuildGradle(
             prefix = """
                 plugins {
@@ -180,10 +180,146 @@ class BaselineProfilesConsumerPluginTest {
             .build()
 
         // The expected output should have each line sorted ascending
-        assertThat(readBaselineProfileFileContent("freeRelease"))
+        assertThat(readBaselineProfileFileContent("free"))
             .containsExactly("2", "3")
 
-        assertThat(readBaselineProfileFileContent("paidRelease"))
+        assertThat(readBaselineProfileFileContent("paid"))
+            .containsExactly("1", "4")
+    }
+
+    @Test
+    fun testGenerateBaselineProfilesTaskWithFlavorsAndMergeAll() {
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                    productFlavors {
+                        flavorDimensions = ["version"]
+                        free {
+                            dimension "version"
+                        }
+                        paid {
+                            dimension "version"
+                        }
+                    }
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+                baselineProfilesProfileConsumer {
+                    merge = "all"
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+        producerProjectSetup.writeDefaultBuildGradle(
+            prefix = MockProducerBuildGrade()
+                .withConfiguration(flavor = "free", buildType = "release")
+                .withConfiguration(flavor = "paid", buildType = "release")
+                .withProducedBaselineProfiles(
+                    listOf("3", "2"),
+                    flavor = "free",
+                    buildType = "release"
+                )
+                .withProducedBaselineProfiles(
+                    listOf("4", "1"),
+                    flavor = "paid",
+                    buildType = "release"
+                )
+                .build(),
+            suffix = ""
+        )
+
+        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
+        gradleRunner
+            .withArguments("tasks", "--stacktrace")
+            .build()
+            .output
+            .also {
+                assertThat(it).contains("generateBaselineProfiles - ")
+                assertThat(it).contains("generateMainBaselineProfiles - ")
+            }
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .build()
+
+        // The expected output should have each line sorted ascending
+        assertThat(readBaselineProfileFileContent("main"))
+            .containsExactly("1", "2", "3", "4")
+    }
+
+    @Test
+    fun testGenerateBaselineProfilesTaskWithFlavorsAndMergePerFlavor() {
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                    productFlavors {
+                        flavorDimensions = ["version"]
+                        free {
+                            dimension "version"
+                        }
+                        paid {
+                            dimension "version"
+                        }
+                    }
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+                baselineProfilesProfileConsumer {
+                    merge = "flavor"
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+        producerProjectSetup.writeDefaultBuildGradle(
+            prefix = MockProducerBuildGrade()
+                .withConfiguration(flavor = "free", buildType = "release")
+                .withConfiguration(flavor = "paid", buildType = "release")
+                .withProducedBaselineProfiles(
+                    listOf("3", "2"),
+                    flavor = "free",
+                    buildType = "release"
+                )
+                .withProducedBaselineProfiles(
+                    listOf("4", "1"),
+                    flavor = "paid",
+                    buildType = "release"
+                )
+                .build(),
+            suffix = ""
+        )
+
+        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
+        gradleRunner
+            .withArguments("tasks", "--stacktrace")
+            .build()
+            .output
+            .also {
+                assertThat(it).contains("generateBaselineProfiles - ")
+                assertThat(it).contains("generateFreeBaselineProfiles - ")
+                assertThat(it).contains("generatePaidBaselineProfiles - ")
+            }
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .build()
+
+        // The expected output should have each line sorted ascending
+        assertThat(readBaselineProfileFileContent("free"))
+            .containsExactly("2", "3")
+
+        assertThat(readBaselineProfileFileContent("paid"))
             .containsExactly("1", "4")
     }
 

@@ -64,6 +64,23 @@ open class BaselineProfilesConsumerExtension {
     var baselineProfileDir = "generatedBaselineProfiles"
 
     /**
+     * Specifies if and how baseline profile rule files should be merged when generated from
+     * multiple variants. This can either be:
+     *  - `all` to merge all the generated profiles for each variant in a single profile. When
+     *      generation is not `onDemand`, a single output file is generated in
+     *      `src/main/generatedBaselineProfiles`'.
+     *  - `flavor` to merge all the generated profiles for each variant per flavor. When generation
+     *      is not `onDemand`, one profile per flavor is generated in
+     *      `src/<flavor>/generatedBaselineProfiles`.
+     *  - `none`, to disable merging. When generation is not `onDemand` one profile per
+     *      variant is generated in `src/<variant>/generatedBaselineProfiles`.
+     *  Note that when generation is onDemand the output folder is always in the generated build
+     *  files but this setting still determines how is merged the profile included in the built
+     *  apk or aar.
+     */
+    var merge: String = "flavor"
+
+    /**
      * Specifies a filtering rule to decide which profiles rules should be included in this
      * consumer baseline profile. This is useful especially for libraries, in order to exclude
      * profile rules for class and methods for dependencies of the sample app. The filter supports:
@@ -178,3 +195,7 @@ enum class RuleType {
     INCLUDE,
     EXCLUDE
 }
+
+const val MERGE_ALL = "all"
+const val MERGE_PER_FLAVOR = "flavor"
+const val MERGE_NONE = "none"
