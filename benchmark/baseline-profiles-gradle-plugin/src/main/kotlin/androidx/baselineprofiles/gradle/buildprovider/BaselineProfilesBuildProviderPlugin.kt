@@ -16,7 +16,9 @@
 
 package androidx.baselineprofiles.gradle.buildprovider
 
+import androidx.baselineprofiles.gradle.utils.checkAgpVersion
 import androidx.baselineprofiles.gradle.utils.createNonObfuscatedBuildTypes
+import androidx.baselineprofiles.gradle.utils.isGradleSyncRunning
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -25,7 +27,7 @@ import org.gradle.api.Project
  * This is the build provider plugin for baseline profile generation. In order to generate baseline
  * profiles three plugins are needed: one is applied to the app or the library that should consume
  * the baseline profile when building (consumer), one is applied to the project that should supply
- * the test apk (build provider) and the last one is applied to a library module containing the ui
+ * the test apk (build provider) and the last one is applied to a test module containing the ui
  * test that generate the baseline profile on the device (producer).
  *
  * TODO (b/265438721): build provider should be changed to apk provider.
@@ -33,12 +35,60 @@ import org.gradle.api.Project
 class BaselineProfilesBuildProviderPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        var foundAppPlugin = false
         project.pluginManager.withPlugin("com.android.application") {
+            foundAppPlugin = true
             configureWithAndroidPlugin(project = project)
+        }
+        var foundLibraryPlugin = false
+        project.pluginManager.withPlugin("com.android.library") {
+            foundLibraryPlugin = true
+        }
+
+        // Only used to verify that the android application plugin has been applied.
+        // Note that we don't want to throw any exception if gradle sync is in progress.
+        project.afterEvaluate {
+            if (!project.isGradleSyncRunning()) {
+                if (!foundAppPlugin) {
+
+                    // Check whether the library plugin was applied instead. If that's the case
+                    // it's possible the developer meant to generate a baseline profile for a
+                    // library and we can give further information.
+                    throw IllegalStateException(
+                        if (!foundLibraryPlugin) {
+                            """
+                    The module ${project.name} does not have the `com.android.application` plugin
+                    applied. The `androidx.baselineprofiles.buildprovider` plugin supports only
+                    android application modules. Please review your build.gradle to ensure this
+                    plugin is applied to the correct module.
+                    """.trimIndent()
+                        } else {
+                            """
+                    The module ${project.name} does not have the `com.android.application` plugin
+                    but has the `com.android.library` plugin. If you're trying to generate a
+                    baseline profile for a library, you'll need to apply the
+                    `androidx.baselineprofiles.buildprovider` to an android application that
+                    has the `com.android.application` plugin applied. This should be a sample app
+                    running the code of the library for which you want to generate the profile.
+                    Please review your build.gradle to ensure this plugin is applied to the
+                    correct module.
+                    """.trimIndent()
+                        }
+                    )
+                }
+                project.logger.debug(
+                    """
+                    [BaselineProfilesBuildProviderPlugin] afterEvaluate check: app plugin was applied
+                    """.trimIndent()
+                )
+            }
         }
     }
 
     private fun configureWithAndroidPlugin(project: Project) {
+
+        // Checks that the required AGP version is applied to this project.
+        project.checkAgpVersion()
 
         // Create the non obfuscated release build types from the existing release ones.
         // We want to extend all the current release build types based on isDebuggable flag.
