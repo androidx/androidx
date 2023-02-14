@@ -135,6 +135,21 @@ public class TestUtil {
         runShellCommand("setprop debug.adservices.disable_measurement_enrollment_check null");
     }
 
+    // Force using bundled files instead of using MDD downloaded files. This helps to make the test
+    // results deterministic.
+    public void shouldForceUseBundledFiles(boolean shouldUse) {
+        if (shouldUse) {
+            runShellCommand("device_config put adservices classifier_force_use_bundled_files true");
+        }
+        else {
+            runShellCommand("device_config delete adservices classifier_force_use_bundled_files");
+        }
+    }
+
+    public void enableVerboseLogging() {
+        runShellCommand("setprop log.tag.adservices VERBOSE");
+    }
+
     @SuppressWarnings("deprecation")
     // Used to get the package name. Copied over from com.android.adservices.AndroidServiceBinder
     public String getAdServicesPackageName() {
