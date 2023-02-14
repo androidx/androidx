@@ -36,15 +36,16 @@ import java.util.Collections
  * Providers must set the [PendingIntent] that leads to their unlock activity. When the user
  * selects this entry, the corresponding [PendingIntent] is fired and the unlock activity is
  * invoked. Once the provider authentication flow is complete, providers must set
- * the [android.service.credentials.CredentialsResponseContent] containing the unlocked credential
+ * the [android.service.credentials.BeginGetCredentialResponse] containing the unlocked credential
  * entries, through the [PendingIntentHandler.setBeginGetCredentialResponse] method, before
  * finishing the activity.
- * If providers fail to set the [android.service.credentials.CredentialsResponseContent], the
+ * If providers fail to set the [android.service.credentials.BeginGetCredentialResponse], the
  * system will assume that there are no credentials available and the this entry will be removed
  * from the selector.
  *
  * @property pendingIntent the [PendingIntent] to be invoked if the user selects
- * this authentication entry on the UI.
+ * this authentication entry on the UI
+ * @property title the title to be shown with this entry on the account selector UI
  *
  * @see android.service.credentials.BeginGetCredentialResponse
  * for usage details.
@@ -53,9 +54,10 @@ import java.util.Collections
  */
 @RequiresApi(34)
 class AuthenticationAction constructor(
+    val title: CharSequence,
     val pendingIntent: PendingIntent,
 ) : android.service.credentials.Action(
-    toSlice(pendingIntent)) {
+    toSlice(title, pendingIntent)) {
 
     override fun describeContents(): Int {
         return 0
@@ -70,19 +72,24 @@ class AuthenticationAction constructor(
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "AuthenticationAction"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_TITLE =
+            "androidx.credentials.provider.authenticationAction.SLICE_HINT_TITLE"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_PENDING_INTENT"
 
         /** @hide **/
         @JvmStatic
-        fun toSlice(pendingIntent: PendingIntent): Slice {
+        fun toSlice(title: CharSequence, pendingIntent: PendingIntent): Slice {
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE,
                 SLICE_SPEC_REVISION))
-            sliceBuilder.addAction(pendingIntent,
-                Slice.Builder(sliceBuilder)
-                    .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
-                    .build(),
-                /*subType=*/null)
+            sliceBuilder
+                .addAction(pendingIntent,
+                    Slice.Builder(sliceBuilder)
+                        .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
+                        .build(),
+                    /*subType=*/null)
+                .addText(title, /*subType=*/null, listOf(SLICE_HINT_TITLE))
             return sliceBuilder.build()
         }
 
@@ -97,17 +104,22 @@ class AuthenticationAction constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): AuthenticationAction? {
+            var title: CharSequence? = null
+            var pendingIntent: PendingIntent? = null
+
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
-                    return try {
-                        AuthenticationAction(it.action)
-                    } catch (e: Exception) {
-                        Log.i(TAG, "fromSlice failed with: " + e.message)
-                        null
-                    }
+                    pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_TITLE)) {
+                    title = it.text
                 }
             }
-            return null
+            return try {
+                AuthenticationAction(title!!, pendingIntent!!)
+            } catch (e: Exception) {
+                Log.i(TAG, "fromSlice failed with: " + e.message)
+                null
+            }
         }
 
         @JvmField val CREATOR: Parcelable.Creator<AuthenticationAction> = object :
