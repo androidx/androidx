@@ -27,6 +27,8 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
@@ -49,6 +51,7 @@ public class ItemBridgeAdapterTest {
 
     public static class BasePresenter extends Presenter {
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View view = new View(parent.getContext());
@@ -57,11 +60,11 @@ public class ItemBridgeAdapterTest {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
         }
 
         @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull ViewHolder viewHolder) {
 
         }
     }
@@ -154,8 +157,9 @@ public class ItemBridgeAdapterTest {
             }
         }
 
+        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
             View view = mViews.get(mViews.size() - 1);
             mViews.remove(mViews.size() - 1);
             view.setLayoutParams(new ViewGroup.LayoutParams(sViewWidth, sViewHeight));
@@ -163,11 +167,11 @@ public class ItemBridgeAdapterTest {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
         }
 
         @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull ViewHolder viewHolder) {
 
         }
     }

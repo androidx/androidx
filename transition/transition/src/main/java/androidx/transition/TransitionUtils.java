@@ -27,7 +27,11 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroupOverlay;
 import android.widget.ImageView;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 
 class TransitionUtils {
 
@@ -91,8 +95,8 @@ class TransitionUtils {
         final boolean addToOverlay;
         final boolean sceneRootIsAttached;
         if (HAS_IS_ATTACHED_TO_WINDOW) {
-            addToOverlay = !view.isAttachedToWindow();
-            sceneRootIsAttached = sceneRoot == null ? false : sceneRoot.isAttachedToWindow();
+            addToOverlay = !Api19Impl.isAttachedToWindow(view);
+            sceneRootIsAttached = sceneRoot != null && Api19Impl.isAttachedToWindow(sceneRoot);
         } else {
             addToOverlay = false;
             sceneRootIsAttached = false;
@@ -105,7 +109,7 @@ class TransitionUtils {
             }
             parent = (ViewGroup) view.getParent();
             indexInParent = parent.indexOfChild(view);
-            sceneRoot.getOverlay().add(view);
+            Api18Impl.getOverlayAndAdd(sceneRoot, view);
         }
         Bitmap bitmap = null;
         int bitmapWidth = Math.round(bounds.width());
@@ -124,7 +128,7 @@ class TransitionUtils {
                 canvas.concat(matrix);
                 view.draw(canvas);
                 picture.endRecording();
-                bitmap = Bitmap.createBitmap(picture);
+                bitmap = Api28Impl.createBitmap(picture);
             } else {
                 // Software rendering
                 bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
@@ -134,7 +138,7 @@ class TransitionUtils {
             }
         }
         if (HAS_OVERLAY && addToOverlay) {
-            sceneRoot.getOverlay().remove(view);
+            Api18Impl.getOverlayAndRemove(sceneRoot, view);
             parent.addView(view, indexInParent);
         }
         return bitmap;
@@ -174,6 +178,49 @@ class TransitionUtils {
 
     }
 
-    private TransitionUtils() {
+    private TransitionUtils() { }
+
+    @RequiresApi(18)
+    static class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ViewGroupOverlay getOverlayAndAdd(ViewGroup viewGroup, View toAdd) {
+            ViewGroupOverlay result = viewGroup.getOverlay();
+            result.add(toAdd);
+            return result;
+        }
+
+        @DoNotInline
+        static ViewGroupOverlay getOverlayAndRemove(ViewGroup viewGroup, View toRemove) {
+            ViewGroupOverlay result = viewGroup.getOverlay();
+            result.remove(toRemove);
+            return result;
+        }
+    }
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Bitmap createBitmap(Picture source) {
+            return Bitmap.createBitmap(source);
+        }
+
+    }
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isAttachedToWindow(View view) {
+            return view.isAttachedToWindow();
+        }
     }
 }

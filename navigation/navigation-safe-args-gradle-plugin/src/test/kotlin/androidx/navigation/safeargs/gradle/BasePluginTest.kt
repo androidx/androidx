@@ -28,8 +28,11 @@ import java.io.File
 internal const val MAIN_DIR = "androidx/navigation/testapp"
 
 internal const val NEXT_DIRECTIONS = "$MAIN_DIR/NextFragmentDirections"
+internal const val FOO_NEXT_DIRECTIONS = "$MAIN_DIR/foo/NextFragmentDirections"
 internal const val NEXT_ARGUMENTS = "$MAIN_DIR/NextFragmentArgs"
+internal const val FOO_NEXT_ARGUMENTS = "$MAIN_DIR/foo/NextFragmentArgs"
 internal const val MAIN_DIRECTIONS = "$MAIN_DIR/MainFragmentDirections"
+internal const val FOO_MAIN_DIRECTIONS = "$MAIN_DIR/foo/MainFragmentDirections"
 internal const val MODIFIED_NEXT_DIRECTIONS = "$MAIN_DIR/ModifiedNextFragmentDirections"
 internal const val ADDITIONAL_DIRECTIONS = "$MAIN_DIR/AdditionalFragmentDirections"
 internal const val FOO_DIRECTIONS = "$MAIN_DIR/foo/FooFragmentDirections"
@@ -139,10 +142,21 @@ abstract class BasePluginTest {
             suffix = """
                 android {
                     namespace 'androidx.navigation.testapp'
+                    compileOptions {
+                        sourceCompatibility = JavaVersion.VERSION_1_8
+                        targetCompatibility = JavaVersion.VERSION_1_8
+                    }
                 }
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
                     implementation "${projectSetup.props.navigationRuntime}"
+                }
+                tasks.withType(
+                    org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+                ).configureEach {
+                    kotlinOptions {
+                        jvmTarget = "1.8"
+                    }
                 }
             """.trimIndent()
         )

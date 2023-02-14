@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "AndroidX JUnit GTest"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.TESTEXT
     inceptionYear = "2022"
     description = "Run GTest tests on Android devices"
     // Bypassed to better match existing androidx.test libraries
@@ -57,6 +56,11 @@ android {
             version libs.versions.cmake.get()
             path "src/main/cpp/CMakeLists.txt"
         }
+        experimentalProperties["prefab.junit-gtest.exportLibraries"] = [
+                "-uJava_androidx_test_ext_junitgtest_GtestRunner_initialize",
+                "-uJava_androidx_test_ext_junitgtest_GtestRunner_run",
+                "-uJava_androidx_test_ext_junitgtest_GtestRunner_addTest"
+        ]
     }
 
     buildFeatures {
@@ -70,20 +74,10 @@ android {
         }
     }
     namespace "androidx.test.ext.junitgtest"
-}
 
-afterEvaluate {
-    tasks.withType(com.android.build.gradle.tasks.PrefabPackageTask).configureEach { task ->
-        task.doLast {
-            // the following modification to junit-gtest/module.json is required so that the consuming library
-            // does not need to add the same flags to their CMakeLists.txt. If AGP adds explicit support for
-            // configuring module.json in the future we should use remove this manual fix. b/214034366
-            def moduleJson = task.outputs.files.asFileTree.find { it.name == "module.json" }
-            def newText = moduleJson.text.replace(
-                    "\"export_libraries\": []",
-                    "\"export_libraries\": [\"-uJava_androidx_test_ext_junitgtest_GtestRunner_initialize\", \"-uJava_androidx_test_ext_junitgtest_GtestRunner_run\",  \"-uJava_androidx_test_ext_junitgtest_GtestRunner_addTest\"]",
-            )
-            moduleJson.write(newText)
+    packagingOptions {
+        jniLibs {
+            excludes += "**/libc++_shared.so"
         }
     }
 }

@@ -16,59 +16,128 @@
 
 package androidx.benchmark.macro
 
-import android.annotation.SuppressLint
+import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.filters.MediumTest
+import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
-import kotlin.test.assertEquals
 
 @MediumTest
 @OptIn(ExperimentalMetricApi::class)
 class TraceSectionMetricTest {
-    private val tracePath = createTempFileFromAsset(
+    private val api24ColdStart = createTempFileFromAsset(
         prefix = "api24_startup_cold",
         suffix = ".perfetto-trace"
     ).absolutePath
 
-    private val captureInfo = Metric.CaptureInfo(
-        targetPackageName = Packages.TEST,
-        testPackageName = Packages.TEST,
-        startupMode = StartupMode.COLD,
-        apiLevel = 24
+    private val commasInSliceNames = createTempFileFromAsset(
+        prefix = "api24_commas_in_slice_names",
+        suffix = ".perfetto-trace"
+    ).absolutePath
+
+    @Test
+    fun activityThreadMain() = verifyFirstSum(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "ActivityThreadMain",
+        expectedFirstMs = 12.639
     )
 
     @Test
-    fun activityThreadMain() = verifySingleMetric("ActivityThreadMain", 12.639)
-
-    @Test
-    fun activityStart() = verifySingleMetric("activityStart", 81.979)
-
-    @Test
-    fun startActivityAndWait() = verifySingleMetric("startActivityAndWait", 1_110.689)
-
-    @Test
-    fun launching() = verifySingleMetric(
-        "launching: androidx.benchmark.integration.macrobenchmark.target",
-        269.947
+    fun activityStart() = verifyFirstSum(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "activityStart",
+        expectedFirstMs = 81.979
     )
 
-    @SuppressLint("NewApi") // we use a fixed trace - ignore for TraceSectionMetric
-    private fun verifySingleMetric(
-        sectionName: String,
-        expectedMs: Double
-    ) {
-        assumeTrue(PerfettoHelper.isAbiSupported())
+    @Test
+    fun startActivityAndWait() = verifyFirstSum(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "startActivityAndWait",
+        expectedFirstMs = 1_110.689
+    )
 
-        val metric = TraceSectionMetric(sectionName)
-        val expectedKey = sectionName + "Ms"
-        metric.configure(Packages.TEST)
-        val iterationResult = metric.getMetrics(
-            captureInfo = captureInfo,
-            tracePath = tracePath
+    @Test
+    fun launching() = verifyFirstSum(
+        tracePath = api24ColdStart,
+        packageName = Packages.TEST,
+        sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
+        expectedFirstMs = 269.947
+    )
+
+    @Test
+    fun section1_2() = verifyFirstSum(
+        tracePath = commasInSliceNames,
+        packageName = Packages.TARGET,
+        sectionName = "section1,2",
+        expectedFirstMs = 0.006615
+    )
+
+    @Test
+    fun multiSection() = verifyFirstSum(
+        tracePath = api24ColdStart,
+        packageName = Packages.TARGET,
+        sectionName = "inflate",
+        expectedFirstMs = 13.318, // first inflation
+        expectedSumMs = 43.128 // total inflation
+    )
+
+    companion object {
+        private val captureInfo = Metric.CaptureInfo(
+            targetPackageName = Packages.TEST,
+            testPackageName = Packages.TEST,
+            startupMode = StartupMode.COLD,
+            apiLevel = 24
         )
 
-        assertEquals(setOf(expectedKey), iterationResult.singleMetrics.keys)
-        assertEquals(expectedMs, iterationResult.singleMetrics[expectedKey]!!, 0.001)
+        private fun verifyMetric(
+            tracePath: String,
+            packageName: String,
+            sectionName: String,
+            mode: TraceSectionMetric.Mode,
+            expectedMs: Double
+        ) {
+            assumeTrue(PerfettoHelper.isAbiSupported())
+
+            val metric = TraceSectionMetric(sectionName, mode)
+            val expectedKey = sectionName + "Ms"
+            metric.configure(packageName = packageName)
+
+            val iterationResult = PerfettoTraceProcessor.runServer(tracePath) {
+                metric.getMetrics(
+                    captureInfo = captureInfo,
+                    perfettoTraceProcessor = this
+                )
+            }
+
+            assertEquals(setOf(expectedKey), iterationResult.singleMetrics.keys)
+            assertEquals(expectedMs, iterationResult.singleMetrics[expectedKey]!!, 0.001)
+        }
+
+        private fun verifyFirstSum(
+            tracePath: String,
+            packageName: String,
+            sectionName: String,
+            expectedFirstMs: Double,
+            expectedSumMs: Double = expectedFirstMs // default implies only one matching section
+        ) {
+            verifyMetric(
+                tracePath = tracePath,
+                packageName = packageName,
+                sectionName = sectionName,
+                mode = TraceSectionMetric.Mode.First,
+                expectedMs = expectedFirstMs
+            )
+            verifyMetric(
+                tracePath = tracePath,
+                packageName = packageName,
+                sectionName = sectionName,
+                mode = TraceSectionMetric.Mode.Sum,
+                expectedMs = expectedSumMs
+            )
+        }
     }
 }

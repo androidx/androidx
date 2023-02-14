@@ -32,6 +32,7 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.media.MediaPlayerGlue;
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.media.PlaybackGlueHost;
@@ -155,7 +156,7 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
                 }
 
                 @Override
-                protected void onAttachedToHost(PlaybackGlueHost host) {
+                protected void onAttachedToHost(@NonNull PlaybackGlueHost host) {
                     super.onAttachedToHost(host);
                     mGlueAttachedToHost++;
                 }
@@ -167,7 +168,7 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
                     Uri.parse("android.resource://androidx.leanback.test/raw/video"));
             mGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
                 @Override
-                public void onPreparedStateChanged(PlaybackGlue glue) {
+                public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                     if (glue.isPrepared()) {
                         mGlueOnReadyForPlaybackCalled++;
                         mGlue.play();

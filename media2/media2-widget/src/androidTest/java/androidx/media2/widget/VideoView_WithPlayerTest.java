@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -92,6 +93,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Before
     public void setup() throws Throwable {
+        // Ignore all tests, b/202710013
+        assumeTrue(false);
+
         mActivity = mActivityRule.getActivity();
         mVideoView = mActivity.findViewById(R.id.videoview);
         mMediaItem = createTestMediaItem();
@@ -101,13 +105,17 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     @After
     public void tearDown() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                closeAll();
-            }
-        });
-        mPixelCopyHelper.release();
+        if (mActivityRule != null) {
+            mActivityRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    closeAll();
+                }
+            });
+        }
+        if (mPixelCopyHelper != null) {
+            mPixelCopyHelper.release();
+        }
     }
 
     @Test

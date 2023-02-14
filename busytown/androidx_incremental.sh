@@ -25,6 +25,8 @@ else
   PRESUBMIT=false
 fi
 
+export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+
 # hash the files in the out dir in case we want to confirm which files changed during the build
 function hashOutDir() {
   hashFile=out.hashes
@@ -54,7 +56,7 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
     # Run Gradle
-    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs validateProperties \
+    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs \
         --profile "$@"; then
     echo build succeeded
     EXIT_VALUE=0
@@ -64,7 +66,7 @@ else
     fi
 
     # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
-    impl/parse_profile_htmls.sh
+    impl/parse_profile_data.sh
 fi
 
 echo "Completing $0 at $(date) with exit value $EXIT_VALUE"

@@ -26,24 +26,17 @@ import androidx.room.compiler.processing.util.isValidJavaSourceName
  */
 interface XMethodElement : XExecutableElement {
     /**
-     * The name of the method in source.
+     * The name of the method in JVM.
      *
-     * For Kotlin sources, this might be different from [jvmName] if:
+     * Use this property when you need to generate Java code accessing this method.
+     *
+     * For Kotlin sources, this might be different from name in source if:
      * * Function is annotated with @JvmName
      * * Function has a value class as a parameter or return type
      * * Function is internal
      *
-     * @see jvmName
-     */
-    val name: String
-
-    /**
-     * The name of the method in JVM.
-     * Use this properly when you need to generate code accessing this method.
-     *
      * Note that accessing this property requires resolving jvmName for Kotlin sources, which is an
      * expensive operation that includes type resolution (in KSP).
-     * @see name
      */
     val jvmName: String
 
@@ -69,7 +62,7 @@ interface XMethodElement : XExecutableElement {
                 parameters.dropLast(
                     if (isSuspendFunction()) 1 else 0
                 ).joinToString(", ") {
-                    it.type.typeName.toString()
+                    it.type.asTypeName().java.toString()
                 }
             )
             append(")")
@@ -125,11 +118,6 @@ interface XMethodElement : XExecutableElement {
     fun overrides(other: XMethodElement, owner: XTypeElement): Boolean
 
     /**
-     * Creates a new [XMethodElement] where containing element is replaced with [newContainer].
-     */
-    fun copyTo(newContainer: XTypeElement): XMethodElement
-
-    /**
      * If true, this method can be invoked from Java sources. This is especially important for
      * Kotlin functions that receive value class as a parameter as they cannot be called from Java
      * sources.
@@ -138,6 +126,14 @@ interface XMethodElement : XExecutableElement {
      * expensive operation that includes type resolution (in KSP).
      */
     fun hasValidJvmSourceName() = jvmName.isValidJavaSourceName()
+
+    /**
+     * Returns true if this method is a Kotlin property getter or setter.
+     *
+     * Note that if the origin is a Java source this function will always return `false` even if
+     * the method name matches the property naming convention.
+     */
+    fun isKotlinPropertyMethod(): Boolean
 }
 
 internal fun <T : XMethodElement> List<T>.filterMethodsByConfig(

@@ -18,6 +18,8 @@ package androidx.camera.extensions.impl.advanced;
 
 /**
  * Surface will be created by constructing a MultiResolutionImageReader.
+ *
+ * @since 1.2
  */
 public interface MultiResolutionImageReaderOutputConfigImpl extends Camera2OutputConfigImpl {
     /**

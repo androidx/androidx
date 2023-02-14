@@ -16,11 +16,16 @@
 
 package androidx.wear.compose.foundation
 
+import android.graphics.Typeface
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -28,6 +33,12 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.roundToInt
 
@@ -42,6 +53,8 @@ internal actual class CurvedTextDelegate {
     actual var textWidth by mutableStateOf(0f)
     actual var textHeight by mutableStateOf(0f)
     actual var baseLinePosition = 0f
+
+    private var typeFace: State<Typeface?> = mutableStateOf(null)
 
     private val paint = android.graphics.Paint().apply { isAntiAlias = true }
     private val backgroundPath = android.graphics.Path()
@@ -62,14 +75,34 @@ internal actual class CurvedTextDelegate {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
-            doUpdate()
+            paint.textSize = fontSizePx
+            updateMeasures()
             lastLayoutInfo = null // Ensure paths are recomputed
         }
     }
 
-    private fun doUpdate() {
-        paint.textSize = fontSizePx
+    @Composable
+    actual fun UpdateFontIfNeeded(
+        fontFamily: FontFamily?,
+        fontWeight: FontWeight?,
+        fontStyle: FontStyle?,
+        fontSynthesis: FontSynthesis?
+    ) {
+        val fontFamilyResolver = LocalFontFamilyResolver.current
+        typeFace = remember(fontFamily, fontWeight, fontStyle, fontSynthesis, fontFamilyResolver) {
+            derivedStateOf {
+                fontFamilyResolver.resolveAsTypeface(
+                    fontFamily,
+                    fontWeight ?: FontWeight.Normal,
+                    fontStyle ?: FontStyle.Normal,
+                    fontSynthesis ?: FontSynthesis.All
+                ).value
+            }
+        }
+        updateTypeFace()
+    }
 
+    private fun updateMeasures() {
         val rect = android.graphics.Rect()
         paint.getTextBounds(text, 0, text.length, rect)
 
@@ -79,7 +112,16 @@ internal actual class CurvedTextDelegate {
             if (clockwise) -paint.fontMetrics.top else paint.fontMetrics.bottom
     }
 
-    private fun DrawScope.updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo) {
+    private fun updateTypeFace() {
+        val currentTypeface = typeFace.value
+        if (currentTypeface != paint.typeface) {
+            paint.typeface = currentTypeface
+            updateMeasures()
+            lastLayoutInfo = null // Ensure paths are recomputed
+        }
+    }
+
+    private fun updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo) {
         if (layoutInfo != lastLayoutInfo) {
             lastLayoutInfo = layoutInfo
             with(layoutInfo) {
@@ -131,6 +173,7 @@ internal actual class CurvedTextDelegate {
         color: Color,
         background: Color
     ) {
+        updateTypeFace()
         updatePathsIfNeeded(layoutInfo)
 
         drawIntoCanvas { canvas ->
@@ -141,7 +184,8 @@ internal actual class CurvedTextDelegate {
 
             paint.color = color.toArgb()
             val actualText = if (
-                layoutInfo.sweepRadians <= parentSweepRadians ||
+                // Float arithmetic can make the parentSweepRadians slightly smaller
+                layoutInfo.sweepRadians <= parentSweepRadians + 0.001f ||
                 overflow == TextOverflow.Visible
             ) {
                 text
@@ -161,23 +205,22 @@ internal actual class CurvedTextDelegate {
         addEllipsis: Boolean,
         ellipsizedWidth: Int,
     ): String {
-        // Code reused from wear/wear/src/main/java/androidx/wear/widget/CurvedTextView.java
-        val layoutBuilder =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, ellipsizedWidth)
-        layoutBuilder.setEllipsize(if (addEllipsis) TextUtils.TruncateAt.END else null)
-        layoutBuilder.setMaxLines(1)
-        val layout = layoutBuilder.build()
+        if (addEllipsis) {
+            return TextUtils.ellipsize(
+                text,
+                paint,
+                ellipsizedWidth.toFloat(),
+                TextUtils.TruncateAt.END
+            ).toString()
+        }
+
+        val layout = StaticLayout.Builder
+            .obtain(text, 0, text.length, paint, ellipsizedWidth)
+            .setEllipsize(null)
+            .setMaxLines(1)
+            .build()
 
         // Cut text that it's too big when in TextOverFlow.Clip mode.
-        if (!addEllipsis) {
-            return text.substring(0, layout.getLineEnd(0))
-        }
-        val ellipsisCount = layout.getEllipsisCount(0)
-        if (ellipsisCount == 0) {
-            return text
-        }
-        val ellipsisStart = layout.getEllipsisStart(0)
-        // "\u2026" is unicode's ellipsis "..."
-        return text.replaceRange(ellipsisStart, ellipsisStart + ellipsisCount, "\u2026")
+        return text.substring(0, layout.getLineEnd(0))
     }
 }

@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "Android Room Guava"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2018"
     description = "Android Room Guava"
 }

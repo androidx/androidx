@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -714,7 +715,7 @@ class ToggleChipColorTest {
                     label = {},
                     toggleControl = {},
                     onClick = {},
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG).fillMaxWidth()
                 )
             }
             actualBackgrondColor = MaterialTheme.colors.surface
@@ -740,7 +741,7 @@ class ToggleChipColorTest {
                     label = {},
                     toggleControl = {},
                     onClick = {},
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG).fillMaxWidth()
                 )
             }
         }

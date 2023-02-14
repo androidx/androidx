@@ -222,7 +222,13 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             if (destination.args.any { it.type is ObjectArrayType }) {
                 addAnnotation(
                     AnnotationSpec.builder(Suppress::class)
-                        .addMember("%S", "UNCHECKED_CAST")
+                        .addMember("%S,%S", "UNCHECKED_CAST", "DEPRECATION")
+                        .build()
+                )
+            } else if (destination.args.any { it.type is ObjectType }) {
+                addAnnotation(
+                    AnnotationSpec.builder(Suppress::class)
+                        .addMember("%S", "DEPRECATION")
                         .build()
                 )
             }

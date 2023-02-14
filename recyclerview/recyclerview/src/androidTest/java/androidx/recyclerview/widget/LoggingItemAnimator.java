@@ -137,26 +137,26 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public boolean animateAdd(RecyclerView.ViewHolder holder) {
+    public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
         mAddVHs.add(holder);
         return super.animateAdd(holder);
     }
 
     @Override
-    public boolean animateRemove(RecyclerView.ViewHolder holder) {
+    public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
         mRemoveVHs.add(holder);
         return super.animateRemove(holder);
     }
 
     @Override
-    public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,
+    public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         mMoveVHs.add(holder);
         return super.animateMove(holder, fromX, fromY, toX, toY);
     }
 
     @Override
-    public boolean animateChange(RecyclerView.ViewHolder oldHolder,
+    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
             RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         if (oldHolder != null) {
             mChangeOldVHs.add(oldHolder);

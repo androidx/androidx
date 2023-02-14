@@ -918,7 +918,10 @@ public abstract class MediaRouteProviderService extends Service {
                     : new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
             if (!ObjectsCompat.equals(mCompositeDiscoveryRequest, composite)) {
                 mCompositeDiscoveryRequest = composite;
-                mService.getMediaRouteProvider().setDiscoveryRequest(composite);
+                MediaRouteProvider mediaRouteProvider = mService.getMediaRouteProvider();
+                if (mediaRouteProvider != null) {
+                    mediaRouteProvider.setDiscoveryRequest(composite);
+                }
                 return true;
             }
             return false;
@@ -1068,6 +1071,7 @@ public abstract class MediaRouteProviderService extends Service {
                         .obtainMessage(PRIVATE_MSG_CLIENT_DIED, mMessenger).sendToTarget();
             }
 
+            @NonNull
             @Override
             public String toString() {
                 return getClientId(mMessenger);

@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  *
  * ```
  * // Song and Album are classes annotated with @Entity.
- * @Database(version = 1, entities = {Song.class, Album.class})
+ * @Database(version = 1, entities = [Song::class, Album::class])
  * abstract class MusicDatabase : RoomDatabase {
  *   // SongDao is a class annotated with @Dao.
  *   abstract fun getSongDao(): SongDao

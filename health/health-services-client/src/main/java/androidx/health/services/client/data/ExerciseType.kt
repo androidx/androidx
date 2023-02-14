@@ -63,7 +63,7 @@ public class ExerciseType @RestrictTo(RestrictTo.Scope.LIBRARY) public construct
         @JvmField public val BASEBALL: ExerciseType = ExerciseType(4, "BASEBALL")
         @JvmField public val BASKETBALL: ExerciseType = ExerciseType(5, "BASKETBALL")
         @JvmField public val BENCH_PRESS: ExerciseType = ExerciseType(6, "BENCH_PRESS")
-        @JvmField public val BENCH_SIT_UP: ExerciseType = ExerciseType(7, "BENCH_SIT_UP")
+        @JvmField internal val BENCH_SIT_UP: ExerciseType = ExerciseType(7, "BENCH_SIT_UP")
         @JvmField public val BIKING: ExerciseType = ExerciseType(8, "BIKING")
         @JvmField public val BIKING_STATIONARY: ExerciseType = ExerciseType(9, "BIKING_STATIONARY")
         @JvmField public val BOOT_CAMP: ExerciseType = ExerciseType(10, "BOOT_CAMP")
@@ -79,22 +79,24 @@ public class ExerciseType @RestrictTo(RestrictTo.Scope.LIBRARY) public construct
         @JvmField public val DANCING: ExerciseType = ExerciseType(16, "DANCING")
         @JvmField public val DEADLIFT: ExerciseType = ExerciseType(17, "DEADLIFT")
         @JvmField
-        public val DUMBBELL_CURL_RIGHT_ARM: ExerciseType =
+        internal val DUMBBELL_CURL_RIGHT_ARM: ExerciseType =
             ExerciseType(18, "DUMBBELL_CURL_RIGHT_ARM")
         @JvmField
-        public val DUMBBELL_CURL_LEFT_ARM: ExerciseType = ExerciseType(19, "DUMBBELL_CURL_LEFT_ARM")
+        internal val DUMBBELL_CURL_LEFT_ARM: ExerciseType =
+            ExerciseType(19, "DUMBBELL_CURL_LEFT_ARM")
         @JvmField
-        public val DUMBBELL_FRONT_RAISE: ExerciseType = ExerciseType(20, "DUMBBELL_FRONT_RAISE")
+        internal val DUMBBELL_FRONT_RAISE: ExerciseType = ExerciseType(20, "DUMBBELL_FRONT_RAISE")
         @JvmField
-        public val DUMBBELL_LATERAL_RAISE: ExerciseType = ExerciseType(21, "DUMBBELL_LATERAL_RAISE")
+        internal val DUMBBELL_LATERAL_RAISE: ExerciseType =
+            ExerciseType(21, "DUMBBELL_LATERAL_RAISE")
         @JvmField
-        public val DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM: ExerciseType =
+        internal val DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM: ExerciseType =
             ExerciseType(22, "DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM")
         @JvmField
-        public val DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM: ExerciseType =
+        internal val DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM: ExerciseType =
             ExerciseType(23, "DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM")
         @JvmField
-        public val DUMBBELL_TRICEPS_EXTENSION_TWO_ARM: ExerciseType =
+        internal val DUMBBELL_TRICEPS_EXTENSION_TWO_ARM: ExerciseType =
             ExerciseType(24, "DUMBBELL_TRICEPS_EXTENSION_TWO_ARM")
         @JvmField public val ELLIPTICAL: ExerciseType = ExerciseType(25, "ELLIPTICAL")
         @JvmField public val EXERCISE_CLASS: ExerciseType = ExerciseType(26, "EXERCISE_CLASS")

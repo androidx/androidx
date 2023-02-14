@@ -14,7 +14,7 @@ import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -32,6 +32,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("setOfInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("repeatedByteArray")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)

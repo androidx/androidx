@@ -97,6 +97,7 @@ public class RemoteActivityHelper(
          * @param intent The intent holding configuration.
          * @return The remote intent, or null if none was set.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         public fun getTargetIntent(intent: Intent): Intent? =
             intent.getParcelableExtra(EXTRA_INTENT)
@@ -117,6 +118,7 @@ public class RemoteActivityHelper(
          * @param intent The intent holding configuration.
          * @return The result receiver, or null if none was set.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         internal fun getRemoteIntentResultReceiver(intent: Intent): ResultReceiver? =
             intent.getParcelableExtra(EXTRA_RESULT_RECEIVER)

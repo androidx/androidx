@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.converter;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -277,6 +278,7 @@ public class SnippetTest {
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match1.getPropertyPath()).isEqualTo("sender.name");
+        assertThat(match1.getPropertyPathObject()).isEqualTo(new PropertyPath("sender.name"));
         assertThat(match1.getFullText()).isEqualTo("Test Name Jr.");
         assertThat(match1.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
@@ -290,6 +292,7 @@ public class SnippetTest {
 
         SearchResult.MatchInfo match2 = searchResultPage.getResults().get(0).getMatchInfos().get(1);
         assertThat(match2.getPropertyPath()).isEqualTo("sender.email[1]");
+        assertThat(match2.getPropertyPathObject()).isEqualTo(new PropertyPath("sender.email[1]"));
         assertThat(match2.getFullText()).isEqualTo("TestNameJr2@gmail.com");
         assertThat(match2.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));

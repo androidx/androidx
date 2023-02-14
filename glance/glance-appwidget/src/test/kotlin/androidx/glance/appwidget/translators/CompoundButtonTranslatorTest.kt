@@ -35,32 +35,29 @@ class CompoundButtonTranslatorTest {
     fun resolveColorResource_0_shouldReturnFallback() {
         val colorProvider = ResourceCheckableColorProvider(
             resId = 0,
-            fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(lightContext, isChecked = true))
-            .isSameColorAs("#EEEEEE")
+        assertThat(colorProvider.getColor(lightContext, isChecked = true))
+            .isSameColorAs(checkableColorProviderFallbackColor)
     }
 
     @Test
     fun resolveColorResource_invalid_shouldReturnFallback() {
         val colorProvider = ResourceCheckableColorProvider(
             resId = -1,
-            fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(lightContext, isChecked = true))
-            .isSameColorAs("#EEEEEE")
+        assertThat(colorProvider.getColor(lightContext, isChecked = true))
+            .isSameColorAs(checkableColorProviderFallbackColor)
     }
 
     @Test
     fun resolveColorResource_valid_day_shouldReturnResolvedColor() {
         val colorProvider = ResourceCheckableColorProvider(
             resId = R.color.my_checkbox_colors,
-            fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(lightContext, isChecked = true))
+        assertThat(colorProvider.getColor(lightContext, isChecked = true))
             .isSameColorAs("#FF0000")
     }
 
@@ -68,10 +65,9 @@ class CompoundButtonTranslatorTest {
     fun resolveColorResource_valid_night_shouldReturnResolvedColor() {
         val colorProvider = ResourceCheckableColorProvider(
             resId = R.color.my_checkbox_colors,
-            fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(darkContext, isChecked = true))
+        assertThat(colorProvider.getColor(darkContext, isChecked = true))
             .isSameColorAs("#FFFF00")
     }
 }

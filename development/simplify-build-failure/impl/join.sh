@@ -48,6 +48,7 @@ function joinPath() {
 
   cd $explodedPath
   find -type f | sort | xargs cat > "$sourceFile"
+  chmod u+x "$sourceFile"
 }
 
 

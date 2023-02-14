@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -44,6 +45,7 @@ class BackStackState implements Parcelable {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     List<BackStackRecord> instantiate(@NonNull FragmentManager fm,
             Map<String, Fragment> pendingSavedFragments) {
         // First instantiate the saved Fragments from state.
@@ -58,10 +60,31 @@ class BackStackState implements Parcelable {
                 continue;
             }
             // Otherwise, retrieve any saved state, clearing it out for future calls
-            FragmentState fragmentState = fm.getFragmentStore().setSavedState(fWho, null);
-            if (fragmentState != null) {
-                Fragment fragment = fragmentState.instantiate(fm.getFragmentFactory(),
-                        fm.getHost().getContext().getClassLoader());
+            Bundle stateBundle = fm.getFragmentStore().setSavedState(fWho, null);
+            if (stateBundle != null) {
+                ClassLoader classLoader = fm.getHost().getContext().getClassLoader();
+                FragmentState fs = stateBundle.getParcelable(
+                        FragmentStateManager.FRAGMENT_STATE_KEY);
+                Fragment fragment = fs.instantiate(fm.getFragmentFactory(), classLoader);
+                fragment.mSavedFragmentState = stateBundle;
+
+                // When restoring a Fragment, always ensure we have a
+                // non-null Bundle so that developers have a signal for
+                // when the Fragment is being restored
+                if (fragment.mSavedFragmentState.getBundle(
+                        FragmentStateManager.SAVED_INSTANCE_STATE_KEY) == null) {
+                    fragment.mSavedFragmentState.putBundle(
+                            FragmentStateManager.SAVED_INSTANCE_STATE_KEY,
+                            new Bundle());
+                }
+
+                // Instantiate the fragment's arguments
+                Bundle arguments = stateBundle.getBundle(FragmentStateManager.ARGUMENTS_KEY);
+                if (arguments != null) {
+                    arguments.setClassLoader(classLoader);
+                }
+                fragment.setArguments(arguments);
+
                 fragments.put(fragment.mWho, fragment);
             }
         }

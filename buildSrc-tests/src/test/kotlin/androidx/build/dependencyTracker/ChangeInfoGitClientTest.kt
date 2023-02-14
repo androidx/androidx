@@ -18,13 +18,13 @@ package androidx.build.dependencyTracker
 
 import androidx.build.gitclient.ChangeInfoGitClient
 import androidx.build.gitclient.GitCommitRange
+import com.google.gson.JsonSyntaxException
+import java.io.File
 import junit.framework.TestCase.assertEquals
 import org.gradle.api.GradleException
-import org.json.simple.parser.ParseException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 @RunWith(JUnit4::class)
 class ChangeInfoGitClientTest {
@@ -216,15 +216,9 @@ class ChangeInfoGitClientTest {
         )
     }
 
-    @Test
+    @Test(expected = JsonSyntaxException::class)
     fun findChangedFilesSince_malformedJson() {
-        var threw = false
-        try {
-            checkChangedFiles("{", listOf())
-        } catch (e: ParseException) {
-            threw = true
-        }
-        assertEquals("Did not detect malformed json", threw, true)
+        checkChangedFiles("{", listOf())
     }
 
     fun checkChangedFiles(config: String, expectedFiles: List<String>) {

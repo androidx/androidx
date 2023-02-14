@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
@@ -37,6 +38,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
+import java.util.Objects
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -51,8 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.Objects
-import java.util.concurrent.Executors
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -122,8 +123,13 @@ class TorchControlTest {
         override suspend fun startFocusAndMeteringAsync(
             aeRegions: List<MeteringRectangle>,
             afRegions: List<MeteringRectangle>,
-            awbRegions: List<MeteringRectangle>
+            awbRegions: List<MeteringRectangle>,
+            afTriggerStartAeMode: AeMode?
         ): Deferred<Result3A> {
+            return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+        }
+
+        override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
             return CompletableDeferred(Result3A(status = Result3A.Status.OK))
         }
 
@@ -141,33 +147,50 @@ class TorchControlTest {
 
     @Before
     fun setUp() {
+        val fakeUseCaseCamera = FakeUseCaseCamera()
+        val fakeCameraProperties = FakeCameraProperties(metadata)
         torchControl = TorchControl(
-            FakeCameraProperties(metadata),
+            fakeCameraProperties,
+            State3AControl(fakeCameraProperties).apply {
+                useCaseCamera = fakeUseCaseCamera
+            },
             fakeUseCaseThreads,
         )
-        torchControl.useCaseCamera = FakeUseCaseCamera()
+        torchControl.useCaseCamera = fakeUseCaseCamera
     }
 
     @Test
     fun enableTorch_whenNoFlashUnit(): Unit = runBlocking {
         assertThrows<IllegalStateException> {
+            val fakeUseCaseCamera = FakeUseCaseCamera()
+            val fakeCameraProperties = FakeCameraProperties()
+
             // Without a flash unit, this Job will complete immediately with a IllegalStateException
             TorchControl(
-                FakeCameraProperties(),
+                fakeCameraProperties,
+                State3AControl(fakeCameraProperties).apply {
+                    useCaseCamera = fakeUseCaseCamera
+                },
                 fakeUseCaseThreads,
             ).also {
-                it.useCaseCamera = FakeUseCaseCamera()
+                it.useCaseCamera = fakeUseCaseCamera
             }.setTorchAsync(true).await()
         }
     }
 
     @Test
     fun getTorchState_whenNoFlashUnit() {
+        val fakeUseCaseCamera = FakeUseCaseCamera()
+        val fakeCameraProperties = FakeCameraProperties()
+
         val torchState = TorchControl(
-            FakeCameraProperties(),
+            fakeCameraProperties,
+            State3AControl(fakeCameraProperties).apply {
+                useCaseCamera = fakeUseCaseCamera
+            },
             fakeUseCaseThreads,
         ).also {
-            it.useCaseCamera = FakeUseCaseCamera()
+            it.useCaseCamera = fakeUseCaseCamera
         }.torchStateLiveData.value
 
         Truth.assertThat(torchState).isEqualTo(TorchState.OFF)
@@ -176,8 +199,14 @@ class TorchControlTest {
     @Test
     fun enableTorch_whenInactive(): Unit = runBlocking {
         assertThrows<CameraControl.OperationCanceledException> {
+            val fakeUseCaseCamera = FakeUseCaseCamera()
+            val fakeCameraProperties = FakeCameraProperties(metadata)
+
             TorchControl(
-                FakeCameraProperties(metadata),
+                fakeCameraProperties,
+                State3AControl(fakeCameraProperties).apply {
+                    useCaseCamera = fakeUseCaseCamera
+                },
                 fakeUseCaseThreads,
             ).setTorchAsync(true).await()
         }

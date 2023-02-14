@@ -17,6 +17,7 @@
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,7 +28,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         /*
@@ -35,10 +35,10 @@ dependencies {
          * corresponding block below
          */
         implementation(libs.kotlinStdlibCommon)
-        api(project(":compose:runtime:runtime"))
-        api(project(":compose:ui:ui"))
-        api(project(":compose:ui:ui-unit"))
-        implementation(projectOrArtifact(":window:window"))
+        api("androidx.compose.runtime:runtime:1.2.1")
+        api("androidx.compose.ui:ui:1.2.1")
+        api("androidx.compose.ui:ui-unit:1.2.1")
+        implementation("androidx.window:window:1.0.0")
 
         testImplementation(libs.kotlinTest)
         testImplementation(libs.truth)
@@ -76,7 +76,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             androidMain.dependencies {
-                implementation(projectOrArtifact(":window:window"))
+                implementation("androidx.window:window:1.0.0")
             }
 
             androidMain.dependsOn(jvmMain)
@@ -105,7 +105,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 androidx {
     name = "Compose Material 3 Window Size Class"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.COMPOSE_MATERIAL3
     inceptionYear = "2022"
     description = "Provides window size classes for building responsive UIs"
 }

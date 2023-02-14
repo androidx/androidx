@@ -18,12 +18,11 @@ package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
+import static androidx.car.app.model.constraints.RowListConstraints.MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
-import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -43,6 +42,7 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.List;
 import java.util.Objects;
@@ -64,20 +64,16 @@ import java.util.Objects;
  */
 @RequiresCarApi(5)
 @CarProtocol
+@KeepFields
 public final class MapTemplate implements Template {
-    @Keep
     @Nullable
     private final MapController mMapController;
-    @Keep
     @Nullable
     private final Pane mPane;
-    @Keep
     @Nullable
     private final ItemList mItemList;
-    @Keep
     @Nullable
     private final Header mHeader;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 
@@ -216,7 +212,28 @@ public final class MapTemplate implements Template {
         /**
          * Sets the {@link Pane} for this template.
          *
-         * @throws NullPointerException if {@code pane} is null
+         * {@link Pane#getImage()} for pane will not be shown in {@link MapTemplate}.
+         *
+         * <p>Unless set with this method, the template will not show a pane.
+         *
+         * <h4>Requirements</h4>
+         *
+         * The number of items in the {@link Pane} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_PANE}.
+         * The host via {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a
+         * {@link OnClickListener}.
+         *
+         * <p>Up to 2 {@link Action}s are allowed in the {@link Pane}. Each action's title color
+         * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is
+         * not supported.
+         *
+         * <p>If none of the header {@link Action}, the header title or the action strip have
+         * been set on the template, the header is hidden.
+         *
+         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
+         * @throws NullPointerException     if {@code pane} is null
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public Builder setPane(@NonNull Pane pane) {
@@ -257,7 +274,7 @@ public final class MapTemplate implements Template {
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {
             List<Item> items = requireNonNull(itemList).getItems();
-            ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
+            MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE.validateOrThrow(itemList);
             ModelUtils.validateAllRowsHaveOnlySmallImages(items);
             ModelUtils.validateNoRowsHaveBothMarkersAndImages(items);
             mItemList = itemList;

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".UntilTestActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/gone_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gone" />
+
+        <TextView
+            android:id="@+id/gone_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gone_target"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/find_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Find" />
+
+        <TextView
+            android:id="@+id/find_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="find_target"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/checked_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Checked" />
+
+        <CheckBox
+            android:id="@+id/checked_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="checked_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/clickable_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clickable" />
+
+        <TextView
+            android:id="@+id/clickable_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:text="clickable_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/enabled_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enabled" />
+
+        <TextView
+            android:id="@+id/enabled_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="enabled_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/focusable_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Focusable" />
+
+        <TextView
+            android:id="@+id/focusable_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:text="focusable_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/focused_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Focused" />
+
+        <TextView
+            android:id="@+id/focused_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:text="focused_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/long_clickable_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LongClickable" />
+
+        <TextView
+            android:id="@+id/long_clickable_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:longClickable="false"
+            android:text="long_clickable_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/scrollable_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scrollable" />
+
+        <HorizontalScrollView
+            android:id="@+id/scrollable_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="scrollable_target" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/selected_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selected" />
+
+        <TextView
+            android:id="@+id/selected_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="selected_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/desc_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Desc" />
+
+        <TextView
+            android:id="@+id/desc_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="initial_desc"
+            android:text="desc_target" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/text_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text" />
+
+        <TextView
+            android:id="@+id/text_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="initial_text" />
+    </LinearLayout>
+
+</LinearLayout>

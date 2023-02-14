@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.espressoWeb, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)

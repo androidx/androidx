@@ -24,30 +24,27 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.concurrent.futures.ResolvableFuture
-import androidx.wear.watchface.complications.ComplicationDataSourceInfo
-import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.ComplicationSlotState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.complications.ComplicationDataSourceInfo
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
+import java.time.Instant
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.Instant
-import kotlin.coroutines.CoroutineContext
 
-/**
- * [ListenableFuture]-based compatibility wrapper around [EditorSession]'s suspending methods.
- */
-public class ListenableEditorSession(
-    private val wrappedEditorSession: EditorSession
-) : EditorSession {
+/** [ListenableFuture]-based compatibility wrapper around [EditorSession]'s suspending methods. */
+public class ListenableEditorSession(private val wrappedEditorSession: EditorSession) :
+    EditorSession {
     public companion object {
         /**
          * Constructs a [ListenableFuture] for a [ListenableEditorSession] for an on watch face
@@ -68,17 +65,17 @@ public class ListenableEditorSession(
         ): ListenableFuture<ListenableEditorSession?> {
             val result = ResolvableFuture.create<ListenableEditorSession?>()
             val coroutineScope =
-                CoroutineScope(object : CoroutineDispatcher() {
-                    override fun dispatch(context: CoroutineContext, block: Runnable) {
-                        block.run()
+                CoroutineScope(
+                    object : CoroutineDispatcher() {
+                        override fun dispatch(context: CoroutineContext, block: Runnable) {
+                            block.run()
+                        }
                     }
-                })
+                )
             coroutineScope.launch {
                 try {
                     result.set(
-                        ListenableEditorSession(
-                            EditorSession.createOnWatchEditorSession(activity)
-                        )
+                        ListenableEditorSession(EditorSession.createOnWatchEditorSession(activity))
                     )
                 } catch (e: Exception) {
                     result.setException(e)
@@ -93,7 +90,7 @@ public class ListenableEditorSession(
          * @param activity The [ComponentActivity] associated with the EditorSession.
          * @param editIntent [Intent] sent by SysUI to launch the editing session.
          * @param headlessWatchFaceClient The [HeadlessWatchFaceClient] that backs the constructed
-         * EditorSession.
+         *   EditorSession.
          */
         @JvmStatic
         @RequiresApi(27)
@@ -102,13 +99,14 @@ public class ListenableEditorSession(
             activity: ComponentActivity,
             editIntent: Intent,
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): ListenableEditorSession = ListenableEditorSession(
-            EditorSession.createHeadlessEditorSession(
-                activity,
-                editIntent,
-                headlessWatchFaceClient
+        ): ListenableEditorSession =
+            ListenableEditorSession(
+                EditorSession.createHeadlessEditorSession(
+                    activity,
+                    editIntent,
+                    headlessWatchFaceClient
+                )
             )
-        )
     }
 
     private fun getCoroutineScope(): CoroutineScope =
@@ -127,13 +125,13 @@ public class ListenableEditorSession(
     override val userStyleSchema: UserStyleSchema by wrappedEditorSession::userStyleSchema
 
     override val complicationSlotsState: StateFlow<Map<Int, ComplicationSlotState>> by
-    wrappedEditorSession::complicationSlotsState
+        wrappedEditorSession::complicationSlotsState
 
     override val complicationsPreviewData: StateFlow<Map<Int, ComplicationData>> by
-    wrappedEditorSession::complicationsPreviewData
+        wrappedEditorSession::complicationsPreviewData
 
     override val complicationsDataSourceInfo: StateFlow<Map<Int, ComplicationDataSourceInfo?>> by
-    wrappedEditorSession::complicationsDataSourceInfo
+        wrappedEditorSession::complicationsDataSourceInfo
 
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("isCommitChangesOnClose")
@@ -141,7 +139,7 @@ public class ListenableEditorSession(
 
     @get:SuppressWarnings("AutoBoxing")
     override val backgroundComplicationSlotId: Int? by
-    wrappedEditorSession::backgroundComplicationSlotId
+        wrappedEditorSession::backgroundComplicationSlotId
 
     @SuppressWarnings("AutoBoxing")
     override fun getComplicationSlotIdAt(x: Int, y: Int): Int? =
@@ -151,11 +149,12 @@ public class ListenableEditorSession(
         renderParameters: RenderParameters,
         instant: Instant,
         slotIdToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = wrappedEditorSession.renderWatchFaceToBitmap(
-        renderParameters,
-        instant,
-        slotIdToComplicationData
-    )
+    ): Bitmap =
+        wrappedEditorSession.renderWatchFaceToBitmap(
+            renderParameters,
+            instant,
+            slotIdToComplicationData
+        )
 
     /** [ListenableFuture] wrapper around [EditorSession.openComplicationDataSourceChooser]. */
     public fun listenableOpenComplicationDataSourceChooser(
@@ -174,9 +173,10 @@ public class ListenableEditorSession(
         return future
     }
 
-    override suspend fun openComplicationDataSourceChooser(complicationSlotId: Int):
-        ChosenComplicationDataSource? =
-            wrappedEditorSession.openComplicationDataSourceChooser(complicationSlotId)
+    override suspend fun openComplicationDataSourceChooser(
+        complicationSlotId: Int
+    ): ChosenComplicationDataSource? =
+        wrappedEditorSession.openComplicationDataSourceChooser(complicationSlotId)
 
     override fun close() {
         wrappedEditorSession.close()

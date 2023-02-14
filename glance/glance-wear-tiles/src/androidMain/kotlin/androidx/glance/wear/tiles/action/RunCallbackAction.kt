@@ -36,7 +36,7 @@ internal class RunCallbackAction(
                 error("Provided class must implement ActionCallback.")
             }
 
-            val actionCallback = workClass.newInstance() as ActionCallback
+            val actionCallback = workClass.getDeclaredConstructor().newInstance() as ActionCallback
             actionCallback.onAction(context, glanceId)
         }
     }

@@ -62,8 +62,7 @@ class ViewModelProviderTest {
 
     @Test
     fun testOwnedBy() {
-        val store = ViewModelStore()
-        val owner = ViewModelStoreOwner { store }
+        val owner = FakeViewModelStoreOwner()
         val provider = ViewModelProvider(owner, ViewModelProvider.NewInstanceFactory())
         val viewModel = provider[ViewModel1::class.java]
         assertThat(viewModel).isSameInstanceAs(provider[ViewModel1::class.java])
@@ -82,8 +81,7 @@ class ViewModelProviderTest {
 
     @Test
     fun testKeyedFactory() {
-        val store = ViewModelStore()
-        val owner = ViewModelStoreOwner { store }
+        val owner = FakeViewModelStoreOwner()
         val explicitlyKeyed: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(
                 modelClass: Class<T>,
@@ -137,9 +135,7 @@ class ViewModelProviderTest {
         assertThat(wasCalled[0]).isTrue()
         wasCalled[0] = false
         ViewModelProvider(object : ViewModelStoreOwnerWithCreationExtras() {
-            override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-                return testFactory
-            }
+            override val defaultViewModelProviderFactory = testFactory
         })["customKey", ViewModel1::class.java]
         assertThat(wasCalled[0]).isTrue()
     }
@@ -165,9 +161,7 @@ class ViewModelProviderTest {
         assertThat(wasCalled[0]).isTrue()
         wasCalled[0] = false
         ViewModelProvider(object : ViewModelStoreOwnerWithCreationExtras() {
-            override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-                return testFactory
-            }
+            override val defaultViewModelProviderFactory = testFactory
         })["customKey", ViewModel1::class.java]
         assertThat(wasCalled[0]).isTrue()
     }
@@ -176,13 +170,14 @@ class ViewModelProviderTest {
         private val mStore: ViewModelStore,
         private val mFactory: ViewModelProvider.Factory
     ) : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
-        override fun getViewModelStore(): ViewModelStore {
-            return mStore
-        }
+        override val viewModelStore: ViewModelStore = mStore
+        override val defaultViewModelProviderFactory = mFactory
+    }
 
-        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            return mFactory
-        }
+    class FakeViewModelStoreOwner internal constructor(
+        store: ViewModelStore = ViewModelStore()
+    ) : ViewModelStoreOwner {
+        override val viewModelStore: ViewModelStore = store
     }
 
     open class ViewModel1 : ViewModel() {
@@ -203,20 +198,18 @@ class ViewModelProviderTest {
 
     internal open class ViewModelStoreOwnerWithCreationExtras : ViewModelStoreOwner,
         HasDefaultViewModelProviderFactory {
-        private val viewModelStore = ViewModelStore()
-        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            throw UnsupportedOperationException()
-        }
+        private val _viewModelStore = ViewModelStore()
+        override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+            get() = throw UnsupportedOperationException()
 
-        override fun getDefaultViewModelCreationExtras(): CreationExtras {
-            val extras = MutableCreationExtras()
-            extras[TEST_KEY] = TEST_VALUE
-            return extras
-        }
+        override val defaultViewModelCreationExtras: CreationExtras
+            get() {
+                val extras = MutableCreationExtras()
+                extras[TEST_KEY] = TEST_VALUE
+                return extras
+            }
 
-        override fun getViewModelStore(): ViewModelStore {
-            return viewModelStore
-        }
+        override val viewModelStore: ViewModelStore = _viewModelStore
     }
 }
 

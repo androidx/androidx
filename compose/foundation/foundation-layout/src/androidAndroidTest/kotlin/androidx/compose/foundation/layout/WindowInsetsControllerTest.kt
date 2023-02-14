@@ -21,10 +21,17 @@ import android.os.Build
 import android.os.SystemClock
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MonotonicFrameClock
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -33,6 +40,7 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -40,6 +48,8 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -68,7 +78,7 @@ class WindowInsetsControllerTest {
     @get:Rule
     val rule = createAndroidComposeRule<WindowInsetsActivity>()
 
-    val testTag = "TestTag"
+    private val testTag = "TestTag"
 
     /**
      * The size of the inset when shown.
@@ -118,13 +128,14 @@ class WindowInsetsControllerTest {
     /**
      * A motion in this direction moves away from the insets
      */
-    val directionMultiplier: Float = -1f
+    private val directionMultiplier: Float = -1f
 
     private var shownAtStart = false
 
     @Before
     fun setup() {
         rule.activity.createdLatch.await(1, TimeUnit.SECONDS)
+        rule.activity.attachedToWindowLatch.await(1, TimeUnit.SECONDS)
         rule.runOnUiThread {
             val view = rule.activity.window.decorView
             shownAtStart = view.rootWindowInsets.isVisible(insetType)
@@ -627,6 +638,65 @@ class WindowInsetsControllerTest {
             // The fling should get at least one item moved
             assertThat(lazyListState.firstVisibleItemIndex).isGreaterThan(0)
         }
+    }
+
+    /**
+     * On some devices, the animation can begin and then end immediately without the value being
+     * set to the final state in onProgress().
+     */
+    @Test
+    fun quickAnimation() {
+        val view = rule.activity.window.decorView
+        val imeType = android.view.WindowInsets.Type.ime()
+
+        rule.runOnUiThread {
+            view.windowInsetsController?.show(imeType)
+        }
+
+        val imeAvailable = rule.runOnIdle {
+            val windowInsets = view.rootWindowInsets
+            val insets = windowInsets.getInsets(imeType)
+            shownSize = insets.value
+            windowInsets.isVisible(imeType) && insets.value != 0
+        }
+        if (!imeAvailable) {
+            return // IME isn't available on this device
+        }
+        var imeBottom by mutableStateOf(0)
+        var showDialog by mutableStateOf(false)
+        val focusRequester = FocusRequester()
+        rule.setContent {
+            imeBottom = WindowInsets.ime.getBottom(LocalDensity.current)
+            Column(Modifier.background(Color.White).wrapContentSize().imePadding()) {
+                BasicTextField(
+                    "Hello World",
+                    { },
+                    modifier = Modifier.focusRequester(focusRequester).testTag("textField")
+                )
+                if (showDialog) {
+                    Dialog(onDismissRequest = { showDialog = false }) {
+                        Box(Modifier.size(20.dp).background(Color.Red))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("textField").assertIsFocused()
+
+        rule.runOnIdle {
+            assertThat(imeBottom).isNotEqualTo(0)
+        }
+
+        showDialog = true
+
+        rule.waitForIdle() // wait for showDialog
+
+        // We don't know when the IME will go away, so we should keep checking for it.
+        rule.waitUntil { imeBottom == 0 }
     }
 
     private fun initializeDeviceWithInsetsShown(): Boolean {

@@ -16,13 +16,18 @@
 
 package androidx.glance.appwidget.demos
 
-import androidx.compose.runtime.Composable
+import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -40,13 +45,20 @@ class ResizingAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Single
 
-    @Composable
-    override fun Content() {
-        Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) = provideContent {
+        Column(
+            modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)
+        ) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
                     "first",
-                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    modifier = GlanceModifier
+                        .width(50.dp)
+                        .background(Color(0xFFBBBBBB))
+                        .clickable { Log.i("GlanceAppWidget", "first clicked") },
                     style = TextStyle(textAlign = TextAlign.Start)
                 )
                 Text(
@@ -56,16 +68,24 @@ class ResizingAppWidget : GlanceAppWidget() {
                         textAlign = TextAlign.Center,
                     ),
                     modifier = GlanceModifier.defaultWeight().height(50.dp)
+                        .clickable { Log.i("GlanceAppWidget", "second clicked") },
                 )
                 Text(
                     "third",
-                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
-                    style = TextStyle(textAlign = TextAlign.End)
+                    modifier = GlanceModifier
+                        .width(50.dp)
+                        .background(Color(0xFFBBBBBB))
+                        .clickable { Log.i("GlanceAppWidget", "third clicked") },
+                style = TextStyle(textAlign = TextAlign.End)
                 )
             }
             Text(
                 "middle",
-                modifier = GlanceModifier.defaultWeight().fillMaxWidth(),
+                modifier = GlanceModifier
+                    .defaultWeight()
+                    .fillMaxWidth()
+                    .clickable { Log.i("GlanceAppWidget", "middle clicked") }
+                    .background(ImageProvider(R.drawable.compose)),
                 style = TextStyle(textAlign = TextAlign.Center)
             )
             Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {

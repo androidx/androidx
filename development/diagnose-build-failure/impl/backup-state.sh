@@ -53,7 +53,7 @@ fi
 function copy() {
   from="$1"
   to="$2"
-  rm "$to" -rf
+  rm -rf "$to"
   if [ -e "$from" ]; then
     mkdir -p "$(dirname $to)"
     if [ "$move" == "true" ]; then
@@ -62,7 +62,7 @@ function copy() {
       cp --preserve=all -rT "$from" "$to"
     fi
   else
-    rm "$to" -rf
+    rm -rf "$to"
   fi
 }
 
@@ -99,3 +99,16 @@ function backupState() {
 
 backupState $stateDir
 
+# If we move the state to another dir, we might move the Gradle Enterprise credentials too
+# This function attempts to restore them
+function tryToRestoreCredentials() {
+  stateDir="$1"
+  mkdir -p "$GRADLE_USER_HOME"
+  newCredentialDir="$stateDir/gradleUserHome/enterprise"
+  if [ -e "$newCredentialDir" ]; then
+    cp -r "$stateDir/gradleUserHome/enterprise" "$GRADLE_USER_HOME/"
+  fi
+}
+if [ "$move" == "true" ]; then
+  tryToRestoreCredentials $stateDir
+fi

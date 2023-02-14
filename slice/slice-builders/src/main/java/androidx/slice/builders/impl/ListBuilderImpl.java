@@ -50,7 +50,6 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 
 import android.app.PendingIntent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
@@ -605,18 +604,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private RowBuilderImpl(@NonNull ListBuilderImpl parent) {
-            super(parent.createChildBuilder(), null);
-        }
-
-        /**
-         */
-        private RowBuilderImpl(@NonNull Uri uri) {
-            super(new Slice.Builder(uri), null);
-        }
-
-        /**
-         */
         RowBuilderImpl(Slice.Builder builder) {
             super(builder, null);
         }
@@ -821,13 +808,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         HeaderBuilderImpl(@NonNull ListBuilderImpl parent) {
             super(parent.createChildBuilder(), null);
         }
-
-        /**
-         */
-        private HeaderBuilderImpl(@NonNull Uri uri) {
-            super(new Slice.Builder(uri), null);
-        }
-
         void fillFrom(HeaderBuilder builder) {
             if (builder.getUri() != null) {
                 setBuilder(new Slice.Builder(builder.getUri()));

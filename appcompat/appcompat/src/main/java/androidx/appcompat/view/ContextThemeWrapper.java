@@ -33,6 +33,11 @@ import androidx.appcompat.R;
  * A context wrapper that allows you to modify or replace the theme of the wrapped context.
  */
 public class ContextThemeWrapper extends ContextWrapper {
+    /**
+     * Lazily-populated configuration object representing an empty, default configuration.
+     */
+    private static Configuration sEmptyConfig;
+
     private int mThemeResource;
     private Resources.Theme mTheme;
     private LayoutInflater mInflater;
@@ -113,7 +118,12 @@ public class ContextThemeWrapper extends ContextWrapper {
 
     private Resources getResourcesInternal() {
         if (mResources == null) {
-            if (mOverrideConfiguration == null) {
+            if (mOverrideConfiguration == null
+                    || (Build.VERSION.SDK_INT >= 26
+                    && isEmptyConfiguration(mOverrideConfiguration))) {
+                // If we're not applying any overrides, use the base context's resources. On API
+                // 26+, this will avoid pulling in resources that share a backing implementation
+                // with the application context.
                 mResources = super.getResources();
             } else if (Build.VERSION.SDK_INT >= 17) {
                 final Context resContext =
@@ -201,6 +211,27 @@ public class ContextThemeWrapper extends ContextWrapper {
     public AssetManager getAssets() {
         // Ensure we're returning assets with the correct configuration.
         return getResources().getAssets();
+    }
+
+    /**
+     * @return {@code true} if the specified configuration is {@code null} or is a no-op when
+     *         used as a configuration overlay
+     */
+    @RequiresApi(26)
+    private static boolean isEmptyConfiguration(Configuration overrideConfiguration) {
+        if (overrideConfiguration == null) {
+            return true;
+        }
+
+        if (sEmptyConfig == null) {
+            Configuration emptyConfig = new Configuration();
+            // Workaround for incorrect default fontScale on earlier SDKs (b/29924927). Note
+            // that Configuration.setToDefaults() is *not* a no-op configuration overlay.
+            emptyConfig.fontScale = 0.0f;
+            sEmptyConfig = emptyConfig;
+        }
+
+        return overrideConfiguration.equals(sEmptyConfig);
     }
 
     @RequiresApi(17)

@@ -16,6 +16,7 @@
 
 package androidx.health.services.client
 
+import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
@@ -23,12 +24,15 @@ import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.data.ExerciseState
+import androidx.health.services.client.data.ExerciseEndReason
 import androidx.health.services.client.data.ExerciseType
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.WarmUpConfig
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 
+@JvmDefaultWithCompatibility
 /** Client which provides a way to subscribe to the health data of a device during an exercise. */
 public interface ExerciseClient {
     /**
@@ -51,7 +55,8 @@ public interface ExerciseClient {
      * aggregation will occur until the exercise is started.
      *
      * If an app is actively preparing and another app starts tracking an active exercise then the
-     * preparing app should expect to receive an [ExerciseUpdate] with [ExerciseState.TERMINATED]
+     * preparing app should expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along
+     * with the reason [ExerciseEndReason.AUTO_END_SUPERSEDED] to the [ExerciseUpdateCallback]
      * indicating that their session has been superseded and ended. At that point no additional
      * updates to availability or data will be sent until the app calls prepareExercise again.
      *
@@ -68,20 +73,22 @@ public interface ExerciseClient {
      *
      * Since Health Services only allows a single active exercise at a time, this will terminate any
      * active exercise currently in progress before starting the new one. If this occurs, clients
-     * can expect to receive an [ExerciseUpdate] with [ExerciseState.TERMINATED], indicating that
-     * their exercise has been superseded and that no additional updates will be sent. Clients can
-     * use [getCurrentExerciseInfoAsync] (described below) to check if they or another app has an
-     * active exercise in-progress.
+     * can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
+     * [ExerciseEndReason.AUTO_END_SUPERSEDED] to the [ExerciseUpdateCallback] indicating that their
+     * exercise has been superseded and that no additional updates will be sent. Clients can use
+     * [getCurrentExerciseInfoAsync] (described below) to check if they or another app has an active
+     * exercise in-progress.
      *
-     * If the client fails to maintain a live [ExerciseUpdateCallback] for at least five minutes
-     * during the duration of the exercise, Health Services can decide to terminate the exercise. If
-     * this occurs, clients can expect to receive an [ExerciseUpdate] with
-     * [ExerciseState.AUTO_ENDED] indicating that their exercise has been automatically ended due to
-     * the lack of callback.
+     * The exercise will be terminated and clients can expect to receive an [ExerciseUpdate] with
+     * [ExerciseState.ENDED] along with the reason [ExerciseEndReason.AUTO_END_MISSING_LISTENER]
+     * (indicating that their exercise has been automatically ended due to the lack of callback) if
+     * there is ever a five minute period where no [ExerciseUpdateCallback] is registered. A notable
+     * example is if the process with the registered [ExerciseUpdateCallback] dies and does not
+     * re-register the [ExerciseUpdateCallback] within five minutes.
      *
      * Clients should only request [ExerciseType]s, [DataType]s, goals, and auto-pause enabled that
-     * matches the [ExerciseCapabilities] returned by [capabilities] since Health Services will
-     * reject requests asking for unsupported configurations.
+     * matches the [ExerciseCapabilities] returned by [getCapabilitiesAsync] since Health Services
+     * will reject requests asking for unsupported configurations.
      *
      * @param configuration the [ExerciseConfig] describing this exercise
      * @return a [ListenableFuture] that completes once the exercise has been started or fails due
@@ -128,8 +135,9 @@ public interface ExerciseClient {
      * Ends the current exercise, if it has been started.
      *
      * Health Services will flush and then shut down the active sensors and return an
-     * [ExerciseUpdate] with [ExerciseState.USER_ENDED] to the [ExerciseUpdateCallback]. If the
-     * exercise has ended then this future will fail.
+     * [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
+     * [ExerciseEndReason.USER_END] to the [ExerciseUpdateCallback]. If the exercise has ended then
+     * this future will fail.
      *
      * No additional metrics will be produced for the exercise and any on device persisted data
      * about the exercise will be deleted after the summary has been sent back.
@@ -146,7 +154,7 @@ public interface ExerciseClient {
      * @return a [ListenableFuture] that completes once the flush has been completed or fails if the
      * calling application does not own the active exercise.
      */
-    public fun flushExerciseAsync(): ListenableFuture<Void>
+    public fun flushAsync(): ListenableFuture<Void>
 
     /**
      * Ends the current lap, calls [ExerciseUpdateCallback.onLapSummaryReceived] with data spanning
@@ -191,7 +199,8 @@ public interface ExerciseClient {
      * deliver them as soon as the callback is registered again. If the client fails to maintain a
      * live [ExerciseUpdateCallback] for at least five minutes during the duration of the exercise
      * Health Services can decide to terminate the exercise automatically. If this occurs, clients
-     * can expect to receive an [ExerciseUpdate] with [ExerciseState.AUTO_ENDED] indicating that
+     * can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
+     * [ExerciseEndReason.AUTO_END_MISSING_LISTENER] to the [ExerciseUpdateCallback] indicating that
      * their exercise has been automatically ended due to the lack of callback.
      *
      * Calls to the callback will be executed on the main application thread. To control where to
@@ -235,7 +244,7 @@ public interface ExerciseClient {
      * @return a [ListenableFuture] that completes once the exercise goal has been added. This
      * returned [ListenableFuture] fails if the calling app does not own the active exercise.
      */
-    public fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void>
+    public fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal<*>): ListenableFuture<Void>
 
     /**
      * Removes an exercise goal for an active exercise.
@@ -250,18 +259,30 @@ public interface ExerciseClient {
      * [exerciseGoal] has not been added in the past.
      */
     public fun removeGoalFromActiveExerciseAsync(
-        exerciseGoal: ExerciseGoal
+        exerciseGoal: ExerciseGoal<*>
     ): ListenableFuture<Void>
 
     /**
      * Enables or disables auto pause/resume for the current exercise.
      *
      * @param enabled a boolean to indicate if should be enabled or disabled
-     * @return a [ListenableFuture] that completes once the override has completed. This
-     * returned [ListenableFuture] fails if an exercise is not active for this app.
+     * @return a [ListenableFuture] that completes once the override has completed. This returned
+     * [ListenableFuture] fails if an exercise is not active for this app.
      */
     public fun overrideAutoPauseAndResumeForActiveExerciseAsync(
         enabled: Boolean
+    ): ListenableFuture<Void>
+
+    /**
+     * Sets the batching mode for the current exercise.
+     *
+     * @param batchingModes [BatchingMode] overrides for exercise updates. Passing an empty set will
+     * clear all existing overrides.
+     * @return a [ListenableFuture] that completes once the override has completed. This returned
+     * [ListenableFuture] fails if an exercise is not active for this app.
+     */
+    public fun overrideBatchingModesForActiveExerciseAsync(
+        batchingModes: Set<BatchingMode>
     ): ListenableFuture<Void>
 
     /**
@@ -274,5 +295,19 @@ public interface ExerciseClient {
      *
      * @return a [ListenableFuture] containing the [ExerciseCapabilities] for this device
      */
-    public val capabilities: ListenableFuture<ExerciseCapabilities>
+    public fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities>
+
+    /**
+     * Updates the configurable exercise type attributes for the current exercise.
+     *
+     * This can be used to update the configurable attributes for the ongoing exercise, as defined
+     * in [ExerciseTypeConfig]. Minimum Exercise API version for this function is 3.
+     *
+     * @param exerciseTypeConfig a configuration containing the new values for the configurable
+     * attributes
+     * @return a [ListenableFuture] that completes when the configuration has been updated.
+     */
+    public fun updateExerciseTypeConfigAsync(
+        exerciseTypeConfig: ExerciseTypeConfig
+    ): ListenableFuture<Void>
 }

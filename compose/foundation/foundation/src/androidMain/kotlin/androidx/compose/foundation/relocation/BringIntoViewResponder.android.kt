@@ -18,7 +18,6 @@ package androidx.compose.foundation.relocation
 
 import android.graphics.Rect as AndroidRect
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Rect
@@ -26,7 +25,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalView
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal actual fun rememberDefaultBringIntoViewParent(): BringIntoViewParent {
     val view = LocalView.current
@@ -36,11 +34,13 @@ internal actual fun rememberDefaultBringIntoViewParent(): BringIntoViewParent {
 /**
  * A [BringIntoViewParent] that delegates to the [View] hosting the composition.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private class AndroidBringIntoViewParent(private val view: View) : BringIntoViewParent {
-    override suspend fun bringChildIntoView(rect: Rect, childCoordinates: LayoutCoordinates) {
+    override suspend fun bringChildIntoView(
+        childCoordinates: LayoutCoordinates,
+        boundsProvider: () -> Rect?
+    ) {
         val childOffset = childCoordinates.positionInRoot()
-        val rootRect = rect.translate(childOffset)
+        val rootRect = boundsProvider()?.translate(childOffset) ?: return
         view.requestRectangleOnScreen(rootRect.toRect(), false)
     }
 }

@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 
 /**
  * Stores system ids for a [WorkSpec] id.
@@ -33,15 +32,22 @@ import androidx.room.PrimaryKey
         childColumns = ["work_spec_id"],
         onDelete = ForeignKey.CASCADE,
         onUpdate = ForeignKey.CASCADE
-    )]
+    )],
+    primaryKeys = ["work_spec_id", "generation"]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class SystemIdInfo(
     @JvmField
     @ColumnInfo(name = "work_spec_id")
-    @PrimaryKey
     val workSpecId: String,
+
+    @ColumnInfo(defaultValue = "0")
+    val generation: Int,
+
     @JvmField
     @ColumnInfo(name = "system_id")
     val systemId: Int
 )
+
+fun systemIdInfo(generationalId: WorkGenerationalId, systemId: Int) =
+    SystemIdInfo(generationalId.workSpecId, generationalId.generation, systemId)

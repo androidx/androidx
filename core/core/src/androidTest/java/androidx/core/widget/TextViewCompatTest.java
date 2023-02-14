@@ -489,6 +489,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
     @Test
     @SdkSuppress(minSdkVersion = 26, maxSdkVersion =  27)
+    @SuppressWarnings("deprecation")
     public void testSetCustomSelectionActionModeCallback_fixesBugInO() {
         // Create mock context and package manager for the text view.
         final PackageManager packageManagerMock = spy(mTextView.getContext().getPackageManager());

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2020 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +13,22 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<androidx.viewpager.widget.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/viewPager"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".viewpager.ViewPagerActivity" />
+    android:orientation="vertical">
+
+    <androidx.viewpager.widget.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        tools:context=".viewpager.ViewPagerActivity" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

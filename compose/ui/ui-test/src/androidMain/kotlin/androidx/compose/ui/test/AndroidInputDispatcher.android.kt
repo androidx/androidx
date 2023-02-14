@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.test
 
+import android.view.InputEvent
+import android.view.KeyCharacterMap
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_BUTTON_PRESS
 import android.view.MotionEvent.ACTION_BUTTON_RELEASE
@@ -34,7 +37,10 @@ import android.view.MotionEvent.PointerCoords
 import android.view.MotionEvent.PointerProperties
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
 import android.view.ViewConfiguration
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.core.view.InputDeviceCompat.SOURCE_MOUSE
@@ -56,16 +62,21 @@ internal actual fun createInputDispatcher(
     }
     val view = root.view
     return AndroidInputDispatcher(testContext, root) {
-        when (it.source) {
-            SOURCE_TOUCHSCREEN -> view.dispatchTouchEvent(it)
-            SOURCE_ROTARY_ENCODER -> view.dispatchGenericMotionEvent(it)
-            SOURCE_MOUSE -> when (it.action) {
-                in MouseAsTouchEvents -> view.dispatchTouchEvent(it)
-                else -> view.dispatchGenericMotionEvent(it)
+        when (it) {
+            is KeyEvent -> view.dispatchKeyEvent(it)
+            is MotionEvent -> {
+                when (it.source) {
+                    SOURCE_TOUCHSCREEN -> view.dispatchTouchEvent(it)
+                    SOURCE_ROTARY_ENCODER -> view.dispatchGenericMotionEvent(it)
+                    SOURCE_MOUSE -> when (it.action) {
+                        in MouseAsTouchEvents -> view.dispatchTouchEvent(it)
+                        else -> view.dispatchGenericMotionEvent(it)
+                    }
+                    else -> throw IllegalArgumentException(
+                        "Can't dispatch MotionEvents with source ${it.source}"
+                    )
+                }
             }
-            else -> throw IllegalArgumentException(
-                "Can't dispatch MotionEvents with source ${it.source}"
-            )
         }
     }
 }
@@ -73,11 +84,11 @@ internal actual fun createInputDispatcher(
 internal class AndroidInputDispatcher(
     private val testContext: TestContext,
     private val root: ViewRootForTest,
-    private val sendEvent: (MotionEvent) -> Unit
+    private val sendEvent: (InputEvent) -> Unit
 ) : InputDispatcher(testContext, root) {
 
     private val batchLock = Any()
-    private var batchedEvents = mutableListOf<MotionEvent>()
+    private var batchedEvents = mutableListOf<InputEvent>()
     private var disposed = false
     private var currentClockTime = currentTime
 
@@ -174,7 +185,9 @@ internal class AndroidInputDispatcher(
     override fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel) {
         enqueueMouseEvent(
             ACTION_SCROLL,
-            delta,
+            // We invert vertical scrolling to align with another platforms.
+            // Vertical scrolling on desktop/web have opposite sign.
+            if (scrollWheel == ScrollWheel.Vertical) -delta else delta,
             when (scrollWheel) {
                 ScrollWheel.Horizontal -> MotionEvent.AXIS_HSCROLL
                 ScrollWheel.Vertical -> MotionEvent.AXIS_VSCROLL
@@ -182,6 +195,31 @@ internal class AndroidInputDispatcher(
             }
         )
     }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun KeyInputState.constructMetaState(): Int {
+
+        fun genState(key: Key, mask: Int) = if (isKeyDown(key)) mask else 0
+
+        return (if (capsLockOn) KeyEvent.META_CAPS_LOCK_ON else 0) or
+            (if (numLockOn) KeyEvent.META_NUM_LOCK_ON else 0) or
+            (if (scrollLockOn) KeyEvent.META_SCROLL_LOCK_ON else 0) or
+            genState(Key.Function, KeyEvent.META_FUNCTION_ON) or
+            genState(Key.CtrlLeft, KeyEvent.META_CTRL_LEFT_ON or KeyEvent.META_CTRL_ON) or
+            genState(Key.CtrlRight, KeyEvent.META_CTRL_RIGHT_ON or KeyEvent.META_CTRL_ON) or
+            genState(Key.AltLeft, KeyEvent.META_ALT_LEFT_ON or KeyEvent.META_ALT_ON) or
+            genState(Key.AltRight, KeyEvent.META_ALT_RIGHT_ON or KeyEvent.META_ALT_ON) or
+            genState(Key.MetaLeft, KeyEvent.META_META_LEFT_ON or KeyEvent.META_META_ON) or
+            genState(Key.MetaRight, KeyEvent.META_META_RIGHT_ON or KeyEvent.META_META_ON) or
+            genState(Key.ShiftLeft, KeyEvent.META_SHIFT_LEFT_ON or KeyEvent.META_SHIFT_ON) or
+            genState(Key.ShiftRight, KeyEvent.META_SHIFT_RIGHT_ON or KeyEvent.META_SHIFT_ON)
+    }
+
+    override fun KeyInputState.enqueueDown(key: Key) =
+        enqueueKeyEvent(KeyEvent.ACTION_DOWN, key.nativeKeyCode, constructMetaState())
+
+    override fun KeyInputState.enqueueUp(key: Key) =
+        enqueueKeyEvent(KeyEvent.ACTION_UP, key.nativeKeyCode, constructMetaState())
 
     /**
      * Generates a MotionEvent with the given [action] and [actionIndex], adding all pointers that
@@ -293,6 +331,7 @@ internal class AndroidInputDispatcher(
             eventTime = currentTime,
             action = action,
             coordinate = lastPosition,
+            metaState = keyInputState.constructMetaState(),
             buttonState = pressedButtons.fold(0) { state, buttonId -> state or buttonId },
             axis = axis,
             axisDelta = delta
@@ -304,6 +343,7 @@ internal class AndroidInputDispatcher(
         eventTime: Long,
         action: Int,
         coordinate: Offset,
+        metaState: Int,
         buttonState: Int,
         axis: Int = -1,
         axisDelta: Float = 0f
@@ -315,6 +355,7 @@ internal class AndroidInputDispatcher(
                     "eventTime=$eventTime, " +
                     "action=$action, " +
                     "coordinate=$coordinate, " +
+                    "metaState=$metaState, " +
                     "buttonState=$buttonState, " +
                     "axis=$axis, " +
                     "axisDelta=$axisDelta)"
@@ -345,7 +386,7 @@ internal class AndroidInputDispatcher(
                             }
                         }
                     ),
-                    /* metaState = */ 0,
+                    /* metaState = */ metaState,
                     /* buttonState = */ buttonState,
                     /* xPrecision = */ 1f,
                     /* yPrecision = */ 1f,
@@ -414,13 +455,72 @@ internal class AndroidInputDispatcher(
         }
     }
 
+    /**
+     * Generates a KeyEvent with the given [action] and [keyCode] and adds the KeyEvent to
+     * the batch.
+     *
+     * @see KeyEvent.getAction
+     * @see KeyEvent.getKeyCode
+     */
+    private fun KeyInputState.enqueueKeyEvent(
+        action: Int,
+        keyCode: Int,
+        metaState: Int
+    ) {
+        enqueueKeyEvent(
+            downTime = downTime,
+            eventTime = currentTime,
+            action = action,
+            code = keyCode,
+            repeat = repeatCount,
+            metaState = metaState
+        )
+    }
+
+    /**
+     * Generates a key event with the given parameters.
+     */
+    private fun enqueueKeyEvent(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        code: Int,
+        repeat: Int,
+        metaState: Int
+    ) {
+        synchronized(batchLock) {
+            ensureNotDisposed {
+                "Can't enqueue key event (" +
+                    "downTime=$downTime, " +
+                    "eventTime=$eventTime, " +
+                    "action=$action, " +
+                    "code=$code, " +
+                    "repeat=$repeat, " +
+                    "metaState=$metaState)"
+            }
+
+            val keyEvent = KeyEvent(
+                /* downTime = */ downTime,
+                /* eventTime = */ eventTime,
+                /* action = */ action,
+                /* code = */ code,
+                /* repeat = */ repeat,
+                /* metaState = */ metaState,
+                /* deviceId = */ KeyCharacterMap.VIRTUAL_KEYBOARD,
+                /* scancode = */ 0
+            )
+
+             batchedEvents.add(keyEvent)
+        }
+    }
+
     override fun flush() {
         // Must inject on the main thread, because it might modify View properties
         @OptIn(InternalTestApi::class)
         testContext.testOwner.runOnUiThread {
             val events = synchronized(batchLock) {
                 ensureNotDisposed { "Can't flush events" }
-                mutableListOf<MotionEvent>().apply {
+                mutableListOf<InputEvent>().apply {
                     addAll(batchedEvents)
                     batchedEvents.clear()
                 }
@@ -454,7 +554,9 @@ internal class AndroidInputDispatcher(
         synchronized(batchLock) {
             if (!disposed) {
                 disposed = true
-                batchedEvents.forEach { it.recycle() }
+                batchedEvents.forEach {
+                    recycleEventIfPossible(it)
+                }
             }
         }
     }
@@ -462,11 +564,18 @@ internal class AndroidInputDispatcher(
     /**
      * Sends and recycles the given [event].
      */
-    private fun sendAndRecycleEvent(event: MotionEvent) {
+    private fun sendAndRecycleEvent(event: InputEvent) {
         try {
             sendEvent(event)
         } finally {
-            event.recycle()
+            recycleEventIfPossible(event)
         }
+    }
+
+    /**
+     * Recycles the [event] if it is a [MotionEvent]. There is no notion of recycling a [KeyEvent].
+     */
+    private fun recycleEventIfPossible(event: InputEvent) {
+        (event as? MotionEvent)?.recycle()
     }
 }

@@ -17,17 +17,23 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
@@ -36,6 +42,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -142,14 +149,14 @@ class IconButtonScreenshotTest {
     @Test
     fun iconButton_lightTheme_focused() {
         val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
 
         rule.setMaterialContent(lightColorScheme()) {
+            localInputModeManager = LocalInputModeManager.current
             Box(wrap.testTag(wrapperTestTag)) {
-                IconButton(onClick = { /* doSomething() */ },
+                IconButton(
+                    onClick = { /* doSomething() */ },
                     modifier = Modifier
-                        // Normally this is only focusable in non-touch mode, so let's force it to
-                        // always be focusable so we can test how it appears
-                        .focusProperties { canFocus = true }
                         .focusRequester(focusRequester)
                 ) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -158,10 +165,27 @@ class IconButtonScreenshotTest {
         }
 
         rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
             focusRequester.requestFocus()
         }
 
         assertAgainstGolden("iconButton_lightTheme_focused")
+    }
+
+    @Test
+    fun iconButton_largeContentClipped() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Box(
+                        Modifier
+                            .size(100.dp)
+                            .background(Color.Blue))
+                }
+            }
+        }
+        assertAgainstGolden("iconButton_largeContentClipped")
     }
 
     @Test
@@ -210,6 +234,21 @@ class IconButtonScreenshotTest {
             }
         }
         assertAgainstGolden("iconToggleButton_checked_darkTheme")
+    }
+
+    @Test
+    fun iconToggleButton_largeContentClipped() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
+                    Box(
+                        Modifier
+                            .size(100.dp)
+                            .background(Color.Blue))
+                }
+            }
+        }
+        assertAgainstGolden("iconToggleButton_largeContentClipped")
     }
 
     @Test

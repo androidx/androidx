@@ -32,7 +32,7 @@ interface XConstructorElement : XExecutableElement {
             append("(")
             append(
                 parameters.joinToString(", ") {
-                    it.type.typeName.toString()
+                    it.type.asTypeName().java.toString()
                 }
             )
             append(")")

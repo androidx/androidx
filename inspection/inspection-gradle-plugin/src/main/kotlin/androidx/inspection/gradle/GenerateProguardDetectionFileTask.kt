@@ -24,13 +24,14 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
-
 /**
  * Task purposely empty, unused class that would be removed by proguard. See javadoc below for more
  * information.
  */
 @Suppress("UnstableApiUsage")
+@DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class GenerateProguardDetectionFileTask : DefaultTask() {
 
     @get:Input

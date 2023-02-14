@@ -24,14 +24,23 @@ import kotlin.coroutines.CoroutineContext
  * the motion will end in the next frame callback. Otherwise, the duration [scaleFactor] will be
  * used as a multiplier to scale the duration of the motion. The larger the scale, the longer the
  * motion will take to finish, and therefore the slower it will be perceived.
+ *
+ * ## Testing
+ *
+ * To control the motion duration scale in tests, create an implementation of this interface and
+ * pass it to the `effectContext` parameter either where you call `runComposeUiTest` or where you
+ * create your test rule.
  */
 @Stable
 interface MotionDurationScale : CoroutineContext.Element {
     /**
      * Defines the multiplier for the duration of the motion. This value should be non-negative.
      *
-     * 0f would cause motion to finish in the next frame callback. Larger [scaleFactor] will result
-     * in longer durations for the motion/animation (i.e. slower animation).
+     * A [scaleFactor] of 1.0f would play the motion in real time. 0f would cause motion to
+     * finish in the next frame callback. Larger [scaleFactor] will result
+     * in longer durations for the motion/animation (i.e. slower animation). For example,
+     * a [scaleFactor] of 10f would cause an animation with a duration of 100ms to finish in
+     * 1000ms.
      */
     val scaleFactor: Float
 

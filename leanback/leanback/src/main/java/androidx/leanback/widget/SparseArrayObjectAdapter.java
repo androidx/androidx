@@ -2,6 +2,8 @@ package androidx.leanback.widget;
 
 import android.util.SparseArray;
 
+import androidx.annotation.Nullable;
+
 /**
  * An {@link ObjectAdapter} implemented with a {@link android.util.SparseArray}.
  * This class maintains an array of objects where each object is associated
@@ -37,7 +39,7 @@ public class SparseArrayObjectAdapter extends ObjectAdapter {
     }
 
     @Override
-    public Object get(int position) {
+    public @Nullable Object get(int position) {
         return mItems.valueAt(position);
     }
 

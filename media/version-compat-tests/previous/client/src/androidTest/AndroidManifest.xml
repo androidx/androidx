@@ -14,8 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.mediacompat.client.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <queries>
         <package android:name="android.support.mediacompat.service.test" />
     </queries>
@@ -23,8 +22,8 @@
     <application android:supportsRtl="true">
         <receiver android:name="android.support.mediacompat.client.ClientBroadcastReceiver" android:exported="true">
             <intent-filter>
-                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_CONTROLLER_METHOD"/>
-                <action android:name="android.support.mediacompat.service.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
+                <action android:name="android.support.mediacompat.client.action.CALL_MEDIA_CONTROLLER_METHOD"/>
+                <action android:name="android.support.mediacompat.client.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
             </intent-filter>
         </receiver>
     </application>

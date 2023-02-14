@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -40,6 +41,7 @@ class FragmentAnim {
     private FragmentAnim() {
     }
 
+    @SuppressLint("ResourceType")
     static AnimationOrAnimator loadAnimation(@NonNull Context context,
             @NonNull Fragment fragment, boolean enter, boolean isPop) {
         int transit = fragment.getNextTransition();

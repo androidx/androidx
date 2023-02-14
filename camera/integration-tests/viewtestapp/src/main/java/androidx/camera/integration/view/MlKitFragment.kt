@@ -16,12 +16,12 @@
 
 package androidx.camera.integration.view
 
-import android.annotation.SuppressLint
 import android.graphics.RectF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ToggleButton
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
@@ -31,6 +31,7 @@ import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.Fragment
+import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 
 /**
@@ -42,9 +43,8 @@ class MlKitFragment : Fragment() {
     private lateinit var previewView: PreviewView
     private lateinit var overlayView: OverlayView
     private lateinit var toggle: ToggleButton
-    private val barcodeScanner = BarcodeScanning.getClient()
+    private var barcodeScanner: BarcodeScanner? = null
 
-    @SuppressLint("UnsafeOptInUsageError")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,32 +57,48 @@ class MlKitFragment : Fragment() {
         toggle = view.findViewById(R.id.toggle_camera)
         toggle.setOnCheckedChangeListener { _, _ -> updateCameraOrientation() }
         previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+        // This button resets the pipeline. This is for testing when the detector is closed,
+        // MlKitAnalyzer handles it correctly.
+        view.findViewById<Button>(R.id.restart).setOnClickListener { clearAndSetAnalyzer() }
 
         // Set up CameraX.
         cameraController = LifecycleCameraController(requireContext())
         cameraController.bindToLifecycle(viewLifecycleOwner)
         previewView.controller = cameraController
-
-        cameraController.setImageAnalysisAnalyzer(mainThreadExecutor(),
-            MlKitAnalyzer(
-                listOf(barcodeScanner),
-                COORDINATE_SYSTEM_VIEW_REFERENCED,
-                mainThreadExecutor()
-            ) { result ->
-                val barcodes = result.getValue(barcodeScanner)
-                if (barcodes != null && barcodes.size > 0) {
-                    overlayView.setTileRect(RectF(barcodes[0].boundingBox))
-                    overlayView.invalidate()
-                }
-            })
+        clearAndSetAnalyzer()
 
         // Update states to match UI.
         updateCameraOrientation()
         return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        barcodeScanner?.close()
+    }
+
     private fun updateCameraOrientation() {
         cameraController.cameraSelector =
             if (toggle.isChecked) DEFAULT_BACK_CAMERA else DEFAULT_FRONT_CAMERA
+    }
+
+    private fun clearAndSetAnalyzer() {
+        barcodeScanner?.close()
+        barcodeScanner = BarcodeScanning.getClient()
+
+        cameraController.clearImageAnalysisAnalyzer()
+        val scanner = barcodeScanner!!
+        cameraController.setImageAnalysisAnalyzer(mainThreadExecutor(),
+            MlKitAnalyzer(
+                listOf(scanner),
+                COORDINATE_SYSTEM_VIEW_REFERENCED,
+                mainThreadExecutor()
+            ) { result ->
+                val barcodes = result.getValue(scanner)
+                if (barcodes != null && barcodes.size > 0) {
+                    overlayView.setTileRect(RectF(barcodes[0].boundingBox))
+                    overlayView.invalidate()
+                }
+            })
     }
 }

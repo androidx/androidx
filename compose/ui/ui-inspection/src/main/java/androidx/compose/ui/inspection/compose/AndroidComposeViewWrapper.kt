@@ -117,4 +117,7 @@ class AndroidComposeViewWrapper(
 
     fun createNodes(): List<InspectorNode> =
         layoutInspectorTree.addSubCompositionRoots(composeView, inspectorNodes)
+
+    fun findParameters(anchorId: Int): InspectorNode? =
+        layoutInspectorTree.findParameters(composeView, anchorId)
 }

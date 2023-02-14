@@ -22,7 +22,6 @@ import com.android.SdkConstants.ATTR_VALUE
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
 import com.android.tools.lint.checks.DesugaredMethodLookup
-import com.android.tools.lint.checks.VersionChecks.Companion.codeNameToApi
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
@@ -46,11 +45,17 @@ import com.intellij.psi.PsiAnonymousClass
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiCompiledElement
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiExpressionList
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiMethodCallExpression
 import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.PsiParenthesizedExpression
 import com.intellij.psi.PsiSuperExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTypesUtil
+import com.intellij.psi.util.PsiUtil
 import kotlin.math.min
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -62,8 +67,6 @@ import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.java.JavaUQualifiedReferenceExpression
-import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
 
@@ -199,8 +202,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 ?: return
 
             // Change: Removed SimpleDateFormat and Animator checks
-
-            var api = apiDatabase.getMethodVersion(owner, name, desc)
+            var api = apiDatabase.getMethodVersions(owner, name, desc).min()
             if (api == -1) {
                 return
             }
@@ -208,8 +210,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             if (api <= minSdk) {
                 return
             }
-
-            containingClass.qualifiedName
 
             val receiver = if (call.isMethodCall()) {
                 call.receiver
@@ -259,9 +259,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             for (type in inheritanceChain) {
                                 val expressionOwner = evaluator.getQualifiedName(type)
                                 if (expressionOwner != null && expressionOwner != owner) {
-                                    val specificApi = apiDatabase.getMethodVersion(
+                                    val specificApi = apiDatabase.getMethodVersions(
                                         expressionOwner, name, desc
-                                    )
+                                    ).min()
                                     if (specificApi == -1) {
                                         if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                             return
@@ -339,7 +339,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             break
                         }
                         val specificApi =
-                            apiDatabase.getMethodVersion(expressionOwner, name, desc)
+                            apiDatabase.getMethodVersions(expressionOwner, name, desc).min()
                         if (specificApi == -1) {
                             if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                 break
@@ -384,9 +384,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                 if (provider != null) {
                                     val methodOwner = evaluator.getQualifiedName(provider)
                                     if (methodOwner != null) {
-                                        val methodApi = apiDatabase.getMethodVersion(
+                                        val methodApi = apiDatabase.getMethodVersions(
                                             methodOwner, name, desc
-                                        )
+                                        ).min()
                                         if (methodApi == -1 || methodApi <= minSdk) {
                                             // Yes, we found another call that doesn't have an API requirement
                                             return
@@ -420,7 +420,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // Builtin R8 desugaring, such as rewriting compare calls (see b/36390874)
             if (owner.startsWith("java.") &&
-                DesugaredMethodLookup.isDesugared(owner, name, desc)) {
+                DesugaredMethodLookup.isDesugared(owner, name, desc, context.sourceSetType)) {
                 return
             }
 
@@ -499,7 +499,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             call: UCallExpression,
             api: Int
         ): LintFix? {
-            if (isKotlin(call.sourcePsi)) {
+            val callPsi = call.sourcePsi ?: return null
+            if (isKotlin(callPsi)) {
                 // We only support Java right now.
                 return null
             }
@@ -507,13 +508,18 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // The host class should never be null if we're looking at Java code.
             val callContainingClass = call.getContainingUClass() ?: return null
 
-            val (wrapperMethodName, methodForInsertion) = generateWrapperMethod(
-                method
-            ) ?: return null
+            val (wrapperMethodName, wrapperMethodParams, methodForInsertion) =
+                generateWrapperMethod(
+                    method,
+                    // Find what type the result of this call is used as
+                    getExpectedTypeByParent(callPsi)
+                ) ?: return null
 
             val (wrapperClassName, insertionPoint, insertionSource) = generateInsertionSource(
                 api,
                 callContainingClass,
+                wrapperMethodName,
+                wrapperMethodParams,
                 methodForInsertion
             )
 
@@ -523,30 +529,75 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 call.valueArguments,
                 wrapperClassName,
                 wrapperMethodName
-            ) ?: return null
+            )
 
-            return fix().name("Extract to static inner class")
-                .composite(
-                    fix()
-                        .replace()
-                        .range(insertionPoint)
-                        .beginning()
-                        .with(insertionSource)
-                        .shortenNames()
-                        .build(),
-                    fix()
-                        .replace()
-                        .range(context.getLocation(call))
-                        .with(replacementCall)
-                        .shortenNames()
-                        .build(),
+            val fix = fix()
+                .name("Extract to static inner class")
+                .composite()
+                .add(fix()
+                    .replace()
+                    .range(context.getLocation(call))
+                    .with(replacementCall)
+                    .shortenNames()
+                    .build()
                 )
+
+            if (insertionPoint != null) {
+                fix.add(fix()
+                    .replace()
+                    .range(insertionPoint)
+                    .beginning()
+                    .with(insertionSource)
+                    .shortenNames()
+                    .build()
+                )
+            }
+
+            return fix.build()
+        }
+
+        /**
+         * Find what type the parent of the element is expecting the element to be.
+         */
+        private fun getExpectedTypeByParent(element: PsiElement): PsiType? {
+            val expectedType = PsiTypesUtil.getExpectedTypeByParent(element)
+            if (expectedType != null) return expectedType
+
+            // PsiTypesUtil didn't know the expected type, but it doesn't handle the case when the
+            // value is a parameter to a method call. See if that's what this is.
+            val (parent, childOfParent) = getParentSkipParens(element)
+            if (parent is PsiExpressionList) {
+                val grandparent = PsiUtil.skipParenthesizedExprUp(parent.parent)
+                if (grandparent is PsiMethodCallExpression) {
+                    val paramIndex = parent.expressions.indexOf(childOfParent)
+                    if (paramIndex < 0) return null
+                    val method = grandparent.resolveMethod() ?: return null
+                    return method.parameterList.getParameter(paramIndex)?.type
+                }
+            }
+            // Not a parameter, still don't know the expected type (or there isn't one).
+            return null
+        }
+
+        /**
+         * Return the first parent of the element which isn't a PsiParenthesizedExpression, and also
+         * return the direct child element of that parent.
+         */
+        private fun getParentSkipParens(element: PsiElement): Pair<PsiElement, PsiElement> {
+            val parent = element.parent
+            return if (parent is PsiParenthesizedExpression) {
+                getParentSkipParens(parent)
+            } else {
+                Pair(parent, element)
+            }
         }
 
         /**
          * Generates source code for a wrapper method and class (where applicable) and calculates
          * the insertion point. If the wrapper class already exists, returns source code for the
          * method body only with an insertion point at the end of the existing wrapper class body.
+         * If the wrapper class and method both already exists, just returns the name of the
+         * wrapper class.
          *
          * Source code follows the general format:
          *
@@ -560,19 +611,26 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          *
          * @param api API level at which the platform method can be safely called
          * @param callContainingClass Class containing the call to the platform method
+         * @param wrapperMethodName The name of the wrapper method, used to check if the wrapper
+         * method already exists
+         * @param wrapperMethodParams List of the types of the wrapper method's parameters, used to
+         * check if the wrapper method already exists
          * @param wrapperMethodBody Source code for the wrapper method
          * @return Triple containing (1) the name of the static wrapper class, (2) the insertion
-         * point for the generated source code, and (3) generated source code for a static wrapper
-         * method, including a static wrapper class if necessary
+         * point for the generated source code (or null if the wrapper method already exists), and
+         * (3) generated source code for a static wrapper method, including a static wrapper class
+         * if necessary (or null if the wrapper method already exists)
          */
         private fun generateInsertionSource(
             api: Int,
             callContainingClass: UClass,
+            wrapperMethodName: String,
+            wrapperMethodParams: List<PsiType>,
             wrapperMethodBody: String,
-        ): Triple<String, Location, String> {
+        ): Triple<String, Location?, String?> {
             val wrapperClassName = "Api${api}Impl"
-            val implInsertionPoint: Location
-            val implForInsertion: String
+            val implInsertionPoint: Location?
+            val implForInsertion: String?
 
             val existingWrapperClass = callContainingClass.innerClasses.find { innerClass ->
                 innerClass.name == wrapperClassName
@@ -588,10 +646,21 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
                     $wrapperMethodBody
                 }
+
                 """.trimIndent()
             } else {
-                implInsertionPoint = context.getLocation(existingWrapperClass.lastChild)
-                implForInsertion = wrapperMethodBody.trimIndent()
+                val existingWrapperMethod = existingWrapperClass.methods.find { method ->
+                    method.name == wrapperMethodName &&
+                        wrapperMethodParams == getParameterTypes(method)
+                }
+                if (existingWrapperMethod == null) {
+                    implInsertionPoint = context.getLocation(existingWrapperClass.lastChild)
+                    // Add a newline to force the `}`s for the class and method onto different lines
+                    implForInsertion = wrapperMethodBody.trimIndent() + "\n"
+                } else {
+                    implInsertionPoint = null
+                    implForInsertion = null
+                }
             }
 
             return Triple(
@@ -602,9 +671,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
 
         /**
-         * Generates source code for a call to the generated wrapper method, or `null` if we don't
-         * know how to do that. Currently, this method is capable of handling static calls --
-         * including constructor calls -- and simple reference expressions from Java source code.
+         * Generates source code for a call to the generated wrapper method.
          *
          * Source code follows the general format:
          *
@@ -625,12 +692,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             callValueArguments: List<UExpression>,
             wrapperClassName: String,
             wrapperMethodName: String,
-        ): String? {
-            var unwrappedCallReceiver = callReceiver
-            while (unwrappedCallReceiver is UParenthesizedExpression) {
-                unwrappedCallReceiver = unwrappedCallReceiver.expression
-            }
-
+        ): String {
             val callReceiverStr = when {
                 // Static method
                 context.evaluator.isStatic(method) ->
@@ -638,17 +700,13 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 // Constructor
                 method.isConstructor ->
                     null
-                // Simple reference
-                unwrappedCallReceiver is JavaUSimpleNameReferenceExpression ->
-                    unwrappedCallReceiver.identifier
-                // Qualified reference
-                unwrappedCallReceiver is JavaUQualifiedReferenceExpression ->
-                    "${unwrappedCallReceiver.receiver}.${unwrappedCallReceiver.selector}"
-                else -> {
-                    // We don't know how to handle this type of receiver. If this happens a lot, we
-                    // might try returning `UElement.asSourceString()` by default.
-                    return null
-                }
+                // If there is no call receiver, and the method isn't a constructor or static,
+                // it must be a call to an instance method using `this` implicitly.
+                callReceiver == null ->
+                    "this"
+                // Otherwise, use the original call receiver string (removing extra parens)
+                else ->
+                    unwrapExpression(callReceiver).asSourceString()
             }
 
             val callValues = if (callValueArguments.isNotEmpty()) {
@@ -662,6 +720,18 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val replacementArgs = listOfNotNull(callReceiverStr, callValues).joinToString(", ")
 
             return "$wrapperClassName.$wrapperMethodName($replacementArgs)"
+        }
+
+        /**
+         * Remove parentheses from the expression (unwrap the expression until it is no longer a
+         * UParenthesizedExpression).
+         */
+        private fun unwrapExpression(expr: UExpression): UExpression {
+            var unwrappedExpr = expr
+            while (unwrappedExpr is UParenthesizedExpression) {
+                unwrappedExpr = unwrappedExpr.expression
+            }
+            return unwrappedExpr
         }
 
         /**
@@ -682,16 +752,21 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          * @return Pair containing (1) the name of the static wrapper method and (2) generated
          * source code for a static wrapper around the platform method
          */
-        private fun generateWrapperMethod(method: PsiMethod): Pair<String, String>? {
-            val methodName = method.name
+        private fun generateWrapperMethod(
+            method: PsiMethod,
+            expectedReturnType: PsiType?
+        ): Triple<String, List<PsiType>, String>? {
             val evaluator = context.evaluator
             val isStatic = evaluator.isStatic(method)
             val isConstructor = method.isConstructor
 
-            // Neither of these should be null if we're looking at Java code.
+            // None of these should be null if we're looking at Java code.
             val containingClass = method.containingClass ?: return null
-            val hostType = containingClass.name ?: return null
-            val hostVar = hostType[0].lowercaseChar() + hostType.substring(1)
+            // When referencing the type, use the fully qualified type in case it isn't imported
+            // (shortenTypes will simplify if it is). For the variable name, use just the class name
+            val hostType = containingClass.qualifiedName ?: return null
+            val hostClassName = containingClass.name ?: return null
+            val hostVar = hostClassName[0].lowercaseChar() + hostClassName.substring(1)
 
             val hostParam = if (isStatic || isConstructor) { null } else { "$hostType $hostVar" }
 
@@ -702,33 +777,60 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             }
 
             val typedParams = method.parameters.map { param ->
-                "${(param.type as? PsiType)?.presentableText} ${param.name}"
+                "${(param.type as? PsiType)?.canonicalText} ${param.name}"
             }
             val typedParamsStr = (listOfNotNull(hostParam) + typedParams).joinToString(", ")
+
+            val paramTypes = listOf(PsiTypesUtil.getClassType(containingClass)) +
+                getParameterTypes(method)
 
             val namedParamsStr = method.parameters.joinToString(separator = ", ") { param ->
                 "${param.name}"
             }
 
-            val wrapperMethodName: String
-            val returnTypeStr: String
-            val returnStmtStr: String
+            val methodName: String
+            var wrapperMethodName: String
+            var returnTypeStr: String
             val receiverStr: String
 
             if (isConstructor) {
-                wrapperMethodName = "create$methodName"
+                methodName = hostType
+                wrapperMethodName = "create$hostClassName"
                 returnTypeStr = hostType
-                returnStmtStr = "return "
                 receiverStr = "new "
             } else {
+                methodName = method.name
                 wrapperMethodName = methodName
-                returnTypeStr = method.returnType?.presentableText ?: "void"
-                returnStmtStr = if ("void" == returnTypeStr) "" else "return "
+                // PsiMethod.returnType is only supposed to be null if the method is a constructor,
+                // so something has gone wrong if it's null here.
+                returnTypeStr = method.returnType?.canonicalText ?: return null
                 receiverStr = if (isStatic) "$hostType." else "$hostVar."
             }
 
-            return Pair(
+            // If the parent is expecting a different return type, use that type.
+            // This is to prevent a CVF on an implicit cast from a type that isn't available at the
+            // caller's API level to a type that is, which becomes a cast from Object.
+            // The real return type should be the same or a subtype of what the parent is expecting.
+            // Also changes the method name to avoid conflicts if the same method with a different
+            // expected return type is needed elsewhere.
+            if (expectedReturnType != null && expectedReturnType.canonicalText != returnTypeStr) {
+                returnTypeStr = expectedReturnType.canonicalText
+                wrapperMethodName += "Returns${expectedReturnType.presentableText}"
+            } else if (expectedReturnType == null && returnTypeStr != "void" &&
+                !classAvailableAtMinSdk(returnTypeStr)) {
+                // This method returns a value of a type that isn't available at the min SDK.
+                // The expected return type is null either because the returned value isn't used or
+                // getExpectedTypeByParent didn't know how it is used. In case it is used and is
+                // actually expected to be a different type, don't suggest an autofix to prevent an
+                // invalid implicit cast.
+                return null
+            }
+
+            val returnStmtStr = if ("void" == returnTypeStr) "" else "return "
+
+            return Triple(
                 wrapperMethodName,
+                paramTypes,
                 """
                     @androidx.annotation.DoNotInline
                     static $typeParamsStr$returnTypeStr $wrapperMethodName($typedParamsStr) {
@@ -736,6 +838,22 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
                 """
             )
+        }
+
+        /**
+         * Returns a list of the method's parameter types.
+         */
+        private fun getParameterTypes(method: PsiMethod): List<PsiType> =
+            method.parameterList.parameters.map { it.type }
+
+        /**
+         * Check if the specified class is available at the min SDK.
+         */
+        private fun classAvailableAtMinSdk(className: String): Boolean {
+            val apiDatabase = apiDatabase ?: return false
+            val minSdk = getMinSdk(context)
+            val version = apiDatabase.getClassVersions(className).min()
+            return version <= minSdk
         }
 
         private fun getInheritanceChain(
@@ -836,44 +954,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 "may not be available at run time, including platform APIs introduced after a " +
                 "library's minSdkVersion.",
             """
-                The Java language requires a virtual machine to verify the class files it
-                loads and executes. A class may fail verification for a wide variety of
-                reasons, but in practice it‘s usually because the class’s code refers to
-                unknown classes or methods.
-                
                 References to APIs added after a library's minSdkVersion -- regardless of
                 any surrounding version checks -- will fail run-time class verification if
-                the API does not exist on the device, leading to reduced run-time
-                performance.
+                the API does not exist on the device, leading to reduced run-time performance.
 
-                Gating references on SDK checks alone DOES NOT address class verification
-                failures.
+                To prevent class verification failures, references to new APIs must be moved to
+                methods within inner classes that are only initialized inside of an appropriate
+                SDK check. These methods must be paired with the @DoNotInline annotation.
 
-                To prevent class verification failures, references to new APIs must be
-                moved to inner classes that are only initialized inside of an appropriate
-                SDK check.
-
-                For example, if our minimum SDK is 14 and platform method a.x(params...)
-                was added in SDK 16, the method call must be moved to an inner class like:
-
-                @RequiresApi(16)
-                private static class Api16Impl{
-                  @DoNotInline
-                  static void callX(params...) {
-                    a.x(params...);
-                  }
-                }
-
-                The call site is changed from a.x(params...) to Api16Impl.callX(params).
-
-                Since ART will only try to optimize Api16Impl when it's on the execution
-                path, we are guaranteed to have a.x(...) available.
-
-                In addition, optimizers like R8 or Proguard may inline the method in the
-                separate class and replace the wrapper call with the actual call, so you
-                must disable inlining using the @DoNotInline annotation.
-
-                Failure to do the above may result in overall performance degradation.
+                For more details and an example, see go/androidx-api-guidelines#compat-sdk.
             """,
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(ClassVerificationFailureDetector::class.java, Scope.JAVA_FILE_SCOPE)

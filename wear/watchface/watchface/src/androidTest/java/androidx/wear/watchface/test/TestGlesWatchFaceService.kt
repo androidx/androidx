@@ -43,11 +43,12 @@ internal class TestGlesWatchFaceService(
 
     // We can't subclass ExampleOpenGLWatchFaceService because we want to override internal methods,
     // so instead we use composition.
-    private val delegate = object : ExampleOpenGLWatchFaceService() {
-        init {
-            attachBaseContext(testContext)
+    private val delegate =
+        object : ExampleOpenGLWatchFaceService() {
+            init {
+                attachBaseContext(testContext)
+            }
         }
-    }
 
     init {
         attachBaseContext(testContext)
@@ -72,11 +73,7 @@ internal class TestGlesWatchFaceService(
             watchState,
             complicationSlotsManager,
             currentUserStyleRepository
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun getSystemTimeZoneId() = mockZoneId
-        })
+        )
     }
 
     override fun getMutableWatchState() = mutableWatchState
@@ -88,10 +85,7 @@ internal class TestGlesWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
 
-    override fun readDirectBootPrefs(
-        context: Context,
-        fileName: String
-    ) = directBootParams
+    override fun readDirectBootPrefs(context: Context, fileName: String) = directBootParams
 
     override fun writeDirectBootPrefs(
         context: Context,
@@ -109,4 +103,11 @@ internal class TestGlesWatchFaceService(
         fileName: String,
         byteArray: ByteArray
     ) {}
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+            override fun getSystemTimeZoneId() = mockZoneId
+        }
 }

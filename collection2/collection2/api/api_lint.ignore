@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-KotlinOperator: androidx.collection.LongSparseArray#get(long, E):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.collection.LruCache#get(K):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax

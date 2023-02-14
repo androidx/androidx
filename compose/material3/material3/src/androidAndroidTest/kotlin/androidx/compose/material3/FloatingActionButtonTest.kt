@@ -38,6 +38,10 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -81,6 +85,7 @@ class FloatingActionButtonTest {
 
         rule.onNodeWithTag("myButton")
             .assertIsEnabled()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
@@ -108,10 +113,18 @@ class FloatingActionButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 FloatingActionButton(onClick = {}) {
-                    Icon(Icons.Filled.Favorite, null)
+                    Icon(
+                        Icons.Filled.Favorite,
+                        null,
+                        modifier = Modifier.testTag("icon"))
                 }
             }
             .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
+
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(FabPrimaryTokens.IconSize)
+            .assertWidthIsEqualTo(FabPrimaryTokens.IconSize)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -119,14 +132,25 @@ class FloatingActionButtonTest {
     fun smallFabHasSizeFromSpec() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
+                CompositionLocalProvider(
+                    LocalMinimumInteractiveComponentEnforcement provides false
+                ) {
                     SmallFloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite, null)
+                        Icon(
+                            Icons.Filled.Favorite,
+                            null,
+                            modifier = Modifier.testTag("icon")
+                        )
                     }
                 }
             }
             // Expecting the size to be equal to the token size.
             .assertIsSquareWithSize(FabPrimarySmallTokens.ContainerHeight)
+
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(FabPrimarySmallTokens.IconSize)
+            .assertWidthIsEqualTo(FabPrimarySmallTokens.IconSize)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -134,7 +158,9 @@ class FloatingActionButtonTest {
     fun smallFabHasMinTouchTarget() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides true) {
+                CompositionLocalProvider(
+                    LocalMinimumInteractiveComponentEnforcement provides true
+                ) {
                     SmallFloatingActionButton(onClick = {}) {
                         Icon(Icons.Filled.Favorite, null)
                     }
@@ -152,10 +178,21 @@ class FloatingActionButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 LargeFloatingActionButton(onClick = {}) {
-                    Icon(Icons.Filled.Favorite, null)
+                    Icon(
+                        Icons.Filled.Favorite,
+                        null,
+                        modifier = Modifier
+                            .size(FloatingActionButtonDefaults.LargeIconSize)
+                            .testTag("icon")
+                    )
                 }
             }
             .assertIsSquareWithSize(FabPrimaryLargeTokens.ContainerHeight)
+
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(FloatingActionButtonDefaults.LargeIconSize)
+            .assertWidthIsEqualTo(FloatingActionButtonDefaults.LargeIconSize)
     }
 
     @Test
@@ -392,17 +429,25 @@ class FloatingActionButtonTest {
 
                 assertWithinOnePixel(buttonBounds.center.y, iconBounds.center.y)
                 assertWithinOnePixel(buttonBounds.center.y, textBounds.center.y)
+
+                // Assert expanded fab icon has 16.dp of padding.
+                assertThat(iconBounds.left - buttonBounds.left)
+                    .isEqualTo(16.dp.roundToPx().toFloat())
+
                 val halfPadding = 6.dp.roundToPx().toFloat()
                 assertWithinOnePixel(
                     iconBounds.center.x + iconBounds.width / 2 + halfPadding,
                     textBounds.center.x - textBounds.width / 2 - halfPadding
                 )
+                // Assert that text and icon have 12.dp padding between them.
+                assertThat(textBounds.left - iconBounds.right)
+                    .isEqualTo(12.dp.roundToPx().toFloat())
             }
         }
     }
 
     @Test
-    fun expandedExtendedFabTextHasSizeFromSpecAndTextVisible() {
+    fun expandedExtendedFabTextAndIconHaveSizeFromSpecAndVisible() {
         rule.setMaterialContent(lightColorScheme()) {
             ExtendedFloatingActionButton(
                 expanded = true,
@@ -419,6 +464,11 @@ class FloatingActionButtonTest {
             )
         }
 
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
+            .assertWidthIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
+
         rule.onNodeWithTag("FAB")
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
             .assertWidthIsAtLeast(80.dp)
@@ -428,7 +478,7 @@ class FloatingActionButtonTest {
     }
 
     @Test
-    fun collapsedExtendedFabTextHasSizeFromSpecAndTextNotVisible() {
+    fun collapsedExtendedFabTextAndIconHaveSizeFromSpecAndTextNotVisible() {
         rule.setMaterialContent(lightColorScheme()) {
             ExtendedFloatingActionButton(
                 expanded = false,
@@ -447,6 +497,12 @@ class FloatingActionButtonTest {
 
         rule.onNodeWithTag("FAB")
             .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
+
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
+            .assertWidthIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
+
         rule.onNodeWithTag("text", useUnmergedTree = true).assertDoesNotExist()
         rule.onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
     }

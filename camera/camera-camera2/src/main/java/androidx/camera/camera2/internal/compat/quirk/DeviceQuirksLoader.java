@@ -77,6 +77,15 @@ public class DeviceQuirksLoader {
         if (CaptureSessionOnClosedNotCalledQuirk.load()) {
             quirks.add(new CaptureSessionOnClosedNotCalledQuirk());
         }
+        if (TorchIsClosedAfterImageCapturingQuirk.load()) {
+            quirks.add(new TorchIsClosedAfterImageCapturingQuirk());
+        }
+        if (ZslDisablerQuirk.load()) {
+            quirks.add(new ZslDisablerQuirk());
+        }
+        if (ExtraSupportedOutputSizeQuirk.load()) {
+            quirks.add(new ExtraSupportedOutputSizeQuirk());
+        }
 
         return quirks;
     }

@@ -72,7 +72,7 @@ package androidx.preference {
 
   public class EditTextPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
     ctor public EditTextPreferenceDialogFragmentCompat();
-    method public static androidx.preference.EditTextPreferenceDialogFragmentCompat newInstance(String!);
+    method public static androidx.preference.EditTextPreferenceDialogFragmentCompat newInstance(String);
     method public void onDialogClosed(boolean);
   }
 
@@ -108,7 +108,7 @@ package androidx.preference {
 
   public class ListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
     ctor public ListPreferenceDialogFragmentCompat();
-    method public static androidx.preference.ListPreferenceDialogFragmentCompat newInstance(String!);
+    method public static androidx.preference.ListPreferenceDialogFragmentCompat newInstance(String);
     method public void onDialogClosed(boolean);
   }
 
@@ -138,7 +138,7 @@ package androidx.preference {
 
   public class MultiSelectListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
     ctor public MultiSelectListPreferenceDialogFragmentCompat();
-    method public static androidx.preference.MultiSelectListPreferenceDialogFragmentCompat newInstance(String!);
+    method public static androidx.preference.MultiSelectListPreferenceDialogFragmentCompat newInstance(String);
     method public void onDialogClosed(boolean);
   }
 
@@ -273,18 +273,18 @@ package androidx.preference {
 
   public abstract class PreferenceDataStore {
     ctor public PreferenceDataStore();
-    method public boolean getBoolean(String!, boolean);
-    method public float getFloat(String!, float);
-    method public int getInt(String!, int);
-    method public long getLong(String!, long);
-    method public String? getString(String!, String?);
-    method public java.util.Set<java.lang.String!>? getStringSet(String!, java.util.Set<java.lang.String!>?);
-    method public void putBoolean(String!, boolean);
-    method public void putFloat(String!, float);
-    method public void putInt(String!, int);
-    method public void putLong(String!, long);
-    method public void putString(String!, String?);
-    method public void putStringSet(String!, java.util.Set<java.lang.String!>?);
+    method public boolean getBoolean(String, boolean);
+    method public float getFloat(String, float);
+    method public int getInt(String, int);
+    method public long getLong(String, long);
+    method public String? getString(String, String?);
+    method public java.util.Set<java.lang.String!>? getStringSet(String, java.util.Set<java.lang.String!>?);
+    method public void putBoolean(String, boolean);
+    method public void putFloat(String, float);
+    method public void putInt(String, int);
+    method public void putLong(String, long);
+    method public void putString(String, String?);
+    method public void putStringSet(String, java.util.Set<java.lang.String!>?);
   }
 
   @Deprecated public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {

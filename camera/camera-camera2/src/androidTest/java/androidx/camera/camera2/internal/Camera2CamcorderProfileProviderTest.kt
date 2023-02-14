@@ -16,12 +16,11 @@
 
 package androidx.camera.camera2.internal
 
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.media.CamcorderProfile
-import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.testing.CameraUtil
@@ -155,16 +154,11 @@ public class Camera2CamcorderProfileProviderTest(private val quality: Int) {
     }
 
     private fun getVideoSupportedResolutions(): Array<Size> {
-        val map = cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-
-        // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
-        // StreamConfigurationMap to retrieve the output sizes information.
-        return if (Build.VERSION.SDK_INT < 23) {
-            map.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
-        } else {
-            map.getOutputSizes(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
-                ?: emptyArray()
-        }
+        val mapCompat = StreamConfigurationMapCompat.toStreamConfigurationMapCompat(
+            cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+        )
+        return mapCompat.getOutputSizes(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+            ?: emptyArray()
     }
 
     private fun CamcorderProfile.size() = Size(videoFrameWidth, videoFrameHeight)

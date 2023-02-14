@@ -30,10 +30,11 @@ import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.GlanceModifier
+import androidx.glance.TintColorFilterParams
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
-import androidx.glance.wear.tiles.action.RunCallbackAction
+import androidx.glance.action.LambdaAction
 import androidx.glance.action.StartActivityAction
 import androidx.glance.action.StartActivityClassAction
 import androidx.glance.action.StartActivityComponentAction
@@ -49,6 +50,8 @@ import androidx.glance.layout.PaddingInDp
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.collectPaddingInDp
+import androidx.glance.semantics.SemanticsModifier
+import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -58,8 +61,9 @@ import androidx.glance.text.TextStyle
 import androidx.glance.toEmittableText
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.Dimension
-import androidx.glance.wear.tiles.curved.AnchorType
+import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.wear.tiles.curved.ActionCurvedModifier
+import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.EmittableCurvedChild
 import androidx.glance.wear.tiles.curved.EmittableCurvedLine
@@ -68,6 +72,7 @@ import androidx.glance.wear.tiles.curved.EmittableCurvedSpacer
 import androidx.glance.wear.tiles.curved.EmittableCurvedText
 import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.SemanticsCurvedModifier
 import androidx.glance.wear.tiles.curved.SweepAngleModifier
 import androidx.glance.wear.tiles.curved.ThicknessModifier
 import androidx.glance.wear.tiles.curved.findModifier
@@ -150,17 +155,31 @@ private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
 private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background? =
     this.colorProvider?.let { provider ->
         ModifiersBuilders.Background.Builder()
-            .setColor(argb(provider.getColor(context)))
+            .setColor(argb(provider.getColorAsArgb(context)))
             .build()
     }
 
 private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
     ModifiersBuilders.Border.Builder()
         .setWidth(dp(this.width.toDp(context.resources).value))
-        .setColor(argb(this.color.getColor(context)))
+        .setColor(argb(this.color.getColorAsArgb(context)))
         .build()
 
-private fun ColorProvider.getColor(context: Context) = resolve(context).toArgb()
+private fun SemanticsModifier.toProto(): ModifiersBuilders.Semantics? =
+    this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
+        ModifiersBuilders.Semantics.Builder()
+            .setContentDescription(it.joinToString())
+            .build()
+    }
+
+private fun SemanticsCurvedModifier.toProto(): ModifiersBuilders.Semantics? =
+    this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
+        ModifiersBuilders.Semantics.Builder()
+            .setContentDescription(it.joinToString())
+            .build()
+    }
+
+private fun ColorProvider.getColorAsArgb(context: Context) = getColor(context).toArgb()
 
 // TODO: handle parameters
 private fun StartActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
@@ -195,6 +214,13 @@ private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
         is RunCallbackAction -> {
             builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
                 .setId(callbackClass.canonicalName!!)
+        }
+        is LambdaAction -> {
+            Log.e(
+                GlanceWearTileTag,
+                "Lambda actions are not currently supported on Wear Tiles. Use " +
+                    "actionRunCallback actions instead."
+            )
         }
         else -> {
             Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
@@ -389,7 +415,7 @@ private fun translateTextStyle(
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColor(context))) }
+    style.color.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
     // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
         if (!it.isSp) {
@@ -427,7 +453,7 @@ private fun translateTextStyle(
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColor(context))) }
+    style.color?.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
     style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
@@ -536,7 +562,7 @@ private fun translateEmittableImage(
     val imageBuilder = LayoutElementBuilders.Image.Builder()
         .setWidth(element.modifier.getWidth(context).toImageDimension())
         .setHeight(element.modifier.getHeight(context).toImageDimension())
-        .setModifiers(translateModifiers(context, element.modifier, element.contentDescription))
+        .setModifiers(translateModifiers(context, element.modifier))
         .setResourceId(mappedResId)
         .setContentScaleMode(
             when (element.contentScale) {
@@ -548,6 +574,19 @@ private fun translateEmittableImage(
             }
         )
 
+    element.colorFilterParams?.let { colorFilterParams ->
+        when (colorFilterParams) {
+            is TintColorFilterParams -> {
+                imageBuilder.setColorFilter(
+                    LayoutElementBuilders.ColorFilter.Builder()
+                        .setTint(argb(colorFilterParams.colorProvider.getColorAsArgb(context)))
+                        .build()
+                )
+            }
+
+            else -> throw IllegalArgumentException("An unsupported ColorFilter was used.")
+        }
+    }
     return imageBuilder.build()
 }
 
@@ -627,7 +666,7 @@ private fun translateEmittableCurvedLine(
     return LayoutElementBuilders.ArcLine.Builder()
         .setLength(degrees(sweepAngleDegrees))
         .setThickness(dp(thickness.value))
-        .setColor(argb(element.color.getColor(context)))
+        .setColor(argb(element.color.getColorAsArgb(context)))
         .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
         .build()
 }
@@ -666,6 +705,9 @@ private fun translateCurvedModifiers(
            is ActionCurvedModifier -> builder.setClickable(element.toProto(context))
            is ThicknessModifier -> builder /* Skip for now, handled elsewhere. */
            is SweepAngleModifier -> builder /* Skip for now, handled elsewhere. */
+           is SemanticsCurvedModifier -> {
+               element.toProto()?.let { builder.setSemantics(it) } ?: builder
+           }
            else -> throw IllegalArgumentException("Unknown curved modifier type")
        }
     }.build()
@@ -673,7 +715,6 @@ private fun translateCurvedModifiers(
 private fun translateModifiers(
     context: Context,
     modifier: GlanceModifier,
-    contentDescription: String? = null
 ): ModifiersBuilders.Modifiers =
     modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {
@@ -686,6 +727,9 @@ private fun translateModifiers(
             is PaddingModifier -> builder // Processing that after
             is VisibilityModifier -> builder // Already processed
             is BorderModifier -> builder.setBorder(element.toProto(context))
+            is SemanticsModifier -> {
+                element.toProto()?.let { builder.setSemantics(it) } ?: builder
+            }
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
     }
@@ -696,14 +740,6 @@ private fun translateModifiers(
                 ?.let {
                     builder.setPadding(it.toProto())
                 }
-
-            contentDescription?.let { contentDescription ->
-                builder.setSemantics(
-                    ModifiersBuilders.Semantics.Builder()
-                        .setContentDescription(contentDescription)
-                        .build()
-                )
-            }
         }
         .build()
 

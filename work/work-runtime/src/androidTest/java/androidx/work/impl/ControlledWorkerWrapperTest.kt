@@ -32,14 +32,14 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.foreground.ForegroundProcessor
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -136,7 +136,8 @@ class ControlledWorkerWrapperTest {
             taskExecutor,
             NoOpForegroundProcessor,
             workDatabase,
-            id
+            workDatabase.workSpecDao().getWorkSpec(id)!!,
+            emptyList()
         ).build()
     }
 }
@@ -195,9 +196,9 @@ class ManualExecutor : Executor {
 class ManualTaskExecutor : TaskExecutor {
     val mainExecutor = ManualExecutor()
     val serialTaskExecutor = ManualExecutor()
-    private val serialBackgroundExecutor = SerialExecutor(serialTaskExecutor)
+    private val serialBackgroundExecutor = SerialExecutorImpl(serialTaskExecutor)
 
     override fun getMainThreadExecutor() = mainExecutor
 
-    override fun getSerialTaskExecutor(): SerialExecutor = serialBackgroundExecutor
+    override fun getSerialTaskExecutor(): SerialExecutorImpl = serialBackgroundExecutor
 }

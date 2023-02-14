@@ -74,12 +74,42 @@ class BoringLayoutFactoryTest {
     }
 
     @Test
-    fun create_returnsGivenValues() {
+    fun create_returnsGivenValues_includePadding_false() {
         val text = "abc"
         val paint = TextPaint()
         val width = 100
         val metrics = BoringLayout.isBoring(text, paint)
-        val boringLayout = create(text, paint, width, metrics)
+        val boringLayout = create(
+            text = text,
+            paint = paint,
+            width = width,
+            metrics = metrics,
+            includePadding = false
+        )
+
+        assertThat(boringLayout.text).isEqualTo(text)
+        assertThat(boringLayout.paint).isEqualTo(paint)
+        // The width and height of the boringLayout is the same in metrics, indicating metrics is
+        // passed correctly.
+        assertThat(boringLayout.getLineWidth(0).toInt()).isEqualTo(metrics.width)
+        assertThat(boringLayout.getLineBottom(0) - boringLayout.getLineTop(0))
+            .isEqualTo(metrics.descent - metrics.ascent)
+        assertThat(boringLayout.width).isEqualTo(width)
+    }
+
+    @Test
+    fun create_returnsGivenValues_includePadding_true() {
+        val text = "abc"
+        val paint = TextPaint()
+        val width = 100
+        val metrics = BoringLayout.isBoring(text, paint)
+        val boringLayout = create(
+            text = text,
+            paint = paint,
+            width = width,
+            metrics = metrics,
+            includePadding = true
+        )
 
         assertThat(boringLayout.text).isEqualTo(text)
         assertThat(boringLayout.paint).isEqualTo(paint)
@@ -137,7 +167,7 @@ class BoringLayoutFactoryTest {
     }
 
     @Test
-    fun create_defaultIncludePad_isTrue() {
+    fun create_defaultIncludePad_isFalse() {
         val text: CharSequence = "abcdefghijk"
         val paint = TextPaint()
         val metrics = BoringLayout.isBoring(text, paint)
@@ -150,8 +180,8 @@ class BoringLayoutFactoryTest {
 
         val topPad = boringLayout.topPadding
         val bottomPad = boringLayout.bottomPadding
-        // Top and bottom padding are not 0 at the same time, indicating includePad is true.
-        assertThat(topPad * topPad + bottomPad * bottomPad).isGreaterThan(0)
+        // Top and bottom padding are 0 at the same time, indicating includePad is false
+        assertThat(topPad + bottomPad).isEqualTo(0)
     }
 
     @Test(expected = IllegalArgumentException::class)

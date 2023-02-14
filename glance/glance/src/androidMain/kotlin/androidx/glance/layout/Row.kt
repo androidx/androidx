@@ -18,6 +18,7 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -25,14 +26,28 @@ import androidx.glance.unit.Dimension
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableRow : EmittableWithChildren() {
+class EmittableRow : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
-    public var verticalAlignment: Alignment.Vertical = Alignment.Top
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var verticalAlignment: Alignment.Vertical = Alignment.Top
+
+    override fun copy(): Emittable = EmittableRow().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.verticalAlignment = verticalAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String = "EmittableRow(" +
+        "modifier=$modifier, " +
+        "horizontalAlignment=$horizontalAlignment, " +
+        "verticalAlignment=$verticalAlignment, " +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }
 
 /** Scope defining modifiers only available on rows. */
-public interface RowScope {
+interface RowScope {
     /**
      * Size the element's width to split the available space with other weighted sibling elements
      * in the [Row]. The parent will divide the horizontal space remaining after measuring
@@ -55,6 +70,9 @@ private object RowScopeImplInstance : RowScope {
  * been provided. When children are smaller than the size of the [Row], they will be placed
  * within the available space subject to [verticalAlignment] and [horizontalAlignment].
  *
+ * Note for App Widgets: [Row] supports up to 10 child elements. Any additional elements will be
+ * truncated from the output.
+ *
  * @param modifier The modifier to be applied to the layout.
  * @param horizontalAlignment The horizontal alignment to apply to the set of children, when they do
  *   not consume the full width of the [Row] (i.e. whether to push the children towards the start,
@@ -64,7 +82,7 @@ private object RowScopeImplInstance : RowScope {
  * @param content The content inside the [Row]
  */
 @Composable
-public fun Row(
+fun Row(
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,

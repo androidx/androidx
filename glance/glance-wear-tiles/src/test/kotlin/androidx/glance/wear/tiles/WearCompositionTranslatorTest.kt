@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
+import androidx.glance.ButtonColors
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -45,6 +47,8 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -60,6 +64,7 @@ import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
 import androidx.glance.wear.tiles.curved.clickable
+import androidx.glance.wear.tiles.curved.semantics
 import androidx.glance.wear.tiles.curved.sweepAngleDegrees
 import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
@@ -86,6 +91,7 @@ import org.robolectric.RobolectricTestRunner
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -221,6 +227,37 @@ class WearCompositionTranslatorTest {
 
         assertThat(background.color!!.argb)
             .isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
+    }
+
+    @Test
+    fun canTranslateSemanticsModifier() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            Box(modifier = GlanceModifier.semantics({ contentDescription = "test_description" })) {}
+        }.layout
+
+        val innerBox =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val semantics = requireNotNull(innerBox.modifiers!!.semantics)
+        assertThat(semantics.contentDescription).isEqualTo("test_description")
+    }
+
+    @Test
+    fun canTranslateSemanticsCurvedModifier() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedText(
+                    text = "Hello World",
+                    curvedModifier =
+                    GlanceCurvedModifier.semantics({ contentDescription = "test_description" })
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcText = innerArc.contents[0] as LayoutElementBuilders.ArcText
+        val semantics = requireNotNull(innerArcText.modifiers!!.semantics)
+        assertThat(semantics.contentDescription).isEqualTo("test_description")
     }
 
     @Test
@@ -611,7 +648,6 @@ class WearCompositionTranslatorTest {
     fun canTranslateButton() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = TextStyle(
-                color = ColorProvider(Color.Magenta),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
@@ -621,6 +657,10 @@ class WearCompositionTranslatorTest {
                 "Hello World",
                 onClick = actionStartActivity(TestActivity::class.java),
                 modifier = GlanceModifier.padding(1.dp),
+                colors = ButtonColors(
+                    backgroundColor = ColorProvider(Color.Black),
+                    contentColor = ColorProvider(Color.Magenta)
+                ),
                 style = style
             )
         }.layout
@@ -718,6 +758,58 @@ class WearCompositionTranslatorTest {
         assertThat(idToImageMap.containsKey(mappedId2)).isTrue()
         assertThat(idToImageMap[mappedId2]!!.inlineResource).isNotNull()
         assertThat(idToImageMap[mappedId2]!!.androidResourceByResId).isNull()
+    }
+
+    @Test
+    fun translateImage_noColorFilter() = fakeCoroutineScope.runTest {
+        val compositionResult = runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+            )
+        }
+
+        val content = compositionResult.layout
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+        assertThat(image.colorFilter).isNull()
+    }
+
+    @Test
+    fun translateImage_colorFilter() = fakeCoroutineScope.runTest {
+        val compositionResult = runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+                colorFilter = ColorFilter.tint(ColorProvider(Color.Gray))
+            )
+        }
+
+        val content = compositionResult.layout
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+        val tint = assertNotNull(image.colorFilter?.tint)
+        assertThat(tint.argb).isEqualTo(Color.Gray.toArgb())
+    }
+
+    @Test
+    fun translateImage_colorFilterWithResource() = fakeCoroutineScope.runTest {
+        val compositionResult = runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+                colorFilter = ColorFilter.tint(ColorProvider(R.color.color1))
+            )
+        }
+
+        val content = compositionResult.layout
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+        val tint = assertNotNull(image.colorFilter?.tint)
+        assertThat(tint.argb).isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
     }
 
     @Test

@@ -220,7 +220,7 @@ public @interface Document {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;
@@ -256,7 +256,7 @@ public @interface Document {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;
@@ -275,12 +275,25 @@ public @interface Document {
         String name() default "";
 
         /**
+         * Configures how a property should be indexed so that it can be retrieved by queries.
+         *
+         * <p>If not specified, defaults to {@link
+         * AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_NONE} (the field will not be indexed
+         * and cannot be queried).
+         */
+        // TODO(b/259744228): figure out backward compatibility handling. Before U, we would like
+        //                    to deal with Long INDEXING_TYPE_RANGE properly to make it un-indexed
+        //                    and avoid failing the whole document.
+        @AppSearchSchema.LongPropertyConfig.IndexingType int indexingType()
+                default AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;
@@ -307,7 +320,7 @@ public @interface Document {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;
@@ -331,7 +344,7 @@ public @interface Document {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;
@@ -355,7 +368,7 @@ public @interface Document {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;

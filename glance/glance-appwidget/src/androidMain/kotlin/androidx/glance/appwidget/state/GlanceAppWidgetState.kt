@@ -31,7 +31,7 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
  *
  * The state definition must be the one used for that particular app widget.
  */
-public suspend fun <T> getAppWidgetState(
+suspend fun <T> getAppWidgetState(
     context: Context,
     definition: GlanceStateDefinition<T>,
     glanceId: GlanceId,
@@ -45,7 +45,7 @@ public suspend fun <T> getAppWidgetState(
  *
  * The state definition must be the one used for that particular app widget.
  */
-public suspend fun <T> updateAppWidgetState(
+suspend fun <T> updateAppWidgetState(
     context: Context,
     definition: GlanceStateDefinition<T>,
     glanceId: GlanceId,
@@ -65,7 +65,7 @@ public suspend fun <T> updateAppWidgetState(
  *
  * The state definition must be the one used for that particular app widget.
  */
-public suspend fun updateAppWidgetState(
+suspend fun updateAppWidgetState(
     context: Context,
     glanceId: GlanceId,
     updateState: suspend (MutablePreferences) -> Unit,
@@ -79,7 +79,7 @@ public suspend fun updateAppWidgetState(
 
 /** Get the state of an App Widget. */
 @Suppress("UNCHECKED_CAST")
-public suspend fun <T> GlanceAppWidget.getAppWidgetState(
+suspend fun <T> GlanceAppWidget.getAppWidgetState(
     @Suppress("ContextFirst") context: Context,
     glanceId: GlanceId
 ): T =

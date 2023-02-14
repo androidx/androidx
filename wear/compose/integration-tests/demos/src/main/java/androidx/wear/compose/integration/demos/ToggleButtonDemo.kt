@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ fun ToggleButtons() {
     var toggleButtonsEnabled by remember { mutableStateOf(true) }
     var singularButton1Enabled by remember { mutableStateOf(true) }
     var singularButton2Enabled by remember { mutableStateOf(true) }
+    var singularButton3Enabled by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
@@ -85,6 +87,21 @@ fun ToggleButtons() {
                     checkedBackgroundColor = AlternatePrimaryColor3,
                 ),
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+            ) {
+                DemoIcon(R.drawable.ic_airplanemode_active_24px)
+            }
+            Spacer(modifier = Modifier.size(4.dp))
+            ToggleButton(
+                checked = singularButton3Enabled,
+                onCheckedChange = {
+                    singularButton3Enabled = it
+                },
+                enabled = toggleButtonsEnabled,
+                colors = ToggleButtonDefaults.toggleButtonColors(
+                    checkedBackgroundColor = AlternatePrimaryColor3
+                ),
+                modifier = Modifier,
+                shape = CutCornerShape(4.dp)
             ) {
                 DemoIcon(R.drawable.ic_airplanemode_active_24px)
             }

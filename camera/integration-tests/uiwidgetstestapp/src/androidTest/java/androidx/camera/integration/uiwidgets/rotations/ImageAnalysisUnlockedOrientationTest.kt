@@ -19,6 +19,9 @@ package androidx.camera.integration.uiwidgets.rotations
 import android.app.Instrumentation
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.integration.uiwidgets.rotations.RotationUnlocked.Left
+import androidx.camera.integration.uiwidgets.rotations.RotationUnlocked.Natural
+import androidx.camera.integration.uiwidgets.rotations.RotationUnlocked.Right
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
@@ -31,20 +34,23 @@ import org.junit.runners.Parameterized
 @LargeTest
 class ImageAnalysisUnlockedOrientationTest(
     private val lensFacing: Int,
+    private val cameraXConfig: String,
     private val rotation: RotationUnlocked,
     private val testName: String
-) : ImageAnalysisBaseTest<UnlockedOrientationActivity>() {
+) : ImageAnalysisBaseTest<UnlockedOrientationActivity>(cameraXConfig) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "{2}")
+        @Parameterized.Parameters(name = "cameraXConfig={1}, {3}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf(LENS_FACING_BACK, RotationUnlocked.Natural, "Back lens - Natural"))
-            add(arrayOf(LENS_FACING_BACK, RotationUnlocked.Left, "Back lens - Left"))
-            add(arrayOf(LENS_FACING_BACK, RotationUnlocked.Right, "Back lens - Right"))
-            add(arrayOf(LENS_FACING_FRONT, RotationUnlocked.Natural, "Front lens - Natural"))
-            add(arrayOf(LENS_FACING_FRONT, RotationUnlocked.Left, "Front lens - Left"))
-            add(arrayOf(LENS_FACING_FRONT, RotationUnlocked.Right, "Front lens - Right"))
+            cameraXConfigList.forEach { config ->
+                add(arrayOf(LENS_FACING_BACK, config, Natural, "Back lens - Natural"))
+                add(arrayOf(LENS_FACING_BACK, config, Left, "Back lens - Left"))
+                add(arrayOf(LENS_FACING_BACK, config, Right, "Back lens - Right"))
+                add(arrayOf(LENS_FACING_FRONT, config, Natural, "Front lens - Natural"))
+                add(arrayOf(LENS_FACING_FRONT, config, Left, "Front lens - Left"))
+                add(arrayOf(LENS_FACING_FRONT, config, Right, "Front lens - Right"))
+            }
         }
     }
 
@@ -60,7 +66,7 @@ class ImageAnalysisUnlockedOrientationTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<UnlockedOrientationActivity>(lensFacing) {
+        verifyRotation<UnlockedOrientationActivity>(lensFacing, cameraXConfig) {
             if (rotation.shouldRotate) {
                 rotateDeviceAndWait()
             }

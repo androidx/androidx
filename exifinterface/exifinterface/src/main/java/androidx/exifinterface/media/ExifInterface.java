@@ -88,7 +88,7 @@ import java.util.zip.CRC32;
  * <p>
  * Supported for reading: JPEG, PNG, WebP, HEIF, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW, RAF.
  * <p>
- * Supported for writing: JPEG, PNG, WebP, DNG.
+ * Supported for writing: JPEG, PNG, WebP.
  * <p>
  * Note: JPEG and HEIF files may contain XMP data either inside the Exif data chunk or outside of
  * it. This class will search both locations for XMP data, but if XMP data exist both inside and
@@ -3167,10 +3167,6 @@ public class ExifInterface {
             return new ExifAttribute(IFD_FORMAT_SLONG, values.length, buffer.array());
         }
 
-        public static ExifAttribute createSLong(int value, ByteOrder byteOrder) {
-            return createSLong(new int[] {value}, byteOrder);
-        }
-
         public static ExifAttribute createByte(String value) {
             // Exception for GPSAltitudeRef tag
             if (value.length() == 1 && value.charAt(0) >= '0' && value.charAt(0) <= '1') {
@@ -3212,10 +3208,6 @@ public class ExifInterface {
             return new ExifAttribute(IFD_FORMAT_SRATIONAL, values.length, buffer.array());
         }
 
-        public static ExifAttribute createSRational(Rational value, ByteOrder byteOrder) {
-            return createSRational(new Rational[] {value}, byteOrder);
-        }
-
         public static ExifAttribute createDouble(double[] values, ByteOrder byteOrder) {
             final ByteBuffer buffer = ByteBuffer.wrap(
                     new byte[IFD_FORMAT_BYTES_PER_FORMAT[IFD_FORMAT_DOUBLE] * values.length]);
@@ -3224,10 +3216,6 @@ public class ExifInterface {
                 buffer.putDouble(value);
             }
             return new ExifAttribute(IFD_FORMAT_DOUBLE, values.length, buffer.array());
-        }
-
-        public static ExifAttribute createDouble(double value, ByteOrder byteOrder) {
-            return createDouble(new double[] {value}, byteOrder);
         }
 
         @NonNull
@@ -3731,7 +3719,6 @@ public class ExifInterface {
             new ExifTag(TAG_Y_CB_CR_SUB_SAMPLING, 530, IFD_FORMAT_USHORT),
             new ExifTag(TAG_Y_CB_CR_POSITIONING, 531, IFD_FORMAT_USHORT),
             new ExifTag(TAG_REFERENCE_BLACK_WHITE, 532, IFD_FORMAT_URATIONAL),
-            new ExifTag(TAG_XMP, 700, IFD_FORMAT_BYTE),
             new ExifTag(TAG_COPYRIGHT, 33432, IFD_FORMAT_STRING),
             new ExifTag(TAG_EXIF_IFD_POINTER, 34665, IFD_FORMAT_ULONG),
             new ExifTag(TAG_GPS_INFO_IFD_POINTER, 34853, IFD_FORMAT_ULONG),
@@ -4665,7 +4652,7 @@ public class ExifInterface {
      * other. It's best to use {@link #setAttribute(String,String)} to set all attributes to write
      * and make a single call rather than multiple calls for each attribute.
      * <p>
-     * This method is supported for JPEG, PNG, WebP, and DNG formats.
+     * This method is supported for JPEG, PNG, and WebP formats.
      * <p class="note">
      * Note: after calling this method, any attempts to obtain range information
      * from {@link #getAttributeRange(String)} or {@link #getThumbnailRange()}
@@ -4681,7 +4668,7 @@ public class ExifInterface {
     public void saveAttributes() throws IOException {
         if (!isSupportedFormatForSavingAttributes(mMimeType)) {
             throw new IOException("ExifInterface only supports saving attributes for JPEG, PNG, "
-                    + "WebP, and DNG formats.");
+                    + "and WebP formats.");
         }
         if (mSeekableFileDescriptor == null && mFilename == null) {
             throw new IOException(
@@ -4750,10 +4737,6 @@ public class ExifInterface {
                 savePngAttributes(bufferedIn, bufferedOut);
             } else if (mMimeType == IMAGE_TYPE_WEBP) {
                 saveWebpAttributes(bufferedIn, bufferedOut);
-            } else if (mMimeType == IMAGE_TYPE_DNG || mMimeType == IMAGE_TYPE_UNKNOWN) {
-                ByteOrderedDataOutputStream dataOutputStream =
-                        new ByteOrderedDataOutputStream(bufferedOut, BIG_ENDIAN);
-                writeExifSegment(dataOutputStream);
             }
         } catch (Exception e) {
             try {
@@ -5057,9 +5040,11 @@ public class ExifInterface {
      * Sets the GPS-related information. It will set GPS processing method, latitude and longitude
      * values, GPS timestamp, and speed information at the same time.
      *
+     * This method is a No-Op if the location parameter is null.
+     *
      * @param location the {@link Location} object returned by GPS service.
      */
-    public void setGpsInfo(Location location) {
+    public void setGpsInfo(@Nullable Location location) {
         if (location == null) {
             return;
         }
@@ -5968,7 +5953,11 @@ public class ExifInterface {
                 throw new UnsupportedOperationException("Failed to read EXIF from HEIF file. "
                         + "Given stream is either malformed or unsupported.");
             } finally {
-                retriever.release();
+                try {
+                    retriever.release();
+                } catch (IOException e) {
+                    // Nothing we can  do about it.
+                }
             }
         } else {
             throw new UnsupportedOperationException("Reading EXIF from HEIF files "
@@ -6508,6 +6497,11 @@ public class ExifInterface {
                 // Skip input stream to the end of the EXIF chunk
                 totalInputStream.skipFully(WEBP_CHUNK_TYPE_BYTE_LENGTH);
                 int exifChunkLength = totalInputStream.readInt();
+                // RIFF chunks have a single padding byte at the end if the declared chunk size is
+                // odd.
+                if (exifChunkLength % 2 != 0) {
+                    exifChunkLength++;
+                }
                 totalInputStream.skipFully(exifChunkLength);
 
                 // Write new EXIF chunk to output stream
@@ -6580,7 +6574,7 @@ public class ExifInterface {
                     int widthAndHeight = 0;
                     int width = 0;
                     int height = 0;
-                    int alpha = 0;
+                    boolean alpha = false;
                     // Save VP8 frame data for later
                     byte[] vp8Frame = new byte[3];
 
@@ -6608,12 +6602,12 @@ public class ExifInterface {
 
                         // Retrieve image width/height
                         widthAndHeight = totalInputStream.readInt();
-                        // VP8L stores width - 1 and height - 1 values. See "2 RIFF Header" of
-                        // "WebP Lossless Bitstream Specification"
-                        width = ((widthAndHeight << 18) >> 18) + 1;
-                        height = ((widthAndHeight << 4) >> 18) + 1;
-                        // Retrieve alpha bit
-                        alpha = widthAndHeight & (1 << 3);
+                        // VP8L stores 14-bit 'width - 1' and 'height - 1' values. See "RIFF Header"
+                        // of "WebP Lossless Bitstream Specification".
+                        width = (widthAndHeight & 0x3FFF) + 1;  // Read bits 0 - 13
+                        height = ((widthAndHeight & 0xFFFC000) >>> 14) + 1;  // Read bits 14 - 27
+                        // Retrieve alpha bit 28
+                        alpha = (widthAndHeight & 1 << 28) != 0;
                         bytesToRead -= (1 /* VP8L signature */ + 4);
                     }
 
@@ -6621,10 +6615,12 @@ public class ExifInterface {
                     nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
                     nonHeaderOutputStream.writeInt(WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH);
                     byte[] data = new byte[WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH];
+                    // ALPHA flag
+                    if (alpha) {
+                        data[0] = (byte) (data[0] | (1 << 4));
+                    }
                     // EXIF flag
                     data[0] = (byte) (data[0] | (1 << 3));
-                    // ALPHA flag
-                    data[0] = (byte) (data[0] | (alpha << 4));
                     // VP8X stores Width - 1 and Height - 1 values
                     width -= 1;
                     height -= 1;
@@ -8082,8 +8078,7 @@ public class ExifInterface {
 
     private static boolean isSupportedFormatForSavingAttributes(int mimeType) {
         if (mimeType == IMAGE_TYPE_JPEG || mimeType == IMAGE_TYPE_PNG
-                || mimeType == IMAGE_TYPE_WEBP || mimeType == IMAGE_TYPE_DNG
-                || mimeType == IMAGE_TYPE_UNKNOWN) {
+                || mimeType == IMAGE_TYPE_WEBP) {
             return true;
         }
         return false;

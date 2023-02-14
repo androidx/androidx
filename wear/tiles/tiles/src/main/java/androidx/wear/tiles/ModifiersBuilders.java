@@ -26,8 +26,9 @@ import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.TypeBuilders.BoolProp;
-import androidx.wear.tiles.proto.ModifiersProto;
-import androidx.wear.tiles.proto.TypesProto;
+import androidx.wear.protolayout.proto.ModifiersProto;
+import androidx.wear.protolayout.proto.TypesProto;
+import androidx.wear.protolayout.protobuf.ByteString;
 
 /** Builders for modifiers for composable layout elements. */
 public final class ModifiersBuilders {
@@ -126,7 +127,7 @@ public final class ModifiersBuilders {
          */
         @NonNull
         public String getContentDescription() {
-            return mImpl.getContentDescription();
+            return mImpl.getObsoleteContentDescription();
         }
 
         /** @hide */
@@ -156,7 +157,7 @@ public final class ModifiersBuilders {
              */
             @NonNull
             public Builder setContentDescription(@NonNull String contentDescription) {
-                mImpl.setContentDescription(contentDescription);
+                mImpl.setObsoleteContentDescription(contentDescription);
                 return this;
             }
 
@@ -540,6 +541,66 @@ public final class ModifiersBuilders {
     }
 
     /**
+     * Metadata about an element. For use by libraries building higher-level components only. This
+     * can be used to track component metadata.
+     */
+    public static final class ElementMetadata {
+        private final ModifiersProto.ElementMetadata mImpl;
+
+        private ElementMetadata(ModifiersProto.ElementMetadata impl) {
+            this.mImpl = impl;
+        }
+
+        /**
+         * Gets property describing the element with which it is associated. For use by libraries
+         * building higher-level components only. This can be used to track component metadata.
+         */
+        @NonNull
+        public byte[] getTagData() {
+            return mImpl.getTagData().toByteArray();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ElementMetadata fromProto(@NonNull ModifiersProto.ElementMetadata proto) {
+            return new ElementMetadata(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.ElementMetadata toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link ElementMetadata} */
+        public static final class Builder {
+            private final ModifiersProto.ElementMetadata.Builder mImpl =
+                    ModifiersProto.ElementMetadata.newBuilder();
+
+            public Builder() {}
+
+            /**
+             * Sets property describing the element with which it is associated. For use by
+             * libraries building higher-level components only. This can be used to track component
+             * metadata.
+             */
+            @NonNull
+            public Builder setTagData(@NonNull byte[] tagData) {
+                mImpl.setTagData(ByteString.copyFrom(tagData));
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public ElementMetadata build() {
+                return ElementMetadata.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /**
      * {@link Modifiers} for an element. These may change the way they are drawn (e.g. {@link
      * Padding} or {@link Background}), or change their behaviour (e.g. {@link Clickable}, or {@link
      * Semantics}).
@@ -610,6 +671,19 @@ public final class ModifiersBuilders {
             }
         }
 
+        /**
+         * Gets metadata about an element. For use by libraries building higher-level components
+         * only. This can be used to track component metadata.
+         */
+        @Nullable
+        public ElementMetadata getMetadata() {
+            if (mImpl.hasMetadata()) {
+                return ElementMetadata.fromProto(mImpl.getMetadata());
+            } else {
+                return null;
+            }
+        }
+
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -669,6 +743,16 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setBackground(@NonNull Background background) {
                 mImpl.setBackground(background.toProto());
+                return this;
+            }
+
+            /**
+             * Sets metadata about an element. For use by libraries building higher-level components
+             * only. This can be used to track component metadata.
+             */
+            @NonNull
+            public Builder setMetadata(@NonNull ElementMetadata metadata) {
+                mImpl.setMetadata(metadata.toProto());
                 return this;
             }
 

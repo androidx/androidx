@@ -36,11 +36,13 @@ class FrameTimingQueryTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api28_scroll", ".perfetto-trace")
 
-        val frameSubMetrics = FrameTimingQuery.getFrameSubMetrics(
-            absoluteTracePath = traceFile.absolutePath,
-            captureApiLevel = 28,
-            packageName = "androidx.benchmark.integration.macrobenchmark.target"
-        )
+        val frameSubMetrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            FrameTimingQuery.getFrameSubMetrics(
+                perfettoTraceProcessor = this,
+                captureApiLevel = 28,
+                packageName = "androidx.benchmark.integration.macrobenchmark.target"
+            )
+        }
 
         assertEquals(
             expected = mapOf(
@@ -64,11 +66,14 @@ class FrameTimingQueryTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_scroll", ".perfetto-trace")
 
-        val frameSubMetrics = FrameTimingQuery.getFrameSubMetrics(
-            absoluteTracePath = traceFile.absolutePath,
-            captureApiLevel = 31,
-            packageName = "androidx.benchmark.integration.macrobenchmark.target"
-        )
+        val frameSubMetrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            FrameTimingQuery.getFrameSubMetrics(
+                perfettoTraceProcessor = this,
+                captureApiLevel = 31,
+                packageName = "androidx.benchmark.integration.macrobenchmark.target"
+            )
+        }
+
         assertEquals(
             expected = mapOf(
                 FrameDurationCpuNs to listOf(6881407L, 5648542L, 3830261L, 4343438L),

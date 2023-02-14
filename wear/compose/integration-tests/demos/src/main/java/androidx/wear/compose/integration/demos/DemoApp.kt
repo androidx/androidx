@@ -43,22 +43,23 @@ import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingParams
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.ScalingLazyColumnDefaults
-import androidx.wear.compose.material.ScalingLazyListScope
-import androidx.wear.compose.material.ScalingLazyListState
-import androidx.wear.compose.material.ScalingParams
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissKeys
 import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -73,40 +74,46 @@ fun DemoApp(
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    DisplayDemo(currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
+    DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
 }
 
 @Composable
 private fun DisplayDemo(
-    demo: Demo,
+    state: SwipeToDismissBoxState,
+    currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-
     SwipeToDismissBox(
-        state = swipeToDismissState,
+        state = state,
         hasBackground = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
-        contentKey = demo.title,
+        contentKey = currentDemo.title,
     ) { isBackground ->
-        if (isBackground) {
-            if (parentDemo != null) {
-                DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
-            }
-        } else {
-            when (demo) {
-                is ActivityDemo<*> -> {
-                    /* should never get here as activity demos are not added to the backstack*/
-                }
-                is ComposableDemo -> {
-                    demo.content(DemoParameters(onNavigateBack, swipeToDismissState))
-                }
-                is DemoCategory -> {
-                    DisplayDemoList(demo, onNavigateTo)
-                }
-            }
+        BoxDemo(state, if (isBackground) parentDemo else currentDemo, onNavigateTo, onNavigateBack)
+    }
+}
+
+@Composable
+private fun BoxScope.BoxDemo(
+    state: SwipeToDismissBoxState,
+    demo: Demo?,
+    onNavigateTo: (Demo) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    when (demo) {
+        is ActivityDemo<*> -> {
+            /* should never get here as activity demos are not added to the backstack*/
+        }
+        is ComposableDemo -> {
+            demo.content(DemoParameters(onNavigateBack, state))
+        }
+        is DemoCategory -> {
+            DisplayDemoList(demo, onNavigateTo)
+        }
+        else -> {
         }
     }
 }
@@ -260,6 +267,7 @@ fun ScalingLazyColumnWithRSB(
         space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
+    autoCentering: AutoCenteringParams = AutoCenteringParams(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(
@@ -278,6 +286,7 @@ fun ScalingLazyColumnWithRSB(
         flingBehavior = flingBehavior,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
+        autoCentering = autoCentering,
         content = content
     )
     LaunchedEffect(Unit) {

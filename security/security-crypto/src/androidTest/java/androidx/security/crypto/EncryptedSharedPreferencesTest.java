@@ -435,4 +435,134 @@ public class EncryptedSharedPreferencesTest {
         editor.apply();
     }
 
+    @Test
+    public void testOnSharedPreferenceChangeListenerWithAdd() throws Exception {
+        SharedPreferences sharedPreferences = EncryptedSharedPreferences
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        final String stringTestKey = "StringTest";
+        final String stringTestValue = "THIS IS A TEST STRING";
+        editor.putString(stringTestKey, stringTestValue); // will apply after callback setup
+
+        java.util.List<String> invokedCallbacks = new java.util.ArrayList<>();
+        final String stringAdd = "Add";
+
+        final SharedPreferences.OnSharedPreferenceChangeListener addListener =
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                            String key) {
+                        Assert.assertEquals(key + " should match " + stringTestKey,
+                                stringTestKey, key);
+
+                        Assert.assertEquals(stringTestValue,
+                                sharedPreferences.getString(stringTestKey, null));
+
+                        invokedCallbacks.add(stringAdd);
+                    }
+                };
+
+        sharedPreferences.registerOnSharedPreferenceChangeListener(addListener);
+        editor.apply(); // apply the change, should invoke callback
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(addListener);
+
+        Assert.assertTrue(stringAdd + " callback should have been invoked.",
+                invokedCallbacks.contains(stringAdd));
+    }
+
+    @Test
+    public void testOnSharedPreferenceChangeListenerWithEdit() throws Exception {
+        SharedPreferences sharedPreferences = EncryptedSharedPreferences
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        final String stringTestKey = "StringTest";
+        final String stringTestValue = "THIS IS A TEST STRING";
+        editor.putString(stringTestKey, stringTestValue).apply();
+
+        // Edit shared pref by adding new value with same key
+        final String stringUpdatedTestValue = "THIS IS AN UPDATED TEST STRING";
+        editor.putString(stringTestKey, stringUpdatedTestValue); // will apply after callback setup
+
+        java.util.List<String> invokedCallbacks = new java.util.ArrayList<>();
+        final String stringEdit = "Edit";
+
+        final SharedPreferences.OnSharedPreferenceChangeListener editListener =
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                            String key) {
+                        Assert.assertEquals(key + " should match " + stringTestKey,
+                                stringTestKey,
+                                key);
+
+                        Assert.assertEquals(stringUpdatedTestValue,
+                                sharedPreferences.getString(stringTestKey, null));
+
+                        invokedCallbacks.add(stringEdit);
+                    }
+                };
+
+        sharedPreferences.registerOnSharedPreferenceChangeListener(editListener);
+        editor.apply(); // apply the change, should invoke callback
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(editListener);
+
+        Assert.assertTrue(stringEdit + " callback should have been invoked.",
+                invokedCallbacks.contains(stringEdit));
+    }
+
+    @Test
+    public void testOnSharedPreferenceChangeListenerWithRemove() throws Exception {
+        SharedPreferences sharedPreferences = EncryptedSharedPreferences
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        final String stringTestKey = "StringTest";
+        final String stringTestValue = "THIS IS A TEST STRING";
+        editor.putString(stringTestKey, stringTestValue).apply();
+
+        editor.remove(stringTestKey); // will apply after callback setup
+
+        java.util.List<String> invokedCallbacks = new java.util.ArrayList<>();
+        final String stringRemove = "Remove";
+
+        final SharedPreferences.OnSharedPreferenceChangeListener removeListener =
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                            String key) {
+                        Assert.assertEquals(key + " should match " + stringTestKey,
+                                stringTestKey,
+                                key);
+
+                        Assert.assertNull(sharedPreferences.getString(stringTestKey, null));
+
+                        invokedCallbacks.add(stringRemove);
+                    }
+                };
+
+        sharedPreferences.registerOnSharedPreferenceChangeListener(removeListener);
+        editor.apply(); // apply the change, should invoke callback
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(removeListener);
+
+        Assert.assertTrue(stringRemove + " callback should have been invoked.",
+                invokedCallbacks.contains(stringRemove));
+    }
+
 }

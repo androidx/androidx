@@ -15,25 +15,40 @@
  */
 package androidx.tracing.perfetto.jni
 
+import androidx.tracing.perfetto.security.SafeLibLoader
+import dalvik.annotation.optimization.CriticalNative
+import dalvik.annotation.optimization.FastNative
+import java.io.File
+
 internal object PerfettoNative {
     private const val libraryName = "tracing_perfetto"
 
-    // TODO: load from a file produced at build time
+    // TODO(224510255): load from a file produced at build time
     object Metadata {
-        const val version = "1.0.0-alpha01"
-        // TODO: add SHA / signature to verify binaries before loading
+        const val version = "1.0.0-alpha11"
+        val checksums = mapOf(
+            "arm64-v8a" to "7b593d218cd0d2938b527779f2797e87ddb7d6c042cc5bf1f12543f103a9c291",
+            "armeabi-v7a" to "5c19ff0e61035b7dbdc450642e16761a8948f588ee523adfc329e10f854499b4",
+            "x86" to "2544cdb37d037b5c9976a55d032712c4642a92d1eab22210f9e2831a5df6531a",
+            "x86_64" to "5214e2a413835b2b7328055f50399aa8ae1be28b63a030193003406bf441ac61",
+        )
     }
 
-    fun loadLib(path: String? = null) {
-        when (path) {
-            null -> System.loadLibrary(libraryName)
-            else -> System.load(path) // TODO: security
-        }
-    }
+    fun loadLib() = System.loadLibrary(libraryName)
 
+    fun loadLib(file: File, loader: SafeLibLoader) = loader.loadLib(file, Metadata.checksums)
+
+    @JvmStatic
     external fun nativeRegisterWithPerfetto()
+
+    @FastNative
+    @JvmStatic
     external fun nativeTraceEventBegin(key: Int, traceInfo: String)
+
+    @CriticalNative
+    @JvmStatic
     external fun nativeTraceEventEnd()
-    external fun nativeFlushEvents()
+
+    @JvmStatic
     external fun nativeVersion(): String
 }

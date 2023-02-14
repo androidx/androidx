@@ -30,6 +30,9 @@ import static androidx.core.content.PackageManagerCompatTest.setupPermissionRevo
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -38,18 +41,26 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import com.google.common.collect.Lists;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -187,5 +198,118 @@ public class IntentCompatTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> IntentCompat.createManageUnusedAppRestrictionsIntent(
                         mContext, PACKAGE_NAME));
+    }
+
+    @Test
+    public void getParcelableExtra() {
+        Intent intent = new Intent();
+        Signature signature = new Signature("");
+        intent.putExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertEquals(Signature.class, Objects.requireNonNull(
+                        IntentCompat.getParcelableExtra(intent, "extra", Signature.class))
+                .getClass());
+    }
+
+    @Test
+    public void getParcelableExtra_returnsNullOnClassMismatch() {
+        Intent intent = new Intent();
+        Signature signature = new Signature("");
+        intent.putExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertNull(IntentCompat.getParcelableExtra(intent, "extra", Intent.class));
+    }
+
+    @Test
+    public void getParcelableArrayExtra_postU() {
+        if (!BuildCompat.isAtLeastU()) return;
+        Intent intent = new Intent();
+        Signature[] signature = new Signature[] { new Signature("") };
+        intent.putExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertEquals(Signature[].class, Objects.requireNonNull(
+                IntentCompat.getParcelableArrayExtra(intent, "extra",
+                        Signature.class)).getClass());
+    }
+
+    @Test
+    public void getParcelableArrayExtra_returnsNullOnClassMismatch_postU() {
+        if (!BuildCompat.isAtLeastU()) return;
+        Intent intent = new Intent();
+        Signature[] signature = new Signature[] { new Signature("") };
+        intent.putExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertNull(IntentCompat.getParcelableArrayExtra(intent, "extra", Intent.class));
+    }
+
+    @Test
+    public void getParcelableArrayExtra_preU() {
+        if (BuildCompat.isAtLeastU()) return;
+        Intent intent = new Intent();
+        Signature[] signature = new Signature[] { new Signature("") };
+        intent.putExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertEquals(Parcelable[].class, Objects.requireNonNull(
+                IntentCompat.getParcelableArrayExtra(intent, "extra",
+                        Signature.class)).getClass());
+
+        assertNotEquals(Signature[].class, Objects.requireNonNull(
+                IntentCompat.getParcelableArrayExtra(intent, "extra",
+                        Signature.class)).getClass());
+
+        // We do not check clazz Pre-U
+        assertEquals(Parcelable[].class, Objects.requireNonNull(
+                IntentCompat.getParcelableArrayExtra(intent, "extra",
+                        Intent.class)).getClass());
+    }
+
+    @Test
+    public void getParcelableArrayListExtra() {
+        Intent intent = new Intent();
+        ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
+        intent.putParcelableArrayListExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertEquals(Signature.class, Objects.requireNonNull(
+                IntentCompat.getParcelableArrayListExtra(intent, "extra",
+                        Signature.class)).get(0).getClass());
+    }
+
+    @Test
+    public void getParcelableArrayListExtra_returnsNullOnClassMismatch_postU() {
+        if (!BuildCompat.isAtLeastU()) return;
+        Intent intent = new Intent();
+        ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
+        intent.putParcelableArrayListExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        assertNull(IntentCompat.getParcelableArrayListExtra(intent, "extra", Intent.class));
+    }
+
+    @Test
+    public void getParcelableArrayListExtra_noTypeCheck_preU() {
+        if (BuildCompat.isAtLeastU()) return;
+        Intent intent = new Intent();
+        ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
+        intent.putParcelableArrayListExtra("extra", signature);
+        parcelAndUnparcel(intent);
+
+        Object extra = Objects.requireNonNull(
+                IntentCompat.getParcelableArrayListExtra(intent, "extra",
+                        Intent.class)).get(0);
+        assertEquals(Signature.class, extra.getClass());
+    }
+
+    private void parcelAndUnparcel(Intent intent) {
+        Parcel p = Parcel.obtain();
+        intent.writeToParcel(p, 0);
+        p.setDataPosition(0);
+        intent.readFromParcel(p);
+        p.recycle();
     }
 }

@@ -33,15 +33,14 @@ public class GlesRenderer extends ListenableGlesRenderer {
             @NotNull SurfaceHolder surfaceHolder,
             @NotNull WatchState watchState,
             @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            long interactiveTickInterval) throws GlesException {
+            long interactiveTickInterval)
+            throws GlesException {
         super(surfaceHolder, currentUserStyleRepository, watchState, interactiveTickInterval);
     }
 
     @Override
-    public void render(@NonNull ZonedDateTime zonedDateTime) {
-    }
+    public void render(@NonNull ZonedDateTime zonedDateTime) {}
 
     @Override
-    public void renderHighlightLayer(@NonNull ZonedDateTime zonedDateTime) {
-    }
+    public void renderHighlightLayer(@NonNull ZonedDateTime zonedDateTime) {}
 }

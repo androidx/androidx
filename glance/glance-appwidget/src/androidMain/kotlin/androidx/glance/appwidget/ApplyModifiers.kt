@@ -41,10 +41,12 @@ import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.applyAction
-import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.semantics.SemanticsModifier
+import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.unit.Dimension
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
@@ -62,6 +64,9 @@ internal fun applyModifiers(
     var cornerRadius: Dimension? = null
     var visibility = Visibility.Visible
     var actionModifier: ActionModifier? = null
+    var enabled: EnabledModifier? = null
+    var clipToOutline: ClipToOutlineModifier? = null
+    var semanticsModifier: SemanticsModifier? = null
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> {
@@ -93,6 +98,12 @@ internal fun applyModifiers(
                     )
                 }
             }
+            is AlignmentModifier -> {
+                // This modifier is handled somewhere else.
+            }
+            is ClipToOutlineModifier -> clipToOutline = modifier
+            is EnabledModifier -> enabled = modifier
+            is SemanticsModifier -> semanticsModifier = modifier
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -111,6 +122,21 @@ internal fun applyModifiers(
             absolutePadding.right.toPixels(displayMetrics),
             absolutePadding.bottom.toPixels(displayMetrics)
         )
+    }
+    clipToOutline?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            rv.setBoolean(viewDef.mainViewId, "setClipToOutline", true)
+        }
+    }
+    enabled?.let {
+        rv.setBoolean(viewDef.mainViewId, "setEnabled", it.enabled)
+    }
+    semanticsModifier?.let { semantics ->
+        val contentDescription: List<String>? =
+            semantics.configuration.getOrNull(SemanticsProperties.ContentDescription)
+        if (contentDescription != null) {
+            rv.setContentDescription(viewDef.mainViewId, contentDescription.joinToString())
+        }
     }
     rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
 }
@@ -198,8 +224,9 @@ internal fun applySimpleWidthModifier(
             "Using a width of $width requires a complex layout before API 31"
         )
     }
-    // Wrap and Expand are done in XML on Android S+
-    if (width in listOf(Dimension.Wrap, Dimension.Expand)) return
+    // Wrap and Expand are done in XML on Android S & Sv2
+    if (Build.VERSION.SDK_INT < 33 &&
+        width in listOf(Dimension.Wrap, Dimension.Expand)) return
     ApplyModifiersApi31Impl.setViewWidth(rv, viewId, width)
 }
 
@@ -227,8 +254,9 @@ internal fun applySimpleHeightModifier(
             "Using a height of $height requires a complex layout before API 31"
         )
     }
-    // Wrap and Expand are done in XML on Android S+
-    if (height in listOf(Dimension.Wrap, Dimension.Expand)) return
+    // Wrap and Expand are done in XML on Android S & Sv2
+    if (Build.VERSION.SDK_INT < 33 &&
+        height in listOf(Dimension.Wrap, Dimension.Expand)) return
     ApplyModifiersApi31Impl.setViewHeight(rv, viewId, height)
 }
 
@@ -262,7 +290,7 @@ private fun applyBackgroundModifier(
                     colorProvider.night.toArgb()
                 )
             } else {
-                rv.setViewBackgroundColor(viewId, colorProvider.resolve(context).toArgb())
+                rv.setViewBackgroundColor(viewId, colorProvider.getColor(context).toArgb())
             }
         }
         else -> Log.w(GlanceAppWidgetTag, "Unexpected background color modifier: $colorProvider")

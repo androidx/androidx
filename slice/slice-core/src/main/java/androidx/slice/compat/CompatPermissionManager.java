@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
@@ -41,17 +42,20 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(19)
 public class CompatPermissionManager {
-
-    private static final String TAG = "CompatPermissionManager";
     public static final String ALL_SUFFIX = "_all";
 
+    private final Object mPrefsLock = new Object();
+
+    @NonNull
     private final Context mContext;
     private final String mPrefsName;
     private final int mMyUid;
+
+    @NonNull
     private final String[] mAutoGrantPermissions;
 
-    public CompatPermissionManager(Context context, String prefsName, int myUid,
-            String[] autoGrantPermissions) {
+    public CompatPermissionManager(@NonNull Context context, @NonNull String prefsName, int myUid,
+            @NonNull String[] autoGrantPermissions) {
         mContext = context;
         mPrefsName = prefsName;
         mMyUid = myUid;
@@ -63,7 +67,7 @@ public class CompatPermissionManager {
     }
 
     @SuppressLint("WrongConstant")
-    public int checkSlicePermission(Uri uri, int pid, int uid) {
+    public int checkSlicePermission(@NonNull Uri uri, int pid, int uid) {
         if (uid == mMyUid) {
             return PERMISSION_GRANTED;
         }
@@ -85,35 +89,47 @@ public class CompatPermissionManager {
         return mContext.checkUriPermission(uri, pid, uid, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
     }
 
-    private int checkSlicePermission(Uri uri, String pkg) {
+    /**
+     * Checks state of slice permission for the specified package.
+     */
+    private int checkSlicePermission(@NonNull Uri uri, @NonNull String pkg) {
         PermissionState state = getPermissionState(pkg, uri.getAuthority());
         return state.hasAccess(uri.getPathSegments()) ? PERMISSION_GRANTED : PERMISSION_DENIED;
     }
 
-    public void grantSlicePermission(Uri uri, String toPkg) {
+    /**
+     * Grants slice permission to the specified package.
+     */
+    public void grantSlicePermission(@NonNull Uri uri, @NonNull String toPkg) {
         PermissionState state = getPermissionState(toPkg, uri.getAuthority());
         if (state.addPath(uri.getPathSegments())) {
             persist(state);
         }
     }
 
-    public void revokeSlicePermission(Uri uri, String toPkg) {
+    /**
+     * Revoked slice permission from the specified package.
+     */
+    public void revokeSlicePermission(@NonNull Uri uri, @NonNull String toPkg) {
         PermissionState state = getPermissionState(toPkg, uri.getAuthority());
         if (state.removePath(uri.getPathSegments())) {
             persist(state);
         }
     }
 
-    private synchronized void persist(PermissionState state) {
-        getPrefs().edit()
-                .putStringSet(state.getKey(), state.toPersistable())
-                .putBoolean(state.getKey() + ALL_SUFFIX, state.hasAllPermissions())
-                .apply();
+    private void persist(@NonNull PermissionState state) {
+        synchronized (mPrefsLock) {
+            getPrefs().edit()
+                    .putStringSet(state.getKey(), state.toPersistable())
+                    .putBoolean(state.getKey() + ALL_SUFFIX, state.hasAllPermissions())
+                    .apply();
+        }
     }
 
-    private PermissionState getPermissionState(String pkg, String authority) {
+    @NonNull
+    private PermissionState getPermissionState(@NonNull String pkg, @NonNull String authority) {
         String key = pkg + "_" + authority;
-        Set<String> grant = getPrefs().getStringSet(key, Collections.<String>emptySet());
+        Set<String> grant = getPrefs().getStringSet(key, Collections.emptySet());
         boolean hasAllPermissions = getPrefs().getBoolean(key + ALL_SUFFIX, false);
         return new PermissionState(grant, key, hasAllPermissions);
     }
@@ -123,7 +139,8 @@ public class CompatPermissionManager {
         private final ArraySet<String[]> mPaths = new ArraySet<>();
         private final String mKey;
 
-        PermissionState(Set<String> grant, String key, boolean hasAllPermissions) {
+        PermissionState(@NonNull Set<String> grant, @NonNull String key,
+                boolean hasAllPermissions) {
             if (hasAllPermissions) {
                 mPaths.add(new String[0]);
             } else {
@@ -135,13 +152,15 @@ public class CompatPermissionManager {
         }
 
         public boolean hasAllPermissions() {
-            return hasAccess(Collections.<String>emptyList());
+            return hasAccess(Collections.emptyList());
         }
 
+        @NonNull
         public String getKey() {
             return mKey;
         }
 
+        @NonNull
         public Set<String> toPersistable() {
             ArraySet<String> ret = new ArraySet<>();
             for (String[] path : mPaths) {
@@ -150,8 +169,8 @@ public class CompatPermissionManager {
             return ret;
         }
 
-        public boolean hasAccess(List<String> path) {
-            String[] inPath = path.toArray(new String[path.size()]);
+        public boolean hasAccess(@NonNull List<String> path) {
+            String[] inPath = path.toArray(new String[0]);
             for (String[] p : mPaths) {
                 if (isPathPrefixMatch(p, inPath)) {
                     return true;
@@ -160,8 +179,8 @@ public class CompatPermissionManager {
             return false;
         }
 
-        boolean addPath(List<String> path) {
-            String[] pathSegs = path.toArray(new String[path.size()]);
+        boolean addPath(@NonNull List<String> path) {
+            String[] pathSegs = path.toArray(new String[0]);
             for (int i = mPaths.size() - 1; i >= 0; i--) {
                 String[] existing = mPaths.valueAt(i);
                 if (isPathPrefixMatch(existing, pathSegs)) {
@@ -176,9 +195,9 @@ public class CompatPermissionManager {
             return true;
         }
 
-        boolean removePath(List<String> path) {
+        boolean removePath(@NonNull List<String> path) {
             boolean changed = false;
-            String[] pathSegs = path.toArray(new String[path.size()]);
+            String[] pathSegs = path.toArray(new String[0]);
             for (int i = mPaths.size() - 1; i >= 0; i--) {
                 String[] existing = mPaths.valueAt(i);
                 if (isPathPrefixMatch(pathSegs, existing)) {
@@ -189,7 +208,7 @@ public class CompatPermissionManager {
             return changed;
         }
 
-        private boolean isPathPrefixMatch(String[] prefix, String[] path) {
+        private boolean isPathPrefixMatch(@NonNull String[] prefix, @NonNull String[] path) {
             final int prefixSize = prefix.length;
             if (path.length < prefixSize) return false;
 
@@ -202,7 +221,7 @@ public class CompatPermissionManager {
             return true;
         }
 
-        private String encodeSegments(String[] s) {
+        private String encodeSegments(@NonNull String[] s) {
             String[] out = new String[s.length];
             for (int i = 0; i < s.length; i++) {
                 out[i] = Uri.encode(s[i]);
@@ -210,7 +229,8 @@ public class CompatPermissionManager {
             return TextUtils.join("/", out);
         }
 
-        private String[] decodeSegments(String s) {
+        @NonNull
+        private String[] decodeSegments(@NonNull String s) {
             String[] sets = s.split("/", -1);
             for (int i = 0; i < sets.length; i++) {
                 sets[i] = Uri.decode(sets[i]);

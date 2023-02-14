@@ -26,16 +26,19 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
     namespace "androidx.core.google.shortcuts"
 }
 
 dependencies {
     api("androidx.core:core:1.7.0")
 
-    implementation("com.google.firebase:firebase-appindexing:20.0.0")
+    implementation "com.google.android.gms:play-services-appindex:16.1.0"
     implementation("com.google.crypto.tink:tink-android:1.5.0")
-    implementation project(":appsearch:appsearch")
-    implementation project(":appsearch:appsearch-builtin-types")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -54,7 +57,6 @@ androidx {
     name = "Google Shortcuts Integration Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_GOOGLE_SHORTCUTS
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "Library for powering Google features with Android app shortcuts"
 }

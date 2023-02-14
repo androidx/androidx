@@ -65,42 +65,6 @@
         </activity>
 
         <activity
-            android:name="androidx.wear.ambient.AmbientModeTestActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="androidx.wear.ambient.AmbientModeResumeTestActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="androidx.wear.ambient.AmbientModeSupportTestActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="androidx.wear.ambient.AmbientModeSupportResumeTestActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name="androidx.wear.widget.ConfirmationOverlayTestActivity"
             android:exported="false">
             <intent-filter>

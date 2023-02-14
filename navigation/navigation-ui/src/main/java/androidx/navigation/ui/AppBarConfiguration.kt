@@ -17,8 +17,11 @@ package androidx.navigation.ui
 
 import android.annotation.SuppressLint
 import android.view.Menu
+import android.view.MenuItem
 import androidx.customview.widget.Openable
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener
@@ -78,6 +81,31 @@ public class AppBarConfiguration private constructor(
         get() = if (openableLayout is DrawerLayout) {
             openableLayout
         } else null
+
+    /**
+     * Determines whether a [NavDestination] is a top level destination in [AppBarConfiguration].
+     *
+     * Returns true if the [NavDestination] was added directly as a top level destination via
+     * [AppBarConfiguration.Builder] constructors such as
+     * `AppBarConfiguration.Builder(topLevelDestinationIds: Set<Int>)`.
+     * If destination was added with a [AppBarConfiguration.Builder] that could take in a graph,
+     * i.e. `AppBarConfiguration.Builder(NavGraph)` or`AppBarConfiguration.Builder(Menu)`, this
+     * helper will return true if the destination is the start destination of a graph
+     * (including nested graphs i.e. [MenuItem] that are also [NavGraph]), or an individual
+     * [MenuItem] within the [Menu].
+     *
+     * @param destination the [NavDestination] to check whether it is a topLevelDestination
+     */
+    public fun isTopLevelDestination(destination: NavDestination): Boolean {
+        return destination.hierarchy.any { parent ->
+            when (parent.id in topLevelDestinations) {
+                true -> if (parent is NavGraph) {
+                            destination.id == parent.findStartDestination().id
+                        } else true
+                else -> false
+            }
+        }
+    }
 
     /**
      * The Builder class for constructing new [AppBarConfiguration] instances.

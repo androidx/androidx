@@ -25,6 +25,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
@@ -676,6 +677,8 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
         }
         long deltaT = frameTime - mLastFrameTime;
         mLastFrameTime = frameTime;
+        float durationScale = getAnimationHandler().getDurationScale();
+        deltaT = durationScale == 0.0f ? Integer.MAX_VALUE : (long) (deltaT / durationScale);
         boolean finished = updateValueAndVelocity(deltaT);
         // Clamp value & velocity.
         mValue = Math.min(mValue, mMaxValue);
@@ -750,7 +753,8 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @return the {@link AnimationHandler} for this animator.
      */
     @NonNull
-    AnimationHandler getAnimationHandler() {
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public AnimationHandler getAnimationHandler() {
         return mAnimationHandler != null ? mAnimationHandler : AnimationHandler.getInstance();
     }
 

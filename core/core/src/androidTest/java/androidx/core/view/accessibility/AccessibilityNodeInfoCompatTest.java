@@ -103,6 +103,22 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testGetSetMinMillisBetweenContentChanges() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setMinMillisBetweenContentChanges(200);
+        assertThat(nodeCompat.getMinMillisBetweenContentChanges(), equalTo(200));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testGetHasRequestInitialAccessibilityFocus() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setRequestInitialAccessibilityFocus(true);
+        assertThat(nodeCompat.hasRequestInitialAccessibilityFocus(), is(true));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
@@ -123,6 +139,14 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isTextEntryKey(), is(true));
         nodeCompat.setTextEntryKey(false);
         assertThat(nodeCompat.isTextEntryKey(), is(false));
+    }
+
+    @Test
+    public void testGetSetUniqueId() {
+        final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setUniqueId(uniqueId);
+        assertThat(nodeCompat.getUniqueId(), equalTo(uniqueId));
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -172,6 +196,18 @@ public class AccessibilityNodeInfoCompatTest {
         } catch (NullPointerException e) {
             Assert.fail("Expected no NullPointerException, but got: " + e.getMessage());
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testAccessibilityActionToString() {
+        AccessibilityActionCompat actionCompat;
+        actionCompat = AccessibilityActionCompat.ACTION_SHOW_ON_SCREEN;
+        final String showOnScreen = "AccessibilityActionCompat: ACTION_SHOW_ON_SCREEN";
+        assertThat(actionCompat.toString(), is(showOnScreen));
+        final String customAction = "CustomAction";
+        actionCompat = new AccessibilityActionCompat(123123123, customAction);
+        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: " + customAction));
     }
 
     @Test
@@ -267,5 +303,26 @@ public class AccessibilityNodeInfoCompatTest {
 
         accessibilityNodeInfoCompat.setAvailableExtraData(testData);
         assertThat(accessibilityNodeInfoCompat.getAvailableExtraData(), equalTo(testData));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testGetExtraRenderingInfo() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        assertThat(
+                accessibilityNodeInfoCompat.getExtraRenderingInfo(),
+                equalTo(accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo()));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testSetGetTextSelectable() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        accessibilityNodeInfoCompat.setTextSelectable(false);
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(false));
+        accessibilityNodeInfoCompat.setTextSelectable(true);
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
     }
 }

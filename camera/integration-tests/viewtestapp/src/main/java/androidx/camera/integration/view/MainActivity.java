@@ -30,7 +30,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -45,12 +49,23 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREVIEW_VIEW_FRAGMENT = "PreviewView";
     private static final String COMPOSE_UI_FRAGMENT = "ComposeUi";
 
-    private static final String[] REQUIRED_PERMISSIONS =
-            new String[]{
+    private static final String[] REQUIRED_PERMISSIONS;
+    static {
+        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
+        // granted any more.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            REQUIRED_PERMISSIONS = new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        } else {
+            REQUIRED_PERMISSIONS = new String[]{
                     Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
             };
+        }
+    }
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     // Possible values for this intent key are the name values of LensFacing encoded as
@@ -62,9 +77,25 @@ public class MainActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     public static final String PREVIEW_TEST_CASE = "preview_test_case";
 
+    // Launch the activity with the specified scale type.
+    public static final String INTENT_EXTRA_SCALE_TYPE = "scale_type";
+    // The default scale type is FILL_CENTER.
+    public static final int DEFAULT_SCALE_TYPE_ID = 1;
+
+    /** Intent extra representing type of camera implementation. */
+    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+
+    // Camera2 implementation.
+    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
+    // Camera-pipe implementation.
+    public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
+
+    private static String sCameraImplementationType;
+
     private boolean mCheckedPermissions = false;
     private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
 
+    @OptIn(markerClass = androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +114,21 @@ public class MainActivity extends AppCompatActivity {
             if (testItem != null) {
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().hide();
+                }
+            }
+            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            if (cameraImplementation != null && sCameraImplementationType == null) {
+                if (cameraImplementation.equals(CAMERA2_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
+                    sCameraImplementationType = cameraImplementation;
+                } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(
+                            CameraPipeConfig.defaultConfig());
+                    sCameraImplementationType = cameraImplementation;
+                } else {
+                    throw new IllegalArgumentException("Failed to configure the CameraProvider "
+                            + "using unknown " + cameraImplementation
+                            + " implementation option in " + TAG + ".");
                 }
             }
         }

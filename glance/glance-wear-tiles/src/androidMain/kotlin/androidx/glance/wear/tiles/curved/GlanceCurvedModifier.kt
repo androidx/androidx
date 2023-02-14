@@ -20,7 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.glance.action.Action
+import androidx.glance.semantics.SemanticsConfiguration
+import androidx.glance.semantics.SemanticsPropertyReceiver
 
+@JvmDefaultWithCompatibility
 /**
  * An ordered, immutable, collection of modifier element that works with curved components in the
  * Glance library.
@@ -71,6 +74,7 @@ public interface GlanceCurvedModifier {
         if (other === GlanceCurvedModifier) this
         else CombinedGlanceCurvedModifier(this, other)
 
+    @JvmDefaultWithCompatibility
     /**
      * A single element contained within a [GlanceCurvedModifier] chain.
      */
@@ -191,3 +195,20 @@ public data class ActionCurvedModifier(public val action: Action) : GlanceCurved
  */
 public fun GlanceCurvedModifier.clickable(onClick: Action): GlanceCurvedModifier =
     this.then(ActionCurvedModifier(onClick))
+
+/** @suppress **/
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class SemanticsCurvedModifier(
+    val configuration: SemanticsConfiguration
+) : GlanceCurvedModifier.Element
+
+/**
+ * Associate accessibility semantics with an element. This should generally be used sparingly, amd
+ * in mose cases should only be applied to the top-level layout element or clickable elements.
+ */
+public fun GlanceCurvedModifier.semantics(
+    properties: (SemanticsPropertyReceiver.() -> Unit)
+): GlanceCurvedModifier =
+    this.then(SemanticsCurvedModifier(
+        SemanticsConfiguration().also { it.properties() })
+    )

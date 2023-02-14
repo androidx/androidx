@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/activity_main"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:tag="0,0,380,354"
+    tools:context="com.example.android.checkconstraintlayout.MainActivity">
+
+    <TextView android:text="TextView" android:tag="344,1566,171,57"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/textView1" android:layout_marginStart="16dp"
+        app:layout_constraintLeft_toLeftOf="parent" app:layout_constraintHorizontal_bias="0.66"
+        app:layout_constraintRight_toLeftOf="@+id/guideline" android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline5" android:layout_marginBottom="32dp" />
+
+    <androidx.constraintlayout.widget.Guideline android:tag="691,0,0,0"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/guideline" android:orientation="vertical"
+        tools:layout_editor_absoluteY="0dp" tools:layout_editor_absoluteX="246dp"
+        app:layout_constraintGuide_percent="0.64" />
+
+    <androidx.constraintlayout.widget.Guideline android:tag="0,1719,0,0"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/guideline5" android:orientation="horizontal"
+        tools:layout_editor_absoluteY="444dp" tools:layout_editor_absoluteX="0dp"
+        app:layout_constraintGuide_end="67dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

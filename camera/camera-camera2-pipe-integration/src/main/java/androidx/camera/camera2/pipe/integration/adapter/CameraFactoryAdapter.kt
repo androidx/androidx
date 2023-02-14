@@ -20,13 +20,16 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
-import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
-import androidx.camera.camera2.pipe.integration.config.CameraConfig
+import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
+import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
+import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
+import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
@@ -44,26 +47,46 @@ class CameraFactoryAdapter(
 ) : CameraFactory {
     private val appComponent: CameraAppComponent by lazy {
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
-        val start = Timestamps.now()
+        val timeSource = SystemTimeSource()
+        val start = Timestamps.now(timeSource)
         val result = DaggerCameraAppComponent.builder()
             .config(CameraAppConfig(context, threadConfig))
             .build()
-        debug { "Created CameraFactoryAdapter in ${start.measureNow().formatMs()}" }
+        debug { "Created CameraFactoryAdapter in ${start.measureNow(timeSource).formatMs()}" }
         debug { "availableCamerasSelector: $availableCamerasSelector " }
         Debug.traceStop()
         result
     }
 
+    private var mAvailableCamerasSelector: CameraSelector? = availableCamerasSelector
+    private var mAvailableCameraIds: List<String>
+
     init {
         debug { "Created CameraFactoryAdapter" }
+
+        val optimizedCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+            this,
+            mAvailableCamerasSelector
+        )
+        mAvailableCameraIds = CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
+            appComponent.getCameraDevices(),
+            optimizedCameraIds
+        )
     }
 
+    /**
+     * The [getCamera] method is responsible for providing CameraInternal object based on cameraID.
+     * Use cameraId from set of cameraIds provided by [getAvailableCameraIds] method.
+     */
     override fun getCamera(cameraId: String): CameraInternal =
         appComponent.cameraBuilder()
             .config(CameraConfig(CameraId(cameraId)))
             .build()
             .getCameraInternal()
 
-    override fun getAvailableCameraIds(): Set<String> = appComponent.getAvailableCameraIds()
+    override fun getAvailableCameraIds(): Set<String> =
+        // Use a LinkedHashSet to preserve order
+        LinkedHashSet(mAvailableCameraIds)
+
     override fun getCameraManager(): Any? = appComponent
 }

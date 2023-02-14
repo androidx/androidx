@@ -31,6 +31,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
+import androidx.wear.watchface.complications.data.ComplicationExperimental;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class ComplicationStateWireFormat implements VersionedParcelable, Parcelable {
@@ -101,13 +102,63 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @ParcelField(15)
     int mScreenReaderNameResourceId;
 
+    // Only valid for edge complications. Not supported in library v1.0.
+    @ParcelField(16)
+    @Nullable
+    BoundingArcWireFormat mBoundingArc;
+
+    @ParcelField(value = 17, defaultValue = "null")
+    @Nullable
+    Rect mBoundsWithMargins;
+
     // NB 0 is not a valid resource id.
     private static final int NULL_NAME_RESOURCE_ID = 0;
 
     /** Used by VersionedParcelable. */
-    ComplicationStateWireFormat() {
+    ComplicationStateWireFormat() {}
+
+    @ComplicationExperimental
+    public ComplicationStateWireFormat(
+            @NonNull Rect bounds,
+            @NonNull Rect boundsWithMargins,
+            int boundsType,
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
+            @Nullable List<ComponentName> defaultDataSourcesToTry,
+            int fallbackSystemProvider,
+            @ComplicationData.ComplicationType int defaultDataSourceType,
+            @ComplicationData.ComplicationType int primaryDataSourceDefaultType,
+            @ComplicationData.ComplicationType int secondaryDataSourceDefaultType,
+            boolean isEnabled,
+            boolean isInitiallyEnabled,
+            @ComplicationData.ComplicationType int currentType,
+            boolean fixedComplicationProvider,
+            @NonNull Bundle complicationConfigExtras,
+            @Nullable Integer nameResourceId,
+            @Nullable Integer screenReaderNameResourceId,
+            @Nullable BoundingArcWireFormat boundingArc) {
+        mBounds = bounds;
+        mBoundsWithMargins = boundsWithMargins;
+        mBoundsType = boundsType;
+        mSupportedTypes = supportedTypes;
+        mDefaultDataSourcesToTry = defaultDataSourcesToTry;
+        mFallbackSystemProvider = fallbackSystemProvider;
+        mDefaultType = defaultDataSourceType;
+        mPrimaryDataSourceDefaultType = primaryDataSourceDefaultType;
+        mSecondaryDataSourceDefaultType = secondaryDataSourceDefaultType;
+        mIsEnabled = isEnabled;
+        mIsInitiallyEnabled = isInitiallyEnabled;
+        mCurrentType = currentType;
+        mFixedComplicationProvider = fixedComplicationProvider;
+        mComplicationConfigExtras = complicationConfigExtras;
+        mNameResourceId = (nameResourceId != null) ? nameResourceId : NULL_NAME_RESOURCE_ID;
+        mScreenReaderNameResourceId =
+                (screenReaderNameResourceId != null)
+                        ? screenReaderNameResourceId
+                        : NULL_NAME_RESOURCE_ID;
+        mBoundingArc = boundingArc;
     }
 
+    // TODO(b/230364881): Deprecate when BoundingArc is no longer experimental.
     public ComplicationStateWireFormat(
             @NonNull Rect bounds,
             int boundsType,
@@ -125,6 +176,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             @Nullable Integer nameResourceId,
             @Nullable Integer screenReaderNameResourceId) {
         mBounds = bounds;
+        mBoundsWithMargins = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
@@ -139,11 +191,14 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         mComplicationConfigExtras = complicationConfigExtras;
         mNameResourceId = (nameResourceId != null) ? nameResourceId : NULL_NAME_RESOURCE_ID;
         mScreenReaderNameResourceId =
-                (screenReaderNameResourceId != null) ? screenReaderNameResourceId :
-                        NULL_NAME_RESOURCE_ID;
+                (screenReaderNameResourceId != null)
+                        ? screenReaderNameResourceId
+                        : NULL_NAME_RESOURCE_ID;
     }
 
-    /** @deprecated Use the other constructor instead. */
+    /**
+     * @deprecated Use the other constructor instead.
+     */
     @Deprecated
     public ComplicationStateWireFormat(
             @NonNull Rect bounds,
@@ -158,6 +213,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             boolean fixedComplicationProvider,
             @NonNull Bundle complicationConfigExtras) {
         mBounds = bounds;
+        mBoundsWithMargins = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
@@ -173,6 +229,11 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @NonNull
     public Rect getBounds() {
         return mBounds;
+    }
+
+    @Nullable
+    public Rect getBoundsWithMargins() {
+        return mBoundsWithMargins;
     }
 
     public int getBoundsType() {
@@ -214,7 +275,9 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         return mFallbackSystemProvider;
     }
 
-    /** @deprecated Use {@link #getDefaultDataSourceType} instead. */
+    /**
+     * @deprecated Use {@link #getDefaultDataSourceType} instead.
+     */
     @Deprecated
     @ComplicationData.ComplicationType
     public int getDefaultProviderType() {
@@ -230,27 +293,29 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for the first entry from
-     * {@link #getDefaultDataSourcesToTry}.
+     * @return The {@link ComplicationData.ComplicationType} for the first entry from {@link
+     *     #getDefaultDataSourcesToTry}.
      */
     @ComplicationData.ComplicationType
     public int getPrimaryDataSourceDefaultType() {
         // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
         // and old client.
         return (mPrimaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
-                ? mDefaultType : mPrimaryDataSourceDefaultType;
+                ? mDefaultType
+                : mPrimaryDataSourceDefaultType;
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for the second entry from
-     * {@link #getDefaultDataSourcesToTry}.
+     * @return The {@link ComplicationData.ComplicationType} for the second entry from {@link
+     *     #getDefaultDataSourcesToTry}.
      */
     @ComplicationData.ComplicationType
     public int getSecondaryDataSourceDefaultType() {
         // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
         // and old client.
         return (mSecondaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
-                ? mDefaultType : mSecondaryDataSourceDefaultType;
+                ? mDefaultType
+                : mSecondaryDataSourceDefaultType;
     }
 
     public boolean isEnabled() {
@@ -282,8 +347,15 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     @Nullable
     public Integer getScreenReaderNameResourceId() {
-        return mScreenReaderNameResourceId != NULL_NAME_RESOURCE_ID ? mScreenReaderNameResourceId
+        return mScreenReaderNameResourceId != NULL_NAME_RESOURCE_ID
+                ? mScreenReaderNameResourceId
                 : null;
+    }
+
+    @Nullable
+    @ComplicationExperimental
+    public BoundingArcWireFormat getBoundingArc() {
+        return mBoundingArc;
     }
 
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */

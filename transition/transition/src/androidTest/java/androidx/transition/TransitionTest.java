@@ -300,7 +300,7 @@ public class TransitionTest extends BaseTest {
             private Rect mRect = new Rect();
 
             @Override
-            public Rect onGetEpicenter(@NonNull Transition t) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition t) {
                 assertThat(t, is(sameInstance(transition)));
                 mRect.set(1, 2, 3, 4);
                 return mRect;
@@ -491,16 +491,17 @@ public class TransitionTest extends BaseTest {
      */
     private class FirstViewTransitionPropagation extends TransitionPropagation {
         @Override
-        public long getStartDelay(ViewGroup sceneRoot, Transition transition,
-                TransitionValues startValues, TransitionValues endValues) {
+        public long getStartDelay(@NonNull ViewGroup sceneRoot, @NonNull Transition transition,
+                @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
             return startValues.view == mViews[0] ? 20 :
                     startValues.view == mViews[1] ? 10 : 0;
         }
 
         @Override
-        public void captureValues(TransitionValues transitionValues) {
+        public void captureValues(@NonNull TransitionValues transitionValues) {
         }
 
+        @Nullable
         @Override
         public String[] getPropagationProperties() {
             return new String[0];

@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -65,6 +66,7 @@ import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -84,6 +86,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * TODO: Pull out callback tests to a separate file (i.e. MediaControllerLegacyCallbackTest).
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @FlakyTest(bugId = 202942942)
 @MediumTest
 public class MediaControllerLegacyTest extends MediaSessionTestBase {
@@ -97,6 +100,9 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mSession = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, mContext);
@@ -106,7 +112,9 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mSession.cleanUp();
+        if (mSession != null) {
+            mSession.cleanUp();
+        }
         if (mController != null) {
             mController.close();
         }

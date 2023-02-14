@@ -21,6 +21,7 @@ import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -61,6 +62,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     private Executor mExecutor;
     private ProgressUpdater mProgressUpdater;
     private ForegroundUpdater mForegroundUpdater;
+    private int mGeneration;
 
     TestListenableWorkerBuilder(@NonNull Context context, @NonNull Class<W> workerClass) {
         mContext = context;
@@ -102,51 +104,12 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
-     * @return The {@link UUID} id associated with this unit of work.
-     */
-    @NonNull
-    UUID getId() {
-        return mId;
-    }
-
-    /**
-     * @return The input {@link Data} associated with this unit of work.
-     */
-    @NonNull
-    Data getInputData() {
-        return mInputData;
-    }
-
-    /**
-     * @return The {@link List} of tags associated with this unit of work.
-     */
-    @NonNull
-    List<String> getTags() {
-        return mTags;
-    }
-
-    /**
-     * @return The unit of work's current run attempt count.
-     */
-    int getRunAttemptCount() {
-        return mRunAttemptCount;
-    }
-
-    /**
      * @return The {@link androidx.work.WorkerParameters.RuntimeExtras} associated with this unit
      * of work.
      */
     @NonNull
     WorkerParameters.RuntimeExtras getRuntimeExtras() {
         return mRuntimeExtras;
-    }
-
-    /**
-     * @return The {@link WorkerFactory} associated with this unit of work.
-     */
-    @NonNull
-    WorkerFactory getWorkerFactory() {
-        return mWorkerFactory;
     }
 
     /**
@@ -327,6 +290,20 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
+     * Sets a generation for this work.
+     *
+     * See {@link WorkerParameters#getGeneration()} for details.
+     *
+     * @param generation generation
+     * @return The current {@link TestListenableWorkerBuilder}
+     */
+    @NonNull
+    TestListenableWorkerBuilder<W> setGeneration(@IntRange(from = 0) int generation) {
+        mGeneration = generation;
+        return this;
+    }
+
+    /**
      * Builds the {@link ListenableWorker}.
      *
      * @return the instance of a {@link ListenableWorker}.
@@ -336,15 +313,16 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     public W build() {
         WorkerParameters parameters =
                 new WorkerParameters(
-                        getId(),
-                        getInputData(),
-                        getTags(),
+                        mId,
+                        mInputData,
+                        mTags,
                         getRuntimeExtras(),
-                        getRunAttemptCount(),
+                        mRunAttemptCount,
+                        mGeneration,
                         // This is unused for ListenableWorker
                         getExecutor(),
                         getTaskExecutor(),
-                        getWorkerFactory(),
+                        mWorkerFactory,
                         getProgressUpdater(),
                         getForegroundUpdater()
                 );

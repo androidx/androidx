@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
+import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -282,6 +283,7 @@ inline fun DrawScope.withTransform(
  * @sample androidx.compose.ui.graphics.samples.DrawScopeSample
  */
 @DrawScopeMarker
+@JvmDefaultWithCompatibility
 interface DrawScope : Density {
 
     /**
@@ -900,34 +902,22 @@ object Fill : DrawStyle()
 
 /**
  * [DrawStyle] that provides information for drawing content with a stroke
+ *
+ * @param width Configure the width of the stroke in pixels
+ * @param miter Set the stroke miter value. This is used to control the behavior of miter joins when
+ * the joins angle is sharp. This value must be >= 0
+ * @param cap Return the paint's Cap, controlling how the start and end of stroked lines and paths
+ * are treated. The default is [StrokeCap.Butt]
+ * @param join Set's the treatment where lines and curve segments join on a stroked path. The
+ * default is [StrokeJoin.Miter]
+ * @param pathEffect Effect to apply to the stroke, null indicates a solid stroke line is to be
+ * drawn
  */
 class Stroke(
-    /**
-     * Configure the width of the stroke in pixels
-     */
     val width: Float = 0.0f,
-
-    /**
-     * Set the stroke miter value. This is used to control the behavior of miter
-     * joins when the joins angle is sharp. This value must be >= 0.
-     */
     val miter: Float = DefaultMiter,
-
-    /**
-     * Return the paint's Cap, controlling how the start and end of stroked
-     * lines and paths are treated. The default is [StrokeCap.Butt]
-     */
-    val cap: StrokeCap = StrokeCap.Butt,
-
-    /**
-     * Set's the treatment where lines and curve segments join on a stroked path.
-     * The default is [StrokeJoin.Miter]
-     */
-    val join: StrokeJoin = StrokeJoin.Miter,
-
-    /**
-     * Effect to apply to the stroke, null indicates a solid stroke line is to be drawn
-     */
+    val cap: StrokeCap = DefaultCap,
+    val join: StrokeJoin = DefaultJoin,
     val pathEffect: PathEffect? = null
 ) : DrawStyle() {
     companion object {

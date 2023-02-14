@@ -18,9 +18,26 @@ package androidx.appsearch.utils;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Locale;
+
 public class DateTimeFormatValidatorTest {
+    private Locale mDefaultLocale;
+
+    @Before
+    public void setUp() {
+        mDefaultLocale = Locale.getDefault();
+    }
+
+    @After
+    public void tearDown() {
+        // revert to default locale
+        Locale.setDefault(mDefaultLocale);
+    }
+
     @Test
     public void testValidateISO8601Date_validDate_returnsTrue() {
         assertThat(DateTimeFormatValidator.validateISO8601Date("2022-01-01")).isTrue();
@@ -59,5 +76,12 @@ public class DateTimeFormatValidatorTest {
     public void testValidateISO8601DateTime_notExactMatch_returnsFalse() {
         assertThat(DateTimeFormatValidator.validateISO8601DateTime("2022-01-01T00:00:00.000"))
                 .isFalse();
+    }
+
+    @Test
+    public void testValidateISO8601DateTime_nonArabicNumeralLocale_returnsTrue() {
+        Locale.setDefault(new Locale("ar", "EG"));
+        assertThat(DateTimeFormatValidator.validateISO8601DateTime("2022-01-01T00:00:00"))
+                .isTrue();
     }
 }

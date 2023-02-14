@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -23,6 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.webkit.ValueCallback;
@@ -34,6 +36,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -50,6 +53,7 @@ import java.util.concurrent.TimeoutException;
  * Modifications to this class should be reflected in that class as necessary. See
  * http://go/modifying-webview-cts.
  */
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class WebViewOnUiThread implements AutoCloseable{
     /**
      * The maximum time, in milliseconds (10 seconds) to wait for a load
@@ -79,6 +83,11 @@ public class WebViewOnUiThread implements AutoCloseable{
     private boolean mOwnsWebView;
 
     /**
+     * Optional extra steps to execute during cleanup.
+     */
+    private Runnable mCleanupTask;
+
+    /**
      * Create a new WebViewOnUiThread that owns its own WebView instance.
      */
     public WebViewOnUiThread() {
@@ -90,7 +99,7 @@ public class WebViewOnUiThread implements AutoCloseable{
      *
      * The caller is responsible for destroying the WebView instance.
      */
-    public WebViewOnUiThread(final WebView webView) {
+    public WebViewOnUiThread(final @NonNull WebView webView) {
         this(webView, false);
     }
 
@@ -112,6 +121,7 @@ public class WebViewOnUiThread implements AutoCloseable{
         volatile WebView mView;
     }
 
+    @NonNull
     public static WebView createWebView() {
         final Holder h = new Holder();
         final Context ctx = ApplicationProvider.getApplicationContext();
@@ -130,6 +140,9 @@ public class WebViewOnUiThread implements AutoCloseable{
      * the view hierarchy, if needed.
      */
     public void cleanUp() {
+        if (mCleanupTask != null) {
+            mCleanupTask.run();
+        }
         WebkitUtils.onMainThreadSync(() -> {
             mWebView.clearHistory();
             mWebView.clearCache(true);
@@ -139,6 +152,15 @@ public class WebViewOnUiThread implements AutoCloseable{
                 mWebView.destroy();
             }
         });
+    }
+
+    /**
+     * set a task that will be executed before any other cleanup code.
+     *
+     * The task will be executed on the same thread that executes the cleanup.
+     */
+    public void setCleanupTask(@Nullable Runnable cleanupTask) {
+        mCleanupTask = cleanupTask;
     }
 
     /**
@@ -166,89 +188,97 @@ public class WebViewOnUiThread implements AutoCloseable{
         this.notifyAll();
     }
 
-    public static void destroy(final WebView webView) {
+    public static void destroy(final @NonNull WebView webView) {
         WebkitUtils.onMainThreadSync(webView::destroy);
     }
 
-    public void setWebViewClient(final WebViewClient webviewClient) {
+    public void setWebViewClient(final @NonNull WebViewClient webviewClient) {
         setWebViewClient(mWebView, webviewClient);
     }
 
     public static void setWebViewClient(
-            final WebView webView, final WebViewClient webviewClient) {
+            final @NonNull WebView webView, final @NonNull WebViewClient webviewClient) {
         WebkitUtils.onMainThreadSync(() -> webView.setWebViewClient(webviewClient));
     }
 
-    public void setWebChromeClient(final WebChromeClient webChromeClient) {
+    public void setWebChromeClient(final @Nullable WebChromeClient webChromeClient) {
         setWebChromeClient(mWebView, webChromeClient);
     }
 
     public static void setWebChromeClient(
-            final WebView webView, final WebChromeClient webChromeClient) {
+            final @NonNull WebView webView, final @Nullable WebChromeClient webChromeClient) {
         WebkitUtils.onMainThreadSync(() -> webView.setWebChromeClient(webChromeClient));
     }
 
     public void setWebViewRenderProcessClient(
-            final WebViewRenderProcessClient webViewRenderProcessClient) {
+            final @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
         setWebViewRenderProcessClient(mWebView, webViewRenderProcessClient);
     }
 
     public static void setWebViewRenderProcessClient(
-            final WebView webView, final WebViewRenderProcessClient webViewRenderProcessClient) {
+            final @NonNull WebView webView,
+            final @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
         WebkitUtils.onMainThreadSync(() -> WebViewCompat.setWebViewRenderProcessClient(
                 webView, webViewRenderProcessClient));
     }
 
     public void setWebViewRenderProcessClient(
-            final Executor executor, final WebViewRenderProcessClient webViewRenderProcessClient) {
+            final @NonNull Executor executor,
+            final @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
         setWebViewRenderProcessClient(mWebView, executor, webViewRenderProcessClient);
     }
 
     public static void setWebViewRenderProcessClient(
-            final WebView webView,
-            final Executor executor,
-            final WebViewRenderProcessClient webViewRenderProcessClient) {
+            final @NonNull WebView webView,
+            final @NonNull Executor executor,
+            final @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
         WebkitUtils.onMainThreadSync(() -> WebViewCompat.setWebViewRenderProcessClient(
                 webView, executor, webViewRenderProcessClient));
     }
 
+    @Nullable
     public WebViewRenderProcessClient getWebViewRenderProcessClient() {
         return getWebViewRenderProcessClient(mWebView);
     }
 
+    @Nullable
     public static WebViewRenderProcessClient getWebViewRenderProcessClient(
-            final WebView webView) {
+            final @NonNull WebView webView) {
         return WebkitUtils.onMainThreadSync(
                 () -> WebViewCompat.getWebViewRenderProcessClient(webView));
     }
 
+    @NonNull
     public WebMessagePortCompat[] createWebMessageChannelCompat() {
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.createWebMessageChannel(mWebView));
     }
 
-    public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
+    public void postWebMessageCompat(final @NonNull WebMessageCompat message,
+            final @NonNull Uri targetOrigin) {
         WebkitUtils.onMainThreadSync(
                 () -> WebViewCompat.postWebMessage(mWebView, message, targetOrigin));
     }
 
-    public void addWebMessageListener(String jsObjectName, Set<String> allowedOriginRules,
-            final WebViewCompat.WebMessageListener listener) {
+    public void addWebMessageListener(@NonNull String jsObjectName,
+            @NonNull Set<String> allowedOriginRules,
+            final @NonNull WebViewCompat.WebMessageListener listener) {
         WebkitUtils.onMainThreadSync(() -> WebViewCompat.addWebMessageListener(
                 mWebView, jsObjectName, allowedOriginRules, listener));
     }
 
-    public void removeWebMessageListener(final String jsObjectName) {
+    public void removeWebMessageListener(final @NonNull String jsObjectName) {
         WebkitUtils.onMainThreadSync(
                 () -> WebViewCompat.removeWebMessageListener(mWebView, jsObjectName));
     }
 
+    @NonNull
     public ScriptHandler addDocumentStartJavaScript(
-            String script, Set<String> allowedOriginRules) {
+            @NonNull String script, @NonNull Set<String> allowedOriginRules) {
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.addDocumentStartJavaScript(
                 mWebView, script, allowedOriginRules));
     }
 
-    public void addJavascriptInterface(final Object object, final String name) {
+    public void addJavascriptInterface(final @NonNull Object object, final @NonNull String name) {
         WebkitUtils.onMainThreadSync(() -> mWebView.addJavascriptInterface(object, name));
     }
 
@@ -262,7 +292,7 @@ public class WebViewOnUiThread implements AutoCloseable{
         callAndWait(() -> mWebView.loadUrl(url));
     }
 
-    public void loadUrl(final String url) {
+    public void loadUrl(final @NonNull String url) {
         WebkitUtils.onMainThreadSync(() -> mWebView.loadUrl(url));
     }
 
@@ -279,9 +309,10 @@ public class WebViewOnUiThread implements AutoCloseable{
         callAndWait(() -> mWebView.loadData(data, mimeType, encoding));
     }
 
-    public void loadDataWithBaseURLAndWaitForCompletion(final String baseUrl,
-            final String data, final String mimeType, final String encoding,
-            final String historyUrl) {
+    public void loadDataWithBaseURLAndWaitForCompletion(final @Nullable String baseUrl,
+            final @NonNull String data, final @Nullable String mimeType,
+            final @Nullable String encoding,
+            final @Nullable String historyUrl) {
         callAndWait(() -> mWebView.loadDataWithBaseURL(
                 baseUrl, data, mimeType, encoding, historyUrl));
     }
@@ -304,20 +335,23 @@ public class WebViewOnUiThread implements AutoCloseable{
         }
     }
 
+    @Nullable
     public String getTitle() {
         return WebkitUtils.onMainThreadSync(() -> mWebView.getTitle());
     }
 
+    @NonNull
     public WebSettings getSettings() {
         return WebkitUtils.onMainThreadSync(() -> mWebView.getSettings());
     }
 
+    @Nullable
     public String getUrl() {
         return WebkitUtils.onMainThreadSync(() -> mWebView.getUrl());
     }
 
     public void postVisualStateCallbackCompat(final long requestId,
-            final WebViewCompat.VisualStateCallback callback) {
+            final @NonNull WebViewCompat.VisualStateCallback callback) {
         WebkitUtils.onMainThreadSync(() -> WebViewCompat.postVisualStateCallback(
                 mWebView, requestId, callback));
     }
@@ -325,29 +359,35 @@ public class WebViewOnUiThread implements AutoCloseable{
     /**
      * Execute javascript synchronously, returning the result.
      */
-    public String evaluateJavascriptSync(final String script) {
+    @Nullable
+    public String evaluateJavascriptSync(final @NonNull String script) {
         final ResolvableFuture<String> future = ResolvableFuture.create();
         evaluateJavascript(script, future::set);
         return WebkitUtils.waitForFuture(future);
     }
 
-    public void evaluateJavascript(final String script, final ValueCallback<String> result) {
+    public void evaluateJavascript(final @NonNull String script,
+            final @Nullable ValueCallback<String> result) {
         WebkitUtils.onMainThread(() -> mWebView.evaluateJavascript(script, result));
     }
 
+    @NonNull
     public WebViewClient getWebViewClient() {
         return getWebViewClient(mWebView);
     }
 
-    public static WebViewClient getWebViewClient(final WebView webView) {
+    @NonNull
+    public static WebViewClient getWebViewClient(final @NonNull WebView webView) {
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.getWebViewClient(webView));
     }
 
+    @Nullable
     public WebChromeClient getWebChromeClient() {
         return getWebChromeClient(mWebView);
     }
 
-    public static WebChromeClient getWebChromeClient(final WebView webView) {
+    @Nullable
+    public static WebChromeClient getWebChromeClient(final @NonNull WebView webView) {
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.getWebChromeClient(webView));
     }
 
@@ -382,6 +422,7 @@ public class WebViewOnUiThread implements AutoCloseable{
      * This synchronises so that the bitmap contents reflects the current DOM state, rather than
      * potentially capturing a previously generated frame.
      */
+    @NonNull
     public Bitmap captureBitmap() {
         WebSettingsCompat.setOffscreenPreRaster(getSettings(), true);
         waitForDOMReadyToRender();
@@ -415,10 +456,9 @@ public class WebViewOnUiThread implements AutoCloseable{
      * @param call The call to make on the UI thread prior to waiting.
      */
     private void callAndWait(Runnable call) {
-        assertTrue("WebViewOnUiThread.load*AndWaitForCompletion calls "
-                        + "may not be mixed with load* calls directly on WebView "
-                        + "without calling waitForLoadCompletion after the load",
-                !isLoaded());
+        assertFalse("WebViewOnUiThread.load*AndWaitForCompletion calls "
+                + "may not be mixed with load* calls directly on WebView "
+                + "without calling waitForLoadCompletion after the load", isLoaded());
         clearLoad(); // clear any extraneous signals from a previous load.
         if (Looper.myLooper() == Looper.getMainLooper()) {
             call.run();
@@ -502,7 +542,7 @@ public class WebViewOnUiThread implements AutoCloseable{
      * directly.
      */
     public static class WaitForProgressClient extends WebChromeClient {
-        private WebViewOnUiThread mOnUiThread;
+        private final WebViewOnUiThread mOnUiThread;
 
         WaitForProgressClient(WebViewOnUiThread onUiThread) {
             mOnUiThread = onUiThread;
@@ -524,7 +564,7 @@ public class WebViewOnUiThread implements AutoCloseable{
      * WaitForLoadedClient or call WebViewOnUiThread.onPageFinished.
      */
     public static class WaitForLoadedClient extends WebViewClientCompat {
-        private WebViewOnUiThread mOnUiThread;
+        private final WebViewOnUiThread mOnUiThread;
 
         WaitForLoadedClient(WebViewOnUiThread onUiThread) {
             mOnUiThread = onUiThread;
@@ -544,4 +584,5 @@ public class WebViewOnUiThread implements AutoCloseable{
             mOnUiThread.onPageStarted();
         }
     }
+
 }

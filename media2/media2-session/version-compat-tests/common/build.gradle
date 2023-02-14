@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    api(project(":core:core"))
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation(libs.junit)

@@ -36,6 +36,7 @@ private val ClickValueKey = ActionParameters.Key<Int>("ClickValue")
 class DefaultStateAppWidget : GlanceAppWidget() {
 
     @Composable
+    @Deprecated("")
     override fun Content() {
         // Get the current stored value for the given Key.
         val count = currentState(CountClicksKey) ?: 0
@@ -50,6 +51,7 @@ class DefaultStateAppWidget : GlanceAppWidget() {
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "-",
+                style = TextStyle(textAlign = TextAlign.Center),
                 onClick = actionRunCallback<ClickAction>(
                     actionParametersOf(ClickValueKey to -1)
                 )
@@ -62,6 +64,7 @@ class DefaultStateAppWidget : GlanceAppWidget() {
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "+",
+                style = TextStyle(textAlign = TextAlign.Center),
                 onClick = actionRunCallback<ClickAction>(
                     actionParametersOf(ClickValueKey to 1)
                 )

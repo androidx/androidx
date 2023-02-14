@@ -44,9 +44,10 @@ import java.security.InvalidParameterException;
 
 /** Implementation of the binder {@link ICarApp}. */
 final class CarAppBinder extends ICarApp.Stub {
+    private final SessionInfo mCurrentSessionInfo;
+
     @Nullable
     private CarAppService mService;
-
     @Nullable
     private Session mCurrentSession;
     @Nullable
@@ -54,8 +55,14 @@ final class CarAppBinder extends ICarApp.Stub {
     @Nullable
     private HandshakeInfo mHandshakeInfo;
 
-    CarAppBinder(@NonNull CarAppService service) {
+    /**
+     * Creates a new {@link CarAppBinder} instance for a {@link SessionInfo}. Once the Host
+     * requests {@link #onAppCreate(ICarHost, Intent, Configuration, IOnDoneCallback)}, the
+     * {@link Session} will be created.
+     */
+    CarAppBinder(@NonNull CarAppService service, @NonNull SessionInfo sessionInfo) {
         mService = service;
+        mCurrentSessionInfo = sessionInfo;
     }
 
     /**
@@ -105,7 +112,7 @@ final class CarAppBinder extends ICarApp.Stub {
             Session session = mCurrentSession;
             if (session == null
                     || session.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
-                session = service.onCreateSession();
+                session = service.onCreateSession(requireNonNull(mCurrentSessionInfo));
                 mCurrentSession = session;
             }
 
@@ -365,5 +372,10 @@ final class CarAppBinder extends ICarApp.Stub {
     @Nullable
     Session getCurrentSession() {
         return mCurrentSession;
+    }
+
+    @NonNull
+    SessionInfo getCurrentSessionInfo() {
+        return mCurrentSessionInfo;
     }
 }

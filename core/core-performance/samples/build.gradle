@@ -32,7 +32,6 @@ androidx {
     name = "cSamples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "Samples for AndroidX Core Performance Library"
 }

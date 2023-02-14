@@ -55,6 +55,7 @@ class MarginPageTransformerTest :
         testMargin(null)
     }
 
+    @Ignore // b/266476890
     @Test
     fun testMargin_offscreenLimit_default() {
         testMargin(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT)

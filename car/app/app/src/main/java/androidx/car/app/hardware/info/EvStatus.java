@@ -18,25 +18,23 @@ package androidx.car.app.hardware.info;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** Information about EV car port status */
 @CarProtocol
 @ExperimentalCarApi
+@KeepFields
 public class EvStatus {
-
-    @Keep
     @NonNull
     private final CarValue<Boolean> mEvChargePortOpen;
 
-    @Keep
     @NonNull
     private final CarValue<Boolean> mEvChargePortConnected;
 
@@ -91,16 +89,16 @@ public class EvStatus {
      * Constructs an empty instance, used by serialization code.
      */
     private EvStatus() {
-        mEvChargePortOpen = CarValue.UNIMPLEMENTED_BOOLEAN;
-        mEvChargePortConnected = CarValue.UNIMPLEMENTED_BOOLEAN;
+        mEvChargePortOpen = CarValue.UNKNOWN_BOOLEAN;
+        mEvChargePortConnected = CarValue.UNKNOWN_BOOLEAN;
     }
 
     /**
      * A builder of {@link EvStatus}.
      */
     public static final class Builder {
-        CarValue<Boolean> mEvChargePortOpen = CarValue.UNIMPLEMENTED_BOOLEAN;
-        CarValue<Boolean> mEvChargePortConnected = CarValue.UNIMPLEMENTED_BOOLEAN;
+        CarValue<Boolean> mEvChargePortOpen = CarValue.UNKNOWN_BOOLEAN;
+        CarValue<Boolean> mEvChargePortConnected = CarValue.UNKNOWN_BOOLEAN;
 
         /**
          * Sets if the EV charge port is open with a {@link CarValue}.

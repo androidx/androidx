@@ -45,6 +45,7 @@ open class RecreatedActivity(
     override fun onDestroy() {
         super.onDestroy()
         destroyedLatch?.countDown()
+        activity = null
     }
 
     companion object {

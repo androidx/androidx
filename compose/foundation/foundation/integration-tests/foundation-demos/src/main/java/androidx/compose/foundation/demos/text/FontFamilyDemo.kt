@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Typeface
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
@@ -41,10 +42,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Async
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.OptionalLocal
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+@Preview
 @Composable
 fun FontFamilyDemo() {
     LazyColumn {
@@ -55,6 +59,7 @@ fun FontFamilyDemo() {
     }
 }
 
+@Preview
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun AsyncFontFamilyDemo() {
@@ -127,7 +132,8 @@ fun AsyncFontFamilyDemo() {
         Spacer(Modifier.height(16.dp))
         Text(
             "(Normal, Normal) text with async loading with fallback (2000ms)",
-            fontFamily = fontFamily
+            fontFamily = fontFamily,
+            modifier = Modifier.fillMaxWidth().height(100.dp)
         )
         Text(
             "(W200, Normal) text async loading, same FontFamily (500ms)",
@@ -197,17 +203,23 @@ class DemoAsyncFont(
     override val style: FontStyle,
     val delay: Long,
     val typeface: Typeface = Typeface.MONOSPACE
-) : AndroidFont(Async, ExampleAsyncFontTypefaceLoader)
+) : AndroidFont(Async, ExampleAsyncFontTypefaceLoader, FontVariation.Settings(weight, style))
 
-@OptIn(ExperimentalTextApi::class)
 class DemoOptionalFont(
     override val weight: FontWeight,
     override val style: FontStyle,
-) : AndroidFont(OptionalLocal, ExampleAsyncFontTypefaceLoader)
+) : AndroidFont(
+    OptionalLocal,
+    ExampleAsyncFontTypefaceLoader,
+    FontVariation.Settings(weight, style)
+)
 
-@OptIn(ExperimentalTextApi::class)
 class DemoBlockingFont(
     override val weight: FontWeight,
     override val style: FontStyle,
     val typeface: Typeface
-) : AndroidFont(OptionalLocal, ExampleAsyncFontTypefaceLoader)
+) : AndroidFont(
+    OptionalLocal,
+    ExampleAsyncFontTypefaceLoader,
+    FontVariation.Settings(weight, style)
+)

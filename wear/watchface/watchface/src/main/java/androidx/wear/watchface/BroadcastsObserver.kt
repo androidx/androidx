@@ -16,7 +16,11 @@
 
 package androidx.wear.watchface
 
+import android.app.KeyguardManager
+import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
+import android.provider.Settings
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -29,30 +33,29 @@ public class BroadcastsObserver(
     private val watchState: WatchState,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val deferredWatchFaceImpl: Deferred<WatchFaceImpl>,
-    private val uiThreadCoroutineScope: CoroutineScope
+    private val uiThreadCoroutineScope: CoroutineScope,
+    private val contentResolver: ContentResolver,
+    private val ambientSettingAvailable: Boolean
 ) : BroadcastsReceiver.BroadcastEventObserver {
     private var batteryLow: Boolean? = null
     private var charging: Boolean? = null
+    private var sysUiHasSentWatchUiState: Boolean = false
+
+    internal companion object {
+        internal const val AMBIENT_ENABLED_PATH = "ambient_enabled"
+    }
 
     override fun onActionTimeTick() {
-        // android.intent.action.TIME_TICK is sent by the system when the watch is ambient, usually
-        // once per minute at the time of the minute to trigger updates. When the watch is
-        // non-ambient the library is in charge of animation and this signal can be ignored.
-        if (watchState.isAmbient.value == false) {
-            watchFaceHostApi.invalidate()
-        }
+        // android.intent.action.TIME_TICK is sent by the system at the top of every minute
+        watchFaceHostApi.onActionTimeTick()
     }
 
     override fun onActionTimeZoneChanged() {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onActionTimeZoneChanged()
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onActionTimeZoneChanged() }
     }
 
     override fun onActionTimeChanged() {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onActionTimeChanged()
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onActionTimeChanged() }
     }
 
     override fun onActionBatteryLow() {
@@ -80,17 +83,60 @@ public class BroadcastsObserver(
     }
 
     override fun onMockTime(intent: Intent) {
-        uiThreadCoroutineScope.launch {
-            deferredWatchFaceImpl.await().onMockTime(intent)
-        }
+        uiThreadCoroutineScope.launch { deferredWatchFaceImpl.await().onMockTime(intent) }
     }
 
     private fun updateBatteryLowAndNotChargingStatus(value: Boolean) {
-        val isBatteryLowAndNotCharging =
-            watchState.isBatteryLowAndNotCharging as MutableStateFlow
+        val isBatteryLowAndNotCharging = watchState.isBatteryLowAndNotCharging as MutableStateFlow
         if (!isBatteryLowAndNotCharging.hasValue() || value != isBatteryLowAndNotCharging.value) {
             isBatteryLowAndNotCharging.value = value
             watchFaceHostApi.invalidate()
         }
+    }
+
+    fun onSysUiHasSentWatchUiState() {
+        sysUiHasSentWatchUiState = true
+    }
+
+    override fun onActionScreenOff() {
+        val keyguardManager =
+            watchFaceHostApi.getContext().getSystemService(Context.KEYGUARD_SERVICE)
+                as KeyguardManager
+
+        (watchState.isLocked as MutableStateFlow).value = keyguardManager.isDeviceLocked
+
+        // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
+        // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
+        if (sysUiHasSentWatchUiState) {
+            return
+        }
+
+        val isAmbient = watchState.isAmbient as MutableStateFlow
+
+        // This is a backup signal for when SysUI is unable to deliver the ambient state (e.g. in
+        // direct boot mode). We need to distinguish between ACTION_SCREEN_OFF for entering ambient
+        // and the screen turning off. This is only possible from R.
+        isAmbient.value =
+            if (ambientSettingAvailable) {
+                Settings.Global.getInt(contentResolver, AMBIENT_ENABLED_PATH, 0) == 1
+            } else {
+                // On P and below we just have to assume we're not ambient.
+                false
+            }
+    }
+
+    override fun onActionScreenOn() {
+        // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
+        // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
+        if (sysUiHasSentWatchUiState) {
+            return
+        }
+
+        val isAmbient = watchState.isAmbient as MutableStateFlow
+        isAmbient.value = false
+    }
+
+    override fun onActionUserPresent() {
+        (watchState.isLocked as MutableStateFlow).value = false
     }
 }

@@ -84,7 +84,7 @@ public class ConfigLayout extends LinearLayout {
                 R.array.sourcesArray, R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mFontSource.setAdapter(adapter);
-        mFontSource.setSelection(Config.get().getSource().getPosition());
+        mFontSource.setSelection(Config.get().getSource().getPosition(), false);
 
         mFontSource.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

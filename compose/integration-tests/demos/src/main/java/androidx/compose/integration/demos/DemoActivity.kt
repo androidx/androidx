@@ -27,17 +27,22 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.Demo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsEffect
+import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsSetting
+import androidx.compose.integration.demos.settings.DynamicThemeSetting
+import androidx.compose.integration.demos.settings.LayoutDirectionSetting
+import androidx.compose.integration.demos.settings.SoftInputModeEffect
+import androidx.compose.integration.demos.settings.SoftInputModeSetting
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,20 +53,29 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 
 /**
  * Main [Activity] containing all Compose related demos.
+ *
+ * You can pass a specific demo's name as string extra "demoname" to launch this demo only.
+ * Read this module's readme to learn more!
  */
+@Suppress("DEPRECATION")
 class DemoActivity : FragmentActivity() {
     lateinit var hostView: View
     lateinit var focusManager: FocusManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val rootDemo = when (val demoName = intent.getStringExtra(DEMO_NAME)) {
+            null -> AllDemosCategory
+            else -> requireDemo(demoName, Navigator.findDemo(AllDemosCategory, demoName))
+        }
 
         ComposeView(this).also {
             setContentView(it)
@@ -72,52 +86,60 @@ class DemoActivity : FragmentActivity() {
                 startActivity(Intent(this, demo.activityClass.java))
             }
             val navigator = rememberSaveable(
-                saver = Navigator.Saver(AllDemosCategory, onBackPressedDispatcher, activityStarter)
+                saver = Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
             ) {
-                Navigator(AllDemosCategory, onBackPressedDispatcher, activityStarter)
+                Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
             }
-            val isDynamicThemeOn = remember { mutableStateOf(IsDynamicThemingAvailable) }
-            DisposableEffect(lifecycle) {
-                val obs = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_RESUME) {
-                        isDynamicThemeOn.value = isDynamicThemeSettingOn(applicationContext)
+
+            SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
+            DecorFitsSystemWindowsEffect(
+                DecorFitsSystemWindowsSetting.asState().value,
+                hostView,
+                window
+            )
+
+            CompositionLocalProvider(
+                LocalLayoutDirection provides LayoutDirectionSetting.asState().value,
+            ) {
+                DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
+                    val filteringMode = rememberSaveable(
+                        saver = FilterMode.Saver(onBackPressedDispatcher)
+                    ) {
+                        FilterMode(onBackPressedDispatcher)
                     }
-                }
-                lifecycle.addObserver(obs)
-                onDispose {
-                    lifecycle.removeObserver(obs)
-                }
-            }
-            DemoTheme(isDynamicThemeOn.value, window) {
-                val filteringMode = rememberSaveable(
-                    saver = FilterMode.Saver(onBackPressedDispatcher)
-                ) {
-                    FilterMode(onBackPressedDispatcher)
-                }
-                val onStartFiltering = { filteringMode.isFiltering = true }
-                val onEndFiltering = { filteringMode.isFiltering = false }
-                DemoApp(
-                    currentDemo = navigator.currentDemo,
-                    backStackTitle = navigator.backStackTitle,
-                    isFiltering = filteringMode.isFiltering,
-                    onStartFiltering = onStartFiltering,
-                    onEndFiltering = onEndFiltering,
-                    onNavigateToDemo = { demo ->
-                        if (filteringMode.isFiltering) {
-                            onEndFiltering()
-                            navigator.popAll()
+                    val onStartFiltering = { filteringMode.isFiltering = true }
+                    val onEndFiltering = { filteringMode.isFiltering = false }
+                    DemoApp(
+                        currentDemo = navigator.currentDemo,
+                        backStackTitle = navigator.backStackTitle,
+                        isFiltering = filteringMode.isFiltering,
+                        onStartFiltering = onStartFiltering,
+                        onEndFiltering = onEndFiltering,
+                        onNavigateToDemo = { demo ->
+                            if (filteringMode.isFiltering) {
+                                onEndFiltering()
+                                navigator.popAll()
+                            }
+                            navigator.navigateTo(demo)
+                        },
+                        canNavigateUp = !navigator.isRoot,
+                        onNavigateUp = {
+                            onBackPressed()
+                        },
+                        launchSettings = {
+                            startActivity(Intent(this, DemoSettingsActivity::class.java))
                         }
-                        navigator.navigateTo(demo)
-                    },
-                    canNavigateUp = !navigator.isRoot,
-                    onNavigateUp = {
-                        onBackPressed()
-                    },
-                    launchSettings = {
-                        startActivity(Intent(this, DemoSettingsActivity::class.java))
-                    }
-                )
+                    )
+                }
             }
+        }
+    }
+
+    companion object {
+        const val DEMO_NAME = "demoname"
+
+        internal fun requireDemo(demoName: String, demo: Demo?) = requireNotNull(demo) {
+            "No demo called \"$demoName\" could be found. Note substring matches are allowed."
         }
     }
 }
@@ -125,6 +147,7 @@ class DemoActivity : FragmentActivity() {
 @Composable
 private fun DemoTheme(
     isDynamicThemeOn: Boolean,
+    view: View,
     window: Window,
     content: @Composable () -> Unit
 ) {
@@ -140,8 +163,10 @@ private fun DemoTheme(
         }
 
     SideEffect {
-        window.statusBarColor =
-            (if (isDarkMode) Color.Black else colorScheme.inversePrimary).toArgb()
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkMode
+        WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDarkMode
+        window.statusBarColor = Color.Transparent.toArgb()
+        window.navigationBarColor = Color.Transparent.toArgb()
     }
     MaterialTheme(colorScheme = colorScheme, content = content)
 }
@@ -204,7 +229,7 @@ private class Navigator private constructor(
 
     companion object {
         fun Saver(
-            rootDemo: DemoCategory,
+            rootDemo: Demo,
             backDispatcher: OnBackPressedDispatcher,
             launchActivityDemo: (ActivityDemo<*>) -> Unit
         ): Saver<Navigator, *> = listSaver<Navigator, String>(
@@ -214,20 +239,26 @@ private class Navigator private constructor(
             restore = { restored ->
                 require(restored.isNotEmpty())
                 val backStack = restored.mapTo(mutableListOf()) {
-                    requireNotNull(findDemo(rootDemo, it))
+                    requireNotNull(findDemo(rootDemo, it, exact = true))
                 }
                 val initial = backStack.removeAt(backStack.lastIndex)
                 Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
             }
         )
 
-        private fun findDemo(demo: Demo, title: String): Demo? {
-            if (demo.title == title) {
-                return demo
+        fun findDemo(demo: Demo, title: String, exact: Boolean = false): Demo? {
+            if (exact) {
+                if (demo.title == title) {
+                    return demo
+                }
+            } else {
+                if (demo.title.contains(title)) {
+                    return demo
+                }
             }
             if (demo is DemoCategory) {
                 demo.demos.forEach { child ->
-                    findDemo(child, title)
+                    findDemo(child, title, exact)
                         ?.let { return it }
                 }
             }

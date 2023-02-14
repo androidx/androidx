@@ -2,24 +2,31 @@
 package androidx.lifecycle {
 
   public class LifecycleRegistry extends androidx.lifecycle.Lifecycle {
-    ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner);
-    method public void addObserver(androidx.lifecycle.LifecycleObserver);
-    method @VisibleForTesting public static androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner);
+    ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner provider);
+    method public void addObserver(androidx.lifecycle.LifecycleObserver observer);
+    method @VisibleForTesting public static final androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner owner);
     method public androidx.lifecycle.Lifecycle.State getCurrentState();
     method public int getObserverCount();
-    method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event);
-    method @Deprecated @MainThread public void markState(androidx.lifecycle.Lifecycle.State);
-    method public void removeObserver(androidx.lifecycle.LifecycleObserver);
-    method @MainThread public void setCurrentState(androidx.lifecycle.Lifecycle.State);
+    method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
+    method @Deprecated @MainThread public void markState(androidx.lifecycle.Lifecycle.State state);
+    method public void removeObserver(androidx.lifecycle.LifecycleObserver observer);
+    method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
+    property public androidx.lifecycle.Lifecycle.State currentState;
+    property public int observerCount;
+    field public static final androidx.lifecycle.LifecycleRegistry.Companion Companion;
+  }
+
+  public static final class LifecycleRegistry.Companion {
+    method @VisibleForTesting public androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner owner);
   }
 
   @Deprecated public interface LifecycleRegistryOwner extends androidx.lifecycle.LifecycleOwner {
     method @Deprecated public androidx.lifecycle.LifecycleRegistry getLifecycle();
   }
 
-  public class ViewTreeLifecycleOwner {
+  public final class ViewTreeLifecycleOwner {
     method public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
-    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner?);
+    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner? lifecycleOwner);
   }
 
 }

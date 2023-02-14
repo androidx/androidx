@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPA
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
@@ -120,6 +121,10 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         int targetRotation = mDisplayInfoManager.getMaxSizeDisplay().getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
+
+        if (captureType == CaptureType.VIDEO_CAPTURE) {
+            mutableConfig.insertOption(OPTION_ZSL_DISABLED, true);
+        }
 
         return OptionsBundle.from(mutableConfig);
     }

@@ -16,72 +16,72 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.L
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.ext.PagingTypeNames
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
-import androidx.room.ext.typeName
-import com.squareup.javapoet.TypeName
 
 class DataSourceFactoryQueryResultBinder(
     val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
 ) : QueryResultBinder(positionalDataSourceQueryResultBinder.listAdapter) {
 
-    val typeName: TypeName = positionalDataSourceQueryResultBinder.itemTypeName
+    val typeName: XTypeName = positionalDataSourceQueryResultBinder.itemTypeName
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            val pagedListProvider = TypeSpec.anonymousClassBuilder("")
+        scope.builder.apply {
+            val pagedListProvider = XTypeSpec.anonymousClassBuilder(language)
                 .apply {
                     superclass(
-                        ParameterizedTypeName.get(
-                            PagingTypeNames.DATA_SOURCE_FACTORY,
-                            Integer::class.typeName,
+                        PagingTypeNames.DATA_SOURCE_FACTORY.parametrizedBy(
+                            XTypeName.BOXED_INT,
                             typeName
                         )
                     )
-
-                    addMethod(
-                        createCreateMethod(
-                            roomSQLiteQueryVar = roomSQLiteQueryVar,
-                            dbField = dbField,
-                            inTransaction = inTransaction,
-                            scope = scope
-                        )
+                    addCreateMethod(
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        dbProperty = dbProperty,
+                        inTransaction = inTransaction,
+                        scope = scope
                     )
                 }
                 .build()
-            addStatement("return $L", pagedListProvider)
+            addStatement("return %L", pagedListProvider)
         }
     }
 
-    private fun createCreateMethod(
+    private fun XTypeSpec.Builder.addCreateMethod(
         roomSQLiteQueryVar: String,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
-    ): MethodSpec = MethodSpec.methodBuilder("create").apply {
-        addAnnotation(Override::class.java)
-        addModifiers(Modifier.PUBLIC)
-        returns(positionalDataSourceQueryResultBinder.typeName)
-        val countedBinderScope = scope.fork()
-        positionalDataSourceQueryResultBinder.convertAndReturn(
-            roomSQLiteQueryVar = roomSQLiteQueryVar,
-            canReleaseQuery = true,
-            dbField = dbField,
-            inTransaction = inTransaction,
-            scope = countedBinderScope
+    ) {
+        addFunction(
+            XFunSpec.builder(
+                language = language,
+                name = "create",
+                visibility = VisibilityModifier.PUBLIC,
+                isOverride = true
+            ).apply {
+                returns(positionalDataSourceQueryResultBinder.typeName)
+                val countedBinderScope = scope.fork()
+                positionalDataSourceQueryResultBinder.convertAndReturn(
+                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                    canReleaseQuery = true,
+                    dbProperty = dbProperty,
+                    inTransaction = inTransaction,
+                    scope = countedBinderScope
+                )
+                addCode(countedBinderScope.generate())
+            }.build()
         )
-        addCode(countedBinderScope.builder().build())
-    }.build()
+    }
 }

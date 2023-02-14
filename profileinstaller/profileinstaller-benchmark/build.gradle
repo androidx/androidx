@@ -40,7 +40,6 @@ dependencies {
 androidx {
     name = "Profileinstaller Benchmarks"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.PROFILEINSTALLER
     inceptionYear = "2021"
     description = "Profileinstaller Benchmarks"
 }

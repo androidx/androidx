@@ -33,7 +33,7 @@
             app:displayName="One complication"
             app:id="one">
             <ComplicationSlotOverlay
-                app:complicationSlotId="1"
+                app:complicationSlotId="@integer/complication_slot_id1"
                 app:enabled="false" />
             <ComplicationSlotOverlay
                 app:complicationSlotId="2"
@@ -118,6 +118,14 @@
                     app:right="0.3"
                     app:top="0.4" />
             </ComplicationSlotOverlay>
+        </ComplicationSlotsOption>
+        <ComplicationSlotsOption
+            app:displayName="Rename complications"
+            app:id="four">
+            <ComplicationSlotOverlay
+                app:complicationSlotId="2"
+                app:name="@string/complication_name"
+                app:screenReaderName="@string/complication_screen_reader_name" />
         </ComplicationSlotsOption>
     </ComplicationSlotsUserStyleSetting>
 

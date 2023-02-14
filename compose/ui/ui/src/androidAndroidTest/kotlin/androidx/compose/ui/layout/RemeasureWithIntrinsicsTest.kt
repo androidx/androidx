@@ -406,154 +406,181 @@ class RemeasureWithIntrinsicsTest {
                 shapeColor = Color.Red
             )
     }
-}
 
-@Composable
-private fun LayoutWithIntrinsics(
-    width: Dp,
-    height: Dp,
-    modifier: Modifier = Modifier,
-    onMeasure: () -> Unit = {},
-    content: @Composable () -> Unit = {}
-) {
-    Layout(
-        content = content,
-        modifier = modifier,
-        measurePolicy = object : MeasurePolicy {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureResult {
-                onMeasure()
-                return layout(constraints.minWidth, constraints.minHeight) {}
+    @Test
+    fun introducingChildIntrinsicsViaModifierWhenParentUsedIntrinsicSizes() {
+        var childModifier by mutableStateOf(Modifier as Modifier)
+
+        rule.setContent {
+            LayoutUsingIntrinsics() {
+                Box(
+                    Modifier
+                        .testTag("child")
+                        .then(childModifier)
+                )
             }
-
-            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                measurables: List<IntrinsicMeasurable>,
-                height: Int
-            ): Int = width.roundToPx()
-
-            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                measurables: List<IntrinsicMeasurable>,
-                width: Int
-            ): Int = height.roundToPx()
         }
-    )
-}
 
-@Composable
-private fun LayoutMaybeUsingIntrinsics(
-    useIntrinsics: () -> Boolean,
-    modifier: Modifier = Modifier,
-    onMeasure: () -> Unit = {},
-    content: @Composable () -> Unit
-) {
-    val measurePolicy = remember {
-        object : MeasurePolicy {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureResult {
-                require(measurables.size == 1)
-                onMeasure()
-                val childConstraints = if (useIntrinsics()) {
-                    val width = measurables.first().maxIntrinsicWidth(constraints.maxHeight)
-                    val height = measurables.first().maxIntrinsicHeight(constraints.maxWidth)
-                    Constraints.fixed(width, height)
-                } else {
-                    constraints
-                }
-                val placeable = measurables.first().measure(childConstraints)
-                return layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
-            }
+        rule.onNodeWithTag("child")
+            .assertWidthIsEqualTo(0.dp)
+            .assertHeightIsEqualTo(0.dp)
 
-            override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                measurables: List<IntrinsicMeasurable>,
-                height: Int
-            ) = measurables.first().minIntrinsicWidth(height)
-
-            override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                measurables: List<IntrinsicMeasurable>,
-                width: Int
-            ) = measurables.first().minIntrinsicHeight(width)
-
-            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                measurables: List<IntrinsicMeasurable>,
-                height: Int
-            ) = measurables.first().maxIntrinsicWidth(height)
-
-            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                measurables: List<IntrinsicMeasurable>,
-                width: Int
-            ) = measurables.first().maxIntrinsicHeight(width)
+        rule.runOnIdle {
+            childModifier = Modifier.withIntrinsics(30.dp, 20.dp)
         }
-    }
-    Layout(content, modifier, measurePolicy)
-}
 
-@Composable
-private fun LayoutUsingIntrinsics(
-    modifier: Modifier = Modifier,
-    onMeasure: () -> Unit = {},
-    content: @Composable () -> Unit
-) = LayoutMaybeUsingIntrinsics({ true }, modifier, onMeasure, content)
-
-private val ModifierUsingIntrinsics = object : LayoutModifier {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
-        val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
-        val placeable = measurable.measure(Constraints.fixed(width, height))
-        return layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
-        }
+        rule.onNodeWithTag("child")
+            .assertWidthIsEqualTo(30.dp)
+            .assertHeightIsEqualTo(20.dp)
     }
 
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ) = measurable.minIntrinsicWidth(height)
+    @Composable
+    private fun LayoutWithIntrinsics(
+        width: Dp,
+        height: Dp,
+        modifier: Modifier = Modifier,
+        onMeasure: () -> Unit = {},
+        content: @Composable () -> Unit = {}
+    ) {
+        Layout(
+            content = content,
+            modifier = modifier,
+            measurePolicy = object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    onMeasure()
+                    return layout(constraints.minWidth, constraints.minHeight) {}
+                }
 
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ) = measurable.minIntrinsicHeight(width)
+                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ): Int = width.roundToPx()
 
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ) = measurable.maxIntrinsicWidth(height)
+                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ): Int = height.roundToPx()
+            }
+        )
+    }
 
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ) = measurable.maxIntrinsicHeight(width)
-}
+    @Composable
+    private fun LayoutMaybeUsingIntrinsics(
+        useIntrinsics: () -> Boolean,
+        modifier: Modifier = Modifier,
+        onMeasure: () -> Unit = {},
+        content: @Composable () -> Unit
+    ) {
+        val measurePolicy = remember {
+            object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    require(measurables.size == 1)
+                    onMeasure()
+                    val childConstraints = if (useIntrinsics()) {
+                        val width = measurables.first().maxIntrinsicWidth(constraints.maxHeight)
+                        val height = measurables.first().maxIntrinsicHeight(constraints.maxWidth)
+                        Constraints.fixed(width, height)
+                    } else {
+                        constraints
+                    }
+                    val placeable = measurables.first().measure(childConstraints)
+                    return layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }
 
-private fun Modifier.withIntrinsics(width: Dp, height: Dp): Modifier {
-    return this.then(object : LayoutModifier {
+                override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ) = measurables.first().minIntrinsicWidth(height)
+
+                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ) = measurables.first().minIntrinsicHeight(width)
+
+                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ) = measurables.first().maxIntrinsicWidth(height)
+
+                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ) = measurables.first().maxIntrinsicHeight(width)
+            }
+        }
+        Layout(content, modifier, measurePolicy)
+    }
+
+    @Composable
+    private fun LayoutUsingIntrinsics(
+        modifier: Modifier = Modifier,
+        onMeasure: () -> Unit = {},
+        content: @Composable () -> Unit
+    ) = LayoutMaybeUsingIntrinsics({ true }, modifier, onMeasure, content)
+
+    private val ModifierUsingIntrinsics = object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints
         ): MeasureResult {
-            val placeable = measurable.measure(constraints)
+            val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
+            val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
+            val placeable = measurable.measure(Constraints.fixed(width, height))
             return layout(placeable.width, placeable.height) {
                 placeable.place(0, 0)
             }
         }
 
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int
+        ) = measurable.minIntrinsicWidth(height)
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int
+        ) = measurable.minIntrinsicHeight(width)
+
         override fun IntrinsicMeasureScope.maxIntrinsicWidth(
             measurable: IntrinsicMeasurable,
             height: Int
-        ): Int = width.roundToPx()
+        ) = measurable.maxIntrinsicWidth(height)
 
         override fun IntrinsicMeasureScope.maxIntrinsicHeight(
             measurable: IntrinsicMeasurable,
             width: Int
-        ): Int = height.roundToPx()
-    })
+        ) = measurable.maxIntrinsicHeight(width)
+    }
+
+    private fun Modifier.withIntrinsics(width: Dp, height: Dp): Modifier {
+        return this.then(object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                val placeable = measurable.measure(constraints)
+                return layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurable: IntrinsicMeasurable,
+                height: Int
+            ): Int = width.roundToPx()
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurable: IntrinsicMeasurable,
+                width: Int
+            ): Int = height.roundToPx()
+        })
+    }
 }

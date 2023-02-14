@@ -23,11 +23,13 @@ import androidx.testutils.recreate
 import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertWithMessage
+import java.lang.ref.WeakReference
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.lang.ref.WeakReference
 
 /**
  * Class representing the different configurations for testing leaks
@@ -83,8 +85,12 @@ class ActivityLeakTest(
     }
 
     @Suppress("DEPRECATION")
-    @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(ActivityLeakActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Test
     fun testActivityDoesNotLeak() {

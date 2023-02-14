@@ -19,8 +19,8 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
-import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.foundation.text.findParagraphStart
+import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AnnotatedString
@@ -144,8 +144,15 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         }
     }
 
+    /**
+     * Returns the index of the character break preceding the end of [selection].
+     */
     fun getPrecedingCharacterIndex() = annotatedString.text.findPrecedingBreak(selection.end)
 
+    /**
+     * Returns the index of the character break following the end of [selection]. Returns
+     * [NoCharacterFound] if there are no more breaks before the end of the string.
+     */
     fun getNextCharacterIndex() = annotatedString.text.findFollowingBreak(selection.end)
 
     private fun moveCursorPrev() = apply {
@@ -244,11 +251,11 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
     }
 
     private fun isLtr(): Boolean {
-        val direction = layoutResult?.getParagraphDirection(selection.end)
+        val direction = layoutResult?.getParagraphDirection(transformedEndOffset())
         return direction != ResolvedTextDirection.Rtl
     }
 
-    private fun TextLayoutResult.getNextWordOffsetForLayout(
+    private tailrec fun TextLayoutResult.getNextWordOffsetForLayout(
         currentOffset: Int = transformedEndOffset()
     ): Int {
         if (currentOffset >= originalText.length) {
@@ -262,10 +269,10 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         }
     }
 
-    private fun TextLayoutResult.getPrevWordOffset(
+    private tailrec fun TextLayoutResult.getPrevWordOffset(
         currentOffset: Int = transformedEndOffset()
     ): Int {
-        if (currentOffset < 0) {
+        if (currentOffset <= 0) {
             return 0
         }
         val currentWord = getWordBoundary(charOffset(currentOffset))
@@ -341,6 +348,16 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
     private fun getParagraphStart() = text.findParagraphStart(selection.min)
 
     private fun getParagraphEnd() = text.findParagraphEnd(selection.max)
+
+    companion object {
+        /**
+         * Value returned by [getNextCharacterIndex] and [getPrecedingCharacterIndex] when no valid
+         * index could be found, e.g. it would be the end of the string.
+         *
+         * This is equivalent to `BreakIterator.DONE` on JVM/Android.
+         */
+        const val NoCharacterFound = -1
+    }
 }
 
 internal class TextPreparedSelection(

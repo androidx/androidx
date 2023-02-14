@@ -20,8 +20,10 @@ import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.media.AudioManager;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.media2.session.MediaSession;
@@ -31,6 +33,7 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -44,6 +47,7 @@ import java.util.concurrent.TimeUnit;
  * Tests whether the methods of {@link RemoteSessionPlayer} are triggered by the
  * controller.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class RemoteSessionPlayerTest extends MediaSessionTestBase {
@@ -54,6 +58,9 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         // Create this test specific MediaSession to use our own Handler.
         mSession = new MediaSession.Builder(mContext, new MockPlayer(1))

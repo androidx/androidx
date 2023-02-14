@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.leanback.R;
 
 /**
@@ -242,7 +243,7 @@ public class ShadowOverlayContainer extends FrameLayout {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
         if (mOverlayPaint != null && mOverlayColor != Color.TRANSPARENT) {
             canvas.drawRect(mWrappedView.getLeft(), mWrappedView.getTop(),

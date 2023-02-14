@@ -1,0 +1,92 @@
+// Signature format: 4.0
+package androidx.privacysandbox.ads.adservices.java.adid {
+
+  public abstract class AdIdManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.adid.AdIdManagerFutures? from(android.content.Context context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_AD_ID) public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.adid.AdId> getAdIdAsync();
+    field public static final androidx.privacysandbox.ads.adservices.java.adid.AdIdManagerFutures.Companion Companion;
+  }
+
+  public static final class AdIdManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.adid.AdIdManagerFutures? from(android.content.Context context);
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.java.adselection {
+
+  public abstract class AdSelectionManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures? from(android.content.Context context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> reportImpressionAsync(androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest reportImpressionRequest);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome> selectAdsAsync(androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig);
+    field public static final androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures.Companion Companion;
+  }
+
+  public static final class AdSelectionManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures? from(android.content.Context context);
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.java.appsetid {
+
+  public abstract class AppSetIdManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.appsetid.AppSetIdManagerFutures? from(android.content.Context context);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.appsetid.AppSetId> getAppSetIdAsync();
+    field public static final androidx.privacysandbox.ads.adservices.java.appsetid.AppSetIdManagerFutures.Companion Companion;
+  }
+
+  public static final class AppSetIdManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.appsetid.AppSetIdManagerFutures? from(android.content.Context context);
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.java.customaudience {
+
+  public abstract class CustomAudienceManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures? from(android.content.Context context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> joinCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest request);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> leaveCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures.Companion Companion;
+  }
+
+  public static final class CustomAudienceManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures? from(android.content.Context context);
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.java.measurement {
+
+  public abstract class MeasurementManagerFutures {
+    method public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> deleteRegistrationsAsync(androidx.privacysandbox.ads.adservices.measurement.DeletionRequest deletionRequest);
+    method public static final androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures? from(android.content.Context context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> getMeasurementApiStatusAsync();
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerSourceAsync(android.net.Uri attributionSource, android.view.InputEvent? inputEvent);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerTriggerAsync(android.net.Uri trigger);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerWebSourceAsync(androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest request);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerWebTriggerAsync(androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures.Companion Companion;
+  }
+
+  public static final class MeasurementManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures? from(android.content.Context context);
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.java.topics {
+
+  public abstract class TopicsManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures? from(android.content.Context context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_TOPICS) public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse> getTopicsAsync(androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures.Companion Companion;
+  }
+
+  public static final class TopicsManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures? from(android.content.Context context);
+  }
+
+}
+

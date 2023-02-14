@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.app.VideoSupportFragmentGlueHost;
 import androidx.leanback.media.MediaPlayerAdapter;
 import androidx.leanback.media.PlaybackGlue;
@@ -65,7 +66,7 @@ public class SampleVideoSupportFragment extends androidx.leanback.app.VideoSuppo
         } else {
             glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
                 @Override
-                public void onPreparedStateChanged(PlaybackGlue glue) {
+                public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                     if (glue.isPrepared()) {
                         glue.removePlayerCallback(this);
                         glue.play();
@@ -84,7 +85,7 @@ public class SampleVideoSupportFragment extends androidx.leanback.app.VideoSuppo
         } else {
             glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
                 @Override
-                public void onPreparedStateChanged(PlaybackGlue glue) {
+                public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                     if (glue.isPrepared()) {
                         glue.removePlayerCallback(this);
                         PlaybackTransportControlGlue transportControlGlue =
@@ -116,7 +117,7 @@ public class SampleVideoSupportFragment extends androidx.leanback.app.VideoSuppo
         mMediaPlayerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             boolean mSecondCompleted = false;
             @Override
-            public void onPlayCompleted(PlaybackGlue glue) {
+            public void onPlayCompleted(@NonNull PlaybackGlue glue) {
                 if (!mSecondCompleted) {
                     mSecondCompleted = true;
                     mMediaPlayerGlue.setSubtitle("Leanback artist Changed!");

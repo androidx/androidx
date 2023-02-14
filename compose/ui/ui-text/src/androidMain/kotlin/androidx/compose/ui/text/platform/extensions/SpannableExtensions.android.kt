@@ -28,8 +28,12 @@ import android.text.style.LocaleSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.AnnotatedString
@@ -41,8 +45,8 @@ import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.FontFeatureSpan
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
-import androidx.compose.ui.text.android.style.LineHeightBehaviorSpan
 import androidx.compose.ui.text.android.style.LineHeightSpan
+import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.android.style.ShadowSpan
 import androidx.compose.ui.text.android.style.SkewXSpan
 import androidx.compose.ui.text.android.style.TextDecorationSpan
@@ -56,8 +60,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intersect
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.platform.style.DrawStyleSpan
+import androidx.compose.ui.text.platform.style.ShaderBrushSpan
 import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.LineHeightBehavior
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
@@ -70,12 +76,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.ceil
 import kotlin.math.roundToInt
-
-private data class SpanRange(
-    val span: Any,
-    val start: Int,
-    val end: Int
-)
 
 internal fun Spannable.setSpan(span: Any, start: Int, end: Int) {
     setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -118,18 +118,21 @@ internal fun Spannable.setLineHeight(
     lineHeight: TextUnit,
     contextFontSize: Float,
     density: Density,
-    lineHeightBehavior: LineHeightBehavior
+    lineHeightStyle: LineHeightStyle
 ) {
     val resolvedLineHeight = resolveLineHeightInPx(lineHeight, contextFontSize, density)
     if (!resolvedLineHeight.isNaN()) {
+        // in order to handle empty lines (including empty text) better, change endIndex so that
+        // it won't apply trimLastLineBottom rule
+        val endIndex = if (isEmpty() || last() == '\n') length + 1 else length
         setSpan(
-            span = LineHeightBehaviorSpan(
+            span = LineHeightStyleSpan(
                 lineHeight = resolvedLineHeight,
                 startIndex = 0,
-                endIndex = length,
-                trimFirstLineTop = lineHeightBehavior.trim.isTrimFirstLineTop(),
-                trimLastLineBottom = lineHeightBehavior.trim.isTrimLastLineBottom(),
-                topPercentage = lineHeightBehavior.alignment.topPercentage
+                endIndex = endIndex,
+                trimFirstLineTop = lineHeightStyle.trim.isTrimFirstLineTop(),
+                trimLastLineBottom = lineHeightStyle.trim.isTrimLastLineBottom(),
+                topRatio = lineHeightStyle.alignment.topRatio
             ),
             start = 0,
             end = length
@@ -173,12 +176,7 @@ internal fun Spannable.setSpanStyles(
 ) {
 
     setFontAttributes(contextTextStyle, spanStyles, resolveTypeface)
-
-    // LetterSpacingSpanPx/LetterSpacingSpanSP has lower priority than normal spans. Because
-    // letterSpacing relies on the fontSize on [Paint] to compute Px/Sp from Em. So it must be
-    // applied after all spans that changes the fontSize.
-    val lowPrioritySpans = ArrayList<SpanRange>()
-
+    var hasLetterSpacing = false
     for (i in spanStyles.indices) {
         val spanStyleRange = spanStyles[i]
         val start = spanStyleRange.start
@@ -188,20 +186,39 @@ internal fun Spannable.setSpanStyles(
 
         setSpanStyle(
             spanStyleRange,
-            density,
-            lowPrioritySpans
+            density
         )
+
+        if (spanStyleRange.item.needsLetterSpacingSpan) {
+            hasLetterSpacing = true
+        }
     }
 
-    lowPrioritySpans.fastForEach { (span, start, end) ->
-        setSpan(span, start, end)
+    if (hasLetterSpacing) {
+
+        // LetterSpacingSpanPx/LetterSpacingSpanSP has lower priority than normal spans. Because
+        // letterSpacing relies on the fontSize on [Paint] to compute Px/Sp from Em. So it must be
+        // applied after all spans that changes the fontSize.
+
+        for (i in spanStyles.indices) {
+            val spanStyleRange = spanStyles[i]
+            val start = spanStyleRange.start
+            val end = spanStyleRange.end
+            val style = spanStyleRange.item
+
+            if (start < 0 || start >= length || end <= start || end > length) continue
+
+            createLetterSpacingSpan(style.letterSpacing, density)?.let {
+                setSpan(it, start, end)
+            }
+        }
     }
 }
 
+@OptIn(ExperimentalTextApi::class)
 private fun Spannable.setSpanStyle(
     spanStyleRange: AnnotatedString.Range<SpanStyle>,
-    density: Density,
-    lowPrioritySpans: ArrayList<SpanRange>
+    density: Density
 ) {
     val start = spanStyleRange.start
     val end = spanStyleRange.end
@@ -212,6 +229,8 @@ private fun Spannable.setSpanStyle(
     setBaselineShift(style.baselineShift, start, end)
 
     setColor(style.color, start, end)
+
+    setBrush(style.brush, style.alpha, start, end)
 
     setTextDecoration(style.textDecoration, start, end)
 
@@ -227,11 +246,7 @@ private fun Spannable.setSpanStyle(
 
     setShadow(style.shadow, start, end)
 
-    createLetterSpacingSpan(style.letterSpacing, density)?.let {
-        lowPrioritySpans.add(
-            SpanRange(it, start, end)
-        )
-    }
+    setDrawStyle(style.drawStyle, start, end)
 }
 
 /**
@@ -316,6 +331,7 @@ internal fun flattenFontStylesAndApply(
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     block: (SpanStyle, Int, Int) -> Unit
 ) {
+    // quick way out for single SpanStyle or empty list.
     if (spanStyles.size <= 1) {
         if (spanStyles.isNotEmpty()) {
             block(
@@ -327,6 +343,8 @@ internal fun flattenFontStylesAndApply(
         return
     }
 
+    // Sort all span start and end points.
+    // S1--S2--E1--S3--E3--E2
     val spanCount = spanStyles.size
     val transitionOffsets = Array(spanCount * 2) { 0 }
     spanStyles.fastForEachIndexed { idx, spanStyle ->
@@ -335,6 +353,11 @@ internal fun flattenFontStylesAndApply(
     }
     transitionOffsets.sort()
 
+    // S1--S2--E1--S3--E3--E2
+    // - Go through all minimum intervals
+    // - Find Spans that intersect with the given interval
+    // - Merge all spans in order, starting from contextFontSpanStyle
+    // - Apply the merged SpanStyle to the minimal interval
     var lastTransitionOffsets = transitionOffsets.first()
     for (transitionOffset in transitionOffsets) {
         // There might be duplicated transition offsets, we skip them here.
@@ -345,7 +368,9 @@ internal fun flattenFontStylesAndApply(
         // Check all spans that intersects with this transition range.
         var mergedSpanStyle = contextFontSpanStyle
         spanStyles.fastForEach { spanStyle ->
+            // Empty spans do not intersect with anything, skip them.
             if (
+                spanStyle.start != spanStyle.end &&
                 intersect(lastTransitionOffsets, transitionOffset, spanStyle.start, spanStyle.end)
             ) {
                 mergedSpanStyle = mergedSpanStyle.merge(spanStyle.item)
@@ -379,14 +404,29 @@ private fun createLetterSpacingSpan(
     }
 }
 
+private val SpanStyle.needsLetterSpacingSpan: Boolean
+    get() = letterSpacing.type == TextUnitType.Sp || letterSpacing.type == TextUnitType.Em
+
 @OptIn(InternalPlatformTextApi::class)
 private fun Spannable.setShadow(shadow: Shadow?, start: Int, end: Int) {
     shadow?.let {
         setSpan(
-            ShadowSpan(it.color.toArgb(), it.offset.x, it.offset.y, it.blurRadius),
+            ShadowSpan(
+                it.color.toArgb(),
+                it.offset.x,
+                it.offset.y,
+                correctBlurRadius(it.blurRadius)
+            ),
             start,
             end
         )
+    }
+}
+
+@OptIn(InternalPlatformTextApi::class)
+private fun Spannable.setDrawStyle(drawStyle: DrawStyle?, start: Int, end: Int) {
+    drawStyle?.let {
+        setSpan(DrawStyleSpan(it), start, end)
     }
 }
 
@@ -473,6 +513,24 @@ internal fun Spannable.setColor(color: Color, start: Int, end: Int) {
 private fun Spannable.setBaselineShift(baselineShift: BaselineShift?, start: Int, end: Int) {
     baselineShift?.let {
         setSpan(BaselineShiftSpan(it.multiplier), start, end)
+    }
+}
+
+private fun Spannable.setBrush(
+    brush: Brush?,
+    alpha: Float,
+    start: Int,
+    end: Int
+) {
+    brush?.let {
+        when (brush) {
+            is SolidColor -> {
+                setColor(brush.value, start, end)
+            }
+            is ShaderBrush -> {
+                setSpan(ShaderBrushSpan(brush, alpha), start, end)
+            }
+        }
     }
 }
 

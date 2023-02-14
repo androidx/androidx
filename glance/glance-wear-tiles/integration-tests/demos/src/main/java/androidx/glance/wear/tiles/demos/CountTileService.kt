@@ -37,11 +37,14 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.padding
 import androidx.glance.layout.height
 import androidx.glance.layout.width
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.state.updateWearTileState
 
 private val prefsCountKey = intPreferencesKey("count")
@@ -54,12 +57,15 @@ class CountTileService : GlanceTileService() {
         val currentCount = currentState<Preferences>()[prefsCountKey] ?: 0
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier =
+            GlanceModifier.semantics({ contentDescription = "demo of actionRunCallback" })
         ) {
 
             Text(
                 text = currentCount.toString(),
                 style = TextStyle(
+                    color = ColorProvider(Color.Gray),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )

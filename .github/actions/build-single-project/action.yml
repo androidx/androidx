@@ -28,22 +28,21 @@ runs:
         set -x
         TOOLS_JAR=$JAVA_HOME/lib/tools.jar
         echo "::set-output name=toolsJar::$TOOLS_JAR"
-    - name: "Setup JDK 11"
+    - name: "Setup JDK 17"
       id: setup-java
       uses: actions/setup-java@v1
       with:
-        java-version: "11"
+        java-version: "17"
+    # TODO b/216535050: Implement task to install the exact AndroidX ndk
+    # version in case it is not available.
     - name: "Install Cmake"
       shell: bash
-      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1" --channel=3
+      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1"
     - name: "Set environment variables"
       shell: bash
       run: |
         set -x
         echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-        # TODO b/216535050: Implement task to install the exact AndroidX ndk
-        # version in case it is not available.
-        echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620" >> $GITHUB_ENV
 
     - name: "Setup Gradle"
       uses: gradle/gradle-build-action@v2
@@ -69,4 +68,4 @@ runs:
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
-      run: ./gradlew buildOnServer zipTestConfigsWithApks test ${{ inputs.gradlew_flags }}
+      run: ./gradlew buildOnServer zipTestConfigsWithApks test ${{ inputs.gradle-flags }}

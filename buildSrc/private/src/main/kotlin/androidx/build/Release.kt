@@ -17,13 +17,16 @@ package androidx.build
 
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.util.Locale
 
@@ -44,11 +47,28 @@ data class Artifact(
 /**
  * Zip task that zips all artifacts from given candidates.
  */
+@DisableCachingByDefault(because = "Zip tasks are not worth caching according to Gradle")
+// See https://github.com/gradle/gradle/commit/7e5c5bc9b2c23d872e1c45c855f07ca223f6c270#diff-ce55b0f0cdcf2174eb47d333d348ff6fbd9dbe5cd8c3beeeaf633ea23b74ed9eR38
 open class GMavenZipTask : Zip() {
 
     init {
         // multiple artifacts in the same group might have the same maven-metadata.xml
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        if (!project.shouldAddGroupConstraints()) {
+            doFirst {
+                throw GradleException(
+                    """
+                    Cannot publish artifacts without setting -P$ADD_GROUP_CONSTRAINTS=true
+
+                    This property is required when building artifacts to publish
+
+                    (but this property can reduce remote cache usage so it is disabled by default)
+
+                    See AndroidXGradleProperties.kt for more information about this property
+                    """.trimIndent()
+                )
+            }
+        }
     }
 
     /**
@@ -138,6 +158,7 @@ object Release {
     const val PROJECT_ARCHIVE_ZIP_TASK_NAME = "createProjectZip"
     const val DIFF_TASK_PREFIX = "createDiffArchive"
     const val FULL_ARCHIVE_TASK_NAME = "createArchive"
+    const val ALL_ARCHIVES_TASK_NAME = "createAllArchives"
     const val DEFAULT_PUBLISH_CONFIG = "release"
     const val GROUP_ZIPS_FOLDER = "per-group-zips"
     const val PROJECT_ZIPS_FOLDER = "per-project-zips"
@@ -151,21 +172,21 @@ object Release {
      * Registers the project to be included in its group's zip file as well as the global zip files.
      */
     fun register(project: Project, extension: AndroidXExtension) {
-        if (extension.publish == Publish.NONE) {
+        if (!extension.shouldPublish()) {
             project.logger.info(
                 "project ${project.name} isn't part of release," +
                     " because its \"publish\" property is explicitly set to Publish.NONE"
             )
             return
         }
-        if (extension.publish == Publish.UNSET) {
+        if (!extension.isPublishConfigured()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because" +
-                    " it does not set the \"publish\" property or the \"type\" property"
+                    " it does not set the \"publish\" property."
             )
             return
         }
-        if (extension.publish == Publish.SNAPSHOT_ONLY && !isSnapshotBuild()) {
+        if (!extension.shouldRelease() && !isSnapshotBuild()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because its" +
                     " \"publish\" property is SNAPSHOT_ONLY, but it is not a snapshot build"
@@ -247,9 +268,27 @@ object Release {
     }
 
     /**
+     * Registers an archive task as a dependency of the anchor task
+     */
+    private fun Project.addToAnchorTask(task: TaskProvider<GMavenZipTask>) {
+        val archiveAnchorTask = project.rootProject.maybeRegister(
+            name = ALL_ARCHIVES_TASK_NAME,
+            onConfigure = { archiveTask: Task ->
+                archiveTask.group = "Distribution"
+                archiveTask.description = "Builds all archives for publishing"
+            },
+            onRegister = {
+            }
+        )
+        archiveAnchorTask.configure {
+            it.dependsOn(task)
+        }
+    }
+
+    /**
      * Creates and returns the task that includes all projects regardless of their release status.
      */
-    fun getGlobalFullZipTask(project: Project): TaskProvider<GMavenZipTask> {
+    private fun getGlobalFullZipTask(project: Project): TaskProvider<GMavenZipTask> {
         return project.rootProject.maybeRegister(
             name = FULL_ARCHIVE_TASK_NAME,
             onConfigure = {
@@ -263,7 +302,8 @@ object Release {
                     )
                 ).execute(it)
             },
-            onRegister = {
+            onRegister = { taskProvider: TaskProvider<GMavenZipTask> ->
+                project.addToAnchorTask(taskProvider)
             }
         )
     }
@@ -275,9 +315,9 @@ object Release {
         project: Project,
         group: String
     ): TaskProvider<GMavenZipTask> {
-        val taskProvider: TaskProvider<GMavenZipTask> = project.rootProject.maybeRegister(
+        return project.rootProject.maybeRegister(
             name = "${DIFF_TASK_PREFIX}For${groupToTaskNameSuffix(group)}",
-            onConfigure = {
+            onConfigure = { task: GMavenZipTask ->
                 GMavenZipTask.ConfigAction(
                     getParams(
                         project = project,
@@ -285,13 +325,12 @@ object Release {
                         fileNamePrefix = GROUP_ZIP_PREFIX,
                         group = group
                     )
-                ).execute(it)
+                ).execute(task)
             },
-            onRegister = {
+            onRegister = { taskProvider ->
+                project.addToAnchorTask(taskProvider)
             }
         )
-        project.addToBuildOnServer(taskProvider)
-        return taskProvider
     }
 
     private fun getProjectZipTask(
@@ -300,7 +339,7 @@ object Release {
         val taskProvider = project.tasks.register(
             PROJECT_ARCHIVE_ZIP_TASK_NAME,
             GMavenZipTask::class.java
-        ) {
+        ) { task: GMavenZipTask ->
             GMavenZipTask.ConfigAction(
                 getParams(
                     project = project,
@@ -309,9 +348,9 @@ object Release {
                 ).copy(
                     includeMetadata = true
                 )
-            ).execute(it)
+            ).execute(task)
         }
-        project.addToBuildOnServer(taskProvider)
+        project.addToAnchorTask(taskProvider)
         return taskProvider
     }
 }
@@ -352,6 +391,14 @@ val AndroidXExtension.publishedArtifacts: List<Artifact>
         }
 
         return artifacts
+    }
+
+private val AndroidXExtension.publishPlatforms: List<String>
+    get() {
+        val declaredTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
+            it.lowercase()
+        } ?: emptySet()
+        return declaredTargets.toList()
     }
 
 /**

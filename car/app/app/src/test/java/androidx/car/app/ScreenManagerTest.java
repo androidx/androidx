@@ -24,6 +24,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,11 +42,13 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -53,6 +56,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public final class ScreenManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     private TestScreen mScreen1;
     private TestScreen mScreen2;
@@ -76,8 +81,6 @@ public final class ScreenManagerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         mTestCarContext =
                 TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
         mTestCarContext.overrideCarService(AppManager.class, mMockAppManager);
@@ -1384,6 +1387,27 @@ public final class ScreenManagerTest {
         // The next getTopTemplate should not reuse the id anymore.
         wrapper1 = mScreenManager.getTopTemplate();
         assertThat(wrapper1.getId()).isNotEqualTo(id1);
+    }
+
+    @Test
+    public void pop_screenReuseLastTemplateIdWithLastTemplateWrapperNull() {
+        Template template =
+                new PlaceListMapTemplate.Builder()
+                        .setTitle("Title")
+                        .setItemList(new ItemList.Builder().build())
+                        .build();
+        mScreenManager.push(mScreen1);
+        mScreenManager.push(mScreen2);
+
+        // set `mUseLastTemplateId` in Screen as true
+        mScreenManager.pop();
+        when(mMockScreen1.onGetTemplate()).thenReturn(template);
+
+        TemplateWrapper wrapper = mScreenManager.getTopTemplate();
+        // Since templateWrapper in mockScreen1 is null, verify that instead of crashing, it will
+        // call onGetTemplate to get the right template.
+        assertThat(wrapper.getTemplate()).isEqualTo(template);
+        verify(mMockScreen1, times(1)).onGetTemplate();
     }
 
     @Test

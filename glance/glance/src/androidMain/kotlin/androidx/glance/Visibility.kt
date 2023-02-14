@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 /**
  * Value of the visibility field for a node in the composition tree.
  */
-public enum class Visibility {
+enum class Visibility {
     /** The node is visible (the default). */
     Visible,
     /** The node is invisible, but still uses the space in the layout. */
@@ -32,12 +32,12 @@ public enum class Visibility {
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class VisibilityModifier(val visibility: Visibility) : GlanceModifier.Element
+data class VisibilityModifier(val visibility: Visibility) : GlanceModifier.Element
 
 /**
  * Change the visibility of the current node.
  *
  * @param visibility New visibility of the node.
  */
-public fun GlanceModifier.visibility(visibility: Visibility) =
+fun GlanceModifier.visibility(visibility: Visibility) =
     this.then(VisibilityModifier(visibility))

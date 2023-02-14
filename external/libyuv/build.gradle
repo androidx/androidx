@@ -62,7 +62,6 @@ androidx {
     name = "libyuv"
     // Only intended to be used as snapshots, do not change to PUBLISHED.
     publish = Publish.SNAPSHOT_ONLY
-    mavenGroup = LibraryGroups.LIBYUV
     inceptionYear = "2021"
     description = "libyuv is an open source project that includes YUV scaling and conversion functionality."
 }

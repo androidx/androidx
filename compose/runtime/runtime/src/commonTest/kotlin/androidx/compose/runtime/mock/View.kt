@@ -16,10 +16,16 @@
 
 package androidx.compose.runtime.mock
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.snapshots.fastForEach
 
 fun indent(indent: Int, builder: StringBuilder) {
     repeat(indent) { builder.append(' ') }
+}
+
+@Stable
+interface Modifier {
+    companion object : Modifier { }
 }
 
 open class View {
@@ -44,8 +50,12 @@ open class View {
     }
 
     fun addAt(index: Int, view: View) {
-        if (view.parent != null) {
-            error("View named $name already has a parent")
+        val parent = view.parent
+        if (parent != null) {
+            error(
+                "Inserting a view named ${view.name} into a view named $name which already has " +
+                    "a parent named ${parent.name}"
+            )
         }
         view.parent = this
         children.add(index, view)
@@ -75,6 +85,11 @@ open class View {
             itemsToMove.clear()
             children.addAll(insertLocation, copyOfItems)
         }
+    }
+
+    fun removeAllChildren() {
+        children.fastForEach { child -> child.parent = null }
+        children.clear()
     }
 
     fun attribute(name: String, value: Any) { attributes[name] = value }
@@ -114,7 +129,7 @@ open class View {
         it.toString()
     }
 
-    fun findFirstOrNull(predicate: (view: View) -> Boolean): View? {
+    private fun findFirstOrNull(predicate: (view: View) -> Boolean): View? {
         if (predicate(this)) return this
         for (child in children) {
             child.findFirstOrNull(predicate)?.let { return it }

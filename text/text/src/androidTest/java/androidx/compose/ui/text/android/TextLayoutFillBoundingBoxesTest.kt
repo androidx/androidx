@@ -21,11 +21,11 @@ import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
-import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

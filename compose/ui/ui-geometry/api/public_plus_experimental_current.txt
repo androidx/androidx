@@ -12,8 +12,8 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public operator long plus(long other);
     method @androidx.compose.runtime.Stable public operator long times(float operand);
     method @androidx.compose.runtime.Stable public operator long unaryMinus();
-    property public final float x;
-    property public final float y;
+    property @androidx.compose.runtime.Stable public final float x;
+    property @androidx.compose.runtime.Stable public final float y;
     field public static final androidx.compose.ui.geometry.CornerRadius.Companion Companion;
   }
 
@@ -27,12 +27,9 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
   }
 
-  public final class GeometryUtilsKt {
-  }
-
   public final class MutableRect {
     ctor public MutableRect(float left, float top, float right, float bottom);
-    method public boolean contains(long offset);
+    method public operator boolean contains(long offset);
     method public float getBottom();
     method public inline float getHeight();
     method public float getLeft();
@@ -76,8 +73,8 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public operator long rem(float operand);
     method @androidx.compose.runtime.Stable public operator long times(float operand);
     method @androidx.compose.runtime.Stable public operator long unaryMinus();
-    property public final float x;
-    property public final float y;
+    property @androidx.compose.runtime.Stable public final float x;
+    property @androidx.compose.runtime.Stable public final float y;
     field public static final androidx.compose.ui.geometry.Offset.Companion Companion;
   }
 
@@ -105,7 +102,7 @@ package androidx.compose.ui.geometry {
     method public float component2();
     method public float component3();
     method public float component4();
-    method public boolean contains(long offset);
+    method public operator boolean contains(long offset);
     method public androidx.compose.ui.geometry.Rect copy(float left, float top, float right, float bottom);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect deflate(float delta);
     method public float getBottom();
@@ -141,20 +138,20 @@ package androidx.compose.ui.geometry {
     property public final long center;
     property public final long centerLeft;
     property public final long centerRight;
-    property public final float height;
-    property public final boolean isEmpty;
-    property public final boolean isFinite;
-    property public final boolean isInfinite;
+    property @androidx.compose.runtime.Stable public final float height;
+    property @androidx.compose.runtime.Stable public final boolean isEmpty;
+    property @androidx.compose.runtime.Stable public final boolean isFinite;
+    property @androidx.compose.runtime.Stable public final boolean isInfinite;
     property public final float left;
     property public final float maxDimension;
     property public final float minDimension;
     property public final float right;
-    property public final long size;
+    property @androidx.compose.runtime.Stable public final long size;
     property public final float top;
     property public final long topCenter;
     property public final long topLeft;
     property public final long topRight;
-    property public final float width;
+    property @androidx.compose.runtime.Stable public final float width;
     field public static final androidx.compose.ui.geometry.Rect.Companion Companion;
   }
 
@@ -180,7 +177,7 @@ package androidx.compose.ui.geometry {
     method public long component6-kKHJgLs();
     method public long component7-kKHJgLs();
     method public long component8-kKHJgLs();
-    method public boolean contains(long point);
+    method public operator boolean contains(long point);
     method public androidx.compose.ui.geometry.RoundRect copy-MDFrsts(float left, float top, float right, float bottom, long topLeftCornerRadius, long topRightCornerRadius, long bottomRightCornerRadius, long bottomLeftCornerRadius);
     method public float getBottom();
     method public long getBottomLeftCornerRadius();
@@ -244,10 +241,10 @@ package androidx.compose.ui.geometry {
     method public float getWidth();
     method @androidx.compose.runtime.Stable public boolean isEmpty();
     method @androidx.compose.runtime.Stable public operator long times(float operand);
-    property public final float height;
-    property public final float maxDimension;
-    property public final float minDimension;
-    property public final float width;
+    property @androidx.compose.runtime.Stable public final float height;
+    property @androidx.compose.runtime.Stable public final float maxDimension;
+    property @androidx.compose.runtime.Stable public final float minDimension;
+    property @androidx.compose.runtime.Stable public final float width;
     field public static final androidx.compose.ui.geometry.Size.Companion Companion;
   }
 

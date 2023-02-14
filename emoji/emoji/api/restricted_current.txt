@@ -85,7 +85,7 @@ package androidx.emoji.text {
     method public short getHeight();
     method public int getId();
     method public short getSdkAdded();
-    method public android.graphics.Typeface! getTypeface();
+    method public android.graphics.Typeface getTypeface();
     method public short getWidth();
     method public boolean isDefaultEmoji();
     method public void setHasGlyph(boolean);

@@ -18,13 +18,18 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.platform.drawMultiParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
@@ -39,9 +44,9 @@ import kotlin.math.max
  *
  * @param intrinsics previously calculated text intrinsics
  * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth]
- * will define the width of the Paragraph. Other components of the [Constraints] object are no-op
- * but will allow additional functionality in the future, e.g. ellipsis based on the limited
- * [Constraints.maxHeight]
+ * will define the width of the MultiParagraph. [Constraints.maxHeight] helps defining the
+ * number of lines that fit with ellipsis is true. Minimum components of the [Constraints]
+ * object are no-op.
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  */
@@ -187,9 +192,9 @@ class MultiParagraph(
      * @param annotatedString the text to be laid out
      * @param style the [TextStyle] to be applied to the whole text
      * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth]
-     * will define the width of the Paragraph. Other components of the [Constraints] object are no-op
-     * but will allow additional functionality in the future, e.g. ellipsis based on the limited
-     * [Constraints.maxHeight]
+     * will define the width of the MultiParagraph. [Constraints.maxHeight] helps defining the
+     * number of lines that fit with ellipsis is true. Minimum components of the [Constraints]
+     * object are no-op.
      * @param density density of the device
      * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s
      * @param placeholders a list of [Placeholder]s that specify ranges of text which will be
@@ -243,8 +248,6 @@ class MultiParagraph(
      * because we reached `maxLines` lines of text or because the `maxLines` was
      * null, `ellipsis` was not null, and one of the lines exceeded the width
      * constraint.
-     *
-     * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
      */
     val didExceedMaxLines: Boolean
 
@@ -304,6 +307,11 @@ class MultiParagraph(
     internal val paragraphInfoList: List<ParagraphInfo>
 
     init {
+        require(constraints.minWidth == 0 && constraints.minHeight == 0) {
+            "Setting Constraints.minWidth and Constraints.minHeight is not supported, " +
+                "these should be the default zero values instead."
+        }
+
         var currentHeight = 0f
         var currentLineCount = 0
         var didExceedMaxLines = false
@@ -318,7 +326,7 @@ class MultiParagraph(
                 Constraints(
                     maxWidth = constraints.maxWidth,
                     maxHeight = if (constraints.hasBoundedHeight) {
-                        constraints.maxHeight - currentHeight.ceilToInt()
+                        (constraints.maxHeight - currentHeight.ceilToInt()).coerceAtLeast(0)
                     } else {
                         constraints.maxHeight
                     }
@@ -389,6 +397,38 @@ class MultiParagraph(
             canvas.translate(0f, it.paragraph.height)
         }
         canvas.restore()
+    }
+
+    /** Paint the paragraphs to canvas. */
+    @ExperimentalTextApi
+    fun paint(
+        canvas: Canvas,
+        color: Color = Color.Unspecified,
+        shadow: Shadow? = null,
+        decoration: TextDecoration? = null,
+        drawStyle: DrawStyle? = null,
+        blendMode: BlendMode = DrawScope.DefaultBlendMode
+    ) {
+        canvas.save()
+        paragraphInfoList.fastForEach {
+            it.paragraph.paint(canvas, color, shadow, decoration, drawStyle, blendMode)
+            canvas.translate(0f, it.paragraph.height)
+        }
+        canvas.restore()
+    }
+
+    /** Paint the paragraphs to canvas. */
+    @ExperimentalTextApi
+    fun paint(
+        canvas: Canvas,
+        brush: Brush,
+        alpha: Float = Float.NaN,
+        shadow: Shadow? = null,
+        decoration: TextDecoration? = null,
+        drawStyle: DrawStyle? = null,
+        blendMode: BlendMode = DrawScope.DefaultBlendMode
+    ) {
+        drawMultiParagraph(canvas, brush, alpha, shadow, decoration, drawStyle, blendMode)
     }
 
     /** Returns path that enclose the given text range. */
@@ -602,10 +642,10 @@ class MultiParagraph(
      * beyond the end of the text, you get the last line.
      */
     fun getLineForOffset(offset: Int): Int {
-        requireIndexInRangeInclusiveEnd(offset)
-
-        val paragraphIndex = if (offset == annotatedString.length) {
+        val paragraphIndex = if (offset >= annotatedString.length) {
             paragraphInfoList.lastIndex
+        } else if (offset < 0) {
+            0
         } else {
             findParagraphByIndex(paragraphInfoList, offset)
         }
@@ -714,10 +754,10 @@ class MultiParagraph(
     }
 
     /**
-     * Returns true if ellipsis happens on the given line, otherwise returns false
+     * Returns true if the given line is ellipsized, otherwise returns false.
      *
      * @param lineIndex a 0 based line index
-     * @return true if ellipsis happens on the given line, otherwise false
+     * @return true if the given line is ellipsized, otherwise false
      */
     fun isLineEllipsized(lineIndex: Int): Boolean {
         requireLineIndexInRange(lineIndex)
@@ -741,7 +781,7 @@ class MultiParagraph(
 
     private fun requireLineIndexInRange(lineIndex: Int) {
         require(lineIndex in 0 until lineCount) {
-            "lineIndex($lineIndex) is out of bounds [0, $lineIndex)"
+            "lineIndex($lineIndex) is out of bounds [0, $lineCount)"
         }
     }
 }

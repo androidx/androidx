@@ -45,9 +45,6 @@ android {
     buildFeatures {
         viewBinding true
     }
-    kotlinOptions {
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
     namespace "androidx.camera.integration.antelope"
 }
 

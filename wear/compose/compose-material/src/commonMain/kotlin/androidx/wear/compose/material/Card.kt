@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -132,8 +134,9 @@ public fun Card(
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }
 
@@ -225,29 +228,33 @@ public fun AppCard(
                     }
                     CompositionLocalProvider(
                         LocalContentColor provides appColor,
-                        content = appName
-                    )
+                    ) {
+                        appName()
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1.0f))
                 CompositionLocalProvider(
                     LocalContentColor provides timeColor,
                     LocalTextStyle provides MaterialTheme.typography.caption1,
-                    content = time
-                )
+                ) {
+                    time()
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row {
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
                     LocalTextStyle provides MaterialTheme.typography.title3,
-                    content = title
-                )
+                ) {
+                    title()
+                }
             }
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
     }
 }
@@ -328,23 +335,26 @@ public fun TitleCard(
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
                     LocalTextStyle provides MaterialTheme.typography.title3,
-                    content = title
-                )
+                ) {
+                    title()
+                }
                 if (time != null) {
                     Spacer(modifier = Modifier.weight(1.0f))
                     CompositionLocalProvider(
                         LocalContentColor provides timeColor,
                         LocalTextStyle provides MaterialTheme.typography.caption1,
-                        content = time
-                    )
+                    ) {
+                        time()
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
     }
 }
@@ -370,25 +380,20 @@ public object CardDefaults {
     @Composable
     public fun cardBackgroundPainter(
         startBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
+            MaterialTheme.colors.primary.copy(alpha = 0.30f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.10f)
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {
-        val backgroundColors: List<Color> = if (gradientDirection == LayoutDirection.Ltr) {
-            listOf(
+        return BrushPainter(FortyFiveDegreeLinearGradient(
+            colors = listOf(
                 startBackgroundColor,
                 endBackgroundColor
-            )
-        } else {
-            listOf(
-                endBackgroundColor,
-                startBackgroundColor
-            )
-        }
-        return BrushPainter(FortyFiveDegreeLinearGradient(backgroundColors))
+            ),
+            ltr = gradientDirection == LayoutDirection.Ltr)
+        )
     }
 
     /**
@@ -446,16 +451,19 @@ public object CardDefaults {
 internal class FortyFiveDegreeLinearGradient internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
-    private val tileMode: TileMode = TileMode.Clamp
+    private val tileMode: TileMode = TileMode.Clamp,
+    private val ltr: Boolean
 ) : ShaderBrush() {
 
     override fun createShader(size: Size): Shader {
         val minWidthHeight = min(size.height, size.width)
+        val from = if (ltr) Offset(0f, 0f) else Offset(minWidthHeight, 0f)
+        val to = if (ltr) Offset(minWidthHeight, minWidthHeight) else Offset(0f, minWidthHeight)
         return LinearGradientShader(
             colors = colors,
             colorStops = stops,
-            from = Offset(0f, 0f),
-            to = Offset(minWidthHeight, minWidthHeight),
+            from = from,
+            to = to,
             tileMode = tileMode
         )
     }
@@ -467,6 +475,7 @@ internal class FortyFiveDegreeLinearGradient internal constructor(
         if (colors != other.colors) return false
         if (stops != other.stops) return false
         if (tileMode != other.tileMode) return false
+        if (ltr != other.ltr) return false
 
         return true
     }

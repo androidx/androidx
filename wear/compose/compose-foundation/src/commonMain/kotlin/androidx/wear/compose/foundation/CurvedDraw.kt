@@ -56,7 +56,9 @@ public fun CurvedModifier.radialGradientBackground(
     Brush.radialGradient(
         *(colorStops.map { (step, color) ->
             1f - step * (1f - radiusRatio) to color
-        }.reversed().toTypedArray())
+        }.reversed().toTypedArray()),
+        center = layoutInfo.centerOffset,
+        radius = layoutInfo.outerRadius
     )
 }
 

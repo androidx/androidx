@@ -18,6 +18,7 @@ package androidx.wear.compose.material
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.AbsoluteCutCornerShape
 import androidx.compose.ui.Modifier
@@ -97,30 +98,30 @@ class HorizontalPageIndicatorTest {
                 pageIndicatorState = pageIndicatorState(),
                 selectedColor = selectedColor,
                 unselectedColor = unselectedColor,
-                indicatorSize = 30.dp
+                indicatorSize = 20.dp
             )
         }
         rule.waitForIdle()
 
-        // A selected dot with specified color should be visible on the screen, which is apprx 3%
-        // (3% per dot, 1 dot in total)
+        // A selected dot with specified color should be visible on the screen, which is apprx 1.3%
+        // (1.3% per dot, 1 dot in total)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(selectedColor, 3f..3f)
-        // Unselected dots should also be visible on the screen, and should take around 15%
-        // (3% per dot, 3 dots total)
+            .assertColorInPercentageRange(selectedColor, 1.2f..1.5f)
+        // Unselected dots should also be visible on the screen, and should take around 4%
+        // (1.3% per dot, 3 dots total)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(unselectedColor, 9f..9f)
+            .assertColorInPercentageRange(unselectedColor, 3.8f..4.5f)
     }
 
     private fun in_between_positions(indicatorStyle: PageIndicatorStyle) {
         rule.setContentWithTheme {
             HorizontalPageIndicator(
-                modifier = Modifier.testTag(TEST_TAG).size(150.dp),
+                modifier = Modifier.testTag(TEST_TAG).size(150.dp).fillMaxWidth(),
                 pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
                 indicatorStyle = indicatorStyle,
                 selectedColor = selectedColor,
                 unselectedColor = unselectedColor,
-                indicatorSize = 30.dp
+                indicatorSize = 20.dp
             )
         }
         rule.waitForIdle()
@@ -129,10 +130,10 @@ class HorizontalPageIndicatorTest {
         rule.onNodeWithTag(TEST_TAG).captureToImage()
             .assertDoesNotContainColor(selectedColor)
         // Unselected dots ( which doesn't participate in color merge)
-        // should also be visible on the screen, and should take around 6%
-        // (3% per dot, 2 dots in total)
+        // should also be visible on the screen, and should take around 2.7%
+        // (1.3% per dot, 2 dots in total)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(unselectedColor, 6f..6f)
+            .assertColorInPercentageRange(unselectedColor, 2.5f..3f)
     }
 
     private fun has_square_shape(indicatorStyle: PageIndicatorStyle) {
@@ -144,19 +145,19 @@ class HorizontalPageIndicatorTest {
                 selectedColor = selectedColor,
                 unselectedColor = unselectedColor,
                 indicatorShape = AbsoluteCutCornerShape(0f),
-                indicatorSize = 30.dp
+                indicatorSize = 20.dp
             )
         }
         rule.waitForIdle()
 
-        // A selected item with specified color should be visible on the screen, which is apprx 4%
-        // (4% per item, 1 item in total)
+        // A selected item with specified color should be visible on the screen, which is
+        // apprx 1.8% (1.8% per item, 1 item in total)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(selectedColor, 4f..4f)
-        // Unselected item should also be visible on the screen, and should take around 12%
-        // (4% per item, 3 items in total)
+            .assertColorInPercentageRange(selectedColor, 1.6f..1.9f)
+        // Unselected item should also be visible on the screen, and should take around 5.8%
+        // (1.8% per item, 3 items in total)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(unselectedColor, 12f..12f)
+            .assertColorInPercentageRange(unselectedColor, 5f..6f)
     }
 
     companion object {

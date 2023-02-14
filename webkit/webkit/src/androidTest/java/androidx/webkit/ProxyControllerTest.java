@@ -23,9 +23,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import android.os.Build;
+
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.webkit.internal.ProxyControllerImpl;
 
 import org.junit.After;
@@ -43,6 +46,7 @@ import okhttp3.mockwebserver.MockWebServer;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ProxyControllerTest {
     private WebViewOnUiThread mWebViewOnUiThread;
     private MockWebServer mContentServer;

@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -37,6 +36,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ModelUtils;
@@ -50,6 +50,7 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.List;
@@ -79,28 +80,33 @@ import java.util.Objects;
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
 @CarProtocol
+@KeepFields
 public final class PlaceListNavigationTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
-    @Keep
+    /**
+     * @deprecated Use the Header to set up the Title.
+     */
+    // TODO(b/225914724): remove after hosts switch over to setHeader().
     @Nullable
+    @Deprecated
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final ItemList mItemList;
-    @Keep
     @Nullable
+    private final Header mHeader;
+    /**
+     * @deprecated Use the Header to set up the HeaderAction.
+     */
+    // TODO(b/225914724): remove after hosts switch over to setHeader().
+    @Nullable
+    @Deprecated
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
-    @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
-    @Keep
     @Nullable
     private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
@@ -108,10 +114,24 @@ public final class PlaceListNavigationTemplate implements Template {
      * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
+     * @deprecated use {@link #getHeader()}
      */
+    // TODO(b/225914724): remove after hosts switch over to getHeader()
     @Nullable
+    @Deprecated
     public CarText getTitle() {
         return mTitle;
+    }
+
+    /**
+     * Returns the {@link Header} to display in this template.
+     *
+     * @see Builder#setHeader(Header)
+     */
+    @Nullable
+    @RequiresCarApi(5)
+    public Header getHeader() {
+        return mHeader;
     }
 
     /**
@@ -119,8 +139,11 @@ public final class PlaceListNavigationTemplate implements Template {
      * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
+     * @deprecated use {@link #getHeader()}
      */
+    // TODO(b/225914724): remove after hosts switch over to getHeader().
     @Nullable
+    @Deprecated
     public Action getHeaderAction() {
         return mHeaderAction;
     }
@@ -196,7 +219,8 @@ public final class PlaceListNavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mTitle, mIsLoading, mItemList, mHeaderAction, mActionStrip,
-                mMapActionStrip, mPanModeDelegate == null, mOnContentRefreshDelegate == null);
+                mMapActionStrip, mPanModeDelegate == null, mOnContentRefreshDelegate == null,
+                mHeader);
     }
 
     @Override
@@ -217,13 +241,15 @@ public final class PlaceListNavigationTemplate implements Template {
                 && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
                 && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null)
                 && Objects.equals(mOnContentRefreshDelegate == null,
-                otherTemplate.mOnContentRefreshDelegate == null);
+                otherTemplate.mOnContentRefreshDelegate == null)
+                && Objects.equals(mHeader, otherTemplate.mHeader);
     }
 
     PlaceListNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
         mItemList = builder.mItemList;
+        mHeader = builder.mHeader;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
         mMapActionStrip = builder.mMapActionStrip;
@@ -236,6 +262,7 @@ public final class PlaceListNavigationTemplate implements Template {
         mTitle = null;
         mIsLoading = false;
         mItemList = null;
+        mHeader = null;
         mHeaderAction = null;
         mActionStrip = null;
         mMapActionStrip = null;
@@ -250,6 +277,8 @@ public final class PlaceListNavigationTemplate implements Template {
         boolean mIsLoading;
         @Nullable
         ItemList mItemList;
+        @Nullable
+        Header mHeader;
         @Nullable
         Action mHeaderAction;
         @Nullable
@@ -270,8 +299,11 @@ public final class PlaceListNavigationTemplate implements Template {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
+         * @deprecated use {@link #setHeader(Header)}
          */
+        // TODO(b/225914724): remove after hosts switch over to setHeader().
         @NonNull
+        @Deprecated
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
@@ -287,8 +319,11 @@ public final class PlaceListNavigationTemplate implements Template {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
+         * @deprecated use {@link #setHeader(Header)}
          */
+        // TODO(b/225914724): remove after hosts switch over to setHeader().
         @NonNull
+        @Deprecated
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
@@ -323,8 +358,11 @@ public final class PlaceListNavigationTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
+         * @deprecated use {@link #setHeader(Header)}
          */
+        // TODO(b/225914724): remove after hosts switch over to setHeader().
         @NonNull
+        @Deprecated
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
@@ -370,6 +408,18 @@ public final class PlaceListNavigationTemplate implements Template {
             ModelUtils.validateAllRowsHaveOnlySmallImages(items);
             ModelUtils.validateNoRowsHaveBothMarkersAndImages(items);
             mItemList = itemList;
+            return this;
+        }
+
+        /**
+         * Sets the {@link Header} for this template.
+         *
+         * @throws NullPointerException if {@code header} is null
+         */
+        @NonNull
+        @RequiresCarApi(5)
+        public Builder setHeader(@NonNull Header header) {
+            mHeader = requireNonNull(header);
             return this;
         }
 

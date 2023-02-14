@@ -20,9 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import android.webkit.WebSettings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -31,11 +33,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatTest {
     WebViewOnUiThread mWebViewOnUiThread;
 
@@ -127,37 +136,46 @@ public class WebSettingsCompatTest {
         // bad navigation and then checks).
     }
 
-
     @Test
-    public void testDisableXRequestedWithHeader() throws Throwable {
+    public void testEnterpriseAuthenticationAppLinkPolicyEnabled() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
 
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
+        assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
 
-        WebSettingsCompat.setRequestedWithHeaderMode(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_NO_HEADER);
-        Assert.assertEquals(WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_NO_HEADER,
-                WebSettingsCompat.getRequestedWithHeaderMode(mWebViewOnUiThread.getSettings()));
+        WebSettingsCompat.setEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings(), false);
+        assertFalse(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
 
-        try (MockWebServer mockWebServer = new MockWebServer()) {
-            String requestUrl = mockWebServer.url("/").toString();
-            mWebViewOnUiThread.loadUrl(requestUrl);
-            RecordedRequest recordedRequest = mockWebServer.takeRequest();
-            String headerValue = recordedRequest.getHeader("X-Requested-With");
-            Assert.assertNull("No X-Requested-With header should have been sent.", headerValue);
-        }
+        WebSettingsCompat.setEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings(), true);
+        assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
     }
 
     @Test
-    public void testSetAppPackageNameXRequestedWithHeader() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
+    public void testSetAppPackageNameXRequestedWithHeaderAllowList() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST);
 
-        WebSettingsCompat.setRequestedWithHeaderMode(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME);
-        Assert.assertEquals(WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME,
-                WebSettingsCompat.getRequestedWithHeaderMode(mWebViewOnUiThread.getSettings()));
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        Assert.assertTrue("The default should be an empty allow-list.",
+                WebSettingsCompat.getRequestedWithHeaderOriginAllowList(settings).isEmpty());
+        Set<String> allowList = new HashSet<>(
+                Arrays.asList("https://*.google.com", "https://*.example"
+                        + ".com:8443"));
+        WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, allowList);
+        assertEquals(
+                "After setting an allow-list, it should be returned",
+                allowList, WebSettingsCompat.getRequestedWithHeaderOriginAllowList(settings));
 
+        // Check that the allow-list is respected, and the URL will get the expected header set.
         try (MockWebServer mockWebServer = new MockWebServer()) {
-            String requestUrl = mockWebServer.url("/").toString();
+            HttpUrl url = mockWebServer.url("/");
+            String requestUrl = url.toString();
+            String requestOrigin = url.scheme() + "://" + url.host() + ":" + url.port();
+            WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings,
+                    Collections.singleton(requestOrigin));
             mWebViewOnUiThread.loadUrl(requestUrl);
             RecordedRequest recordedRequest = mockWebServer.takeRequest();
             String headerValue = recordedRequest.getHeader("X-Requested-With");

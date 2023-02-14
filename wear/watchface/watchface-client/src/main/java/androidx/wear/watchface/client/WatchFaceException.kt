@@ -23,8 +23,6 @@ internal fun <R> callRemote(task: () -> R): R =
     try {
         task()
     } catch (e: RemoteException) {
-        if (Build.VERSION.SDK_INT >= 30)
-            throw Api30Helper.toRuntimeExpression(e)
-        else
-            throw RuntimeException(e)
+        if (Build.VERSION.SDK_INT >= 30) throw Api30Helper.toRuntimeExpression(e)
+        else throw RuntimeException(e)
     }

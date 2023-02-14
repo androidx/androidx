@@ -48,31 +48,26 @@ protobuf {
     }
 }
 
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated and synthetic accessor methods
+            disable("UnknownNullness", "SyntheticAccessor")
+        }
+    }
+}
+
 // Create export artifact for for JarJaring
 def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     archiveBaseName.set("export")
-    dependsOn(protobuf.generateProtoTasks.all())
-    dependsOn(compileKotlin)
-    from(files(compileKotlin.outputs.files)) {
-        exclude("**/caches-jvm/**")
-        exclude("**/last-build.bin")
-    }
-
-    dependsOn(compileJava)
-    from(files(compileJava.destinationDirectory)) {
-        exclude("**/caches-jvm/**")
-        exclude("**/last-build.bin")
-    }
-
-    // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
+    from(sourceSets.main.output)
+    // The proto-lite dependency includes .proto files, which are not used by glance. When apps
     // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
     // renames the java classes. Remove them here since they are unused.
+    exclude("**/*.proto")
+
     from(zipTree(configurations.detachedConfiguration(
-            dependencies.create(libs.protobufLite.get())).getSingleFile())) {
-        exclude("**/*.proto")
-        exclude("**/caches-jvm/**")
-        exclude("**/last-build.bin")
-    }
+            dependencies.create(libs.protobufLite.get())).getSingleFile()))
 }
 
 def jarjarConf = configurations.register("export")
@@ -81,7 +76,6 @@ artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFi
 androidx {
     name = "Glance AppWidget Protos"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     runApiTasks = new RunApiTasks.No("No public API required for internal use with app widgets.")
     description = "Protos for use with glance app widgets."

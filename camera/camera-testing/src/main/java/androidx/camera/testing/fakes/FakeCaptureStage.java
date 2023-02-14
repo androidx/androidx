@@ -16,6 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -32,12 +34,24 @@ import androidx.camera.core.impl.CaptureStage;
 public class FakeCaptureStage implements CaptureStage {
 
     private final int mId;
+
+    @NonNull
     private final CaptureConfig mCaptureConfig;
 
-    /** Create a FakeCaptureStage with the given parameters. */
-    public FakeCaptureStage(int id, CaptureConfig captureConfig) {
+    /**
+     * Create a FakeCaptureStage with the given parameters.
+     *
+     * If {@code captureConfig} is {@code null},
+     * {@link CaptureConfig#defaultEmptyCaptureConfig()} will be used as a default value.
+     */
+    public FakeCaptureStage(int id, @Nullable CaptureConfig captureConfig) {
         mId = id;
-        mCaptureConfig = captureConfig;
+
+        if (captureConfig == null) {
+            mCaptureConfig = CaptureConfig.defaultEmptyCaptureConfig();
+        } else {
+            mCaptureConfig = captureConfig;
+        }
     }
 
     @Override
@@ -45,6 +59,7 @@ public class FakeCaptureStage implements CaptureStage {
         return mId;
     }
 
+    @NonNull
     @Override
     public CaptureConfig getCaptureConfig() {
         return mCaptureConfig;

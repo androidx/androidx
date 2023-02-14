@@ -59,5 +59,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/foldable" />
+
+        <Button
+            android:id="@+id/compose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/compose" />
     </LinearLayout>
 </ScrollView>

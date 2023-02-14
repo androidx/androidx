@@ -25,12 +25,13 @@ import android.location.Location;
 import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -40,6 +41,8 @@ import java.util.concurrent.Executor;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AutomotiveCarSensorsTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     private AutomotiveCarSensors mAutomotiveCarSensors = new AutomotiveCarSensors();
     private Executor mExecutor = directExecutor();
@@ -51,11 +54,6 @@ public class AutomotiveCarSensorsTest {
     private OnCarDataAvailableListener<Gyroscope> mGyroscopeListener;
     @Mock
     private OnCarDataAvailableListener<CarHardwareLocation> mCarHardwareLocationListener;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void getAccelerometer_unsupported() {

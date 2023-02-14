@@ -25,8 +25,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -52,9 +52,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// TODO: Provide M3 tab row image when asset is available.
+// TODO: Provide M3 tab row asset and docs when available.
 /**
- * <a href="https://material.io/components/tabs#fixed-tabs" class="external" target="_blank">Material Design fixed tabs</a>.
+ * Material Design fixed tabs.
  *
  * Fixed tabs display all tabs in a set simultaneously. They are best for switching between related
  * content quickly, such as between transportation methods in a map. To navigate between fixed tabs,
@@ -106,38 +106,35 @@ import kotlinx.coroutines.launch
  * @sample androidx.compose.material3.samples.FancyIndicatorContainerTabs
  *
  * @param selectedTabIndex the index of the currently selected tab
- * @param modifier optional [Modifier] for this TabRow
- * @param containerColor The color of the container for the TabRow. Use [Color.Transparent] to have
- * no color.
- * @param contentColor The preferred content color provided by this TabRow to its children.
- * Defaults to either the matching content color for [containerColor], or if [containerColor] is
- * not a color from the theme, this will keep the same value set above this TabRow.
+ * @param modifier the [Modifier] to be applied to this tab row
+ * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
+ * to have no color.
+ * @param contentColor the preferred color for content inside this tab row. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
  * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.Indicator], using a [TabRowDefaults.tabIndicatorOffset]
- * modifier to animate its position. Note that this indicator will be forced to fill up the
- * entire TabRow, so you should use [TabRowDefaults.tabIndicatorOffset] or similar to
- * animate the actual drawn indicator inside this space, and provide an offset from the start.
- * @param divider the divider displayed at the bottom of the TabRow. This provides a layer of
- * separation between the TabRow and the content displayed underneath.
- * @param tabs the tabs inside this TabRow. Typically this will be multiple [Tab]s. Each element
- * inside this lambda will be measured and placed evenly across the TabRow, each taking up equal
- * space.
+ * will be a [TabRowDefaults.Indicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
+ * animate its position. Note that this indicator will be forced to fill up the entire tab row, so
+ * you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual drawn
+ * indicator inside this space, and provide an offset from the start.
+ * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
+ * separation between the tab row and the content displayed underneath.
+ * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
+ * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
 @Composable
 fun TabRow(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
-    containerColor: Color =
-        MaterialTheme.colorScheme.fromToken(PrimaryNavigationTabTokens.ContainerColor),
-    contentColor: Color =
-        MaterialTheme.colorScheme.fromToken(PrimaryNavigationTabTokens.ActiveLabelTextColor),
+    containerColor: Color = TabRowDefaults.containerColor,
+    contentColor: Color = TabRowDefaults.contentColor,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
         TabRowDefaults.Indicator(
             Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
         )
     },
     divider: @Composable () -> Unit = @Composable {
-        TabRowDefaults.Divider()
+        Divider()
     },
     tabs: @Composable () -> Unit
 ) {
@@ -151,11 +148,20 @@ fun TabRow(
             val tabMeasurables = subcompose(TabSlots.Tabs, tabs)
             val tabCount = tabMeasurables.size
             val tabWidth = (tabRowWidth / tabCount)
-            val tabPlaceables = tabMeasurables.map {
-                it.measure(constraints.copy(minWidth = tabWidth, maxWidth = tabWidth))
+            val tabRowHeight = tabMeasurables.fold(initial = 0) { max, curr ->
+                maxOf(curr.maxIntrinsicHeight(tabWidth), max)
             }
 
-            val tabRowHeight = tabPlaceables.maxByOrNull { it.height }?.height ?: 0
+            val tabPlaceables = tabMeasurables.map {
+                it.measure(
+                    constraints.copy(
+                        minWidth = tabWidth,
+                        maxWidth = tabWidth,
+                        minHeight = tabRowHeight,
+                        maxHeight = tabRowHeight,
+                    )
+                )
+            }
 
             val tabPositions = List(tabCount) { index ->
                 TabPosition(tabWidth.toDp() * index, tabWidth.toDp())
@@ -181,9 +187,9 @@ fun TabRow(
     }
 }
 
-// TODO: Provide M3 tab row image when asset is available.
+// TODO: Provide M3 tab row asset and docs when available.
 /**
- * <a href="https://material.io/components/tabs#scrollable-tabs" class="external" target="_blank">Material Design scrollable tabs</a>.
+ * Material Design scrollable tabs.
  *
  * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
  * labels and a larger number of tabs. They are best used for browsing on touch interfaces.
@@ -194,35 +200,31 @@ fun TabRow(
  * scrolling, and evenly places its tabs, see [TabRow].
  *
  * @param selectedTabIndex the index of the currently selected tab
- * @param modifier optional [Modifier] for this ScrollableTabRow
- * @param containerColor The background color for the ScrollableTabRow. Use [Color.Transparent] to
- * have no color.
- * @param contentColor The preferred content color provided by this ScrollableTabRow to its
- * children. Defaults to either the matching content color for [containerColor], or if
- * [containerColor] is not a color from the theme, this will keep the same value set above this
- * ScrollableTabRow.
- * @param edgePadding the padding between the starting and ending edge of ScrollableTabRow, and
- * the tabs inside the ScrollableTabRow. This padding helps inform the user that this tab row can
- * be scrolled, unlike a [TabRow].
+ * @param modifier the [Modifier] to be applied to this tab row
+ * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
+ * to have no color.
+ * @param contentColor the preferred color for content inside this tab row. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
+ * and the tabs inside the row. This padding helps inform the user that this tab row can be
+ * scrolled, unlike a [TabRow].
  * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.Indicator], using a [TabRowDefaults.tabIndicatorOffset]
- * modifier to animate its position. Note that this indicator will be forced to fill up the
- * entire ScrollableTabRow, so you should use [TabRowDefaults.tabIndicatorOffset] or similar to
- * animate the actual drawn indicator inside this space, and provide an offset from the start.
- * @param divider the divider displayed at the bottom of the ScrollableTabRow. This provides a layer
- * of separation between the ScrollableTabRow and the content displayed underneath.
- * @param tabs the tabs inside this ScrollableTabRow. Typically this will be multiple [Tab]s. Each
- * element inside this lambda will be measured and placed evenly across the TabRow, each taking
- * up equal space.
+ * will be a [TabRowDefaults.Indicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
+ * animate its position. Note that this indicator will be forced to fill up the entire tab row, so
+ * you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual drawn
+ * indicator inside this space, and provide an offset from the start.
+ * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
+ * separation between the tab row and the content displayed underneath.
+ * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
+ * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
 @Composable
 fun ScrollableTabRow(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
-    containerColor: Color =
-        MaterialTheme.colorScheme.fromToken(PrimaryNavigationTabTokens.ContainerColor),
-    contentColor: Color =
-        MaterialTheme.colorScheme.fromToken(PrimaryNavigationTabTokens.ActiveLabelTextColor),
+    containerColor: Color = TabRowDefaults.containerColor,
+    contentColor: Color = TabRowDefaults.contentColor,
     edgePadding: Dp = ScrollableTabRowPadding,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
         TabRowDefaults.Indicator(
@@ -230,7 +232,7 @@ fun ScrollableTabRow(
         )
     },
     divider: @Composable () -> Unit = @Composable {
-        TabRowDefaults.Divider()
+        Divider()
     },
     tabs: @Composable () -> Unit
 ) {
@@ -248,7 +250,8 @@ fun ScrollableTabRow(
             )
         }
         SubcomposeLayout(
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
                 .wrapContentSize(align = Alignment.CenterStart)
                 .horizontalScroll(scrollState)
                 .selectableGroup()
@@ -256,16 +259,23 @@ fun ScrollableTabRow(
         ) { constraints ->
             val minTabWidth = ScrollableTabRowMinimumTabWidth.roundToPx()
             val padding = edgePadding.roundToPx()
-            val tabConstraints = constraints.copy(minWidth = minTabWidth)
 
-            val tabPlaceables = subcompose(TabSlots.Tabs, tabs)
+            val tabMeasurables = subcompose(TabSlots.Tabs, tabs)
+
+            val layoutHeight = tabMeasurables.fold(initial = 0) { curr, measurable ->
+                maxOf(curr, measurable.maxIntrinsicHeight(Constraints.Infinity))
+            }
+
+            val tabConstraints = constraints.copy(
+                minWidth = minTabWidth,
+                minHeight = layoutHeight,
+                maxHeight = layoutHeight,
+            )
+            val tabPlaceables = tabMeasurables
                 .map { it.measure(tabConstraints) }
 
-            var layoutWidth = padding * 2
-            var layoutHeight = 0
-            tabPlaceables.forEach {
-                layoutWidth += it.width
-                layoutHeight = maxOf(layoutHeight, it.height)
+            val layoutWidth = tabPlaceables.fold(initial = padding * 2) { curr, measurable ->
+                curr + measurable.width
             }
 
             // Position the children.
@@ -348,24 +358,13 @@ class TabPosition internal constructor(val left: Dp, val width: Dp) {
  * Contains default implementations and values used for TabRow.
  */
 object TabRowDefaults {
-    /**
-     * Default [Divider], which will be positioned at the bottom of the [TabRow], underneath the
-     * indicator.
-     *
-     * @param modifier modifier for the divider's layout
-     * @param thickness thickness of the divider
-     * @param color color of the divider
-     */
-    @Composable
-    fun Divider(
-        modifier: Modifier = Modifier,
-        thickness: Dp = PrimaryNavigationTabTokens.DividerHeight,
-        color: Color =
-            MaterialTheme.colorScheme.fromToken(PrimaryNavigationTabTokens.DividerColor)
-    ) {
-        androidx.compose.material3.Divider(
-            modifier = modifier, thickness = thickness, color = color)
-    }
+    /** Default container color of a tab row. */
+    val containerColor: Color @Composable get() =
+        PrimaryNavigationTabTokens.ContainerColor.toColor()
+
+    /** Default content color of a tab row. */
+    val contentColor: Color @Composable get() =
+        PrimaryNavigationTabTokens.ActiveLabelTextColor.toColor()
 
     /**
      * Default indicator, which will be positioned at the bottom of the [TabRow], on top of the

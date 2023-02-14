@@ -7,7 +7,7 @@ import kotlin.String
 
 public class SettingsDirections private constructor() {
   private data class Main(
-    public val enterReason: String = "DEFAULT"
+    public val enterReason: String = "DEFAULT",
   ) : NavDirections {
     public override val actionId: Int = R.id.main
 
@@ -20,7 +20,7 @@ public class SettingsDirections private constructor() {
   }
 
   private data class Exit(
-    public val exitReason: String = "DEFAULT"
+    public val exitReason: String = "DEFAULT",
   ) : NavDirections {
     public override val actionId: Int = R.id.exit
 

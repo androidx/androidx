@@ -30,9 +30,8 @@ import androidx.health.services.client.proto.RequestsProto
 public class FlushRequest(public val packageName: String) :
     ProtoParcelable<RequestsProto.FlushRequest>() {
 
-    override val proto: RequestsProto.FlushRequest by lazy {
+    override val proto: RequestsProto.FlushRequest =
         RequestsProto.FlushRequest.newBuilder().setPackageName(packageName).build()
-    }
 
     public companion object {
         @JvmField

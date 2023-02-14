@@ -19,5 +19,6 @@ package androidx.room.vo
 enum class CallType {
     FIELD,
     METHOD,
+    SYNTHETIC_METHOD, // i.e. Kotlin synthetic getter / setter for a property
     CONSTRUCTOR
 }

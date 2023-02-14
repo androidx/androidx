@@ -34,15 +34,17 @@ dependencies {
     // There is an implicit compile-only dep due to :annotation-experimental
     // Build will complain without this manual declaration.
     api(libs.kotlinStdlib)
+    implementation "androidx.annotation:annotation-experimental:1.2.0"
 
     annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation("androidx.fragment:fragment-testing:1.2.3")
@@ -52,10 +54,6 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 29
-    }
-    lintOptions {
-        // We rely on keeping a bunch of private variables in the library for serialization.
-        disable("BanKeepAnnotation")
     }
     buildFeatures {
         aidl = true
@@ -71,7 +69,6 @@ android {
 androidx {
     name = "Android for Cars App Library Automotive Extension"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "Automotive OS specific functionality to build navigation, parking, and charging apps for cars"
 }

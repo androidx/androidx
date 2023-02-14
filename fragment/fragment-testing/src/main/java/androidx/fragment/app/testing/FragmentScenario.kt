@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.annotation.StyleRes
 import androidx.fragment.app.Fragment
@@ -28,10 +27,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.testing.FragmentScenario.Companion.launch
-import androidx.fragment.testing.R
+import androidx.fragment.testing.manifest.R
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import java.io.Closeable
@@ -94,8 +91,8 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param factory a fragment factory to use or null to use default factory
  */
 public inline fun <reified F : Fragment> launchFragment(
@@ -116,8 +113,8 @@ public inline fun <reified F : Fragment> launchFragment(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param instantiate method which will be used to instantiate the Fragment.
  */
 public inline fun <reified F : Fragment> launchFragment(
@@ -146,8 +143,8 @@ public inline fun <reified F : Fragment> launchFragment(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param factory a fragment factory to use or null to use default factory
  */
 public inline fun <reified F : Fragment> launchFragmentInContainer(
@@ -169,8 +166,8 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param instantiate method which will be used to instantiate the Fragment. This is a
  * simplification of the [FragmentFactory] interface for cases where only a single class
  * needs a custom constructor called.
@@ -239,74 +236,10 @@ public class FragmentScenario<F : Fragment> private constructor(
 ) : Closeable {
 
     /**
-     * An empty activity inheriting FragmentActivity. This Activity is used to host Fragment in
-     * FragmentScenario.
-     */
-    internal class EmptyFragmentActivity : FragmentActivity() {
-        @SuppressLint("RestrictedApi")
-        override fun onCreate(savedInstanceState: Bundle?) {
-            setTheme(
-                intent.getIntExtra(
-                    THEME_EXTRAS_BUNDLE_KEY,
-                    R.style.FragmentScenarioEmptyFragmentActivityTheme
-                )
-            )
-
-            // Checks if we have a custom FragmentFactory and set it.
-            val factory = FragmentFactoryHolderViewModel.getInstance(this).fragmentFactory
-            if (factory != null) {
-                supportFragmentManager.fragmentFactory = factory
-            }
-
-            // FragmentFactory needs to be set before calling the super.onCreate, otherwise the
-            // Activity crashes when it is recreating and there is a fragment which has no
-            // default constructor.
-            super.onCreate(savedInstanceState)
-        }
-
-        companion object {
-            const val THEME_EXTRAS_BUNDLE_KEY = "androidx.fragment.app.testing.FragmentScenario" +
-                ".EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY"
-        }
-    }
-
-    /**
-     * A view-model to hold a fragment factory.
-     */
-    internal class FragmentFactoryHolderViewModel : ViewModel() {
-        var fragmentFactory: FragmentFactory? = null
-
-        override fun onCleared() {
-            super.onCleared()
-            fragmentFactory = null
-        }
-
-        companion object {
-            @Suppress("MemberVisibilityCanBePrivate")
-            internal val FACTORY: ViewModelProvider.Factory =
-                object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        val viewModel =
-                            FragmentFactoryHolderViewModel()
-                        return viewModel as T
-                    }
-                }
-
-            fun getInstance(activity: FragmentActivity): FragmentFactoryHolderViewModel {
-                val viewModel: FragmentFactoryHolderViewModel by activity.viewModels { FACTORY }
-                return viewModel
-            }
-        }
-    }
-
-    /**
      * Moves Fragment state to a new state.
      *
      *  If a new state and current state are the same, this method does nothing. It accepts
-     * [CREATED][Lifecycle.State.CREATED], [STARTED][Lifecycle.State.STARTED],
-     * [RESUMED][Lifecycle.State.RESUMED], and [DESTROYED][Lifecycle.State.DESTROYED].
-     * [DESTROYED][Lifecycle.State.DESTROYED] is a terminal state.
+     * all [Lifecycle.State]s. [DESTROYED][Lifecycle.State.DESTROYED] is a terminal state.
      * You cannot move to any other state after the Fragment reaches that state.
      *
      * This method cannot be called from the main thread.
@@ -463,9 +396,8 @@ public class FragmentScenario<F : Fragment> private constructor(
          * @param fragmentClass a fragment class to instantiate
          * @param fragmentArgs a bundle to passed into fragment
          * @param themeResId a style resource id to be set to the host activity's theme
-         * @param initialState The initial [Lifecycle.State]. This must be one of
-         * [CREATED][Lifecycle.State.CREATED], [STARTED][Lifecycle.State.STARTED], and
-         * [RESUMED][Lifecycle.State.RESUMED].
+         * @param initialState The initial [Lifecycle.State]. Passing in
+         * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
          * @param factory a fragment factory to use or null to use default factory
          */
         @JvmOverloads
@@ -545,9 +477,8 @@ public class FragmentScenario<F : Fragment> private constructor(
          * @param fragmentClass a fragment class to instantiate
          * @param fragmentArgs a bundle to passed into fragment
          * @param themeResId a style resource id to be set to the host activity's theme
-         * @param initialState The initial [Lifecycle.State]. This must be one of
-         * [CREATED][Lifecycle.State.CREATED], [STARTED][Lifecycle.State.STARTED], and
-         * [RESUMED][Lifecycle.State.RESUMED].
+         * @param initialState The initial [Lifecycle.State]. Passing in
+         * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
          * @param factory a fragment factory to use or null to use default factory
          */
         @JvmOverloads

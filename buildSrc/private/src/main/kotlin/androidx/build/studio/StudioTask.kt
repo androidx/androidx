@@ -16,7 +16,7 @@
 
 package androidx.build.studio
 
-import androidx.build.StudioType
+import androidx.build.ProjectLayoutType
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
@@ -33,17 +33,20 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.service.ServiceRegistry
 import org.gradle.process.ExecOperations
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Base task with common logic for updating and launching studio in both the frameworks/support
  * project and playground projects. Project-specific configuration is provided by
  * [RootStudioTask] and [PlaygroundStudioTask].
  */
+@DisableCachingByDefault(because = "the purpose of this task is to launch Studio")
 abstract class StudioTask : DefaultTask() {
 
     // TODO: support -y and --update-only options? Can use @Option for this
     @TaskAction
     fun studiow() {
+        validateEnvironment()
         install()
         launch()
     }
@@ -127,6 +130,22 @@ abstract class StudioTask : DefaultTask() {
     }
 
     /**
+     * Ensure that we can launch Studio without issue.
+     */
+    private fun validateEnvironment() {
+        if (System.getenv().containsKey("SSH_CLIENT") && !System.getenv().containsKey("DISPLAY")) {
+            throw GradleException(
+                """
+                Studio must be run from a graphical session.
+
+                Could not read DISPLAY environment variable.  If you are using SSH into a remote
+                machine, consider using either ssh -X or switching to Chrome Remote Desktop.
+                """.trimIndent()
+            )
+        }
+    }
+
+    /**
      * Install Studio and removes any old installation files if they exist.
      */
     private fun install() {
@@ -179,8 +198,13 @@ abstract class StudioTask : DefaultTask() {
         check(vmOptions.exists()) {
             "Invalid Studio vm options file location: ${vmOptions.canonicalPath}"
         }
+        val logFile = File(System.getProperty("user.home"), ".AndroidXStudioLog")
         ProcessBuilder().apply {
-            inheritIO()
+            // Can't just use inheritIO due to https://github.com/gradle/gradle/issues/16719
+            // Also can't use waitFor because it causes Studio to get stuck: b/241386076
+            // So, we save this output in a file and display the path to the user
+            redirectOutput(logFile)
+            redirectError(logFile)
             with(platformUtilities) { command(launchCommandArguments) }
 
             val additionalStudioEnvironmentProperties = mapOf(
@@ -201,6 +225,7 @@ abstract class StudioTask : DefaultTask() {
             environment().putAll(additionalStudioEnvironmentProperties)
             start()
         }
+        println("Studio log at $logFile")
     }
 
     private fun checkLicenseAgreement(services: ServiceRegistry): Boolean {
@@ -255,9 +280,9 @@ abstract class StudioTask : DefaultTask() {
         private const val STUDIO_TASK = "studio"
 
         fun Project.registerStudioTask() {
-            val studioTask = when (StudioType.from(this)) {
-                StudioType.ANDROIDX -> RootStudioTask::class.java
-                StudioType.PLAYGROUND -> PlaygroundStudioTask::class.java
+            val studioTask = when (ProjectLayoutType.from(this)) {
+                ProjectLayoutType.ANDROIDX -> RootStudioTask::class.java
+                ProjectLayoutType.PLAYGROUND -> PlaygroundStudioTask::class.java
             }
             tasks.register(STUDIO_TASK, studioTask)
         }
@@ -267,6 +292,7 @@ abstract class StudioTask : DefaultTask() {
 /**
  * Task for launching studio in the frameworks/support project
  */
+@DisableCachingByDefault(because = "the purpose of this task is to launch Studio")
 abstract class RootStudioTask : StudioTask() {
     override val ideaProperties get() = projectRoot.resolve("development/studio/idea.properties")
 }
@@ -274,6 +300,7 @@ abstract class RootStudioTask : StudioTask() {
 /**
  * Task for launching studio in a playground project
  */
+@DisableCachingByDefault(because = "the purpose of this task is to launch Studio")
 abstract class PlaygroundStudioTask : RootStudioTask() {
     @get:Internal
     val supportRootFolder = (project.rootProject.property("ext") as ExtraPropertiesExtension)

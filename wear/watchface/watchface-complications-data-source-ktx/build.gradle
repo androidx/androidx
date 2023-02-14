@@ -46,7 +46,6 @@ android {
 androidx {
     name = "Android Wear Complications Data Source Ktx"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Kotlin suspend wrapper for Android Wear Complications Data Source"
 }

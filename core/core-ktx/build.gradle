@@ -7,6 +7,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":core:core"))
+    }
+
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     api(project(":core:core"))
@@ -24,7 +29,6 @@ androidx {
     name = "Core Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
 }

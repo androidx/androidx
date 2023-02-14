@@ -35,6 +35,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
@@ -42,6 +43,7 @@ import java.io.File
  * during complication. Android Studio checks compatibility of its version with version required
  * by inspector.
  */
+@DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
     // ArtCollection can't be exposed as input as it is, so below there is "getCompileInputs"
     // that adds it properly as input.

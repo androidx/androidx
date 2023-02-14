@@ -16,25 +16,34 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isByte
 import androidx.room.compiler.processing.isInt
 import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
-import com.squareup.javapoet.WildcardTypeName
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
+import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
+import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
+import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -46,7 +55,7 @@ class KspTypeTest {
         val src = Source.kotlin(
             "foo.kt",
             """
-            package foo.bar;
+            package foo.bar
             class Baz : AbstractClass(), MyInterface {
             }
             abstract class AbstractClass {}
@@ -55,8 +64,8 @@ class KspTypeTest {
         )
         runProcessorTest(listOf(src)) {
             val subject = it.processingEnv.requireType("foo.bar.Baz")
-            assertThat(subject.typeName).isEqualTo(
-                ClassName.get("foo.bar", "Baz")
+            assertThat(subject.asTypeName()).isEqualTo(
+                XClassName.get("foo.bar", "Baz")
             )
             // basic assertions for abstract class
             val abstractSubject = it.processingEnv.requireType("foo.bar.AbstractClass")
@@ -99,8 +108,12 @@ class KspTypeTest {
             subject.getField("errorType").type.let { type ->
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
-                assertThat(type.typeName).isEqualTo(ERROR_TYPE_NAME)
-                assertThat(type.typeElement!!.className).isEqualTo(ERROR_TYPE_NAME)
+                assertThat(type.asTypeName().java).isEqualTo(ERROR_JTYPE_NAME)
+                assertThat(type.typeElement!!.asClassName().java).isEqualTo(ERROR_JTYPE_NAME)
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin).isEqualTo(ERROR_KTYPE_NAME)
+                    assertThat(type.typeElement!!.asClassName().kotlin).isEqualTo(ERROR_KTYPE_NAME)
+                }
             }
 
             subject.getField("listOfErrorType").type.let { type ->
@@ -108,7 +121,10 @@ class KspTypeTest {
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.isError()).isTrue()
-                    assertThat(typeArg.typeName).isEqualTo(ERROR_TYPE_NAME)
+                    assertThat(typeArg.asTypeName().java).isEqualTo(ERROR_JTYPE_NAME)
+                    if (invocation.isKsp) {
+                        assertThat(typeArg.asTypeName().kotlin).isEqualTo(ERROR_KTYPE_NAME)
+                    }
                 }
             }
             invocation.assertCompilationResult {
@@ -135,8 +151,8 @@ class KspTypeTest {
             subject.getField("listOfNullableStrings").type.let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
-                assertThat(type.typeElement!!.className).isEqualTo(
-                    List::class.typeName()
+                assertThat(type.typeElement!!.asClassName()).isEqualTo(
+                    List::class.asClassName()
                 )
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.nullability).isEqualTo(NULLABLE)
@@ -160,8 +176,8 @@ class KspTypeTest {
                         )
                     ).isTrue()
                 }
-                assertThat(type.typeElement!!.className).isEqualTo(
-                    List::class.className()
+                assertThat(type.typeElement!!.asClassName()).isEqualTo(
+                    List::class.asClassName()
                 )
             }
         }
@@ -238,19 +254,18 @@ class KspTypeTest {
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             subject.getField("simple").type.let {
-                assertThat(it.rawType.typeName).isEqualTo(TypeName.INT)
+                assertThat(it.rawType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
             }
             subject.getField("list").type.let { list ->
                 assertThat(list.rawType).isNotEqualTo(list)
                 assertThat(list.typeArguments).isNotEmpty()
-                assertThat(list.rawType.typeName)
-                    .isEqualTo(ClassName.get("java.util", "List"))
+                assertThat(list.rawType.asTypeName()).isEqualTo(List::class.asClassName())
             }
             subject.getField("map").type.let { map ->
                 assertThat(map.rawType).isNotEqualTo(map)
                 assertThat(map.typeArguments).hasSize(2)
-                assertThat(map.rawType.typeName)
-                    .isEqualTo(ClassName.get("java.util", "Map"))
+                assertThat(map.rawType.asTypeName())
+                    .isEqualTo(Map::class.asClassName())
             }
             subject.getField("listOfMaps").type.let { listOfMaps ->
                 assertThat(listOfMaps.rawType).isNotEqualTo(listOfMaps)
@@ -275,11 +290,12 @@ class KspTypeTest {
             val voidMethod = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
                 .getMethodByJvmName("voidMethod")
             val returnType = voidMethod.returnType
-            assertThat(
-                returnType.typeName
-            ).isEqualTo(
-                TypeName.VOID
-            )
+            assertThat(returnType.asTypeName().java)
+                .isEqualTo(JTypeName.VOID)
+            if (invocation.isKsp) {
+                assertThat(returnType.asTypeName().kotlin)
+                    .isEqualTo(UNIT)
+            }
             assertThat(returnType.isVoid()).isTrue()
         }
     }
@@ -465,37 +481,97 @@ class KspTypeTest {
 
     @Suppress("MapGetWithNotNullAssertionOperator")
     @Test
-    fun extendsBounds() {
-        val src = Source.kotlin(
-            "foo.kt",
-            """
-            open class Foo;
-            class Bar<T : Foo> {
-            }
-            class Bar_NullableFoo<T : Foo?>
-            """.trimIndent()
-        )
+    fun upperBounds() {
         runProcessorTest(
-            listOf(src)
+            listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+                    open class Foo
+                    class Bar<T : Foo>
+                    class Bar_NullableFoo<T : Foo?>
+                    """.trimIndent()
+                )
+            )
         ) { invocation ->
-            val classNames = listOf("Bar", "Bar_NullableFoo")
-            val typeArgs = classNames.associateWith { className ->
-                invocation.processingEnv
-                    .requireType(className)
-                    .typeArguments
-                    .single()
+            fun checkTypeElement(
+                typeElement: XTypeElement,
+                typeArgumentJClassName: JTypeVariableName,
+                typeArgumentKClassName: TypeVariableName,
+                nullability: XNullability,
+            ) {
+                val typeParameter = typeElement.typeParameters.single()
+                assertThat(typeParameter.typeVariableName).isEqualTo(typeArgumentJClassName)
+
+                val typeArgument = typeElement.type.typeArguments.single()
+                assertThat(typeArgument.asTypeName().java).isEqualTo(typeArgumentJClassName)
+                if (invocation.isKsp) {
+                    assertThat(typeArgument.asTypeName().kotlin).isEqualTo(typeArgumentKClassName)
+                }
+                assertThat(typeArgument.nullability).isEqualTo(nullability)
             }
-            val typeName = typeArgs["Bar"]!!.typeName
-            assertThat(typeName)
-                .isEqualTo(
-                    TypeVariableName.get("T", ClassName.get("", "Foo"))
+            checkTypeElement(
+                typeElement = invocation.processingEnv.requireTypeElement("Bar"),
+                typeArgumentJClassName = JTypeVariableName.get("T", JClassName.get("", "Foo")),
+                typeArgumentKClassName = KTypeVariableName("T", KClassName("", "Foo")),
+                nullability = NONNULL
+            )
+            checkTypeElement(
+                typeElement = invocation.processingEnv.requireTypeElement("Bar_NullableFoo"),
+                typeArgumentJClassName = JTypeVariableName.get("T", JClassName.get("", "Foo")),
+                typeArgumentKClassName = KTypeVariableName(
+                    "T", KClassName("", "Foo").copy(nullable = true)
+                ),
+                nullability = NULLABLE
+            )
+        }
+    }
+
+    @Suppress("MapGetWithNotNullAssertionOperator")
+    @Test
+    fun extendsBounds() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+                    class Foo {
+                        val barFoo: Bar<out Foo> = TODO()
+                        val barNullableFoo: Bar<out Foo?> = TODO()
+                    }
+                    class Bar<T>
+                    """.trimIndent()
                 )
-            assertThat(typeArgs["Bar"]!!.nullability).isEqualTo(NONNULL)
-            assertThat(typeArgs["Bar_NullableFoo"]!!.typeName)
-                .isEqualTo(
-                    TypeVariableName.get("T", ClassName.get("", "Foo"))
-                )
-            assertThat(typeArgs["Bar_NullableFoo"]!!.nullability).isEqualTo(NULLABLE)
+            )
+        ) { invocation ->
+            fun checkType(
+                type: XType,
+                typeArgumentJClassName: JWildcardTypeName,
+                typeArgumentKClassName: KWildcardTypeName,
+                nullability: XNullability,
+            ) {
+                val typeArgument = type.typeArguments.single()
+                assertThat(typeArgument.asTypeName().java).isEqualTo(typeArgumentJClassName)
+                if (invocation.isKsp) {
+                    assertThat(typeArgument.asTypeName().kotlin).isEqualTo(typeArgumentKClassName)
+                }
+                assertThat(typeArgument.nullability).isEqualTo(nullability)
+            }
+            val foo = invocation.processingEnv.requireTypeElement("Foo")
+            checkType(
+                type = foo.getDeclaredField("barFoo").type,
+                typeArgumentJClassName = JWildcardTypeName.subtypeOf(JClassName.get("", "Foo")),
+                typeArgumentKClassName = KWildcardTypeName.producerOf(KClassName("", "Foo")),
+                nullability = NONNULL
+            )
+            checkType(
+                type = foo.getDeclaredField("barNullableFoo").type,
+                typeArgumentJClassName = JWildcardTypeName.subtypeOf(JClassName.get("", "Foo")),
+                typeArgumentKClassName = KWildcardTypeName.producerOf(
+                    KClassName("", "Foo").copy(nullable = true)
+                ),
+                nullability = NULLABLE
+            )
         }
     }
 
@@ -515,21 +591,27 @@ class KspTypeTest {
         runProcessorTest(
             listOf(src)
         ) { invocation ->
-
             val typeElement = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             val method = typeElement.getMethodByJvmName("wildcardMethod")
             val asMember = method.asMemberOf(typeElement.type)
             fun assertParamType(paramType: XType) {
                 val arg1 = paramType.typeArguments.single()
-                assertThat(arg1.typeName)
+                assertThat(arg1.asTypeName().java)
                     .isEqualTo(
-                        WildcardTypeName.subtypeOf(
-                            Number::class.java
-                        )
+                        JWildcardTypeName.subtypeOf(Number::class.java)
                     )
-                assertThat(arg1.extendsBound()?.typeName).isEqualTo(
-                    ClassName.get("java.lang", "Number")
+                assertThat(arg1.extendsBound()?.asTypeName()?.java).isEqualTo(
+                    JClassName.get("java.lang", "Number")
                 )
+                if (invocation.isKsp) {
+                    assertThat(arg1.asTypeName().kotlin)
+                        .isEqualTo(
+                            KWildcardTypeName.producerOf(Number::class)
+                        )
+                    assertThat(arg1.extendsBound()?.asTypeName()?.kotlin).isEqualTo(
+                        KClassName("kotlin", "Number")
+                    )
+                }
                 assertThat(
                     arg1.extendsBound()?.extendsBound()
                 ).isNull()

@@ -16,6 +16,7 @@
 
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -25,7 +26,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
 
@@ -44,7 +44,6 @@ dependencies {
 androidx {
     name = "Compose RxJava 2 integration"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.COMPOSE_RUNTIME
     inceptionYear = "2020"
     description = "Compose integration with RxJava 2"
     legacyDisableKotlinStrictApiMode = true

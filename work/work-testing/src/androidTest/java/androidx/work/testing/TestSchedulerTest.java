@@ -30,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -39,6 +40,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.testing.workers.CountingTestWorker;
+import androidx.work.testing.workers.RetryWorker;
 import androidx.work.testing.workers.TestWorker;
 
 import org.junit.Before;
@@ -219,6 +221,28 @@ public class TestSchedulerTest {
         mTestDriver.setInitialDelayMet(request.getId());
     }
 
+    @Test
+    public void testWorkerUnique()
+            throws InterruptedException, ExecutionException {
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        OneTimeWorkRequest request1 = createWorkRequestWithInitialDelay();
+        workManager.enqueueUniqueWork("name", ExistingWorkPolicy.REPLACE, request1)
+                .getResult().get();
+
+        OneTimeWorkRequest request2 = createWorkRequestWithInitialDelay();
+        workManager.enqueueUniqueWork("name", ExistingWorkPolicy.REPLACE, request2)
+                .getResult().get();
+        try {
+            mTestDriver.setInitialDelayMet(request1.getId());
+            throw new AssertionError();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+        mTestDriver.setInitialDelayMet(request2.getId());
+        WorkInfo requestStatus = workManager.getWorkInfoById(request2.getId()).get();
+        assertThat(requestStatus.getState().isFinished(), is(true));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testWorker_afterSuccessfulRun_throwsExceptionWhenSetPeriodDelayMet()
             throws InterruptedException, ExecutionException {
@@ -329,6 +353,27 @@ public class TestSchedulerTest {
         latch.await(10, TimeUnit.SECONDS);
         service.shutdownNow();
         assertThat(latch.getCount(), is(0L));
+    }
+
+    @Test
+    public void testOneTimeWorkerRetry() throws ExecutionException, InterruptedException {
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(RetryWorker.class).build();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(workInfo.getRunAttemptCount(), is(1));
+        assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
+    }
+
+    @Test
+    public void testPeriodicWorkerRetry() throws ExecutionException, InterruptedException {
+        PeriodicWorkRequest request =
+                new PeriodicWorkRequest.Builder(RetryWorker.class, 1, TimeUnit.DAYS).build();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(workInfo.getRunAttemptCount(), is(1));
+        assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
     }
 
     private static OneTimeWorkRequest createWorkRequest() {

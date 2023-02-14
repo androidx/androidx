@@ -2,8 +2,8 @@
 package androidx.savedstate {
 
   public final class SavedStateRegistry {
-    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
-    method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String);
     method @MainThread public boolean isRestored();
     method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
     method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated> clazz);
@@ -12,10 +12,10 @@ package androidx.savedstate {
   }
 
   public static interface SavedStateRegistry.AutoRecreated {
-    method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
+    method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner);
   }
 
-  public static fun interface SavedStateRegistry.SavedStateProvider {
+  public static interface SavedStateRegistry.SavedStateProvider {
     method public android.os.Bundle saveState();
   }
 
@@ -35,12 +35,11 @@ package androidx.savedstate {
 
   public interface SavedStateRegistryOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
-    property public abstract androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
   public final class ViewTreeSavedStateRegistryOwner {
     method public static androidx.savedstate.SavedStateRegistryOwner? get(android.view.View);
-    method public static void set(android.view.View, androidx.savedstate.SavedStateRegistryOwner? owner);
+    method public static void set(android.view.View, androidx.savedstate.SavedStateRegistryOwner?);
   }
 
 }

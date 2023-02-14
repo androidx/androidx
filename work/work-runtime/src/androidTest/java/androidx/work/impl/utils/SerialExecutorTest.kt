@@ -31,11 +31,11 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 class SerialExecutorTest {
 
-    lateinit var executor: SerialExecutor
+    lateinit var executor: SerialExecutorImpl
 
     @Before
     fun setUp() {
-        executor = SerialExecutor(Executors.newCachedThreadPool())
+        executor = SerialExecutorImpl(Executors.newCachedThreadPool())
     }
 
     @Test

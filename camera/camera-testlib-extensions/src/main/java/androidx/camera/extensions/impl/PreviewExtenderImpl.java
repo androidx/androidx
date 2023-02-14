@@ -18,10 +18,12 @@ package androidx.camera.extensions.impl;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.util.Pair;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -51,33 +53,35 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
      * @return true if the extension is supported, otherwise false
      */
-    boolean isExtensionAvailable(String cameraId, CameraCharacteristics cameraCharacteristics);
+    boolean isExtensionAvailable(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics);
 
     /**
      * Initializes the extender to be used with the specified camera.
      *
      * <p>This should be called before any other method on the extender. The exception is {@link
      * #isExtensionAvailable(String, CameraCharacteristics)}.
-     *
-     * @param cameraId The camera2 id string of the camera.
+     *  @param cameraId The camera2 id string of the camera.
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
      */
-    void init(String cameraId, CameraCharacteristics cameraCharacteristics);
+    void init(@NonNull String cameraId, @NonNull CameraCharacteristics cameraCharacteristics);
 
     /**
      * The set of parameters required to produce the effect on the preview stream.
      *
      * <p> This will be the initial set of parameters used for the preview
-     * {@link android.hardware.camera2.CaptureRequest}. If the {@link ProcessorType} is defined as
+     * {@link CaptureRequest}. If the {@link ProcessorType} is defined as
      * {@link ProcessorType#PROCESSOR_TYPE_REQUEST_UPDATE_ONLY} then this will be updated when
      * the {@link RequestUpdateProcessorImpl#process(TotalCaptureResult)} from {@link
      * #getProcessor()} has been called, this should be updated to reflect the new {@link
      * CaptureStageImpl}. If the processing step returns a {@code null}, meaning the required
      * parameters has not changed, then calling this will return the previous non-null value.
      */
+    @NonNull
     CaptureStageImpl getCaptureStage();
 
     /** The type of preview processing to use. */
+    @NonNull
     ProcessorType getProcessorType();
 
     /**
@@ -93,6 +97,7 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
      * <tr><td> PROCESSOR_TYPE_NONE </td> <td> null </td> </tr>
      * </table>
      */
+    @Nullable
     ProcessorImpl getProcessor();
 
     /**

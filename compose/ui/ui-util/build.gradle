@@ -83,10 +83,13 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 androidx {
     name = "Compose Util"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.COMPOSE_UI
     inceptionYear = "2020"
     description = "Internal Compose utilities used by other modules"
     legacyDisableKotlinStrictApiMode = true
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
 }
 
 android {

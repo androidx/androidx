@@ -22,6 +22,8 @@ import android.os.Build.VERSION;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+
 /**
  * Implements foreground drawable before M and falls back to M's foreground implementation.
  */
@@ -88,7 +90,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
         if (mForeground != null) {
             final Drawable foreground = mForeground;
@@ -111,7 +113,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return super.verifyDrawable(who) || (who == mForeground);
     }
 

@@ -19,6 +19,7 @@ package com.example.android.leanback;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.app.VideoFragment;
 import androidx.leanback.app.VideoFragmentGlueHost;
 import androidx.leanback.media.MediaPlayerAdapter;
@@ -52,7 +53,7 @@ public class VideoConsumptionWithDetailCardFragment extends VideoFragment {
         } else {
             glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
                 @Override
-                public void onPreparedStateChanged(PlaybackGlue glue) {
+                public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                     if (glue.isPrepared()) {
                         glue.removePlayerCallback(this);
                         glue.play();

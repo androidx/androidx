@@ -16,15 +16,19 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.LineVerticalAlignment
-import androidx.compose.ui.text.style.LineHeightBehavior
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.LineHeightStyle.Trim
+import androidx.compose.ui.text.style.LineHeightStyle.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -68,6 +72,55 @@ class TextStyleLayoutAttributesTest {
             style.hasSameLayoutAffectingAttributes(
                 TextStyle(color = Color.Green)
             )
+        ).isTrue()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun returns_true_for_color_to_brush_change() {
+        val style = TextStyle(color = Color.Red)
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(TextStyle(brush = SolidColor(Color.Green)))
+        ).isTrue()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun returns_true_for_brush_to_color_change() {
+        val style = TextStyle(brush = SolidColor(Color.Green))
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(TextStyle(color = Color.Red))
+        ).isTrue()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun returns_true_for_brush_solid_color_change() {
+        val style = TextStyle(brush = SolidColor(Color.Red))
+        style.copy()
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(TextStyle(brush = SolidColor(Color.Green)))
+        ).isTrue()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun returns_true_for_brush_shader_change() {
+        val style = TextStyle(brush = Brush.linearGradient(listOf(Color.Black, Color.White)))
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(TextStyle(
+                brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+            ))
+        ).isTrue()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun returns_true_for_brush_alpha_change() {
+        val brush = Brush.linearGradient(listOf(Color.Black, Color.White))
+        val style = TextStyle(brush = brush, alpha = 0.5f)
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(TextStyle(brush = brush, alpha = 0.7f))
         ).isTrue()
     }
 
@@ -257,18 +310,35 @@ class TextStyleLayoutAttributesTest {
 
     @OptIn(ExperimentalTextApi::class)
     @Test
-    fun returns_false_for_lineHeightBehavior_change() {
+    fun returns_false_for_lineHeightStyle_change() {
         val style = TextStyle(
-            lineHeightBehavior = LineHeightBehavior(
-                alignment = LineVerticalAlignment.Center
+            lineHeightStyle = LineHeightStyle(
+                alignment = Alignment.Center,
+                trim = Trim.None
             )
         )
         assertThat(
             style.hasSameLayoutAffectingAttributes(
                 TextStyle(
-                    lineHeightBehavior = LineHeightBehavior(
-                        alignment = LineVerticalAlignment.Bottom
+                    lineHeightStyle = LineHeightStyle(
+                        alignment = Alignment.Bottom,
+                        trim = Trim.Both
                     )
+                )
+            )
+        ).isFalse()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun returns_false_for_lineBreak_change() {
+        val style = TextStyle(
+            lineBreak = LineBreak.Heading
+        )
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(
+                TextStyle(
+                    lineBreak = LineBreak.Paragraph
                 )
             )
         ).isFalse()
@@ -276,11 +346,13 @@ class TextStyleLayoutAttributesTest {
 
     @Test
     fun should_be_updated_when_a_new_attribute_is_added_to_TextStyle() {
-        // TextLayoutHelper TextStyle.caReuseLayout is very easy to forget to update when TextStyle
-        // changes. Adding this test to fail so that when a new attribute is added to TextStyle
-        // it will remind us that we need to update the function.
+        // TextLayoutHelper TextStyle.hasSameLayoutAffectingAttributes is very easy to forget
+        // to update when TextStyle changes. Adding this test to fail so that when a new attribute
+        // is added to TextStyle it will remind us that we need to update the function.
         val knownProperties = listOf(
             getProperty("color"),
+            getProperty("brush"),
+            getProperty("alpha"),
             getProperty("shadow"),
             getProperty("textDecoration"),
             getProperty("fontSize"),
@@ -294,6 +366,7 @@ class TextStyleLayoutAttributesTest {
             getProperty("textGeometricTransform"),
             getProperty("localeList"),
             getProperty("background"),
+            getProperty("drawStyle"),
             getProperty("textAlign"),
             getProperty("textDirection"),
             getProperty("lineHeight"),
@@ -304,7 +377,10 @@ class TextStyleLayoutAttributesTest {
             // ui-text/../androidx/compose/ui/text/TextSpanParagraphStyleTest.kt
             getProperty("paragraphStyle"),
             getProperty("spanStyle"),
-            getProperty("lineHeightBehavior")
+            getProperty("lineHeightStyle"),
+            getProperty("hyphens"),
+            getProperty("lineBreak"),
+            getProperty("textMotion")
         )
 
         val textStyleProperties = TextStyle::class.memberProperties.map { Property(it) }

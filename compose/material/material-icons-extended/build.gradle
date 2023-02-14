@@ -36,7 +36,6 @@ IconGenerationTask.registerExtendedIconMainProject(
 apply from: "shared-dependencies.gradle"
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         /*
@@ -139,7 +138,6 @@ if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 androidx {
     name = "Compose Material Icons Extended"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.COMPOSE_MATERIAL
     // This module has a large number (5000+) of generated source files and so doc generation /
     // API tracking will simply take too long
     runApiTasks = new RunApiTasks.No("Five thousand generated source files")

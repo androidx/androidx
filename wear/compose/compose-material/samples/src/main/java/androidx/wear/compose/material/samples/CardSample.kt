@@ -17,8 +17,6 @@
 package androidx.wear.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
@@ -49,10 +47,8 @@ fun AppCardWithIcon() {
         title = { Text("AppCard") },
         time = { Text("now") },
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Some body content")
-            Text("and some more body content")
-        }
+        Text("Some body content")
+        Text("and some more body content")
     }
 }
 
@@ -64,10 +60,8 @@ fun TitleCardStandard() {
         title = { Text("TitleCard") },
         time = { Text("now") },
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Some body content")
-            Text("and some more body content")
-        }
+        Text("Some body content")
+        Text("and some more body content")
     }
 }
 
@@ -83,8 +77,6 @@ fun TitleCardWithImage() {
         contentColor = MaterialTheme.colors.onSurface,
         titleColor = MaterialTheme.colors.onSurface,
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Text coloured to stand out on the image")
-        }
+        Text("Text coloured to stand out on the image")
     }
 }

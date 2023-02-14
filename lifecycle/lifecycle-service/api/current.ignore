@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.lifecycle.LifecycleService#onStart(android.content.Intent, int):
+    Removed method androidx.lifecycle.LifecycleService.onStart(android.content.Intent,int)

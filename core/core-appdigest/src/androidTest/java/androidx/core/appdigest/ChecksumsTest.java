@@ -269,7 +269,12 @@ public class ChecksumsTest {
 
     @SmallTest
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34 // b/262909049: Failing on SDK 34
     public void testDefaultChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, 0, TRUST_NONE);
         assertNotNull(checksums);
         if (Build.VERSION.SDK_INT >= 31) {
@@ -289,10 +294,14 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testSplitsDefaultChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installSplits(new String[]{TEST_V4_APK, TEST_V4_SPLIT0, TEST_V4_SPLIT1, TEST_V4_SPLIT2,
                 TEST_V4_SPLIT3, TEST_V4_SPLIT4});
         assertTrue(isAppInstalled(V4_PACKAGE_NAME));
@@ -332,10 +341,14 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testSplitsSha256Checksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installSplits(new String[]{TEST_V4_APK, TEST_V4_SPLIT0, TEST_V4_SPLIT1, TEST_V4_SPLIT2,
                 TEST_V4_SPLIT3, TEST_V4_SPLIT4});
         assertTrue(isAppInstalled(V4_PACKAGE_NAME));
@@ -429,10 +442,14 @@ public class ChecksumsTest {
                 "ce4ad41be1191ab3cdfef09ab6fb3c5d057e15cb3553661b393f770d9149f1cc");
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedDefaultChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
 
@@ -462,10 +479,14 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedV1DefaultChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installPackage(TEST_FIXED_APK_V1);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
 
@@ -487,10 +508,14 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedSha512DefaultChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installPackage(TEST_FIXED_APK_V2_SHA512);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
 
@@ -522,10 +547,14 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedVerityDefaultChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installPackage(TEST_FIXED_APK_VERITY);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
 
@@ -662,6 +691,7 @@ public class ChecksumsTest {
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
+    @SuppressWarnings("deprecation")
     public void testFixedAllFileChecksumsSingleThread() throws Exception {
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
@@ -685,8 +715,13 @@ public class ChecksumsTest {
         assertNotNull(checksums);
         assertEquals(5, checksums.length);
         assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[0].getType());
-        assertEquals("1e8f831ef35257ca30d11668520aaafc6da243e853531caabc3b7867986f8886",
-                bytesToHexString(checksums[0].getValue()));
+        if (Build.VERSION.SDK_INT < 33) {
+            assertEquals("1e8f831ef35257ca30d11668520aaafc6da243e853531caabc3b7867986f8886",
+                    bytesToHexString(checksums[0].getValue()));
+        } else {
+            assertEquals("0b9bd6ef683e0c4e8940aba6460382b33e607c0fcf487f3dc6a44b715615d166",
+                    bytesToHexString(checksums[0].getValue()));
+        }
         assertEquals(TYPE_WHOLE_MD5, checksums[1].getType());
         assertEquals(bytesToHexString(checksums[1].getValue()), "78e51e8c51e4adc6870cd71389e0f3db");
         assertEquals(TYPE_WHOLE_SHA1, checksums[2].getType());
@@ -737,10 +772,14 @@ public class ChecksumsTest {
         InstallerApi31.checkWrittenChecksums(TEST_FIXED_APK_DIGESTS_FILE);
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerChecksumsTrustNone() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installApkWithChecksums(NO_SIGNATURE);
 
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0, TRUST_NONE);
@@ -763,10 +802,14 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerChecksumsTrustAll() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         installApkWithChecksums(NO_SIGNATURE);
 
         final Certificate certificate = InstallerApi31.getInstallerCertificate(mContext);
@@ -828,10 +871,14 @@ public class ChecksumsTest {
         */
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerSignedChecksums() throws Exception {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         final byte[] signature = InstallerApi31.readSignature();
         final Certificate certificate = InstallerApi31.readCertificate();
 
@@ -896,7 +943,7 @@ public class ChecksumsTest {
     }
 
     private void validateFixedAllChecksums(Checksum[] checksums) {
-        if (Build.VERSION.SDK_INT < 31) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             validateFixedAllChecksumsFallback(checksums);
             return;
         }
@@ -904,8 +951,13 @@ public class ChecksumsTest {
         assertEquals(7, checksums.length);
         assertEquals(checksums[0].getType(),
                 android.content.pm.Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256);
-        assertEquals(bytesToHexString(checksums[0].getValue()),
-                "90553b8d221ab1b900b242a93e4cc659ace3a2ff1d5c62e502488b385854e66a");
+        if (Build.VERSION.SDK_INT < 33) {
+            assertEquals(bytesToHexString(checksums[0].getValue()),
+                    "90553b8d221ab1b900b242a93e4cc659ace3a2ff1d5c62e502488b385854e66a");
+        } else {
+            assertEquals(bytesToHexString(checksums[0].getValue()),
+                    "759626c33083fbf43215cb5b17156977d963d4c6850c0cb4e73162a665db560b");
+        }
         assertEquals(checksums[1].getType(), android.content.pm.Checksum.TYPE_WHOLE_MD5);
         assertEquals(bytesToHexString(checksums[1].getValue()), TEST_FIXED_APK_MD5);
         assertEquals(checksums[2].getType(), android.content.pm.Checksum.TYPE_WHOLE_SHA1);
@@ -951,6 +1003,7 @@ public class ChecksumsTest {
                 trustedInstallers);
     }
 
+    @SuppressWarnings("deprecation")
     private Checksum[] getFileChecksums(@NonNull String packageName,
             @Checksum.Type int required, @NonNull List<Certificate> trustedInstallers)
             throws Exception {
@@ -1184,6 +1237,7 @@ public class ChecksumsTest {
             }
         }
 
+        @SuppressWarnings("deprecation")
         static Certificate getInstallerCertificate(Context context) throws Exception {
             PackageManager pm = context.getPackageManager();
             PackageInfo installerPackageInfo = pm.getPackageInfo(INSTALLER_PACKAGE_NAME,

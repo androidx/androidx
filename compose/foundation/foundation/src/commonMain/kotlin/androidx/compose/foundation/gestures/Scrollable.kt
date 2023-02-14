@@ -22,13 +22,11 @@ import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.Orientation.Horizontal
-import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.onFocusedBoundsChanged
-import androidx.compose.foundation.relocation.BringIntoViewResponder
-import androidx.compose.foundation.relocation.bringIntoViewResponder
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -36,9 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -50,21 +48,19 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnPlacedModifier
-import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Configure touch scrolling and flinging for the UI element in a single [Orientation].
@@ -89,6 +85,7 @@ import kotlinx.coroutines.launch
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
  */
+@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.scrollable(
     state: ScrollableState,
     orientation: Orientation,
@@ -103,14 +100,44 @@ fun Modifier.scrollable(
     reverseDirection = reverseDirection,
     flingBehavior = flingBehavior,
     interactionSource = interactionSource,
-    overScrollController = null
+    overscrollEffect = null
 )
 
-@OptIn(ExperimentalFoundationApi::class)
-internal fun Modifier.scrollable(
+/**
+ * Configure touch scrolling and flinging for the UI element in a single [Orientation].
+ *
+ * Users should update their state themselves using default [ScrollableState] and its
+ * `consumeScrollDelta` callback or by implementing [ScrollableState] interface manually and reflect
+ * their own state in UI when using this component.
+ *
+ * If you don't need to have fling or nested scroll support, but want to make component simply
+ * draggable, consider using [draggable].
+ *
+ * This overload provides the access to [OverscrollEffect] that defines the behaviour of the
+ * over scrolling logic. Consider using [ScrollableDefaults.overscrollEffect] for the platform
+ * look-and-feel.
+ *
+ * @sample androidx.compose.foundation.samples.ScrollableSample
+ *
+ * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
+ * interpreted by the user land logic and contains useful information about on-going events.
+ * @param orientation orientation of the scrolling
+ * @param overscrollEffect effect to which the deltas will be fed when the scrollable have
+ * some scrolling delta left. Pass `null` for no overscroll. If you pass an effect you should
+ * also apply [androidx.compose.foundation.overscroll] modifier.
+ * @param enabled whether or not scrolling in enabled
+ * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
+ * behave like bottom to top and left to right will behave like right to left.
+ * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
+ * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
+ * @param interactionSource [MutableInteractionSource] that will be used to emit
+ * drag events when this scrollable is being dragged.
+ */
+@ExperimentalFoundationApi
+fun Modifier.scrollable(
     state: ScrollableState,
     orientation: Orientation,
-    overScrollController: OverScrollController?,
+    overscrollEffect: OverscrollEffect?,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
@@ -120,14 +147,13 @@ internal fun Modifier.scrollable(
         name = "scrollable"
         properties["orientation"] = orientation
         properties["state"] = state
-        properties["overScrollController"] = overScrollController
+        properties["overscrollEffect"] = overscrollEffect
         properties["enabled"] = enabled
         properties["reverseDirection"] = reverseDirection
         properties["flingBehavior"] = flingBehavior
         properties["interactionSource"] = interactionSource
     },
     factory = {
-        val overscrollModifier = overScrollController?.let { Modifier.overScroll(it) } ?: Modifier
         val coroutineScope = rememberCoroutineScope()
         val keepFocusedChildInViewModifier =
             remember(coroutineScope, orientation, state, reverseDirection) {
@@ -137,14 +163,13 @@ internal fun Modifier.scrollable(
         Modifier
             .focusGroup()
             .then(keepFocusedChildInViewModifier.modifier)
-            .then(overscrollModifier)
             .pointerScrollable(
                 interactionSource,
                 orientation,
                 reverseDirection,
                 state,
                 flingBehavior,
-                overScrollController,
+                overscrollEffect,
                 enabled
             )
             .then(if (enabled) ModifierLocalScrollableContainerProvider else Modifier)
@@ -166,6 +191,42 @@ object ScrollableDefaults {
             DefaultFlingBehavior(flingSpec)
         }
     }
+
+    /**
+     * Create and remember default [OverscrollEffect] that will be used for showing over scroll
+     * effects.
+     */
+    @Composable
+    @ExperimentalFoundationApi
+    fun overscrollEffect(): OverscrollEffect {
+        return rememberOverscrollEffect()
+    }
+
+    /**
+     * Used to determine the value of `reverseDirection` parameter of [Modifier.scrollable]
+     * in scrollable layouts.
+     *
+     * @param layoutDirection current layout direction (e.g. from [LocalLayoutDirection])
+     * @param orientation orientation of scroll
+     * @param reverseScrolling whether scrolling direction should be reversed
+     *
+     * @return `true` if scroll direction should be reversed, `false` otherwise.
+     */
+    fun reverseDirection(
+        layoutDirection: LayoutDirection,
+        orientation: Orientation,
+        reverseScrolling: Boolean
+    ): Boolean {
+        // A finger moves with the content, not with the viewport. Therefore,
+        // always reverse once to have "natural" gesture that goes reversed to layout
+        var reverseDirection = !reverseScrolling
+        // But if rtl and horizontal, things move the other way around
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        if (isRtl && orientation != Orientation.Vertical) {
+            reverseDirection = !reverseDirection
+        }
+        return reverseDirection
+    }
 }
 
 internal interface ScrollConfig {
@@ -177,13 +238,14 @@ internal expect fun platformScrollConfig(): ScrollConfig
 
 @Suppress("ComposableModifierFactory")
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.pointerScrollable(
     interactionSource: MutableInteractionSource?,
     orientation: Orientation,
     reverseDirection: Boolean,
     controller: ScrollableState,
     flingBehavior: FlingBehavior?,
-    overScrollController: OverScrollController?,
+    overscrollEffect: OverscrollEffect?,
     enabled: Boolean
 ): Modifier {
     val fling = flingBehavior ?: ScrollableDefaults.flingBehavior()
@@ -195,7 +257,7 @@ private fun Modifier.pointerScrollable(
             nestedScrollDispatcher,
             controller,
             fling,
-            overScrollController
+            overscrollEffect
         )
     )
     val nestedScrollConnection = remember(enabled) {
@@ -205,7 +267,7 @@ private fun Modifier.pointerScrollable(
     val scrollConfig = platformScrollConfig()
 
     return draggable(
-        { draggableState },
+        draggableState,
         orientation = orientation,
         enabled = enabled,
         interactionSource = interactionSource,
@@ -226,8 +288,8 @@ private fun Modifier.mouseWheelScroll(
     scrollingLogicState: State<ScrollingLogic>,
     mouseWheelScrollConfig: ScrollConfig,
 ) = pointerInput(scrollingLogicState, mouseWheelScrollConfig) {
-    while (true) {
-        awaitPointerEventScope {
+    awaitPointerEventScope {
+        while (true) {
             val event = awaitScrollEvent()
             if (event.changes.fastAll { !it.isConsumed }) {
                 with(mouseWheelScrollConfig) {
@@ -253,28 +315,33 @@ private suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
     return event
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private class ScrollingLogic(
     val orientation: Orientation,
     val reverseDirection: Boolean,
     val nestedScrollDispatcher: State<NestedScrollDispatcher>,
     val scrollableState: ScrollableState,
     val flingBehavior: FlingBehavior,
-    val overScrollController: OverScrollController?
+    val overscrollEffect: OverscrollEffect?
 ) {
+    private val isNestedFlinging = mutableStateOf(false)
     fun Float.toOffset(): Offset = when {
         this == 0f -> Offset.Zero
         orientation == Horizontal -> Offset(this, 0f)
         else -> Offset(0f, this)
     }
 
-    fun Float.toVelocity(): Velocity =
-        if (orientation == Horizontal) Velocity(this, 0f) else Velocity(0f, this)
+    fun Offset.singleAxisOffset(): Offset =
+        if (orientation == Horizontal) copy(y = 0f) else copy(x = 0f)
 
     fun Offset.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
 
     fun Velocity.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
+
+    fun Velocity.singleAxisVelocity(): Velocity =
+        if (orientation == Horizontal) copy(y = 0f) else copy(x = 0f)
 
     fun Velocity.update(newValue: Float): Velocity =
         if (orientation == Horizontal) copy(x = newValue) else copy(y = newValue)
@@ -283,38 +350,41 @@ private class ScrollingLogic(
 
     fun Offset.reverseIfNeeded(): Offset = if (reverseDirection) this * -1f else this
 
-    fun ScrollScope.dispatchScroll(
-        scrollDelta: Offset,
-        pointerPosition: Offset?,
-        source: NestedScrollSource
-    ): Offset {
-        val overScrollPreConsumed =
-            overScrollController
-                ?.consumePreScroll(scrollDelta, pointerPosition, source)
-                ?: Offset.Zero
+    /**
+     * @return the amount of scroll that was consumed
+     */
+    fun ScrollScope.dispatchScroll(availableDelta: Offset, source: NestedScrollSource): Offset {
+        val scrollDelta = availableDelta.singleAxisOffset()
 
-        val afterPreOverscroll = scrollDelta - overScrollPreConsumed
-        val nestedScrollDispatcher = nestedScrollDispatcher.value
-        val preConsumedByParent = nestedScrollDispatcher
-            .dispatchPreScroll(afterPreOverscroll, source)
+        val performScroll: (Offset) -> Offset = { delta ->
+            val nestedScrollDispatcher = nestedScrollDispatcher.value
+            val preConsumedByParent = nestedScrollDispatcher
+                .dispatchPreScroll(delta, source)
 
-        val scrollAvailable = afterPreOverscroll - preConsumedByParent
+            val scrollAvailable = delta - preConsumedByParent
+            // Consume on a single axis
+            val axisConsumed =
+                scrollBy(scrollAvailable.reverseIfNeeded().toFloat()).toOffset().reverseIfNeeded()
 
-        // Consume on a single axis
-        val axisConsumed =
-            scrollBy(scrollAvailable.reverseIfNeeded().toFloat()).toOffset().reverseIfNeeded()
+            val leftForParent = scrollAvailable - axisConsumed
+            val parentConsumed = nestedScrollDispatcher.dispatchPostScroll(
+                axisConsumed,
+                leftForParent,
+                source
+            )
 
-        val leftForParent = scrollAvailable - axisConsumed
-        val parentConsumed = nestedScrollDispatcher
-            .dispatchPostScroll(axisConsumed, leftForParent, source)
-        overScrollController?.consumePostScroll(
-            scrollAvailable,
-            (leftForParent - parentConsumed),
-            pointerPosition,
-            source
-        )
-        return leftForParent
+            preConsumedByParent + axisConsumed + parentConsumed
+        }
+
+        return if (overscrollEffect != null && shouldDispatchOverscroll) {
+            overscrollEffect.applyToScroll(scrollDelta, source, performScroll)
+        } else {
+            performScroll(scrollDelta)
+        }
     }
+
+    private val shouldDispatchOverscroll
+        get() = scrollableState.canScrollForward || scrollableState.canScrollBackward
 
     fun performRawScroll(scroll: Offset): Offset {
         return if (scrollableState.isScrollInProgress) {
@@ -325,27 +395,41 @@ private class ScrollingLogic(
         }
     }
 
-    suspend fun onDragStopped(axisVelocity: Float) {
-        val preOverscrollConsumed = overScrollController
-            ?.consumePreFling(axisVelocity.toVelocity())?.toFloat()
-            ?: 0f
-        val velocity = (axisVelocity - preOverscrollConsumed).toVelocity()
-        val preConsumedByParent = nestedScrollDispatcher.value.dispatchPreFling(velocity)
-        val available = velocity - preConsumedByParent
-        val velocityLeft = doFlingAnimation(available)
-        val consumedPost =
-            nestedScrollDispatcher.value.dispatchPostFling(available - velocityLeft, velocityLeft)
-        val totalLeft = velocityLeft - consumedPost
-        overScrollController?.consumePostFling(totalLeft.toFloat().toVelocity())
-        overScrollController?.release()
+    suspend fun onDragStopped(initialVelocity: Velocity) {
+        // Self started flinging, set
+        registerNestedFling(true)
+
+        val availableVelocity = initialVelocity.singleAxisVelocity()
+
+        val performFling: suspend (Velocity) -> Velocity = { velocity ->
+            val preConsumedByParent = nestedScrollDispatcher
+                .value.dispatchPreFling(velocity)
+            val available = velocity - preConsumedByParent
+            val velocityLeft = doFlingAnimation(available)
+            val consumedPost =
+                nestedScrollDispatcher.value.dispatchPostFling(
+                    (available - velocityLeft),
+                    velocityLeft
+                )
+            val totalLeft = velocityLeft - consumedPost
+            velocity - totalLeft
+        }
+
+        if (overscrollEffect != null && shouldDispatchOverscroll) {
+            overscrollEffect.applyToFling(availableVelocity, performFling)
+        } else {
+            performFling(availableVelocity)
+        }
+
+        // Self stopped flinging, reset
+        registerNestedFling(false)
     }
 
     suspend fun doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
         scrollableState.scroll {
             val outerScopeScroll: (Offset) -> Offset = { delta ->
-                val consumed = this.dispatchScroll(delta.reverseIfNeeded(), null, Fling)
-                delta - consumed.reverseIfNeeded()
+                dispatchScroll(delta.reverseIfNeeded(), Fling).reverseIfNeeded()
             }
             val scope = object : ScrollScope {
                 override fun scrollBy(pixels: Float): Float {
@@ -364,28 +448,29 @@ private class ScrollingLogic(
     }
 
     fun shouldScrollImmediately(): Boolean {
-        return scrollableState.isScrollInProgress ||
-            overScrollController?.stopOverscrollAnimation() ?: false
+        return scrollableState.isScrollInProgress || isNestedFlinging.value ||
+            overscrollEffect?.isInProgress ?: false
+    }
+
+    fun registerNestedFling(isFlinging: Boolean) {
+        isNestedFlinging.value = isFlinging
     }
 }
 
 private class ScrollDraggableState(
     val scrollLogic: State<ScrollingLogic>
-) : PointerAwareDraggableState, PointerAwareDragScope {
+) : DraggableState, DragScope {
     var latestScrollScope: ScrollScope = NoOpScrollScope
 
-    override fun dragBy(pixels: Float, pointerPosition: Offset) {
+    override fun dragBy(pixels: Float) {
         with(scrollLogic.value) {
             with(latestScrollScope) {
-                dispatchScroll(pixels.toOffset(), pointerPosition, Drag)
+                dispatchScroll(pixels.toOffset(), Drag)
             }
         }
     }
 
-    override suspend fun drag(
-        dragPriority: MutatePriority,
-        block: suspend PointerAwareDragScope.() -> Unit
-    ) {
+    override suspend fun drag(dragPriority: MutatePriority, block: suspend DragScope.() -> Unit) {
         scrollLogic.value.scrollableState.scroll(dragPriority) {
             latestScrollScope = this
             block()
@@ -405,6 +490,14 @@ private fun scrollableNestedScrollConnection(
     scrollLogic: State<ScrollingLogic>,
     enabled: Boolean
 ): NestedScrollConnection = object : NestedScrollConnection {
+    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        // child will fling, set
+        if (source == Fling) {
+            scrollLogic.value.registerNestedFling(true)
+        }
+        return Offset.Zero
+    }
+
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
@@ -424,157 +517,46 @@ private fun scrollableNestedScrollConnection(
             available - velocityLeft
         } else {
             Velocity.Zero
+        }.also {
+            // Flinging child finished flinging, reset
+            scrollLogic.value.registerNestedFling(false)
         }
     }
 }
 
-private class DefaultFlingBehavior(
-    private val flingDecay: DecayAnimationSpec<Float>
+internal class DefaultFlingBehavior(
+    private val flingDecay: DecayAnimationSpec<Float>,
+    private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale
 ) : FlingBehavior {
+
+    // For Testing
+    var lastAnimationCycleCount = 0
+
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+        lastAnimationCycleCount = 0
         // come up with the better threshold, but we need it since spline curve gives us NaNs
-        return if (abs(initialVelocity) > 1f) {
-            var velocityLeft = initialVelocity
-            var lastValue = 0f
-            AnimationState(
-                initialValue = 0f,
-                initialVelocity = initialVelocity,
-            ).animateDecay(flingDecay) {
-                val delta = value - lastValue
-                val consumed = scrollBy(delta)
-                lastValue = value
-                velocityLeft = this.velocity
-                // avoid rounding errors and stop if anything is unconsumed
-                if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-            }
-            velocityLeft
-        } else {
-            initialVelocity
-        }
-    }
-}
-
-/**
- * Handles any logic related to bringing or keeping content in view, including
- * [BringIntoViewResponder] and ensuring the focused child stays in view when the scrollable area
- * is shrunk.
- */
-@OptIn(ExperimentalFoundationApi::class)
-private class ContentInViewModifier(
-    private val scope: CoroutineScope,
-    private val orientation: Orientation,
-    private val scrollableState: ScrollableState,
-    private val reverseDirection: Boolean
-) : BringIntoViewResponder, OnRemeasuredModifier, OnPlacedModifier {
-    private var focusedChild: LayoutCoordinates? = null
-    private var coordinates: LayoutCoordinates? = null
-    private var oldSize: IntSize? = null
-
-    val modifier: Modifier = this
-        .onFocusedBoundsChanged { focusedChild = it }
-        .bringIntoViewResponder(this)
-
-    override fun onRemeasured(size: IntSize) {
-        val coordinates = coordinates
-        val oldSize = oldSize
-        // We only care when this node becomes smaller than it previously was, so don't care about
-        // the initial measurement.
-        if (oldSize != null && oldSize != size && coordinates?.isAttached == true) {
-            onSizeChanged(coordinates, oldSize)
-        }
-        this.oldSize = size
-    }
-
-    override fun onPlaced(coordinates: LayoutCoordinates) {
-        this.coordinates = coordinates
-    }
-
-    override fun calculateRectForParent(localRect: Rect): Rect {
-        val oldSize = checkNotNull(oldSize) {
-            "Expected BringIntoViewRequester to not be used before parents are placed."
-        }
-        // oldSize will only be null before the initial measurement.
-        return computeDestination(localRect, oldSize)
-    }
-
-    override suspend fun bringChildIntoView(localRect: Rect) {
-        performBringIntoView(localRect, calculateRectForParent(localRect))
-    }
-
-    private fun onSizeChanged(coordinates: LayoutCoordinates, oldSize: IntSize) {
-        val containerShrunk = if (orientation == Horizontal) {
-            coordinates.size.width < oldSize.width
-        } else {
-            coordinates.size.height < oldSize.height
-        }
-        // If the container is growing, then if the focused child is only partially visible it will
-        // soon be _more_ visible, so don't scroll.
-        if (!containerShrunk) return
-
-        val focusedBounds = focusedChild
-            ?.let { coordinates.localBoundingBoxOf(it, clipBounds = false) }
-            ?: return
-        val myOldBounds = Rect(Offset.Zero, oldSize.toSize())
-        val adjustedBounds = computeDestination(focusedBounds, coordinates.size)
-        val wasVisible = myOldBounds.overlaps(focusedBounds)
-        val isFocusedChildClipped = adjustedBounds != focusedBounds
-
-        if (wasVisible && isFocusedChildClipped) {
-            scope.launch {
-                performBringIntoView(focusedBounds, adjustedBounds)
+        return withContext(motionDurationScale) {
+            if (abs(initialVelocity) > 1f) {
+                var velocityLeft = initialVelocity
+                var lastValue = 0f
+                AnimationState(
+                    initialValue = 0f,
+                    initialVelocity = initialVelocity,
+                ).animateDecay(flingDecay) {
+                    val delta = value - lastValue
+                    val consumed = scrollBy(delta)
+                    lastValue = value
+                    velocityLeft = this.velocity
+                    // avoid rounding errors and stop if anything is unconsumed
+                    if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
+                    lastAnimationCycleCount++
+                }
+                velocityLeft
+            } else {
+                initialVelocity
             }
         }
     }
-
-    /**
-     * Compute the destination given the source rectangle and current bounds.
-     *
-     * @param source The bounding box of the item that sent the request to be brought into view.
-     * @return the destination rectangle.
-     */
-    private fun computeDestination(source: Rect, intSize: IntSize): Rect {
-        val size = intSize.toSize()
-        return when (orientation) {
-            Vertical ->
-                source.translate(0f, relocationDistance(source.top, source.bottom, size.height))
-            Horizontal ->
-                source.translate(relocationDistance(source.left, source.right, size.width), 0f)
-        }
-    }
-
-    /**
-     * Using the source and destination bounds, perform an animated scroll.
-     */
-    private suspend fun performBringIntoView(source: Rect, destination: Rect) {
-        val offset = when (orientation) {
-            Vertical -> source.top - destination.top
-            Horizontal -> source.left - destination.left
-        }
-        val scrollDelta = if (reverseDirection) -offset else offset
-
-        // Note that this results in weird behavior if called before the previous
-        // performBringIntoView finishes due to b/220119990.
-        scrollableState.animateScrollBy(scrollDelta)
-    }
-
-    /**
-     * Calculate the offset needed to bring one of the edges into view. The leadingEdge is the side
-     * closest to the origin (For the x-axis this is 'left', for the y-axis this is 'top').
-     * The trailing edge is the other side (For the x-axis this is 'right', for the y-axis this is
-     * 'bottom').
-     */
-    private fun relocationDistance(leadingEdge: Float, trailingEdge: Float, parentSize: Float) =
-        when {
-            // If the item is already visible, no need to scroll.
-            leadingEdge >= 0 && trailingEdge <= parentSize -> 0f
-
-            // If the item is visible but larger than the parent, we don't scroll.
-            leadingEdge < 0 && trailingEdge > parentSize -> 0f
-
-            // Find the minimum scroll needed to make one of the edges coincide with the parent's edge.
-            abs(leadingEdge) < abs(trailingEdge - parentSize) -> leadingEdge
-            else -> trailingEdge - parentSize
-        }
 }
 
 // TODO: b/203141462 - make this public and move it to ui
@@ -587,4 +569,11 @@ internal val ModifierLocalScrollableContainer = modifierLocalOf { false }
 private object ModifierLocalScrollableContainerProvider : ModifierLocalProvider<Boolean> {
     override val key = ModifierLocalScrollableContainer
     override val value = true
+}
+
+private const val DefaultScrollMotionDurationScaleFactor = 1f
+
+internal val DefaultScrollMotionDurationScale = object : MotionDurationScale {
+    override val scaleFactor: Float
+        get() = DefaultScrollMotionDurationScaleFactor
 }

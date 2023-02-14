@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
     compileOnly("androidx.fragment:fragment:1.2.5")
@@ -46,7 +46,6 @@ android {
 androidx {
     name = "Android Transition Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.TRANSITION
     inceptionYear = "2016"
     description = "Android Transition Support Library"
 }

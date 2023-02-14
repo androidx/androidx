@@ -15,6 +15,6 @@
   -->
 
 <resources>
-    <string name="error_layout_title"><b>Glance App Widget Error</b></string>
-    <string name="error_layout_text">Check the exact error using <b><tt>adb logcat</tt></b>, searching for <b><tt>GlanceAppWidget</tt></b></string>
+    <string name="glance_error_layout_title"><b>Glance App Widget Error</b></string>
+    <string name="glance_error_layout_text">Check the exact error using <b><tt>adb logcat</tt></b>, searching for <b><tt>GlanceAppWidget</tt></b></string>
 </resources>

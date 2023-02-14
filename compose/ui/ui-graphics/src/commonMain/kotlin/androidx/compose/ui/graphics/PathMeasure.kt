@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
+
 /**
  * Create an empty [PathMeasure] object. To uses this to measure the length of a path, and/or to
  * find the position and tangent along it, call [PathMeasure.setPath]. Note that once a path is
@@ -25,6 +28,7 @@ package androidx.compose.ui.graphics
  */
 expect fun PathMeasure(): PathMeasure
 
+@JvmDefaultWithCompatibility
 interface PathMeasure {
 
     /**
@@ -50,4 +54,22 @@ interface PathMeasure {
      * Assign a new path, or null to have none.
      */
     fun setPath(path: Path?, forceClosed: Boolean)
+
+    /**
+     * Pins distance to 0 <= distance <= getLength(), and then computes the corresponding position
+     *
+     * @param distance The distance along the current contour to sample
+     *
+     * @return [Offset.Unspecified] if there is no path set
+     */
+    fun getPosition(distance: Float): Offset
+
+    /**
+     * Pins distance to 0 <= distance <= getLength(), and then computes the corresponding tangent
+     *
+     * @param distance The distance along the current contour to sample
+     *
+     * @return [Offset.Unspecified] if there is no path set
+     */
+    fun getTangent(distance: Float): Offset
 }

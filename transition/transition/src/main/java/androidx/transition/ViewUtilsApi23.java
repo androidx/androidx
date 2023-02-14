@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -42,11 +43,23 @@ class ViewUtilsApi23 extends ViewUtilsApi22 {
                 // Since this was an @hide method made public, we can link directly against it with
                 // a try/catch for its absence instead of doing the same through reflection.
                 try {
-                    view.setTransitionVisibility(visibility);
+                    Api29Impl.setTransitionVisibility(view, visibility);
                 } catch (NoSuchMethodError e) {
                     sTryHiddenSetTransitionVisibility = false;
                 }
             }
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setTransitionVisibility(View view, int visibility) {
+            view.setTransitionVisibility(visibility);
         }
     }
 }

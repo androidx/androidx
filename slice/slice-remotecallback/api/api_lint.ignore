@@ -3,5 +3,3 @@ InvalidNullabilityOverride: androidx.slice.remotecallback.RemoteSliceProvider#at
     Invalid nullability on parameter `context` in method `attachInfo`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
 InvalidNullabilityOverride: androidx.slice.remotecallback.RemoteSliceProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #1:
     Invalid nullability on parameter `info` in method `attachInfo`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
-InvalidNullabilityOverride: androidx.slice.remotecallback.RemoteSliceProvider#createRemoteCallback(android.content.Context) parameter #0:
-    Invalid nullability on parameter `context` in method `createRemoteCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

@@ -33,35 +33,44 @@ internal class Bounds(
     public val right: Int,
     public val bottom: Int
 ) {
-    public constructor(rect: Rect) : this(rect.left, rect.top, rect.right, rect.bottom)
+    constructor(rect: Rect) : this(rect.left, rect.top, rect.right, rect.bottom)
+
+    init {
+        require(left <= right) {
+            "Left must be less than or equal to right, left: $left, right: $right"
+        }
+        require(top <= bottom) {
+            "top must be less than or equal to bottom, top: $top, bottom: $bottom"
+        }
+    }
 
     /**
      * Return the [Rect] representation of the bounds
      */
-    public fun toRect(): Rect = Rect(left, top, right, bottom)
+    fun toRect(): Rect = Rect(left, top, right, bottom)
 
     /**
      * The width of the bounds, may be negative.
      */
-    public val width: Int
+    val width: Int
         get() = right - left
 
     /**
      * The height of the bounds, may be negative.
      */
-    public val height: Int
+    val height: Int
         get() = bottom - top
 
     /**
      * Determines if the bounds has empty area.
      */
-    public val isEmpty: Boolean
+    val isEmpty: Boolean
         get() = height == 0 || width == 0
 
     /**
      * Returns if the dimensions of the bounds is 0.
      */
-    public val isZero: Boolean
+    val isZero: Boolean
         get() = height == 0 && width == 0
 
     override fun toString(): String {

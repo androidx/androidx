@@ -111,6 +111,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mWebView.loadUrl(EXAMPLE_SITE_WITH_VIDEO_PLAYER);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mWebChromeClient.inFullScreenMode()) {

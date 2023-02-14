@@ -22,10 +22,10 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutHelper
 import androidx.compose.ui.text.android.StaticLayoutFactory
-import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

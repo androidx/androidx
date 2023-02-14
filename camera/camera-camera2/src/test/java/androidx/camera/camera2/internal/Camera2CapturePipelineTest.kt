@@ -42,6 +42,9 @@ import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CameraCaptureFailure
+import androidx.camera.core.impl.CameraCaptureMetaData.AeState
+import androidx.camera.core.impl.CameraCaptureMetaData.AfState
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbState
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
@@ -64,6 +67,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -97,6 +101,7 @@ class Camera2CapturePipelineTest {
         CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO,
         CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
         CaptureResult.CONTROL_AWB_MODE to CaptureResult.CONTROL_AWB_MODE_AUTO,
+        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
     )
 
     private val resultConverged: Map<CaptureResult.Key<*>, Any> = mapOf(
@@ -104,6 +109,15 @@ class Camera2CapturePipelineTest {
         CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
         CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
         CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED,
+    )
+
+    private val resultConvergedWith3AModeOff: Map<CaptureResult.Key<*>, Any> = mapOf(
+        CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF,
+        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
+        CaptureResult.CONTROL_AWB_MODE to CaptureResult.CONTROL_AWB_MODE_OFF,
+        CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_INACTIVE,
+        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_INACTIVE,
+        CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_INACTIVE,
     )
 
     private val fakeStillCaptureSurface = ImmediateSurface(Surface(SurfaceTexture(0)))
@@ -556,23 +570,9 @@ class Camera2CapturePipelineTest {
             it.build()
         }
 
-        val cameraControl = createCameraControl().apply {
-            simulateRepeatingResult(initialDelay = 100)
-        }
-
-        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
-            hasCapabilities = true,
-            isYuvReprocessingSupported = true,
-            isPrivateReprocessingSupported = true
-        ))
-
-        val captureResult = FakeCameraCaptureResult()
-        val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
-        imageProxy.image = mock(Image::class.java)
-        zslControl.mImageRingBuffer.add(imageProxy)
-        zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
-
-        cameraControl.mZslControl = zslControl
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = false, isZslDisabledByUserCaseConfig = false
+        )
 
         // Act.
         cameraControl.submitStillCaptureRequests(
@@ -596,30 +596,77 @@ class Camera2CapturePipelineTest {
     }
 
     @Test
+    fun submitZslCaptureRequests_withZslDisabledByFlashMode_templateStillPictureSent():
+        Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeStillCaptureSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = true, isZslDisabledByUserCaseConfig = false
+        )
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(imageCaptureConfig),
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            FLASH_MODE_OFF,
+        ).await()
+
+        // Assert.
+        immediateCompleteCapture.verifyRequestResult { captureConfigList ->
+            captureConfigList.filter {
+                it.surfaces.contains(fakeStillCaptureSurface)
+            }.map { captureConfig ->
+                captureConfig.templateType
+            }.contains(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        }
+    }
+
+    @Test
+    fun submitZslCaptureRequests_withZslDisabledByUseCaseConfig_templateStillPictureSent():
+        Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeStillCaptureSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = false, isZslDisabledByUserCaseConfig = true
+        )
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(imageCaptureConfig),
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            FLASH_MODE_OFF,
+        ).await()
+
+        // Assert.
+        immediateCompleteCapture.verifyRequestResult { captureConfigList ->
+            captureConfigList.filter {
+                it.surfaces.contains(fakeStillCaptureSurface)
+            }.map { captureConfig ->
+                captureConfig.templateType
+            }.contains(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        }
+    }
+
+    @Test
     fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runBlocking {
         // Arrange.
         val imageCaptureConfig = CaptureConfig.Builder().let {
             it.addSurface(fakeStillCaptureSurface)
             it.build()
         }
-
-        val cameraControl = createCameraControl().apply {
-            simulateRepeatingResult(initialDelay = 100)
-        }
-
-        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
-            hasCapabilities = true,
-            isYuvReprocessingSupported = true,
-            isPrivateReprocessingSupported = true
-        ))
-
-        val captureResult = FakeCameraCaptureResult()
-        val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
-        imageProxy.image = mock(Image::class.java)
-        zslControl.mImageRingBuffer.add(imageProxy)
-        zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
-
-        cameraControl.mZslControl = zslControl
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = false, isZslDisabledByUserCaseConfig = false
+        )
 
         // Act.
         cameraControl.submitStillCaptureRequests(
@@ -884,6 +931,32 @@ class Camera2CapturePipelineTest {
                         .getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)
                 ).isNull()
             }
+        }
+    }
+
+    @Test
+    fun skip3AConvergenceInFlashOn_when3AModeOff(): Unit = runBlocking {
+        // Arrange. Not have the quirk.
+        val cameraControl = createCameraControl(quirks = Quirks(emptyList())).apply {
+            flashMode = FLASH_MODE_ON // Set flash ON
+            simulateRepeatingResult(initialDelay = 100) // Make sures flashMode is updated.
+        }
+
+        // Act.
+        val deferred = cameraControl.submitStillCaptureRequests(
+            listOf(singleRequest),
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+        // Switch the repeating result to 3A converged state with 3A modes being set to OFF.
+        cameraControl.simulateRepeatingResult(
+            initialDelay = 500,
+            resultParameters = resultConvergedWith3AModeOff
+        )
+
+        // Ensure 3A is converged (skips 3A check) and capture request is sent.
+        withTimeout(2000) {
+            assertThat(deferred.await())
         }
     }
 
@@ -1152,5 +1225,39 @@ class Camera2CapturePipelineTest {
         }
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
+    }
+
+    private fun initCameraControlWithZsl(
+        isZslDisabledByFlashMode: Boolean,
+        isZslDisabledByUserCaseConfig: Boolean
+    ): Camera2CameraControlImpl {
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 100)
+        }
+
+        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = true,
+            isPrivateReprocessingSupported = true
+        ))
+
+        // Only need to initialize when not disabled
+        if (!isZslDisabledByFlashMode && !isZslDisabledByUserCaseConfig) {
+            val captureResult = FakeCameraCaptureResult()
+            captureResult.afState = AfState.LOCKED_FOCUSED
+            captureResult.aeState = AeState.CONVERGED
+            captureResult.awbState = AwbState.CONVERGED
+            val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
+            imageProxy.image = mock(Image::class.java)
+            zslControl.mImageRingBuffer.enqueue(imageProxy)
+            zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
+        }
+
+        zslControl.isZslDisabledByFlashMode = isZslDisabledByFlashMode
+        zslControl.isZslDisabledByUserCaseConfig = isZslDisabledByUserCaseConfig
+
+        cameraControl.mZslControl = zslControl
+
+        return cameraControl
     }
 }

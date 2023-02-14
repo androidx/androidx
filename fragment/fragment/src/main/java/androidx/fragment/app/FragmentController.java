@@ -358,7 +358,7 @@ public class FragmentController {
      */
     @Deprecated
     public void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
-        mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode);
+        mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode, true);
     }
 
     /**
@@ -373,7 +373,7 @@ public class FragmentController {
      */
     @Deprecated
     public void dispatchPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-        mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
+        mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode, true);
     }
 
     /**
@@ -388,7 +388,7 @@ public class FragmentController {
      */
     @Deprecated
     public void dispatchConfigurationChanged(@NonNull Configuration newConfig) {
-        mHost.mFragmentManager.dispatchConfigurationChanged(newConfig);
+        mHost.mFragmentManager.dispatchConfigurationChanged(newConfig, true);
     }
 
     /**
@@ -404,7 +404,7 @@ public class FragmentController {
      */
     @Deprecated
     public void dispatchLowMemory() {
-        mHost.mFragmentManager.dispatchLowMemory();
+        mHost.mFragmentManager.dispatchLowMemory(true);
     }
 
     /**

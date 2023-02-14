@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 /**
  * An object that paints text onto a [Canvas].
@@ -62,7 +63,10 @@ import kotlin.math.ceil
  *
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it is truncated such that subsequent
- * lines are dropped.
+ * lines are dropped. It is required that 1 <= [minLines] <= [maxLines].
+ *
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  *
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -85,6 +89,7 @@ class TextDelegate(
     val text: AnnotatedString,
     val style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,
+    val minLines: Int = DefaultMinLines,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
@@ -106,17 +111,19 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: Int get() = ceil(nonNullIntrinsics.minIntrinsicWidth).toInt()
+    val minIntrinsicWidth: Int get() = nonNullIntrinsics.minIntrinsicWidth.ceilToIntPx()
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: Int get() = ceil(nonNullIntrinsics.maxIntrinsicWidth).toInt()
+    val maxIntrinsicWidth: Int get() = nonNullIntrinsics.maxIntrinsicWidth.ceilToIntPx()
 
     init {
         check(maxLines > 0)
+        check(minLines > 0)
+        check(minLines <= maxLines)
     }
 
     fun layoutIntrinsics(layoutDirection: LayoutDirection) {
@@ -230,8 +237,8 @@ class TextDelegate(
                     ),
                     size = constraints.constrain(
                         IntSize(
-                            ceil(multiParagraph.width).toInt(),
-                            ceil(multiParagraph.height).toInt()
+                            multiParagraph.width.ceilToIntPx(),
+                            multiParagraph.height.ceilToIntPx()
                         )
                     )
                 )
@@ -245,8 +252,8 @@ class TextDelegate(
 
         val size = constraints.constrain(
             IntSize(
-                ceil(multiParagraph.width).toInt(),
-                ceil(multiParagraph.height).toInt()
+                multiParagraph.width.ceilToIntPx(),
+                multiParagraph.height.ceilToIntPx()
             )
         )
 
@@ -291,3 +298,5 @@ class TextDelegate(
         }
     }
 }
+
+internal fun Float.ceilToIntPx(): Int = ceil(this).roundToInt()

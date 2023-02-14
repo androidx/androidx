@@ -23,6 +23,14 @@ import androidx.appsearch.app.AppSearchResult;
 import org.junit.Test;
 
 public class AppSearchResultCtsTest {
+    @Test
+    public void testNewSuccessfulResult() {
+        AppSearchResult<String> result = AppSearchResult.newSuccessfulResult("String");
+        assertThat(result.getResultCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(result.getResultValue()).isEqualTo("String");
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getErrorMessage()).isNull();
+    }
 
     @Test
     public void testResultEquals_identical() {

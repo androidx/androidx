@@ -25,10 +25,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
+import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.WorkTimer
+import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import com.google.android.gms.gcm.GcmNetworkManager
 import com.google.android.gms.gcm.TaskParams
 import org.junit.Before
@@ -74,7 +76,7 @@ class WorkManagerGcmDispatcherTest {
 
         val workTaskExecutor: androidx.work.impl.utils.taskexecutor.TaskExecutor =
             object : androidx.work.impl.utils.taskexecutor.TaskExecutor {
-                private val mSerialExecutor = SerialExecutor(mExecutor)
+                private val mSerialExecutor = SerialExecutorImpl(mExecutor)
 
                 override fun getMainThreadExecutor(): Executor {
                     return mExecutor
@@ -120,7 +122,9 @@ class WorkManagerGcmDispatcherTest {
         `when`(taskParams.tag).thenReturn(request.workSpec.id)
         val result = mDispatcher.onRunTask(taskParams)
         assert(result == GcmNetworkManager.RESULT_SUCCESS)
-        verify(mWorkTimer, times(1)).startTimer(eq(request.workSpec.id), anyLong(), any())
-        verify(mWorkTimer, atLeastOnce()).stopTimer(eq(request.workSpec.id))
+        verify(mWorkTimer, times(1)).startTimer(eq(
+            WorkGenerationalId(request.workSpec.id, 0)
+        ), anyLong(), any())
+        verify(mWorkTimer, atLeastOnce()).stopTimer(eq(WorkGenerationalId(request.workSpec.id, 0)))
     }
 }

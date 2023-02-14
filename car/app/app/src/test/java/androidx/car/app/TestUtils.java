@@ -112,6 +112,19 @@ public class TestUtils {
         }).build();
     }
 
+    /** Returns a default icon only {@link Action} instance with optional background color. */
+    public static Action createAction(@Nullable CarIcon icon, @Nullable CarColor backgroundColor) {
+        Action.Builder builder = new Action.Builder();
+        if (icon != null) {
+            builder.setIcon(icon);
+        }
+        if (backgroundColor != null) {
+            builder.setBackgroundColor(backgroundColor);
+        }
+        return builder.setOnClickListener(() -> {
+        }).build();
+    }
+
     /** Returns an {@link ItemList} with the given number of rows and selectable state. */
     public static ItemList createItemList(int rowCount, boolean isSelectable) {
         return createItemListWithDistanceSpan(rowCount, isSelectable, null);
@@ -228,8 +241,8 @@ public class TestUtils {
      */
     public static CharSequence getCharSequenceWithClickableSpan(String text) {
         SpannableString sequence = new SpannableString(text);
-        sequence.setSpan(ClickableSpan.create(() -> {
-        }),
+        sequence.setSpan(
+                ClickableSpan.create(() -> {}),
                 /* start= */ 0,
                 /* end= */ 1,
                 /* flags=*/ 0);

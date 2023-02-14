@@ -18,26 +18,24 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** A class representing information related to a destination. */
 @CarProtocol
+@KeepFields
 public final class Destination {
-    @Keep
     @Nullable
     private final CarText mName;
-    @Keep
     @Nullable
     private final CarText mAddress;
-    @Keep
     @Nullable
     private final CarIcon mImage;
 

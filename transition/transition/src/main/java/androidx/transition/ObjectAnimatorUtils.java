@@ -22,15 +22,29 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.util.Property;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+
 class ObjectAnimatorUtils {
 
     static <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return ObjectAnimator.ofObject(target, property, null, path);
+            return Api21Impl.ofObject(target, property, path);
         }
         return ObjectAnimator.ofFloat(target, new PathProperty<>(property, path), 0f, 1f);
     }
 
-    private ObjectAnimatorUtils() {
+    private ObjectAnimatorUtils() { }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static <T, V> ObjectAnimator ofObject(T target, Property<T, V> property, Path path) {
+            return ObjectAnimator.ofObject(target, property, null, path);
+        }
     }
 }

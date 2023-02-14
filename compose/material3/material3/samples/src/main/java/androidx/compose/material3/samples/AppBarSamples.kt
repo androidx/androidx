@@ -17,7 +17,6 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,34 +32,43 @@ import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 /**
- * A sample for a simple use of [SmallTopAppBar].
+ * A sample for a simple use of small [TopAppBar].
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
-fun SimpleSmallTopAppBar() {
+fun SimpleTopAppBar() {
     Scaffold(
         topBar = {
-            SmallTopAppBar(
-                title = { Text("Simple TopAppBar") },
+            TopAppBar(
+                title = {
+                    Text(
+                        "Simple TopAppBar",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -89,7 +97,9 @@ fun SimpleSmallTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -103,13 +113,20 @@ fun SimpleSmallTopAppBar() {
  * The top app bar here does not react to any scroll events in the content under it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun SimpleCenterAlignedTopAppBar() {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Centered TopAppBar") },
+                title = {
+                    Text(
+                        "Centered TopAppBar",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -138,7 +155,9 @@ fun SimpleCenterAlignedTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -147,21 +166,28 @@ fun SimpleCenterAlignedTopAppBar() {
 }
 
 /**
- * A sample for a pinned [SmallTopAppBar].
+ * A sample for a pinned small [TopAppBar].
  *
  * The top app bar here is pinned to its location and changes its container color when the content
  * under it is scrolled.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
-fun PinnedSmallTopAppBar() {
-    val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
+fun PinnedTopAppBar() {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            SmallTopAppBar(
-                title = { Text("Small TopAppBar") },
+            TopAppBar(
+                title = {
+                    Text(
+                        "TopAppBar",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -198,7 +224,9 @@ fun PinnedSmallTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -207,19 +235,26 @@ fun PinnedSmallTopAppBar() {
 }
 
 /**
- * A sample for a [SmallTopAppBar] that collapses when the content is scrolled up, and
+ * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and
  * appears when the content scrolled down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
-fun EnterAlwaysSmallTopAppBar() {
-    val scrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior() }
+fun EnterAlwaysTopAppBar() {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            SmallTopAppBar(
-                title = { Text("Small TopAppBar") },
+            TopAppBar(
+                title = {
+                    Text(
+                        "TopAppBar",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -249,7 +284,9 @@ fun EnterAlwaysSmallTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -262,18 +299,22 @@ fun EnterAlwaysSmallTopAppBar() {
  * appears when the content is completely scrolled back down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun ExitUntilCollapsedMediumTopAppBar() {
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    val scrollBehavior = remember(decayAnimationSpec) {
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(decayAnimationSpec)
-    }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             MediumTopAppBar(
-                title = { Text("Medium TopAppBar") },
+                title = {
+                    Text(
+                        "Medium TopAppBar",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -303,7 +344,9 @@ fun ExitUntilCollapsedMediumTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -316,18 +359,22 @@ fun ExitUntilCollapsedMediumTopAppBar() {
  * appears when the content is completely scrolled back down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun ExitUntilCollapsedLargeTopAppBar() {
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    val scrollBehavior = remember(decayAnimationSpec) {
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(decayAnimationSpec)
-    }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("Large TopAppBar") },
+                title = {
+                    Text(
+                        "Large TopAppBar",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -357,7 +404,9 @@ fun ExitUntilCollapsedLargeTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -365,6 +414,7 @@ fun ExitUntilCollapsedLargeTopAppBar() {
     )
 }
 
+@Preview
 @Sampled
 @Composable
 fun SimpleBottomAppBar() {
@@ -375,11 +425,12 @@ fun SimpleBottomAppBar() {
     }
 }
 
+@Preview
 @Sampled
 @Composable
 fun BottomAppBarWithFAB() {
     BottomAppBar(
-        icons = {
+        actions = {
             IconButton(onClick = { /* doSomething() */ }) {
                 Icon(Icons.Filled.Check, contentDescription = "Localized description")
             }
@@ -391,10 +442,10 @@ fun BottomAppBarWithFAB() {
             }
         },
         floatingActionButton = {
-            // TODO(b/228588827): Replace with Secondary FAB when available.
             FloatingActionButton(
                 onClick = { /* do something */ },
-                elevation = BottomAppBarDefaults.floatingActionButtonElevation()
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
             ) {
                 Icon(Icons.Filled.Add, "Localized description")
             }

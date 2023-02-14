@@ -54,7 +54,7 @@ class KspTypeNamesGoldenTest {
             fun XExecutableElement.createNewUniqueKey(
                 owner: String
             ): String {
-                val prefix = this.closestMemberContainer.className.canonicalName()
+                val prefix = this.closestMemberContainer.asClassName().canonicalName
                 val jvmName = if (this is XMethodElement) {
                     jvmName
                 } else {
@@ -92,9 +92,10 @@ class KspTypeNamesGoldenTest {
                     }
                     .forEach { method ->
                         val testKey = method.createNewUniqueKey(klass.qualifiedName)
+                        val methodType = method.asMemberOf(klass.type)
                         val types = listOf(
-                            method.returnType
-                        ) + method.parameters.map { it.type }
+                            methodType.returnType
+                        ) + methodType.parameterTypes
                         output[testKey] = types.map {
                             it.typeName
                         }

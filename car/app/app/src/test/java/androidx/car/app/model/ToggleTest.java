@@ -52,6 +52,12 @@ public class ToggleTest {
     }
 
     @Test
+    public void build_withValues_enabledByDefault() {
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).build();
+        assertThat(toggle.isEnabled()).isTrue();
+    }
+
+    @Test
     public void build_checkedChange_sendsCheckedChangeCall() {
         Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
@@ -81,17 +87,31 @@ public class ToggleTest {
 
     @Test
     public void equals() {
-        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        Toggle toggle =
+                new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).setEnabled(
+                        false).build();
+
         assertThat(toggle)
-                .isEqualTo(new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(
-                        true).build());
+                .isEqualTo(new Toggle.Builder(mMockOnCheckedChangeListener)
+                        .setChecked(true)
+                        .setEnabled(false)
+                        .build());
     }
 
     @Test
-    public void notEquals() {
+    public void notEquals_differentCheckedState() {
         Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         assertThat(toggle)
                 .isNotEqualTo(new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(
                         false).build());
+    }
+
+    @Test
+    public void notEquals_differentEnabledState() {
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setEnabled(true).build();
+        assertThat(toggle)
+                .isNotEqualTo(new Toggle.Builder(mMockOnCheckedChangeListener)
+                        .setEnabled(false)
+                        .build());
     }
 }

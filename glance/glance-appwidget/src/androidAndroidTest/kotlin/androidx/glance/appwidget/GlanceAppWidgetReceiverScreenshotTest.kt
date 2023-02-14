@@ -24,14 +24,15 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
+import androidx.glance.ButtonColors
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
 import androidx.glance.appwidget.test.R
-import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -223,7 +224,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
     }
 
     @Test
-    fun checkButtonTextAlignement() {
+    fun checkButtonTextAlignment() {
         TestGlanceAppWidget.uiDefinition = {
             Column(modifier = GlanceModifier.fillMaxSize()) {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
@@ -231,12 +232,20 @@ class GlanceAppWidgetReceiverScreenshotTest {
                         "Start",
                         onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        colors = ButtonColors(
+                            backgroundColor = ColorProvider(Color.Transparent),
+                            contentColor = ColorProvider(Color.DarkGray)
+                        ),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     Button(
                         "End",
                         onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        colors = ButtonColors(
+                            backgroundColor = ColorProvider(Color.Transparent),
+                            contentColor = ColorProvider(Color.DarkGray)
+                        ),
                         style = TextStyle(textAlign = TextAlign.End)
                     )
                 }
@@ -627,8 +636,9 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = CheckBoxColors(
-                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow)
+            colors = checkBoxColors(
+                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
+                uncheckedColor = ColorProvider(day = Color.Black, night = Color.Gray)
             )
         )
 
@@ -642,7 +652,7 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+            colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
         )
     }
 }
@@ -659,21 +669,29 @@ private fun SwitchTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = SwitchColors(
+            colors = switchColors(
                 checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                uncheckedThumbColor = ColorProvider(Color.Magenta),
                 checkedTrackColor = ColorProvider(day = Color.Green, night = Color.Yellow),
+                uncheckedTrackColor = ColorProvider(Color.Magenta)
             )
         )
 
         Switch(
             checked = false,
             onCheckedChange = null,
-            text = "Hello Unchecked Switch",
+            text = "Hello Unchecked Switch. day: thumb magenta / track cyan, night: thumb cyan",
             style = TextStyle(
                 color = ColorProvider(day = Color.Black, night = Color.White),
                 textDecoration = TextDecoration.Underline,
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
+            ),
+            colors = switchColors(
+                checkedThumbColor = ColorProvider(Color.Blue),
+                uncheckedThumbColor = ColorProvider(day = Color.Magenta, night = Color.Cyan),
+                checkedTrackColor = ColorProvider(Color.Blue),
+                uncheckedTrackColor = ColorProvider(day = Color.Cyan, night = Color.Magenta)
             )
         )
     }
@@ -694,7 +712,7 @@ private fun RadioButtonScreenshotTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = RadioButtonColors(
+            colors = radioButtonColors(
                 checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
                 uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Magenta)
             )
@@ -710,7 +728,7 @@ private fun RadioButtonScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = RadioButtonColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+            colors = radioButtonColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
         )
     }
 }

@@ -16,16 +16,16 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.graphics.ImageFormat.PRIVATE;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
-import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.InputConfiguration;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
@@ -36,22 +36,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.ZslDisablerQuirk;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageReaderProxys;
+import androidx.camera.core.Logger;
+import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.SafeCloseImageReaderProxy;
 import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
+import androidx.camera.core.internal.utils.ZslRingBuffer;
 
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 
 /**
  * Implementation for {@link ZslControl}.
@@ -59,78 +65,120 @@ import java.util.Queue;
 @RequiresApi(23)
 final class ZslControlImpl implements ZslControl {
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private static final int MAX_IMAGES = 2;
+    private static final String TAG = "ZslControlImpl";
 
+    @VisibleForTesting
+    static final int RING_BUFFER_CAPACITY = 3;
+
+    @VisibleForTesting
+    static final int MAX_IMAGES = RING_BUFFER_CAPACITY * 3;
+
+    @NonNull
+    private final Map<Integer, Size> mReprocessingInputSizeMap;
+
+    @NonNull
+    private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
+
+    @VisibleForTesting
     @SuppressWarnings("WeakerAccess")
     @NonNull
-    final Queue<ImageProxy> mImageRingBuffer = new LinkedList<>();
+    final ZslRingBuffer mImageRingBuffer;
 
-    @SuppressWarnings("WeakerAccess")
-    @NonNull
-    final Queue<TotalCaptureResult> mTotalCaptureResultRingBuffer = new LinkedList<>();
-
-    private boolean mIsZslDisabled = false;
-    private boolean mIsYuvReprocessingSupported = false;
+    private boolean mIsZslDisabledByUseCaseConfig = false;
+    private boolean mIsZslDisabledByFlashMode = false;
     private boolean mIsPrivateReprocessingSupported = false;
+
+    private boolean mShouldZslDisabledByQuirks = false;
 
     @SuppressWarnings("WeakerAccess")
     SafeCloseImageReaderProxy mReprocessingImageReader;
+    private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mReprocessingImageDeferrableSurface;
 
     @Nullable
     ImageWriter mReprocessingImageWriter;
 
     ZslControlImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
-        mIsYuvReprocessingSupported =
-                isCapabilitySupported(cameraCharacteristicsCompat,
-                        REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING);
+        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mIsPrivateReprocessingSupported =
-                isCapabilitySupported(cameraCharacteristicsCompat,
+                isCapabilitySupported(mCameraCharacteristicsCompat,
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
+
+        mReprocessingInputSizeMap = createReprocessingInputSizeMap(mCameraCharacteristicsCompat);
+
+        mShouldZslDisabledByQuirks = DeviceQuirks.get(ZslDisablerQuirk.class) != null;
+
+        mImageRingBuffer = new ZslRingBuffer(
+                RING_BUFFER_CAPACITY,
+                imageProxy -> imageProxy.close());
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mIsZslDisabled = disabled;
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mIsZslDisabledByUseCaseConfig = disabled;
     }
 
     @Override
-    public void addZslConfig(
-            @NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
-        if (mIsZslDisabled) {
-            return;
-        }
+    public boolean isZslDisabledByUserCaseConfig() {
+        return mIsZslDisabledByUseCaseConfig;
+    }
 
-        if (!mIsYuvReprocessingSupported && !mIsPrivateReprocessingSupported) {
-            return;
-        }
+    @Override
+    public void setZslDisabledByFlashMode(boolean disabled) {
+        mIsZslDisabledByFlashMode = disabled;
+    }
 
+    @Override
+    public boolean isZslDisabledByFlashMode() {
+        return mIsZslDisabledByFlashMode;
+    }
+
+    @Override
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
         cleanup();
 
-        // Init the reprocessing image reader and enqueue available images into the ring buffer.
-        // TODO(b/226683183): Decide whether YUV or PRIVATE reprocessing should be the default.
-        int reprocessingImageFormat = mIsYuvReprocessingSupported
-                ? ImageFormat.YUV_420_888 : ImageFormat.PRIVATE;
+        // Early return only if use case config doesn't support zsl. If flash mode doesn't
+        // support zsl, we still create reprocessing capture session but will create a
+        // regular capture request when taking pictures. So when user switches flash mode, we
+        // could create reprocessing capture request if flash mode allows.
+        if (mIsZslDisabledByUseCaseConfig) {
+            return;
+        }
 
-        mReprocessingImageReader =
-                new SafeCloseImageReaderProxy(
-                        ImageReaderProxys.createIsolatedReader(
-                                resolution.getWidth(),
-                                resolution.getHeight(),
-                                reprocessingImageFormat,
-                                // TODO(226675509): Replace with RingBuffer interfaces and set the
-                                //  appropriate value based on RingBuffer capacity.
-                                MAX_IMAGES));
-        mReprocessingImageReader.setOnImageAvailableListener(
+        if (mShouldZslDisabledByQuirks) {
+            return;
+        }
+
+        // Due to b/232268355 and feedback from pixel team that private format will have better
+        // performance, we will use private only for zsl.
+        if (!mIsPrivateReprocessingSupported
+                || mReprocessingInputSizeMap.isEmpty()
+                || !mReprocessingInputSizeMap.containsKey(PRIVATE)
+                || !isJpegValidOutputForInputFormat(mCameraCharacteristicsCompat, PRIVATE)) {
+            return;
+        }
+
+        int reprocessingImageFormat = PRIVATE;
+        Size resolution = mReprocessingInputSizeMap.get(reprocessingImageFormat);
+        MetadataImageReader metadataImageReader = new MetadataImageReader(
+                resolution.getWidth(),
+                resolution.getHeight(),
+                reprocessingImageFormat,
+                MAX_IMAGES);
+        mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
+        mReprocessingImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
+        metadataImageReader.setOnImageAvailableListener(
                 imageReader -> {
-                    ImageProxy imageProxy = imageReader.acquireLatestImage();
-                    if (imageProxy != null) {
-                        // TODO(226675509): Replace with RingBuffer interfaces and close the
-                        //  image if over capacity.
-                        mImageRingBuffer.add(imageProxy);
+                    try {
+                        ImageProxy imageProxy = imageReader.acquireLatestImage();
+                        if (imageProxy != null) {
+                            mImageRingBuffer.enqueue(imageProxy);
+                        }
+                    } catch (IllegalStateException e) {
+                        Logger.e(TAG, "Failed to acquire latest image IllegalStateException = "
+                                + e.getMessage());
                     }
+
                 }, CameraXExecutors.ioExecutor());
 
         // Init the reprocessing image reader surface and add into the target surfaces of capture
@@ -147,18 +195,7 @@ final class ZslControlImpl implements ZslControl {
         sessionConfigBuilder.addSurface(mReprocessingImageDeferrableSurface);
 
         // Init capture and session state callback and enqueue the total capture result
-        sessionConfigBuilder.addCameraCaptureCallback(new CameraCaptureCallback() {
-            @Override
-            public void onCaptureCompleted(
-                    @NonNull CameraCaptureResult cameraCaptureResult) {
-                super.onCaptureCompleted(cameraCaptureResult);
-                CaptureResult captureResult = cameraCaptureResult.getCaptureResult();
-                if (captureResult != null && captureResult instanceof TotalCaptureResult) {
-                    mTotalCaptureResultRingBuffer.add((TotalCaptureResult) captureResult);
-                }
-            }
-        });
-
+        sessionConfigBuilder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
         sessionConfigBuilder.addSessionStateCallback(
                 new CameraCaptureSession.StateCallback() {
                     @Override
@@ -188,8 +225,9 @@ final class ZslControlImpl implements ZslControl {
     public ImageProxy dequeueImageFromBuffer() {
         ImageProxy imageProxy = null;
         try {
-            imageProxy = mImageRingBuffer.remove();
+            imageProxy = mImageRingBuffer.dequeue();
         } catch (NoSuchElementException e) {
+            Logger.e(TAG, "dequeueImageFromBuffer no such element");
         }
 
         return imageProxy;
@@ -201,7 +239,13 @@ final class ZslControlImpl implements ZslControl {
         Image image = imageProxy.getImage();
 
         if (Build.VERSION.SDK_INT >= 23 && mReprocessingImageWriter != null && image != null) {
-            ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            try {
+                ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            } catch (IllegalStateException e) {
+                Logger.e(TAG, "enqueueImageToImageWriter throws IllegalStateException = "
+                        + e.getMessage());
+                return false;
+            }
             return true;
         }
         return false;
@@ -210,13 +254,11 @@ final class ZslControlImpl implements ZslControl {
     private void cleanup() {
         // We might need synchronization here when clearing ring buffer while image is enqueued
         // at the same time. Will test this case.
-        Queue<ImageProxy> imageRingBuffer = mImageRingBuffer;
+        ZslRingBuffer imageRingBuffer = mImageRingBuffer;
         while (!imageRingBuffer.isEmpty()) {
-            ImageProxy imageProxy = imageRingBuffer.remove();
+            ImageProxy imageProxy = imageRingBuffer.dequeue();
             imageProxy.close();
         }
-        Queue<TotalCaptureResult> totalCaptureResultRingBuffer = mTotalCaptureResultRingBuffer;
-        totalCaptureResultRingBuffer.clear();
 
         DeferrableSurface reprocessingImageDeferrableSurface = mReprocessingImageDeferrableSurface;
         if (reprocessingImageDeferrableSurface != null) {
@@ -225,8 +267,10 @@ final class ZslControlImpl implements ZslControl {
                 reprocessingImageDeferrableSurface.getTerminationFuture().addListener(
                         reprocessingImageReaderProxy::safeClose,
                         CameraXExecutors.mainThreadExecutor());
+                mReprocessingImageReader = null;
             }
             reprocessingImageDeferrableSurface.close();
+            mReprocessingImageDeferrableSurface = null;
         }
 
         ImageWriter reprocessingImageWriter = mReprocessingImageWriter;
@@ -234,5 +278,54 @@ final class ZslControlImpl implements ZslControl {
             reprocessingImageWriter.close();
             mReprocessingImageWriter = null;
         }
+    }
+
+    @NonNull
+    private Map<Integer, Size> createReprocessingInputSizeMap(
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+        StreamConfigurationMap map =
+                cameraCharacteristicsCompat.get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map == null || map.getInputFormats() == null) {
+            return new HashMap<>();
+        }
+
+        Map<Integer, Size> inputSizeMap = new HashMap<>();
+        for (int format: map.getInputFormats()) {
+            Size[] inputSizes = map.getInputSizes(format);
+            if (inputSizes != null) {
+                // Sort by descending order
+                Arrays.sort(inputSizes, new CompareSizesByArea(true));
+
+                // TODO(b/233696144): Check if selecting an input size closer to output size will
+                //  improve performance or not.
+                inputSizeMap.put(format, inputSizes[0]);
+            }
+        }
+        return inputSizeMap;
+    }
+
+    private boolean isJpegValidOutputForInputFormat(
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
+            int inputFormat) {
+        StreamConfigurationMap map =
+                cameraCharacteristicsCompat.get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map == null) {
+            return false;
+        }
+
+        int[] validOutputFormats = map.getValidOutputFormatsForInput(inputFormat);
+        if (validOutputFormats == null) {
+            return false;
+        }
+        for (int outputFormat : validOutputFormats) {
+            if (outputFormat == ImageFormat.JPEG) {
+                return true;
+            }
+        }
+        return false;
     }
 }

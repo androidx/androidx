@@ -35,7 +35,7 @@ import java.util.concurrent.Callable;
 public class WebViewRenderProcessImpl extends WebViewRenderProcess {
     private WebViewRendererBoundaryInterface mBoundaryInterface;
     private WeakReference<android.webkit.WebViewRenderProcess> mFrameworkObject;
-    private static WeakHashMap<android.webkit.WebViewRenderProcess,
+    private static final WeakHashMap<android.webkit.WebViewRenderProcess,
             WebViewRenderProcessImpl> sFrameworkMap = new WeakHashMap<>();
 
     public WebViewRenderProcessImpl(@NonNull WebViewRendererBoundaryInterface boundaryInterface) {
@@ -85,10 +85,10 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
 
     @Override
     public boolean terminate() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_VIEW_RENDERER_TERMINATE;
+        final ApiFeature.Q feature = WebViewFeatureInternal.WEB_VIEW_RENDERER_TERMINATE;
         if (feature.isSupportedByFramework()) {
             android.webkit.WebViewRenderProcess renderer = mFrameworkObject.get();
-            return renderer != null ? renderer.terminate() : false;
+            return renderer != null && ApiHelperForQ.terminate(renderer);
         } else if (feature.isSupportedByWebView()) {
             return mBoundaryInterface.terminate();
         } else {

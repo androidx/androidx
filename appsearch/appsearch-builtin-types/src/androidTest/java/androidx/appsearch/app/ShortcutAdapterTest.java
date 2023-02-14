@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.builtintypes.Timer;
@@ -57,7 +58,13 @@ public class ShortcutAdapterTest {
                 context, timer).build();
         assertThat(si.getId()).isEqualTo(id);
         assertThat(si.getShortLabel()).isEqualTo(name);
-        assertThat(si.getIntent().toUri(0)).isEqualTo(EXPECTED_URI);
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            assertThat(si.getIntent().toUri(0)).isEqualTo(
+                    EXPECTED_URI + "#Intent;action=android.intent.action.VIEW;end");
+        } else {
+            assertThat(si.getIntent().toUri(0)).isEqualTo(EXPECTED_URI);
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -111,7 +118,7 @@ public class ShortcutAdapterTest {
                 .setCreationTimestampMillis(100)
                 .setName(name)
                 .setDurationMillis(1000)
-                .setRemainingTimeMillisSinceUpdate(500)
+                .setRemainingDurationMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)

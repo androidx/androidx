@@ -19,11 +19,11 @@ package androidx.car.app.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,6 +32,7 @@ import java.util.Objects;
 
 /** Represents a distance value and how it should be displayed in the UI. */
 @CarProtocol
+@KeepFields
 public final class Distance {
     /**
      * Possible units used to display {@link Distance}
@@ -86,9 +87,7 @@ public final class Distance {
     @Unit
     public static final int UNIT_YARDS = 7;
 
-    @Keep
     private final double mDisplayDistance;
-    @Keep
     @Unit
     private final int mDisplayUnit;
 

@@ -27,7 +27,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class RuntimeIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 13
+    override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
@@ -40,7 +40,7 @@ class RuntimeIssueRegistry : IssueRegistry() {
         MutableCollectionMutableStateDetector.MutableCollectionMutableState,
         ProduceStateDetector.ProduceStateDoesNotAssignValue,
         RememberDetector.RememberReturnType,
-        UnrememberedMutableStateDetector.UnrememberedMutableState
+        UnrememberedStateDetector.UnrememberedState
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

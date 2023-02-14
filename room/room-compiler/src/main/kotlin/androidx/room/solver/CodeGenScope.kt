@@ -16,29 +16,30 @@
 
 package androidx.room.solver
 
-import androidx.room.writer.ClassWriter
-import com.google.common.annotations.VisibleForTesting
-import com.squareup.javapoet.CodeBlock
+import androidx.annotation.VisibleForTesting
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.writer.TypeWriter
 
 /**
  * Defines a code generation scope where we can provide temporary variables, global variables etc
  */
-class CodeGenScope(val writer: ClassWriter) {
-    private var tmpVarIndices = mutableMapOf<String, Int>()
-    private var builder: CodeBlock.Builder? = null
+class CodeGenScope(
+    val writer: TypeWriter
+) {
+    val language = writer.codeLanguage
+    val builder by lazy { XCodeBlock.builder(language) }
+    private val tmpVarIndices = mutableMapOf<String, Int>()
+
     companion object {
         const val TMP_VAR_DEFAULT_PREFIX = "_tmp"
         const val CLASS_PROPERTY_PREFIX = "__"
-        @VisibleForTesting
-        fun _tmpVar(index: Int) = _tmpVar(TMP_VAR_DEFAULT_PREFIX, index)
-        fun _tmpVar(prefix: String, index: Int) = "$prefix${if (index == 0) "" else "_$index"}"
-    }
 
-    fun builder(): CodeBlock.Builder {
-        if (builder == null) {
-            builder = CodeBlock.builder()
-        }
-        return builder!!
+        @VisibleForTesting
+        fun getTmpVarString(index: Int) =
+            getTmpVarString(TMP_VAR_DEFAULT_PREFIX, index)
+
+        private fun getTmpVarString(prefix: String, index: Int) =
+            "$prefix${if (index == 0) "" else "_$index"}"
     }
 
     fun getTmpVar(): String {
@@ -46,22 +47,20 @@ class CodeGenScope(val writer: ClassWriter) {
     }
 
     fun getTmpVar(prefix: String): String {
-        if (!prefix.startsWith("_")) {
-            throw IllegalArgumentException("tmp variable prefixes should start with _")
-        }
-        if (prefix.startsWith(CLASS_PROPERTY_PREFIX)) {
-            throw IllegalArgumentException("cannot use $CLASS_PROPERTY_PREFIX for tmp variables")
+        require(prefix.startsWith("_")) { "Tmp variable prefixes should start with '_'." }
+        require(!prefix.startsWith(CLASS_PROPERTY_PREFIX)) {
+            "Cannot use '$CLASS_PROPERTY_PREFIX' for tmp variables."
         }
         val index = tmpVarIndices.getOrElse(prefix) { 0 }
-        val result = _tmpVar(prefix, index)
-        tmpVarIndices.put(prefix, index + 1)
+        val result = getTmpVarString(prefix, index)
+        tmpVarIndices[prefix] = index + 1
         return result
     }
 
-    fun generate(): CodeBlock = builder().build()
+    fun generate(): XCodeBlock = builder.build()
 
     /**
-     * copies all variable indices but excludes generated code.
+     * Copies all variable indices but excludes generated code.
      */
     fun fork(): CodeGenScope {
         val forked = CodeGenScope(writer)

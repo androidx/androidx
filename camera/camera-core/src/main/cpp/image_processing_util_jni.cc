@@ -23,6 +23,8 @@
 #include <cinttypes>
 #include <cstdlib>
 
+#include <android/bitmap.h>
+
 #include "libyuv/convert_argb.h"
 #include "libyuv/rotate_argb.h"
 #include "libyuv/convert.h"
@@ -73,7 +75,88 @@ static libyuv::RotationMode get_rotation_mode(int rotation) {
     return mode;
 }
 
+// Helper function to convert Android420 to ABGR with options to choose full swing or studio swing.
+static int Android420ToABGR(const uint8_t* src_y,
+                            int src_stride_y,
+                            const uint8_t* src_u,
+                            int src_stride_u,
+                            const uint8_t* src_v,
+                            int src_stride_v,
+                            int src_pixel_stride_uv,
+                            uint8_t* dst_abgr,
+                            int dst_stride_abgr,
+                            bool is_full_swing,
+                            int width,
+                            int height) {
+    return Android420ToARGBMatrix(src_y,
+                                  src_stride_y,
+                                  src_v,
+                                  src_stride_v,
+                                  src_u,
+                                  src_stride_u,
+                                  src_pixel_stride_uv,
+                                  dst_abgr,
+                                  dst_stride_abgr,
+                                  is_full_swing
+                                      ? &libyuv::kYvuJPEGConstants : &libyuv::kYvuI601Constants,
+                                  width,
+                                  height);
+}
+
+
 extern "C" {
+JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeCopyBetweenByteBufferAndBitmap (
+        JNIEnv* env,
+        jclass,
+        jobject bitmap,
+        jobject converted_buffer,
+        int src_stride_argb,
+        int dst_stride_argb,
+        int width,
+        int height,
+        jboolean isCopyBufferToBitmap
+) {
+    void* bitmapAddress = nullptr;
+    int copyResult;
+
+
+    // get bitmap address
+    int lockResult =  AndroidBitmap_lockPixels(env, bitmap, &bitmapAddress);
+    if (lockResult != 0) {
+        return -1;
+    }
+
+    // get buffer address
+    uint8_t* bufferAddress = static_cast<uint8_t*>(
+            env->GetDirectBufferAddress(converted_buffer));
+
+    // copy from buffer to bitmap
+    if (isCopyBufferToBitmap) {
+        copyResult = libyuv::ARGBCopy(bufferAddress, src_stride_argb,
+                                      reinterpret_cast<uint8_t *> (bitmapAddress), dst_stride_argb,
+                                      width, height);
+    }
+
+    // copy from bitmap to buffer
+    else {
+        copyResult = libyuv::ARGBCopy(reinterpret_cast<uint8_t*> (bitmapAddress), src_stride_argb,
+                         bufferAddress, dst_stride_argb, width, height);
+    }
+
+    // check value of copy
+    if (copyResult != 0) {
+        return -1;
+    }
+
+    // balance call to AndroidBitmap_lockPixels
+    int unlockResult = AndroidBitmap_unlockPixels(env,bitmap);
+    if (unlockResult != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeShiftPixel(
         JNIEnv* env,
         jclass,
@@ -240,21 +323,22 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
         }
 
         // Convert yuv to rgb except the last line.
-        result = libyuv::Android420ToABGR(src_y_ptr + start_offset_y,
-                                          src_stride_y,
-                                          src_u_ptr + start_offset_u,
-                                          src_stride_u,
-                                          src_v_ptr + start_offset_v,
-                                          src_stride_v,
-                                          src_pixel_stride_uv,
-                                          dst_ptr,
-                                          dst_stride_y,
-                                          width,
-                                          height - 1);
+        result = Android420ToABGR(src_y_ptr + start_offset_y,
+                                  src_stride_y,
+                                  src_u_ptr + start_offset_u,
+                                  src_stride_u,
+                                  src_v_ptr + start_offset_v,
+                                  src_stride_v,
+                                  src_pixel_stride_uv,
+                                  dst_ptr,
+                                  dst_stride_y,
+                                  /* is_full_swing = */true,
+                                  width,
+                                  height - 1);
         if (result == 0) {
             // Convert the last row with (width - 1) pixels
             // since the last pixel's yuv data is missing.
-            result = libyuv::Android420ToABGR(
+            result = Android420ToABGR(
                     src_y_ptr + start_offset_y + src_stride_y * (height - 1),
                     src_stride_y - 1,
                     src_u_ptr + start_offset_u + src_stride_u * (height - 2) / 2,
@@ -264,6 +348,7 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
                     src_pixel_stride_uv,
                     dst_ptr + dst_stride_y * (height - 1),
                     dst_stride_y,
+                    /* is_full_swing = */true,
                     width - 1,
                     1);
         }
@@ -285,7 +370,7 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
             }
         }
     } else {
-        result = libyuv::Android420ToABGR(src_y_ptr + start_offset_y,
+        result = Android420ToABGR(src_y_ptr + start_offset_y,
                                           src_stride_y,
                                           src_u_ptr + start_offset_u,
                                           src_stride_u,
@@ -294,6 +379,7 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
                                           src_pixel_stride_uv,
                                           dst_ptr,
                                           dst_stride_y,
+                                          /* is_full_swing = */true,
                                           width,
                                           height);
     }
@@ -312,6 +398,67 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
     ANativeWindow_unlockAndPost(window);
     ANativeWindow_release(window);
     return result;
+}
+
+JNIEXPORT jint
+Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroid420ToBitmap(
+        JNIEnv* env,
+        jclass,
+        jobject src_y,
+        jint src_stride_y,
+        jobject src_u,
+        jint src_stride_u,
+        jobject src_v,
+        jint src_stride_v,
+        jint src_pixel_stride_y,
+        jint src_pixel_stride_uv,
+        jobject bitmap,
+        jint bitmap_stride,
+        jint width,
+        jint height) {
+
+    void* bitmapAddress = nullptr;
+
+    // get bitmap address
+    int lockResult =  AndroidBitmap_lockPixels(env, bitmap, &bitmapAddress);
+    if (lockResult != 0) {
+        return -1;
+    }
+
+    uint8_t* src_y_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_y));
+    uint8_t* src_u_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_u));
+    uint8_t* src_v_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_v));
+
+    int dst_stride_y = bitmap_stride;
+
+    int result = Android420ToABGR(
+            src_y_ptr ,
+            src_stride_y,
+            src_u_ptr,
+            src_stride_u,
+            src_v_ptr,
+            src_stride_v,
+            src_pixel_stride_uv,
+            reinterpret_cast<uint8_t *> (bitmapAddress),
+            dst_stride_y,
+            /* is_full_swing = */true,
+            width,
+            height);
+
+    if (result != 0) {
+        return -1;
+    }
+
+    // balance call to AndroidBitmap_lockPixels
+    int unlockResult = AndroidBitmap_unlockPixels(env,bitmap);
+    if (unlockResult != 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeRotateYUV(

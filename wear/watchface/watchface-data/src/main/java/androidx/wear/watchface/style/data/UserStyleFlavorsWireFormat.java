@@ -30,10 +30,8 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class UserStyleFlavorsWireFormat implements VersionedParcelable, Parcelable {

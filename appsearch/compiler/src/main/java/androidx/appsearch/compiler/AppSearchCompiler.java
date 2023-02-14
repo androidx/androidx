@@ -89,20 +89,22 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
             Set<TypeElement> documentElements =
                     typesIn(elementsByAnnotation.get(
                             IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS));
+
+            ImmutableSet.Builder<Element> nextRound = new ImmutableSet.Builder<>();
             for (TypeElement document : documentElements) {
                 try {
                     processDocument(document);
                 } catch (MissingTypeException e) {
                     // Save it for next round to wait for the AutoValue annotation processor to
                     // be run first.
-                    return ImmutableSet.of(e.getTypeName());
+                    nextRound.add(document);
                 } catch (ProcessingException e) {
                     // Prints error message.
                     e.printDiagnostic(mMessager);
                 }
             }
-            // No elements will be passed to next round of processing.
-            return ImmutableSet.of();
+            // Pass elements to next round of processing.
+            return nextRound.build();
         }
 
         private void processDocument(@NonNull TypeElement element)

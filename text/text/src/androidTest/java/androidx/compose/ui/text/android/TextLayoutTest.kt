@@ -24,11 +24,11 @@ import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
-import androidx.compose.ui.text.android.style.LineHeightBehaviorSpan
-import androidx.compose.ui.text.font.test.R
+import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -423,13 +423,13 @@ class TextLayoutTest {
         val textPaint = createTextPaint(fontSize)
         val spannable = SpannableString(text)
         spannable.setSpan(
-            LineHeightBehaviorSpan(
+            LineHeightStyleSpan(
                 lineHeight = lineHeight,
                 startIndex = 0,
                 endIndex = text.length,
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
-                topPercentage = 50
+                topRatio = 0.5f
             ), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 

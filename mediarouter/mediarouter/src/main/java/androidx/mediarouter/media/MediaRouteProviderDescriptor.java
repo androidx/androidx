@@ -44,7 +44,7 @@ public final class MediaRouteProviderDescriptor {
 
     MediaRouteProviderDescriptor(List<MediaRouteDescriptor> routes,
                                  boolean supportsDynamicGroupRoute) {
-        mRoutes = (routes == null) ? Collections.<MediaRouteDescriptor>emptyList() : routes;
+        mRoutes = (routes == null) ? Collections.emptyList() : routes;
         mSupportsDynamicGroupRoute = supportsDynamicGroupRoute;
     }
 
@@ -64,7 +64,7 @@ public final class MediaRouteProviderDescriptor {
      * it contains have all of the required fields.
      * <p>
      * This verification is deep.  If the provider descriptor is known to be
-     * valid then it is not necessary to call {@link #isValid} on each of its routes.
+     * valid then it is not necessary to call this method on each of its routes.
      * </p>
      */
     public boolean isValid() {
@@ -87,15 +87,14 @@ public final class MediaRouteProviderDescriptor {
         return mSupportsDynamicGroupRoute;
     }
 
+    @NonNull
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("MediaRouteProviderDescriptor{ ");
-        result.append("routes=").append(
-                Arrays.toString(getRoutes().toArray()));
-        result.append(", isValid=").append(isValid());
-        result.append(" }");
-        return result.toString();
+        return "MediaRouteProviderDescriptor{ "
+                + "routes="
+                + Arrays.toString(getRoutes().toArray())
+                + ", isValid=" + isValid()
+                + " }";
     }
 
     /**
@@ -128,13 +127,12 @@ public final class MediaRouteProviderDescriptor {
      * @return The new instance, or null if the bundle was null.
      */
     @Nullable
-    @SuppressWarnings("deprecation")
     public static MediaRouteProviderDescriptor fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;
         }
         List<MediaRouteDescriptor> routes = null;
-        ArrayList<Bundle> routeBundles = bundle.<Bundle>getParcelableArrayList(KEY_ROUTES);
+        ArrayList<Bundle> routeBundles = bundle.getParcelableArrayList(KEY_ROUTES);
         if (routeBundles != null && !routeBundles.isEmpty()) {
             final int count = routeBundles.size();
             routes = new ArrayList<MediaRouteDescriptor>(count);

@@ -108,7 +108,24 @@ public class RangedValueLayoutHelper extends LayoutHelper {
 
     @Override
     public void getIconBounds(@NonNull Rect outRect) {
-        if (!hasIcon()) {
+        if (!hasIcon() || hasSmallImage()) {
+            outRect.setEmpty();
+        } else {
+            getBounds(outRect);
+            if (!hasShortText() || isWideRectangle(outRect)) {
+                // Show only an icon inside ranged value indicator
+                scaledAroundCenter(outRect, mRangedValueInnerSquare, 1 - ICON_PADDING_FRACTION * 2);
+            } else {
+                // Draw a short text complication inside ranged value bounds
+                mShortTextLayoutHelper.getIconBounds(outRect);
+                outRect.offset(mRangedValueInnerSquare.left, mRangedValueInnerSquare.top);
+            }
+        }
+    }
+
+    @Override
+    public void getSmallImageBounds(@NonNull Rect outRect) {
+        if (!hasSmallImage()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);

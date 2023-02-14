@@ -16,47 +16,65 @@
 
 package androidx.window.embedding
 
-import androidx.window.core.ExperimentalWindowApi
-
 /**
  * Layout configuration rules for individual activities with split layouts. Take precedence over
  * [SplitPairRule].
  */
-@ExperimentalWindowApi
-class ActivityRule(
+class ActivityRule internal constructor(
+    tag: String?,
     /**
-     * Filters used to choose when to apply this rule.
+     * Filters used to choose when to apply this rule. The rule will be applied if any one of the
+     * provided filters matches.
      */
-    filters: Set<ActivityFilter>,
+    val filters: Set<ActivityFilter>,
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
-     * activity that blocks all user interactions, like a warning dialog.
+     * activity that blocks all user interactions, such as a warning dialog.
      */
     val alwaysExpand: Boolean = false
-) : EmbeddingRule() {
+) : EmbeddingRule(tag) {
+
     /**
-     * Read-only filters used to choose when to apply this rule.
+     * Builder for [ActivityRule].
+     *
+     * @param filters See [ActivityRule.filters].
      */
-    val filters: Set<ActivityFilter> = filters.toSet()
+    class Builder(
+        private val filters: Set<ActivityFilter>,
+    ) {
+        private var tag: String? = null
+        private var alwaysExpand: Boolean = false
+
+        /**
+         * Whether the activity should always be expanded on launch. Some activities are supposed to
+         * expand to the full task bounds, independent of the state of the split. An example is an
+         * activity that blocks all user interactions, such as a warning dialog.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
+            apply { this.alwaysExpand = alwaysExpand }
+
+        /** @see ActivityRule.tag */
+        fun setTag(tag: String): Builder =
+            apply { this.tag = tag }
+
+        fun build() = ActivityRule(tag, filters, alwaysExpand)
+    }
 
     /**
      * Creates a new immutable instance by adding a filter to the set.
+     * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): ActivityRule {
-        val newSet = mutableSetOf<ActivityFilter>()
-        newSet.addAll(filters)
-        newSet.add(filter)
-        return ActivityRule(
-            newSet.toSet(),
-            alwaysExpand
-        )
+        return ActivityRule(tag, filters + filter, alwaysExpand)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ActivityRule) return false
 
+        if (!super.equals(other)) return false
         if (filters != other.filters) return false
         if (alwaysExpand != other.alwaysExpand) return false
 
@@ -64,8 +82,16 @@ class ActivityRule(
     }
 
     override fun hashCode(): Int {
-        var result = filters.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + filters.hashCode()
         result = 31 * result + alwaysExpand.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "ActivityRule:{" +
+            "tag={$tag}," +
+            "filters={$filters}, " +
+            "alwaysExpand={$alwaysExpand}}"
     }
 }

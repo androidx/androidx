@@ -135,7 +135,7 @@ final class ClassesInfoCache {
             int callType = CALL_TYPE_NO_ARG;
             if (params.length > 0) {
                 callType = CALL_TYPE_PROVIDER;
-                if (!params[0].isAssignableFrom(LifecycleOwner.class)) {
+                if (!LifecycleOwner.class.isAssignableFrom(params[0])) {
                     throw new IllegalArgumentException(
                             "invalid parameter type. Must be one and instanceof LifecycleOwner");
                 }
@@ -144,7 +144,7 @@ final class ClassesInfoCache {
 
             if (params.length > 1) {
                 callType = CALL_TYPE_PROVIDER_WITH_EVENT;
-                if (!params[1].isAssignableFrom(Lifecycle.Event.class)) {
+                if (!Lifecycle.Event.class.isAssignableFrom(params[1])) {
                     throw new IllegalArgumentException(
                             "invalid parameter type. second arg must be an event");
                 }
@@ -214,8 +214,8 @@ final class ClassesInfoCache {
             mMethod.setAccessible(true);
         }
 
+        @SuppressWarnings("BanUncheckedReflection")
         void invokeCallback(LifecycleOwner source, Lifecycle.Event event, Object target) {
-            //noinspection TryWithIdenticalCatches
             try {
                 switch (mCallType) {
                     case CALL_TYPE_NO_ARG:

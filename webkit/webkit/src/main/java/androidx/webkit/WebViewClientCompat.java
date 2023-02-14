@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.webkit.internal.ApiHelperForLollipop;
 import androidx.webkit.internal.SafeBrowsingResponseImpl;
 import androidx.webkit.internal.WebResourceErrorImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -175,10 +176,10 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
             // If the WebView APK drops supports for these APIs in the future, simply do nothing.
             return;
         }
-        if (request.isForMainFrame()) {
+        if (ApiHelperForLollipop.isForMainFrame(request)) {
             onReceivedError(view,
                     error.getErrorCode(), error.getDescription().toString(),
-                    request.getUrl().toString());
+                    ApiHelperForLollipop.getUrl(request).toString());
         }
     }
 
@@ -295,7 +296,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     public boolean shouldOverrideUrlLoading(@NonNull WebView view,
             @NonNull WebResourceRequest request) {
         if (Build.VERSION.SDK_INT < 21) return false;
-        return shouldOverrideUrlLoading(view, request.getUrl().toString());
+        return shouldOverrideUrlLoading(view, ApiHelperForLollipop.getUrl(request).toString());
     }
 
     /**

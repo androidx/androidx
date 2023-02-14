@@ -43,6 +43,12 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+/**
+ * Note: this test's structure largely parallels AndroidComposeViewsRecyclerViewTest
+ * (though there are notable implementation differences)
+ *
+ * Consider if new tests added here should also be added there.
+ */
 class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     @get:Rule
     val animationRule = AnimationDurationScaleRule.create()
@@ -357,6 +363,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
         // After the first RecyclerView is removed, we expect everything it created to be disposed,
         // *except* for what's in the shared pool
         assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just checking
+        assertThat(pool.size()).isEqualTo(expectedRecycledItems)
         assertThat(adapter1.releases).isEqualTo(adapter1Creations - expectedRecycledItems)
         assertThat(adapter2.creations).isEqualTo(20) // it's twice as tall with rv1 gone
         assertThat(adapter2.releases).isEqualTo(0) // it hasn't scrolled

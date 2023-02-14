@@ -25,6 +25,7 @@ import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.stats.SchemaMigrationStats;
 
 /**
  * An interface for implementing client-defined logging AppSearch operations stats.
@@ -72,6 +73,11 @@ public interface AppSearchLogger {
      * Logs {@link SetSchemaStats}
      */
     void logStats(@NonNull SetSchemaStats stats);
+
+    /**
+     * Logs {@link SchemaMigrationStats}
+     */
+    void logStats(@NonNull SchemaMigrationStats stats);
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }

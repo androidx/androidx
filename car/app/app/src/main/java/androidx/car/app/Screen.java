@@ -361,11 +361,10 @@ public abstract class Screen implements LifecycleOwner {
         Template template = onGetTemplate();
 
         TemplateWrapper wrapper;
-        if (mUseLastTemplateId) {
+        if (mUseLastTemplateId && mTemplateWrapper != null) {
             wrapper =
                     TemplateWrapper.wrap(
-                            template, getLastTemplateInfo(
-                                    requireNonNull(mTemplateWrapper)).getTemplateId());
+                            template, getLastTemplateInfo(mTemplateWrapper).getTemplateId());
         } else {
             wrapper = TemplateWrapper.wrap(template);
         }

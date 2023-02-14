@@ -49,6 +49,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
 }
@@ -56,14 +57,6 @@ dependencies {
 androidx {
     name = "Android Navigation UI"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-UI"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

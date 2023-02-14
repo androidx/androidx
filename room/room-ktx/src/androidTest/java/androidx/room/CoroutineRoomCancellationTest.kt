@@ -166,7 +166,7 @@ class CoroutineRoomCancellationTest {
 
     private class TestDatabase : RoomDatabase() {
 
-        override fun createOpenHelper(config: DatabaseConfiguration?): SupportSQLiteOpenHelper {
+        override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
             throw UnsupportedOperationException("Shouldn't be called!")
         }
 
@@ -179,7 +179,7 @@ class CoroutineRoomCancellationTest {
         }
     }
 
-    private class TestInvalidationTracker(db: RoomDatabase) : InvalidationTracker(db) {
+    private class TestInvalidationTracker(db: RoomDatabase) : InvalidationTracker(db, "") {
         val observers = mutableListOf<Observer>()
 
         override fun addObserver(observer: Observer) {

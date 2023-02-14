@@ -35,7 +35,17 @@ class DelayedActivity : AppCompatActivity() {
             delayedView?.delayMs = value
         }
 
-    var repetions: Int
+    var maxReps: Int
+        get() {
+            val delayedView = findViewById<DelayedView>(R.id.delayedView)
+            return delayedView?.maxReps ?: 0
+        }
+        set(value) {
+            val delayedView = findViewById<DelayedView>(R.id.delayedView)
+            delayedView?.maxReps = value
+        }
+
+    var repetitions: Int
         get() {
             val delayedView = findViewById<DelayedView>(R.id.delayedView)
             return delayedView?.repetitions ?: 0

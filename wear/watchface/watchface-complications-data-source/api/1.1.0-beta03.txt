@@ -1,0 +1,89 @@
+// Signature format: 4.0
+package androidx.wear.watchface.complications.datasource {
+
+  public abstract class ComplicationDataSourceService extends android.app.Service {
+    ctor public ComplicationDataSourceService();
+    method public abstract androidx.wear.watchface.complications.data.ComplicationData? getPreviewData(androidx.wear.watchface.complications.data.ComplicationType type);
+    method public final android.os.IBinder? onBind(android.content.Intent intent);
+    method @MainThread public void onComplicationActivated(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType type);
+    method @MainThread public void onComplicationDeactivated(int complicationInstanceId);
+    method @MainThread public abstract void onComplicationRequest(androidx.wear.watchface.complications.datasource.ComplicationRequest request, androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener listener);
+    method @MainThread public void onStartImmediateComplicationRequests(int complicationInstanceId);
+    method @MainThread public void onStopImmediateComplicationRequests(int complicationInstanceId);
+    field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
+    field public static final String CATEGORY_DATA_SOURCE_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
+    field public static final androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion Companion;
+    field public static final String EXTRA_CONFIG_COMPLICATION_ID = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
+    field public static final String EXTRA_CONFIG_COMPLICATION_TYPE = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
+    field public static final String EXTRA_CONFIG_DATA_SOURCE_COMPONENT = "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
+    field public static final String METADATA_KEY_DATA_SOURCE_CONFIG_ACTION = "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
+    field public static final String METADATA_KEY_DATA_SOURCE_DEFAULT_CONFIG_SUPPORTED = "androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED";
+    field public static final String METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS = "androidx.wear.watchface.complications.data.source.IMMEDIATE_UPDATE_PERIOD_MILLISECONDS";
+    field public static final String METADATA_KEY_SAFE_WATCH_FACES = "android.support.wearable.complications.SAFE_WATCH_FACES";
+    field public static final String METADATA_KEY_SUPPORTED_TYPES = "android.support.wearable.complications.SUPPORTED_TYPES";
+    field public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS = "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
+  }
+
+  public static final class ComplicationDataSourceService.Companion {
+  }
+
+  public static interface ComplicationDataSourceService.ComplicationRequestListener {
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onComplicationData(androidx.wear.watchface.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default void onComplicationDataTimeline(androidx.wear.watchface.complications.datasource.ComplicationDataTimeline? complicationDataTimeline) throws android.os.RemoteException;
+  }
+
+  public interface ComplicationDataSourceUpdateRequester {
+    method public default static androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester create(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
+    method public void requestUpdate(int... complicationInstanceIds);
+    method public void requestUpdateAll();
+    field public static final androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester.Companion Companion;
+  }
+
+  public static final class ComplicationDataSourceUpdateRequester.Companion {
+    method public androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester create(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
+  }
+
+  public final class ComplicationDataTimeline {
+    ctor public ComplicationDataTimeline(androidx.wear.watchface.complications.data.ComplicationData defaultComplicationData, java.util.Collection<androidx.wear.watchface.complications.datasource.TimelineEntry> timelineEntries);
+    method public androidx.wear.watchface.complications.data.ComplicationData getDefaultComplicationData();
+    method public java.util.Collection<androidx.wear.watchface.complications.datasource.TimelineEntry> getTimelineEntries();
+    property public final androidx.wear.watchface.complications.data.ComplicationData defaultComplicationData;
+    property public final java.util.Collection<androidx.wear.watchface.complications.datasource.TimelineEntry> timelineEntries;
+  }
+
+  public final class ComplicationDataTimelineKt {
+  }
+
+  public final class ComplicationRequest {
+    ctor public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType, boolean immediateResponseRequired);
+    ctor @Deprecated public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType);
+    method public int getComplicationInstanceId();
+    method public androidx.wear.watchface.complications.data.ComplicationType getComplicationType();
+    method public boolean isImmediateResponseRequired();
+    property public final int complicationInstanceId;
+    property public final androidx.wear.watchface.complications.data.ComplicationType complicationType;
+    property public final boolean immediateResponseRequired;
+  }
+
+  public final class TimeInterval {
+    ctor public TimeInterval(java.time.Instant start, java.time.Instant end);
+    method public java.time.Instant getEnd();
+    method public java.time.Instant getStart();
+    method public void setEnd(java.time.Instant);
+    method public void setStart(java.time.Instant);
+    property public final java.time.Instant end;
+    property public final java.time.Instant start;
+  }
+
+  public final class TimelineEntry {
+    ctor public TimelineEntry(androidx.wear.watchface.complications.datasource.TimeInterval validity, androidx.wear.watchface.complications.data.ComplicationData complicationData);
+    method public androidx.wear.watchface.complications.data.ComplicationData getComplicationData();
+    method public androidx.wear.watchface.complications.datasource.TimeInterval getValidity();
+    method public void setComplicationData(androidx.wear.watchface.complications.data.ComplicationData);
+    method public void setValidity(androidx.wear.watchface.complications.datasource.TimeInterval);
+    property public final androidx.wear.watchface.complications.data.ComplicationData complicationData;
+    property public final androidx.wear.watchface.complications.datasource.TimeInterval validity;
+  }
+
+}
+

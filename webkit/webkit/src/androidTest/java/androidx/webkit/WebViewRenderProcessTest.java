@@ -31,12 +31,14 @@ import androidx.test.filters.SdkSuppress;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebViewRenderProcessTest {
     private boolean terminateRenderProcessOnUiThread(
             final WebViewRenderProcess renderer) {
@@ -115,10 +117,9 @@ public class WebViewRenderProcessTest {
     @RequiresApi(Build.VERSION_CODES.O)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     public void testGetWebViewRenderProcess() throws Throwable {
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)
-                && !WebViewCompat.isMultiProcessEnabled()) {
-            return;
-        }
+        Assume.assumeTrue("Test requires multi-process mode",
+                WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)
+                        && WebViewCompat.isMultiProcessEnabled());
 
         final WebView webView = WebViewOnUiThread.createWebView();
 

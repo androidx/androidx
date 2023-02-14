@@ -32,7 +32,7 @@ import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkerWrapper
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.StopAwareForegroundWorker
@@ -88,7 +88,7 @@ class WorkerWrapperForegroundTest {
             val main = Executor { runnable ->
                 handler.post(runnable)
             }
-            val serialExecutor = SerialExecutor(internalExecutor)
+            val serialExecutor = SerialExecutorImpl(internalExecutor)
 
             override fun getMainThreadExecutor(): Executor {
                 return main
@@ -100,7 +100,7 @@ class WorkerWrapperForegroundTest {
         workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
         val scheduler = mock(Scheduler::class.java)
         schedulers = Collections.singletonList(scheduler)
-        processor = Processor(context, config, taskExecutor, workDatabase, schedulers)
+        processor = Processor(context, config, taskExecutor, workDatabase)
         workManager =
             spy(WorkManagerImpl(context, config, taskExecutor, workDatabase, schedulers, processor))
         workDatabase = workManager.workDatabase
@@ -122,7 +122,8 @@ class WorkerWrapperForegroundTest {
             taskExecutor,
             foregroundProcessor,
             workDatabase,
-            request.stringId
+            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
 
         wrapper.run()
@@ -144,14 +145,14 @@ class WorkerWrapperForegroundTest {
             taskExecutor,
             foregroundProcessor,
             workDatabase,
-            request.stringId
+            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
 
         wrapper.run()
         val future = wrapper.future as SettableFuture<Boolean>
         val latch = CountDownLatch(1)
-        future.addListener(
-            Runnable {
+        future.addListener({
                 assertThat(future.isDone, `is`(true))
                 latch.countDown()
             },

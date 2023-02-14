@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * Default identifier for the root group if a Vector graphic
@@ -93,8 +94,9 @@ fun rememberVectorPainter(
     )
 
 /**
- * Create a [VectorPainter] with the Vector defined by the provided
- * sub-composition
+ * Create a [VectorPainter] with the Vector defined by the provided sub-composition.
+ *
+ * Inside [content] use the [Group] and [Path] composables to define the vector.
  *
  * @param [defaultWidth] Intrinsic width of the Vector in [Dp]
  * @param [defaultHeight] Intrinsic height of the Vector in [Dp]
@@ -308,6 +310,7 @@ sealed class VectorProperty<T> {
  * This can be passed to [RenderVectorGroup] to alter some property values when the [VectorGroup]
  * is rendered.
  */
+@JvmDefaultWithCompatibility
 interface VectorConfig {
     fun <T> getOrDefault(property: VectorProperty<T>, defaultValue: T): T {
         return defaultValue

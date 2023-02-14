@@ -29,6 +29,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.RoomWarnings
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -122,6 +123,7 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
         @Insert
         fun insertItems(item: List<Item>)
 
+        @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
         @Query("SELECT * FROM User")
         fun getUserWithItems(): List<UserWithItems>
     }

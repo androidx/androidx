@@ -25,7 +25,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
 
@@ -34,15 +33,13 @@ dependencies {
     implementation(project(":compose:ui:ui-test"))
     implementation(project(":compose:ui:ui-test-junit4"))
 
-    // Can't use the artifact of animation due to https://github.com/gradle/gradle/issues/19882
-    implementation(project(":compose:animation:animation"))
-    implementation("androidx.compose.material:material:1.1.0")
+    implementation("androidx.compose.animation:animation:1.2.1")
+    implementation("androidx.compose.material:material:1.2.1")
 }
 
 androidx {
     name = "AndroidX Compose Testing Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.COMPOSE_UI
     inceptionYear = "2022"
     description = "Contains samples for AndroidX Compose Testing."
 }

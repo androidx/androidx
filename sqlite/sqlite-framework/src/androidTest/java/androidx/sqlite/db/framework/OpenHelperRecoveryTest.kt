@@ -18,6 +18,7 @@ package androidx.sqlite.db.framework
 
 import android.content.Context
 import android.database.sqlite.SQLiteException
+import android.os.Build
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
@@ -36,6 +37,28 @@ class OpenHelperRecoveryTest {
     @Before
     fun setup() {
         context.deleteDatabase(dbName)
+    }
+    @Test
+    fun delegateLaziness() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            val openHelper = FrameworkSQLiteOpenHelper(
+                context,
+                dbName,
+                EmptyCallback(),
+                false,
+                false
+            )
+            openHelper.setWriteAheadLoggingEnabled(true)
+
+            val dbFileBeforeWritable = context.getDatabasePath(dbName)
+            assertThat(dbFileBeforeWritable.exists()).isFalse()
+
+            val writableDb = openHelper.writableDatabase
+            val dbFileAfterWritable = context.getDatabasePath(dbName)
+
+            assertThat(dbFileAfterWritable.exists()).isTrue()
+            assertThat(writableDb.isWriteAheadLoggingEnabled).isTrue()
+        }
     }
 
     @Test
@@ -108,9 +131,8 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onUpgradeError() {
         // Create DB at version 1, open and close it
-        FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(1), false, true).let {
-            it.writableDatabase.close()
-        }
+        FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(1), false, true)
+            .writableDatabase.close()
 
         // A callback to open DB at version 2, it has a bad migration.
         val badCallback = object : SupportSQLiteOpenHelper.Callback(2) {

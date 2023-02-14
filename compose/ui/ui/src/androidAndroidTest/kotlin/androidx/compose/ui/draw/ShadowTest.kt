@@ -19,6 +19,7 @@ package androidx.compose.ui.draw
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +56,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -122,6 +124,7 @@ class ShadowTest {
         }
     }
 
+    @Ignore // b/266748959
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromShadowToNoShadow() {
@@ -373,6 +376,8 @@ class ShadowTest {
         }
     }
 
+    // waitAndScreenShot() requires API level 26
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
         val bitmap = rule.waitAndScreenShot()
         assertEquals(width, bitmap.width)

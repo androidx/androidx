@@ -18,10 +18,10 @@ package androidx.room.processor
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.EntityOrView
 import androidx.room.vo.Fields
-import com.squareup.javapoet.TypeName
 
 interface EntityOrViewProcessor {
     fun process(): EntityOrView
@@ -51,8 +51,8 @@ private class NonEntityOrViewProcessor(
             override val fields: Fields = Fields()
             override val tableName: String
                 get() = typeName.toString()
-            override val typeName: TypeName
-                get() = element.type.typeName
+            override val typeName: XTypeName
+                get() = element.type.asTypeName()
         }
     }
 }

@@ -29,9 +29,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -112,25 +112,23 @@ class BackHandlerTest {
      * Test to ensure that the callback from the BackHandler remains in the correct order though
      * lifecycle changes
      */
-    @FlakyTest(bugId = 189889254)
     @Test
     fun testBackHandlerLifecycle() {
-        var inteceptedBack = false
+        var interceptedBack = false
         val lifecycleOwner = TestLifecycleOwner()
 
         composeTestRule.setContent {
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            val dispatcherOwner = object : OnBackPressedDispatcherOwner {
-                override fun getLifecycle() = lifecycleOwner.lifecycle
-
-                override fun getOnBackPressedDispatcher() = dispatcher
+            val dispatcherOwner =
+                object : OnBackPressedDispatcherOwner, LifecycleOwner by lifecycleOwner {
+                    override val onBackPressedDispatcher = dispatcher
             }
             dispatcher.addCallback(lifecycleOwner) { }
             CompositionLocalProvider(
                 LocalOnBackPressedDispatcherOwner provides dispatcherOwner,
                 LocalLifecycleOwner provides lifecycleOwner
             ) {
-                BackHandler { inteceptedBack = true }
+                BackHandler { interceptedBack = true }
             }
             Button(onClick = { dispatcher.onBackPressed() }) {
                 Text(text = "Press Back")
@@ -142,7 +140,7 @@ class BackHandlerTest {
 
         composeTestRule.onNodeWithText("Press Back").performClick()
         composeTestRule.runOnIdle {
-            assertThat(inteceptedBack).isEqualTo(true)
+            assertThat(interceptedBack).isEqualTo(true)
         }
     }
 }

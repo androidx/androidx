@@ -18,17 +18,24 @@ package androidx.compose.foundation.lazy.grid
 
 import android.os.Build
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.list.TestTouchSlop
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
@@ -37,6 +44,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -49,13 +59,19 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeWithVelocity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.size
 import androidx.compose.ui.zIndex
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -63,6 +79,8 @@ import com.google.common.collect.Range
 import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -713,6 +731,26 @@ class LazyGridTest(
     }
 
     @Test
+    fun maxIntElements_withKey_startInMiddle() {
+        val itemSize = with(rule.density) { 15.toDp() }
+
+        rule.setContent {
+            LazyGrid(
+                cells = 1,
+                modifier = Modifier.size(itemSize),
+                state = LazyGridState(firstVisibleItemIndex = Int.MAX_VALUE / 2)
+            ) {
+                items(Int.MAX_VALUE, key = { it }) {
+                    Box(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("${Int.MAX_VALUE / 2}")
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
     fun pointerInputScrollingIsAllowedWhenUserScrollingIsEnabled() {
         val itemSize = with(rule.density) { 30.toDp() }
         rule.setContentWithTestViewConfiguration {
@@ -879,6 +917,82 @@ class LazyGridTest(
         rule.onNodeWithTag("5").assertIsDisplayed()
         rule.onNodeWithTag("6").assertDoesNotExist()
         rule.onNodeWithTag("7").assertDoesNotExist()
+    }
+
+    @Test
+    fun withZeroSizedFirstItem() {
+        var scrollConsumedAccumulator = Offset.Zero
+        val collectingDataConnection = object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                scrollConsumedAccumulator += consumed
+                return Offset.Zero
+            }
+        }
+
+        rule.setContent {
+            val state = rememberLazyGridState()
+            LazyGrid(
+                cells = 1,
+                state = state,
+                modifier = Modifier
+                    .testTag("mainList")
+                    .nestedScroll(connection = collectingDataConnection),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(all = 10.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.size(size = 0.dp))
+                }
+                items((0..8).map { it.toString() }) {
+                    Box(Modifier.testTag(it)) {
+                        BasicText(text = it.toString())
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("mainList").performTouchInput {
+            swipeDown()
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollConsumedAccumulator).isEqualTo(Offset.Zero)
+        }
+    }
+
+    @Test
+    fun withZeroSizedFirstItem_shouldKeepItemOnSizeChange() {
+        val firstItemSize = mutableStateOf(0.dp)
+
+        rule.setContent {
+            val state = rememberLazyGridState()
+            LazyGrid(
+                cells = 1,
+                state = state,
+                modifier = Modifier
+                    .testTag("mainList"),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(all = 10.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier
+                        .testTag("firstItem")
+                        .size(size = firstItemSize.value)
+                        .background(Color.Black))
+                }
+                items((0..8).map { it.toString() }) {
+                    Box(Modifier.testTag(it)) {
+                        BasicText(text = it.toString())
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("firstItem").assertIsNotDisplayed()
+        firstItemSize.value = 20.dp
+        rule.onNodeWithTag("firstItem").assertIsDisplayed()
     }
 
     @Test
@@ -1063,6 +1177,292 @@ class LazyGridTest(
         rule.runOnIdle {
             assertThat(state.numMeasurePasses).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun laysOutRtlCorrectlyWithLargerContainer() {
+        val mainAxisSize = with(rule.density) { 250.toDp() }
+        val crossAxisSize = with(rule.density) { 110.toDp() }
+        val itemSize = with(rule.density) { 50.toDp() }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                LazyGrid(cells = 2, modifier = Modifier.axisSize(crossAxisSize, mainAxisSize)) {
+                    items(4) { index ->
+                        val label = (index + 1).toString()
+                        BasicText(label, Modifier.size(itemSize).testTag(label))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("1").apply {
+            if (vertical) {
+                // 2 1
+                // 4 3
+                assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+                assertCrossAxisStartPositionInRootIsEqualTo(crossAxisSize / 2)
+            } else {
+                // 3 1
+                // 4 2
+                assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+                assertMainAxisStartPositionInRootIsEqualTo(mainAxisSize - itemSize)
+            }
+        }
+    }
+
+    @Test
+    fun scrollDuringMeasure() {
+        rule.setContent {
+            BoxWithConstraints {
+                val state = rememberLazyGridState()
+                LazyGrid(
+                    cells = 2,
+                    state = state,
+                    modifier = Modifier.axisSize(40.dp, 100.dp)
+                ) {
+                    items(20) {
+                        val tag = it.toString()
+                        BasicText(
+                            text = tag,
+                            modifier = Modifier.axisSize(20.dp, 20.dp).testTag(tag)
+                        )
+                    }
+                }
+                LaunchedEffect(state) {
+                    state.scrollToItem(10)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("10")
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun scrollInLaunchedEffect() {
+        rule.setContent {
+            val state = rememberLazyGridState()
+            LazyGrid(
+                cells = 2,
+                state = state,
+                modifier = Modifier.axisSize(40.dp, 100.dp)
+            ) {
+                items(20) {
+                    val tag = it.toString()
+                    BasicText(
+                        text = tag,
+                        modifier = Modifier.axisSize(20.dp, 20.dp).testTag(tag)
+                    )
+                }
+            }
+            LaunchedEffect(state) {
+                state.scrollToItem(10)
+            }
+        }
+
+        rule.onNodeWithTag("10")
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun changedLinesRemeasuredCorrectly() {
+        var flag by mutableStateOf(false)
+        rule.setContent {
+            LazyGrid(cells = GridCells.Fixed(2), modifier = Modifier.axisSize(60.dp, 100.dp)) {
+                item(
+                    span = { GridItemSpan(maxLineSpan) }
+                ) {
+                    Box(Modifier.mainAxisSize(32.dp).background(Color.Red))
+                }
+
+                if (flag) {
+                    item {
+                        Box(Modifier.mainAxisSize(32.dp).background(Color.Blue))
+                    }
+
+                    item {
+                        Box(Modifier.mainAxisSize(32.dp).background(Color.Yellow).testTag("target"))
+                    }
+                } else {
+                    item(
+                        span = { GridItemSpan(maxLineSpan) }
+                    ) {
+                        Box(Modifier.mainAxisSize(32.dp).background(Color.Blue))
+                    }
+
+                    item(
+                        span = { GridItemSpan(maxLineSpan) }
+                    ) {
+                        Box(Modifier.mainAxisSize(32.dp).background(Color.Yellow).testTag("target"))
+                    }
+                }
+            }
+        }
+
+        flag = true
+        rule.onNodeWithTag("target")
+            .assertCrossAxisSizeIsEqualTo(30.dp)
+            .assertMainAxisStartPositionInRootIsEqualTo(32.dp)
+            .assertCrossAxisStartPositionInRootIsEqualTo(30.dp)
+    }
+
+    @Test
+    fun spacingsLargerThanLayoutSize() {
+        val items = (1..2).map { it.toString() }
+
+        val spacing = with(rule.density) { 5.toDp() }
+        val itemSize = with(rule.density) { 50.toDp() }
+
+        rule.setContent {
+            LazyGrid(
+                cells = GridCells.Fixed(2),
+                modifier = Modifier.axisSize(0.dp, itemSize),
+                crossAxisSpacedBy = spacing
+            ) {
+                items(items) {
+                    Spacer(Modifier.size(itemSize).testTag(it))
+                }
+            }
+        }
+
+        val bounds1 = rule.onNodeWithTag("1")
+            .assertExists()
+            .getBoundsInRoot()
+
+        assertThat(bounds1.top).isEqualTo(0.dp)
+        assertThat(bounds1.left).isEqualTo(0.dp)
+        assertThat(bounds1.size).isEqualTo(DpSize(0.dp, 0.dp))
+
+        val bounds2 = rule.onNodeWithTag("2")
+            .assertExists()
+            .getBoundsInRoot()
+
+        assertThat(bounds2.top).isEqualTo(0.dp)
+        assertThat(bounds2.left).isEqualTo(0.dp)
+        assertThat(bounds2.size).isEqualTo(DpSize(0.dp, 0.dp))
+    }
+
+    @Test
+    fun itemsComposedInOrderDuringAnimatedScroll() {
+        // for the Paging use case it is important that during such long scrolls we do not
+        // accidentally compose an item from completely other part of the list as it will break
+        // the logic defining what page to load. this issue was happening right after the
+        // teleporting during the animated scrolling happens (for example we were on item 100
+        // and we immediately snap to item 400). the prefetching logic was not detecting such
+        // moves and were continuing prefetching item 101 even if it is not needed anymore.
+        val state = LazyGridState()
+        var previousItem = -1
+        // initialize lambda here so it is not recreated when items block is rerun causing
+        // extra recompositions
+        val itemContent: @Composable LazyGridItemScope.(index: Int) -> Unit = {
+            Truth.assertWithMessage("Item $it should be larger than $previousItem")
+                .that(it > previousItem).isTrue()
+            previousItem = it
+            BasicText("$it", Modifier.size(10.dp))
+        }
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LazyGrid(1, Modifier.size(30.dp), state = state) {
+                items(500, itemContent = itemContent)
+            }
+        }
+
+        var animationFinished by mutableStateOf(false)
+        rule.runOnIdle {
+            scope.launch {
+                state.animateScrollToItem(500)
+                animationFinished = true
+            }
+        }
+        rule.waitUntil(timeoutMillis = 10000) { animationFinished }
+    }
+
+    @Test
+    fun fillingFullSize_nextItemIsNotComposed() {
+        val state = LazyGridState()
+        state.prefetchingEnabled = false
+        val itemSizePx = 5f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyGrid(
+                1,
+                Modifier
+                    .testTag(LazyGridTag)
+                    .mainAxisSize(itemSize),
+                state
+            ) {
+                items(3) { index ->
+                    Box(Modifier.size(itemSize).testTag("$index"))
+                }
+            }
+        }
+
+        repeat(3) { index ->
+            rule.onNodeWithTag("$index")
+                .assertIsDisplayed()
+            rule.onNodeWithTag("${index + 1}")
+                .assertDoesNotExist()
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(itemSizePx)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun changingMaxSpansCount() {
+        val state = LazyGridState()
+        state.prefetchingEnabled = false
+        val itemSizePx = 100
+        val itemSizeDp = with(rule.density) { itemSizePx.toDp() }
+        var expanded by mutableStateOf(true)
+        rule.setContent {
+            Row {
+                LazyGrid(
+                    GridCells.Adaptive(itemSizeDp),
+                    Modifier
+                        .testTag(LazyGridTag)
+                        .layout { measurable, _ ->
+                            val crossAxis = if (expanded) {
+                                itemSizePx * 3
+                            } else {
+                                itemSizePx
+                            }
+                            val mainAxis = itemSizePx * 3 + 1
+                            val placeable = measurable.measure(
+                                Constraints.fixed(
+                                    width = if (vertical) crossAxis else mainAxis,
+                                    height = if (vertical) mainAxis else crossAxis
+                                )
+                            )
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(IntOffset.Zero)
+                            }
+                        },
+                    state
+                ) {
+                    items(
+                        count = 100,
+                        span = {
+                            if (it == 0 || it == 5) GridItemSpan(maxLineSpan) else GridItemSpan(1)
+                        }
+                    ) { index ->
+                        Box(Modifier.size(itemSizeDp).testTag("$index").debugBorder())
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        expanded = false
+        rule.waitForIdle()
+
+        expanded = true
+        rule.waitForIdle()
     }
 }
 

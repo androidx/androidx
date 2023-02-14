@@ -106,6 +106,377 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testAutoValueInheritance() throws Exception {
+        Compilation docExtendsAutoValueDoc = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@AutoValue\n"
+                        + "@Document\n"
+                        + "public abstract class Gift {\n"
+                        + "  @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "  @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "  public static Gift create(String id, String namespace) {\n"
+                        + "      return new AutoValue_Gift(id,namespace);\n"
+                        + "  }\n"
+                        + "  @Document\n"
+                        + "  static abstract class CoolGift extends Gift {\n"
+                        + "    @Document.BooleanProperty boolean cool;\n"
+                        + "    CoolGift(String id, String namespace, boolean cool) {\n"
+                        + "      super(id, message);\n"
+                        + "      this.cool = cool;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(docExtendsAutoValueDoc).hadErrorContaining(
+                "A class annotated with Document cannot inherit from a class annotated with "
+                        + "AutoValue");
+
+        Compilation autoValueDocExtendsDoc = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @AutoValue\n"
+                        + "  @Document\n"
+                        + "  static abstract class CoolGift extends Gift {\n"
+                        + "    @CopyAnnotations @Document.BooleanProperty abstract boolean cool()"
+                        + ";\n"
+                        + "    public static CoolGift create(String id, String namespace, boolean"
+                        + " cool) {\n"
+                        + "      return new AutoValue_Gift_CoolGift(cool);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(autoValueDocExtendsDoc).hadErrorContaining(
+                "A class annotated with AutoValue and Document cannot have a superclass");
+    }
+
+    @Test
+    public void testSuperClassErrors() throws Exception {
+        Compilation specialFieldReassigned = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String prop;\n"
+                        + "  Gift(String id, String namespace, String prop) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.prop = prop;\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class CoolGift extends Gift {\n"
+                        + "  @Document.StringProperty String id;\n"
+                        + "  CoolGift(String id, String namespace) {\n"
+                        + "    super(id, namespace, \"\");\n"
+                        + "    this.id = id;\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(specialFieldReassigned).hadErrorContaining(
+                "Non-annotated field overriding special annotated fields named: id");
+
+        Compilation nonAnnotatedFieldHasSameName = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  Gift(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class CoolGift extends Gift {\n"
+                        + "  String id;\n"
+                        + "  CoolGift(String id, String namespace) {\n"
+                        + "    super(id, namespace);\n"
+                        + "  }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "}\n");
+        assertThat(nonAnnotatedFieldHasSameName).hadErrorContaining(
+                "Non-annotated field overriding special annotated fields named: id");
+
+        Compilation propertyCollision = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String prop;\n"
+                        + "  Gift(String id, String namespace, String prop) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.prop = prop;\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class CoolGift extends Gift {\n"
+                        + "  @Document.BooleanProperty Boolean prop;\n"
+                        + "  CoolGift(String id, String namespace, String prop) {\n"
+                        + "    super(id, namespace, prop);\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(propertyCollision).hadErrorContaining(
+                "Class hierarchy contains multiple annotated fields named: prop");
+
+        //error on collision
+        Compilation idCollision = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  Gift(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class CoolGift extends Gift {\n"
+                        + "  @Document.BooleanProperty private final boolean cool;\n"
+                        + "  @Document.Id String badId;\n"
+                        + "  CoolGift(String id, String namespace, String badId) {\n"
+                        + "    super(id, namespace);\n"
+                        + "    this.badId = badId;\n"
+                        + "  }\n"
+                        + "  public boolean getBadId() { return badId; }\n"
+                        + "}\n");
+        assertThat(idCollision).hadErrorContaining(
+                "Class hierarchy contains multiple fields annotated @Id");
+
+        Compilation nsCollision = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  Gift(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class CoolGift extends Gift {\n"
+                        + "  @Document.Namespace String badNamespace;\n"
+                        + "  CoolGift(String id, String namespace, String badId) {\n"
+                        + "    super(id, namespace);\n"
+                        + "    this.badNamespace = namespace;\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(nsCollision).hadErrorContaining(
+                "Class hierarchy contains multiple fields annotated @Namespace");
+    }
+
+    @Test
+    public void testSuperClass() throws Exception {
+        // Try multiple levels of inheritance, nested, with properties, overriding properties
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Ancestor {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "  int score;\n"
+                        + "  Ancestor(String id, String namespace, String note) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.note = note;\n"
+                        + "  }\n"
+                        + "  public String getNote() { return note; }\n"
+                        + "}\n"
+                        + "class Parent extends Ancestor {\n"
+                        + "  Parent(String id, String namespace, String note) {\n"
+                        + "    super(id, namespace, note);\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  Gift(String id, String namespace, String sender) {\n"
+                        + "    super(id, namespace, \"note\");\n"
+                        + "    this.sender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return sender; }\n"
+                        + "  @Document\n"
+                        + "  class FooGift extends Gift {\n"
+                        + "    @Document.Score int score;\n"
+                        + "    @Document.BooleanProperty boolean foo;\n"
+                        + "    FooGift(String id, String namespace, String note, int score, "
+                        + "boolean foo) {\n"
+                        + "      super(id, namespace, note);\n"
+                        + "      this.score = score;\n"
+                        + "      this.foo = foo;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift$$__FooGift.java");
+    }
+
+    @Test
+    public void testSuperClass_changeSchemaName() throws Exception {
+        Compilation compilation = compile(
+                "@Document(name=\"MyParent\")\n"
+                        + "class Parent {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "  Parent(String id, String namespace, String note) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.note = note;\n"
+                        + "  }\n"
+                        + "  public String getNote() { return note; }\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document(name=\"MyGift\")\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  Gift(String id, String namespace, String sender) {\n"
+                        + "    super(id, namespace, \"note\");\n"
+                        + "    this.sender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return sender; }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(
+                /*className=*/"Gift.java",
+                /*content=*/"public static final String SCHEMA_NAME = \"MyGift\";");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testSuperClass_multipleChangedSchemaNames() throws Exception {
+        Compilation compilation = compile(
+                "@Document(name=\"MyParent\")\n"
+                        + "class Parent {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "  Parent(String id, String namespace, String note) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.note = note;\n"
+                        + "  }\n"
+                        + "  public String getNote() { return note; }\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document(name=\"MyGift\")\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  Gift(String id, String namespace, String sender) {\n"
+                        + "    super(id, namespace, \"note\");\n"
+                        + "    this.sender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return sender; }\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document\n"
+                        + "class FooGift extends Gift {\n"
+                        + "  @Document.BooleanProperty boolean foo;\n"
+                        + "  FooGift(String id, String namespace, String note, boolean foo) {\n"
+                        + "    super(id, namespace, note);\n"
+                        + "    this.foo = foo;\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(
+                /*className=*/"FooGift.java",
+                /*content=*/"public static final String SCHEMA_NAME = \"MyGift\";");
+        checkEqualsGolden("FooGift.java");
+    }
+
+    @Test
+    public void testSuperClassPojoAncestor() throws Exception {
+        // Try multiple levels of inheritance, nested, with properties, overriding properties
+        Compilation compilation = compile(
+                "class Ancestor {\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent extends Ancestor {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "  int score;\n"
+                        + "  Parent(String id, String namespace, String note) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.note = note;\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  Gift(String id, String namespace, String sender) {\n"
+                        + "    super(id, namespace, \"note\");\n"
+                        + "    this.sender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return sender; }\n"
+                        + "  @Document\n"
+                        + "  class FooGift extends Gift {\n"
+                        + "    @Document.Score int score;\n"
+                        + "    @Document.BooleanProperty boolean foo;\n"
+                        + "    FooGift(String id, String namespace, String note, int score, "
+                        + "boolean foo) {\n"
+                        + "      super(id, namespace, note);\n"
+                        + "      this.score = score;\n"
+                        + "      this.foo = foo;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift$$__FooGift.java");
+    }
+
+    @Test
+    public void testSuperClassWithPrivateFields() throws Exception {
+        // Parents has private fields with public getter. Children should be able to extend
+        // Parents and inherit the public getters.
+        // TODO(b/262916926): we should be able to support inheriting classes not annotated with
+        //  @Document.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Ancestor {\n"
+                        + "  @Document.Namespace private String mNamespace;\n"
+                        + "  @Document.Id private String mId;\n"
+                        + "  @Document.StringProperty private String mNote;\n"
+                        + "  Ancestor(String id, String namespace, String note) {\n"
+                        + "    this.mId = id;\n"
+                        + "    this.mNamespace = namespace;\n"
+                        + "    this.mNote = note;\n"
+                        + "  }\n"
+                        + "  public String getNamespace() { return mNamespace; }\n"
+                        + "  public String getId() { return mId; }\n"
+                        + "  public String getNote() { return mNote; }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent extends Ancestor {\n"
+                        + "  @Document.StringProperty private String mReceiver;\n"
+                        + "  Parent(String id, String namespace, String note, String receiver) {\n"
+                        + "    super(id, namespace, note);\n"
+                        + "    this.mReceiver = receiver;\n"
+                        + "  }\n"
+                        + "  public String getReceiver() { return mReceiver; }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty private String mSender;\n"
+                        + "  Gift(String id, String namespace, String note, String receiver,\n"
+                        + "    String sender) {\n"
+                        + "    super(id, namespace, note, receiver);\n"
+                        + "    this.mSender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return mSender; }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains(/*className=*/"Gift.java", /*content=*/"document.getNote()");
+        checkResultContains(/*className=*/"Gift.java", /*content=*/"document.getReceiver()");
+        checkResultContains(/*className=*/"Gift.java", /*content=*/"document.getSender()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testManyCreationTimestamp() {
         Compilation compilation = compile(
                 "@Document\n"
@@ -324,7 +695,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         assertThat(compilation).hadWarningContaining(
@@ -345,7 +717,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         assertThat(compilation).hadWarningContaining(
@@ -368,7 +741,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         assertThat(compilation).hadWarningContaining(
@@ -407,7 +781,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContaining("Creation method is private");
     }
 
@@ -423,7 +798,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContaining(
                 "doesn't have parameters for the following fields: [id]");
     }
@@ -541,7 +917,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContaining(
                 "Parameter \"unknownParam\" is not an AppSearch parameter; don't know how to "
                         + "supply it");
@@ -681,8 +1058,36 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.StringProperty(tokenizerType=0) String tokNone;\n"
-                        + "  @Document.StringProperty(tokenizerType=1) String tokPlain;\n"
+                        + "\n"
+                        // NONE index type will generate a NONE tokenizerType type.
+                        + "  @Document.StringProperty(tokenizerType=0, indexingType=0) "
+                        + "  String tokNoneInvalid;\n"
+                        + "  @Document.StringProperty(tokenizerType=1, indexingType=0) "
+                        + "  String tokPlainInvalid;\n"
+                        + "  @Document.StringProperty(tokenizerType=2, indexingType=0) "
+                        + "  String tokVerbatimInvalid;\n"
+                        + "  @Document.StringProperty(tokenizerType=3, indexingType=0) "
+                        + "  String tokRfc822Invalid;\n"
+                        + "\n"
+                        // Indexing type exact.
+                        + "  @Document.StringProperty(tokenizerType=0, indexingType=1) "
+                        + "  String tokNone;\n"
+                        + "  @Document.StringProperty(tokenizerType=1, indexingType=1) "
+                        + "  String tokPlain;\n"
+                        + "  @Document.StringProperty(tokenizerType=2, indexingType=1) "
+                        + "  String tokVerbatim;\n"
+                        + "  @Document.StringProperty(tokenizerType=3, indexingType=1) "
+                        + "  String tokRfc822;\n"
+                        + "\n"
+                        // Indexing type prefix.
+                        + "  @Document.StringProperty(tokenizerType=0, indexingType=2) "
+                        + "  String tokNonePrefix;\n"
+                        + "  @Document.StringProperty(tokenizerType=1, indexingType=2) "
+                        + "  String tokPlainPrefix;\n"
+                        + "  @Document.StringProperty(tokenizerType=2, indexingType=2) "
+                        + "  String tokVerbatimPrefix;\n"
+                        + "  @Document.StringProperty(tokenizerType=3, indexingType=2) "
+                        + "  String tokRfc822Prefix;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -737,6 +1142,48 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.StringProperty(indexingType=100, tokenizerType=1)\n"
                         + "  String str;\n"
+                        + "}\n");
+
+        assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
+    }
+
+    @Test
+    public void testLongPropertyIndexingType() throws Exception {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty Long defaultIndexNone;\n"
+                        + "  @Document.LongProperty(indexingType=0) Long indexNone;\n"
+                        + "  @Document.LongProperty(indexingType=1) Integer boxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) int unboxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) Long boxLong;\n"
+                        + "  @Document.LongProperty(indexingType=1) long unboxLong;\n"
+                        + "  @Document.LongProperty(indexingType=1) Integer[] arrBoxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) int[] arrUnboxInt;\n"
+                        + "  @Document.LongProperty(indexingType=1) Long[] arrBoxLong;\n"
+                        + "  @Document.LongProperty(indexingType=1) long[] arrUnboxLong;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testInvalidLongPropertyIndexingType() throws Exception {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty(indexingType=100) Long invalidProperty;\n"
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
@@ -917,6 +1364,45 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testMultipleNestedAutoValueDocument() throws IOException {
+        Compilation compilation = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@Document\n"
+                        + "@AutoValue\n"
+                        + "public abstract class Gift {\n"
+                        + "  @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "  @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "  @CopyAnnotations\n"
+                        + "  @Document.StringProperty abstract String property();\n"
+                        + "  public static Gift create(String id, String namespace, String"
+                        + " property) {\n"
+                        + "    return new AutoValue_Gift(id, namespace, property);\n"
+                        + "  }\n"
+                        + "  @Document\n"
+                        + "  @AutoValue\n"
+                        + "  abstract static class B {\n"
+                        + "    @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "    @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "    public static B create(String id, String namespace) {\n"
+                        + "      return new AutoValue_Gift_B(id, namespace);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "  @Document\n"
+                        + "  @AutoValue\n"
+                        + "  abstract static class A {\n"
+                        + "    @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "    @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "    public static A create(String id, String namespace) {\n"
+                        + "      return new AutoValue_Gift_A(id, namespace);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("AutoValue_Gift_A.java");
+    }
+
+    @Test
     public void testAutoValueDocument() throws IOException {
         Compilation compilation = compile(
                 "import com.google.auto.value.AutoValue;\n"
@@ -935,7 +1421,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden("Gift.java");
+        checkEqualsGolden("AutoValue_Gift.java");
     }
 
     @Test
@@ -954,6 +1440,68 @@ public class AppSearchCompilerTest {
 
         assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift$$__InnerGift.java");
+    }
+
+    @Test
+    public void testOneBadConstructor() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id private String mId;\n"
+                        + "  @Document.Namespace private String mNamespace;\n"
+                        + "  public Gift(String id, String namespace, boolean nonAppSearchParam){\n"
+                        + "    mId = id;\n"
+                        + "    mNamespace = namespace;\n"
+                        + "  }\n"
+                        + "  public Gift(String id){\n"
+                        + "    mId = id;\n"
+                        + "  }\n"
+                        + "  public String getId(){"
+                        + "    return mId;"
+                        + "  }\n"
+                        + "  public String getNamespace(){"
+                        + "    return mNamespace;"
+                        + "  }\n"
+                        + "  public void setNamespace(String namespace){\n"
+                        + "    mNamespace = namespace;"
+                        + "  }\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testNestedDocumentsIndexing() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.DocumentProperty(indexNestedProperties = true) "
+                        + "Collection<GiftContent> giftContentsCollection;\n"
+                        + "  @Document.DocumentProperty(indexNestedProperties = true) GiftContent[]"
+                        + " giftContentsArray;\n"
+                        + "  @Document.DocumentProperty(indexNestedProperties = true) GiftContent "
+                        + "giftContent;\n"
+                        + "  @Document.DocumentProperty() Collection<GiftContent> "
+                        + "giftContentsCollectionNotIndexed;\n"
+                        + "  @Document.DocumentProperty GiftContent[] "
+                        + "giftContentsArrayNotIndexed;\n"
+                        + "  @Document.DocumentProperty GiftContent giftContentNotIndexed;\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document\n"
+                        + "class GiftContent {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.StringProperty String[] contentsArray;\n"
+                        + "  @Document.StringProperty String contents;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
     }
 
     private Compilation compile(String classBody) {

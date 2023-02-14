@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Glance App Widget লাইব্রেরি সংক্রান্ত সমস্যা"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379"><b><tt>"adb logcat"</tt></b>"-এর সাহায্যে "<b><tt>"GlanceAppWidget"</tt></b>" খুঁজে দেখুন, আসল সমস্যাটি কী"</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Glance App উইজেট সংক্রান্ত সমস্যা"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"আসল সমস্যাটি কী তা "<b><tt>"adb logcat"</tt></b>"-এর সাহায্যে চেক করুন, "<b><tt>"GlanceAppWidget"</tt></b>"-এর জন্য সার্চ করা হচ্ছে"</string>
 </resources>

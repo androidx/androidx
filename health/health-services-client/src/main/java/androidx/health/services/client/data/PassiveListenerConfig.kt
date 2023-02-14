@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.proto.DataProto
 
@@ -27,64 +26,88 @@ import androidx.health.services.client.proto.DataProto
  * using Health Services
  *
  * @property dataTypes set of [DataType]s which should be tracked. Requested data will be returned
- * by [PassiveListenerCallback.onNewDataPoints].
- * @property shouldRequestUserActivityState whether to request [UserActivityInfo] updates. Data will
- * be returned by [PassiveListenerCallback.onUserActivityInfo]. If set to true, calling app must
- * have [android.Manifest.permission.ACTIVITY_RECOGNITION].
- * @property passiveGoals set of [PassiveGoal]s which should be tracked. Achieved goals will be
+ * by [PassiveListenerCallback.onNewDataPointsReceived].
+ * @property shouldUserActivityInfoBeRequested whether to request [UserActivityInfo] updates. Data
+ * will be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true, calling
+ * app must have [android.Manifest.permission.ACTIVITY_RECOGNITION].
+ * @property dailyGoals set of daily [PassiveGoal]s which should be tracked. Achieved goals will be
  * returned by [PassiveListenerCallback.onGoalCompleted].
+ * @property healthEventTypes set of [HealthEvent.Type] which should be tracked. Detected health
+ * events will be returned by [PassiveListenerCallback.onHealthEventReceived].
  */
 @Suppress("ParcelCreator")
-// TODO(b/227475943): open up visibility
-internal class PassiveListenerConfig
-public constructor(
-    public val dataTypes: Set<DataType>,
-    @get:JvmName("shouldRequestUserActivityState")
-    public val shouldRequestUserActivityState: Boolean,
-    public val passiveGoals: Set<PassiveGoal>,
-) : ProtoParcelable<DataProto.PassiveListenerConfig>() {
+public class PassiveListenerConfig(
+    public val dataTypes: Set<DataType<out Any, out DataPoint<out Any>>>,
+    @get:JvmName("shouldUserActivityInfoBeRequested")
+    public val shouldUserActivityInfoBeRequested: Boolean,
+    public val dailyGoals: Set<PassiveGoal>,
+    public val healthEventTypes: Set<HealthEvent.Type>
+) {
 
     internal constructor(
         proto: DataProto.PassiveListenerConfig
     ) : this(
-        proto.dataTypesList.map { DataType(it) }.toSet(),
+        proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.includeUserActivityState,
         proto.passiveGoalsList.map { PassiveGoal(it) }.toSet(),
+        proto.healthEventTypesList
+            .map { HealthEvent.Type.fromProto(it) }
+            .toSet()
     )
 
+    internal fun isValidPassiveGoal(): Boolean {
+        // Check if the registered goals are also tracked
+        for (passiveGoal: PassiveGoal in dailyGoals) {
+            if (!dataTypes.contains(passiveGoal.dataTypeCondition.dataType)) return false
+        }
+        return true
+    }
+
     /** Builder for [PassiveListenerConfig] instances. */
-    // TODO(b/227475943): open up visibility
-    internal class Builder {
-        private var dataTypes: Set<DataType> = emptySet()
+    public class Builder {
+        private var dataTypes: Set<DataType<*, *>> = emptySet()
         private var requestUserActivityState: Boolean = false
-        private var passiveGoals: Set<PassiveGoal> = emptySet()
+        private var dailyGoals: Set<PassiveGoal> = emptySet()
+        private var healthEventTypes: Set<HealthEvent.Type> = emptySet()
 
         /** Sets the requested [DataType]s that should be passively tracked. */
-        public fun setDataTypes(dataTypes: Set<DataType>): Builder {
+        public fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
             this.dataTypes = dataTypes.toSet()
             return this
         }
 
         /**
          * Sets whether to request the [UserActivityState] updates. If not set they will not be
-         * included by default and [PassiveListenerCallback.onUserActivityInfo] will not be invoked.
+         * included by default and [PassiveListenerCallback.onUserActivityInfoReceived] will not be invoked.
          * [UserActivityState] requires [android.Manifest.permission.ACTIVITY_RECOGNITION].
          *
-         * @param requestUserActivityState whether to request user activity state tracking
+         * @param shouldUserActivityInfoBeRequested whether to request user activity state tracking
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setShouldRequestUserActivityState(requestUserActivityState: Boolean): Builder {
-            this.requestUserActivityState = requestUserActivityState
+        fun setShouldUserActivityInfoBeRequested(
+            shouldUserActivityInfoBeRequested: Boolean
+        ): Builder {
+            this.requestUserActivityState = shouldUserActivityInfoBeRequested
             return this
         }
 
         /**
-         * Sets the requested [PassiveGoal]s that should be passively tracked.
+         * Sets the requested daily [PassiveGoal]s that should be passively tracked.
          *
-         * @param passiveGoals the [PassiveGoal]s that should be tracked passively
+         * @param dailyGoals the daily [PassiveGoal]s that should be tracked passively
          */
-        public fun setPassiveGoals(passiveGoals: Set<PassiveGoal>): Builder {
-            this.passiveGoals = passiveGoals.toSet()
+        public fun setDailyGoals(dailyGoals: Set<PassiveGoal>): Builder {
+            this.dailyGoals = dailyGoals.toSet()
+            return this
+        }
+
+        /**
+         * Sets the requested [HealthEvent.Type]s that should be passively tracked.
+         *
+         * @param healthEventTypes the [HealthEvent.Type]s that should be tracked passively
+         */
+        public fun setHealthEventTypes(healthEventTypes: Set<HealthEvent.Type>): Builder {
+            this.healthEventTypes = healthEventTypes.toSet()
             return this
         }
 
@@ -93,28 +116,22 @@ public constructor(
             return PassiveListenerConfig(
                 dataTypes,
                 requestUserActivityState,
-                passiveGoals
+                dailyGoals,
+                healthEventTypes
             )
         }
     }
 
-    /** @hide */
-    override val proto: DataProto.PassiveListenerConfig by lazy {
+    internal val proto: DataProto.PassiveListenerConfig =
         DataProto.PassiveListenerConfig.newBuilder()
             .addAllDataTypes(dataTypes.map { it.proto })
-            .setIncludeUserActivityState(shouldRequestUserActivityState)
-            .addAllPassiveGoals(passiveGoals.map { it.proto })
+            .setIncludeUserActivityState(shouldUserActivityInfoBeRequested)
+            .addAllPassiveGoals(dailyGoals.map { it.proto })
+            .addAllHealthEventTypes(healthEventTypes.map { it.toProto() })
             .build()
-    }
 
-    // TODO(b/227475943): open up visibility
-    internal companion object {
-        @JvmStatic public fun builder(): Builder = Builder()
-
-        @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveListenerConfig> = newCreator { bytes ->
-            val proto = DataProto.PassiveListenerConfig.parseFrom(bytes)
-            PassiveListenerConfig(proto)
-        }
+    public companion object {
+        @JvmStatic
+        public fun builder(): Builder = Builder()
     }
 }

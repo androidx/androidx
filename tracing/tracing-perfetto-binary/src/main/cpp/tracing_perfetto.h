@@ -23,7 +23,6 @@ namespace tracing_perfetto {
     void RegisterWithPerfetto();
     void TraceEventBegin(int key, const char *traceInfo);
     void TraceEventEnd();
-    void Flush();
     const char* Version();
 }
 

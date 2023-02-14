@@ -24,6 +24,8 @@ import android.view.ViewGroup;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+
+import androidx.annotation.NonNull;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
 
@@ -151,6 +153,7 @@ public class GuidedStepTestFragment extends GuidedStepFragment {
         mProvider.onSaveInstanceState(outState);
     }
 
+    @NonNull
     @Override
     public Guidance onCreateGuidance(Bundle savedInstanceState) {
         Guidance g = mProvider.onCreateGuidance(savedInstanceState);
@@ -161,12 +164,15 @@ public class GuidedStepTestFragment extends GuidedStepFragment {
     }
 
     @Override
-    public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+    public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         mProvider.onCreateActions(actions, savedInstanceState);
     }
 
     @Override
-    public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+    public void onCreateButtonActions(
+            @NonNull List<GuidedAction> actions,
+            Bundle savedInstanceState
+    ) {
         mProvider.onCreateButtonActions(actions, savedInstanceState);
     }
 

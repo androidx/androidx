@@ -23,4 +23,4 @@ class DeletionMethod(
     entities: Map<String, ShortcutEntity>,
     parameters: List<ShortcutQueryParameter>,
     methodBinder: DeleteOrUpdateMethodBinder?
-) : ShortcutMethod(element, entities, parameters, methodBinder)
+) : DeleteOrUpdateShortcutMethod(element, entities, parameters, methodBinder)

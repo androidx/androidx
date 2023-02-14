@@ -21,6 +21,7 @@ import static androidx.wear.tiles.material.RunnerUtils.SCREEN_WIDTH;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -38,11 +39,10 @@ import androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId;
 import androidx.wear.tiles.ResourceBuilders.ImageResource;
 import androidx.wear.tiles.ResourceBuilders.Resources;
 import androidx.wear.tiles.material.R;
-import androidx.wear.tiles.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
 import androidx.wear.tiles.renderer.TileRenderer;
 
 import java.util.concurrent.Executor;
-
 
 public class GoldenTestActivity extends Activity {
     private static final String ICON_ID = "tile_icon";
@@ -55,8 +55,7 @@ public class GoldenTestActivity extends Activity {
 
         LayoutElement layoutElementProto;
         try {
-            layoutElementProto =
-                    LayoutElement.parseFrom(layoutPayload);
+            layoutElementProto = LayoutElement.parseFrom(layoutPayload);
         } catch (Exception ex) {
             // It's a test, just rethrow.
             throw new IllegalArgumentException("Could not deserialize layout proto", ex);
@@ -67,6 +66,7 @@ public class GoldenTestActivity extends Activity {
 
         Context appContext = getApplicationContext();
         FrameLayout root = new FrameLayout(appContext);
+        root.setBackgroundColor(Color.BLACK);
         root.setLayoutParams(new LayoutParams(SCREEN_WIDTH, SCREEN_HEIGHT));
 
         Layout layout = new Layout.Builder().setRoot(rootLayoutElement).build();
@@ -75,12 +75,7 @@ public class GoldenTestActivity extends Activity {
 
         Resources resources = generateResources();
         TileRenderer renderer =
-                new TileRenderer(
-                        appContext,
-                        layout,
-                        resources,
-                        mainExecutor,
-                        i -> {});
+                new TileRenderer(appContext, layout, resources, mainExecutor, i -> {});
 
         View firstChild = renderer.inflate(root);
 
@@ -90,8 +85,10 @@ public class GoldenTestActivity extends Activity {
 
         // Set the activity to be full screen so when we crop the Bitmap we don't get time bar etc.
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow()
+                .setFlags(
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(root, new ViewGroup.LayoutParams(SCREEN_WIDTH, SCREEN_HEIGHT));
         super.onCreate(savedInstanceState);
@@ -118,4 +115,3 @@ public class GoldenTestActivity extends Activity {
                 .build();
     }
 }
-

@@ -18,6 +18,7 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -25,13 +26,21 @@ import androidx.glance.unit.Dimension
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableBox : EmittableWithChildren() {
+class EmittableBox : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-    public var contentAlignment: Alignment = Alignment.TopStart
+    var contentAlignment: Alignment = Alignment.TopStart
 
-    override fun toString(): String {
-        return "EmittableBox(modifier=$modifier, contentAlignment=$contentAlignment)"
+    override fun copy(): Emittable = EmittableBox().also {
+        it.modifier = modifier
+        it.contentAlignment = contentAlignment
+        it.children.addAll(children.map { it.copy() })
     }
+
+    override fun toString(): String = "EmittableBox(" +
+        "modifier=$modifier, " +
+        "contentAlignment=$contentAlignment" +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }
 
 /**
@@ -42,12 +51,15 @@ public class EmittableBox : EmittableWithChildren() {
  * subject to the [contentAlignment]. When the [content] has more than one layout child, all of
  * the children will be stacked on top of each other in the composition order.
  *
+ * Note for App Widgets: [Box] supports up to 10 child elements. Any additional elements will be
+ * truncated from the output.
+ *
  * @param modifier The modifier to be applied to the layout.
  * @param contentAlignment The alignment of children within the [Box].
  * @param content The content inside the [Box].
  */
 @Composable
-public fun Box(
+fun Box(
     modifier: GlanceModifier = GlanceModifier,
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable () -> Unit

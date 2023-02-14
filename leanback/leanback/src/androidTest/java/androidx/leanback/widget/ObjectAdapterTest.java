@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
@@ -161,20 +162,23 @@ public class ObjectAdapterTest {
     public static class DiffCallbackPayloadTesting extends DiffCallback<AdapterItem> {
         // Using item's mId as the standard to judge if two items is the same
         @Override
-        public boolean areItemsTheSame(AdapterItem oldItem, AdapterItem newItem) {
+        public boolean areItemsTheSame(@NonNull AdapterItem oldItem, @NonNull AdapterItem newItem) {
             return oldItem.getId() == newItem.getId();
         }
 
         // Using equals method to judge if two items have the same content.
         @Override
-        public boolean areContentsTheSame(AdapterItem oldItem, AdapterItem newItem) {
+        public boolean areContentsTheSame(
+                @NonNull AdapterItem oldItem,
+                @NonNull AdapterItem newItem
+        ) {
             return oldItem.equals(newItem);
         }
 
         @Nullable
         @Override
-        public Object getChangePayload(AdapterItem oldItem,
-                AdapterItem newItem) {
+        public Object getChangePayload(@NonNull AdapterItem oldItem,
+                @NonNull AdapterItem newItem) {
             Bundle diff = new Bundle();
             if (oldItem.getId() != newItem.getId()) {
                 diff.putInt(ID, newItem.getId());
@@ -218,6 +222,7 @@ public class ObjectAdapterTest {
             mHeight = height;
         }
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View view = new View(parent.getContext());
@@ -228,18 +233,18 @@ public class ObjectAdapterTest {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
             // no - op
         }
 
         @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull ViewHolder viewHolder) {
             // no - op
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item,
-                List<Object> payloads) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, @NonNull Object item,
+                @NonNull List<Object> payloads) {
             // no - op
         }
     }
@@ -260,13 +265,19 @@ public class ObjectAdapterTest {
 
             // Using item's mId as the standard to judge if two items is the same
             @Override
-            public boolean areItemsTheSame(AdapterItem oldItem, AdapterItem newItem) {
+            public boolean areItemsTheSame(
+                    @NonNull AdapterItem oldItem,
+                    @NonNull AdapterItem newItem
+            ) {
                 return oldItem.getId() == newItem.getId();
             }
 
             // Using equals method to judge if two items have the same content.
             @Override
-            public boolean areContentsTheSame(AdapterItem oldItem, AdapterItem newItem) {
+            public boolean areContentsTheSame(
+                    @NonNull AdapterItem oldItem,
+                    @NonNull AdapterItem newItem
+            ) {
                 return oldItem.equals(newItem);
             }
         };
@@ -421,13 +432,13 @@ public class ObjectAdapterTest {
 
             // Always treat two items are the same.
             @Override
-            public boolean areItemsTheSame(String oldItem, String newItem) {
+            public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                 return true;
             }
 
             // Always treat two items have the same content.
             @Override
-            public boolean areContentsTheSame(String oldItem, String newItem) {
+            public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                 return true;
             }
         };
@@ -467,13 +478,13 @@ public class ObjectAdapterTest {
 
             // Always treat two items are the different.
             @Override
-            public boolean areItemsTheSame(String oldItem, String newItem) {
+            public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                 return false;
             }
 
             // Always treat two items have the different content.
             @Override
-            public boolean areContentsTheSame(String oldItem, String newItem) {
+            public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                 return false;
             }
         };

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            noop.setCompoundDrawableTintList(csl);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
+    </issue>
+
+    <issue
+        id="UseAndroidAlpha"
+        message="Must use `android:alpha` if `app:alpha` is used"
+        errorLine1="    &lt;item app:alpha=&quot;?android:disabledAlpha&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/color_state_list_missing_android_alpha.xml"/>
+    </issue>
+
+    <issue
+        id="UseAppTint"
+        message="Must use `app:tint` instead of `android:tint`"
+        errorLine1="        android:tint=&quot;#FF0000&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/image_view_using_android_tint.xml"/>
+    </issue>
+
+    <issue
+        id="UseAppTint"
+        message="Must use `app:tint` instead of `android:tint`"
+        errorLine1="        android:tint=&quot;#FF0000&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/image_view_using_android_tint.xml"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void myButtonClick(View view) {"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/ActivityWithClick.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CustomSwitch(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CustomSwitch(Context context, AttributeSet attrs) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CustomSwitch(Context context, AttributeSet attrs) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CustomSwitch(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CustomSwitch(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
+    </issue>
+
+</issues>

@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Embedded
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -41,11 +42,9 @@ import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import com.google.common.truth.Truth
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import java.io.File
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
@@ -64,7 +63,7 @@ import org.mockito.Mockito.mock
 class PojoProcessorTest {
 
     companion object {
-        val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
+        val MY_POJO = XClassName.get("foo.bar", "MyPojo")
         val HEADER = """
             package foo.bar;
             import androidx.room.*;
@@ -88,11 +87,11 @@ class PojoProcessorTest {
         runProcessorTest(
             sources = listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} extends foo.bar.x.BaseClass {
+                    public class ${MY_POJO.simpleNames.single()} extends foo.bar.x.BaseClass {
                         public String myField;
                     }
                     """
@@ -213,7 +212,7 @@ class PojoProcessorTest {
             assertThat(parent.field.name, `is`("myPoint"))
             assertThat(
                 parent.pojo.typeName,
-                `is`(ClassName.get("foo.bar.MyPojo", "Point") as TypeName)
+                `is`(XClassName.get("foo.bar.MyPojo", "Point"))
             )
         }
     }
@@ -316,7 +315,7 @@ class PojoProcessorTest {
             val pointField = pojo.embeddedFields.first { it.field.name == "genericField" }
             assertThat(
                 pointField.pojo.typeName,
-                `is`(ClassName.get("foo.bar", "Point") as TypeName)
+                `is`(XClassName.get("foo.bar", "Point"))
             )
         }
     }
@@ -330,16 +329,8 @@ class PojoProcessorTest {
                 int embeddedPrimitive;
                 """
         ) { _, invocation ->
-            if (invocation.isKsp) {
-                // there are no primitives in KSP so this won't work. Instead, it will fail
-                // because we cannot find a constructor for `int`
-                invocation.assertCompilationResult {
-                    hasErrorContaining(MISSING_POJO_CONSTRUCTOR)
-                }
-            } else {
-                invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
-                }
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
             }
         }
     }
@@ -481,22 +472,8 @@ class PojoProcessorTest {
                 public long user;
                 """
         ) { _, invocation ->
-            if (invocation.isKsp) {
-                // in KSP, there are no primitives so `long` (kotlin.Long) will still look like a
-                // class but then we'll fail because it doesn't hvae a `uid` column
-                invocation.assertCompilationResult {
-                    hasErrorContaining(
-                        relationCannotFindEntityField(
-                            entityName = "java.lang.Long",
-                            columnName = "uid",
-                            availableColumns = emptyList()
-                        )
-                    )
-                }
-            } else {
-                invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
-                }
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
             }
         }
     }
@@ -708,7 +685,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("uid")))
-            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME))
         }
     }
 
@@ -726,7 +703,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("name")))
-            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME))
         }
     }
 
@@ -1082,7 +1059,7 @@ class PojoProcessorTest {
     @Test
     fun cache() {
         val pojo = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             $HEADER
             int id;
@@ -1215,7 +1192,7 @@ class PojoProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.ambiguousConstructor(
-                        MY_POJO.toString(),
+                        MY_POJO.canonicalName,
                         "name", listOf("mName", "_name")
                     )
                 )
@@ -1702,13 +1679,14 @@ class PojoProcessorTest {
     @Test
     fun dataClass_primaryConstructor() {
         listOf(
-            TestData.AllDefaultVals::class.java.canonicalName!!,
-            TestData.AllDefaultVars::class.java.canonicalName!!,
-            TestData.SomeDefaultVals::class.java.canonicalName!!,
-            TestData.SomeDefaultVars::class.java.canonicalName!!,
-            TestData.WithJvmOverloads::class.java.canonicalName!!
+            "foo.bar.TestData.AllDefaultVals",
+            "foo.bar.TestData.AllDefaultVars",
+            "foo.bar.TestData.SomeDefaultVals",
+            "foo.bar.TestData.SomeDefaultVars",
+            "foo.bar.TestData.WithJvmOverloads"
         ).forEach {
-            runProcessorTest { invocation ->
+            runProcessorTest(sources = listOf(TEST_DATA)) {
+                    invocation ->
                 PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(it),
@@ -1724,11 +1702,11 @@ class PojoProcessorTest {
 
     @Test
     fun dataClass_withJvmOverloads_primaryConstructor() {
-        runProcessorTest { invocation ->
+        runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
             PojoProcessor.createFor(
                 context = invocation.context,
                 element = invocation.processingEnv.requireTypeElement(
-                    TestData.WithJvmOverloads::class
+                    "foo.bar.TestData.WithJvmOverloads"
                 ),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
@@ -1742,12 +1720,12 @@ class PojoProcessorTest {
     @Test
     fun ignoredColumns() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
             import androidx.room.*;
             @Entity(ignoredColumns = {"bar"})
-            public class ${MY_POJO.simpleName()} {
+            public class ${MY_POJO.simpleNames.single()} {
                 public String foo;
                 public String bar;
             }
@@ -1772,15 +1750,15 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"bar"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private final String foo;
                         private final String bar;
-                        public ${MY_POJO.simpleName()}(String foo) {
+                        public ${MY_POJO.simpleNames.single()}(String foo) {
                           this.foo = foo;
                           this.bar = null;
                         }
@@ -1809,12 +1787,12 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"bar"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() {
@@ -1844,12 +1822,12 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"my_bar"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         public String foo;
                         @ColumnInfo(name = "my_bar")
                         public String bar;
@@ -1874,12 +1852,12 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
                     @Entity(ignoredColumns = {"no_such_column"})
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         public String foo;
                         public String bar;
                     }
@@ -1908,11 +1886,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() { return foo; }
@@ -1936,11 +1914,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() { return foo; }
@@ -1969,11 +1947,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public String getFoo() { return foo; }
@@ -2002,11 +1980,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public void setFoo(String foo) { this.foo = foo; }
@@ -2033,11 +2011,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public void setFoo(String foo) { this.foo = foo; }
@@ -2064,11 +2042,11 @@ class PojoProcessorTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     package foo.bar;
                     import androidx.room.*;
-                    public class ${MY_POJO.simpleName()} {
+                    public class ${MY_POJO.simpleNames.single()} {
                         private String foo;
                         private String bar;
                         public void setFoo(String foo) { this.foo = foo; }
@@ -2118,15 +2096,18 @@ class PojoProcessorTest {
                 fields["isbn"]?.getter
             ).isEqualTo(
                 FieldGetter(
+                    fieldName = "isbn",
                     jvmName = "getIsbn",
                     type = stringType,
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD,
+                    isMutableField = true
                 )
             )
             Truth.assertThat(
                 fields["isbn"]?.setter
             ).isEqualTo(
                 FieldSetter(
+                    fieldName = "isbn",
                     jvmName = "isbn",
                     type = stringType,
                     callType = CallType.CONSTRUCTOR
@@ -2137,18 +2118,21 @@ class PojoProcessorTest {
                 fields["isbn2"]?.getter
             ).isEqualTo(
                 FieldGetter(
+                    fieldName = "isbn2",
                     jvmName = "getIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD,
+                    isMutableField = true
                 )
             )
             Truth.assertThat(
                 fields["isbn2"]?.setter
             ).isEqualTo(
                 FieldSetter(
+                    fieldName = "isbn2",
                     jvmName = "setIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD
                 )
             )
         }
@@ -2157,9 +2141,9 @@ class PojoProcessorTest {
     @Test
     fun embedded_nullability() {
         listOf(
-            TestData.SomeEmbeddedVals::class.java.canonicalName!!
+            "foo.bar.TestData.SomeEmbeddedVals"
         ).forEach {
-            runProcessorTest { invocation ->
+            runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
                 val result = PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(it),
@@ -2202,7 +2186,7 @@ class PojoProcessorTest {
         classpath: List<File> = emptyList(),
         handler: (Pojo, XTestInvocation) -> Unit
     ) {
-        val pojoSource = Source.java(MY_POJO.toString(), code)
+        val pojoSource = Source.java(MY_POJO.canonicalName, code)
         val all = sources.toList() + pojoSource
         runProcessorTest(
             sources = all,
@@ -2221,48 +2205,47 @@ class PojoProcessorTest {
     }
 
     // Kotlin data classes to verify the PojoProcessor.
-    private class TestData {
-        data class AllDefaultVals(
-            val name: String = "",
-            val number: Int = 0,
-            val bit: Boolean = false
-        )
-
-        data class AllDefaultVars(
-            var name: String = "",
-            var number: Int = 0,
-            var bit: Boolean = false
-        )
-
-        data class SomeDefaultVals(
-            val name: String,
-            val number: Int = 0,
-            val bit: Boolean
-        )
-
-        data class SomeDefaultVars(
-            var name: String,
-            var number: Int = 0,
-            var bit: Boolean
-        )
-
-        data class WithJvmOverloads @JvmOverloads constructor(
-            val name: String,
-            val lastName: String = "",
-            var number: Int = 0,
-            var bit: Boolean
-        )
-
-        data class AllNullableVals(
-            val name: String?,
-            val number: Int?,
-            val bit: Boolean?
-        )
-
-        data class SomeEmbeddedVals(
-            val id: String,
-            @Embedded(prefix = "non_nullable_") val nonNullableVal: AllNullableVals,
-            @Embedded(prefix = "nullable_") val nullableVal: AllNullableVals?
-        )
-    }
+    private val TEST_DATA = Source.kotlin("TestData.kt", """
+        package foo.bar
+        import ${Embedded::class.java.canonicalName}
+        private class TestData {
+            data class AllDefaultVals(
+                val name: String = "",
+                val number: Int = 0,
+                val bit: Boolean = false
+            )
+            data class AllDefaultVars(
+                var name: String = "",
+                var number: Int = 0,
+                var bit: Boolean = false
+            )
+            data class SomeDefaultVals(
+                val name: String,
+                val number: Int = 0,
+                val bit: Boolean
+            )
+            data class SomeDefaultVars(
+                var name: String,
+                var number: Int = 0,
+                var bit: Boolean
+            )
+            data class WithJvmOverloads @JvmOverloads constructor(
+                val name: String,
+                val lastName: String = "",
+                var number: Int = 0,
+                var bit: Boolean
+            )
+            data class AllNullableVals(
+                val name: String?,
+                val number: Int?,
+                val bit: Boolean?
+            )
+            data class SomeEmbeddedVals(
+                val id: String,
+                @Embedded(prefix = "non_nullable_") val nonNullableVal: AllNullableVals,
+                @Embedded(prefix = "nullable_") val nullableVal: AllNullableVals?
+            )
+        }
+        """
+    )
 }

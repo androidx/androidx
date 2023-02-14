@@ -64,6 +64,108 @@ class WindowInsetsSizeTest {
         WindowInsetsHolder.setUseTestInsets(false)
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    fun insetsSideWidthConsumption() {
+        lateinit var coordinates: LayoutCoordinates
+
+        rule.setContent {
+            AndroidView(factory = { context ->
+                val view = InsetsView(context)
+                insetsView = view
+                val composeView = ComposeView(rule.activity)
+                view.addView(
+                    composeView,
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                )
+                composeView.setContent {
+                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                        Box(Modifier
+                            .wrapContentSize()
+                            .onGloballyPositioned { coordinates = it }
+                            .consumeWindowInsets(WindowInsets(left = 10))
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxHeight()
+                                    .windowInsetsStartWidth(WindowInsets.navigationBars)
+                            )
+                        }
+                    }
+                }
+                view
+            }, modifier = Modifier.fillMaxSize())
+        }
+
+        // wait for layout
+        rule.waitForIdle()
+
+        sendInsets(
+            WindowInsetsCompat.Type.navigationBars(),
+            androidx.core.graphics.Insets.of(25, 0, 0, 0)
+        )
+
+        rule.waitUntil {
+            val view = findComposeView()
+            val height = view.height
+            val expectedSize = IntSize(15, height)
+            coordinates.size == expectedSize
+        }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    fun insetsSideHeightConsumption() {
+        lateinit var coordinates: LayoutCoordinates
+
+        rule.setContent {
+            AndroidView(factory = { context ->
+                val view = InsetsView(context)
+                insetsView = view
+                val composeView = ComposeView(rule.activity)
+                view.addView(
+                    composeView,
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                )
+                composeView.setContent {
+                    Box(Modifier
+                        .wrapContentSize()
+                        .onGloballyPositioned { coordinates = it }
+                        .consumeWindowInsets(WindowInsets(bottom = 10))
+                    ) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                        )
+                    }
+                }
+                view
+            }, modifier = Modifier.fillMaxSize())
+        }
+
+        // wait for layout
+        rule.waitForIdle()
+
+        sendInsets(
+            WindowInsetsCompat.Type.navigationBars(),
+            androidx.core.graphics.Insets.of(0, 0, 0, 25)
+        )
+
+        rule.waitUntil {
+            val view = findComposeView()
+            val width = view.width
+            val expectedSize = IntSize(width, 15)
+            coordinates.size == expectedSize
+        }
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun insetsStartWidthIme() {
@@ -180,8 +282,8 @@ class WindowInsetsSizeTest {
             view.dispatchApplyWindowInsets(insets.toWindowInsets())
         }
 
-        rule.runOnIdle {
-            assertThat(coordinates.size).isEqualTo(IntSize(view.width, 10))
+        rule.waitUntil {
+            coordinates.size == IntSize(view.width, 10)
         }
     }
 
@@ -233,12 +335,12 @@ class WindowInsetsSizeTest {
         val insets = sendInsets(type, sentInsets)
         assertThat(insets.isConsumed)
 
-        rule.runOnIdle {
+        rule.waitUntil {
             val view = findComposeView()
             val width = view.width
             val height = view.height
             val expectedSize = expected(IntSize(width, height))
-            assertThat(coordinates.size).isEqualTo(expectedSize)
+            coordinates.size == expectedSize
         }
     }
 

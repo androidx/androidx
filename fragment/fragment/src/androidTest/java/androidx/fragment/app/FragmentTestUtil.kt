@@ -20,6 +20,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -28,7 +29,6 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
-import java.util.ArrayList
 
 fun FragmentTransaction.setReorderingAllowed(
     reorderingAllowed: ReorderingAllowed
@@ -153,6 +153,7 @@ fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.()
     clearTargets()
 }
 
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun verifyNoOtherTransitions(fragment: TransitionFragment) {
     assertThat(fragment.enterTransition.enteringTargets).isEmpty()
     assertThat(fragment.enterTransition.exitingTargets).isEmpty()

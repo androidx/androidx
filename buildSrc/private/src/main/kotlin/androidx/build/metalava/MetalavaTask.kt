@@ -20,6 +20,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -29,8 +30,11 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 
 /** Base class for invoking Metalava. */
+@CacheableTask
 abstract class MetalavaTask @Inject constructor(
     @Internal
     protected val workerExecutor: WorkerExecutor
@@ -54,7 +58,10 @@ abstract class MetalavaTask @Inject constructor(
     @get:[Optional InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val manifestPath: RegularFileProperty
 
+    @get:Input
+    abstract val k2UastEnabled: Property<Boolean>
+
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(metalavaClasspath, args, workerExecutor)
+        runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled.get(), workerExecutor)
     }
 }

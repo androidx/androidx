@@ -18,10 +18,8 @@ package androidx.compose.foundation.layout
 
 import androidx.core.graphics.Insets as AndroidXInsets
 import android.os.Build
-import android.os.SystemClock
 import android.view.View
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import android.view.View.OnAttachStateChangeListener
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.NonRestartableComposable
@@ -83,9 +81,11 @@ internal class AndroidWindowInsets(
     }
 
     @OptIn(ExperimentalLayoutApi::class)
-    internal fun update(windowInsetsCompat: WindowInsetsCompat) {
-        insets = windowInsetsCompat.getInsets(type)
-        isVisible = windowInsetsCompat.isVisible(type)
+    internal fun update(windowInsetsCompat: WindowInsetsCompat, typeMask: Int) {
+        if (typeMask == 0 || typeMask and type != 0) {
+            insets = windowInsetsCompat.getInsets(type)
+            isVisible = windowInsetsCompat.isVisible(type)
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -135,8 +135,9 @@ val WindowInsets.Companion.displayCutout: WindowInsets
     get() = WindowInsetsHolder.current().displayCutout
 
 /**
- * For the [WindowInsetsCompat.Type.ime]. On [Build.VERSION_CODES.R] and above, the
- * soft keyboard can be detected and [ime] will animate when it shows.
+ * For the [WindowInsetsCompat.Type.ime]. On API level 23 (M) and above, the soft keyboard can be
+ * detected and [ime] will update when it shows. On API 30 (R) and above, the [ime] insets will
+ * animate synchronously with the actual IME animation.
  *
  * Developers should set `android:windowSoftInputMode="adjustResize"` in their
  * `AndroidManifest.xml` file and call `WindowCompat.setDecorFitsSystemWindows(window, false)`
@@ -372,10 +373,39 @@ val WindowInsets.Companion.isTappableElementVisible: Boolean
     get() = WindowInsetsHolder.current().tappableElement.isVisible
 
 /**
+ * The [WindowInsets] for the IME before the IME started animating in. The current
+ * animated value is [WindowInsets.Companion.ime].
+ *
+ * This will be the same as [imeAnimationTarget] when there is no IME animation
+ * in progress.
+ */
+@ExperimentalLayoutApi
+val WindowInsets.Companion.imeAnimationSource: WindowInsets
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalLayoutApi
+    @Composable
+    @NonRestartableComposable
+    get() = WindowInsetsHolder.current().imeAnimationSource
+
+/**
+ * The [WindowInsets] for the IME when the animation completes, if it is allowed
+ * to complete successfully. The current animated value is [WindowInsets.Companion.ime].
+ *
+ * This will be the same as [imeAnimationSource] when there is no IME animation
+ * in progress.
+ */
+@ExperimentalLayoutApi
+val WindowInsets.Companion.imeAnimationTarget: WindowInsets
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalLayoutApi
+    @Composable
+    @NonRestartableComposable
+    get() = WindowInsetsHolder.current().imeAnimationTarget
+
+/**
  * The insets for various values in the current window.
  */
-@OptIn(ExperimentalLayoutApi::class)
-internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat?) {
+internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat?, view: View) {
     val captionBar =
         systemInsets(insets, WindowInsetsCompat.Type.captionBar(), "captionBar")
     val displayCutout =
@@ -427,11 +457,22 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
         WindowInsetsCompat.Type.tappableElement(),
         "tappableElementIgnoringVisibility"
     )
+    val imeAnimationTarget = valueInsetsIgnoringVisibility(
+        insets,
+        WindowInsetsCompat.Type.ime(),
+        "imeAnimationTarget"
+    )
+    val imeAnimationSource = valueInsetsIgnoringVisibility(
+        insets,
+        WindowInsetsCompat.Type.ime(),
+        "imeAnimationSource"
+    )
 
     /**
      * `true` unless the `ComposeView` [ComposeView.consumeWindowInsets] is set to `false`.
      */
-    var consumes = true
+    val consumes = (view.parent as? View)?.getTag(R.id.consume_window_insets_tag)
+        as? Boolean ?: true
 
     /**
      * The number of accesses to [WindowInsetsHolder]. When this reaches
@@ -451,11 +492,12 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
             // add listeners
             ViewCompat.setOnApplyWindowInsetsListener(view, insetsListener)
 
-            // We don't need animation callbacks on earlier versions, so don't bother adding
-            // the listener. ViewCompat calls the animation callbacks superfluously.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                ViewCompat.setWindowInsetsAnimationCallback(view, insetsListener)
+            if (view.isAttachedToWindow) {
+                view.requestApplyInsets()
             }
+            view.addOnAttachStateChangeListener(insetsListener)
+
+            ViewCompat.setWindowInsetsAnimationCallback(view, insetsListener)
         }
         accessCount++
     }
@@ -471,13 +513,14 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
             // remove listeners
             ViewCompat.setOnApplyWindowInsetsListener(view, null)
             ViewCompat.setWindowInsetsAnimationCallback(view, null)
+            view.removeOnAttachStateChangeListener(insetsListener)
         }
     }
 
     /**
      * Updates the WindowInsets values and notifies changes.
      */
-    fun update(windowInsets: WindowInsetsCompat) {
+    fun update(windowInsets: WindowInsetsCompat, types: Int = 0) {
         val insets = if (testInsets) {
             // WindowInsetsCompat erases insets that aren't part of the device.
             // For example, if there is no navigation bar because of hardware keys,
@@ -488,38 +531,58 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
         } else {
             windowInsets
         }
-        captionBar.update(insets)
-        ime.update(insets)
-        displayCutout.update(insets)
-        navigationBars.update(insets)
-        statusBars.update(insets)
-        systemBars.update(insets)
-        systemGestures.update(insets)
-        tappableElement.update(insets)
-        mandatorySystemGestures.update(insets)
+        captionBar.update(insets, types)
+        ime.update(insets, types)
+        displayCutout.update(insets, types)
+        navigationBars.update(insets, types)
+        statusBars.update(insets, types)
+        systemBars.update(insets, types)
+        systemGestures.update(insets, types)
+        tappableElement.update(insets, types)
+        mandatorySystemGestures.update(insets, types)
 
-        captionBarIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
-            WindowInsetsCompat.Type.captionBar()
-        ).toInsetsValues()
-        navigationBarsIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
-            WindowInsetsCompat.Type.navigationBars()
-        ).toInsetsValues()
-        statusBarsIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
-            WindowInsetsCompat.Type.statusBars()
-        ).toInsetsValues()
-        systemBarsIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
-            WindowInsetsCompat.Type.systemBars()
-        ).toInsetsValues()
-        tappableElementIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
-            WindowInsetsCompat.Type.tappableElement()
-        ).toInsetsValues()
+        if (types == 0) {
+            captionBarIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.captionBar()
+            ).toInsetsValues()
+            navigationBarsIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.navigationBars()
+            ).toInsetsValues()
+            statusBarsIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.statusBars()
+            ).toInsetsValues()
+            systemBarsIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.systemBars()
+            ).toInsetsValues()
+            tappableElementIgnoringVisibility.value = insets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.tappableElement()
+            ).toInsetsValues()
 
-        val cutout = insets.displayCutout
-        if (cutout != null) {
-            val waterfallInsets = cutout.waterfallInsets
-            waterfall.value = waterfallInsets.toInsetsValues()
+            val cutout = insets.displayCutout
+            if (cutout != null) {
+                val waterfallInsets = cutout.waterfallInsets
+                waterfall.value = waterfallInsets.toInsetsValues()
+            }
         }
         Snapshot.sendApplyNotifications()
+    }
+
+    /**
+     * Updates [WindowInsets.Companion.imeAnimationSource]. It should be called prior to
+     * [update].
+     */
+    fun updateImeAnimationSource(windowInsets: WindowInsetsCompat) {
+        imeAnimationSource.value =
+            windowInsets.getInsets(WindowInsetsCompat.Type.ime()).toInsetsValues()
+    }
+
+    /**
+     * Updates [WindowInsets.Companion.imeAnimationTarget]. It should be called prior to
+     * [update].
+     */
+    fun updateImeAnimationTarget(windowInsets: WindowInsetsCompat) {
+        imeAnimationTarget.value =
+            windowInsets.getInsets(WindowInsetsCompat.Type.ime()).toInsetsValues()
     }
 
     companion object {
@@ -549,8 +612,6 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
 
             DisposableEffect(insets) {
                 insets.incrementAccessors(view)
-                insets.consumes = (view.parent as? View)?.getTag(R.id.consume_window_insets_tag)
-                    as? Boolean ?: true
                 onDispose {
                     insets.decrementAccessors(view)
                 }
@@ -565,12 +626,8 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
         private fun getOrCreateFor(view: View): WindowInsetsHolder {
             return synchronized(viewMap) {
                 viewMap.getOrPut(view) {
-                    val insets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        RootWindowInsetsApi23.rootWindowInsets(view)
-                    } else {
-                        null
-                    }
-                    WindowInsetsHolder(insets)
+                    val insets = null
+                    WindowInsetsHolder(insets, view)
                 }
             }
         }
@@ -582,7 +639,7 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
             windowInsets: WindowInsetsCompat?,
             type: Int,
             name: String
-        ) = AndroidWindowInsets(type, name).apply { windowInsets?.let { update(it) } }
+        ) = AndroidWindowInsets(type, name).apply { windowInsets?.let { update(it, type) } }
 
         /**
          * Creates a [ValueInsets] using the "ignoring visibility" value from [windowInsets]
@@ -599,22 +656,11 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
     }
 }
 
-/**
- * Used to get the [View.getRootWindowInsets] only on M and above
- */
-@RequiresApi(Build.VERSION_CODES.M)
-private object RootWindowInsetsApi23 {
-    @DoNotInline
-    fun rootWindowInsets(view: View): WindowInsetsCompat? {
-        return view.rootWindowInsets?.let {
-            WindowInsetsCompat.toWindowInsetsCompat(it, view)
-        }
-    }
-}
-
 private class InsetsListener(
     val composeInsets: WindowInsetsHolder,
-) : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_STOP), OnApplyWindowInsetsListener {
+) : WindowInsetsAnimationCompat.Callback(
+    if (composeInsets.consumes) DISPATCH_MODE_STOP else DISPATCH_MODE_CONTINUE_ON_SUBTREE
+), Runnable, OnApplyWindowInsetsListener, OnAttachStateChangeListener {
     /**
      * When [android.view.WindowInsetsController.controlWindowInsetsAnimation] is called,
      * the [onApplyWindowInsets] is called after [onPrepare] with the target size. We
@@ -622,21 +668,21 @@ private class InsetsListener(
      * so we must ignore those calls. However, the animation may be canceled before it
      * progresses. On R, it won't make any callbacks, so we have to figure out whether
      * the [onApplyWindowInsets] is from a canceled animation or if it is from the
-     * controlled animation. We just have to guess that if we don't receive an [onStart]
-     * before a certain time that the animation has been canceled, and to treat the
-     * [onApplyWindowInsets] as a real call. [prepareGiveUpTime] has the time that we
-     * give up waiting for the [onStart] or [onEnd].
+     * controlled animation. When [prepared] is `true` on R, we post a callback to
+     * set the [onApplyWindowInsets] insets value.
      */
-    var prepareGiveUpTime = 0L
+    var prepared = false
 
     /**
-     * `true` if the [onStart] has been called, so we know that we're part of an animation
-     * and [onApplyWindowInsets] calls should be ignored.
+     * `true` if there is an animation in progress.
      */
-    var started = false
+    var runningAnimation = false
+
+    var savedInsets: WindowInsetsCompat? = null
 
     override fun onPrepare(animation: WindowInsetsAnimationCompat) {
-        prepareGiveUpTime = SystemClock.uptimeMillis() + AnimationCanceledMillis
+        prepared = true
+        runningAnimation = true
         super.onPrepare(animation)
     }
 
@@ -644,7 +690,7 @@ private class InsetsListener(
         animation: WindowInsetsAnimationCompat,
         bounds: WindowInsetsAnimationCompat.BoundsCompat
     ): WindowInsetsAnimationCompat.BoundsCompat {
-        started = true
+        prepared = false
         return super.onStart(animation, bounds)
     }
 
@@ -652,41 +698,69 @@ private class InsetsListener(
         insets: WindowInsetsCompat,
         runningAnimations: MutableList<WindowInsetsAnimationCompat>
     ): WindowInsetsCompat {
-        prepareGiveUpTime = 0L
         composeInsets.update(insets)
         return if (composeInsets.consumes) WindowInsetsCompat.CONSUMED else insets
     }
 
     override fun onEnd(animation: WindowInsetsAnimationCompat) {
-        started = false
-        prepareGiveUpTime = 0L
+        prepared = false
+        runningAnimation = false
+        val insets = savedInsets
+        if (animation.durationMillis != 0L && insets != null) {
+            composeInsets.updateImeAnimationSource(insets)
+            composeInsets.updateImeAnimationTarget(insets)
+            composeInsets.update(insets)
+        }
+        savedInsets = null
         super.onEnd(animation)
     }
 
     override fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-        val prepareGiveUpTime = prepareGiveUpTime
-        this.prepareGiveUpTime = 0L
-
-        // There may be no callback on R if the animation is canceled after onPrepare(),
-        // so we won't know if the onPrepare() was canceled or if the
-        // So we must allow onApplyWindowInsets() to run if it isn't directly after the
-        // onPrepare().
-        val preparing = prepareGiveUpTime != 0L &&
-            (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ||
-                prepareGiveUpTime > SystemClock.uptimeMillis())
-        if (started || preparing) {
-            // Just ignore this one. It came from the onPrepare.
-            return insets
+        // Keep track of the most recent insets we've seen, to ensure onEnd will always use the
+        // most recently acquired insets
+        savedInsets = insets
+        composeInsets.updateImeAnimationTarget(insets)
+        if (prepared) {
+            // There may be no callback on R if the animation is canceled after onPrepare(),
+            // so we won't know if the onPrepare() was canceled or if this is an
+            // onApplyWindowInsets() after the cancelation. We'll just post the value
+            // and if it is still preparing then we just use the value.
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+                view.post(this)
+            }
+        } else if (!runningAnimation) {
+            // If an animation is running, rely on onProgress() to update the insets
+            // On APIs less than 30 where the IME animation is backported, this avoids reporting
+            // the final insets for a frame while the animation is running.
+            composeInsets.updateImeAnimationSource(insets)
+            composeInsets.update(insets)
         }
-        composeInsets.update(insets)
         return if (composeInsets.consumes) WindowInsetsCompat.CONSUMED else insets
     }
 
-    companion object {
-        // If an [onApplyWindowInsets] is received this number of milliseconds after
-        // [onPrepare] and the animation hasn't started, then it is assumed that the
-        // animation was canceled before starting. On R and earlier, we don't get any
-        // signal about cancellation.
-        const val AnimationCanceledMillis = 100L
+    /**
+     * On [R], we don't receive the [onEnd] call when an animation is canceled, so we post
+     * the value received in [onApplyWindowInsets] immediately after [onPrepare]. If [onProgress]
+     * or [onEnd] is received before the runnable executes then the value won't be used. Otherwise,
+     * the [onApplyWindowInsets] value will be used. It may have a janky frame, but it is the best
+     * we can do.
+     */
+    override fun run() {
+        if (prepared) {
+            prepared = false
+            runningAnimation = false
+            savedInsets?.let {
+                composeInsets.updateImeAnimationSource(it)
+                composeInsets.update(it)
+                savedInsets = null
+            }
+        }
+    }
+
+    override fun onViewAttachedToWindow(view: View) {
+        view.requestApplyInsets()
+    }
+
+    override fun onViewDetachedFromWindow(v: View) {
     }
 }

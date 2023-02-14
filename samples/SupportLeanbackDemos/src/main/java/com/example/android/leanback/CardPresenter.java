@@ -23,6 +23,8 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.Presenter;
@@ -108,16 +110,19 @@ public class CardPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-        Log.d(TAG, "onBindViewHolder for " + item.toString());
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
+        Log.d(TAG, "onBindViewHolder for " + item);
         PhotoItem photoItem = (PhotoItem) item;
         final Context context = viewHolder.view.getContext();
-        Drawable drawable = ResourcesCompat.getDrawable(context.getResources(),
-                photoItem.getImageResourceId(), context.getTheme());
+        Drawable drawable = photoItem == null ? null :
+                ResourcesCompat.getDrawable(context.getResources(),
+                        photoItem.getImageResourceId(), context.getTheme());
         ((ImageCardView) viewHolder.view).setMainImage(drawable);
-        ((ImageCardView) viewHolder.view).setTitleText(photoItem.getTitle());
-        if (!TextUtils.isEmpty(photoItem.getContent())) {
-            ((ImageCardView) viewHolder.view).setContentText(photoItem.getContent());
+        String title = photoItem == null ? null : photoItem.getTitle();
+        ((ImageCardView) viewHolder.view).setTitleText(title);
+        String content = photoItem == null ? null : photoItem.getContent();
+        if (!TextUtils.isEmpty(content)) {
+            ((ImageCardView) viewHolder.view).setContentText(content);
         }
     }
 

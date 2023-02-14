@@ -23,7 +23,9 @@ import androidx.room.migration.bundle.ForeignKeyBundle
 import androidx.room.migration.bundle.IndexBundle
 import androidx.room.migration.bundle.PrimaryKeyBundle
 import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 import androidx.room.processor.ProcessorErrors
+import androidx.room.vo.AutoMigration
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -243,6 +245,125 @@ class SchemaDifferTest {
         } catch (ex: DiffException) {
             assertThat(ex.errorMessage).isEqualTo(
                 ProcessorErrors.deletedOrRenamedTableFound("MyAutoMigration", "Artist")
+            )
+        }
+    }
+
+    @Test
+    fun testRenameTwoColumnsOnComplexChangedTable() {
+        val fromSchemaBundle = SchemaBundle(
+            1,
+            DatabaseBundle(
+                1,
+                "",
+                mutableListOf(
+                    EntityBundle(
+                        "Song",
+                        "CREATE TABLE IF NOT EXISTS `$TABLE_NAME_PLACEHOLDER` (`id` " +
+                            "INTEGER NOT NULL, " +
+                            "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                        listOf(
+                            FieldBundle(
+                                "id",
+                                "id",
+                                "INTEGER",
+                                true,
+                                "1"
+                            ),
+                            FieldBundle(
+                                "title",
+                                "title",
+                                "TEXT",
+                                true,
+                                ""
+                            ),
+                            FieldBundle(
+                                "length",
+                                "length",
+                                "INTEGER",
+                                true,
+                                "1"
+                            )
+                        ),
+                        PrimaryKeyBundle(
+                            false,
+                            mutableListOf("id")
+                        ),
+                        mutableListOf(),
+                        mutableListOf()
+                    )
+                ),
+                mutableListOf(),
+                mutableListOf()
+            )
+        )
+        val toSchemaBundle = SchemaBundle(
+            2,
+            DatabaseBundle(
+                2,
+                "",
+                mutableListOf(
+                    EntityBundle(
+                        "SongTable",
+                        "CREATE TABLE IF NOT EXISTS `$TABLE_NAME_PLACEHOLDER` (`id` " +
+                            "INTEGER NOT NULL, " +
+                            "`songTitle` TEXT NOT NULL, `songLength` " +
+                            "INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                        listOf(
+                            FieldBundle(
+                                "id",
+                                "id",
+                                "INTEGER",
+                                true,
+                                "1"
+                            ),
+                            FieldBundle(
+                                "songTitle",
+                                "songTitle",
+                                "TEXT",
+                                true,
+                                ""
+                            ),
+                            FieldBundle(
+                                "songLength",
+                                "songLength",
+                                "INTEGER",
+                                true,
+                                "1"
+                            )
+                        ),
+                        PrimaryKeyBundle(
+                            false,
+                            mutableListOf("id")
+                        ),
+                        mutableListOf(),
+                        mutableListOf()
+                    )
+                ),
+                mutableListOf(),
+                mutableListOf()
+            )
+        )
+        val schemaDiffResult = SchemaDiffer(
+            fromSchemaBundle = fromSchemaBundle.database,
+            toSchemaBundle = toSchemaBundle.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(
+                AutoMigration.RenamedColumn("Song", "title", "songTitle"),
+                AutoMigration.RenamedColumn("Song", "length", "songLength")
+            ),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(
+                AutoMigration.RenamedTable("Song", "SongTable")
+            ),
+            deleteTableEntries = listOf()
+        ).diffSchemas()
+        assertThat(schemaDiffResult.complexChangedTables.size).isEqualTo(1)
+        schemaDiffResult.complexChangedTables.values.single().let { complexChange ->
+            assertThat(complexChange.tableName).isEqualTo("Song")
+            assertThat(complexChange.tableNameWithNewPrefix).isEqualTo("_new_SongTable")
+            assertThat(complexChange.renamedColumnsMap).containsExactlyEntriesIn(
+                mapOf("songTitle" to "title", "songLength" to "length")
             )
         }
     }

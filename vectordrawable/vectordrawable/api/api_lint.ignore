@@ -1,47 +1,5 @@
 // Baseline format: 1.0
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme):
-    Missing nullability on method `createFromXmlInner` return
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #0:
-    Missing nullability on parameter `r` in method `createFromXmlInner`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #1:
-    Missing nullability on parameter `parser` in method `createFromXmlInner`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #2:
-    Missing nullability on parameter `attrs` in method `createFromXmlInner`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #3:
-    Missing nullability on parameter `theme` in method `createFromXmlInner`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#draw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `canvas` in method `draw`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#getColorFilter():
-    Missing nullability on method `getColorFilter` return
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#getConstantState():
-    Missing nullability on method `getConstantState` return
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `res` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `parser` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet) parameter #2:
-    Missing nullability on parameter `attrs` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #0:
-    Missing nullability on parameter `res` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #1:
-    Missing nullability on parameter `parser` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #2:
-    Missing nullability on parameter `attrs` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) parameter #3:
-    Missing nullability on parameter `theme` in method `inflate`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#mutate():
-    Missing nullability on method `mutate` return
 MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#onBoundsChange(android.graphics.Rect) parameter #0:
     Missing nullability on parameter `bounds` in method `onBoundsChange`
 MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#onStateChange(int[]) parameter #0:
     Missing nullability on parameter `stateSet` in method `onStateChange`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#scheduleSelf(Runnable, long) parameter #0:
-    Missing nullability on parameter `what` in method `scheduleSelf`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#setColorFilter(android.graphics.ColorFilter) parameter #0:
-    Missing nullability on parameter `colorFilter` in method `setColorFilter`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#setTintList(android.content.res.ColorStateList) parameter #0:
-    Missing nullability on parameter `tint` in method `setTintList`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
-    Missing nullability on parameter `tintMode` in method `setTintMode`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#unscheduleSelf(Runnable) parameter #0:
-    Missing nullability on parameter `what` in method `unscheduleSelf`

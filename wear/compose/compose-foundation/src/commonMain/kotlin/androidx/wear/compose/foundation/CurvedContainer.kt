@@ -59,15 +59,15 @@ internal abstract class ContainerChild(
     }
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ) = children.fold(index) { currentIndex, node ->
+        measurables: Iterator<Measurable>
+    ) = children.forEach { node ->
             with(CurvedMeasureScope(
                 subDensity = this,
-                curvedContainerScope.curvedLayoutDirection
+                curvedContainerScope.curvedLayoutDirection,
+                radius
             )) {
                 with(node) {
-                    initializeMeasure(measurables, currentIndex)
+                    initializeMeasure(measurables)
                 }
             }
         }

@@ -36,6 +36,9 @@ if [ -n "$DIST_DIR" ]; then
     # tell Gradle where to put a heap dump on failure
     ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:HeapDumpPath=$DIST_DIR|")"
 
+    # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
+    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
+
     # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
@@ -122,9 +125,18 @@ fi
 # setup from each lint module.
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-$platform_suffix"
+export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk17/$plat-$platform_suffix"
 export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
 export STUDIO_GRADLE_JDK=$JAVA_HOME
+
+# Warn developers if they try to build top level project without the full checkout
+[ ! -d "$JAVA_HOME" ] && echo "Failed to find: $JAVA_HOME
+
+Typically, this means either:
+1. You are using the standalone AndroidX checkout, e.g. GitHub, which only supports
+   building a subset of projects. See CONTRIBUTING.md for details.
+2. You are using the repo checkout, but the last repo sync failed. Use repo status
+   to check for projects which are partially-synced, e.g. showing ***NO BRANCH***." && exit -1
 
 # ----------------------------------------------------------------------------
 
@@ -262,12 +274,12 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     fi
   fi
   if [ "$compact" == "--strict" ]; then
-    expanded="-Pandroidx.allWarningsAsErrors\
-     -Pandroidx.validateNoUnrecognizedMessages\
+    expanded="-Pandroidx.validateNoUnrecognizedMessages\
      -Pandroidx.verifyUpToDate\
-     --no-watch-fs\
-     --no-daemon\
-     --offline"
+     --no-watch-fs"
+    if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+      expanded="$expanded --offline"
+    fi
   fi
   # if compact is something else then we parsed the argument above but
   # still have to remove it (expanded == "") to avoid confusing Gradle
@@ -384,7 +396,13 @@ function runGradle() {
 
   RETURN_VALUE=0
   PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
-  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
+  # Disabled in Studio until these errors become shown (b/268380971) or computed more quickly (https://github.com/gradle/gradle/issues/23272)
+  if [[ " ${@} " =~ " --dependency-verification=" ]]; then
+    VERIFICATION_ARGUMENT="" # already specified by caller
+  else
+    VERIFICATION_ARGUMENT=--dependency-verification=strict
+  fi
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT $VERIFICATION_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     RETURN_VALUE=0
   else
     # Print AndroidX-specific help message if build fails
@@ -399,15 +417,18 @@ function runGradle() {
   # If the caller specified where to save data, then also save the build scan data
   if [ "$DIST_DIR" != "" ]; then
     if [ "$GRADLE_USER_HOME" != "" ]; then
-      if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
-        zipPath="$DIST_DIR/scan-up-to-date.zip"
-      else
-        zipPath="$DIST_DIR/scan.zip"
+      scanDir="$GRADLE_USER_HOME/build-scan-data"
+      if [ -e "$scanDir" ]; then
+        if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
+          zipPath="$DIST_DIR/scan-up-to-date.zip"
+        else
+          zipPath="$DIST_DIR/scan.zip"
+        fi
+        rm -f "$zipPath"
+        cd "$GRADLE_USER_HOME/build-scan-data"
+        zip -q -r "$zipPath" .
+        cd -
       fi
-      rm -f "$zipPath"
-      cd "$GRADLE_USER_HOME/build-scan-data"
-      zip -q -r "$zipPath" .
-      cd -
     fi
   fi
   return $RETURN_VALUE
@@ -436,14 +457,9 @@ if [ "$cleanCaches" == true ]; then
   echo
 fi
 
-if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
-  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
+if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
+  echo "Setting 'DISALLOW_TASK_EXECUTION' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
   echo "See TaskUpToDateValidator.java for more information"
-  exit 1
-fi
-
-if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
-  echo "-PverifyUpToDate has been renamed to -Pandroidx.verifyUpToDate"
   exit 1
 fi
 
@@ -451,7 +467,7 @@ runGradle "$@"
 # Check whether we were given the "-Pandroidx.verifyUpToDate" argument
 if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
-  if ! runGradle "$@" -PdisallowExecution --continue; then
+  if ! DISALLOW_TASK_EXECUTION=true runGradle "$@" --continue; then
     echo >&2
     echo "TaskUpToDateValidator's second build failed. To reproduce, try running './gradlew -Pandroidx.verifyUpToDate <failing tasks>'" >&2
     exit 1

@@ -20,6 +20,9 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.degrees;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_COLORS;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_END_ANGLE;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
@@ -29,6 +32,7 @@ import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_STR
 import androidx.annotation.Dimension;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DegreesProp;
@@ -38,10 +42,12 @@ import androidx.wear.tiles.LayoutElementBuilders.Arc;
 import androidx.wear.tiles.LayoutElementBuilders.ArcLine;
 import androidx.wear.tiles.LayoutElementBuilders.ArcSpacer;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.ModifiersBuilders;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
-import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * Tiles component {@link CircularProgressIndicator} that represents circular progress indicator
@@ -57,8 +63,34 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <p>The recommended set of {@link ProgressIndicatorColors} can be obtained from {@link
  * ProgressIndicatorDefaults}, e.g. {@link ProgressIndicatorDefaults#DEFAULT_COLORS} to get a
  * default color scheme for a {@link CircularProgressIndicator}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * CircularProgressIndicator cpi = new CircularProgressIndicator...
+ * Box box = new Box.Builder().addContent(cpi).build();
+ *
+ * CircularProgressIndicator myCpi = (CircularProgressIndicator) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link CircularProgressIndicator} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * CircularProgressIndicator myCpi =
+ *   CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class CircularProgressIndicator implements LayoutElement {
+    /**
+     * Tool tag for Metadata in Modifiers, so we know that Arc is actually a
+     * CircularProgressIndicator.
+     */
+    static final String METADATA_TAG = "CPI";
+
     @NonNull private final Arc mElement;
     @NonNull private final ArcLine mProgress;
     @NonNull private final ArcLine mBackground;
@@ -170,22 +202,26 @@ public class CircularProgressIndicator implements LayoutElement {
             checkAngles();
 
             DegreesProp length = getLength();
+            Modifiers.Builder modifiers =
+                    new Modifiers.Builder()
+                            .setPadding(new Padding.Builder().setAll(DEFAULT_PADDING).build())
+                            .setMetadata(
+                                    new ElementMetadata.Builder()
+                                            .setTagData(getTagBytes(METADATA_TAG))
+                                            .build());
+
+            if (mContentDescription.length() > 0) {
+                modifiers.setSemantics(
+                        new ModifiersBuilders.Semantics.Builder()
+                                .setContentDescription(mContentDescription.toString())
+                                .build());
+            }
+
             Arc.Builder element =
                     new Arc.Builder()
                             .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                             .setAnchorAngle(mStartAngle)
-                            .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setSemantics(
-                                                    new Semantics.Builder()
-                                                            .setContentDescription(
-                                                                    mContentDescription.toString())
-                                                            .build())
-                                            .setPadding(
-                                                    new Padding.Builder()
-                                                            .setAll(DEFAULT_PADDING)
-                                                            .build())
-                                            .build())
+                            .setModifiers(modifiers.build())
                             .addContent(
                                     new ArcLine.Builder()
                                             .setColor(
@@ -261,10 +297,44 @@ public class CircularProgressIndicator implements LayoutElement {
     }
 
     /** Returns content description of this CircularProgressIndicator. */
+    @Nullable
+    public CharSequence getContentDescription() {
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
+        if (semantics == null) {
+            return null;
+        }
+        return semantics.getContentDescription();
+    }
+
+    /**
+     * Returns metadata tag set to this CircularProgressIndicator, which should be {@link
+     * #METADATA_TAG}.
+     */
     @NonNull
-    public String getContentDescription() {
-        return checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
-                .getContentDescription();
+    String getMetadataTag() {
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+    }
+
+    /**
+     * Returns CircularProgressIndicator object from the given LayoutElement (e.g. one retrieved
+     * from a container's content with {@code container.getContents().get(index)}) if that element
+     * can be converted to CircularProgressIndicator. Otherwise, it will return null.
+     */
+    @Nullable
+    public static CircularProgressIndicator fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof CircularProgressIndicator) {
+            return (CircularProgressIndicator) element;
+        }
+        if (!(element instanceof Arc)) {
+            return null;
+        }
+        Arc arcElement = (Arc) element;
+        if (!checkTag(arcElement.getModifiers(), METADATA_TAG)) {
+            return null;
+        }
+        // Now we are sure that this element is a CircularProgressIndicator.
+        return new CircularProgressIndicator(arcElement);
     }
 
     /** @hide */

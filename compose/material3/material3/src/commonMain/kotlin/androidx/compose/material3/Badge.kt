@@ -53,10 +53,11 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.compose.material3.samples.NavigationBarItemWithBadge
  *
  * @param badge the badge to be displayed - typically a [Badge]
- * @param modifier optional [Modifier] for this item
+ * @param modifier the [Modifier] to be applied to this BadgedBox
  * @param content the anchor to which this badge will be positioned
  *
  */
+@ExperimentalMaterial3Api
 @Composable
 fun BadgedBox(
     badge: @Composable BoxScope.() -> Unit,
@@ -121,21 +122,24 @@ fun BadgedBox(
  * A badge represents dynamic information such as a number of pending requests in a navigation bar.
  *
  * Badges can be icon only or contain short text.
-
+ *
  * ![Badge image](https://developer.android.com/images/reference/androidx/compose/material3/badge.png)
  *
  * See [BadgedBox] for a top level layout that will properly place the badge relative to content
  * such as text or an icon.
  *
- * @param modifier optional [Modifier] for this item
- * @param containerColor the background color for the badge
- * @param contentColor the color of label text rendered in the badge
- * @param content optional content to be rendered inside the badge
+ * @param modifier the [Modifier] to be applied to this badge
+ * @param containerColor the color used for the background of this badge
+ * @param contentColor the preferred color for content inside this badge. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param content optional content to be rendered inside this badge
  */
+@ExperimentalMaterial3Api
 @Composable
 fun Badge(
     modifier: Modifier = Modifier,
-    containerColor: Color = BadgeTokens.Color.toColor(),
+    containerColor: Color = BadgeDefaults.containerColor,
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable (RowScope.() -> Unit)? = null,
 ) {
@@ -157,7 +161,8 @@ fun Badge(
             .clip(shape)
             .then(
                 if (content != null)
-                    Modifier.padding(horizontal = BadgeWithContentHorizontalPadding) else Modifier),
+                    Modifier.padding(horizontal = BadgeWithContentHorizontalPadding) else Modifier
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -166,8 +171,10 @@ fun Badge(
             CompositionLocalProvider(
                 LocalContentColor provides contentColor
             ) {
-                val style =
-                    MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont)
+                val style = copyAndSetFontPadding(
+                    style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont),
+                    includeFontPadding = false
+                )
                 ProvideTextStyle(
                     value = style,
                     content = { content() }
@@ -175,6 +182,13 @@ fun Badge(
             }
         }
     }
+}
+
+/** Default values used for [Badge] implementations. */
+@ExperimentalMaterial3Api
+object BadgeDefaults {
+    /** Default container color for a badge. */
+    val containerColor: Color @Composable get() = BadgeTokens.Color.toColor()
 }
 
 /*@VisibleForTesting*/

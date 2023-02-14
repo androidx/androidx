@@ -100,8 +100,4 @@ class UseKtExperimentalFromJava {
     @SuppressWarnings("deprecation")
     @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
     static class FancyDateProvider extends DateProviderKt {}
-
-    @SuppressWarnings("deprecation")
-    @kotlin.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
-    static class FancyDateProvider2 extends DateProviderKt {}
 }

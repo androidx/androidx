@@ -24,6 +24,7 @@ import android.graphics.Typeface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.MetadataRepo;
 import androidx.test.core.app.ApplicationProvider;
@@ -44,6 +45,7 @@ public class TestConfigBuilder {
      * mocked, a new metadata has to be used instead of the statically cached metadata since the
      * result of GlyphChecker on the same device might effect other tests.
      */
+    @RequiresApi(19)
     public static EmojiCompat.Config freshConfig() {
         return new TestConfig(new ResettingTestDataLoader()).setReplaceAll(true);
     }
@@ -58,6 +60,7 @@ public class TestConfigBuilder {
         }
     }
 
+    @RequiresApi(19)
     public static class WaitingDataLoader implements EmojiCompat.MetadataRepoLoader {
         private final CountDownLatch mLoaderLatch;
         private final CountDownLatch mTestLatch;
@@ -133,6 +136,7 @@ public class TestConfigBuilder {
         }
     }
 
+    @RequiresApi(19)
     public static class ResettingTestDataLoader implements EmojiCompat.MetadataRepoLoader {
         private MetadataRepo mMetadataRepo;
 

@@ -17,12 +17,9 @@
 package androidx.health.services.client.impl;
 
 import androidx.health.services.client.impl.IPassiveListenerCallback;
-import androidx.health.services.client.impl.IPassiveMonitoringCallback;
 import androidx.health.services.client.impl.internal.IStatusCallback;
-import androidx.health.services.client.impl.request.BackgroundRegistrationRequest;
 import androidx.health.services.client.impl.request.CapabilitiesRequest;
 import androidx.health.services.client.impl.request.FlushRequest;
-import androidx.health.services.client.impl.request.PassiveGoalRequest;
 import androidx.health.services.client.impl.request.PassiveListenerCallbackRegistrationRequest;
 import androidx.health.services.client.impl.request.PassiveListenerServiceRegistrationRequest;
 import androidx.health.services.client.impl.response.PassiveMonitoringCapabilitiesResponse;
@@ -42,28 +39,6 @@ interface IPassiveMonitoringApiService {
      * side. Returned version should be always > 0.
      */
     int getApiVersion() = 0;
-
-    /**
-     * Method to subscribe to an passive goal with corresponding callback intent.
-     */
-    void registerPassiveGoalCallback(in PassiveGoalRequest request, in IStatusCallback statusCallback) = 1;
-
-    /**
-     * Method to subscribe to a set of data types with corresponding callback
-     * intent and an optional callback.
-     *
-     * <p>If a callback is present and is active, updates are provided via the callback. Otherwise,
-     * an intent will be broadcast with the data.
-     */
-    void registerDataCallback(in BackgroundRegistrationRequest request, in IPassiveMonitoringCallback callback, in IStatusCallback statusCallback) = 2;
-
-    /** Method to unsubscribe from data updates. */
-    void unregisterDataCallback(in String packageName, in IStatusCallback statusCallback) = 3;
-
-    /**
-     * Method to subscribe to a set of data types with corresponding callback intent.
-     */
-    void unregisterPassiveGoalCallback(in PassiveGoalRequest request, in IStatusCallback statusCallback) = 4;
 
     /** Method to get capabilities. */
     PassiveMonitoringCapabilitiesResponse getCapabilities(in CapabilitiesRequest request) = 5;

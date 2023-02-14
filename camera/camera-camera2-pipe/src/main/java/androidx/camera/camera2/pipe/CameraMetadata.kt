@@ -26,30 +26,29 @@ import androidx.annotation.RequiresApi
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].
  *
- * Applications should, in most situations, prefer using this interface to using the
- * unwrapping and using the underlying [CameraCharacteristics] object directly. Implementation(s) of
- * this interface provide compatibility guarantees and performance improvements over using
- * [CameraCharacteristics] directly. This allows code to get reasonable behavior for all properties
- * across all OS levels and makes behavior that depends on [CameraMetadata] easier to test and
- * reason about.
+ * Applications should, in most situations, prefer using this interface to using the unwrapping and
+ * using the underlying [CameraCharacteristics] object directly. Implementation(s) of this interface
+ * provide compatibility guarantees and performance improvements over using [CameraCharacteristics]
+ * directly. This allows code to get reasonable behavior for all properties across all OS levels and
+ * makes behavior that depends on [CameraMetadata] easier to test and reason about.
  */
-public interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
-    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
+interface CameraMetadata : Metadata, UnsafeWrapper {
+    operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
+    fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
 
-    public val camera: CameraId
-    public val isRedacted: Boolean
+    val camera: CameraId
+    val isRedacted: Boolean
 
-    public val keys: Set<CameraCharacteristics.Key<*>>
-    public val requestKeys: Set<CaptureRequest.Key<*>>
-    public val resultKeys: Set<CaptureResult.Key<*>>
-    public val sessionKeys: Set<CaptureRequest.Key<*>>
+    val keys: Set<CameraCharacteristics.Key<*>>
+    val requestKeys: Set<CaptureRequest.Key<*>>
+    val resultKeys: Set<CaptureResult.Key<*>>
+    val sessionKeys: Set<CaptureRequest.Key<*>>
 
-    public val physicalCameraIds: Set<CameraId>
-    public val physicalRequestKeys: Set<CaptureRequest.Key<*>>
+    val physicalCameraIds: Set<CameraId>
+    val physicalRequestKeys: Set<CaptureRequest.Key<*>>
 
-    public suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
-    public fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata
+    suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
+    fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata
 }
 
 /**

@@ -31,7 +31,6 @@ dependencies {
 androidx {
     name = "Android Paging-Runtime Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Kotlin extensions for 'paging-runtime' artifact"
 }

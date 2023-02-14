@@ -17,13 +17,13 @@
 package androidx.room.vo
 
 import androidx.room.RoomMasterTable
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
-import com.squareup.javapoet.ClassName
-import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
+import org.apache.commons.codec.digest.DigestUtils
 
 /**
  * Holds information about a class annotated with Database.
@@ -41,14 +41,14 @@ data class Database(
     // This variable will be set once auto-migrations are processed given the DatabaseBundle from
     // this object. This is necessary for tracking the versions involved in the auto-migration.
     lateinit var autoMigrations: List<AutoMigration>
-    val typeName: ClassName by lazy { element.className }
+    val typeName: XClassName by lazy { element.asClassName() }
 
     private val implClassName by lazy {
-        "${typeName.simpleNames().joinToString("_")}_Impl"
+        "${typeName.simpleNames.joinToString("_")}_Impl"
     }
 
-    val implTypeName: ClassName by lazy {
-        ClassName.get(typeName.packageName(), implClassName)
+    val implTypeName: XClassName by lazy {
+        XClassName.get(typeName.packageName, implClassName)
     }
 
     val bundle by lazy {

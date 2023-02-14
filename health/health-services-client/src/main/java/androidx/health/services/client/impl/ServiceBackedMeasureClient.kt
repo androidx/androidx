@@ -22,7 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.MeasureClient
-import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.DeltaDataType
 import androidx.health.services.client.data.MeasureCapabilities
 import androidx.health.services.client.impl.IpcConstants.MEASURE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
@@ -42,7 +42,7 @@ import com.google.common.util.concurrent.SettableFuture
 import java.util.concurrent.Executor
 
 /**
- {* [MeasureClient] implementation that is backed by Health Services.
+ * [MeasureClient] implementation that is backed by Health Services.
  *
  * @hide
  */
@@ -60,17 +60,17 @@ public class ServiceBackedMeasureClient(
         { service -> service.apiVersion }
     ) {
 
-    override fun registerCallback(dataType: DataType, callback: MeasureCallback) {
-        registerCallback(dataType, ContextCompat.getMainExecutor(context), callback)
+    override fun registerMeasureCallback(dataType: DeltaDataType<*, *>, callback: MeasureCallback) {
+        registerMeasureCallback(dataType, ContextCompat.getMainExecutor(context), callback)
     }
 
-    override fun registerCallback(
-        dataType: DataType,
+    override fun registerMeasureCallback(
+        dataType: DeltaDataType<*, *>,
         executor: Executor,
         callback: MeasureCallback
     ) {
         val request = MeasureRegistrationRequest(context.packageName, dataType)
-        val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, callback, executor)
+        val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, executor, callback)
         val future =
             registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
                 service.registerCallback(
@@ -93,8 +93,8 @@ public class ServiceBackedMeasureClient(
             executor)
     }
 
-    override fun unregisterCallbackAsync(
-        dataType: DataType,
+    override fun unregisterMeasureCallbackAsync(
+        dataType: DeltaDataType<*, *>,
         callback: MeasureCallback
     ): ListenableFuture<Void> {
         val callbackStub =
@@ -108,19 +108,18 @@ public class ServiceBackedMeasureClient(
         }
     }
 
-    override val capabilities: ListenableFuture<MeasureCapabilities>
-        get() =
-            Futures.transform(
-                execute { service ->
-                    service.getCapabilities(CapabilitiesRequest(context.packageName))
-                },
-                { response -> response!!.measureCapabilities },
-                ContextCompat.getMainExecutor(context)
-            )
+    override fun getCapabilitiesAsync(): ListenableFuture<MeasureCapabilities> =
+        Futures.transform(
+            execute { service ->
+                service.getCapabilities(CapabilitiesRequest(context.packageName))
+            },
+            { response -> response!!.measureCapabilities },
+            ContextCompat.getMainExecutor(context)
+        )
 
     internal companion object {
-        const val CLIENT = "HealthServicesMeasureClient"
-        private val CLIENT_CONFIGURATION =
+        internal const val CLIENT = "HealthServicesMeasureClient"
+        internal val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, MEASURE_API_BIND_ACTION)
     }
 }

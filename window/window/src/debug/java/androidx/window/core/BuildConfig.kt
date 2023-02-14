@@ -16,8 +16,7 @@
 
 package androidx.window.core
 
-import androidx.window.core.SpecificationComputer.VerificationMode
-import androidx.window.core.SpecificationComputer.VerificationMode.STRICT
+import androidx.window.core.VerificationMode.STRICT
 
 /**
  * A configuration to be used for the debug flavor of the library. Default [VerificationMode] is

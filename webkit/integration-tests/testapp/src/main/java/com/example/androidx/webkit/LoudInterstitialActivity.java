@@ -57,6 +57,7 @@ public class LoudInterstitialActivity extends AppCompatActivity {
         mWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mWebView.canGoBack()) {

@@ -9,7 +9,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -22,15 +22,19 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price1")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price2")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price3")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price4")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
   }

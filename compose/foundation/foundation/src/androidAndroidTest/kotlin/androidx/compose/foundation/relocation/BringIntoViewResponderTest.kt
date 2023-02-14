@@ -32,7 +32,9 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -60,7 +62,7 @@ class BringIntoViewResponderTest {
         rule.setContent {
             Box(
                 Modifier
-                    .fakeScrollable { requestedRect = it }
+                    .fakeScrollable { requestedRect = it() }
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
         }
@@ -80,11 +82,11 @@ class BringIntoViewResponderTest {
     fun bringIntoView_rectInChild() {
         // Arrange.
         val bringIntoViewRequester = BringIntoViewRequester()
-        lateinit var requestedRect: Rect
+        var requestedRect: Rect? = null
         rule.setContent {
             Box(
                 Modifier
-                    .fakeScrollable { requestedRect = it }
+                    .fakeScrollable { requestedRect = it() }
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
         }
@@ -102,12 +104,12 @@ class BringIntoViewResponderTest {
     fun bringIntoView_childWithSize() {
         // Arrange.
         val bringIntoViewRequester = BringIntoViewRequester()
-        lateinit var requestedRect: Rect
+        var requestedRect: Rect? = null
         rule.setContent {
             Box(Modifier) {
                 Box(
                     Modifier
-                        .fakeScrollable { requestedRect = it }
+                        .fakeScrollable { requestedRect = it() }
                         .size(20f.toDp(), 10f.toDp())
                         .offset { IntOffset(40, 30) }
                         .bringIntoViewRequester(bringIntoViewRequester)
@@ -128,12 +130,12 @@ class BringIntoViewResponderTest {
     fun bringIntoView_childBiggerThanParent() {
         // Arrange.
         val bringIntoViewRequester = BringIntoViewRequester()
-        lateinit var requestedRect: Rect
+        var requestedRect: Rect? = null
         rule.setContent {
             Box(
                 Modifier
                     .size(1f.toDp())
-                    .fakeScrollable { requestedRect = it }
+                    .fakeScrollable { requestedRect = it() }
                     .bringIntoViewRequester(bringIntoViewRequester)
                     .size(20f.toDp(), 10f.toDp())
             )
@@ -149,44 +151,17 @@ class BringIntoViewResponderTest {
     }
 
     @Test
-    fun bringIntoView_propagatesToMultipleResponders() {
-        // Arrange.
-        lateinit var outerRequest: Rect
-        lateinit var innerRequest: Rect
-        val bringIntoViewRequester = BringIntoViewRequester()
-        rule.setContent {
-            Box(
-                Modifier
-                    .fakeScrollable { outerRequest = it }
-                    .offset(2f.toDp(), 1f.toDp())
-                    .fakeScrollable { innerRequest = it }
-                    .size(20f.toDp(), 10f.toDp())
-                    .bringIntoViewRequester(bringIntoViewRequester)
-            )
-        }
-
-        // Act.
-        runBlocking { bringIntoViewRequester.bringIntoView() }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(innerRequest).isEqualTo(Rect(0f, 0f, 20f, 10f))
-            assertThat(outerRequest).isEqualTo(Rect(2f, 1f, 22f, 11f))
-        }
-    }
-
-    @Test
     fun bringIntoView_onlyPropagatesUp() {
         // Arrange.
-        lateinit var parentRequest: Rect
+        var parentRequest: Rect? = null
         var childRequest: Rect? = null
         val bringIntoViewRequester = BringIntoViewRequester()
         rule.setContent {
             Box(
                 Modifier
-                    .fakeScrollable { parentRequest = it }
+                    .fakeScrollable { parentRequest = it() }
                     .bringIntoViewRequester(bringIntoViewRequester)
-                    .fakeScrollable { childRequest = it }
+                    .fakeScrollable { childRequest = it() }
             )
         }
 
@@ -203,14 +178,14 @@ class BringIntoViewResponderTest {
     @Test
     fun bringIntoView_propagatesUp_whenRectForParentReturnsInput() {
         // Arrange.
-        lateinit var parentRequest: Rect
+        var parentRequest: Rect? = null
         var childRequest: Rect? = null
         val bringIntoViewRequester = BringIntoViewRequester()
         rule.setContent {
             Box(
                 Modifier
-                    .fakeScrollable { parentRequest = it }
-                    .fakeScrollable { childRequest = it }
+                    .fakeScrollable { parentRequest = it() }
+                    .fakeScrollable { childRequest = it() }
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
         }
@@ -228,12 +203,12 @@ class BringIntoViewResponderTest {
     @Test
     fun bringIntoView_translatesByCalculateRectForParent() {
         // Arrange.
-        lateinit var requestedRect: Rect
+        var requestedRect: Rect? = null
         val bringIntoViewRequester = BringIntoViewRequester()
         rule.setContent {
             Box(
                 Modifier
-                    .fakeScrollable { requestedRect = it }
+                    .fakeScrollable { requestedRect = it() }
                     .fakeScrollable(Offset(2f, 3f)) {}
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
@@ -249,41 +224,6 @@ class BringIntoViewResponderTest {
     }
 
     @Test
-    fun bringIntoView_noops_whenNewRequestContainedInCurrent() {
-        // Arrange.
-        val bringIntoViewRequester = BringIntoViewRequester()
-        val requests = mutableListOf<CancellableContinuation<Unit>>()
-        val requestScope = TestScope()
-        rule.setContent {
-            Box(
-                Modifier
-                    .fakeScrollable {
-                        suspendCancellableCoroutine {
-                            requests += it
-                        }
-                    }
-                    .bringIntoViewRequester(bringIntoViewRequester)
-            )
-        }
-
-        // Act.
-        requestScope.launch {
-            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
-        }
-        requestScope.advanceUntilIdle()
-        val initialRequest = requests.single()
-        assertThat(initialRequest.isActive).isTrue()
-
-        requestScope.launch {
-            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
-        }
-        requestScope.advanceUntilIdle()
-        assertThat(requests).hasSize(1)
-        assertThat(requests.single()).isSameInstanceAs(initialRequest)
-        assertThat(initialRequest.isActive).isTrue()
-    }
-
-    @Test
     fun bringIntoView_interruptsCurrentRequest_whenNewRequestOverlapsButNotContainedByCurrent() {
         // Arrange.
         val bringIntoViewRequester = BringIntoViewRequester()
@@ -293,9 +233,7 @@ class BringIntoViewResponderTest {
             Box(
                 Modifier
                     .fakeScrollable {
-                        suspendCancellableCoroutine {
-                            requests += it
-                        }
+                        suspendCancellableCoroutine { requests += it }
                     }
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
@@ -329,9 +267,7 @@ class BringIntoViewResponderTest {
             Box(
                 Modifier
                     .fakeScrollable {
-                        suspendCancellableCoroutine {
-                            requests += it
-                        }
+                        suspendCancellableCoroutine { requests += it }
                     }
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
@@ -355,6 +291,179 @@ class BringIntoViewResponderTest {
         assertThat(newRequest.isActive).isTrue()
     }
 
+    /**
+     * When an ongoing request is interrupted, it shouldn't be cancelled: the implementor is
+     * responsible for cancelling ongoing work.
+     */
+    @Test
+    fun bringIntoView_doesNotCancelOngoingRequest_whenInterrupted() {
+        // Arrange.
+        val bringIntoViewRequester = BringIntoViewRequester()
+        val requests = mutableListOf<CancellableContinuation<Unit>>()
+        val requestScope = TestScope()
+        rule.setContent {
+            Box(
+                Modifier
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { requests += it }
+                    }
+                    .bringIntoViewRequester(bringIntoViewRequester)
+            )
+        }
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
+        }
+        requestScope.advanceUntilIdle()
+        assertThat(requests).hasSize(1)
+
+        // Act.
+        requestScope.launch {
+            // Send an interrupting request.
+            bringIntoViewRequester.bringIntoView(rect = Rect(15f, 15f, 20f, 20f))
+        }
+        requestScope.advanceUntilIdle()
+
+        // Assert.
+        assertThat(requests).hasSize(2)
+        assertThat(requests.first().isActive).isTrue()
+    }
+
+    @Test
+    fun bringIntoView_childResponderNotCancelled_whenParentCancelled() {
+        // Arrange.
+        val bringIntoViewRequester = BringIntoViewRequester()
+        val childRequests = mutableListOf<CancellableContinuation<Unit>>()
+        val parentRequests = mutableListOf<CancellableContinuation<Unit>>()
+        val requestScope = TestScope()
+        rule.setContent {
+            Box(
+                Modifier
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { parentRequests += it }
+                    }
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { childRequests += it }
+                    }
+                    .bringIntoViewRequester(bringIntoViewRequester)
+            )
+        }
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
+        }
+        requestScope.advanceUntilIdle()
+        assertThat(childRequests).hasSize(1)
+        assertThat(parentRequests).hasSize(1)
+
+        // Act.
+        parentRequests.single().cancel()
+
+        // Assert.
+        assertThat(childRequests.single().isActive).isTrue()
+    }
+
+    @Test
+    fun bringIntoView_parentResponderNotCancelled_whenChildCancelled() {
+        // Arrange.
+        val bringIntoViewRequester = BringIntoViewRequester()
+        val childRequests = mutableListOf<CancellableContinuation<Unit>>()
+        val parentRequests = mutableListOf<CancellableContinuation<Unit>>()
+        val requestScope = TestScope()
+        rule.setContent {
+            Box(
+                Modifier
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { parentRequests += it }
+                    }
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { childRequests += it }
+                    }
+                    .bringIntoViewRequester(bringIntoViewRequester)
+            )
+        }
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
+        }
+        requestScope.advanceUntilIdle()
+        assertThat(childRequests).hasSize(1)
+        assertThat(parentRequests).hasSize(1)
+
+        // Act.
+        childRequests.single().cancel()
+
+        // Assert.
+        assertThat(parentRequests.single().isActive).isTrue()
+    }
+
+    @Test
+    fun bringIntoView_invokesResponder_whenPreviousRequestStillSuspended() {
+        // Arrange.
+        val bringIntoViewRequester = BringIntoViewRequester()
+        val requests = mutableListOf<CancellableContinuation<Unit>>()
+        val requestScope = TestScope()
+        rule.setContent {
+            Box(
+                Modifier
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { requests += it }
+                    }
+                    .bringIntoViewRequester(bringIntoViewRequester)
+            )
+        }
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
+        }
+        requestScope.advanceUntilIdle()
+        assertThat(requests).hasSize(1)
+
+        // Act.
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(20f, 20f, 30f, 30f))
+        }
+        requestScope.advanceUntilIdle()
+
+        // Assert.
+        assertThat(requests).hasSize(2)
+        assertThat(requests.all { it.isActive }).isTrue()
+
+        requestScope.cancel()
+    }
+
+    @Test
+    fun bringIntoView_invokesParent_whenPreviousRequestStillSuspended() {
+        // Arrange.
+        val bringIntoViewRequester = BringIntoViewRequester()
+        val requests = mutableListOf<CancellableContinuation<Unit>>()
+        val requestScope = TestScope()
+        rule.setContent {
+            Box(
+                Modifier
+                    .fakeScrollable {
+                        suspendCancellableCoroutine { requests += it }
+                    }
+                    .fakeScrollable {
+                        // Child never completes requests.
+                        suspendCancellableCoroutine {}
+                    }
+                    .bringIntoViewRequester(bringIntoViewRequester)
+            )
+        }
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(0f, 0f, 10f, 10f))
+        }
+        requestScope.advanceUntilIdle()
+        assertThat(requests).hasSize(1)
+
+        // Act.
+        requestScope.launch {
+            bringIntoViewRequester.bringIntoView(rect = Rect(20f, 20f, 30f, 30f))
+        }
+        requestScope.advanceUntilIdle()
+
+        // Assert.
+        assertThat(requests).hasSize(2)
+        assertThat(requests.all { it.isActive }).isTrue()
+    }
+
     @Test
     fun bringChildIntoView_isCalled_whenRectForParentDoesNotReturnInput() {
         // Arrange.
@@ -363,7 +472,7 @@ class BringIntoViewResponderTest {
         rule.setContent {
             Box(
                 Modifier
-                    .fakeScrollable(Offset.Zero) { requestedRect = it }
+                    .fakeScrollable(Offset.Zero) { requestedRect = it() }
                     .bringIntoViewRequester(bringIntoViewRequester)
             )
         }
@@ -436,4 +545,36 @@ class BringIntoViewResponderTest {
         assertThat(childFinished).isTrue()
         assertThat(parentFinished).isTrue()
     }
+
+    @Test
+    fun isChildOf_returnsTrue_whenDirectChild() {
+        val parent = Job()
+        val child = Job(parent)
+        assertThat(child.isChildOf(parent)).isTrue()
+    }
+
+    @Test
+    fun isChildOf_returnsTrue_whenIndirectChild() {
+        val root = Job()
+        val parent = Job(root)
+        val child = Job(parent)
+        assertThat(child.isChildOf(root)).isTrue()
+    }
+
+    @Test
+    fun isChildOf_returnsFalse_whenReceiverIsParent() {
+        val parent = Job()
+        val child = Job(parent)
+        assertThat(parent.isChildOf(child)).isFalse()
+    }
+
+    @Test
+    fun isChildOf_returnsFalse_whenUnrelated() {
+        val job1 = Job()
+        val job2 = Job()
+        assertThat(job1.isChildOf(job2)).isFalse()
+    }
+
+    private fun Job.isChildOf(expectedParent: Job): Boolean =
+        expectedParent.children.any { it === this || this.isChildOf(it) }
 }

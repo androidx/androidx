@@ -18,7 +18,7 @@ package androidx.camera.view;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
-import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
+import static androidx.camera.core.impl.utils.TransformUtils.getNormalizedToBuffer;
 import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import android.annotation.SuppressLint;
@@ -53,6 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
@@ -105,10 +106,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  *
- * There are some limitations of transition animations to {@link SurfaceView} and
+ * <p> There are some limitations of transition animations to {@link SurfaceView} and
  * {@link TextureView}, which applies to {@link PreviewView} as well.
  *
- * @see <a href="https://developer.android.com/training/transitions#Limitations</a>
+ * @see <a href="https://developer.android.com/training/transitions#Limitations">Limitations</a>
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewView extends FrameLayout {
@@ -146,6 +147,15 @@ public final class PreviewView extends FrameLayout {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     CameraController mCameraController;
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    OnFrameUpdateListener mOnFrameUpdateListener;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    Executor mOnFrameUpdateListenerExecutor;
 
     @NonNull
     PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
@@ -199,9 +209,17 @@ public final class PreviewView extends FrameLayout {
                                 "Preview transformation info updated. " + transformationInfo);
                         // TODO(b/159127402): maybe switch to COMPATIBLE mode if target
                         //  rotation is not display rotation.
-                        boolean isFrontCamera =
-                                camera.getCameraInfoInternal().getLensFacing()
-                                        == CameraSelector.LENS_FACING_FRONT;
+                        Integer lensFacing = camera.getCameraInfoInternal().getLensFacing();
+                        boolean isFrontCamera;
+                        if (lensFacing == null) {
+                            // TODO(b/122975195): If the lens facing is null, it's probably an
+                            //  external camera. We treat it as like a front camera with
+                            //  unverified behaviors. Will have to define this later.
+                            Logger.w(TAG, "The lens facing is null, probably an external.");
+                            isFrontCamera = true;
+                        } else {
+                            isFrontCamera = lensFacing == CameraSelector.LENS_FACING_FRONT;
+                        }
                         mPreviewTransform.setTransformationInfo(transformationInfo,
                                 surfaceRequest.getResolution(), isFrontCamera);
 
@@ -218,9 +236,11 @@ public final class PreviewView extends FrameLayout {
                         redrawPreview();
                     });
 
-            mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
-                    ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
-                    : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
+            if (!shouldReuseImplementation(mImplementation, surfaceRequest, mImplementationMode)) {
+                mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
+                        ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
+                        : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
+            }
 
             PreviewStreamStateObserver streamStateObserver =
                     new PreviewStreamStateObserver(camera.getCameraInfoInternal(),
@@ -240,6 +260,11 @@ public final class PreviewView extends FrameLayout {
                 streamStateObserver.clear();
                 camera.getCameraState().removeObserver(streamStateObserver);
             });
+
+            if (mOnFrameUpdateListener != null && mOnFrameUpdateListenerExecutor != null) {
+                mImplementation.setFrameUpdateListener(mOnFrameUpdateListenerExecutor,
+                        mOnFrameUpdateListener);
+            }
         }
     };
 
@@ -368,6 +393,12 @@ public final class PreviewView extends FrameLayout {
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
         checkMainThread();
         mImplementationMode = implementationMode;
+
+        if (mImplementationMode == ImplementationMode.PERFORMANCE
+                && mOnFrameUpdateListener != null) {
+            throw new IllegalArgumentException(
+                    "PERFORMANCE mode doesn't support frame update listener");
+        }
     }
 
     /**
@@ -633,6 +664,13 @@ public final class PreviewView extends FrameLayout {
         }
     }
 
+    @VisibleForTesting
+    static boolean shouldReuseImplementation(@Nullable PreviewViewImplementation implementation,
+            @NonNull SurfaceRequest surfaceRequest, @NonNull ImplementationMode mode) {
+        return implementation instanceof SurfaceViewImplementation && !shouldUseTextureView(
+                surfaceRequest, mode);
+    }
+
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     static boolean shouldUseTextureView(@NonNull SurfaceRequest surfaceRequest,
@@ -643,10 +681,9 @@ public final class PreviewView extends FrameLayout {
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         boolean hasSurfaceViewQuirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class) != null
                 ||  DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
-        if (surfaceRequest.isRGBA8888Required() || Build.VERSION.SDK_INT <= 24 || isLegacyDevice
-                || hasSurfaceViewQuirk) {
+        if (Build.VERSION.SDK_INT <= 24 || isLegacyDevice || hasSurfaceViewQuirk) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
-            // level, RGBA8888 is required or SurfaceView has quirks.
+            // level or SurfaceView has quirks.
             return true;
         }
         switch (implementationMode) {
@@ -671,6 +708,41 @@ public final class PreviewView extends FrameLayout {
                                 display.getRotation()), display.getRotation());
             }
         }
+    }
+
+    /**
+     * Sets a listener to receive frame update event with sensor timestamp.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setFrameUpdateListener(@NonNull Executor executor,
+            @NonNull OnFrameUpdateListener listener) {
+        // SurfaceView doesn't support frame update event.
+        if (mImplementationMode == ImplementationMode.PERFORMANCE) {
+            throw new IllegalArgumentException(
+                    "PERFORMANCE mode doesn't support frame update listener");
+        }
+
+        mOnFrameUpdateListener = listener;
+        mOnFrameUpdateListenerExecutor = executor;
+        if (mImplementation != null) {
+            mImplementation.setFrameUpdateListener(executor, listener);
+        }
+    }
+
+    /**
+     * Listener to be notified when the frame is updated.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface OnFrameUpdateListener {
+        /**
+         * Invoked when frame updates.
+         * @param timestamp sensor timestamp of this frame.
+         */
+        void onFrameUpdate(long timestamp);
     }
 
     /**
@@ -933,8 +1005,10 @@ public final class PreviewView extends FrameLayout {
         if (mImplementation instanceof TextureViewImplementation) {
             matrix.postConcat(getMatrix());
         } else {
-            Logger.w(TAG, "PreviewView needs to be in COMPATIBLE mode for the transform"
-                    + " to work correctly.");
+            if (!getMatrix().isIdentity()) {
+                Logger.w(TAG, "PreviewView needs to be in COMPATIBLE mode for the transform"
+                        + " to work correctly.");
+            }
         }
 
         return new OutputTransform(matrix, new Size(surfaceCropRect.width(),
@@ -944,12 +1018,10 @@ public final class PreviewView extends FrameLayout {
     @MainThread
     private void attachToControllerIfReady(boolean shouldFailSilently) {
         checkMainThread();
-        Display display = getDisplay();
         ViewPort viewPort = getViewPort();
-        if (mCameraController != null && viewPort != null && isAttachedToWindow()
-                && display != null) {
+        if (mCameraController != null && viewPort != null && isAttachedToWindow()) {
             try {
-                mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+                mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort);
             } catch (IllegalStateException ex) {
                 if (shouldFailSilently) {
                     // Swallow the exception and fail silently if the method is invoked by View

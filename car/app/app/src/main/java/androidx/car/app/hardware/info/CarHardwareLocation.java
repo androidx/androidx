@@ -21,19 +21,20 @@ import static java.util.Objects.requireNonNull;
 
 import android.location.Location;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** Information about car specific car location available from the car hardware. */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class CarHardwareLocation {
 
     /** @hide */
@@ -41,7 +42,11 @@ public final class CarHardwareLocation {
     public static final CarValue<Location> UNIMPLEMENTED_LOCATION = new CarValue<>(null, 0,
             CarValue.STATUS_UNIMPLEMENTED);
 
-    @Keep
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<Location> UNKNOWN_LOCATION = new CarValue<>(null, 0,
+            CarValue.STATUS_UNKNOWN);
+
     @NonNull
     private final CarValue<Location> mLocation;
 
@@ -86,6 +91,6 @@ public final class CarHardwareLocation {
 
     /** Constructs an empty instance, used by serialization code. */
     private CarHardwareLocation() {
-        mLocation = UNIMPLEMENTED_LOCATION;
+        mLocation = UNKNOWN_LOCATION;
     }
 }

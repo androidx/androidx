@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,8 +35,12 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,33 +52,35 @@ import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingPolicy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = 21)
+@OptIn(ExperimentalTestApi::class)
 class RobolectricComposeTest {
-    @get:Rule
-    val rule = createComposeRule()
-
     private var masterTimeout: IdlingPolicy? = null
 
     @Before
@@ -87,14 +95,32 @@ class RobolectricComposeTest {
         }
     }
 
+    @Composable
+    private fun ClickCounter(
+        clicks: MutableState<Int> = remember { mutableStateOf(0) }
+    ) {
+        Column {
+            Button(onClick = { clicks.value++ }) {
+                Text("Click me")
+            }
+            Text("Click count: ${clicks.value}")
+        }
+    }
+
     /**
      * Check that basic scenarios work: a composition that is recomposed due to a state change.
      */
     @Test
-    fun testStateChange() {
-        runClickScenario { clicks ->
-            clicks.value++
-        }
+    fun testStateChange() = runComposeUiTest {
+        val clicks = mutableStateOf(0)
+        setContent { ClickCounter(clicks) }
+        onNodeWithText("Click me").assertExists()
+
+        clicks.value++
+        onNodeWithText("Click count", substring = true).assertTextEquals("Click count: 1")
+
+        clicks.value++
+        onNodeWithText("Click count", substring = true).assertTextEquals("Click count: 2")
     }
 
     /**
@@ -102,29 +128,15 @@ class RobolectricComposeTest {
      * changes state as a result of that, triggering recomposition.
      */
     @Test
-    fun testInputInjection() {
-        runClickScenario {
-            rule.onNodeWithText("Click me").performClick()
-        }
-    }
+    fun testInputInjection() = runComposeUiTest {
+        setContent { ClickCounter() }
+        onNodeWithText("Click me").assertExists()
 
-    private fun runClickScenario(interaction: (MutableState<Int>) -> Unit) {
-        val clicks = mutableStateOf(0)
-        rule.setContent {
-            Button(onClick = { clicks.value++ }) {
-                Text("Click me")
-            }
-            Text("Click count: ${clicks.value}")
-        }
-        rule.onNodeWithText("Click me").assertExists()
+        onNodeWithText("Click me").performClick()
+        onNodeWithText("Click count", substring = true).assertTextEquals("Click count: 1")
 
-        interaction.invoke(clicks)
-        rule.onNodeWithText("Click count", substring = true)
-            .assertTextEquals("Click count: 1")
-
-        interaction.invoke(clicks)
-        rule.onNodeWithText("Click count", substring = true)
-            .assertTextEquals("Click count: 2")
+        onNodeWithText("Click me").performClick()
+        onNodeWithText("Click count", substring = true).assertTextEquals("Click count: 2")
     }
 
     /**
@@ -133,30 +145,35 @@ class RobolectricComposeTest {
      * after that.
      */
     @Test
-    fun testAnimation() {
+    fun testAnimation() = runComposeUiTest {
         var target by mutableStateOf(0f)
-        rule.setContent {
+        setContent {
             val offset = animateFloatAsState(target)
             Box(Modifier.fillMaxSize()) {
-                Box(Modifier.size(10.dp).offset(x = offset.value.dp).testTag("box"))
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .offset(x = offset.value.dp)
+                        .testTag("box")
+                )
             }
         }
-        rule.onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(0.dp)
+        onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(0.dp)
         target = 100f
-        rule.onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(100.dp)
+        onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(100.dp)
     }
 
     /**
      * Check that we catch a potential infinite composition loop caused by a measure lambda that
      * triggers itself.
      */
-    @Test(timeout = 5000)
-    fun testTimeout() {
+    @Test(timeout = 10000)
+    fun testTimeout() = runComposeUiTest {
         IdlingPolicies.setMasterPolicyTimeout(2, TimeUnit.SECONDS)
         expectError<AppNotIdleException>(
             expectedMessage = "Compose did not get idle after [0-9]* attempts in 2 SECONDS\\..*"
         ) {
-            rule.setContent {
+            setContent {
                 var x by remember { mutableStateOf(0) }
                 Box(Modifier.requiredSize(100.dp)) {
                     Layout({ Box(Modifier.size(10.dp)) }) { measurables, constraints ->
@@ -185,7 +202,7 @@ class RobolectricComposeTest {
      */
     @OptIn(ExperimentalFoundationApi::class)
     @Test
-    fun testControlledScrolling() {
+    fun testControlledScrolling() = runComposeUiTest {
         // Define constants used in the test
         val n = 100
         val touchSlop = 16f
@@ -193,19 +210,26 @@ class RobolectricComposeTest {
         val flingBehavior = SimpleFlingBehavior(deltas = 20 downTo 1)
 
         // Set content: a list where the fling is always the same, regardless of the swipe
-        rule.setContent {
+        setContent {
             WithTouchSlop(touchSlop = touchSlop) {
                 // turn off visual overscroll for calculation correctness
-                CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                     Box(Modifier.fillMaxSize()) {
                         Column(
-                            Modifier.requiredSize(200.dp).verticalScroll(
-                                scrollState,
-                                flingBehavior = flingBehavior
-                            ).testTag("list")
+                            Modifier
+                                .requiredSize(200.dp)
+                                .verticalScroll(
+                                    scrollState,
+                                    flingBehavior = flingBehavior
+                                )
+                                .testTag("list")
                         ) {
                             repeat(n) {
-                                Spacer(Modifier.fillMaxWidth().height(30.dp))
+                                Spacer(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(30.dp)
+                                )
                             }
                         }
                     }
@@ -215,27 +239,42 @@ class RobolectricComposeTest {
 
         // Stop auto advancing and perform a swipe. The list will "freeze" in the position where
         // it was at the end of the swipe
-        rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("list").performTouchInput {
+        mainClock.autoAdvance = false
+        onNodeWithTag("list").performTouchInput {
             down(bottomCenter)
             repeat(10) {
                 moveTo(bottomCenter - percentOffset(y = (it + 1) / 10f))
             }
             up()
         }
-        rule.waitForIdle()
+        waitForIdle()
 
         // Check that we're in that frozen position
-        val expectedViewPortSize = with(rule.density) { 200.dp.toPx() }
+        val expectedViewPortSize = with(density) { 200.dp.toPx() }
         val expectedSwipeDistance = (expectedViewPortSize - touchSlop).roundToInt()
         assertThat(scrollState.value).isEqualTo(expectedSwipeDistance)
 
         // "Unfreeze" the list and let the fling run. The list will stop at
         // `flingBehavior.totalDistance` pixels further than where it was frozen.
-        rule.mainClock.autoAdvance = true
-        rule.waitForIdle()
+        mainClock.autoAdvance = true
+        waitForIdle()
         val expectedFlingDistance = flingBehavior.totalDistance
         assertThat(scrollState.value).isEqualTo(expectedSwipeDistance + expectedFlingDistance)
+    }
+
+    // Regression test for b/227120770
+    @Test
+    fun testTextFieldInteraction() = runComposeUiTest {
+        val text = "a"
+        var updatedText = ""
+        setContent {
+            TextField(value = text, onValueChange = { updatedText = it })
+        }
+        onNodeWithText(text).assertIsDisplayed()
+        onNodeWithText(text).performTextInput("b")
+        runOnIdle {
+            assertThat(updatedText).isEqualTo("ab")
+        }
     }
 
     /**
@@ -252,5 +291,69 @@ class RobolectricComposeTest {
             }
             return 0f
         }
+    }
+
+    @Test
+    fun testComposeMainQueueTrampolining() = runComposeUiTest {
+        val trampoliningIterations = 10
+        var phase by mutableStateOf(0)
+        var done = false
+        val handler = Handler(Looper.getMainLooper())
+
+        setContent {
+            // Alternate scheduling work to the main queue and scheduling work for Compose.
+            // waitForIdle shouldn't return until both Compose and the main queue have nothing to
+            // do.
+            if (phase in 1 until trampoliningIterations) {
+                DisposableEffect(phase) {
+                    handler.post { phase++ }
+                    onDispose {}
+                }
+            } else if (phase == trampoliningIterations) {
+                DisposableEffect(Unit) {
+                    done = true
+                    onDispose {}
+                }
+            }
+        }
+
+        runOnIdle {
+            assertThat(phase).isEqualTo(0)
+            assertThat(done).isFalse()
+        }
+
+        // Trigger the trampolining.
+        phase = 1
+
+        // If Robolectric and Compose don't coordinate idleness correctly, waitForIdle will return
+        // before finishing the chain of trampolined work, and we won't be in the expected terminal
+        // state.
+        runOnIdle {
+            assertThat(phase).isEqualTo(trampoliningIterations)
+            assertThat(done).isTrue()
+        }
+    }
+
+    @Test
+    fun testWaitForPopupWindow() = runComposeUiTest {
+        var expanded by mutableStateOf(false)
+
+        setContent {
+            Box(Modifier.requiredSize(20.dp)) {
+                if (expanded) {
+                    Popup {
+                        DropdownMenuItem(modifier = Modifier.testTag("MenuContent"), onClick = {}) {
+                            Text("Option 1")
+                        }
+                    }
+                }
+            }
+        }
+
+        onNodeWithTag("MenuContent").assertDoesNotExist()
+
+        expanded = true
+
+        onNodeWithTag("MenuContent").assertIsDisplayed()
     }
 }

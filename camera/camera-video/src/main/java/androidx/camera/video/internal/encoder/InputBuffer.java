@@ -43,7 +43,7 @@ public interface InputBuffer {
      *
      * <p>Getting ByteBuffer multiple times won't reset its internal position and data.
      *
-     * @throws {@link IllegalStateException} if InputBuffer is submitted or canceled.
+     * @throws IllegalStateException if InputBuffer is submitted or canceled.
      */
     @NonNull
     ByteBuffer getByteBuffer();
@@ -51,14 +51,14 @@ public interface InputBuffer {
     /**
      * Sets the timestamp of the input buffer in microseconds.
      *
-     * @throws {@link IllegalStateException} if InputBuffer is submitted or canceled.
+     * @throws IllegalStateException if InputBuffer is submitted or canceled.
      */
     void setPresentationTimeUs(long presentationTimeUs);
 
     /**
      * Denotes the input buffer is the end of the data stream.
      *
-     * @throws {@link IllegalStateException} if InputBuffer is submitted or canceled.
+     * @throws IllegalStateException if InputBuffer is submitted or canceled.
      */
     void setEndOfStream(boolean isEndOfStream);
 

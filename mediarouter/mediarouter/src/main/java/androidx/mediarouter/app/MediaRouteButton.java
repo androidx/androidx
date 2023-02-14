@@ -22,10 +22,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -40,8 +36,10 @@ import android.util.SparseArray;
 import android.view.SoundEffectConstants;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -58,37 +56,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The media route button allows the user to select routes and to control the
- * currently selected route.
- * <p>
- * The application must specify the kinds of routes that the user should be allowed
- * to select by specifying a {@link MediaRouteSelector selector} with the
- * {@link #setRouteSelector} method.
- * </p><p>
- * When the default route is selected, the button will appear in an inactive state indicating
- * that the application is not connected to a route. Clicking on the button opens
- * a {@link MediaRouteChooserDialog} to allow the user to select a route.
- * If no non-default routes match the selector and it is not possible for an active
- * scan to discover any matching routes, then the button is disabled and cannot
- * be clicked unless {@link #setAlwaysVisible} is called.
- * </p><p>
- * When a non-default route is selected, the button will appear in an active state indicating
- * that the application is connected to a route of the kind that it wants to use.
- * The button may also appear in an intermediary connecting state if the route is in the process
- * of connecting to the destination but has not yet completed doing so.  In either case, clicking
- * on the button opens a {@link MediaRouteControllerDialog} to allow the user
- * to control or disconnect from the current route.
- * </p>
+ * The media route button allows the user to select routes and to control the currently selected
+ * route.
+ *
+ * <p>The application must specify the kinds of routes that the user should be allowed to select
+ * by specifying a {@link MediaRouteSelector selector} with the {@link #setRouteSelector} method.
+ *
+ * <p>When the default route is selected, the button will appear in an inactive state indicating
+ * that the application is not connected to a route. Clicking on the button opens a
+ * {@link MediaRouteChooserDialog} to allow the user to select a route. If no non-default routes
+ * match the selector and it is not possible for an active scan to discover any matching routes,
+ * then the button is disabled and cannot be clicked unless {@link #setAlwaysVisible} is called.
+ *
+ * <p>When a non-default route is selected, the button will appear in an active state indicating
+ * that the application is connected to a route of the kind that it wants to use. The button may
+ * also appear in an intermediary connecting state if the route is in the process of connecting
+ * to the destination but has not yet completed doing so. In either case, clicking on the button
+ * opens a {@link MediaRouteControllerDialog} to allow the user to control or disconnect from the
+ * current route.
  *
  * <h3>Prerequisites</h3>
- * <p>
- * To use the media route button, the activity must be a subclass of
- * {@link FragmentActivity} from the <code>android.support.v4</code>
- * support library.  Refer to support library documentation for details.
- * </p>
+ *
+ * To use the media route button, the containing activity must be a subclass of
+ * {@link FragmentActivity}.
  *
  * @see MediaRouteActionProvider
- * @see #setRouteSelector
  */
 public class MediaRouteButton extends View {
     private static final String TAG = "MediaRouteButton";
@@ -335,7 +327,7 @@ public class MediaRouteButton extends View {
         MediaRouterParams params = mRouter.getRouterParams();
         if (params != null) {
             if (params.isOutputSwitcherEnabled() && MediaRouter.isMediaTransferEnabled()) {
-                if (showOutputSwitcher()) {
+                if (SystemOutputSwitcherDialogController.showDialog(getContext())) {
                     // Output switcher is successfully shown.
                     return true;
                 }
@@ -390,79 +382,6 @@ public class MediaRouteButton extends View {
             transaction.commitAllowingStateLoss();
         }
         return true;
-    }
-
-    /**
-     * Shows output switcher dialog. Returns {@code true} if it is successfully shown.
-     * Returns {@code false} if there was no output switcher.
-     */
-    private boolean showOutputSwitcher() {
-        boolean result = false;
-        if (Build.VERSION.SDK_INT >= 31) {
-            result = showOutputSwitcherForAndroidSAndAbove();
-            if (!result) {
-                // The intent action and related string constants are changed in S,
-                // however they are not public API yet. Try opening the output switcher with the
-                // old constants for devices that have prior version of the constants.
-                result = showOutputSwitcherForAndroidR();
-            }
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            result = showOutputSwitcherForAndroidR();
-        }
-        return result;
-    }
-
-    @SuppressWarnings("deprecation")
-    private boolean showOutputSwitcherForAndroidR() {
-        Context context = getContext();
-
-        Intent intent = new Intent()
-                .setAction("com.android.settings.panel.action.MEDIA_OUTPUT")
-                .putExtra("com.android.settings.panel.extra.PACKAGE_NAME", context.getPackageName())
-                .putExtra("key_media_session_token", mRouter.getMediaSessionToken());
-
-        PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            ActivityInfo activityInfo = resolveInfo.activityInfo;
-            if (activityInfo == null || activityInfo.applicationInfo == null) {
-                continue;
-            }
-            ApplicationInfo appInfo = activityInfo.applicationInfo;
-            if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
-                    & appInfo.flags) != 0) {
-                context.startActivity(intent);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean showOutputSwitcherForAndroidSAndAbove() {
-        Context context = getContext();
-
-        Intent intent = new Intent()
-                .setAction("com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG")
-                .setPackage("com.android.systemui")
-                .putExtra("package_name", context.getPackageName())
-                .putExtra("key_media_session_token", mRouter.getMediaSessionToken());
-
-        PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> resolveInfos = packageManager.queryBroadcastReceivers(intent, 0);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            ActivityInfo activityInfo = resolveInfo.activityInfo;
-            if (activityInfo == null || activityInfo.applicationInfo == null) {
-                continue;
-            }
-            ApplicationInfo appInfo = activityInfo.applicationInfo;
-            if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
-                    & appInfo.flags) != 0) {
-                context.sendBroadcast(intent);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private FragmentManager getFragmentManager() {
@@ -800,47 +719,54 @@ public class MediaRouteButton extends View {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteUnselected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderAdded(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderAdded(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderRemoved(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
+        public void onRouterParamsChanged(@NonNull MediaRouter router, MediaRouterParams params) {
             boolean fixedIcon = false;
             if (params != null) {
                 fixedIcon = params.getExtras()
@@ -915,7 +841,12 @@ public class MediaRouteButton extends View {
             if (mButtons.size() == 0) {
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                mContext.registerReceiver(this, intentFilter);
+                if (Build.VERSION.SDK_INT < 33) {
+                    mContext.registerReceiver(this, intentFilter);
+                } else {
+                    Api33.registerReceiver(mContext, this, intentFilter,
+                            Context.RECEIVER_NOT_EXPORTED);
+                }
             }
             mButtons.add(button);
         }
@@ -940,11 +871,20 @@ public class MediaRouteButton extends View {
                         ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (mIsConnected != isConnected) {
                     mIsConnected = isConnected;
-                    for (MediaRouteButton button: mButtons) {
+                    for (MediaRouteButton button : mButtons) {
                         button.refreshVisibility();
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33 {
+        @DoNotInline
+        static void registerReceiver(@NonNull Context context, @NonNull BroadcastReceiver receiver,
+                @NonNull IntentFilter filter, int flags) {
+            context.registerReceiver(receiver, filter, flags);
         }
     }
 }

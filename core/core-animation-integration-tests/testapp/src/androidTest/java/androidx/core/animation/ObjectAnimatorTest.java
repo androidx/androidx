@@ -312,7 +312,7 @@ public class ObjectAnimatorTest {
         String propertyName = "backgroundColor";
         int startColor = Color.RED;
         int endColor = Color.BLUE;
-        Object[] values = {new Integer(startColor), new Integer(endColor)};
+        Object[] values = {startColor, endColor};
         ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         ObjectAnimator colorAnimator = ObjectAnimator.ofObject(object, propertyName,
                 evaluator, values);
@@ -360,7 +360,7 @@ public class ObjectAnimatorTest {
         String propertyName = "backgroundColor";
         int startColor = Color.RED;
         int endColor = Color.BLUE;
-        Object[] values = {new Integer(startColor), new Integer(endColor)};
+        Object[] values = {startColor, endColor};
         ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         ObjectAnimator colorAnimator = ObjectAnimator.ofObject(object, propertyName,
                 evaluator, values);

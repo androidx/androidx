@@ -50,9 +50,9 @@ class MessageListFragment : Fragment() {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    metricsStateCache.state?.addState("RecyclerView", "Dragging")
+                    metricsStateCache.state?.putState("RecyclerView", "Dragging")
                 } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-                    metricsStateCache.state?.addState("RecyclerView", "Settling")
+                    metricsStateCache.state?.putState("RecyclerView", "Settling")
                 } else {
                     metricsStateCache.state?.removeState("RecyclerView")
                 }
@@ -61,13 +61,13 @@ class MessageListFragment : Fragment() {
     }
 
     class MetricsStateCache : View.OnAttachStateChangeListener {
-        private var holder: PerformanceMetricsState.MetricsStateHolder? = null
+        private var holder: PerformanceMetricsState.Holder? = null
 
         val state: PerformanceMetricsState?
             get() = holder?.state
 
         override fun onViewAttachedToWindow(view: View) {
-            holder = PerformanceMetricsState.getForHierarchy(view)
+            holder = PerformanceMetricsState.getHolderForHierarchy(view)
         }
 
         override fun onViewDetachedFromWindow(view: View) {

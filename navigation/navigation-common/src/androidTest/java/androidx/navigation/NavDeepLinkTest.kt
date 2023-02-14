@@ -20,9 +20,11 @@ import android.net.Uri
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.stringArgument
+import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import java.io.UnsupportedEncodingException
 
@@ -996,6 +998,60 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkFragmentMatch() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users#testFrag"),
+            mapOf("frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
+    fun deepLinkFragmentMatchWithQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id=43#testFrag"),
+            mapOf("id" to intArgument(), "frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the query")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(43)
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
+    fun deepLinkFragmentMatchWithOptionalQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users#testFrag"),
+            mapOf("id" to nullableStringArgument(), "frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
     @Throws(UnsupportedEncodingException::class)
     fun deepLinkArgumentMatchEncoded() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{name}/posts"
@@ -1299,5 +1355,48 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the arg")
             .that(matchArgs?.getString("myarg"))
             .isEqualTo("name")
+    }
+
+    @Test
+    fun deepLinkRepeatedQueryParamsMappedToArray() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?myarg=name1&myarg=name2"),
+            mapOf("myarg" to stringArrayArgument(null))
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null")
+            .that(matchArgsStringArray)
+            .isNotNull()
+        assertWithMessage("Args should contain first arg")
+            .that(matchArgsStringArray).asList()
+            .contains("name1")
+        assertWithMessage("Args should contain second arg")
+            .that(matchArgsStringArray).asList()
+            .contains("name2")
+    }
+
+    @Test
+    fun deepLinkNoRepeatedQueryParamsInPattern() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}&myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+        val message = assertFailsWith<IllegalArgumentException> {
+            // query params are parsed lazily, need to run getMatchingArguments to resolve it
+            deepLink.getMatchingArguments(
+                Uri.parse(deepLinkArgument),
+                emptyMap()
+            )
+        }.message
+        assertThat(message).isEqualTo(
+            "Query parameter myarg must only be present once in $deepLinkArgument. " +
+                "To support repeated query parameters, use an array type for your " +
+                "argument and the pattern provided in your URI will be used to " +
+                "parse each query parameter instance."
+        )
     }
 }

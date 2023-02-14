@@ -30,53 +30,37 @@ internal object AudioUnderrunQuery {
     )
 
     fun getSubMetrics(
-        absoluteTracePath: String
+        perfettoTraceProcessor: PerfettoTraceProcessor
     ): SubMetrics {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
-            query = getFullQuery()
-        )
-
-        val resultLines = queryResult.split("\n")
-
-        if (resultLines.first() != "\"name\",\"value\",\"ts\"") {
-            throw IllegalStateException("query failed!")
-        }
-
-        // we can't measure duration when there is only one time stamp
-        if (resultLines.size <= 3) {
-            throw RuntimeException("No playing audio detected")
-        }
+        val queryResult = perfettoTraceProcessor.rawQuery(getFullQuery())
 
         var trackName: String? = null
         var lastTs: Long? = null
-
         var totalNs: Long = 0
         var zeroNs: Long = 0
 
-        resultLines
-            .drop(1) // column names
-            .dropLast(1) // empty line
-            .forEach {
-                val lineVals = it.split(",")
-                if (lineVals.size != VAL_MAX)
+        queryResult
+            .asSequence()
+            .forEach { lineVals ->
+
+                if (lineVals.size != EXPECTED_COLUMN_COUNT)
                     throw IllegalStateException("query failed")
 
                 if (trackName == null) {
-                    trackName = lineVals[VAL_NAME]
-                } else if (!trackName.equals(lineVals[VAL_NAME])) {
+                    trackName = lineVals[VAL_NAME] as String?
+                } else if (trackName!! != lineVals[VAL_NAME]) {
                     throw RuntimeException("There could be only one AudioTrack per measure")
                 }
 
                 if (lastTs == null) {
-                    lastTs = lineVals[VAL_TS].toLong()
+                    lastTs = lineVals[VAL_TS] as Long
                 } else {
-                    val frameNs = lineVals[VAL_TS].toLong() - lastTs!!
-                    lastTs = lineVals[VAL_TS].toLong()
+                    val frameNs = lineVals[VAL_TS] as Long - lastTs!!
+                    lastTs = lineVals[VAL_TS] as Long
 
                     totalNs += frameNs
 
-                    val frameCounter = lineVals[VAL_VALUE].toDouble().toInt()
+                    val frameCounter = (lineVals[VAL_VALUE] as Double).toInt()
 
                     if (frameCounter == 0)
                         zeroNs += frameNs
@@ -86,8 +70,8 @@ internal object AudioUnderrunQuery {
         return SubMetrics((totalNs / 1_000_000).toInt(), (zeroNs / 1_000_000).toInt())
     }
 
-    private const val VAL_NAME = 0
-    private const val VAL_VALUE = 1
-    private const val VAL_TS = 2
-    private const val VAL_MAX = 3
+    private const val VAL_NAME = "name"
+    private const val VAL_VALUE = "value"
+    private const val VAL_TS = "ts"
+    private const val EXPECTED_COLUMN_COUNT = 3
 }

@@ -17,7 +17,6 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -35,11 +34,11 @@ final class FragmentState implements Parcelable {
     final boolean mRetainInstance;
     final boolean mRemoving;
     final boolean mDetached;
-    final Bundle mArguments;
     final boolean mHidden;
     final int mMaxLifecycleState;
-
-    Bundle mSavedFragmentState;
+    final String mTargetWho;
+    final int mTargetRequestCode;
+    final boolean mUserVisibleHint;
 
     FragmentState(Fragment frag) {
         mClassName = frag.getClass().getName();
@@ -51,9 +50,11 @@ final class FragmentState implements Parcelable {
         mRetainInstance = frag.mRetainInstance;
         mRemoving = frag.mRemoving;
         mDetached = frag.mDetached;
-        mArguments = frag.mArguments;
         mHidden = frag.mHidden;
         mMaxLifecycleState = frag.mMaxState.ordinal();
+        mTargetWho = frag.mTargetWho;
+        mTargetRequestCode = frag.mTargetRequestCode;
+        mUserVisibleHint = frag.mUserVisibleHint;
     }
 
     FragmentState(Parcel in) {
@@ -66,23 +67,21 @@ final class FragmentState implements Parcelable {
         mRetainInstance = in.readInt() != 0;
         mRemoving = in.readInt() != 0;
         mDetached = in.readInt() != 0;
-        mArguments = in.readBundle();
         mHidden = in.readInt() != 0;
-        mSavedFragmentState = in.readBundle();
         mMaxLifecycleState = in.readInt();
+        mTargetWho = in.readString();
+        mTargetRequestCode = in.readInt();
+        mUserVisibleHint = in.readInt() != 0;
     }
 
     /**
      * Instantiates the Fragment from this state.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     Fragment instantiate(@NonNull FragmentFactory fragmentFactory,
             @NonNull ClassLoader classLoader) {
         Fragment fragment = fragmentFactory.instantiate(classLoader, mClassName);
-        if (mArguments != null) {
-            mArguments.setClassLoader(classLoader);
-        }
-        fragment.setArguments(mArguments);
         fragment.mWho = mWho;
         fragment.mFromLayout = mFromLayout;
         fragment.mRestored = true;
@@ -94,14 +93,9 @@ final class FragmentState implements Parcelable {
         fragment.mDetached = mDetached;
         fragment.mHidden = mHidden;
         fragment.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
-        if (mSavedFragmentState != null) {
-            fragment.mSavedFragmentState = mSavedFragmentState;
-        } else {
-            // When restoring a Fragment, always ensure we have a
-            // non-null Bundle so that developers have a signal for
-            // when the Fragment is being restored
-            fragment.mSavedFragmentState = new Bundle();
-        }
+        fragment.mTargetWho = mTargetWho;
+        fragment.mTargetRequestCode = mTargetRequestCode;
+        fragment.mUserVisibleHint = mUserVisibleHint;
         return fragment;
     }
 
@@ -137,6 +131,15 @@ final class FragmentState implements Parcelable {
         if (mHidden) {
             sb.append(" hidden");
         }
+        if (mTargetWho != null) {
+            sb.append(" targetWho=");
+            sb.append(mTargetWho);
+            sb.append(" targetRequestCode=");
+            sb.append(mTargetRequestCode);
+        }
+        if (mUserVisibleHint) {
+            sb.append(" userVisibleHint");
+        }
         return sb.toString();
     }
 
@@ -156,10 +159,11 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mRetainInstance ? 1 : 0);
         dest.writeInt(mRemoving ? 1 : 0);
         dest.writeInt(mDetached ? 1 : 0);
-        dest.writeBundle(mArguments);
         dest.writeInt(mHidden ? 1 : 0);
-        dest.writeBundle(mSavedFragmentState);
         dest.writeInt(mMaxLifecycleState);
+        dest.writeString(mTargetWho);
+        dest.writeInt(mTargetRequestCode);
+        dest.writeInt(mUserVisibleHint ? 1 : 0);
     }
 
     public static final Parcelable.Creator<FragmentState> CREATOR =

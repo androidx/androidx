@@ -15,8 +15,11 @@ package androidx.leanback.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.database.Observable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -61,7 +64,7 @@ public abstract class ObjectAdapter {
          * @param itemCount     The number of items changed.
          * @param payload       Optional parameter, use null to identify a "full" update.
          */
-        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+        public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
             onChanged();
         }
 
@@ -149,14 +152,14 @@ public abstract class ObjectAdapter {
     /**
      * Constructs an adapter with the given {@link PresenterSelector}.
      */
-    public ObjectAdapter(PresenterSelector presenterSelector) {
+    public ObjectAdapter(@NonNull PresenterSelector presenterSelector) {
         setPresenterSelector(presenterSelector);
     }
 
     /**
      * Constructs an adapter that uses the given {@link Presenter} for all items.
      */
-    public ObjectAdapter(Presenter presenter) {
+    public ObjectAdapter(@NonNull Presenter presenter) {
         setPresenterSelector(new SinglePresenterSelector(presenter));
     }
 
@@ -169,7 +172,7 @@ public abstract class ObjectAdapter {
     /**
      * Sets the presenter selector.  May not be null.
      */
-    public final void setPresenterSelector(PresenterSelector presenterSelector) {
+    public final void setPresenterSelector(@NonNull PresenterSelector presenterSelector) {
         if (presenterSelector == null) {
             throw new IllegalArgumentException("Presenter selector must not be null");
         }
@@ -196,6 +199,7 @@ public abstract class ObjectAdapter {
     /**
      * Returns the presenter selector for this ObjectAdapter.
      */
+    @NonNull
     public final PresenterSelector getPresenterSelector() {
         return mPresenterSelector;
     }
@@ -203,14 +207,14 @@ public abstract class ObjectAdapter {
     /**
      * Registers a DataObserver for data change notifications.
      */
-    public final void registerObserver(DataObserver observer) {
+    public final void registerObserver(@NonNull DataObserver observer) {
         mObservable.registerObserver(observer);
     }
 
     /**
      * Unregisters a DataObserver for data change notifications.
      */
-    public final void unregisterObserver(DataObserver observer) {
+    public final void unregisterObserver(@NonNull DataObserver observer) {
         mObservable.unregisterObserver(observer);
     }
 
@@ -246,7 +250,11 @@ public abstract class ObjectAdapter {
      * @param itemCount     Total number of items that changed.
      * @param payload       Optional parameter, use null to identify a "full" update.
      */
-    public final void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
+    public final void notifyItemRangeChanged(
+            int positionStart,
+            int itemCount,
+            @Nullable Object payload
+    ) {
         mObservable.notifyItemRangeChanged(positionStart, itemCount, payload);
     }
 
@@ -292,6 +300,7 @@ public abstract class ObjectAdapter {
      * underlying data.  When this is true, clients of the ObjectAdapter can use
      * {@link #getId(int)} to correlate Objects across changes.
      */
+    @SuppressLint("KotlinPropertyAccess")
     public final boolean hasStableIds() {
         return mHasStableIds;
     }
@@ -319,7 +328,8 @@ public abstract class ObjectAdapter {
     /**
      * Returns the {@link Presenter} for the given item from the adapter.
      */
-    public final Presenter getPresenter(Object item) {
+    @Nullable
+    public final Presenter getPresenter(@NonNull Object item) {
         if (mPresenterSelector == null) {
             throw new IllegalStateException("Presenter selector must not be null");
         }
@@ -334,6 +344,7 @@ public abstract class ObjectAdapter {
     /**
      * Returns the item for the given position.
      */
+    @Nullable
     public abstract Object get(int position);
 
     /**

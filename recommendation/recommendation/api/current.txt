@@ -2,35 +2,35 @@
 package androidx.recommendation.app {
 
   public final class ContentRecommendation {
-    method public String! getBackgroundImageUri();
+    method public String? getBackgroundImageUri();
     method public int getBadgeImageResourceId();
     method public int getColor();
-    method public android.graphics.Bitmap! getContentImage();
-    method public androidx.recommendation.app.ContentRecommendation.IntentData! getContentIntent();
-    method public String![]! getContentTypes();
-    method public androidx.recommendation.app.ContentRecommendation.IntentData! getDismissIntent();
-    method public String![]! getGenres();
-    method public String! getGroup();
-    method public String! getIdTag();
-    method public String! getMaturityRating();
-    method public android.app.Notification! getNotificationObject(android.content.Context!);
-    method public String! getPricingType();
-    method public String! getPricingValue();
-    method public String! getPrimaryContentType();
+    method public android.graphics.Bitmap? getContentImage();
+    method public androidx.recommendation.app.ContentRecommendation.IntentData? getContentIntent();
+    method public String![]? getContentTypes();
+    method public androidx.recommendation.app.ContentRecommendation.IntentData? getDismissIntent();
+    method public String![]? getGenres();
+    method public String? getGroup();
+    method public String? getIdTag();
+    method public String? getMaturityRating();
+    method public android.app.Notification getNotificationObject(android.content.Context);
+    method public String? getPricingType();
+    method public String? getPricingValue();
+    method public String? getPrimaryContentType();
     method public int getProgressMax();
     method public int getProgressValue();
     method public long getRunningTime();
-    method public String! getSortKey();
-    method public String! getSourceName();
+    method public String? getSortKey();
+    method public String? getSourceName();
     method public int getStatus();
-    method public String! getText();
-    method public String! getTitle();
+    method public String? getText();
+    method public String? getTitle();
     method public boolean hasProgressInfo();
     method public boolean isAutoDismiss();
     method public void setAutoDismiss(boolean);
-    method public void setGroup(String!);
+    method public void setGroup(String?);
     method public void setProgress(int, int);
-    method public void setSortKey(String!);
+    method public void setSortKey(String?);
     method public void setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
     field public static final String CONTENT_MATURITY_ALL = "android.contentMaturity.all";
     field public static final String CONTENT_MATURITY_HIGH = "android.contentMaturity.high";
@@ -67,27 +67,27 @@ package androidx.recommendation.app {
 
   public static final class ContentRecommendation.Builder {
     ctor public ContentRecommendation.Builder();
-    method public androidx.recommendation.app.ContentRecommendation! build();
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setAutoDismiss(boolean);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setBackgroundImageUri(String?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setBadgeIcon(@DrawableRes int);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setColor(@ColorInt int);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setContentImage(android.graphics.Bitmap!);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setContentIntentData(@androidx.recommendation.app.ContentRecommendation.IntentType int, android.content.Intent!, int, android.os.Bundle?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setContentTypes(String![]!);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setDismissIntentData(@androidx.recommendation.app.ContentRecommendation.IntentType int, android.content.Intent?, int, android.os.Bundle?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setGenres(String![]!);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setGroup(String?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setIdTag(String!);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setMaturityRating(@androidx.recommendation.app.ContentRecommendation.ContentMaturity String!);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setPricingInformation(@androidx.recommendation.app.ContentRecommendation.ContentPricing String!, String?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setProgress(int, int);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setRunningTime(long);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setSortKey(String?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setSourceName(String?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setText(String?);
-    method public androidx.recommendation.app.ContentRecommendation.Builder! setTitle(String!);
+    method public androidx.recommendation.app.ContentRecommendation build();
+    method public androidx.recommendation.app.ContentRecommendation.Builder setAutoDismiss(boolean);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setBackgroundImageUri(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setBadgeIcon(@DrawableRes int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setColor(@ColorInt int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setContentImage(android.graphics.Bitmap);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setContentIntentData(@androidx.recommendation.app.ContentRecommendation.IntentType int, android.content.Intent, int, android.os.Bundle?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setContentTypes(String![]);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setDismissIntentData(@androidx.recommendation.app.ContentRecommendation.IntentType int, android.content.Intent?, int, android.os.Bundle?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setGenres(String![]?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setGroup(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setIdTag(String);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setMaturityRating(@androidx.recommendation.app.ContentRecommendation.ContentMaturity String);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setPricingInformation(@androidx.recommendation.app.ContentRecommendation.ContentPricing String, String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setProgress(int, int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setRunningTime(long);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setSortKey(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setSourceName(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setText(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder setTitle(String);
   }
 
   @StringDef({androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_ALL, androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_LOW, androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_MEDIUM, androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_HIGH}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentRecommendation.ContentMaturity {
@@ -111,22 +111,22 @@ package androidx.recommendation.app {
 
   public final class RecommendationExtender implements android.app.Notification.Extender {
     ctor public RecommendationExtender();
-    ctor public RecommendationExtender(android.app.Notification!);
+    ctor public RecommendationExtender(android.app.Notification);
     method public android.app.Notification.Builder! extend(android.app.Notification.Builder!);
-    method public String![]! getContentTypes();
-    method public String![]! getGenres();
-    method public String! getMaturityRating();
-    method public String! getPricingType();
-    method public String! getPricingValue();
-    method public String! getPrimaryContentType();
+    method public String![]? getContentTypes();
+    method public String![]? getGenres();
+    method public String? getMaturityRating();
+    method public String? getPricingType();
+    method public String? getPricingValue();
+    method public String? getPrimaryContentType();
     method public long getRunningTime();
     method public int getStatus();
-    method public androidx.recommendation.app.RecommendationExtender! setContentTypes(String![]!);
-    method public androidx.recommendation.app.RecommendationExtender! setGenres(String![]!);
-    method public androidx.recommendation.app.RecommendationExtender! setMaturityRating(@androidx.recommendation.app.ContentRecommendation.ContentMaturity String!);
-    method public androidx.recommendation.app.RecommendationExtender! setPricingInformation(@androidx.recommendation.app.ContentRecommendation.ContentPricing String!, String!);
-    method public androidx.recommendation.app.RecommendationExtender! setRunningTime(long);
-    method public androidx.recommendation.app.RecommendationExtender! setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
+    method public androidx.recommendation.app.RecommendationExtender setContentTypes(String![]?);
+    method public androidx.recommendation.app.RecommendationExtender setGenres(String![]?);
+    method public androidx.recommendation.app.RecommendationExtender setMaturityRating(@androidx.recommendation.app.ContentRecommendation.ContentMaturity String?);
+    method public androidx.recommendation.app.RecommendationExtender setPricingInformation(@androidx.recommendation.app.ContentRecommendation.ContentPricing String?, String?);
+    method public androidx.recommendation.app.RecommendationExtender setRunningTime(long);
+    method public androidx.recommendation.app.RecommendationExtender setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
   }
 
 }
