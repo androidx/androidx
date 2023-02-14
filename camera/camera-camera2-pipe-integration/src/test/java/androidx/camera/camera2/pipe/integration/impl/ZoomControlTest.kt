@@ -54,7 +54,7 @@ class ZoomControlTest {
         )
     }
 
-    private val zoomCompat = FakeZoomCompat()
+    private val zoomCompat = FakeZoomCompat(1.0f, 5.0f)
     private lateinit var zoomControl: ZoomControl
 
     @Before
