@@ -17,17 +17,17 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.HorizontalAlignmentLine
-import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -68,7 +68,7 @@ fun Modifier.paddingFrom(
     before: Dp = Dp.Unspecified,
     after: Dp = Dp.Unspecified
 ): Modifier = this.then(
-    AlignmentLineOffsetDp(
+    AlignmentLineOffsetDpElement(
         alignmentLine,
         before,
         after,
@@ -114,7 +114,7 @@ fun Modifier.paddingFrom(
     before: TextUnit = TextUnit.Unspecified,
     after: TextUnit = TextUnit.Unspecified
 ): Modifier = this.then(
-    AlignmentLineOffsetTextUnit(
+    AlignmentLineOffsetTextUnitElement(
         alignmentLine,
         before,
         after,
@@ -188,12 +188,12 @@ fun Modifier.paddingFromBaseline(
         if (!bottom.isUnspecified) Modifier.paddingFrom(LastBaseline, after = bottom) else Modifier
     )
 
-private class AlignmentLineOffsetDp(
+private class AlignmentLineOffsetDpElement(
     val alignmentLine: AlignmentLine,
     val before: Dp,
     val after: Dp,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<AlignmentLineOffsetDpNode>() {
     init {
         require(
             (before.value >= 0f || before == Dp.Unspecified) &&
@@ -203,11 +203,32 @@ private class AlignmentLineOffsetDp(
         }
     }
 
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        return alignmentLineOffsetMeasure(alignmentLine, before, after, measurable, constraints)
+    override fun create(): AlignmentLineOffsetDpNode {
+        return AlignmentLineOffsetDpNode(
+            alignmentLine,
+            before,
+            after
+        )
+    }
+
+    override fun update(node: AlignmentLineOffsetDpNode): AlignmentLineOffsetDpNode {
+        node.alignmentLine = alignmentLine
+        node.before = before
+        node.after = after
+        return node
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? AlignmentLineOffsetDpElement ?: return false
+
+        return alignmentLine == otherModifier.alignmentLine &&
+            before == otherModifier.before &&
+            after == otherModifier.after
     }
 
     override fun hashCode(): Int {
@@ -216,36 +237,33 @@ private class AlignmentLineOffsetDp(
         result = 31 * result + after.hashCode()
         return result
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        val otherModifier = other as? AlignmentLineOffsetDp ?: return false
-
-        return alignmentLine == otherModifier.alignmentLine &&
-            before == otherModifier.before &&
-            after == otherModifier.after
-    }
-
-    override fun toString(): String =
-        "AlignmentLineOffset(alignmentLine=$alignmentLine, before=$before, after=$after)"
 }
 
-private class AlignmentLineOffsetTextUnit(
-    val alignmentLine: AlignmentLine,
-    val before: TextUnit,
-    val after: TextUnit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+private class AlignmentLineOffsetDpNode(
+    var alignmentLine: AlignmentLine,
+    var before: Dp,
+    var after: Dp,
+) : LayoutModifierNode, Modifier.Node() {
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        return alignmentLineOffsetMeasure(
+        return alignmentLineOffsetMeasure(alignmentLine, before, after, measurable, constraints)
+    }
+}
+
+private class AlignmentLineOffsetTextUnitElement(
+    val alignmentLine: AlignmentLine,
+    val before: TextUnit,
+    val after: TextUnit,
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<AlignmentLineOffsetTextUnitNode>() {
+    override fun create(): AlignmentLineOffsetTextUnitNode {
+        return AlignmentLineOffsetTextUnitNode(
             alignmentLine,
-            if (!before.isUnspecified) before.toDp() else Dp.Unspecified,
-            if (!after.isUnspecified) after.toDp() else Dp.Unspecified,
-            measurable,
-            constraints
+            before,
+            after
         )
     }
 
@@ -258,15 +276,42 @@ private class AlignmentLineOffsetTextUnit(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherModifier = other as? AlignmentLineOffsetTextUnit ?: return false
+        val otherModifier = other as? AlignmentLineOffsetTextUnitElement ?: return false
 
         return alignmentLine == otherModifier.alignmentLine &&
             before == otherModifier.before &&
             after == otherModifier.after
     }
 
-    override fun toString(): String =
-        "AlignmentLineOffset(alignmentLine=$alignmentLine, before=$before, after=$after)"
+    override fun InspectorInfo.inspectableProperties() {
+        return inspectorInfo()
+    }
+
+    override fun update(node: AlignmentLineOffsetTextUnitNode): AlignmentLineOffsetTextUnitNode {
+        node.alignmentLine = alignmentLine
+        node.before = before
+        node.after = after
+        return node
+    }
+}
+
+private class AlignmentLineOffsetTextUnitNode(
+    var alignmentLine: AlignmentLine,
+    var before: TextUnit,
+    var after: TextUnit,
+) : LayoutModifierNode, Modifier.Node() {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        return alignmentLineOffsetMeasure(
+            alignmentLine,
+            if (!before.isUnspecified) before.toDp() else Dp.Unspecified,
+            if (!after.isUnspecified) after.toDp() else Dp.Unspecified,
+            measurable,
+            constraints
+        )
+    }
 }
 
 private fun MeasureScope.alignmentLineOffsetMeasure(
