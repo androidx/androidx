@@ -48,6 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -56,15 +61,11 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class RowColumnTest : LayoutTest() {
+
     @Before
     fun before() {
         isDebugInspectorInfoEnabled = true
@@ -5672,6 +5673,7 @@ class RowColumnTest : LayoutTest() {
             ValueElement("fill", false)
         )
     }
+
     @Test
     fun testColumn_AlignInspectableValue() {
         val modifier = with(ColumnScopeInstance) { Modifier.align(Alignment.Start) }
@@ -5701,9 +5703,7 @@ class RowColumnTest : LayoutTest() {
             ValueElement("fill", false)
         )
     }
-    // endregion
 }
-
 private val TestHorizontalLine = HorizontalAlignmentLine(::min)
 private val TestVerticalLine = VerticalAlignmentLine(::min)
 
