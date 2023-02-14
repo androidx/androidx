@@ -19,6 +19,7 @@ package androidx.wear.watchface.client
 import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.core.util.Consumer
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -26,7 +27,6 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.utility.AsyncTraceEvent
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
