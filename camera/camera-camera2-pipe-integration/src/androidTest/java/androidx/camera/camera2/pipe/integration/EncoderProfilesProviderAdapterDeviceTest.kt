@@ -184,13 +184,11 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
         assertThat(audioProxy.profile).isEqualTo(audio.profile)
     }
 
-    // TODO: removes after b/265613005 is fixed
     private fun skipTestOnProblematicBuildsOfCuttlefishApi33() {
         // Skip test for b/265613005
         Assume.assumeFalse(
             "Cuttlefish has null VideoProfile issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 33 &&
-                Build.ID.startsWith("TP1A")
+            Build.VERSION.SDK_INT == 33 && Build.ID.startsWith("TP1A")
         )
     }
 }
