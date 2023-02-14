@@ -856,7 +856,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     // animations won't be played and they would jump to the end value.
                     AnimatableDynamicInt32 dynamicNode = int32Source.getAnimatableDynamic();
                     DynamicAnimatedInt32Node animationNode =
-                            new DynamicAnimatedInt32Node(consumer, dynamicNode.getSpec(),
+                            new DynamicAnimatedInt32Node(consumer, dynamicNode.getAnimationSpec(),
                                     mAnimationQuotaManager);
                     node = animationNode;
 
@@ -1051,7 +1051,10 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     AnimatableDynamicFloat dynamicNode = floatSource.getAnimatableDynamic();
                     DynamicAnimatedFloatNode animationNode =
                             new DynamicAnimatedFloatNode(
-                                    consumer, dynamicNode.getSpec(), mAnimationQuotaManager);
+                                    consumer,
+                                    dynamicNode.getAnimationSpec(),
+                                    mAnimationQuotaManager
+                            );
                     node = animationNode;
 
                     bindRecursively(
@@ -1132,7 +1135,10 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     AnimatableDynamicColor dynamicNode = colorSource.getAnimatableDynamic();
                     DynamicAnimatedColorNode animationNode =
                             new DynamicAnimatedColorNode(
-                                    consumer, dynamicNode.getSpec(), mAnimationQuotaManager);
+                                    consumer,
+                                    dynamicNode.getAnimationSpec(),
+                                    mAnimationQuotaManager
+                            );
                     node = animationNode;
 
                     bindRecursively(

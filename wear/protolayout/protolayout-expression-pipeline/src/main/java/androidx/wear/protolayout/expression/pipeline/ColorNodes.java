@@ -101,7 +101,7 @@ class ColorNodes {
                     ValueAnimator.ofArgb(mProtoNode.getFromArgb(), mProtoNode.getToArgb());
             animator.addUpdateListener(a -> mDownstream.onData((Integer) a.getAnimatedValue()));
 
-            applyAnimationSpecToAnimator(animator, mProtoNode.getSpec());
+            applyAnimationSpecToAnimator(animator, mProtoNode.getAnimationSpec());
 
             mQuotaAwareAnimator.updateAnimator(animator);
             startOrSkipAnimator();

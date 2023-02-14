@@ -272,7 +272,7 @@ class Int32Nodes {
         public void init() {
             ValueAnimator animator =
                     ValueAnimator.ofInt(mProtoNode.getFromValue(), mProtoNode.getToValue());
-            applyAnimationSpecToAnimator(animator, mProtoNode.getSpec());
+            applyAnimationSpecToAnimator(animator, mProtoNode.getAnimationSpec());
             animator.addUpdateListener(a -> mDownstream.onData((Integer) a.getAnimatedValue()));
             mQuotaAwareAnimator.updateAnimator(animator);
             startOrSkipAnimator();
