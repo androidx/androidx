@@ -164,7 +164,7 @@ internal data class InternalWorkState(
 
 internal fun isRunnable(spec: WorkSpec, state: InternalWorkState): Boolean {
     val constraints = !spec.hasConstraints() || state.constraintsMet
-    val initialDelay = (spec.initialDelay == 0L) || state.initialDelayMet
+    val initialDelay = spec.initialDelay == 0L || state.initialDelayMet || !spec.isFirstPeriodicRun
     val periodic = if (spec.isPeriodic) (state.periodDelayMet || spec.isFirstPeriodicRun) else true
     return state.isScheduled && constraints && periodic && initialDelay
 }
