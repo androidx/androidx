@@ -31,7 +31,6 @@ import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
-import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
@@ -203,9 +202,9 @@ class PreviewTest {
     }
 
     @Test
-    fun defaultMirrorModeIsOff() {
+    fun defaultMirrorModeIsFrontOn() {
         val preview = Preview.Builder().build()
-        assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+        assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_FRONT_ON)
     }
 
     @Test(expected = UnsupportedOperationException::class)

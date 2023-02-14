@@ -45,6 +45,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraFactory
@@ -64,6 +65,7 @@ import androidx.camera.core.impl.utils.TransformUtils.within360
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
@@ -100,6 +102,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.Collections
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -141,6 +144,8 @@ class VideoCaptureTest {
     @Before
     fun setup() {
         ShadowLog.stream = System.out
+
+        DefaultSurfaceProcessor.Factory.setSupplier { createFakeSurfaceProcessor() }
     }
 
     @After
@@ -283,7 +288,7 @@ class VideoCaptureTest {
         // Arrange: create videoCapture.
         setupCamera()
         createCameraUseCaseAdapter()
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        val processor = createFakeSurfaceProcessor()
         val effect = createFakeEffect(processor)
         val videoCapture = createVideoCapture(createVideoOutput())
         cameraUseCaseAdapter.setEffects(listOf(effect))
@@ -736,9 +741,38 @@ class VideoCaptureTest {
         assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_OFF)
     }
 
-    @Test(expected = UnsupportedOperationException::class)
-    fun setMirrorMode_throwException() {
-        createVideoCapture(mirrorMode = MIRROR_MODE_FRONT_ON)
+    @Test
+    fun canGetSetMirrorMode() {
+        val videoCapture = createVideoCapture(mirrorMode = MIRROR_MODE_FRONT_ON)
+        assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_FRONT_ON)
+    }
+
+    @Test
+    fun setMirrorMode_nodeIsNeeded() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+
+        // Act.
+        val videoCapture = createVideoCapture(mirrorMode = MIRROR_MODE_ON)
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        assertThat(videoCapture.node).isNotNull()
+    }
+
+    @Test
+    fun setMirrorMode_noCameraTransform_nodeIsNotNeeded() {
+        // Arrange.
+        setupCamera(hasTransform = false)
+        createCameraUseCaseAdapter()
+
+        // Act.
+        val videoCapture = createVideoCapture(mirrorMode = MIRROR_MODE_ON)
+        addAndAttachUseCases(videoCapture)
+
+        // Assert: the input stream should already be mirrored.
+        assertThat(videoCapture.node).isNull()
     }
 
     @Test
@@ -844,6 +878,37 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun setTargetRotation_backCameraInitial0MirrorOn_transformationInfoUpdated() {
+        testSetTargetRotation_transformationInfoUpdated(
+            lensFacing = LENS_FACING_BACK,
+            sensorRotationDegrees = 90,
+            initialTargetRotation = Surface.ROTATION_0,
+            mirrorMode = MIRROR_MODE_ON
+        )
+    }
+
+    @Test
+    fun setTargetRotation_backCameraInitial0NoCameraTransform_transformationInfoUpdated() {
+        testSetTargetRotation_transformationInfoUpdated(
+            lensFacing = LENS_FACING_BACK,
+            sensorRotationDegrees = 90,
+            hasCameraTransform = false,
+            initialTargetRotation = Surface.ROTATION_0,
+        )
+    }
+
+    @Test
+    fun setTargetRotation_backCameraInitial0NoCameraTransformMirrorOn_transformationInfoUpdated() {
+        testSetTargetRotation_transformationInfoUpdated(
+            lensFacing = LENS_FACING_BACK,
+            sensorRotationDegrees = 90,
+            hasCameraTransform = false,
+            initialTargetRotation = Surface.ROTATION_0,
+            mirrorMode = MIRROR_MODE_ON,
+        )
+    }
+
+    @Test
     fun setTargetRotation_backCameraInitial90_transformationInfoUpdated() {
         testSetTargetRotation_transformationInfoUpdated(
             lensFacing = LENS_FACING_BACK,
@@ -858,6 +923,16 @@ class VideoCaptureTest {
             lensFacing = LENS_FACING_FRONT,
             sensorRotationDegrees = 270,
             initialTargetRotation = Surface.ROTATION_0,
+        )
+    }
+
+    @Test
+    fun setTargetRotation_frontCameraInitial0MirrorOn_transformationInfoUpdated() {
+        testSetTargetRotation_transformationInfoUpdated(
+            lensFacing = LENS_FACING_FRONT,
+            sensorRotationDegrees = 270,
+            initialTargetRotation = Surface.ROTATION_0,
+            mirrorMode = MIRROR_MODE_ON
         )
     }
 
@@ -913,11 +988,17 @@ class VideoCaptureTest {
     private fun testSetTargetRotation_transformationInfoUpdated(
         lensFacing: Int = LENS_FACING_BACK,
         sensorRotationDegrees: Int = 0,
+        hasCameraTransform: Boolean = true,
         effect: CameraEffect? = null,
         initialTargetRotation: Int = Surface.ROTATION_0,
+        mirrorMode: Int? = null,
     ) {
         // Arrange.
-        setupCamera(lensFacing = lensFacing, sensorRotation = sensorRotationDegrees)
+        setupCamera(
+            lensFacing = lensFacing,
+            sensorRotation = sensorRotationDegrees,
+            hasTransform = hasCameraTransform,
+        )
         createCameraUseCaseAdapter(lensFacing = lensFacing)
         var transformationInfo: SurfaceRequest.TransformationInfo? = null
         val videoOutput = createVideoOutput(
@@ -929,7 +1010,12 @@ class VideoCaptureTest {
                 }
             }
         )
-        val videoCapture = createVideoCapture(videoOutput, targetRotation = initialTargetRotation)
+        val videoCapture = createVideoCapture(
+            videoOutput,
+            targetRotation = initialTargetRotation,
+            mirrorMode = mirrorMode
+        )
+        val requireMirroring = videoCapture.isMirroringRequired(camera)
 
         // Act.
         effect?.apply { cameraUseCaseAdapter.setEffects(listOf(this)) }
@@ -939,8 +1025,8 @@ class VideoCaptureTest {
         // Assert.
         var videoContentDegrees: Int
         var metadataDegrees: Int
-        cameraInfo.getSensorRotationDegrees(initialTargetRotation).let {
-            if (effect != null) {
+        cameraInfo.getRelativeRotation(initialTargetRotation, requireMirroring).let {
+            if (videoCapture.node != null) {
                 // If effect is enabled, the rotation is applied on video content but not metadata.
                 videoContentDegrees = it
                 metadataDegrees = 0
@@ -962,8 +1048,8 @@ class VideoCaptureTest {
             shadowOf(Looper.getMainLooper()).idle()
 
             // Assert.
-            val requiredDegrees = cameraInfo.getSensorRotationDegrees(targetRotation)
-            val expectedDegrees = if (effect != null) {
+            val requiredDegrees = cameraInfo.getRelativeRotation(targetRotation, requireMirroring)
+            val expectedDegrees = if (videoCapture.node != null) {
                 // If effect is enabled, the rotation should eliminate the video content rotation.
                 within360(requiredDegrees - videoContentDegrees)
             } else {
@@ -974,6 +1060,7 @@ class VideoCaptureTest {
                 ", initialTargetRotation = $initialTargetRotation" +
                 ", targetRotation = ${surfaceRotationToDegrees(targetRotation)}" +
                 ", effect = ${effect != null}" +
+                ", requireMirroring = $requireMirroring" +
                 ", videoContentDegrees = $videoContentDegrees" +
                 ", metadataDegrees = $metadataDegrees" +
                 ", requiredDegrees = $requiredDegrees" +
@@ -989,10 +1076,7 @@ class VideoCaptureTest {
         // Arrange.
         setupCamera()
         createCameraUseCaseAdapter()
-        val processor = FakeSurfaceProcessorInternal(
-            mainThreadExecutor(),
-            false
-        )
+        val processor = createFakeSurfaceProcessor(autoCloseSurfaceOutput = false)
         var appSurfaceReadyToRelease = false
         val videoOutput = createVideoOutput(surfaceRequestListener = { surfaceRequest, _ ->
             surfaceRequest.provideSurface(
@@ -1252,14 +1336,16 @@ class VideoCaptureTest {
         }.build()
 
     private fun createFakeEffect(
-        processor: FakeSurfaceProcessorInternal = FakeSurfaceProcessorInternal(
-            mainThreadExecutor()
-        )
-    ) =
-        FakeSurfaceEffect(
-            VIDEO_CAPTURE,
-            processor
-        )
+        processor: FakeSurfaceProcessorInternal = createFakeSurfaceProcessor()
+    ) = FakeSurfaceEffect(
+        VIDEO_CAPTURE,
+        processor
+    )
+
+    private fun createFakeSurfaceProcessor(
+        executor: Executor = mainThreadExecutor(),
+        autoCloseSurfaceOutput: Boolean = true
+    ) = FakeSurfaceProcessorInternal(executor, autoCloseSurfaceOutput)
 
     private fun createBackgroundHandler(): Handler {
         val handler = Handler(HandlerThread("VideoCaptureTest").run {
@@ -1316,6 +1402,15 @@ class VideoCaptureTest {
             .setDeviceSurfaceManagerProvider { _, _, _ -> surfaceManager }
             .build()
         CameraXUtil.initialize(context, cameraXConfig).get()
+    }
+
+    private fun CameraInfoInternal.getRelativeRotation(
+        targetRotation: Int,
+        requireMirroring: Boolean
+    ) = getSensorRotationDegrees(targetRotation).let {
+        if (requireMirroring) {
+            within360(-it)
+        } else it
     }
 
     companion object {
