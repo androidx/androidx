@@ -17,6 +17,8 @@
 package androidx.mediarouter.media;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.IntentFilter;
@@ -28,7 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Test for {@link MediaRouteDescriptor}.
@@ -43,6 +47,7 @@ public class MediaRouteDescriptorTest {
     private static final String FAKE_MEDIA_ROUTE_ID_4 = "fakeMediaRouteId4";
     private static final String FAKE_CONTROL_ACTION_1 = "fakeControlAction1";
     private static final String FAKE_CONTROL_ACTION_2 = "fakeControlAction2";
+    private static final String FAKE_PACKAGE_NAME = "com.sample.example";
 
     @Test
     @SmallTest
@@ -101,5 +106,44 @@ public class MediaRouteDescriptorTest {
                 .build();
         final List<IntentFilter> controlFilters2 = routeDescriptor.getControlFilters();
         assertTrue(controlFilters2.isEmpty());
+    }
+
+    @Test
+    @SmallTest
+    public void testDefaultVisibilityIsPublic() {
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                .build();
+
+        assertFalse(routeDescriptor.isVisibilityRestricted());
+    }
+
+    @Test
+    @SmallTest
+    public void testIsVisibilityRestricted() {
+        Set<String> allowedPackages = new HashSet<>();
+        allowedPackages.add(FAKE_PACKAGE_NAME);
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                .setVisibilityRestricted(allowedPackages)
+                .build();
+
+        assertTrue(routeDescriptor.isVisibilityRestricted());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetAllowedPackagesReturnsNewInstance() {
+        Set<String> sampleAllowedPackages = new HashSet<>();
+        sampleAllowedPackages.add(FAKE_PACKAGE_NAME);
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                .setVisibilityRestricted(sampleAllowedPackages)
+                .build();
+
+        Set<String> allowedPackages = routeDescriptor.getAllowedPackages();
+
+        assertEquals(sampleAllowedPackages, allowedPackages);
+        assertNotSame(sampleAllowedPackages, allowedPackages);
     }
 }
