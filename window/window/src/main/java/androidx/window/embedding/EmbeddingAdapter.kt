@@ -50,17 +50,7 @@ import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
-import kotlin.Any
-import kotlin.Float
-import kotlin.IllegalArgumentException
-import kotlin.IllegalStateException
-import kotlin.Int
 import kotlin.Pair
-import kotlin.Suppress
-import kotlin.apply
-import kotlin.arrayOf
-import kotlin.let
-import kotlin.require
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
@@ -113,7 +103,9 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor)
+            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.buildFromValue(
+                splitAttributes.animationBackgroundColor)
+            )
             .build()
 
     private fun translate(splitType: OEMSplitType): SplitType =
@@ -228,7 +220,7 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor)
+            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor.value)
             .build()
     }
 

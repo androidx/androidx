@@ -59,7 +59,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitEqually())
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                .setAnimationBackgroundColor(0)
+                .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
                 .build()
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
@@ -134,7 +134,7 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.splitByHinge(SplitType.ratio(0.3f)))
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(Color.YELLOW)
+                .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.YELLOW))
                 .build()
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
@@ -143,7 +143,7 @@ class EmbeddingAdapterTest {
     private fun createTestOEMSplitInfo(
         testPrimaryActivityStack: OEMActivityStack,
         testSecondaryActivityStack: OEMActivityStack,
-        testSplitAttributes: OEMSplitAttributes
+        testSplitAttributes: OEMSplitAttributes,
     ): OEMSplitInfo {
         return mock<OEMSplitInfo>().apply {
             whenever(primaryActivityStack).thenReturn(testPrimaryActivityStack)
@@ -156,7 +156,7 @@ class EmbeddingAdapterTest {
 
     private fun createTestOEMActivityStack(
         testActivities: List<Activity>,
-        testIsEmpty: Boolean
+        testIsEmpty: Boolean,
     ): OEMActivityStack {
         return mock<OEMActivityStack>().apply {
             whenever(activities).thenReturn(testActivities)

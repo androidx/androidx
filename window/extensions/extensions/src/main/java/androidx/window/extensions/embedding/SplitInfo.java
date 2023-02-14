@@ -24,6 +24,7 @@ import java.util.Objects;
 
 /** Describes a split of two containers with activities. */
 public class SplitInfo {
+
     @NonNull
     private final ActivityStack mPrimaryActivityStack;
     @NonNull

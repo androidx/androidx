@@ -111,7 +111,13 @@ internal class EmbeddingCompat constructor(
 
         fun isEmbeddingAvailable(): Boolean {
             return try {
-                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent != null
+                EmbeddingCompat::class.java.classLoader?.let { loader ->
+                    SafeActivityEmbeddingComponentProvider(
+                        loader,
+                        ConsumerAdapter(loader),
+                        WindowExtensionsProvider.getWindowExtensions(),
+                    ).activityEmbeddingComponent != null
+                } ?: false
             } catch (e: NoClassDefFoundError) {
                 if (DEBUG) {
                     Log.d(TAG, "Embedding extension version not found")
@@ -127,17 +133,23 @@ internal class EmbeddingCompat constructor(
 
         fun embeddingComponent(): ActivityEmbeddingComponent {
             return if (isEmbeddingAvailable()) {
-                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent
-                    ?: Proxy.newProxyInstance(
-                        EmbeddingCompat::class.java.classLoader,
-                        arrayOf(ActivityEmbeddingComponent::class.java)
-                    ) { _, _, _ -> } as ActivityEmbeddingComponent
+                EmbeddingCompat::class.java.classLoader?.let { loader ->
+                    SafeActivityEmbeddingComponentProvider(
+                        loader,
+                        ConsumerAdapter(loader),
+                        WindowExtensionsProvider.getWindowExtensions(),
+                    ).activityEmbeddingComponent
+                } ?: emptyActivityEmbeddingProxy()
             } else {
-                Proxy.newProxyInstance(
-                    EmbeddingCompat::class.java.classLoader,
-                    arrayOf(ActivityEmbeddingComponent::class.java)
-                ) { _, _, _ -> } as ActivityEmbeddingComponent
+                emptyActivityEmbeddingProxy()
             }
+        }
+
+        private fun emptyActivityEmbeddingProxy(): ActivityEmbeddingComponent {
+            return Proxy.newProxyInstance(
+                EmbeddingCompat::class.java.classLoader,
+                arrayOf(ActivityEmbeddingComponent::class.java)
+            ) { _, _, _ -> } as ActivityEmbeddingComponent
         }
     }
 }
