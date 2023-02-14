@@ -27,8 +27,10 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
@@ -45,6 +47,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -151,6 +155,33 @@ public class DynamicTypeEvaluatorTest {
                 test(DynamicInt32.constant(10).gte(11), false),
                 test(DynamicInt32.constant(10).gte(10), true),
                 test(DynamicInt32.constant(10).gte(5), true),
+                // Instant maximum value
+                test(DynamicInstant.withSecondsPrecision(Instant.MAX),
+                    Instant.MAX.truncatedTo(ChronoUnit.SECONDS)),
+                // Duration Int overflow
+                test(
+                    DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+                        .durationUntil(DynamicInstant.withSecondsPrecision(Instant.MAX))
+                        .toIntSeconds(),
+                    (int) Instant.MAX.getEpochSecond()),
+                // Positive duration
+                test(durationOfSeconds(123456L).toIntDays(), 1),
+                test(durationOfSeconds(123456L).toIntHours(), 34),
+                test(durationOfSeconds(123456L).toIntMinutes(), 2057),
+                test(durationOfSeconds(123456L).toIntSeconds(), 123456),
+                test(durationOfSeconds(123456L).getIntDaysPart(), 1),
+                test(durationOfSeconds(123456L).getHoursPart(), 10),
+                test(durationOfSeconds(123456L).getMinutesPart(), 17),
+                test(durationOfSeconds(123456L).getSecondsPart(), 36),
+                // Negative duration
+                test(durationOfSeconds(-123456L).toIntDays(), -1),
+                test(durationOfSeconds(-123456L).toIntHours(), -34),
+                test(durationOfSeconds(-123456L).toIntMinutes(), -2057),
+                test(durationOfSeconds(-123456L).toIntSeconds(), -123456),
+                test(durationOfSeconds(-123456L).getIntDaysPart(), 1),
+                test(durationOfSeconds(-123456L).getHoursPart(), 10),
+                test(durationOfSeconds(-123456L).getMinutesPart(), 17),
+                test(durationOfSeconds(-123456L).getSecondsPart(), 36),
                 test(
                         DynamicString.onCondition(DynamicBool.constant(true))
                                 .use(constant("Hello"))
@@ -271,6 +302,17 @@ public class DynamicTypeEvaluatorTest {
                 expectedValue);
     }
 
+    private static DynamicTypeEvaluatorTest.TestCase<Instant> test(
+        DynamicInstant bindUnderTest, Instant instant) {
+      return new DynamicTypeEvaluatorTest.TestCase<>(
+          bindUnderTest.toDynamicInstantProto().toString(),
+          (evaluator, cb) -> {
+            evaluator.bind(bindUnderTest, cb);
+            evaluator.processPendingBindings();
+          },
+          instant);
+    }
+
     private static DynamicTypeEvaluatorTest.TestCase<Float> test(
             DynamicFloat bindUnderTest, Float expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
@@ -339,6 +381,12 @@ public class DynamicTypeEvaluatorTest {
         public String toString() {
             return mName + " = " + mExpectedValue;
         }
+    }
+
+    private static DynamicDuration durationOfSeconds(long seconds) {
+      Instant now = Instant.now();
+      return DynamicInstant.withSecondsPrecision(now)
+          .durationUntil(DynamicInstant.withSecondsPrecision(now.plusSeconds(seconds)));
     }
 
     private static ImmutableMap<String, StateEntryValue> generateExampleState() {

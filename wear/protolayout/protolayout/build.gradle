@@ -41,7 +41,7 @@ android {
     namespace "androidx.wear.protolayout"
 
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
