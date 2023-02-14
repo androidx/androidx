@@ -26,6 +26,17 @@ import kotlin.reflect.KClass
  */
 internal object ReflectionUtils {
 
+    internal fun checkIsPresent(classLoader: () -> Class<*>): Boolean {
+        return try {
+            classLoader()
+            true
+        } catch (noClass: ClassNotFoundException) {
+            false
+        } catch (noDefinition: NoClassDefFoundError) {
+            false
+        }
+    }
+
     /**
      * Validates the code block normally for reflection. If there are [ClassNotFoundException]
      * or [NoSuchMethodException] thrown, validation will fail.
