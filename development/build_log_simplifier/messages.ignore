@@ -17,6 +17,7 @@ Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Calculating task graph as configuration cache cannot be reused because an input to ClasspathEntrySnapshotTransform\: \$OUT_DIR\/buildSrc\/jetpad\-integration\/build\/libs\/jetpad\-integration\.jar has changed\.
 Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed\.
 You are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=true type, this cache has been turned down, so you are \*not\* using a remote cache\. Please move to the new cache using http://go/androidx\-dev\#remote\-build\-cache
 Configuration cache is an incubating feature\.
@@ -74,10 +75,11 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 Html results of .* zipped into.*\.zip
 # b/230127926
 [0-9]+ problem.* found storing the configuration cache.*
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html\#config_cache:requirements:task_access
 plus [0-9]+ more problems\. Please see the report for details\.
 # https://youtrack.jetbrains.com/issue/KT-43293 fixed in Kotlin 1.8.0
 \- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains(\.[a-zA-Z]+)+\.(CInteropCommonizerTask|KotlinNativeCompile|KotlinNativeLink|KotlinNativeHostTest|CInteropMetadataDependencyTransformationTask|GenerateProjectStructureMetadata|TransformKotlinGranularMetadata|NativeDistributionCommonizerTask|transformNonJvmMainDependenciesMetadata|MetadataDependencyTransformationTask)\`\: invocation of \'Task\.project\' at execution time is unsupported\.
-\- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains\.kotlin\.gradle\.targets\.native\.internal\.(CInteropMetadataDependencyTransformationTask|NativeDistributionCommonizerTask)\`: cannot serialize object of type \'org\.gradle(\.[a-zA-Z]+)+\'\, a subtype of \'org\.gradle(\.[a-zA-Z]+)+\'\, as these are not supported with the configuration cache\.
+\- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains(\.[a-zA-Z]+)+\.(CInteropMetadataDependencyTransformationTask|NativeDistributionCommonizerTask)\`: cannot serialize object of type \'org\.gradle(\.[a-zA-Z]+)+\'\, a subtype of \'org\.gradle(\.[a-zA-Z]+)+\'\, as these are not supported with the configuration cache\.
 # https://youtrack.jetbrains.com/issue/KT-54627
 \- Task \`\:commonizeNativeDistribution\` of type \`org\.jetbrains\.kotlin\.gradle\.targets\.native\.internal\.NativeDistributionCommonizerTask\`\: error writing value of type \'java\.util\.concurrent\.locks\.ReentrantLock\'
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
@@ -953,6 +955,8 @@ w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/A
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
+Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ s [0-9]+ ms
+Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ ms
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
 Extracting dependency: .*\.konan/cache.*
 # New memory model does not work with compiler caches yet:

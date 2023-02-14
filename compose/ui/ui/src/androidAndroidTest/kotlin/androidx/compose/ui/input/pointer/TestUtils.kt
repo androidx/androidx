@@ -36,6 +36,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputEventData(
     id: Int,
     uptime: Long,
