@@ -168,6 +168,23 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun setTargetRotationDegrees() {
+        val imageCapture = ImageCapture.Builder().build()
+        imageCapture.setTargetRotationDegrees(45)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_270)
+        imageCapture.setTargetRotationDegrees(135)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+        imageCapture.setTargetRotationDegrees(225)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_90)
+        imageCapture.setTargetRotationDegrees(315)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_0)
+        imageCapture.setTargetRotationDegrees(405)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_270)
+        imageCapture.setTargetRotationDegrees(-45)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_0)
+    }
+
+    @Test
     fun defaultMirrorModeIsOff() {
         val imageCapture = ImageCapture.Builder().build()
         assertThat(imageCapture.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
