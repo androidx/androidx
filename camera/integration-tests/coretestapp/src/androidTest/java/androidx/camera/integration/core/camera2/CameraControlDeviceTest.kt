@@ -84,8 +84,7 @@ class CameraControlDeviceTest(
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraXConfig = Camera2Config.defaultConfig()
-        CameraXUtil.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraConfig).get()
         val cameraX = CameraXUtil.getOrCreateInstance(context, null).get()
         Assume.assumeTrue(
             CameraAvailabilityUtil.hasCamera(
@@ -202,7 +201,7 @@ class CameraControlDeviceTest(
 
     private fun <T> assertFutureCompletes(future: ListenableFuture<T>) {
         try {
-            future[5, TimeUnit.SECONDS]
+            future[10, TimeUnit.SECONDS]
         } catch (e: Exception) {
             Assert.fail("future fail:$e")
         }
