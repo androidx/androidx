@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
@@ -52,8 +53,6 @@ import androidx.lifecycle.LiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
-internal val defaultQuirks = Quirks(emptyList())
-
 /**
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
  */
@@ -67,9 +66,10 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val cameraCallbackMap: CameraCallbackMap,
-    private val focusMeteringControl: FocusMeteringControl
+    private val focusMeteringControl: FocusMeteringControl,
+    private val cameraQuirks: CameraQuirks,
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
 ) : CameraInfoInternal {
-    private lateinit var encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
         Camera2CameraInfo.create(cameraProperties)
@@ -129,9 +129,6 @@ class CameraInfoAdapter @Inject constructor(
     override fun getImplementationType(): String = "CameraPipe"
 
     override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
-        if (!::encoderProfilesProviderAdapter.isInitialized) {
-            encoderProfilesProviderAdapter = EncoderProfilesProviderAdapter(cameraId)
-        }
         return encoderProfilesProviderAdapter
     }
 
@@ -174,8 +171,7 @@ class CameraInfoAdapter @Inject constructor(
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {
-        Log.warn { "TODO: Quirks are not yet supported." }
-        return defaultQuirks
+        return cameraQuirks.quirks
     }
 
     override fun isFocusMeteringSupported(action: FocusMeteringAction) =
