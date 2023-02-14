@@ -21,15 +21,24 @@
 package androidx.camera.camera2.pipe.config
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraBackend
+import androidx.camera.camera2.pipe.CameraBackendId
+import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.RequestProcessor
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.ExternalCameraController
 import androidx.camera.camera2.pipe.graph.GraphListener
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 @CameraGraphScope
 @Subcomponent(modules = [SharedCameraGraphModules::class, ExternalCameraGraphConfigModule::class])
@@ -49,6 +58,45 @@ internal class ExternalCameraGraphConfigModule(
     private val cameraMetadata: CameraMetadata,
     private val requestProcessor: RequestProcessor
 ) {
+    private val externalCameraBackend = object : CameraBackend {
+        override val id: CameraBackendId
+            get() = CameraBackendId("External")
+        override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
+            get() = MutableSharedFlow()
+
+        override suspend fun getCameraIds(): List<CameraId>? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun awaitCameraIds(): List<CameraId>? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnectAllAsync(): Deferred<Unit> {
+            throwUnsupportedOperationException()
+        }
+
+        override fun shutdownAsync(): Deferred<Unit> {
+            throwUnsupportedOperationException()
+        }
+
+        override fun createCameraController(
+            cameraContext: CameraContext,
+            graphConfig: CameraGraph.Config,
+            graphListener: GraphListener,
+            streamGraph: StreamGraph
+        ): CameraController {
+            throwUnsupportedOperationException()
+        }
+
+        private fun throwUnsupportedOperationException(): Nothing =
+            throw UnsupportedOperationException("External CameraPipe should not use backends")
+    }
+
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 
@@ -59,4 +107,8 @@ internal class ExternalCameraGraphConfigModule(
     @Provides
     fun provideGraphController(graphListener: GraphListener): CameraController =
         ExternalCameraController(config, graphListener, requestProcessor)
+
+    @CameraGraphScope
+    @Provides
+    fun provideCameraBackend(): CameraBackend = externalCameraBackend
 }

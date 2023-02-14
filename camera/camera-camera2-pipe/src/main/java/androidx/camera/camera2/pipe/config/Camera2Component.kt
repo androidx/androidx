@@ -20,11 +20,13 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.Camera2Backend
 import androidx.camera.camera2.pipe.compat.Camera2CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
 import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
+import androidx.camera.camera2.pipe.compat.Camera2CameraStatusMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
@@ -62,6 +64,11 @@ internal abstract class Camera2Module {
     abstract fun bindCameraAvailabilityMonitor(
         camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
     ): CameraAvailabilityMonitor
+
+    @Binds
+    abstract fun bindCameraStatusMonitor(
+        camera2CameraStatusMonitor: Camera2CameraStatusMonitor
+    ): CameraStatusMonitor
 }
 
 @Scope

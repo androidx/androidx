@@ -41,11 +41,9 @@ import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.activity.Camera2TestActivity
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
-import androidx.camera.testing.waitForIdle
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.IdlingResource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -149,8 +147,15 @@ class UseCaseSurfaceManagerDeviceTest {
         assertThat(cameraClosedUsageCount).isEqualTo(1)
     }
 
+    /**
+     * This test launches another (test) Activity with the intention of taking away camera from the
+     * test itself. On Android T and above, we listen to onCameraAccessPrioritiesChanged() and
+     * retries opening the camera when the camera is disconnected. That means the test activity will
+     * no longer deterministically get the final camera access on Android T and above. As such, we
+     * set the maximum SDK version to S_V2.
+     */
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M, maxSdkVersion = Build.VERSION_CODES.S_V2)
     fun disconnectOpenedCameraGraph_deferrableSurfaceUsageCountTest() = runBlocking {
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
@@ -194,9 +199,13 @@ class UseCaseSurfaceManagerDeviceTest {
                 putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId)
             }
         ).use {
-            lateinit var previewReady: IdlingResource
-            it.onActivity { activity -> previewReady = activity.mPreviewReady!! }
-            previewReady.waitForIdle()
+            // TODO(b/268768235): Under some conditions, it is possible that the camera gets
+            //  disconnected for both the foreground and test activity, before the preview has a
+            //  chance to be ready. Fix it with follow-up changes to change this test by using a
+            //  CameraGraphSimulator rather than a real CameraGraph.
+            // lateinit var previewReady: IdlingResource
+            // it.onActivity { activity -> previewReady = activity.mPreviewReady!! }
+            // previewReady.waitForIdle()
 
             cameraDisconnectedUsageCount = testSessionParameters.deferrableSurface.useCount
         }
