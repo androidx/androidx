@@ -37,6 +37,8 @@ import androidx.credentials.GetPasswordOption
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility.Companion.convertToPlayAuthPasskeyRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 
 /**
  * A utility class to handle logic for the begin sign in controller.
@@ -65,12 +67,32 @@ class BeginSignInControllerUtility {
                     )
                     isPublicKeyCredReqFound = true
                     // TODO("Confirm logic for single vs multiple options of the same type")
+                } else if (option is GetGoogleIdOption) {
+                    requestBuilder.setGoogleIdTokenRequestOptions(
+                        convertToGoogleIdTokenOption(option))
                 }
-            // TODO("Add GoogleIDToken version")
             }
             return requestBuilder
                 .setAutoSelectEnabled(request.isAutoSelectAllowed)
                 .build()
+        }
+
+        private fun convertToGoogleIdTokenOption(option: GetGoogleIdOption):
+          GoogleIdTokenRequestOptions {
+            var idTokenOption =
+                GoogleIdTokenRequestOptions.builder()
+                    .setFilterByAuthorizedAccounts(option.filterByAuthorizedAccounts)
+                    .setNonce(option.nonce)
+                    .setRequestVerifiedPhoneNumber(option.requestVerifiedPhoneNumber)
+                    .setServerClientId(option.serverClientId)
+                    .setSupported(true)
+            if (option.linkedServiceId != null) {
+                idTokenOption.associateLinkedAccounts(
+                    option.linkedServiceId!!,
+                    option.idTokenDepositionScopes
+                )
+            }
+            return idTokenOption.build()
         }
     }
 }

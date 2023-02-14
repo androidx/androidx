@@ -25,6 +25,7 @@ import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProvi
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,6 +74,46 @@ class CredentialProviderBeginSignInControllerTest {
                 actualResponse.passwordRequestOptions.isSupported
             ).isTrue()
             assertThat(actualResponse.isAutoSelectEnabled).isTrue()
+        }
+    }
+
+    @Test
+    fun convertRequestToPlayServices_setGoogleIdOptionRequest_success() {
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+
+        val option = GetGoogleIdOption.Builder()
+            .setServerClientId("server_client_id")
+            .setNonce("nonce")
+            .setFilterByAuthorizedAccounts(true)
+            .setRequestVerifiedPhoneNumber(false)
+            .associatedLinkedAccounts("link_service_id", listOf("a", "b", "c"))
+            .build()
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualRequest = getInstance(activity!!)
+                .convertRequestToPlayServices(
+                    GetCredentialRequest(
+                        listOf(
+                            option
+                        ), true
+                    )
+                )
+            assertThat(
+                actualRequest.googleIdTokenRequestOptions.isSupported
+            ).isTrue()
+            assertThat(actualRequest.isAutoSelectEnabled).isTrue()
+            val actualOption = actualRequest.googleIdTokenRequestOptions
+            assertThat(actualOption.serverClientId).isEqualTo(option.serverClientId)
+            assertThat(actualOption.nonce).isEqualTo(option.nonce)
+            assertThat(actualOption.filterByAuthorizedAccounts())
+                .isEqualTo(option.filterByAuthorizedAccounts)
+            assertThat(actualOption.requestVerifiedPhoneNumber())
+                .isEqualTo(option.requestVerifiedPhoneNumber)
+            assertThat(actualOption.linkedServiceId).isEqualTo(option.linkedServiceId)
+            assertThat(actualOption.idTokenDepositionScopes)
+                .isEqualTo(option.idTokenDepositionScopes)
         }
     }
 }
