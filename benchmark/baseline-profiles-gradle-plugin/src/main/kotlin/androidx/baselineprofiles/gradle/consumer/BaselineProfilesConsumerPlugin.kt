@@ -20,56 +20,84 @@ import androidx.baselineprofiles.gradle.utils.ATTRIBUTE_BUILD_TYPE
 import androidx.baselineprofiles.gradle.utils.ATTRIBUTE_CATEGORY_BASELINE_PROFILE
 import androidx.baselineprofiles.gradle.utils.ATTRIBUTE_FLAVOR
 import androidx.baselineprofiles.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
+import androidx.baselineprofiles.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofiles.gradle.utils.camelCase
+import androidx.baselineprofiles.gradle.utils.checkAgpVersion
+import androidx.baselineprofiles.gradle.utils.isGradleSyncRunning
+import androidx.baselineprofiles.gradle.utils.maybeRegister
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.TestedExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
-import org.gradle.api.tasks.StopExecutionException
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 
 /**
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
  * profiles three plugins are needed: one is applied to the app or the library that should consume
  * the baseline profile when building (consumer), one is applied to the project that should supply
- * the apk under test (build provider) and the last one is applied to a library module containing
+ * the apk under test (build provider) and the last one is applied to a test module containing
  * the ui test that generate the baseline profile on the device (producer).
  */
 class BaselineProfilesConsumerPlugin : Plugin<Project> {
 
     companion object {
-
-        // The output file for the HRF baseline profile file in `src/main`
-        private const val BASELINE_PROFILE_SRC_MAIN_FILENAME = "baseline-prof.txt"
+        private const val GENERATE_TASK_NAME = "generate"
     }
 
     override fun apply(project: Project) {
+        var foundAppOrLibraryPlugin = false
         project.pluginManager.withPlugin("com.android.application") {
-            configureWithAndroidPlugin(project = project, isApplication = true)
+            foundAppOrLibraryPlugin = true
+            configureWithAndroidPlugin(project = project)
         }
         project.pluginManager.withPlugin("com.android.library") {
-            configureWithAndroidPlugin(project = project, isApplication = false)
+            foundAppOrLibraryPlugin = true
+            configureWithAndroidPlugin(project = project)
+        }
+
+        // Only used to verify that the android application plugin has been applied.
+        // Note that we don't want to throw any exception if gradle sync is in progress.
+        project.afterEvaluate {
+            if (!project.isGradleSyncRunning()) {
+                if (!foundAppOrLibraryPlugin) {
+                    throw IllegalStateException(
+                        """
+                    The module ${project.name} does not have the `com.android.application` or
+                    `com.android.library` plugin applied. The `androidx.baselineprofiles.consumer`
+                    plugin supports only android application and library modules. Please review
+                    your build.gradle to ensure this plugin is applied to the correct module.
+                    """.trimIndent()
+                    )
+                }
+                project.logger.debug(
+                    """
+                    [BaselineProfilesConsumerPlugin] afterEvaluate check: app or library plugin
+                    was applied""".trimIndent()
+                )
+            }
         }
     }
 
-    private fun configureWithAndroidPlugin(project: Project, isApplication: Boolean) {
+    private fun configureWithAndroidPlugin(project: Project) {
 
-        // TODO (b/259737859): This code will be updated to use source sets for baseline profiles,
-        //  as soon androidx repo is updated to use AGP 8.0-beta01.
+        // Checks that the required AGP version is applied to this project.
+        project.checkAgpVersion()
 
+        // Prepares extensions used by the plugin
         val androidComponent = project.extensions.getByType(
             AndroidComponentsExtension::class.java
         )
 
-        val baselineProfilesExtension = BaselineProfilesConsumerExtension.registerExtension(project)
+        val baselineProfilesExtension =
+            BaselineProfilesConsumerExtension.registerExtension(project)
 
-        // Creates all the configurations, one per variant.
-        // Note that for this version of the plugin is not possible to rely entirely on the variant
-        // api so the actual creation of the tasks is postponed to be executed when all the
-        // agp tasks have been created, using the old api.
+        // Creates the main baseline profiles configuration
         val mainBaselineProfileConfiguration = createBaselineProfileConfigurationForVariant(
             project,
             variantName = "",
@@ -77,87 +105,145 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
             buildTypeName = "",
             mainConfiguration = null
         )
-        val baselineProfileConfigurations = mutableListOf<Configuration>()
-        val baselineProfileVariantNames = mutableListOf<String>()
+
+        // Checks that the extended build type exists
+        androidComponent.finalizeDsl {
+            it.buildTypes.findByName(baselineProfilesExtension.buildTypeName)
+                ?: if (!project.isGradleSyncRunning()) {
+                    throw IllegalArgumentException(
+                        """
+                            The build type `${baselineProfilesExtension.buildTypeName}` to generate
+                            baseline profiles does not exist. Please review build.gradle for the
+                            module ${project.name} and specify a release build type.
+                            """.trimIndent()
+                    )
+                } else {
+                    return@finalizeDsl
+                }
+        }
+
+        // This extension exists only if this is an android application module.
+        // If that's the case, we check that we're generating for a non debuggable build type.
+        project
+            .extensions
+            .findByType(ApplicationAndroidComponentsExtension::class.java)
+            ?.finalizeDsl {
+                if (it
+                        .buildTypes
+                        .findByName(baselineProfilesExtension.buildTypeName)
+                        ?.isDebuggable == true
+                ) {
+                    project.logger.warn(
+                        """
+                    The build type `${baselineProfilesExtension.buildTypeName}` to generate baseline
+                    profiles is a debuggable build type. In order to generate a baseline profile is
+                    advisable to utilize a release build type, to include release dependencies.
+                """.trimIndent()
+                    )
+                }
+            }
+
+        // Iterate variants to create per-variant tasks and configurations
         androidComponent.apply {
-            onVariants {
+            onVariants { variant ->
 
                 // Only create configurations for the build type expressed in the baseline profiles
                 // extension. Note that this can be removed after b/265438201.
-                if (it.buildType != baselineProfilesExtension.buildTypeName) {
+                if (variant.buildType != baselineProfilesExtension.buildTypeName) {
                     return@onVariants
                 }
 
-                baselineProfileConfigurations.add(
+                // Creates the configuration to carry the specific variant artifact
+                val baselineProfileConfiguration =
                     createBaselineProfileConfigurationForVariant(
                         project,
-                        variantName = it.name,
-                        flavorName = it.flavorName ?: "",
-                        buildTypeName = it.buildType ?: "",
+                        variantName = variant.name,
+                        flavorName = variant.flavorName ?: "",
+                        buildTypeName = variant.buildType ?: "",
                         mainConfiguration = mainBaselineProfileConfiguration
                     )
+
+                // Creates the task to merge the baseline profile artifacts coming from different
+                // configurations. Note that this is the last task of the chain that triggers the
+                // whole generation, hence it's called `generate`.
+                val genBaselineProfilesTaskProvider = project.tasks.register(
+                    camelCase(GENERATE_TASK_NAME, variant.name, "baselineProfiles"),
+                    GenerateBaselineProfileTask::class.java
+                ) { task ->
+
+                    // These are all the configurations this task depends on, in order to consume their
+                    // artifacts.
+                    task.baselineProfileFileCollection.setFrom(baselineProfileConfiguration)
+
+                    // This is the task output for the generated baseline profile
+                    task.baselineProfileDir.set(
+                        baselineProfilesExtension.baselineProfileOutputDir(
+                            project = project,
+                            variantName = variant.name
+                        )
+                    )
+
+                    // Sets the package filter rules
+                    task.filterRules.set(
+                        baselineProfilesExtension.filterRules
+                            .filter {
+                                it.key in listOfNotNull(
+                                    "main",
+                                    variant.flavorName,
+                                    variant.buildType,
+                                    variant.name
+                                )
+                            }
+                            .flatMap { it.value.rules }
+                    )
+                }
+
+                // The output folders for variant and main profiles are added as source dirs using
+                // source sets api. This cannot be done in the `configure` block of the generation
+                // task. The `onDemand` flag is checked here and the src set folder is chosen
+                // accordingly: if `true`, baseline profiles are saved in the src folder so they
+                // can be committed with srcs, if `false` they're stored in the generated build
+                // files.
+                variant.setBaselineProfileSrcSet(
+                    project = project,
+                    baselineProfilesExtension = baselineProfilesExtension,
+                    genBaselineProfilesTaskProvider = genBaselineProfilesTaskProvider
                 )
 
-                // Save this variant name so later we can use it to set a dependency on the
-                // merge/prepare art profile task for it.
-                baselineProfileVariantNames.add(it.name)
+                // Creates a build and flavor specific tasks, if not existing, to trigger all the
+                // variants for this build or flavor. Note that it's possible for the variant
+                // to be equal to the build type, if no flavor is specified.
+                if (variant.name != variant.buildType) {
+                    maybeCreateParentGenTask(
+                        project,
+                        variant.buildType,
+                        genBaselineProfilesTaskProvider
+                    )
+                }
+                maybeCreateParentGenTask(
+                    project = project,
+                    parentName = variant.flavorName,
+                    childGenerationTaskProvider = genBaselineProfilesTaskProvider
+                )
+                maybeCreateParentGenTask(
+                    project = project,
+                    parentName = "",
+                    childGenerationTaskProvider = genBaselineProfilesTaskProvider
+                )
             }
         }
+    }
 
-        // Now that the configurations are created, the tasks can be created. The consumer plugin
-        // can only be applied to either applications or libraries.
-        // Note that for this plugin does not use the new variant api as it tries to access to some
-        // AGP tasks that don't yet exist in the new variant api callback (b/262007432).
-        val extensionVariants =
-            when (val tested = project.extensions.getByType(TestedExtension::class.java)) {
-                is AppExtension -> tested.applicationVariants
-                is LibraryExtension -> tested.libraryVariants
-                else -> throw StopExecutionException(
-                    """
-                Unrecognized extension: $tested not of type AppExtension or LibraryExtension.
-                """.trimIndent()
-                )
-            }
-
-        // After variants have been resolved and the AGP tasks have been created add the plugin tasks.
-        var applied = false
-        extensionVariants.all {
-            if (applied) return@all
-            applied = true
-
-            // Currently the plugin does not support generating a baseline profile for a specific
-            // flavor: all the flavors are merged into one and copied in src/main/baseline-prof.txt.
-            // This can be changed after b/239659205 when baseline profiles become a source set.
-            val mergeBaselineProfilesTaskProvider = project.tasks.register(
-                "generateBaselineProfiles", MergeBaselineProfileTask::class.java
-            ) { task ->
-
-                // These are all the configurations this task depends on, in order to consume their
-                // artifacts.
-                task.baselineProfileFileCollection.setFrom(baselineProfileConfigurations)
-
-                // This is the output file where all the configurations will be merged in.
-                // Note that this file is overwritten.
-                task.baselineProfileFile.set(
-                    project
-                        .layout
-                        .projectDirectory
-                        .file("src/main/$BASELINE_PROFILE_SRC_MAIN_FILENAME")
-                )
-            }
-
-            // If this is an application the mergeBaselineProfilesTask must run before the
-            // tasks that handle the baseline profile packaging. Merge for applications, prepare
-            // for libraries. Note that this will change with AGP 8.0 that should support
-            // source sets for baseline profiles.
-            for (variantName in baselineProfileVariantNames) {
-                val taskProvider = if (isApplication) {
-                    project.tasks.named(camelCase("merge", variantName, "artProfile"))
-                } else {
-                    project.tasks.named(camelCase("prepare", variantName, "artProfile"))
-                }
-                taskProvider.configure { it.mustRunAfter(mergeBaselineProfilesTaskProvider) }
-            }
+    private fun maybeCreateParentGenTask(
+        project: Project,
+        parentName: String?,
+        childGenerationTaskProvider: TaskProvider<GenerateBaselineProfileTask>
+    ) {
+        if (parentName == null) return
+        project.tasks.maybeRegister<Task>(GENERATE_TASK_NAME, parentName, "baselineProfiles") {
+            it.group = "Baseline Profiles"
+            it.description = "Generates baseline profiles."
+            it.dependsOn(childGenerationTaskProvider)
         }
     }
 
@@ -237,5 +323,62 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                     )
                 }
             }
+    }
+}
+
+fun BaselineProfilesConsumerExtension.baselineProfileOutputDir(
+    project: Project,
+    variantName: String
+): Provider<Directory> =
+    if (onDemandGeneration) {
+
+        // In on demand mode, the baseline profile is regenerated when building
+        // release and it's not saved in the module sources. To achieve this
+        // we can create an intermediate folder for the profile and add the
+        // generation task to src sets.
+        project
+            .layout
+            .buildDirectory
+            .dir("$INTERMEDIATES_BASE_FOLDER/$variantName/")
+    } else {
+
+        // In periodic mode the baseline profile generation is manually triggered.
+        // The baseline profile is stored in the baseline profile sources for
+        // the variant.
+        project.providers.provider {
+            project
+                .layout
+                .projectDirectory
+                .dir("src/$variantName/$baselineProfileDir/")
+        }
+    }
+
+@Suppress("UnstableApiUsage")
+fun Variant.setBaselineProfileSrcSet(
+    project: Project,
+    baselineProfilesExtension: BaselineProfilesConsumerExtension,
+    genBaselineProfilesTaskProvider: TaskProvider<GenerateBaselineProfileTask>,
+) {
+
+    if (baselineProfilesExtension.onDemandGeneration) {
+        this.sources.baselineProfiles?.apply {
+            addGeneratedSourceDirectory(
+                genBaselineProfilesTaskProvider,
+                GenerateBaselineProfileTask::baselineProfileDir
+            )
+        }
+    } else {
+        val baselineProfileSourcesFile = baselineProfilesExtension
+            .baselineProfileOutputDir(project = project, variantName = name)
+            .get()
+            .asFile
+
+        // If the folder does not exist it means that the profile has not been generated
+        // so we don't need to add to sources.
+        if (baselineProfileSourcesFile.exists()) {
+            this.sources.baselineProfiles?.addStaticSourceDirectory(
+                baselineProfileSourcesFile.absolutePath
+            )
+        }
     }
 }

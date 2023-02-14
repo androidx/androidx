@@ -51,20 +51,21 @@ class BaselineProfilesBuildProviderPluginTest {
                 android {
                     namespace 'com.example.namespace'
                 }
-                tasks.register("printNonObfuscatedReleaseBuildType") {
-                    println(android.buildTypes.nonObfuscatedRelease)
+                tasks.register("printBuildType") {
+                    println(android.buildTypes.nonMinifiedRelease)
                 }
             """.trimIndent(),
             suffix = ""
         )
 
-        val buildTypeProperties = gradleRunner
-            .withArguments("printNonObfuscatedReleaseBuildType", "--stacktrace")
+        gradleRunner
+            .withArguments("printBuildType", "--stacktrace")
             .build()
             .output
-
-        assertThat(buildTypeProperties).contains("minifyEnabled=false")
-        assertThat(buildTypeProperties).contains("testCoverageEnabled=false")
-        assertThat(buildTypeProperties).contains("debuggable=false")
+            .also {
+                assertThat(it).contains("minifyEnabled=false")
+                assertThat(it).contains("testCoverageEnabled=false")
+                assertThat(it).contains("debuggable=false")
+            }
     }
 }
