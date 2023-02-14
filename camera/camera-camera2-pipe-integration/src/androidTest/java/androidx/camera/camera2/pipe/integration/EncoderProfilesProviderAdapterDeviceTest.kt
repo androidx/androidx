@@ -21,6 +21,8 @@ import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.media.EncoderProfiles.VideoProfile.YUV_420
 import android.os.Build
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.testing.CameraUtil
@@ -68,7 +70,6 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
 
     @Before
     fun setup() {
-        skipTestOnProblematicBuildsOfCuttlefishApi33()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
@@ -156,6 +157,7 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
     @Test
     fun afterApi33_hasSameContentAsEncoderProfiles() {
         Assume.assumeTrue(CamcorderProfile.hasProfile(quality))
+        skipTestOnDevicesWithProblematicBuild()
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
@@ -184,11 +186,14 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
         assertThat(audioProxy.profile).isEqualTo(audio.profile)
     }
 
-    private fun skipTestOnProblematicBuildsOfCuttlefishApi33() {
-        // Skip test for b/265613005
+    private fun skipTestOnDevicesWithProblematicBuild() {
+        // Skip test for b/265613005 and b/223439995
+        val hasVideoProfilesQuirk = DeviceQuirks[InvalidVideoProfilesQuirk::class.java] != null
+        val isProblematicCuttlefishBuild =
+            Build.MODEL.contains("Cuttlefish") && Build.ID.startsWith("TP1A")
         Assume.assumeFalse(
-            "Cuttlefish has null VideoProfile issue. Unable to test.",
-            Build.VERSION.SDK_INT == 33 && Build.ID.startsWith("TP1A")
+            "Skip test with null VideoProfile issue. Unable to test.",
+            hasVideoProfilesQuirk || isProblematicCuttlefishBuild
         )
     }
 }
