@@ -490,13 +490,16 @@ internal class SkiaBasedOwner(
         requestLayout()
     }
 
+    // A Stub for the PointerIconService required in Owner.kt
     override val pointerIconService: PointerIconService =
         object : PointerIconService {
-            override var current: PointerIcon
-                get() = desiredPointerIcon ?: PointerIcon.Default
-                set(value) {
-                    desiredPointerIcon = value
-                }
+            override fun getIcon(): PointerIcon {
+                return desiredPointerIcon ?: PointerIcon.Default
+            }
+
+            override fun setIcon(value: PointerIcon?) {
+                desiredPointerIcon = value
+            }
         }
 }
 

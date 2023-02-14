@@ -1242,7 +1242,6 @@ internal class AndroidComposeView(context: Context) :
             recalculateWindowPosition(motionEvent)
             forceUseMatrixCache = true
             measureAndLayout(sendPointerUpdate = false)
-            desiredPointerIcon = null
             val result = trace("AndroidOwner:onTouch") {
                 val action = motionEvent.actionMasked
                 val lastEvent = previousMotionEvent
@@ -1278,12 +1277,6 @@ internal class AndroidComposeView(context: Context) :
                 previousMotionEvent = MotionEvent.obtainNoHistory(motionEvent)
 
                 sendMotionEvent(motionEvent)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
-                    this,
-                    desiredPointerIcon
-                )
             }
             return result
         } finally {
@@ -1626,15 +1619,23 @@ internal class AndroidComposeView(context: Context) :
         return null
     }
 
-    private var desiredPointerIcon: PointerIcon? = null
-
     override val pointerIconService: PointerIconService =
         object : PointerIconService {
-            override var current: PointerIcon
-                get() = desiredPointerIcon ?: PointerIcon.Default
-                set(value) {
-                    desiredPointerIcon = value
+            private var currentIcon: PointerIcon = PointerIcon.Default
+
+            override fun getIcon(): PointerIcon {
+                return currentIcon
+            }
+
+            override fun setIcon(value: PointerIcon?) {
+                currentIcon = value ?: PointerIcon.Default
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
+                        this@AndroidComposeView,
+                        currentIcon
+                    )
                 }
+            }
         }
 
     /**
