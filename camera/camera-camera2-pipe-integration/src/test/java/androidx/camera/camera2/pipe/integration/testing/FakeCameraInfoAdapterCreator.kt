@@ -98,7 +98,8 @@ object FakeCameraInfoAdapterCreator {
             FocusMeteringControl(
                 cameraProperties,
                 state3AControl,
-                useCaseThreads
+                useCaseThreads,
+                FakeZoomCompat(),
             ).apply {
                 useCaseCamera = fakeUseCaseCamera
             }
