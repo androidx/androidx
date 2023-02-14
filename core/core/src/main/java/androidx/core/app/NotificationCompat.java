@@ -1278,9 +1278,6 @@ public class NotificationCompat {
         /**
          * Set the time that the event occurred.  Notifications in the panel are
          * sorted by this time.
-         *
-         * <p>For apps targeting {@link android.os.Build.VERSION_CODES#N} and above, this time is
-         * not shown anymore by default and must be opted into using {@link #setShowWhen(boolean)}
          */
         public @NonNull Builder setWhen(long when) {
             mNotification.when = when;
@@ -1289,10 +1286,7 @@ public class NotificationCompat {
 
         /**
          * Control whether the timestamp set with {@link #setWhen(long) setWhen} is shown
-         * in the content view.
-         *
-         * <p>For apps targeting {@link android.os.Build.VERSION_CODES#N} and above, this
-         * defaults to {@code false}. For earlier apps, the default is {@code true}.
+         * in the content view. The default is {@code true}.
          */
         public @NonNull Builder setShowWhen(boolean show) {
             mShowWhen = show;

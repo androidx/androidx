@@ -304,6 +304,11 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // notification is built successfully (without throwing an exception).
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
 
+        Notification nDefault = builder.build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertThat(NotificationCompat.getShowWhen(nDefault)).isTrue();
+        }
+
         // test true
         Notification nTrue = builder.setShowWhen(true).build();
         if (Build.VERSION.SDK_INT >= 19) {
