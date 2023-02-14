@@ -25,6 +25,7 @@ import androidx.annotation.AnyThread
 import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
+import androidx.core.util.Consumer
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -52,7 +53,6 @@ import androidx.wear.watchface.toApiFormat
 import androidx.wear.watchface.utility.TraceEvent
 import java.time.Instant
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 
 /** @hide */
 @IntDef(value = [DisconnectReasons.ENGINE_DIED, DisconnectReasons.ENGINE_DETACHED])

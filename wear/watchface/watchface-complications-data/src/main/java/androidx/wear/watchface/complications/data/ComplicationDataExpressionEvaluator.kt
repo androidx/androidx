@@ -20,6 +20,7 @@ import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import androidx.annotation.RestrictTo
+import androidx.core.util.Consumer
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
@@ -27,7 +28,6 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
