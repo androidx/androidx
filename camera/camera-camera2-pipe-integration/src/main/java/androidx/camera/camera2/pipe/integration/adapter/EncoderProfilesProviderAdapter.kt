@@ -51,6 +51,7 @@ class EncoderProfilesProviderAdapter(private val cameraIdString: String) : Encod
         cameraId = intCameraId
 
         // TODO(b/241296464): CamcorderProfileResolutionQuirk
+        // TODO(b/265613005): InvalidVideoProfilesQuirk
     }
 
     override fun hasProfile(quality: Int): Boolean {
