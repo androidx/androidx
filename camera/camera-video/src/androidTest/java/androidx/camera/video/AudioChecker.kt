@@ -24,7 +24,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.video.internal.AudioSource
 import androidx.camera.video.internal.FakeBufferProvider
-import androidx.camera.video.internal.config.AudioSourceSettingsCamcorderProfileResolver
+import androidx.camera.video.internal.config.AudioSourceSettingsAudioProfileResolver
 import androidx.camera.video.internal.encoder.FakeInputBuffer
 import androidx.concurrent.futures.await
 import kotlinx.coroutines.CompletableDeferred
@@ -56,16 +56,16 @@ class AudioChecker {
             cameraSelector: CameraSelector,
             qualitySelector: QualitySelector
         ) = runBlocking {
-            // Get audio source settings from CamcorderProfile
+            // Get audio source settings from EncoderProfiles
             val cameraInfo =
                 CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
             val videoCapabilities = VideoCapabilities.from(cameraInfo)
             val quality = qualitySelector.getPrioritizedQualities(cameraInfo).first()
             // Get a config using the default audio spec.
             val audioSourceSettings =
-                AudioSourceSettingsCamcorderProfileResolver(
+                AudioSourceSettingsAudioProfileResolver(
                     AudioSpec.builder().build(),
-                    videoCapabilities.getProfile(quality)!!
+                    videoCapabilities.getProfiles(quality)!!.defaultAudioProfile!!
                 ).get()
             val audioSource = AudioSource(audioSourceSettings, CameraXExecutors.ioExecutor(), null)
             try {

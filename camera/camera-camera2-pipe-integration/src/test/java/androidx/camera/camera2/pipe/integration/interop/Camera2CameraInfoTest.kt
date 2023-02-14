@@ -28,9 +28,9 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
-import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.lifecycle.LiveData
@@ -153,7 +153,7 @@ class Camera2CameraInfoTest {
                 throw NotImplementedError("Not used in testing")
             }
 
-            override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
+            override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
                 throw NotImplementedError("Not used in testing")
             }
 

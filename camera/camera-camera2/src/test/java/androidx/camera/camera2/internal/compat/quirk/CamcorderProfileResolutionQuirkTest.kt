@@ -23,8 +23,8 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_1080P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_2160P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_1080P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,10 +40,10 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class CamcorderProfileResolutionQuirkTest {
+class CamcorderProfileResolutionQuirkTest {
 
     @Test
-    public fun loadByHardwareLevel() {
+    fun loadByHardwareLevel() {
         var cameraCharacteristicsCompat =
             createCameraCharacteristicsCompat(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         assertThat(CamcorderProfileResolutionQuirk.load(cameraCharacteristicsCompat)).isFalse()
@@ -62,7 +62,7 @@ public class CamcorderProfileResolutionQuirkTest {
     }
 
     @Test
-    public fun canGetCorrectSupportedSizes() {
+    fun canGetCorrectSupportedSizes() {
         val cameraCharacteristicsCompat =
             createCameraCharacteristicsCompat(
                 supportedSizes = arrayOf(

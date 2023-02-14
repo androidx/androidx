@@ -22,7 +22,7 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.internal.AudioSource;
@@ -32,23 +32,23 @@ import androidx.core.util.Supplier;
 /**
  * An {@link AudioEncoderConfig} supplier that resolves requested encoder settings from an
  * {@link AudioSpec} for the given {@link AudioSource.Settings} using the provided
- * {@link CamcorderProfileProxy}.
+ * {@link AudioProfileProxy}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AudioEncoderConfigCamcorderProfileResolver implements
+public final class AudioEncoderConfigAudioProfileResolver implements
         Supplier<AudioEncoderConfig> {
 
-    private static final String TAG = "AudioEncCmcrdrPrflRslvr";
+    private static final String TAG = "AudioEncAdPrflRslvr";
 
     private final String mMimeType;
     private final Timebase mInputTimebase;
     private final int mAudioProfile;
     private final AudioSpec mAudioSpec;
     private final AudioSource.Settings mAudioSourceSettings;
-    private final CamcorderProfileProxy mCamcorderProfile;
+    private final AudioProfileProxy mAudioProfileProxy;
 
     /**
-     * Constructor for an AudioEncoderConfigCamcorderProfileResolver.
+     * Constructor for an AudioEncoderConfigAudioProfileResolver.
      *
      * @param mimeType            The mime type for the audio encoder
      * @param audioProfile        The profile required for the audio encoder
@@ -56,30 +56,30 @@ public final class AudioEncoderConfigCamcorderProfileResolver implements
      * @param audioSpec           The {@link AudioSpec} which defines the settings that should be
      *                            used with the audio encoder.
      * @param audioSourceSettings The settings used to configure the source of audio.
-     * @param camcorderProfile    The {@link CamcorderProfileProxy} used to resolve automatic and
+     * @param audioProfileProxy   The {@link AudioProfileProxy} used to resolve automatic and
      *                            range settings.
      */
-    public AudioEncoderConfigCamcorderProfileResolver(@NonNull String mimeType,
+    public AudioEncoderConfigAudioProfileResolver(@NonNull String mimeType,
             int audioProfile, @NonNull Timebase inputTimebase, @NonNull AudioSpec audioSpec,
             @NonNull AudioSource.Settings audioSourceSettings,
-            @NonNull CamcorderProfileProxy camcorderProfile) {
+            @NonNull AudioProfileProxy audioProfileProxy) {
         mMimeType = mimeType;
         mAudioProfile = audioProfile;
         mInputTimebase = inputTimebase;
         mAudioSpec = audioSpec;
         mAudioSourceSettings = audioSourceSettings;
-        mCamcorderProfile = camcorderProfile;
+        mAudioProfileProxy = audioProfileProxy;
     }
 
     @Override
     @NonNull
     public AudioEncoderConfig get() {
-        Logger.d(TAG, "Using resolved AUDIO bitrate from CamcorderProfile");
+        Logger.d(TAG, "Using resolved AUDIO bitrate from AudioProfile");
         Range<Integer> audioSpecBitrateRange = mAudioSpec.getBitrate();
         int resolvedBitrate = AudioConfigUtil.scaleAndClampBitrate(
-                mCamcorderProfile.getAudioBitRate(),
-                mAudioSourceSettings.getChannelCount(), mCamcorderProfile.getAudioChannels(),
-                mAudioSourceSettings.getSampleRate(), mCamcorderProfile.getAudioSampleRate(),
+                mAudioProfileProxy.getBitrate(),
+                mAudioSourceSettings.getChannelCount(), mAudioProfileProxy.getChannels(),
+                mAudioSourceSettings.getSampleRate(), mAudioProfileProxy.getSampleRate(),
                 audioSpecBitrateRange);
 
         return AudioEncoderConfig.builder()

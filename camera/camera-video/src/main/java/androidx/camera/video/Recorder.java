@@ -59,7 +59,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.MutableStateObservable;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.StateObservable;
@@ -74,6 +73,7 @@ import androidx.camera.core.internal.utils.RingBuffer;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.AudioSourceAccessException;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -346,7 +346,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mInProgressRecordingStopping = false;
     private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
-    private CamcorderProfileProxy mResolvedCamcorderProfile = null;
+    private VideoValidatedEncoderProfilesProxy mResolvedEncoderProfiles = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final List<ListenableFuture<Void>> mEncodingFutures = new ArrayList<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1041,17 +1041,17 @@ public final class Recorder implements VideoOutput {
         surfaceRequest.setTransformationInfoListener(mSequentialExecutor,
                 (transformationInfo) -> mSurfaceTransformationInfo = transformationInfo);
         Size surfaceSize = surfaceRequest.getResolution();
-        // Fetch and cache nearest camcorder profile, if one exists.
+        // Fetch and cache nearest encoder profiles, if one exists.
         VideoCapabilities capabilities =
                 VideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
         Quality highestSupportedQuality = capabilities.findHighestSupportedQualityFor(surfaceSize);
         Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
                 + " for surface size " + surfaceSize);
         if (highestSupportedQuality != Quality.NONE) {
-            mResolvedCamcorderProfile = capabilities.getProfile(highestSupportedQuality);
-            if (mResolvedCamcorderProfile == null) {
+            mResolvedEncoderProfiles = capabilities.getProfiles(highestSupportedQuality);
+            if (mResolvedEncoderProfiles == null) {
                 throw new AssertionError("Camera advertised available quality but did not "
-                        + "produce CamcorderProfile for advertised quality.");
+                        + "produce EncoderProfiles  for advertised quality.");
             }
         }
         setupVideo(surfaceRequest, videoSourceTimebase);
@@ -1071,7 +1071,7 @@ public final class Recorder implements VideoOutput {
             MediaSpec mediaSpec = getObservableData(mMediaSpec);
             ListenableFuture<Encoder> configureFuture =
                     videoEncoderSession.configure(request, timebase, mediaSpec,
-                            mResolvedCamcorderProfile);
+                            mResolvedEncoderProfiles);
             mVideoEncoderSession = videoEncoderSession;
             Futures.addCallback(configureFuture, new FutureCallback<Encoder>() {
                 @Override
@@ -1237,7 +1237,7 @@ public final class Recorder implements VideoOutput {
             throws AudioSourceAccessException, InvalidConfigException {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         // Resolve the audio mime info
-        MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec, mResolvedCamcorderProfile);
+        MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec, mResolvedEncoderProfiles);
         Timebase audioSourceTimebase = Timebase.UPTIME;
 
         // Select and create the audio source
@@ -1377,7 +1377,7 @@ public final class Recorder implements VideoOutput {
                 MediaSpec mediaSpec = getObservableData(mMediaSpec);
                 int muxerOutputFormat =
                         mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO
-                                ? supportedMuxerFormatOrDefaultFrom(mResolvedCamcorderProfile,
+                                ? supportedMuxerFormatOrDefaultFrom(mResolvedEncoderProfiles,
                                 MediaSpec.outputFormatToMuxerFormat(
                                         MEDIA_SPEC_DEFAULT.getOutputFormat()))
                                 : MediaSpec.outputFormatToMuxerFormat(mediaSpec.getOutputFormat());
@@ -2566,9 +2566,9 @@ public final class Recorder implements VideoOutput {
     }
 
     private static int supportedMuxerFormatOrDefaultFrom(
-            @Nullable CamcorderProfileProxy profileProxy, int defaultMuxerFormat) {
-        if (profileProxy != null) {
-            switch (profileProxy.getFileFormat()) {
+            @Nullable VideoValidatedEncoderProfilesProxy profilesProxy, int defaultMuxerFormat) {
+        if (profilesProxy != null) {
+            switch (profilesProxy.getRecommendedFileFormat()) {
                 case MediaRecorder.OutputFormat.MPEG_4:
                     return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
                 case MediaRecorder.OutputFormat.WEBM:

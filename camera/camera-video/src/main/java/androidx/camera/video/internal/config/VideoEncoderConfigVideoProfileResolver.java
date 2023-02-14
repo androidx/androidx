@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -32,49 +32,49 @@ import androidx.core.util.Supplier;
 /**
  * A {@link VideoEncoderConfig} supplier that resolves requested encoder settings from a
  * {@link VideoSpec} for the given surface {@link Size} using the provided
- * {@link CamcorderProfileProxy}.
+ * {@link VideoProfileProxy}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class VideoEncoderConfigCamcorderProfileResolver implements Supplier<VideoEncoderConfig> {
+public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEncoderConfig> {
 
-    private static final String TAG = "VidEncCmcrdrPrflRslvr";
+    private static final String TAG = "VidEncVdPrflRslvr";
 
     private final String mMimeType;
     private final Timebase mInputTimebase;
     private final VideoSpec mVideoSpec;
     private final Size mSurfaceSize;
-    private final CamcorderProfileProxy mCamcorderProfile;
+    private final VideoProfileProxy mVideoProfile;
     @Nullable
     private final Range<Integer> mExpectedFrameRateRange;
 
     /**
-     * Constructor for a VideoEncoderConfigCamcorderProfileResolver.
+     * Constructor for a VideoEncoderConfigVideoProfileResolver.
      *
      * @param mimeType         The mime type for the video encoder
      * @param inputTimebase    The timebase of the input frame
      * @param videoSpec        The {@link VideoSpec} which defines the settings that should be
      *                         used with the video encoder.
      * @param surfaceSize      The size of the surface required by the camera for the video encoder.
-     * @param camcorderProfile The {@link CamcorderProfileProxy} used to resolve automatic and
-     *                         range settings.
+     * @param videoProfile     The {@link VideoProfileProxy} used to resolve automatic and range
+     *                         settings.
      * @param expectedFrameRateRange The expected source frame rate range. This should act as an
      *                               envelope for any frame rate calculated from {@code videoSpec
-     *                               } and {@code camcorderProfile} since the source should not
+     *                               } and {@code videoProfile} since the source should not
      *                               produce frames at a frame rate outside this range. If {@code
      *                               null}, then no information about the source frame rate is
      *                               available and it does not need to be used in calculations.
      */
-    public VideoEncoderConfigCamcorderProfileResolver(@NonNull String mimeType,
+    public VideoEncoderConfigVideoProfileResolver(@NonNull String mimeType,
             @NonNull Timebase inputTimebase,
             @NonNull VideoSpec videoSpec,
             @NonNull Size surfaceSize,
-            @NonNull CamcorderProfileProxy camcorderProfile,
+            @NonNull VideoProfileProxy videoProfile,
             @Nullable Range<Integer> expectedFrameRateRange) {
         mMimeType = mimeType;
         mInputTimebase = inputTimebase;
         mVideoSpec = videoSpec;
         mSurfaceSize = surfaceSize;
-        mCamcorderProfile = camcorderProfile;
+        mVideoProfile = videoProfile;
         mExpectedFrameRateRange = expectedFrameRateRange;
     }
 
@@ -85,12 +85,12 @@ public class VideoEncoderConfigCamcorderProfileResolver implements Supplier<Vide
         Logger.d(TAG, "Resolved VIDEO frame rate: " + resolvedFrameRate + "fps");
 
         Range<Integer> videoSpecBitrateRange = mVideoSpec.getBitrate();
-        Logger.d(TAG, "Using resolved VIDEO bitrate from CamcorderProfile");
+        Logger.d(TAG, "Using resolved VIDEO bitrate from EncoderProfiles");
         int resolvedBitrate = VideoConfigUtil.scaleAndClampBitrate(
-                mCamcorderProfile.getVideoBitRate(),
-                resolvedFrameRate, mCamcorderProfile.getVideoFrameRate(),
-                mSurfaceSize.getWidth(), mCamcorderProfile.getVideoFrameWidth(),
-                mSurfaceSize.getHeight(), mCamcorderProfile.getVideoFrameHeight(),
+                mVideoProfile.getBitrate(),
+                resolvedFrameRate, mVideoProfile.getFrameRate(),
+                mSurfaceSize.getWidth(), mVideoProfile.getWidth(),
+                mSurfaceSize.getHeight(), mVideoProfile.getHeight(),
                 videoSpecBitrateRange);
 
         return VideoEncoderConfig.builder()
@@ -104,15 +104,15 @@ public class VideoEncoderConfigCamcorderProfileResolver implements Supplier<Vide
 
     private int resolveFrameRate() {
         Range<Integer> videoSpecFrameRateRange = mVideoSpec.getFrameRate();
-        int camcorderProfileVideoFrameRate = mCamcorderProfile.getVideoFrameRate();
+        int videoProfileFrameRate = mVideoProfile.getFrameRate();
         Logger.d(TAG,
-                String.format("Frame rate from camcorder profile: %dfps. [Requested range: %s, "
-                        + "Expected operating range: %s]", camcorderProfileVideoFrameRate,
+                String.format("Frame rate from video profile: %dfps. [Requested range: %s, "
+                        + "Expected operating range: %s]", videoProfileFrameRate,
                         videoSpecFrameRateRange, mExpectedFrameRateRange));
 
         return VideoConfigUtil.resolveFrameRate(
                 /*preferredRange=*/ videoSpecFrameRateRange,
-                /*exactFrameRateHint=*/ camcorderProfileVideoFrameRate,
+                /*exactFrameRateHint=*/ videoProfileFrameRate,
                 /*strictOperatingFpsRange=*/mExpectedFrameRateRange);
     }
 }
